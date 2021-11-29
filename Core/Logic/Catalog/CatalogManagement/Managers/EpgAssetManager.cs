@@ -366,11 +366,11 @@ namespace Core.Catalog.CatalogManagement
                 var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
                 if (epgAssetToUpdate.StartDate?.Date != oldEpgAsset.StartDate?.Date && isIngestV2)
                 {
-                    var epgChannelIds = new List<string> { epgAssetToUpdate.EpgChannelId.ToString() };
                     var epgIds = new List<long> { epgAssetToUpdate.Id };
-                    var deleteIndexResult = indexManager.DeleteProgram(epgIds, epgChannelIds);
+                    var deleteIndexResult = indexManager.DeleteProgram(epgIds);
                     if (deleteIndexResult)
                     {
+                        var epgChannelIds = new List<string> { epgAssetToUpdate.EpgChannelId.ToString() };
                         // invalidate epg's for OPC and NON-OPC accounts
                         InvalidateEpgs(groupId, epgIds, CatalogManager.Instance.DoesGroupUsesTemplates(groupId), epgChannelIds, true);
                     }
@@ -455,9 +455,8 @@ namespace Core.Catalog.CatalogManagement
 
             // Delete Index
             var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
-            var epgChannelIds = epgCbList.Select(x => x.ChannelID.ToString());
             var epgIds = new List<long>() { epgId };
-            var indexingResult = indexManager.DeleteProgram(epgIds, epgChannelIds);
+            var indexingResult = indexManager.DeleteProgram(epgIds);
             if (!indexingResult)
             {
                 log.ErrorFormat("Failed to delete epg index for assetId: {0}, groupId: {1} after DeleteEpgAsset", epgId, groupId);
@@ -465,6 +464,7 @@ namespace Core.Catalog.CatalogManagement
             else
             {
                 // invalidate epg's for OPC and NON-OPC accounts
+                var epgChannelIds = epgCbList.Select(x => x.ChannelID.ToString());
                 InvalidateEpgs(groupId, epgIds, CatalogManager.Instance.DoesGroupUsesTemplates(groupId), epgChannelIds, true);
             }
 

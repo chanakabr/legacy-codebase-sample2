@@ -86,9 +86,9 @@ namespace ApiLogic.Catalog.IndexManager
         }
 
         //CUD
-        public bool DeleteProgram(List<long> epgIds, IEnumerable<string> epgChannelIds)
+        public bool DeleteProgram(List<long> assetIds, bool isRecording = false)
         {
-            return Execute<bool>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, epgIds, epgChannelIds);
+            return Execute<bool>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, assetIds, isRecording);
         }
 
         //CUD

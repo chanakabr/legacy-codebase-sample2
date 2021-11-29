@@ -36,7 +36,7 @@ namespace Core.Pricing
 
         public abstract Collection GetCollectionData(string sCollectionCode, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bGetAlsoUnActive, int? couponGroupIdEqual);
 
-        public abstract CollectionsResponse GetCollectionsData(string[] oCollCodes, string sCountryCd, string sLanguageCode, string sDeviceName, int? couponGroupIdEqual);
+        public abstract CollectionsResponse GetCollectionsData(string[] oCollCodes, string sCountryCd, string sLanguageCode, string sDeviceName, int? couponGroupIdEqual, bool getAlsoInActive = false);
 
         public abstract IdsResponse GetCollectionIdsContainingMediaFile(int mediaId, int mediaFileId);
         

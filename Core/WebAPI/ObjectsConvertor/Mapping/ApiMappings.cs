@@ -110,26 +110,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // PinResponse
             cfg.CreateMap<PinResponse, WebAPI.Models.API.KalturaPinResponse>()
                 .ForMember(dest => dest.Origin, opt => opt.ResolveUsing(src => ConvertRuleLevel(src.level)))
-                .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))
+                .ForMember(dest => dest.Pin, opt => opt.MapFrom(src => src.pin))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.parental));
 
             // Pin
             cfg.CreateMap<PinResponse, WebAPI.Models.API.KalturaPin>()
                 .ForMember(dest => dest.Origin, opt => opt.ResolveUsing(src => ConvertRuleLevel(src.level)))
-                .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))
+                .ForMember(dest => dest.Pin, opt => opt.MapFrom(src => src.pin))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.parental));
 
             // Purchase Settings
             cfg.CreateMap<PurchaseSettingsResponse, WebAPI.Models.API.KalturaPurchaseSettings>()
                 .ForMember(dest => dest.Origin, opt => opt.ResolveUsing(src => ConvertRuleLevel(src.level)))
-                .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))
+                .ForMember(dest => dest.Pin, opt => opt.MapFrom(src => src.pin))
                 .ForMember(dest => dest.Permission, opt => opt.ResolveUsing(src => ConvertPurchaseSetting(src.type)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.purchase));
 
             // Purchase Settings Response
             cfg.CreateMap<PurchaseSettingsResponse, WebAPI.Models.API.KalturaPurchaseSettingsResponse>()
                 .ForMember(dest => dest.Origin, opt => opt.ResolveUsing(src => ConvertRuleLevel(src.level)))
-                .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))
+                .ForMember(dest => dest.Pin, opt => opt.MapFrom(src => src.pin))
                 .ForMember(dest => dest.PurchaseSettingsType, opt => opt.ResolveUsing(src => ConvertPurchaseSetting(src.type)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.purchase));
 

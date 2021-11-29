@@ -1,4 +1,6 @@
 ﻿using System.Threading.Tasks;
+using ApiLogic.Api.Managers;
+using ApiLogic.Catalog.CatalogManagement.Helpers;
 using ApiObjects;
 using Core.Metrics;
 using EventBus.RabbitMQ;
@@ -26,8 +28,10 @@ namespace EPGTransformationHandler
                     services.AddSingleton<IIngestProtectProcessor, IngestProtectProcessor>();
                     services.AddSingleton<IEpgDal, EpgDal>();
                     services.AddSingleton<ICatalogManagerAdapter, CatalogManagerAdapter>();
+                    services.AddSingleton(EpgAssetMultilingualMutator.Instance);
+                    services.AddSingleton<IRegionManager>(RegionManager.Instance);
                 })
-                .ConfigureEventBustConsumer(c =>
+                .ConfigureEventBusConsumer(c =>
                 {
                     c.DedicatedPartnerIdsResolver = () => GroupsFeatures.GetGroupsThatImplementFeature(GroupFeature.EPG_INGEST_V2);
                 });

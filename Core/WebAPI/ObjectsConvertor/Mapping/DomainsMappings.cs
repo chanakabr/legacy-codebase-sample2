@@ -79,7 +79,9 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.deviceFamilyName))
                 .ForMember(dest => dest.DeviceLimit, opt => opt.MapFrom(src => src.quantity))
                 .ForMember(dest => dest.ConcurrentLimit, opt => opt.MapFrom(src => src.concurrency))
-                .ForMember(dest => dest.Frequency, opt => opt.MapFrom(src => src.Frequency));
+                .ForMember(dest => dest.Frequency, opt => opt.MapFrom(src => src.Frequency))
+                .ForMember(dest => dest.IsDefaultConcurrentLimit, opt => opt.MapFrom(src => src.isDefaultConcurrency))
+                .ForMember(dest => dest.IsDefaultDeviceLimit, opt => opt.MapFrom(src => src.isDefaultQuantity));
 
             //KalturaHouseholdDeviceFamilyLimitations DeviceFamilyLimitations>
             cfg.CreateMap<KalturaHouseholdDeviceFamilyLimitations, DeviceFamilyLimitations>()

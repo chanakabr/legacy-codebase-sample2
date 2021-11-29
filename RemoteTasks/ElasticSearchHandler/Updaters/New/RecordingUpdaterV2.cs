@@ -67,7 +67,7 @@ namespace ElasticSearchHandler.Updaters
                 case ApiObjects.eAction.Off:
                 case ApiObjects.eAction.Delete:
                 {
-                    result = DeleteEpg(epgIds);
+                    result = DeleteEpg(epgIds, true);
                 }
                 break;
                 case ApiObjects.eAction.On:

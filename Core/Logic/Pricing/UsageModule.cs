@@ -30,8 +30,6 @@ namespace Core.Pricing
             m_bIsOfflinePlayBack = false;
         }
 
-
-      
         public void Initialize(Int32 nMaxNumberOfViews, Int32 tsViewLifeCycle, Int32 tsMaxUsageModuleLifeCycle, Int32 nObjectID, string sVirtualName, 
             bool bWaiver = false, int nWaiverPeriod = 0, bool bIsOfflinePlayback = false)
         {

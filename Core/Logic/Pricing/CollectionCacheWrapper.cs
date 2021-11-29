@@ -51,7 +51,7 @@ namespace Core.Pricing
             return res;
         }
 
-        public override CollectionsResponse GetCollectionsData(string[] oCollCodes, string sCountryCd, string sLanguageCode, string sDeviceName, int? couponGroupIdEqual)
+        public override CollectionsResponse GetCollectionsData(string[] oCollCodes, string sCountryCd, string sLanguageCode, string sDeviceName, int? couponGroupIdEqual, bool getAlsoInActive = false)
         {
             CollectionsResponse response = new CollectionsResponse()
             {
@@ -69,7 +69,7 @@ namespace Core.Pricing
                     if (string.IsNullOrEmpty(oCollCodes[i]) || collsToIndexMapping.ContainsKey(oCollCodes[i]))
                         continue;
                     string cacheKey = GetCollDataCacheKey(oCollCodes[i], false);
-                    Collection coll = null;
+                     Collection coll = null;
                     if (PricingCache.TryGetCollection(cacheKey, out coll) && coll != null)
                     {
                         set.Add(new SortedCollection(coll, i));
@@ -79,7 +79,7 @@ namespace Core.Pricing
                         collsToIndexMapping.Add(oCollCodes[i], i);
                         uncachedColls.Add(oCollCodes[i]);
                     }
-                } // for
+                } 
 
                 if (uncachedColls.Count > 0)
                 {
@@ -98,9 +98,7 @@ namespace Core.Pricing
                     if (filterByCouponGroup)
                     {
                         var value = couponGroupIdEqual.Value.ToString();
-                        collectionsResponse.Collections = collectionsResponse.Collections?
-                            .Where(x => x.m_oCouponsGroup.m_sGroupCode == value)
-                            .ToArray();
+                        collectionsResponse.Collections = collectionsResponse.Collections?.Where(x => x.m_oCouponsGroup.m_sGroupCode == value).ToArray();
                     }
 
                     if (collectionsResponse.Collections != null && collectionsResponse.Collections.Length > 0)
@@ -118,18 +116,25 @@ namespace Core.Pricing
                                 }
                                 set.Add(new SortedCollection(collectionsResponse.Collections[j], collsToIndexMapping[collectionsResponse.Collections[j].m_sObjectCode]));
                             }
-                        } // for
+                        } 
                     }
                 }
 
-                response.Collections = set.Select((item) => item.GetCollection).ToArray<Collection>();
+                List<Collection> collections = set.Select((item) => item.GetCollection).ToList();
+
+                if (!getAlsoInActive && collections?.Count > 0)
+                {
+                    collections = collections.Where((item) => item.IsActive.HasValue && item.IsActive.Value).ToList();
+                }
+
+                response.Collections = collections.ToArray<Collection>();
                 response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 return response;
             }
 
             return response;
-        }
-
+        }        
+       
         private class SortedCollection : IComparable<SortedCollection>
         {
             private Collection collection;

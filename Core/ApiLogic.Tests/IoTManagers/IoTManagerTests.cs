@@ -320,7 +320,7 @@ namespace ApiLogic.Tests.IoTManagers
             };
 
             var iotManager = new IotManager(
-                GetCatalogManagerMock(groupId, GroupsWithRegionalizationEnabled.Contains(groupId)).Object,
+                GetCatalogManagerMock(groupId, GroupIdWithRegionalizationEnabled.Contains(groupId)).Object,
                 _mockRepository.Create<IRegionManager>().Object,
                 GetNotificationCacheMock(groupId, settingsResponse).Object,
                 _mockRepository.Create<INotificationDal>().Object,

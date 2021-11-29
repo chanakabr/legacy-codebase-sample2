@@ -74,6 +74,7 @@
         public const string GET_USER_TO_ASSET_USER_RULE_IDS = "GetUserToAssetUserRuleIdsDB";
         public const string GET_GROUP_DISCOUNTS_LAYERED_CACHE_CONFIG_NAME = "GetGroupDiscounts";
         public const string GET_GROUP_PRICE_PLAN_LAYERED_CACHE_CONFIG_NAME = "GetPricePlan";
+        public const string GET_GROUP_USAGE_MODULE_LAYERED_CACHE_CONFIG_NAME = "GetUsageModule";
         public const string GET_DEVICE_CONCURRENCY_PRIORITY_FROM_CB = "GetDeviceConcurrencyPriorityCB";
         public const string GET_ALL_LINEAR_MEDIA = "GetAllLinearMedia";
         public const string GET_ADJACENT_PROGRAMS = "GetAdjacentPrograms";
@@ -83,6 +84,7 @@
         public const string GROUP_FEATURES_LAYERED_CACHE_CONFIG_NAME = "GetGroupFeatureStatus";
         public const string GET_DOMAIN_BUNDLES_LAYERED_CACHE_CONFIG_NAME = "GetDomainBundles";
         public const string PPV_MODULES_CACHE_CONFIG_NAME = "PPVModules";
+        public const string PPV_MODULE_CACHE_CONFIG_NAME = "PPVModule";
         public const string GET_BUSINESS_MODULE_RULE = "GetBusinessModuleRule";
         public const string GET_ALL_BUSINESS_MODULE_RULE_IDS = "GetAllBusinessModuleRuleIds";
         public const string GET_ALL_BUSINESS_MODULE_RULE_ACTION_TYPES = "GetAllBusinessModuleRuleActionTypes";
@@ -146,6 +148,7 @@
         public const string GET_GROUP_SUBSCRIPTION_ITEMS = "GetGroupSubscriptionItems";
         public const string GET_CUSTOM_FIELDS_PARTNER_CONFIG = "GetCustomFieldsPartnerConfigDB";
         public const string GET_GROUP_USING_ALIAS_NAMES = "GetGroupUsingAliasNames";
+        public const string LIST_SEARCH_PRIORITY_GROUPS_MAPPINGS = "ListSearchPriorityGroupsMappings";
 
         // DON'T you ever change the value of this static var even when its not aligned, changing will require sync integration and change tcm config
         public const string GET_MICROSERVICES_CANARY_CONFIGURATION = "GetCanaryConfiguration";
@@ -161,3 +164,4 @@
         #endregion
     }
 }
+

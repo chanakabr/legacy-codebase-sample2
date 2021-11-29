@@ -52,14 +52,21 @@ namespace IngestHandler
         private Lazy<IReadOnlyDictionary<long, List<int>>> _linearChannelToRegionsMap;
         private string _logPrefix;
         private readonly IEpgAssetMultilingualMutator _epgAssetMultilingualMutator;
+        private readonly IRegionManager _regionManager;
 
-        public BulkUploadIngestHandler(IIngestProtectProcessor ingestProtectProcessor, ICatalogManagerAdapter catalogManagerAdapter)
+        public BulkUploadIngestHandler(
+            IIngestProtectProcessor ingestProtectProcessor,
+            ICatalogManagerAdapter catalogManagerAdapter,
+            IEpgAssetMultilingualMutator epgAssetMultilingualMutator,
+            IRegionManager regionManager)
         {
             _ingestProtectProcessor = ingestProtectProcessor;
             _catalogManagerAdapter = catalogManagerAdapter;
             _couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.EPG);
             _ingestRetryPolicy = GetRetryPolicy<Exception>();
-            _epgAssetMultilingualMutator = EpgAssetMultilingualMutator.Instance;
+            _epgAssetMultilingualMutator = epgAssetMultilingualMutator
+                                           ?? throw new ArgumentNullException(nameof(epgAssetMultilingualMutator));
+            _regionManager = regionManager ?? throw new ArgumentNullException(nameof(regionManager));
         }
 
         public async Task Handle(BulkUploadIngestEvent serviceEvent)
@@ -195,7 +202,7 @@ namespace IngestHandler
             }
 
             _linearChannelToRegionsMap = new Lazy<IReadOnlyDictionary<long, List<int>>>(
-                () => RegionManager.Instance.GetLinearMediaToRegionsMapWhenEnabled(_eventData.GroupId));
+                () => _regionManager.GetLinearMediaToRegionsMapWhenEnabled(_eventData.GroupId));
         }
 
         private void ValidateServiceEvent()

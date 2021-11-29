@@ -81,7 +81,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "updaterId")]
         [JsonProperty("updaterId")]
-        [XmlElement(ElementName = "updaterId", IsNullable = true)]
+        [XmlElement(ElementName = "updaterId")]
         [SchemeProperty(ReadOnly = true)]
         public long UpdaterId { get; set; }
 

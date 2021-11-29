@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using ApiLogic.Users;
+using Core.Tests;
 using Core.Users;
 using DAL;
 using FluentAssertions;

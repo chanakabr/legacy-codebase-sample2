@@ -253,7 +253,7 @@ namespace Core.ConditionalAccess
 
                 if (priceReason == PriceReason.UnKnown)
                 {
-                    status.Set((int)eResponseStatus.UnknownPriceReason, "The subscription is unknown");
+                    status.Set((int)eResponseStatus.InvalidOffer, "This subscription is invalid");
                     log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
                     return status;
                 }
@@ -433,7 +433,7 @@ namespace Core.ConditionalAccess
 
                 if (priceReason == PriceReason.UnKnown)
                 {
-                    status.Set((int)eResponseStatus.UnknownPriceReason, "The collection is unknown");
+                    status.Set((int)eResponseStatus.InvalidOffer, "This collection is invalid");
                     log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
                     return status;
                 }

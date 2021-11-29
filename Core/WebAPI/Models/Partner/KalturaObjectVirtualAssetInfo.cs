@@ -41,6 +41,6 @@ namespace WebAPI.Models.Partner
         public SerializableDictionary<string, KalturaLongValue> ExtendedTypes { get; set; }
     }
 
-    public enum KalturaObjectVirtualAssetInfoType { Subscription = 0, Segment = 1, Category = 2 }
+    public enum KalturaObjectVirtualAssetInfoType { Subscription = 0, Segment = 1, Category = 2, Tvod = 3, Boxset = 4 }
 
 }

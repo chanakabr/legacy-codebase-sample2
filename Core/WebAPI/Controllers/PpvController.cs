@@ -1,9 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
+using ApiLogic.Pricing.Handlers;
+using ApiObjects.Pricing;
 using ApiObjects.Response;
+using Core.Pricing;
 using WebAPI.ClientManagers.Client;
+using WebAPI.Clients;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
 using WebAPI.Utils;
 
@@ -21,20 +27,14 @@ namespace WebAPI.Controllers
         [Action("get")]
         [ApiAuthorize]
         [Throws(eResponseStatus.ModuleNotExists)]
-        static public KalturaPpv Get(long id)
+        public static KalturaPpv Get(long id)
         {
             KalturaPpv response = null;
-
-            try
-            {
-                int groupId = KS.GetFromRequest().GroupId;
-                // call client                
-                response = ClientsManager.PricingClient().GetPPVModuleData(groupId, id);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
+            
+            int groupId = KS.GetFromRequest().GroupId;
+            // call client                
+            response = ClientsManager.PricingClient().GetPPVModuleData(groupId, id);
+ 
             return response;
         }
 
@@ -42,36 +42,117 @@ namespace WebAPI.Controllers
         /// Returns all ppv objects
         /// </summary>  
         /// <param name="filter">Filter parameters for filtering out the result</param>
+        /// <param name="pager">Page size and index</param>
         [Action("list")]
         [ApiAuthorize]
-        static public KalturaPpvListResponse List(KalturaPpvFilter filter = null)
+        public static KalturaPpvListResponse List(KalturaPpvFilter filter = null, KalturaFilterPager pager = null)
         {
-            KalturaPpvListResponse response = null;
+            KalturaPpvListResponse result = new KalturaPpvListResponse();
 
-            try
+            if (filter == null)
+                filter = new KalturaPpvFilter();
+            
+            if (pager == null)
+                pager = new KalturaFilterPager();
+            
+            var coreFilter = AutoMapper.Mapper.Map<PpvFilter>(filter);
+            int groupId = KS.GetFromRequest().GroupId;
+
+            Func<GenericListResponse<PPVModule>> getListFunc = () =>
+                PpvManager.Instance.GetPPVModules(groupId, filter?.GetIdIn(), false, filter.CouponGroupIdEqual,
+                    filter.AlsoInactive.HasValue ? filter.AlsoInactive.Value : false, coreFilter.OrderBy,
+                    pager.getPageIndex(), pager.getPageSize(), false);
+            KalturaGenericListResponse<KalturaPpv> response =
+                ClientUtils.GetResponseListFromWS<KalturaPpv, PPVModule>(getListFunc);
+
+            result.Ppvs = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+    }
+        
+        /// <summary>
+        /// Add new ppv
+        /// </summary>  
+        /// <param name="ppv">ppv objec</param>
+        [Action("add")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.PriceDetailsDoesNotExist)]
+        [Throws(eResponseStatus.UsageModuleDoesNotExist)]
+        [Throws(eResponseStatus.DiscountCodeNotExist)]
+        public static KalturaPpv Add(KalturaPpv ppv)
+        {
+            KalturaPpv result = null;
+            ppv.ValidateForAdd();
+            var contextData = KS.GetContextData();
+            
+            Func<PpvModuleInternal, GenericResponse<PpvModuleInternal>> insertPpvFunc = (ppvToInsert) =>
+                PpvManager.Instance.Add(contextData, ppvToInsert);
+            result = ClientUtils.GetResponseFromWS(ppv, insertPpvFunc);
+            
+            if (result != null)
             {
-                int groupId = KS.GetFromRequest().GroupId;
-
-                if (filter == null)
-                    filter = new KalturaPpvFilter();
-
-                if( filter.GetIdIn().Count > 0)
-                {
-                    // call client                
-                    response = ClientsManager.PricingClient().GetPPVModulesData(groupId, filter.GetIdIn(), filter.OrderBy, filter.CouponGroupIdEqual);
-                }
-                else
-                {
-                    // call client                
-                    response = ClientsManager.PricingClient().GetPPVModulesData(groupId, filter.OrderBy, filter.CouponGroupIdEqual);
-                }
+                Func<GenericResponse<PPVModule>> getFunc = () =>
+                    PpvManager.Instance.GetPpvById(contextData.GroupId, long.Parse(result.Id));
+                 result = ClientUtils.GetResponseFromWS<KalturaPpv, PPVModule>(getFunc);
             }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
+            
 
-            return response;
+            return result;
         }
+        
+        /// <summary>
+        /// Delete Ppv
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <param name="id">Ppv id</param>
+        [Action("delete")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.PpvModuleNotExist)]
+        public static bool Delete(long id)
+        {
+            bool result = false;
+
+            var contextData = KS.GetContextData();
+            
+            Func<Status> delete = () => PpvManager.Instance.Delete(contextData, id);
+
+            result = ClientUtils.GetResponseStatusFromWS(delete);
+
+            return result;
+        }
+        /// <summary>
+        /// Update ppv
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <param name="id">ppv id</param>
+        /// <param name="ppv">ppv Object</param>
+        [Action("update")]
+        [Throws(eResponseStatus.PpvModuleNotExist)]
+        [Throws(eResponseStatus.PriceDetailsDoesNotExist)]
+        [Throws(eResponseStatus.UsageModuleDoesNotExist)]
+        [Throws(eResponseStatus.DiscountCodeNotExist)]
+        [ApiAuthorize]
+        static public KalturaPpv Update(int id, KalturaPpv ppv)
+        {
+            KalturaPpv result = null;
+            var contextData = KS.GetContextData();
+            
+            Func<PpvModuleInternal, GenericResponse<PpvModuleInternal>> updateppvModuleFunc = ppvModuleForUpdate =>
+                PpvManager.Instance.Update(id, contextData, ppvModuleForUpdate);
+
+            result = ClientUtils.GetResponseFromWS(ppv, updateppvModuleFunc);
+            
+            if (result != null)
+            {
+                Func<GenericResponse<PPVModule>> getFunc = () =>
+                    PpvManager.Instance.GetPpvById(contextData.GroupId, long.Parse(result.Id), true);
+                result = ClientUtils.GetResponseFromWS<KalturaPpv, PPVModule>(getFunc);
+            }
+
+            return result;
+        }   
     }
 }

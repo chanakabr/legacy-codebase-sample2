@@ -1,64 +1,78 @@
-﻿using EventBus.Abstraction;
-using KLogMonitor;
-using System;
-using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using ApiLogic.Api.Managers;
 using ApiLogic.Notification;
 using ApiObjects.EventBus;
-using Core.Notification;
-using TVinciShared;
-using Newtonsoft.Json;
-using EpgNotificationHandler.DTO;
 using ApiObjects.Notification;
-using System.Linq;
-using EpgCacheGrpcClientWrapper;
+using Core.Catalog.CatalogManagement;
+using Core.Notification;
+using EpgNotificationHandler.Configuration;
+using EpgNotificationHandler.DTO;
+using EventBus.Abstraction;
+using KLogMonitor;
+using Newtonsoft.Json;
 using NotificationHandlers.Common;
-using Polly;
+using TVinciShared;
 
 namespace EpgNotificationHandler
 {
     // Regenerate service was the main branch when added this nuget(0.1.33-regenerate-service), can be changed in the future when needed
     public class EpgNotificationHandler : IServiceEventHandler<EpgNotificationEvent>
     {
-        private static readonly KLogger Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private const int MAX_SEND_DURATION = 30000; //30 seconds
-        private const int EpgCacheInMemoryCacheTTL = 10 * 1000; // 10 sec https://github.com/kaltura/ott-service-epgcache/blob/master/logic/clients/epg_cache.go#L81
-        private readonly IIotManager _manager;
+        private static readonly KLogger Logger = new KLogger(nameof(EpgNotificationHandler));
+        private readonly IIotManager _iotManager;
         private readonly INotificationCache _notificationCache;
+        private readonly ICatalogManager _catalogManager;
+        private readonly IRegionManager _regionManager;
+        private readonly IEpgNotificationConfiguration _configuration;
+        private readonly IIotNotificationService _iotNotificationService;
 
-        public EpgNotificationHandler(IIotManager manager, INotificationCache notificationCache)
+        public EpgNotificationHandler(
+            IEpgNotificationConfiguration configuration,
+            IIotManager iotManager,
+            INotificationCache notificationCache,
+            ICatalogManager catalogManager,
+            IRegionManager regionManager,
+            IIotNotificationService iotNotificationService)
         {
             Logger.Debug("Starting 'EpgNotificationHandler'");
-            _manager = manager;
-            _notificationCache = notificationCache;
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _iotManager = iotManager ?? throw new ArgumentNullException(nameof(iotManager));
+            _notificationCache = notificationCache ?? throw new ArgumentNullException(nameof(notificationCache));
+            _catalogManager = catalogManager ?? throw new ArgumentNullException(nameof(catalogManager));
+            _regionManager = regionManager ?? throw new ArgumentNullException(nameof(regionManager));
+            _iotNotificationService = iotNotificationService ?? throw new ArgumentNullException(nameof(iotNotificationService));
         }
 
         public async Task Handle(EpgNotificationEvent serviceEvent)
         {
             Logger.Debug($"Received event LiveAssetId:[{serviceEvent.LiveAssetId}], EpgChannelId:[{serviceEvent.EpgChannelId}]," +
                          $" range:[{serviceEvent.UpdatedRange.From},{serviceEvent.UpdatedRange.To}]");
+
             using (AppMetrics.EventDuration())
             {
                 try
                 {
-                    // WARNING!
-                    // This call should be in a separate service EpgCacheInvalidator.
-                    // If you need to make invalidation logic more complex (e.g. call several services, have some settings),
-                    // please, make refactoring and move this logic to a separate service (look at better-epg-notification-flow.puml)
-                    //await InvalidateEpgCache(serviceEvent);
-                    await Task.Delay(EpgCacheInMemoryCacheTTL); // need to be 100% sure that user will receive latest data from EpgCache
-                    // END WARNING
-                    
-                    if (SkipNotification(serviceEvent))
+                    var settingsResponse = _notificationCache.GetPartnerNotificationSettings(serviceEvent.GroupId);
+                    if (!CanHandleNotification(serviceEvent, settingsResponse))
                     {
                         AppMetrics.EventFiltered();
+
+                        return;
                     }
-                    else
-                    {
-                        await SendNotification(serviceEvent.GroupId, Serialize(serviceEvent));
-                        AppMetrics.EventSucceed();
-                    }
-                    
+
+                    // Don't need to invalidate CloudFront explicitly, for now CF will be invalidated by TTL.
+                    await Task.Delay(_configuration.CloudFrontInvalidationTtlInMs);
+
+                    var topics = BuildIotTopics(serviceEvent.GroupId, serviceEvent.LiveAssetId);
+                    var message = Serialize(serviceEvent);
+                    var notificationTasks = topics.Select(x => _iotNotificationService.SendNotificationAsync(serviceEvent.GroupId, message, x));
+                    await Task.WhenAll(notificationTasks);
+
+                    AppMetrics.EventSucceed();
+
                     Logger.Debug($"Event is handled successfully");
                 }
                 catch (Exception ex)
@@ -67,6 +81,26 @@ namespace EpgNotificationHandler
                     AppMetrics.EventFailed();
                 }
             }
+        }
+
+        private List<string> BuildIotTopics(int groupId, long linearAssetId)
+        {
+            if (!_catalogManager.IsRegionalizationEnabled(groupId))
+            {
+                return new List<string> { _iotManager.GetTopicFormat(groupId, EventType.epg_update) };
+            }
+
+            var linearMediaRegions = _regionManager.GetLinearMediaRegions(groupId);
+            if (!linearMediaRegions.TryGetValue(linearAssetId, out var regions))
+            {
+                Logger.Info($"Linear asset {linearAssetId} doesn't belong to any region. Skip notification.");
+
+                return Enumerable.Empty<string>().ToList();
+            }
+
+            return regions
+                .Select(x => _iotManager.GetRegionTopicFormat(groupId, EventType.epg_update, x))
+                .ToList();
         }
 
         // private async Task InvalidateEpgCache(EpgNotificationEvent serviceEvent)
@@ -95,26 +129,31 @@ namespace EpgNotificationHandler
         //     }
         // }
 
-        private bool SkipNotification(EpgNotificationEvent serviceEvent)
+        private static bool CanHandleNotification(EpgNotificationEvent serviceEvent, NotificationPartnerSettingsResponse settingsResponse)
         {
             if (serviceEvent.DisableEpgNotification)
             {
                 Logger.Debug($"EpgNotification is disabled");
-                return true;
+
+                return false;
             }
 
-            var ns = _notificationCache.GetPartnerNotificationSettings(serviceEvent.GroupId);
-            if (ns?.settings == null)
+            if (settingsResponse?.settings == null)
             {
                 Logger.Debug($"Group {serviceEvent.GroupId} No settings available, canceling");
+
+                return false;
+            }
+
+            if (CheckIfGroupSupportEpgUpdate(settingsResponse) &&
+                CheckIfEventDatesValid(settingsResponse, serviceEvent) &&
+                LiveAssetIdsExists(settingsResponse, serviceEvent))
+            {
                 return true;
             }
 
-            if (!CheckIfGroupSupportEpgUpdate(ns) || !CheckIfEventDatesValid(ns, serviceEvent) || !LiveAssetIdsExists(ns, serviceEvent))
-            {
-                Logger.Debug($"Group {serviceEvent.GroupId} Not Supporting Epg Update or event is invalid, canceling");
-                return true;
-            }
+            Logger.Debug($"Group {serviceEvent.GroupId} Not Supporting Epg Update or event is invalid, canceling");
+
             return false;
         }
 
@@ -166,44 +205,6 @@ namespace EpgNotificationHandler
             };
             var message = JsonConvert.SerializeObject(content);
             return message;
-        }
-
-        private async Task SendNotification(int groupId, string message)
-        {
-            var partitionsCount = _manager.GetTopicPartitionsCount();
-            var delay = partitionsCount == 1 ? 0 : MAX_SEND_DURATION / (partitionsCount - 1);
-            var topicFormat = _manager.GetTopicFormat(groupId, EventType.epg_update);
-            for (int partitionNumber = 0; partitionNumber < partitionsCount; partitionNumber++)
-            {
-                var topic = string.Format(topicFormat, partitionNumber);
-                using (AppMetrics.Iot.RequestDuration())
-                {
-                    try
-                    {
-                        if (_manager.PublishIotMessage(groupId, message, topic))
-                        {
-                            AppMetrics.Iot.RequestSucceed();
-                            Logger.Debug($"Iot: Message sent to topic: {topic}");
-                        }
-                        else
-                        {
-                            IotSendFailed(topic);
-                        }
-                    }
-                    catch (Exception exception)
-                    {
-                        IotSendFailed(topic, exception);
-                        throw;
-                    }
-                }
-                await Task.Delay(delay);
-            }
-        }
-
-        private static void IotSendFailed(string topic, Exception exception = null)
-        {
-            Logger.Error($"Iot: Failed to send message to topic: {topic}", exception);
-            AppMetrics.Iot.RequestFailed();
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
@@ -11,7 +12,9 @@ namespace WebAPI.Models.Pricing
     public enum KalturaPpvOrderBy
     {
         NAME_ASC,
-        NAME_DESC
+        NAME_DESC,
+        UPDATE_DATE_ASC,
+        UPDATE_DATE_DESC
     }
 
     /// <summary>
@@ -27,7 +30,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("idIn")]
         [XmlElement(ElementName = "idIn", IsNullable = true)]
         public string IdIn { get; set; }
-
+        
         /// <summary>
         /// couponGroupIdEqual
         /// </summary>
@@ -36,6 +39,16 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "couponGroupIdEqual", IsNullable = true)]
         public int? CouponGroupIdEqual { get; set; }
 
+        /// <summary>
+        /// return also inactive 
+        /// </summary>
+        [DataMember(Name = "alsoInactive")]
+        [JsonProperty("alsoInactive")]
+        [XmlElement(ElementName = "alsoInactive", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.ALL)]
+        public bool? AlsoInactive { get; set; }
+        
         public override KalturaPpvOrderBy GetDefaultOrderByValue()
         {
             return KalturaPpvOrderBy.NAME_ASC;

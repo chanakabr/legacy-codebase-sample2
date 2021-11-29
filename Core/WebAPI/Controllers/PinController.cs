@@ -110,12 +110,12 @@ namespace WebAPI.Controllers
                     if (type == KalturaPinType.parental)
                     {
                         // call client
-                        response = ClientsManager.ApiClient().SetUserParentalPIN(groupId, userId, pin.PIN, ruleId);
+                        response = ClientsManager.ApiClient().SetUserParentalPIN(groupId, userId, pin.Pin, ruleId);
                     }
                     else if (type == KalturaPinType.purchase)
                     {
                         // call client
-                        response = ClientsManager.ApiClient().SetUserPurchasePIN(groupId, userId, pin.PIN);
+                        response = ClientsManager.ApiClient().SetUserPurchasePIN(groupId, userId, pin.Pin);
                     }
                 }
                 else if (by == KalturaEntityReferenceBy.household)
@@ -125,12 +125,12 @@ namespace WebAPI.Controllers
                     if (type == KalturaPinType.parental)
                     {
                         // call client
-                        response = ClientsManager.ApiClient().SetDomainParentalPIN(groupId, householdId, pin.PIN, ruleId);
+                        response = ClientsManager.ApiClient().SetDomainParentalPIN(groupId, householdId, pin.Pin, ruleId);
                     }
                     else if (type == KalturaPinType.purchase)
                     {
                         // call client
-                        response = ClientsManager.ApiClient().SetDomainPurchasePIN(groupId, householdId, pin.PIN);
+                        response = ClientsManager.ApiClient().SetDomainPurchasePIN(groupId, householdId, pin.Pin);
                     }
                 }
             }

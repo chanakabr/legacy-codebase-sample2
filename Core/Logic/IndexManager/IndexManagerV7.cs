@@ -314,24 +314,25 @@ namespace Core.Catalog
             return true;
         }
 
-        public bool DeleteProgram(List<long> epgIds, IEnumerable<string> epgChannelIds)
+        public bool DeleteProgram(List<long> assetIds, bool isRecording = false)
         {
-            if (epgIds == null || epgIds.Count == 0)
+            if (assetIds == null || assetIds.Count == 0)
             {
                 return false;
             }
 
-            string index = NamingHelper.GetEpgIndexAlias(_partnerId);
+            string index = isRecording ? NamingHelper.GetRecordingIndexAlias(_partnerId) : NamingHelper.GetEpgIndexAlias(_partnerId);
+            
             var deleteResponse = _elasticClient.DeleteByQuery<NestEpg>(request => request
                 .Conflicts(Conflicts.Proceed)
                 .Index(index)
                 .Query(query => query
-                    .Terms(terms => terms.Field(epg => epg.EpgID).Terms<long>(epgIds))
-                    ));
+                    .Terms(terms => terms.Field(NestEpg => NestEpg.EpgID).Terms<long>(assetIds))
+                ));
 
             if (deleteResponse.VersionConflicts > 0)
             {
-                log.DebugFormat($"Got {deleteResponse.VersionConflicts} version conflicts when deleting epgs {string.Join(",", epgIds.Take(20))}");
+                log.DebugFormat($"Got {deleteResponse.VersionConflicts} version conflicts when deleting epgs {string.Join(",", assetIds.Take(20))}");
             }
 
             return deleteResponse.IsValid;
@@ -3743,7 +3744,7 @@ namespace Core.Catalog
 
                         var bulkRequest = new NestEsBulkRequest<NestIPv4>()
                         {
-                            DocID = nestObject.id,
+                            DocID = $"ipv4.{nestObject.id}",
                             Document = nestObject,
                             Index = newIndexName,
                             Operation = eOperation.index
@@ -3772,7 +3773,7 @@ namespace Core.Catalog
 
                         var bulkRequest = new NestEsBulkRequest<NestIPv6>()
                         {
-                            DocID = nestObject.id,
+                            DocID = $"ipv6.{nestObject.id}",
                             Document = nestObject,
                             Index = newIndexName,
                             Operation = eOperation.index

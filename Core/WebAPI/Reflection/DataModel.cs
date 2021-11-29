@@ -42,6 +42,7 @@ using WebAPI.Models.ConditionalAccess.FilterActions.Files;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
 using WebAPI.Models.Api;
+using WebAPI.Models.Catalog.SearchPriorityGroup;
 
 namespace WebAPI.Reflection
 {
@@ -1545,6 +1546,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaCategoryVersionListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaCDNAdapterProfile":
                     switch(property.Name)
                     {
@@ -1796,18 +1805,28 @@ namespace WebAPI.Reflection
                     {
                         case "Channels":
                             return "channels";
+                        case "ChannelsIds":
+                            return "channelsIds";
+                        case "CollectionCouponGroup":
+                            return "collectionCouponGroup";
                         case "CouponGroups":
                             return "couponsGroups";
+                        case "CreateDate":
+                            return "createDate";
                         case "Description":
                             return "description";
                         case "DiscountModule":
                             return "discountModule";
+                        case "DiscountModuleId":
+                            return "discountModuleId";
                         case "EndDate":
                             return "endDate";
                         case "ExternalId":
                             return "externalId";
                         case "Id":
                             return "id";
+                        case "IsActive":
+                            return "isActive";
                         case "Name":
                             return "name";
                         case "PriceDetailsId":
@@ -1816,14 +1835,34 @@ namespace WebAPI.Reflection
                             return "productCodes";
                         case "StartDate":
                             return "startDate";
+                        case "UpdateDate":
+                            return "updateDate";
                         case "UsageModule":
                             return "usageModule";
+                        case "UsageModuleId":
+                            return "usageModuleId";
+                        case "VirtualAssetId":
+                            return "virtualAssetId";
+                    }
+                    break;
+                    
+                case "KalturaCollectionCouponGroup":
+                    switch(property.Name)
+                    {
+                        case "CouponGroupId":
+                            return "id";
+                        case "EndDate":
+                            return "endDate";
+                        case "StartDate":
+                            return "startDate";
                     }
                     break;
                     
                 case "KalturaCollectionFilter":
                     switch(property.Name)
                     {
+                        case "AlsoInactive":
+                            return "alsoInactive";
                         case "CollectionIdIn":
                             return "collectionIdIn";
                         case "CouponGroupIdEqual":
@@ -3692,6 +3731,10 @@ namespace WebAPI.Reflection
                             return "deviceLimit";
                         case "Frequency":
                             return "frequency";
+                        case "IsDefaultConcurrentLimit":
+                            return "isDefaultConcurrentLimit ";
+                        case "IsDefaultDeviceLimit":
+                            return "isDefaultDeviceLimit";
                     }
                     break;
                     
@@ -5682,7 +5725,7 @@ namespace WebAPI.Reflection
                     {
                         case "Origin":
                             return "origin";
-                        case "PIN":
+                        case "Pin":
                             return "pin";
                         case "Type":
                             return "type";
@@ -5694,7 +5737,7 @@ namespace WebAPI.Reflection
                     {
                         case "Origin":
                             return "origin";
-                        case "PIN":
+                        case "Pin":
                             return "pin";
                         case "Type":
                             return "type";
@@ -5816,28 +5859,48 @@ namespace WebAPI.Reflection
                 case "KalturaPpv":
                     switch(property.Name)
                     {
+                        case "AdsPolicy":
+                            return "adsPolicy";
                         case "CouponsGroup":
                             return "couponsGroup";
+                        case "CouponsGroupId":
+                            return "couponsGroupId";
+                        case "CreateDate":
+                            return "createDate";
                         case "Descriptions":
                             return "descriptions";
+                        case "DiscountId":
+                            return "discountId";
                         case "DiscountModule":
                             return "discountModule";
                         case "FileTypes":
                             return "fileTypes";
+                        case "FileTypesIds":
+                            return "fileTypesIds";
                         case "FirstDeviceLimitation":
                             return "firstDeviceLimitation";
                         case "Id":
                             return "id";
+                        case "IsActive":
+                            return "isActive";
                         case "IsSubscriptionOnly":
                             return "isSubscriptionOnly";
                         case "Name":
                             return "name";
                         case "Price":
                             return "price";
+                        case "PriceDetailsId":
+                            return "priceDetailsId";
                         case "ProductCode":
                             return "productCode";
+                        case "UpdateDate":
+                            return "updateDate";
                         case "UsageModule":
                             return "usageModule";
+                        case "UsageModuleId":
+                            return "usageModuleId";
+                        case "VirtualAssetId":
+                            return "virtualAssetId";
                     }
                     break;
                     
@@ -5854,6 +5917,8 @@ namespace WebAPI.Reflection
                 case "KalturaPpvFilter":
                     switch(property.Name)
                     {
+                        case "AlsoInactive":
+                            return "alsoInactive";
                         case "CouponGroupIdEqual":
                             return "couponGroupIdEqual";
                         case "IdIn":
@@ -6386,6 +6451,8 @@ namespace WebAPI.Reflection
                             return "recordingId";
                         case "RecordingType":
                             return "recordingType";
+                        case "ViewableUntilDate":
+                            return "viewableUntilDate";
                     }
                     break;
                     
@@ -6722,6 +6789,8 @@ namespace WebAPI.Reflection
                             return "endDateLessThanOrNull";
                         case "RecordingTypeEqual":
                             return "recordingTypeEqual";
+                        case "SeriesIdsIn":
+                            return "seriesIdsIn";
                         case "StartDateGreaterThanOrNull":
                             return "startDateGreaterThanOrNull";
                     }
@@ -6784,6 +6853,54 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaSearchPriorityCriteria":
+                    switch(property.Name)
+                    {
+                        case "Type":
+                            return "type";
+                        case "Value":
+                            return "value";
+                    }
+                    break;
+                    
+                case "KalturaSearchPriorityGroup":
+                    switch(property.Name)
+                    {
+                        case "Criteria":
+                            return "criteria";
+                        case "Id":
+                            return "id";
+                        case "Name":
+                            return "name";
+                    }
+                    break;
+                    
+                case "KalturaSearchPriorityGroupFilter":
+                    switch(property.Name)
+                    {
+                        case "ActiveOnly":
+                            return "activeOnlyEqual";
+                        case "IdEqual":
+                            return "idEqual";
+                    }
+                    break;
+                    
+                case "KalturaSearchPriorityGroupListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaSearchPriorityGroupOrderedIdsSet":
+                    switch(property.Name)
+                    {
+                        case "PriorityGroupIds":
+                            return "priorityGroupIds";
                     }
                     break;
                     
@@ -7064,6 +7181,14 @@ namespace WebAPI.Reflection
                             return "settings";
                         case "SharedSecret":
                             return "sharedSecret";
+                    }
+                    break;
+                    
+                case "KalturaSmsAdapterProfileListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
                     }
                     break;
                     
@@ -8097,6 +8222,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaUsageModuleFilter":
+                    switch(property.Name)
+                    {
+                        case "IdEqual":
+                            return "idEqual";
+                    }
+                    break;
+                    
                 case "KalturaUsageModuleListResponse":
                     switch(property.Name)
                     {
@@ -8944,31 +9077,31 @@ namespace WebAPI.Reflection
                 case "categoryversion":
                     switch(action)
                     {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("categoryVersion", "add", false);
+                            return CategoryVersionController.Add((KalturaCategoryVersion) methodParams[0]);
+                            
                         case "createtree":
                             RolesManager.ValidateActionPermitted("categoryVersion", "createTree", false);
                             return CategoryVersionController.CreateTree((long) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("categoryVersion", "delete", false);
+                            CategoryVersionController.Delete((long) methodParams[0]);
+                            return null;
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("categoryVersion", "list", false);
+                            return CategoryVersionController.List((KalturaCategoryVersionFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "setdefault":
                             RolesManager.ValidateActionPermitted("categoryVersion", "setDefault", false);
                             CategoryVersionController.SetDefault((long) methodParams[0], (bool) methodParams[1]);
                             return null;
                             
-                        case "add":
-                            RolesManager.ValidateActionPermitted("categoryversion", "add");
-                            return CategoryVersionController.Add((KalturaCategoryVersion) methodParams[0]);
-                            
                         case "update":
-                            RolesManager.ValidateActionPermitted("categoryversion", "update");
+                            RolesManager.ValidateActionPermitted("categoryVersion", "update", false);
                             return CategoryVersionController.Update((long) methodParams[0], (KalturaCategoryVersion) methodParams[1]);
-                            
-                        case "delete":
-                            RolesManager.ValidateActionPermitted("categoryversion", "delete");
-                            CategoryVersionController.Delete((long) methodParams[0]);
-                            return null;
-                            
-                        case "list":
-                            RolesManager.ValidateActionPermitted("categoryversion", "list");
-                            return CategoryVersionController.List((KalturaCategoryVersionFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
                     break;
@@ -9124,6 +9257,10 @@ namespace WebAPI.Reflection
                         case "list":
                             RolesManager.ValidateActionPermitted("collection", "list", false);
                             return CollectionController.List((KalturaCollectionFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("collection", "update", false);
+                            return CollectionController.Update((long) methodParams[0], (KalturaCollection) methodParams[1]);
                             
                     }
                     break;
@@ -11376,13 +11513,25 @@ namespace WebAPI.Reflection
                 case "ppv":
                     switch(action)
                     {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("ppv", "add", false);
+                            return PpvController.Add((KalturaPpv) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("ppv", "delete", false);
+                            return PpvController.Delete((long) methodParams[0]);
+                            
                         case "get":
                             RolesManager.ValidateActionPermitted("ppv", "get", false);
                             return PpvController.Get((long) methodParams[0]);
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("ppv", "list", false);
-                            return PpvController.List((KalturaPpvFilter) methodParams[0]);
+                            return PpvController.List((KalturaPpvFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("ppv", "update", false);
+                            return PpvController.Update((int) methodParams[0], (KalturaPpv) methodParams[1]);
                             
                     }
                     break;
@@ -11731,6 +11880,42 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "searchprioritygroup":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("searchPriorityGroup", "add", false);
+                            return SearchPriorityGroupController.Add((KalturaSearchPriorityGroup) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("searchPriorityGroup", "delete", false);
+                            return SearchPriorityGroupController.Delete((int) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("searchPriorityGroup", "list", false);
+                            return SearchPriorityGroupController.List((KalturaSearchPriorityGroupFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("searchPriorityGroup", "update", false);
+                            return SearchPriorityGroupController.Update((long) methodParams[0], (KalturaSearchPriorityGroup) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "searchprioritygrouporderedidsset":
+                    switch(action)
+                    {
+                        case "get":
+                            RolesManager.ValidateActionPermitted("searchPriorityGroupOrderedIdsSet", "get", false);
+                            return SearchPriorityGroupOrderedListController.Get();
+                            
+                        case "set":
+                            RolesManager.ValidateActionPermitted("searchPriorityGroupOrderedIdsSet", "set", false);
+                            return SearchPriorityGroupOrderedListController.Set((KalturaSearchPriorityGroupOrderedIdsSet) methodParams[0]);
+                            
+                    }
+                    break;
+                    
                 case "segmentationtype":
                     switch(action)
                     {
@@ -11825,30 +12010,30 @@ namespace WebAPI.Reflection
                 case "smsadapterprofile":
                     switch(action)
                     {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("smsAdapterProfile", "add", false);
+                            return SmsAdapterProfileController.Add((KalturaSmsAdapterProfile) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("smsAdapterProfile", "delete", false);
+                            SmsAdapterProfileController.Delete((long) methodParams[0]);
+                            return null;
+                            
                         case "generatesharedsecret":
                             RolesManager.ValidateActionPermitted("smsAdapterProfile", "generateSharedSecret", false);
                             return SmsAdapterProfileController.GenerateSharedSecret((int) methodParams[0]);
                             
-                        case "add":
-                            RolesManager.ValidateActionPermitted("smsadapterprofile", "add");
-                            return SmsAdapterProfileController.Add((KalturaSmsAdapterProfile) methodParams[0]);
-                            
-                        case "update":
-                            RolesManager.ValidateActionPermitted("smsadapterprofile", "update");
-                            return SmsAdapterProfileController.Update((long) methodParams[0], (KalturaSmsAdapterProfile) methodParams[1]);
-                            
                         case "get":
-                            RolesManager.ValidateActionPermitted("smsadapterprofile", "get");
+                            RolesManager.ValidateActionPermitted("smsAdapterProfile", "get", false);
                             return SmsAdapterProfileController.Get((long) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("smsadapterprofile", "list");
+                            RolesManager.ValidateActionPermitted("smsAdapterProfile", "list", false);
                             return SmsAdapterProfileController.List((KalturaSmsAdapterProfileFilter) methodParams[0]);
                             
-                        case "delete":
-                            RolesManager.ValidateActionPermitted("smsadapterprofile", "delete");
-                            SmsAdapterProfileController.Delete((long) methodParams[0]);
-                            return null;
+                        case "update":
+                            RolesManager.ValidateActionPermitted("smsAdapterProfile", "update", false);
+                            return SmsAdapterProfileController.Update((long) methodParams[0], (KalturaSmsAdapterProfile) methodParams[1]);
                             
                     }
                     break;
@@ -12399,7 +12584,11 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("usageModule", "list", false);
-                            return UsageModuleController.List();
+                            return UsageModuleController.List((KalturaUsageModuleFilter) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("usageModule", "update", false);
+                            return UsageModuleController.Update((int) methodParams[0], (KalturaUsageModule) methodParams[1]);
                             
                     }
                     break;
@@ -14733,6 +14922,14 @@ namespace WebAPI.Reflection
                 case "categoryversion":
                     switch(action)
                     {
+                        case "add":
+                            ret.Add("objectToAdd", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCategoryVersion),
+                            });
+                            return ret;
+                            
                         case "createtree":
                             ret.Add("categoryItemId", new MethodParam(){
                                 NewName = newParamName,
@@ -14745,6 +14942,36 @@ namespace WebAPI.Reflection
                             ret.Add("comment", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "categoryVersion", "delete") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCategoryVersionFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
                             });
                             return ret;
                             
@@ -14761,45 +14988,23 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
-                        case "add":
-                            ret.Add("objectToAdd", new MethodParam(){
-                                NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaCategoryVersion),
-                            });
-                            return ret;
-                            
                         case "update":
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "categoryVersion", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
+                                },
                             });
                             ret.Add("objectToUpdate", new MethodParam(){
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaCategoryVersion),
-                            });
-                            return ret;
-                            
-                        case "delete":
-                            ret.Add("id", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
-                            });
-                            return ret;
-                            
-                        case "list":
-                            ret.Add("filter", new MethodParam(){
-                                NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaCategoryVersionFilter),
-                            });
-                            ret.Add("pager", new MethodParam(){
-                                NewName = newParamName,
-                                IsOptional = true,
-                                DefaultValue = null,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaFilterPager),
                             });
                             return ret;
                             
@@ -15083,6 +15288,26 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "collection", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
+                                },
+                            });
+                            ret.Add("collection", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCollection),
                             });
                             return ret;
                             
@@ -19837,6 +20062,21 @@ namespace WebAPI.Reflection
                 case "ppv":
                     switch(action)
                     {
+                        case "add":
+                            ret.Add("ppv", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPpv),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
                         case "get":
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
@@ -19851,6 +20091,25 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPpvFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            ret.Add("ppv", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPpv),
                             });
                             return ret;
                             
@@ -20535,6 +20794,71 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "searchprioritygroup":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("searchPriorityGroup", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSearchPriorityGroup),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSearchPriorityGroupFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("searchPriorityGroup", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSearchPriorityGroup),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "searchprioritygrouporderedidsset":
+                    switch(action)
+                    {
+                        case "get":
+                            return ret;
+                            
+                        case "set":
+                            ret.Add("orderedList", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSearchPriorityGroupOrderedIdsSet),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
                 case "segmentationtype":
                     switch(action)
                     {
@@ -20780,13 +21104,6 @@ namespace WebAPI.Reflection
                 case "smsadapterprofile":
                     switch(action)
                     {
-                        case "generatesharedsecret":
-                            ret.Add("smsAdapterId", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(int),
-                            });
-                            return ret;
-                            
                         case "add":
                             ret.Add("objectToAdd", new MethodParam(){
                                 NewName = newParamName,
@@ -20795,15 +21112,25 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
-                        case "update":
+                        case "delete":
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "smsAdapterProfile", "delete") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
+                                },
                             });
-                            ret.Add("objectToUpdate", new MethodParam(){
+                            return ret;
+                            
+                        case "generatesharedsecret":
+                            ret.Add("smsAdapterId", new MethodParam(){
                                 NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaSmsAdapterProfile),
+                                Type = typeof(int),
                             });
                             return ret;
                             
@@ -20811,21 +21138,44 @@ namespace WebAPI.Reflection
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "smsAdapterProfile", "get") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
+                                },
                             });
                             return ret;
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaSmsAdapterProfileFilter),
                             });
                             return ret;
                             
-                        case "delete":
+                        case "update":
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "smsAdapterProfile", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
+                                },
+                            });
+                            ret.Add("objectToUpdate", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSmsAdapterProfile),
                             });
                             return ret;
                             
@@ -22066,6 +22416,25 @@ namespace WebAPI.Reflection
                             return ret;
                             
                         case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaUsageModuleFilter),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            ret.Add("usageModule", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaUsageModule),
+                            });
                             return ret;
                             
                     }

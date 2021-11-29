@@ -16,6 +16,8 @@ namespace Core.Users
         public int quantity { get; set; }
 
         public int Frequency { get; set; }
+        public bool? isDefaultConcurrency { get; set; }
+        public bool? isDefaultQuantity { get; set; }
 
         public DeviceFamilyLimitations()
         {
@@ -29,7 +31,5 @@ namespace Core.Users
             this.deviceFamilyName = sDeviceFamilyName;
             this.Frequency = frequency;
         }
-
-
     }
 }

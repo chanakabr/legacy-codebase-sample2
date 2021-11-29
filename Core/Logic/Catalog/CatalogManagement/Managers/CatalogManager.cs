@@ -1,4 +1,10 @@
-﻿using ApiLogic.Api.Managers;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using ApiLogic.Api.Managers;
 using ApiLogic.Catalog.CatalogManagement.Repositories;
 using ApiObjects;
 using ApiObjects.Catalog;
@@ -10,21 +16,14 @@ using ConfigurationManager;
 using Core.Catalog.Cache;
 using Core.Catalog.Response;
 using Core.GroupManagers;
+using Core.GroupManagers.Adapters;
 using DAL;
 using DAL.DTO;
 using GroupsCacheManager;
 using KLogMonitor;
 using Newtonsoft.Json;
+using ODBCWrapper;
 using QueueWrapper;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using ApiLogic.Catalog;
-using Core.GroupManagers.Adapters;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using MetaType = ApiObjects.MetaType;
@@ -73,7 +72,7 @@ namespace Core.Catalog.CatalogManagement
         #endregion
 
         private static readonly Lazy<CatalogManager> lazy = new Lazy<CatalogManager>(() =>
-                new CatalogManager(new LabelRepository(),
+                new CatalogManager(LabelRepository.Instance,
                     LayeredCache.Instance,
                     AssetStructMetaRepository.Instance,
                     GroupSettingsManagerAdapter.Instance,
@@ -500,9 +499,9 @@ namespace Core.Catalog.CatalogManagement
             return metaType;
         }
 
-        private static GenericResponse<ApiObjects.SearchObjects.TagValue> CreateTagValueFromDataSet(DataSet ds)
+        private static GenericResponse<TagValue> CreateTagValueFromDataSet(DataSet ds)
         {
-            var response = new GenericResponse<ApiObjects.SearchObjects.TagValue>();
+            var response = new GenericResponse<TagValue>();
             response.SetStatus(eResponseStatus.TagDoesNotExist);
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
@@ -532,9 +531,9 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        private static ApiObjects.SearchObjects.TagValue CreateTag(long id, DataRow dr, List<DataRow> tagTranslations)
+        private static TagValue CreateTag(long id, DataRow dr, List<DataRow> tagTranslations)
         {
-            ApiObjects.SearchObjects.TagValue result = null;
+            TagValue result = null;
             if (id > 0)
             {
                 string name = ODBCWrapper.Utils.GetSafeStr(dr, "value");
@@ -555,7 +554,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                result = new ApiObjects.SearchObjects.TagValue()
+                result = new TagValue()
                 {
                     value = name,
                     tagId = id,
@@ -725,14 +724,14 @@ namespace Core.Catalog.CatalogManagement
         private static AssetStructMeta CreateAssetStructMeta(DataRow dr, long assetStructId, long metaId)
         {
             var dto = AssetStructMetaRepository.CreateAssetStructMetaDTO(dr, assetStructId, metaId);
-            return CatalogManager.Instance.ConvertFromDto(dto);
+            return Instance.ConvertFromDto(dto);
         }
 
         private static string GetConnectingMetaValue(Topic topic, Asset mediaAsset)
         {
             string connectingMetaValue = string.Empty;
 
-            // take only asset that need to be updated                    
+            // take only asset that need to be updated
             if (topic.Type == MetaType.Tag)
             {
                 var tag = mediaAsset.Tags.FirstOrDefault(x => x.m_oTagMeta.m_sName == topic.SystemName);
@@ -758,7 +757,7 @@ namespace Core.Catalog.CatalogManagement
             foreach (Asset childAsset in childAssets)
             {
                 bool update = false;
-                // take only asset that need to be updated                    
+                // take only asset that need to be updated
                 if (inhertiedTopic.Type == MetaType.Tag)
                 {
                     int tagIndex = -1;
@@ -928,7 +927,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 eAction action = shouldDeleteAssets ? eAction.Delete : eAction.Update;
                 // update medias index
-                if (!Core.Catalog.Module.Instance.UpdateIndex(mediaIds, groupId, action))
+                if (!Module.Instance.UpdateIndex(mediaIds, groupId, action))
                 {
                     result = false;
                     log.ErrorFormat("Error while update Media index. groupId:{0}, mediaIds:{1}", groupId, string.Join(",", mediaIds));
@@ -967,7 +966,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 eAction action = shouldDeleteAssets ? eAction.Delete : eAction.Update;
                 // update medias index
-                if (!Core.Catalog.Module.Instance.UpdateIndex(mediaIds, groupId, action))
+                if (!Module.Instance.UpdateIndex(mediaIds, groupId, action))
                 {
                     result = false;
                     log.ErrorFormat("Error while update Media index. groupId:{0}, mediaIds:{1}", groupId, string.Join(",", mediaIds));
@@ -1225,7 +1224,7 @@ namespace Core.Catalog.CatalogManagement
                             if (!string.IsNullOrEmpty(connectingMetaValue))
                             {
                                 string filter = string.Format("(and asset_type='{0}' {1}='{2}' inheritance_policy='0')", connectedAssetStruct.Id, childConectingTopic.SystemName, connectingMetaValue);
-                                UnifiedSearchResult[] childAssetIds = Core.Catalog.Utils.SearchAssets(groupId, filter, 0, 0, false, true);
+                                UnifiedSearchResult[] childAssetIds = Utils.SearchAssets(groupId, filter, 0, 0, false, true);
 
                                 if (childAssetIds == null || childAssetIds.Length == 0)
                                 {
@@ -1254,15 +1253,15 @@ namespace Core.Catalog.CatalogManagement
 
         #endregion
 
-        #region Public Methods        
+        #region Public Methods
 
         /// <summary>
         /// This method is here for backward compatability, redirecting all calls to the main method in GroupSettingsManager.
-        /// This was done to avoid solution wide chanages 
+        /// This was done to avoid solution wide chanages
         /// </summary>
         public bool DoesGroupUsesTemplates(int groupId)
         {
-            return Core.GroupManagers.GroupSettingsManager.DoesGroupUsesTemplates(groupId);
+            return GroupSettingsManager.DoesGroupUsesTemplates(groupId);
         }
 
         public bool TryGetCatalogGroupCacheFromCache(int groupId, out CatalogGroupCache catalogGroupCache)
@@ -1448,7 +1447,7 @@ namespace Core.Catalog.CatalogManagement
                     isProgramStruct = true;
                 }
 
-                // validate basic metas     
+                // validate basic metas
                 if (!isProgramStruct)
                 {
                     Status validateBasicMetasResult = assetStructToadd.ValidateBasicMetaIds(catalogGroupCache, isProgramStruct);
@@ -1963,15 +1962,15 @@ namespace Core.Catalog.CatalogManagement
                     return searchKeys;
                 }
 
-                List<string> tags = catalogGroupCache.TopicsMapBySystemNameAndByType.Where(x => !TopicsToIgnore.Contains(x.Key) && x.Value.ContainsKey(ApiObjects.MetaType.Tag.ToString()))
+                List<string> tags = catalogGroupCache.TopicsMapBySystemNameAndByType.Where(x => !TopicsToIgnore.Contains(x.Key) && x.Value.ContainsKey(MetaType.Tag.ToString()))
                                                                                     .Select(x => x.Key).ToList();
 
                 List<string> metas = catalogGroupCache.TopicsMapBySystemNameAndByType.Where(x => !TopicsToIgnore.Contains(x.Key)
-                                                                                                && (x.Value.ContainsKey(ApiObjects.MetaType.String.ToString())
-                                                                                                    || x.Value.ContainsKey(ApiObjects.MetaType.MultilingualString.ToString())
-                                                                                                    || x.Value.ContainsKey(ApiObjects.MetaType.Number.ToString())
-                                                                                                    || x.Value.ContainsKey(ApiObjects.MetaType.Bool.ToString())
-                                                                                                    || x.Value.ContainsKey(ApiObjects.MetaType.DateTime.ToString())))
+                                                                                                && (x.Value.ContainsKey(MetaType.String.ToString())
+                                                                                                    || x.Value.ContainsKey(MetaType.MultilingualString.ToString())
+                                                                                                    || x.Value.ContainsKey(MetaType.Number.ToString())
+                                                                                                    || x.Value.ContainsKey(MetaType.Bool.ToString())
+                                                                                                    || x.Value.ContainsKey(MetaType.DateTime.ToString())))
                                                                                      .Select(x => x.Key).ToList();
                 if (originalKey.StartsWith("tags."))
                 {
@@ -2082,13 +2081,13 @@ namespace Core.Catalog.CatalogManagement
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="groupId"></param>
         /// <returns></returns>
-        public List<ApiObjects.SearchObjects.TagValue> GetAllTagValues(int groupId)
+        public List<TagValue> GetAllTagValues(int groupId)
         {
-            List<ApiObjects.SearchObjects.TagValue> result = new List<ApiObjects.SearchObjects.TagValue>();
+            List<TagValue> result = new List<TagValue>();
 
             CatalogGroupCache catalogGroupCache;
             if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
@@ -2130,7 +2129,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         Topic topic = catalogGroupCache.TopicsMapById[topicId];
 
-                        result.Add(new ApiObjects.SearchObjects.TagValue()
+                        result.Add(new TagValue()
                         {
                             createDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(createDate),
                             languageId = defaultLanguage,
@@ -2160,7 +2159,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         Topic topic = catalogGroupCache.TopicsMapById[topicId];
 
-                        result.Add(new ApiObjects.SearchObjects.TagValue()
+                        result.Add(new TagValue()
                         {
                             createDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(createDate),
                             languageId = languageId,
@@ -2176,9 +2175,9 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public GenericResponse<ApiObjects.SearchObjects.TagValue> AddTag(int groupId, ApiObjects.SearchObjects.TagValue tag, long userId, bool isFromIngest = false)
+        public GenericResponse<TagValue> AddTag(int groupId, TagValue tag, long userId, bool isFromIngest = false)
         {
-            GenericResponse<ApiObjects.SearchObjects.TagValue> result = new GenericResponse<ApiObjects.SearchObjects.TagValue>();
+            GenericResponse<TagValue> result = new GenericResponse<TagValue>();
             try
             {
                 List<KeyValuePair<string, string>> languageCodeToName = new List<KeyValuePair<string, string>>();
@@ -2231,14 +2230,14 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static GenericResponse<ApiObjects.SearchObjects.TagValue> UpdateTag(int groupId, ApiObjects.SearchObjects.TagValue tagToUpdate, long userId, bool isFromIngest = false)
+        public static GenericResponse<TagValue> UpdateTag(int groupId, TagValue tagToUpdate, long userId, bool isFromIngest = false)
         {
-            var result = new GenericResponse<ApiObjects.SearchObjects.TagValue>();
+            var result = new GenericResponse<TagValue>();
 
             try
             {
                 CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateTag", groupId);
                     return result;
@@ -2303,7 +2302,7 @@ namespace Core.Catalog.CatalogManagement
                         log.ErrorFormat("Failed to InvalidateCacheForTagAssets after UpdateTag for groupId: {0}, tagId: {1}", groupId, tagToUpdate.tagId);
                     }
 
-                    // 
+                    //
                     // TODO: REMOVE THIS ONCE DONE WITH REST OF PARTIAL UPDATE
                     //
                     InvalidateCacheAndUpdateIndexForAssets(groupId, false, mediaIds, epgIds);
@@ -2335,12 +2334,12 @@ namespace Core.Catalog.CatalogManagement
 
         public static Status DeleteTag(int groupId, long tagId, long userId)
         {
-            var tagResponse = new GenericResponse<ApiObjects.SearchObjects.TagValue>();
+            var tagResponse = new GenericResponse<TagValue>();
 
             try
             {
                 CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DeleteTag", groupId);
                     return tagResponse.Status;
@@ -2392,9 +2391,9 @@ namespace Core.Catalog.CatalogManagement
         /// <param name="groupId"></param>
         /// <param name="tagId"></param>
         /// <returns></returns>
-        public static GenericResponse<ApiObjects.SearchObjects.TagValue> GetTagById(int groupId, long tagId)
+        public static GenericResponse<TagValue> GetTagById(int groupId, long tagId)
         {
-            var result = new GenericResponse<ApiObjects.SearchObjects.TagValue>();
+            var result = new GenericResponse<TagValue>();
 
             try
             {
@@ -2409,9 +2408,9 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static GenericResponse<ApiObjects.SearchObjects.TagValue> GetTagByValue(int groupId, string value, long topicId)
+        public static GenericResponse<TagValue> GetTagByValue(int groupId, string value, long topicId)
         {
-            var result = new GenericResponse<ApiObjects.SearchObjects.TagValue>();
+            var result = new GenericResponse<TagValue>();
 
             try
             {
@@ -2426,11 +2425,11 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static GenericListResponse<ApiObjects.SearchObjects.TagValue> SearchTags(int groupId, bool isExcatValue, string searchValue, int topicId, int searchLanguageId, int pageIndex, int pageSize)
+        public static GenericListResponse<TagValue> SearchTags(int groupId, bool isExcatValue, string searchValue, int topicId, int searchLanguageId, int pageIndex, int pageSize)
         {
-            GenericListResponse<ApiObjects.SearchObjects.TagValue> result = new GenericListResponse<ApiObjects.SearchObjects.TagValue>();
+            GenericListResponse<TagValue> result = new GenericListResponse<TagValue>();
             CatalogGroupCache catalogGroupCache;
-            if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            if (!Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
             {
                 log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling SearchTags", groupId);
                 return result;
@@ -2448,7 +2447,7 @@ namespace Core.Catalog.CatalogManagement
                 }
             }
 
-            ApiObjects.SearchObjects.TagSearchDefinitions definitions = new ApiObjects.SearchObjects.TagSearchDefinitions()
+            TagSearchDefinitions definitions = new TagSearchDefinitions()
             {
                 GroupId = groupId,
                 Language = searchLanguage,
@@ -2461,10 +2460,10 @@ namespace Core.Catalog.CatalogManagement
 
             int totalItemsCount = 0;
             var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
-            List<ApiObjects.SearchObjects.TagValue> tagValues = indexManager.SearchTags(definitions, out totalItemsCount);
+            List<TagValue> tagValues = indexManager.SearchTags(definitions, out totalItemsCount);
             HashSet<long> tagIds = new HashSet<long>();
 
-            foreach (ApiObjects.SearchObjects.TagValue tagValue in tagValues)
+            foreach (TagValue tagValue in tagValues)
             {
                 if (!tagIds.Contains(tagValue.tagId))
                 {
@@ -2483,13 +2482,13 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public GenericListResponse<ApiObjects.SearchObjects.TagValue> GetTags(int groupId, List<long> idIn, int pageIndex, int pageSize)
+        public GenericListResponse<TagValue> GetTags(int groupId, List<long> idIn, int pageIndex, int pageSize)
         {
-            GenericListResponse<ApiObjects.SearchObjects.TagValue> result = new GenericListResponse<ApiObjects.SearchObjects.TagValue>();
+            GenericListResponse<TagValue> result = new GenericListResponse<TagValue>();
 
             var tagValues = GetTagValues(groupId, idIn, pageIndex, pageSize, out int totalItemsCount);
 
-            foreach (ApiObjects.SearchObjects.TagValue tagValue in tagValues)
+            foreach (TagValue tagValue in tagValues)
             {
                 var tagResponse = GetTagById(groupId, tagValue.tagId);
                 if (tagResponse.HasObject())
@@ -2506,7 +2505,7 @@ namespace Core.Catalog.CatalogManagement
 
         public List<TagValue> GetTagValues(int groupId, List<long> idIn, int pageIndex, int pageSize, out int totalItemsCount)
         {
-            var result = new List<ApiObjects.SearchObjects.TagValue>();
+            var result = new List<TagValue>();
             totalItemsCount = 0;
 
             try
@@ -2632,7 +2631,7 @@ namespace Core.Catalog.CatalogManagement
                         MetaId = metaId
                     };
 
-                    var queue = new QueueWrapper.GenericCeleryQueue();
+                    var queue = new GenericCeleryQueue();
                     InheritanceData inheritanceData = new InheritanceData(groupId, InheritanceType.AssetStructMeta, JsonConvert.SerializeObject(data), userId);
                     bool enqueueSuccessful = queue.Enqueue(inheritanceData, string.Format("PROCESS_ASSET_INHERITANCE\\{0}", groupId));
                 }
@@ -2760,7 +2759,7 @@ namespace Core.Catalog.CatalogManagement
                 return new Status((int)eResponseStatus.NoParentAssociatedToTopic, "No parent associated to topic");
             }
 
-            // check meta existed at parent                    
+            // check meta existed at parent
             AssetStruct parentAssetStruct = catalogGroupCache.AssetStructsMapById[currentAssetStruct.ParentId.Value];
             if (!parentAssetStruct.MetaIds.Contains(metaId))
             {
@@ -2863,7 +2862,7 @@ namespace Core.Catalog.CatalogManagement
                 if (string.IsNullOrEmpty(connectingMetaValue))
                     continue;
 
-                // Getting all child assets                
+                // Getting all child assets
                 filter = string.Format("(and asset_type='{0}' {1}='{2}' inheritance_policy='0')", currentAssetStruct.Id, childConnectingTopic.SystemName, connectingMetaValue);
                 HashSet<long> childAssetsIds = GetAssetsIdsWithPaging(groupId, filter);
 
@@ -2917,7 +2916,7 @@ namespace Core.Catalog.CatalogManagement
 
             while (true)
             {
-                UnifiedSearchResult[] parentAssets = Core.Catalog.Utils.SearchAssets(groupId, filter, pageIndex, pageSize, false, true);
+                UnifiedSearchResult[] parentAssets = Utils.SearchAssets(groupId, filter, pageIndex, pageSize, false, true);
                 if (parentAssets == null || parentAssets.Length == 0)
                 {
                     break;
@@ -3169,7 +3168,7 @@ namespace Core.Catalog.CatalogManagement
 
             try
             {
-                if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
+                if (Instance.DoesGroupUsesTemplates(groupId))
                 {
                     var dictionary = AssetManager.GetMediaForElasticSearchIndex(groupId, mediaId);
                     return dictionary.ContainsKey((int)mediaId) ? dictionary[(int)mediaId] : null;
@@ -3184,14 +3183,14 @@ namespace Core.Catalog.CatalogManagement
                     return mediaTranslations;
                 }
 
-                ApiObjects.LanguageObj defaultLangauge = group.GetGroupDefaultLanguage();
+                LanguageObj defaultLangauge = group.GetGroupDefaultLanguage();
                 if (defaultLangauge == null)
                 {
                     log.Error("Error - Could not get group default language from cache in GetGroupMedias");
                     return mediaTranslations;
                 }
 
-                ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_GroupMedias_ml");
+                StoredProcedure storedProcedure = new StoredProcedure("Get_GroupMedias_ml");
                 storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
                 storedProcedure.AddParameter("@GroupID", groupId);
                 storedProcedure.AddParameter("@MediaID", mediaId);

@@ -294,7 +294,6 @@ namespace ApiLogic.Pricing.Handlers
                     return response;
                 }
 
-
                 if (virtualAssetInfoResponse.Status == VirtualAssetInfoStatus.OK && virtualAssetInfoResponse.AssetId > 0)
                 {
                     _repository.UpdateSubscriptionVirtualAssetId(contextData.GroupId, id, virtualAssetInfoResponse.AssetId, contextData.UserId.Value);
@@ -326,6 +325,23 @@ namespace ApiLogic.Pricing.Handlers
             if (!_repository.IsSubscriptionExists(contextData.GroupId, id))
             {
                 result.Set(eResponseStatus.SubscriptionDoesNotExist, $"Subscription {id} does not exist");
+                return result;
+            }
+
+            // Due to atomic action delete virtual asset before subscription delete
+            // Delete the virtual asset
+            var vai = new VirtualAssetInfo()
+            {
+                Type = ObjectVirtualAssetInfoType.Subscription,
+                Id = id,
+                UserId = contextData.UserId.Value
+            };
+
+            var response = _virtualAssetManager.DeleteVirtualAsset(contextData.GroupId, vai);
+            if (response.Status == VirtualAssetInfoStatus.Error)
+            {
+                log.Error($"Error while delete subscription virtual asset id {vai.ToString()}");
+                result.Set(eResponseStatus.Error, $"Failed to delete subscription {id}");
                 return result;
             }
 
@@ -487,8 +503,7 @@ namespace ApiLogic.Pricing.Handlers
                         Type = ObjectVirtualAssetInfoType.Subscription,
                         Id = subscriptionToUpdate.Id,
                         Name = subscriptionToUpdate.Names[0].m_sValue,
-                        UserId = contextData.UserId.Value,
-                        withExtendedTypes = true
+                        UserId = contextData.UserId.Value
                     };
                 }
             }
@@ -669,7 +684,7 @@ namespace ApiLogic.Pricing.Handlers
 
             if (!discounts.HasObjects() || !discounts.Objects.Any(x => x.Id == internalDiscountModuleId))
             {
-                status.Set(eResponseStatus.InvalidDiscountCode, $"InternalDiscountModuleId are missing for group");
+                status.Set(eResponseStatus.InvalidDiscountCode, $"InternalDiscountModuleId is missing for group");
                 return status;
             }
 
@@ -872,6 +887,22 @@ namespace ApiLogic.Pricing.Handlers
             }
 
             return new Status(eResponseStatus.OK);
+        }
+
+        public void HandleChannelUpdate(int groupId, int channelId)
+        {
+            List<int> subscriptionsIds = _repository.GetSubscriptionsByChannelId(groupId, channelId);
+
+            //delete all subscriptions_Channels ByChannel id
+            _repository.DeleteSubscriptionsChannelsByChannel(groupId, channelId);
+
+            if (subscriptionsIds?.Count > 0)
+            {
+                foreach (var id in subscriptionsIds)
+                {
+                    _pricingModule.InvalidateSubscription(groupId, id);
+                }
+            }
         }
     }
 }

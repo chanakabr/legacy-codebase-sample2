@@ -15,9 +15,9 @@ namespace Core.Catalog
     public class EntitledAssetsUtils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-        public static List<BaseSearchObject> GetUserSubscriptionSearchObjects(BaseRequest request, int groupId, string siteGuid, int domainId, int[] fileTypeIds,
-            OrderObj order, string[] mediaTypes = null, int[] deviceRuleIds = null, CatalogGroupCache catalogGroupCache = null)
+        
+        public static List<BaseSearchObject> GetUserBundlePurchasedSearchObjects(BaseRequest request, int groupId, string siteGuid, int domainId, int[] fileTypeIds,
+            OrderObj order, string[] mediaTypes = null, int[] deviceRuleIds = null, CatalogGroupCache catalogGroupCache = null, bool isSubscriptionsOnly = false)
         {
             List<BaseSearchObject> result = new List<BaseSearchObject>();
 
@@ -36,7 +36,7 @@ namespace Core.Catalog
                 {
                     if (!CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                     {
-                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetUserSubscriptionSearchObjects", groupId);
+                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetUserBundlePurchasedSearchObjects", groupId);
                         return result;
                     }
                 }
@@ -54,7 +54,7 @@ namespace Core.Catalog
             List<int> collectionIds = new List<int>();
 
             // Initialize web service
-            var userBundles = ConditionalAccess.Module.GetUserBundles(groupId, domainId, fileTypeIds);
+            var userBundles = ConditionalAccess.Module.GetUserBundles(groupId, domainId, fileTypeIds, isSubscriptionsOnly);
 
             if (userBundles == null || userBundles.status == null)
             {

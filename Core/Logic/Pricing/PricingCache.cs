@@ -325,7 +325,7 @@ namespace Core.Pricing
         private static T Get<T>(string key)
         {
             return TvinciCache.WSCache.Instance.Get<T>(key);
-        }
+        }        
 
         public static void Remove(string key)
         {
@@ -373,19 +373,29 @@ namespace Core.Pricing
             return result;
         }
 
-        public static HashSet<long> GetCollectionsIds(int groupId)
+        public static List<long> GetCollectionsIds(int groupId, bool inactiveAssets)
         {
-            var response = new HashSet<long>();
+            var response = new List<long>();
+            var result= new Dictionary<long, bool>();
             try
             {
                 var key = GetCollectionsIdsCacheKey(groupId);
-                if (!LayeredCache.Instance.Get(key, ref response,
+                if (!LayeredCache.Instance.Get(key, ref result,
                     GetGroupCollectionIds, new Dictionary<string, object>() { { "groupId", groupId } },
                 groupId, LayeredCacheConfigNames.GET_GROUP_COLLECTIONS, new List<string>()
                 { LayeredCacheKeys.GetCollectionsIdsInvalidationKey(groupId) }))
                 {
                     log.ErrorFormat($"GetGroupCollectionIds - Failed get data from cache. groupId: {groupId}");
                     return response;
+                }
+
+                if (result?.Count > 0)
+                {
+                    response = result.Select(y => y.Key).ToList();
+                    if (!inactiveAssets)
+                    {
+                        response = result.Where(x => x.Value == true).Select(y => y.Key).ToList();
+                    }
                 }
             }
             catch (Exception ex)
@@ -427,10 +437,10 @@ namespace Core.Pricing
 
         public static string GetCollectionsIdsCacheKey(int groupId)
         {
-            return $"CollectionsIds_V1_{groupId}";
+            return $"CollectionsIds_V2_{groupId}";
         }
 
-        public static Tuple<HashSet<long>, bool> GetGroupCollectionIds(Dictionary<string, object> funcParams)
+        public static Tuple<Dictionary<long, bool>, bool> GetGroupCollectionIds(Dictionary<string, object> funcParams)
         {
             int? groupId = 0;
             if (funcParams != null && funcParams.Count == 1)
@@ -440,12 +450,12 @@ namespace Core.Pricing
                     groupId = funcParams["groupId"] as int?;
                     if (groupId == null)
                     {
-                        return Tuple.Create(new HashSet<long>(), false);
+                        return Tuple.Create(new Dictionary<long, bool>(), false);
                     }
                 }
             }
 
-            HashSet<long> res = DAL.PricingDAL.GetCollectionIds(groupId.Value);
+            Dictionary<long, bool> res = DAL.PricingDAL.GetAllCollectionIds(groupId.Value);
             return Tuple.Create(res, res?.Count > 0);
         }
 
@@ -549,6 +559,99 @@ namespace Core.Pricing
             if (subIds?.Count > 0)
             {
                 keys.AddRange(subIds.Select(x => LayeredCacheKeys.GetSubscriptionInvalidationKey(groupId, x)));  
+            }
+
+            return LayeredCache.Instance.InvalidateKeys(keys);
+        }
+
+        public List<Collection> GetCollections(int groupId, List<long> collectionIds)
+        {
+            List<Collection> collections = new List<Collection>();
+
+            if (collectionIds == null || collectionIds.Count == 0)
+            {
+                return collections;
+            }
+
+            Dictionary<string, string> keysToOriginalValueMap = new Dictionary<string, string>();
+            Dictionary<string, List<string>> invalidationKeysMap = new Dictionary<string, List<string>>();
+
+            foreach (long id in collectionIds)
+            {
+                string key = LayeredCacheKeys.GetCollectionKey(groupId, id);
+                keysToOriginalValueMap.Add(key, id.ToString());
+                invalidationKeysMap.Add(key, new List<string>() { LayeredCacheKeys.GetCollectionInvalidationKey(groupId, id) });
+            }
+
+            Dictionary<string, Collection> collectionsMap = null;
+
+            if (!LayeredCache.Instance.GetValues(keysToOriginalValueMap,
+                                                ref collectionsMap,
+                                                GetCollections,
+                                                new Dictionary<string, object>() {
+                                                        { "groupId", groupId },
+                                                        { "collectionIds", keysToOriginalValueMap.Values.ToList() }
+                                                   },
+                                                groupId,
+                                                LayeredCacheConfigNames.GET_SUBSCRIPTIONS,
+                                                invalidationKeysMap))
+            {
+                log.Warn($"Failed getting Collections from LayeredCache, groupId: {groupId}, subIds: {string.Join(",", collectionIds)}");
+                return collections;
+            }
+
+            return collectionsMap == null ? new List<Collection>() : collectionsMap.Values.ToList();
+        }
+
+        public static Tuple<Dictionary<string, Collection>, bool> GetCollections(Dictionary<string, object> funcParams)
+        {
+            Dictionary<string, Collection> collections = new Dictionary<string, Collection>();
+            List<string> collectionIds = null;
+            int? groupId = funcParams["groupId"] as int?;
+            if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
+            {
+                collectionIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]);
+            }
+            else if (funcParams["collectionIds"] != null)
+            {
+                collectionIds = (List<string>)funcParams["collectionIds"];
+            }
+
+            if (collectionIds?.Count > 0)
+            {
+                BaseCollection t = null;
+                Utils.GetBaseImpl(ref t, groupId.Value);
+                if (t != null)
+                {
+                    var response = t.GetCollectionsData(collectionIds.ToArray(), string.Empty, string.Empty, string.Empty, null);
+                    if (response != null && response.Collections != null && response.Collections.Length > 0)
+                    {
+                        collections = response.Collections.ToDictionary(x => LayeredCacheKeys.GetCollectionKey(groupId.Value, long.Parse(x.m_sObjectCode)), y => y);
+                    }
+                }
+            }
+
+            return Tuple.Create(collections, true);
+        }
+
+        public bool InvalidateCollection(int groupId, long collectionId = 0)
+        {
+            List<string> keys = new List<string>() { LayeredCacheKeys.GetCollectionsIdsInvalidationKey(groupId) };
+            if (collectionId > 0)
+            {
+                keys.Add(LayeredCacheKeys.GetCollectionInvalidationKey(groupId, collectionId));
+            }
+
+            return LayeredCache.Instance.InvalidateKeys(keys);
+        }
+
+        public bool InvalidateCollections(int groupId, List<long> collectionIds = null)
+        {
+            List<string> keys = new List<string>() { LayeredCacheKeys.GetCollectionsIdsInvalidationKey(groupId) };
+
+            if (collectionIds?.Count > 0)
+            {
+                keys.AddRange(collectionIds.Select(x => LayeredCacheKeys.GetCollectionInvalidationKey(groupId, x)));
             }
 
             return LayeredCache.Instance.InvalidateKeys(keys);

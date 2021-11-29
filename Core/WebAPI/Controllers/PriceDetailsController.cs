@@ -50,7 +50,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Internal API !!! Insert new PriceDetails for partner
+        /// Insert new PriceDetails for partner
         /// </summary>
         /// <remarks>
         /// </remarks>
@@ -82,7 +82,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Internal API !!! Delete PriceDetails 
+        /// Delete PriceDetails 
         /// </summary>
         /// <remarks>
         /// </remarks>
