@@ -1,22 +1,23 @@
 ﻿using System.Runtime.CompilerServices;
-using FeatureFlag;
 using KalturaRequestContext;
+using Ott.Lib.FeatureToggle;
+using Ott.Lib.FeatureToggle.Managers;
 
-namespace ApiLogic.FeatureToggle
+namespace FeatureFlag
 {
     public class PhoenixFeatureFlag: IPhoenixFeatureFlag
     {
         private readonly IRequestContextUtils _requestContextUtils;
-        private readonly IFeatureFlag _featureFlag;
+        private readonly IFeatureToggle _featureFlag;
         
         public PhoenixFeatureFlag() : this(
-            new RequestContextUtils(), FeatureFlagInstance.Get())
+            new RequestContextUtils(), FeatureToggleManager.Instance())
         {
         }
 
         private PhoenixFeatureFlag(
             IRequestContextUtils requestContextUtils,
-            IFeatureFlag featureFlag)
+            IFeatureToggle featureFlag)
         {
             _requestContextUtils = requestContextUtils;
             _featureFlag = featureFlag;
@@ -25,10 +26,9 @@ namespace ApiLogic.FeatureToggle
         public bool IsEpgNotificationEnabled(int groupId) => _featureFlag.Enabled("epg.notification", GetUser(groupId));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private KalturaFeatureFlagUser GetUser(int? groupId)
+        private KalturaFeatureToggleUser GetUser(int? groupId)
         {
             var userId = _requestContextUtils.GetUserId();
-            
             return KalturaFeatureFlagUserBuilder.Get()
                 .WithUserId(userId)
                 .WithGroupId(groupId)

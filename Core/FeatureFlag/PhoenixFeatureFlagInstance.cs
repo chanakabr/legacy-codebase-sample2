@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace ApiLogic.FeatureToggle
+namespace FeatureFlag
 {
     public class PhoenixFeatureFlagInstance
     {

@@ -1,4 +1,4 @@
-﻿namespace ApiLogic.FeatureToggle
+﻿namespace FeatureFlag
 {
     public interface IPhoenixFeatureFlag
     {
