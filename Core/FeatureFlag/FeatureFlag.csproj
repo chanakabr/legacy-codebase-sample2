@@ -18,7 +18,7 @@
     <ProjectReference Include="..\KalturaRequestContext\KalturaRequestContext.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Ott.Lib.FeatureToggle" Version="0.0.0.16-alpha" />
+    <PackageReference Include="Ott.Lib.FeatureToggle" Version="1.0.0" />
   </ItemGroup>
 
 </Project>
