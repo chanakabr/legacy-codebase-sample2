@@ -3229,11 +3229,7 @@ namespace WebAPI.Clients
                 // get assets from catalog/cache
                 result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request);
 
-                if (result.Objects.Count < request.m_nPageSize && request.m_nPageIndex == 1)
-                {
-                    result.TotalCount = result.Objects.Count; //BEO-8507
-                }
-                else if (scheduledRecordingResponse.aggregationResults != null && scheduledRecordingResponse.aggregationResults.Any())
+                if (scheduledRecordingResponse.aggregationResults != null && scheduledRecordingResponse.aggregationResults.Any())
                 {
                     //BEO-9982
                     var bucketList = scheduledRecordingResponse.aggregationResults.Where(x => x.totalItems > 0).ToList();
