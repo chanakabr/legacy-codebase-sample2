@@ -387,7 +387,9 @@ namespace ApiObjects.SearchObjects
 
         public List<string> PersonalData { get; set; }
 
-        public IReadOnlyDictionary<double, SearchPriorityGroup> PriorityGroupsMappings { get; set; }
+        [JsonProperty]
+        [DataMember]
+        public IReadOnlyDictionary<double, IEsPriorityGroup> PriorityGroupsMappings { get; set; }
 
         /// <summary>
         /// The country Id of the calling user for geo availability 

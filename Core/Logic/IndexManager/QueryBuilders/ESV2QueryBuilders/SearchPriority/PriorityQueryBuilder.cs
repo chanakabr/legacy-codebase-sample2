@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ApiObjects.SearchObjects;
+using ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority.Models;
 using ApiObjects.SearchPriorityGroups;
 using ElasticSearch.Searcher;
 using Newtonsoft.Json.Linq;
@@ -11,29 +10,13 @@ namespace ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority
 {
     public class PriorityQueryBuilder
     {
-        private readonly IReadOnlyDictionary<double, SearchPriorityGroup> _priorityGroupsMapping;
         private readonly ESUnifiedQueryBuilder _queryBuilder;
-        private readonly IDictionary<SearchPriorityCriteriaType, Func<SearchPriorityCriteria, IESTerm>> _functionProcessors;
+        private readonly IReadOnlyDictionary<double, IEsPriorityGroup> _priorityGroupsMappings;
 
-        private PriorityQueryBuilder()
-        {
-            _functionProcessors = new Dictionary<SearchPriorityCriteriaType, Func<SearchPriorityCriteria, IESTerm>>
-            {
-                {
-                    SearchPriorityCriteriaType.KSql, criteria =>
-                    {
-                        BooleanPhraseNode tree = null;
-                        BooleanPhraseNode.ParseSearchExpression(criteria.Value, ref tree);
-                        return _queryBuilder?.ConvertToQuery(tree);
-                    }
-                }
-            };
-        }
-
-        public PriorityQueryBuilder(ESUnifiedQueryBuilder queryBuilder, IReadOnlyDictionary<double, SearchPriorityGroup> priorityGroupsMapping) : this()
+        public PriorityQueryBuilder(ESUnifiedQueryBuilder queryBuilder, IReadOnlyDictionary<double, IEsPriorityGroup> priorityGroupsMappings)
         {
             _queryBuilder = queryBuilder;
-            _priorityGroupsMapping = priorityGroupsMapping;
+            _priorityGroupsMappings = priorityGroupsMappings;
         }
 
         public ESFunctionScore Build(IESTerm queryTerm, QueryFilter filter)
@@ -41,38 +24,39 @@ namespace ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority
             var internalQuery = BuildInternalQuery(queryTerm, filter);
             
             var functions = new List<ESFunctionScoreFunction>();
-            foreach (var priorityGroup in _priorityGroupsMapping)
+            foreach (var priorityGroupMapping in _priorityGroupsMappings)
             {
-                if (!_functionProcessors.TryGetValue(priorityGroup.Value.Criteria.Type, out var processor))
+                IESTerm esTerm = null;
+                switch (priorityGroupMapping.Value)
                 {
-                    continue;
+                    case KSqlEsPriorityGroup kSqlGroup:
+                    {
+                        esTerm = _queryBuilder?.ConvertToQuery(kSqlGroup.Tree);
+                        break;
+                    }
                 }
-                
-                var esTerm = processor(priorityGroup.Value.Criteria);
-                var function = new ESFunctionScoreFunction
-                {
-                    filter = (JObject)JToken.Parse(esTerm.ToString()),
-                    weight = priorityGroup.Key
-                };
 
-                functions.Add(function);
+                if (esTerm != null)
+                {
+                    var function = new ESFunctionScoreFunction
+                    {
+                        filter = (JObject)JToken.Parse(esTerm.ToString()),
+                        weight = priorityGroupMapping.Key
+                    };
+
+                    functions.Add(function);   
+                }
             }
 
             return new ESFunctionScore
             {
                 query = internalQuery,
                 functions = functions,
-                max_boost = _priorityGroupsMapping.Max(k => k.Key),
+                max_boost = _priorityGroupsMappings.Max(k => k.Key),
                 // We're using eFunctionScoreScoreMode.max score mode here to prevent additional calculations in case document are eligible for more than 1 function score.
                 score_mode = eFunctionScoreScoreMode.max,
                 boost_mode = eFunctionScoreBoostMode.replace
             };
-        }
-
-        private static IDictionary<double, SearchPriorityGroup> BuildOrderedDic(SearchPriorityGroup[] priorityGroups)
-        {
-            double maxValue = priorityGroups.Length + 1;
-            return priorityGroups.ToDictionary(priorityGroup => maxValue--);
         }
 
         private static string BuildInternalQuery(IESTerm queryTerm, QueryFilter filter)

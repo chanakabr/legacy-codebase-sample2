@@ -48,6 +48,7 @@ using TVinciShared;
 using Status = ApiObjects.Response.Status;
 using ApiLogic.IndexManager.QueryBuilders;
 using ApiLogic.IndexManager.Helpers;
+using ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority;
 
 namespace Core.Catalog
 {
@@ -6851,7 +6852,7 @@ namespace Core.Catalog
 
             #region Search Results Priority
 
-            definitions.PriorityGroupsMappings = request.PriorityGroupsMappings;
+            definitions.PriorityGroupsMappings = PriorityGroupsPreprocessor.Instance.Preprocess(request.PriorityGroupsMappings, request, definitions, group, groupId);
 
             #endregion
 
@@ -7905,6 +7906,12 @@ namespace Core.Catalog
             }
 
             definitions.filterPhrase = root;
+            
+            #region Search Results Priority
+
+            definitions.PriorityGroupsMappings = PriorityGroupsPreprocessor.Instance.Preprocess(request.PriorityGroupsMappings, request, definitions, group, groupId);
+
+            #endregion
 
             if (!isSearchEntitlementInternal && definitions.entitlementSearchDefinitions != null)
             {
@@ -8097,12 +8104,6 @@ namespace Core.Catalog
 
             definitions.isGroupingOptionInclude = request.searchGroupBy != null && request.searchGroupBy.isGroupingOptionInclude;
             definitions.trendingAssetWindow = request.order?.trendingAssetWindow;
-
-            #endregion
-
-            #region Search Results Priority
-
-            definitions.PriorityGroupsMappings = request.PriorityGroupsMappings;
 
             #endregion
 
