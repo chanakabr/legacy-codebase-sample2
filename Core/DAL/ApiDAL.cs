@@ -645,13 +645,8 @@ namespace DAL
             return null;
         }
 
-        public static MediaMarkObject Get_MediaMark(int nMediaID, string userID, int nGroupID)
+        public static UserMediaMark Get_UserMediaMark(int nMediaID, string userID)
         {
-            MediaMarkObject ret = new MediaMarkObject();
-            ret.nGroupID = nGroupID;
-            ret.nMediaID = nMediaID;
-            ret.sSiteGUID = userID;
-
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             string docKey = UtilsDal.GetUserMediaMarkDocKey(userID, nMediaID);
 
@@ -661,16 +656,32 @@ namespace DAL
             if (bContunueWithCB)
             {
                 MediaMarkLog mediaMarkLogObject = JsonConvert.DeserializeObject<MediaMarkLog>(data);
-                ret.nLocationSec = mediaMarkLogObject.LastMark.Location;
-                ret.sDeviceID = mediaMarkLogObject.LastMark.UDID;
+                return mediaMarkLogObject.LastMark;
+            }
 
-                if (string.IsNullOrEmpty(mediaMarkLogObject.LastMark.UDID))
+            return null;
+        }
+
+        public static MediaMarkObject Get_MediaMark(int nMediaID, string userID, int nGroupID)
+        {
+            MediaMarkObject ret = new MediaMarkObject();
+            ret.nGroupID = nGroupID;
+            ret.nMediaID = nMediaID;
+            ret.sSiteGUID = userID;
+            UserMediaMark userMediaMark = Get_UserMediaMark(nMediaID, userID);
+
+            if (userMediaMark != null)
+            {
+                ret.nLocationSec = userMediaMark.Location;
+                ret.sDeviceID = userMediaMark.UDID;
+
+                if (string.IsNullOrEmpty(userMediaMark.UDID))
                 {
                     ret.sDeviceName = "PC";
                 }
                 else
                 {
-                    DataTable dtDeviceInfo = DeviceDal.Get_DeviceInfo(mediaMarkLogObject.LastMark.UDID, true, nGroupID);
+                    DataTable dtDeviceInfo = DeviceDal.Get_DeviceInfo(userMediaMark.UDID, true, nGroupID);
                     if (dtDeviceInfo != null && dtDeviceInfo.Rows.Count > 0)
                     {
                         ret.sDeviceName = ODBCWrapper.Utils.GetSafeStr(dtDeviceInfo.Rows[0]["name"]);
