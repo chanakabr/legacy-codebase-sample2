@@ -74,16 +74,4 @@ namespace WebAPI.Models.Pricing
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "renewalsNumber");
         }
     }
-
-    public partial class KalturaPricePlanListResponse : KalturaListResponse
-    {
-        /// <summary>
-        /// A list of price plans
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty("objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaPricePlan> PricePlans { get; set; }
-    }
 }
