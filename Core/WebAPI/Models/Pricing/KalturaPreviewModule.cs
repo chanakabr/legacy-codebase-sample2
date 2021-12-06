@@ -61,16 +61,4 @@ namespace WebAPI.Models.Pricing
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "lifeCycle");
         }
     }
-
-    public partial class KalturaPreviewModuleListResponse : KalturaListResponse
-    {
-        /// <summary>
-        /// A list of Preview Module
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty("objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaPreviewModule> PreviewModule { get; set; }
-    }
 }
