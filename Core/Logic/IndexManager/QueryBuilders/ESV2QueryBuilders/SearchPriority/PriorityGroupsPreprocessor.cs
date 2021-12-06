@@ -13,6 +13,8 @@ namespace ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority
 {
     public class PriorityGroupsPreprocessor : IPriorityGroupsPreprocessor
     {
+        private static readonly Dictionary<double, SearchPriorityGroup> EmptyDictionary =
+            new Dictionary<double, SearchPriorityGroup>(0);
         private static readonly Lazy<IPriorityGroupsPreprocessor> Lazy = new Lazy<IPriorityGroupsPreprocessor>(() => new PriorityGroupsPreprocessor(), LazyThreadSafetyMode.PublicationOnly);
 
         public static IPriorityGroupsPreprocessor Instance => Lazy.Value;
@@ -25,7 +27,7 @@ namespace ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority
             int groupId)
         {
             var result = new Dictionary<double, IEsPriorityGroup>();
-            foreach (var priorityGroupMapping in priorityGroupsMappings)
+            foreach (var priorityGroupMapping in priorityGroupsMappings ?? EmptyDictionary)
             {
                 var searchPriorityGroup = priorityGroupMapping.Value;
                 switch (searchPriorityGroup.Criteria.Type)
