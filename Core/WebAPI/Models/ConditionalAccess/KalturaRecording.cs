@@ -58,7 +58,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "isProtected")]
         [JsonProperty("isProtected")]
-        [XmlElement(ElementName = "isProtected", IsNullable = true)]
+        [XmlElement(ElementName = "isProtected")]
         public bool IsProtected { get; set; }
 
         /// <summary>

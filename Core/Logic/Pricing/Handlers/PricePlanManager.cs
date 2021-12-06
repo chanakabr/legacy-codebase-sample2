@@ -84,7 +84,6 @@ namespace ApiLogic.Pricing.Handlers
             return response;
         }
 
-
         private GenericResponse<PricePlan> GetPricePlane(int groupId, long id)
         {
             GenericResponse<PricePlan> response = new GenericResponse<PricePlan>();

@@ -293,7 +293,9 @@ namespace Core.Catalog
                     }
                     else if (definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets)
                     {
-                        type = eEntitlementSearchType.Entitled;
+                        type = definitions.entitlementSearchDefinitions.shouldGetOnlySubscriptionAssets 
+                            ? eEntitlementSearchType.Subscriptions 
+                            : eEntitlementSearchType.Entitled;
                     }
 
                     if (type != eEntitlementSearchType.None)
@@ -669,7 +671,7 @@ namespace Core.Catalog
                     EntitledAssetsUtils.GetFreeAssets(parentGroupID, request.m_sSiteGuid, out freeEpgChannelIds);
             }
 
-            if (entitlementSearchDefinitions.shouldGetPurchasedAssets)
+            if (entitlementSearchDefinitions.shouldGetPurchasedAssets && !entitlementSearchDefinitions.shouldGetOnlySubscriptionAssets)
             {
                 entitlementSearchDefinitions.entitledPaidForAssets =
                    EntitledAssetsUtils.GetUserPPVAssets(parentGroupID, request.m_sSiteGuid, request.domainId, fileTypes, out purchasedEpgChannelIds);
@@ -709,8 +711,8 @@ namespace Core.Catalog
             if (entitlementSearchDefinitions.shouldGetPurchasedAssets)
             {
                 entitlementSearchDefinitions.subscriptionSearchObjects =
-                    EntitledAssetsUtils.GetUserSubscriptionSearchObjects(request, parentGroupID, request.m_sSiteGuid, request.domainId, fileTypes,
-                    order, entitlementMediaTypes, definitions.deviceRuleId);
+                    EntitledAssetsUtils.GetUserBundlePurchasedSearchObjects(request, parentGroupID, request.m_sSiteGuid, request.domainId, fileTypes,
+                    order, entitlementMediaTypes, definitions.deviceRuleId, null, entitlementSearchDefinitions.shouldGetOnlySubscriptionAssets);
             }
 
             if (entitlementSearchDefinitions.shouldGetFreeAssets)

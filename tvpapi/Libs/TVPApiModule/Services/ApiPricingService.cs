@@ -241,7 +241,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    collection = Core.Pricing.Module.GetCollectionData(m_groupID, collectionId, countryCd2, languageCode3, deviceName, bGetAlsoUnActive);
+                    collection = Core.Pricing.Module.Instance.GetCollectionData(m_groupID, collectionId, countryCd2, languageCode3, deviceName, bGetAlsoUnActive);
                 }
             }
             catch (Exception ex)

@@ -3,6 +3,7 @@ using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
 using ApiObjects.Epg;
 using ApiObjects.SearchObjects;
+using ApiObjects.SearchPriorityGroups;
 using ApiObjects.Statistics;
 using AutoMapper;
 using AutoMapper.Configuration;
@@ -20,6 +21,7 @@ using WebAPI.App_Start;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.Catalog.SearchPriorityGroup;
 using WebAPI.Models.General;
 using WebAPI.Models.Upload;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
@@ -605,7 +607,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<RecordingAsset, KalturaRecordingAsset>()
                 .IncludeBase<EpgAsset, KalturaProgramAsset>()
                 .ForMember(dest => dest.RecordingType, opt => opt.MapFrom(src => src.RecordingType))
-                .ForMember(dest => dest.RecordingId, opt => opt.MapFrom(src => src.RecordingId));
+                .ForMember(dest => dest.RecordingId, opt => opt.MapFrom(src => src.RecordingId))
+                .ForMember(dest => dest.ViewableUntilDate, opt => opt.MapFrom(src => src.ViewableUntilDate))
+                ;
 
             // Asset to KalturaAsset
             cfg.CreateMap<Asset, KalturaAsset>()
@@ -1579,6 +1583,59 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     }
 
                     return (EntityAttribute)0;
+                });
+
+            #endregion
+
+            #region SearchPriorityGroup
+
+            cfg.CreateMap<KalturaSearchPriorityGroup, SearchPriorityGroup>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetLanugageContainer().ToArray()))
+                .ForMember(dest => dest.Criteria, opt => opt.MapFrom(src => src.Criteria));
+
+            cfg.CreateMap<KalturaSearchPriorityCriteria, SearchPriorityCriteria>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value));
+
+            cfg.CreateMap<KalturaSearchPriorityGroupOrderedIdsSet, SearchPriorityGroupOrderedIdsSet>()
+                .ConstructUsing((src, dest) => new SearchPriorityGroupOrderedIdsSet())
+                .ForMember(dest => dest.PriorityGroupIds, opt => opt.MapFrom(src => src.GetPriorityGroupIds()));
+
+            cfg.CreateMap<KalturaSearchPriorityCriteriaType, SearchPriorityCriteriaType>()
+                .ConvertUsing(type =>
+                {
+                    switch (type)
+                    {
+                        case KalturaSearchPriorityCriteriaType.KSql:
+                            return SearchPriorityCriteriaType.KSql;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown {nameof(KalturaSearchPriorityCriteriaType)}: {type.ToString()}");
+                    }
+                });
+
+            cfg.CreateMap<SearchPriorityGroup, KalturaSearchPriorityGroup>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => MultilengualStringFactory.Create(src.Name)))
+                .ForMember(dest => dest.Criteria, opt => opt.MapFrom(src => src.Criteria));
+
+            cfg.CreateMap<SearchPriorityCriteria, KalturaSearchPriorityCriteria>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value));
+
+            cfg.CreateMap<SearchPriorityGroupOrderedIdsSet, KalturaSearchPriorityGroupOrderedIdsSet>()
+                .ForMember(dest => dest.PriorityGroupIds, opt => opt.MapFrom(src => string.Join(",", src.PriorityGroupIds)));
+
+            cfg.CreateMap<SearchPriorityCriteriaType, KalturaSearchPriorityCriteriaType>()
+                .ConvertUsing(type =>
+                {
+                    switch (type)
+                    {
+                        case SearchPriorityCriteriaType.KSql:
+                            return KalturaSearchPriorityCriteriaType.KSql;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown {nameof(SearchPriorityCriteriaType)}: {type.ToString()}");
+                    }
                 });
 
             #endregion

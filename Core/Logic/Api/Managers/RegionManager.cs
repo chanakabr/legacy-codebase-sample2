@@ -10,14 +10,13 @@ using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using Core.Api;
 using Core.Catalog;
-using DAL;
-using KLogMonitor;
-using System.Reflection;
-using Utils = ODBCWrapper.Utils;
 using Core.Catalog.CatalogManagement;
-using Core.GroupManagers.Adapters;
-using GroupsCacheManager;
 using Core.GroupManagers;
+using Core.GroupManagers.Adapters;
+using DAL;
+using GroupsCacheManager;
+using KLogMonitor;
+using Utils = ODBCWrapper.Utils;
 
 namespace ApiLogic.Api.Managers
 {

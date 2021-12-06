@@ -21,7 +21,7 @@ namespace ApiLogic.Api.Validators
     public class AssetRuleActionValidator : IAssetRuleActionValidator
     {
         private static readonly Lazy<AssetRuleActionValidator> LazyInstance = new Lazy<AssetRuleActionValidator>(() =>
-            new AssetRuleActionValidator(Core.Catalog.CatalogManagement.FileManager.Instance, CatalogManager.Instance, Core.Pricing.Module.Instance, new LabelRepository()),
+            new AssetRuleActionValidator(Core.Catalog.CatalogManagement.FileManager.Instance, CatalogManager.Instance, Core.Pricing.Module.Instance, LabelRepository.Instance),
             LazyThreadSafetyMode.PublicationOnly);
 
         public static IAssetRuleActionValidator Instance => LazyInstance.Value;

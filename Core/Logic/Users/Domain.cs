@@ -1849,12 +1849,10 @@ namespace Core.Users
         {
             var res = DomainResponseStatus.OK;
 
-            int activatedDevices = dc.GetActivatedDeviceCount();
+            var totalDevicesLimitReached = dc.m_oLimitationsManager.Quantity > 0 && m_oLimitationsManager.Quantity > 0 && m_totalNumOfDevices >= m_oLimitationsManager.Quantity; // m_oLimitationsManager.Quantity == 0 is unlimited 
+            var containerDevicesLimitReached = dc.m_oLimitationsManager.Quantity > 0 && dc.GetActivatedDeviceCount() >= dc.m_oLimitationsManager.Quantity;
 
-            // m_oLimitationsManager.Quantity == 0 is unlimited 
-            if (dc.m_oLimitationsManager.Quantity > 0 &&
-                ((m_totalNumOfDevices >= m_oLimitationsManager.Quantity && m_oLimitationsManager.Quantity > 0) ||
-                 activatedDevices >= dc.m_oLimitationsManager.Quantity))
+            if (totalDevicesLimitReached || containerDevicesLimitReached)
             {
                 res = DomainResponseStatus.ExceededLimit;
 
@@ -1862,24 +1860,20 @@ namespace Core.Users
                     return res;
 
                 var generalPartnerConfig = GeneralPartnerConfigManager.Instance.GetGeneralPartnerConfiguration(m_nGroupID).Objects.FirstOrDefault();
-
-                if (generalPartnerConfig?.RollingDeviceRemovalData.RollingDeviceRemovalPolicy == null ||
-                    generalPartnerConfig.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds.Count <= 0)
-                    return res;
-
-                return TryRemoveHouseholdDevice(
-                    generalPartnerConfig.RollingDeviceRemovalData.RollingDeviceRemovalPolicy.Value,
-                    generalPartnerConfig.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds);
+                if (generalPartnerConfig?.RollingDeviceRemovalData.RollingDeviceRemovalPolicy != null &&
+                    generalPartnerConfig.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds?.Any(x => x == dc.m_deviceFamilyID) == true)
+                {
+                    return TryRemoveHouseholdDevice(generalPartnerConfig.RollingDeviceRemovalData.RollingDeviceRemovalPolicy.Value, dc.m_deviceFamilyID);
+                }
             }
 
             return res;
         }
 
-        private DomainResponseStatus TryRemoveHouseholdDevice(RollingDevicePolicy rollingDeviceRemovalPolicy,
-            List<int> rollingDeviceRemovalFamilyIds)
+        private DomainResponseStatus TryRemoveHouseholdDevice(RollingDevicePolicy rollingDeviceRemovalPolicy, int rollingDeviceRemovalFamilyId)
         {
             //remove by policy based on the dates
-            var udid = DeviceRemovalPolicyHandler.Instance.GetDeviceRemovalCandidate(m_nGroupID, rollingDeviceRemovalPolicy, rollingDeviceRemovalFamilyIds, m_deviceFamilies);
+            var udid = DeviceRemovalPolicyHandler.Instance.GetDeviceRemovalCandidate(m_nGroupID, rollingDeviceRemovalPolicy, rollingDeviceRemovalFamilyId, m_deviceFamilies);
 
             if (udid.IsNullOrEmptyOrWhiteSpace())
             {

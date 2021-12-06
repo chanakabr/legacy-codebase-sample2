@@ -39,6 +39,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.DiscountCode, opt => opt.MapFrom(src => StringUtils.TryConvertTo<long>(src.m_sDiscountCode)))
                .ForMember(dest => dest.DiscountId, opt => opt.MapFrom(src => StringUtils.TryConvertTo<long>(src.m_sDiscountCode)));
 
+            cfg.CreateMap<KalturaCouponsGroup, CouponsGroup>()
+                .ForMember(dest => dest.m_sDescription, opt => opt.MapFrom(src => src.Descriptions))
+                .ForMember(dest => dest.m_dEndDate, opt => opt.MapFrom(src => src.EndDate.HasValue ? DateTimeOffset.FromUnixTimeSeconds(src.EndDate.Value).DateTime : (DateTime?)null))
+                .ForMember(dest => dest.m_sGroupCode, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.m_sGroupName, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.m_dStartDate, opt => opt.MapFrom(src => src.StartDate.HasValue ? DateTimeOffset.FromUnixTimeSeconds(src.StartDate.Value).DateTime : (DateTime?)null))
+                .ForMember(dest => dest.m_nMaxUseCountForCoupon, opt => opt.MapFrom(src => src.MaxUsesNumber))
+                .ForMember(dest => dest.m_nMaxRecurringUsesCountForCoupon, opt => opt.MapFrom(src => src.MaxUsesNumberOnRenewableSub))
+                .ForMember(dest => dest.couponGroupType, opt => opt.ResolveUsing(src => ConvertCouponGroupType(src.CouponGroupType)))
+                .ForMember(dest => dest.maxDomainUses, opt => opt.MapFrom(src => src.MaxHouseholdUses))
+                .ForMember(dest => dest.m_sDiscountCode, opt => opt.MapFrom(src => src.DiscountCode.ToString()))
+                .ForMember(dest => dest.m_sDiscountCode, opt => opt.MapFrom(src => src.DiscountId.ToString()));
+
             cfg.CreateMap<SubscriptionCouponGroup, KalturaCouponsGroup>()
                .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => src.m_sDescription))
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => (!src.endDate.HasValue || src.m_dEndDate < src.endDate.Value) ?
@@ -108,10 +121,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // DiscountModule
             cfg.CreateMap<KalturaDiscountModule, DiscountModule>()
-               .ForMember(dest => dest.m_dEndDate, opt => opt.MapFrom(src => DateTimeOffset.FromUnixTimeSeconds(src.EndDate.Value)))
+               .ForMember(dest => dest.m_dEndDate, opt => opt.MapFrom(src => src.EndDate.HasValue ? DateTimeOffset.FromUnixTimeSeconds(src.EndDate.Value).DateTime : (DateTime?)null))
                .ForMember(dest => dest.m_dPercent, opt => opt.MapFrom(src => src.Percent))
                .ForMember(dest => dest.m_nObjectID, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.m_dStartDate, opt => opt.MapFrom(src => DateTimeOffset.FromUnixTimeSeconds(src.StartDate.Value)));
+               .ForMember(dest => dest.m_dStartDate, opt => opt.MapFrom(src => src.StartDate.HasValue ? DateTimeOffset.FromUnixTimeSeconds(src.StartDate.Value).DateTime : (DateTime?)null));
 
             // UsageModule
             cfg.CreateMap<UsageModule, KalturaUsageModule>()
@@ -136,6 +149,28 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.m_sVirtualName, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.m_tsViewLifeCycle, opt => opt.MapFrom(src => src.ViewLifeCycle))
                .ForMember(dest => dest.m_nWaiverPeriod, opt => opt.MapFrom(src => src.WaiverPeriod));
+
+            // KalturaUsageModule
+            cfg.CreateMap<KalturaUsageModule, UsageModuleForUpdate>()
+                .ForMember(dest => dest.TsMaxUsageModuleLifeCycle, opt => opt.MapFrom(src => src.FullLifeCycle))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.HasValue ? src.Id.Value : 0))
+                .ForMember(dest => dest.IsOfflinePlayBack, opt => opt.MapFrom(src => src.IsOfflinePlayback))
+                .ForMember(dest => dest.Waiver, opt => opt.MapFrom(src => src.IsWaiverEnabled))
+                .ForMember(dest => dest.MaxNumberOfViews, opt => opt.MapFrom(src => src.MaxViewsNumber))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.TsViewLifeCycle, opt => opt.MapFrom(src => src.ViewLifeCycle))
+                .ForMember(dest => dest.WaiverPeriod, opt => opt.MapFrom(src => src.WaiverPeriod));
+
+            // UsageModule
+            cfg.CreateMap<UsageModuleForUpdate, KalturaUsageModule>()
+                .ForMember(dest => dest.FullLifeCycle, opt => opt.MapFrom(src => src.TsMaxUsageModuleLifeCycle))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.IsOfflinePlayback, opt => opt.MapFrom(src => src.IsOfflinePlayBack))
+                .ForMember(dest => dest.IsWaiverEnabled, opt => opt.MapFrom(src => src.Waiver))
+                .ForMember(dest => dest.MaxViewsNumber, opt => opt.MapFrom(src => src.MaxNumberOfViews))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.ViewLifeCycle, opt => opt.MapFrom(src => src.TsViewLifeCycle))
+                .ForMember(dest => dest.WaiverPeriod, opt => opt.MapFrom(src => src.WaiverPeriod));
 
             // UserType
             cfg.CreateMap<UserType, KalturaOTTUserType>()
@@ -179,6 +214,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<LanguageContainer, KalturaTranslationToken>()
                .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.m_sLanguageCode3))
                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.m_sValue));
+
+            cfg.CreateMap<KalturaTranslationToken, LanguageContainer>()
+                .ForMember(dest => dest.m_sLanguageCode3, opt => opt.MapFrom(src => src.Language))
+                .ForMember(dest => dest.m_sValue, opt => opt.MapFrom(src => src.Value));
 
             // BundleCodeContainer to SlimChannel
             cfg.CreateMap<BundleCodeContainer, KalturaBaseChannel>()
@@ -294,8 +333,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .AfterMap((src, dest) => dest.FileTypesIds = src.FileTypesIds != null ? dest.FileTypesIds : null)
                 .AfterMap((src, dest) => dest.PricePlanIds = src.PricePlanIds != null ? dest.PricePlanIds : null)
                 .AfterMap((src, dest) => dest.CouponGroups = src.SubscriptionCouponGroup != null ? dest.CouponGroups : null)
-                .AfterMap((src, dest) => dest.Names= src.Name != null ? dest.Names : null)
-                .AfterMap((src, dest) => dest.Descriptions= src.Description != null ? dest.Descriptions : null)
+                .AfterMap((src, dest) => dest.Names = src.Name != null ? dest.Names : null)
+                .AfterMap((src, dest) => dest.Descriptions = src.Description != null ? dest.Descriptions : null)
                 .AfterMap((src, dest) => dest.PremiumServices = src.PremiumServices != null ? dest.PremiumServices : null)
                 .AfterMap((src, dest) => dest.ExternalProductCodes = src.ProductCodes != null ? dest.ExternalProductCodes : null)
                 ;
@@ -443,16 +482,73 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // PpvModule to KalturaPpvModule
             cfg.CreateMap<PPVModule, KalturaPpv>()
                .ForMember(dest => dest.CouponsGroup, opt => opt.MapFrom(src => src.m_oCouponsGroup))
+               .ForMember(dest => dest.CouponsGroupId, opt => opt.MapFrom(src => GetCouponsGroupId(src.m_oCouponsGroup)))
                .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => src.m_sDescription))
                .ForMember(dest => dest.DiscountModule, opt => opt.MapFrom(src => src.m_oDiscountModule))
+               .ForMember(dest => dest.DiscountId, opt => opt.MapFrom(src => GetDiscountModuleId(src.m_oDiscountModule)))
                .ForMember(dest => dest.FileTypes, opt => opt.MapFrom(src => src.m_relatedFileTypes))
+               .ForMember(dest => dest.FileTypesIds, opt => opt.MapFrom(src => src.m_relatedFileTypes != null ? string.Join(",", src.m_relatedFileTypes) : string.Empty))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_sObjectCode))
                .ForMember(dest => dest.IsSubscriptionOnly, opt => opt.MapFrom(src => src.m_bSubscriptionOnly))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sObjectVirtualName))
                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oPriceCode))
+               .ForMember(dest => dest.PriceDetailsId, opt => opt.MapFrom(src => src.m_oPriceCode.m_nObjectID))
                .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.m_Product_Code))
+               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CreateDate)))
+               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)))
                .ForMember(dest => dest.UsageModule, opt => opt.MapFrom(src => src.m_oUsageModule))
+               .ForMember(dest => dest.UsageModuleId, opt => opt.MapFrom(src => src.m_oUsageModule.m_nObjectID))
+               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+               .ForMember(dest => dest.AdsPolicy, opt => opt.MapFrom(src => src.AdsPolicy))
+               .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId))
                .ForMember(dest => dest.FirstDeviceLimitation, opt => opt.MapFrom(src => src.m_bFirstDeviceLimitation));
+
+            cfg.CreateMap<KalturaPpv, PPVModule>()
+                .ForMember(dest => dest.m_sDescription, opt => opt.MapFrom(src => src.Descriptions))
+                .ForMember(dest => dest.m_oCouponsGroup, opt => opt.MapFrom(src => src.CouponsGroup))
+                .ForMember(dest => dest.m_oDiscountModule, opt => opt.MapFrom(src => src.DiscountModule))
+                .ForMember(dest => dest.m_relatedFileTypes, opt => opt.MapFrom(src => src.FileTypes))
+                .ForMember(dest => dest.m_relatedFileTypes, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.FileTypesIds) ? src.GetItemsIn<List<long>, long>(src.FileTypesIds, "KalturaSubscription.FileTypesIds", true) : null))
+                .ForMember(dest => dest.m_sObjectCode, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.m_bSubscriptionOnly, opt => opt.MapFrom(src => src.IsSubscriptionOnly))
+                .ForMember(dest => dest.m_sObjectVirtualName, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.m_oPriceCode, opt => opt.MapFrom(src => src.Price))
+                .ForMember(dest => dest.m_Product_Code, opt => opt.MapFrom(src => src.ProductCode))
+                .ForMember(dest => dest.m_oUsageModule, opt => opt.MapFrom(src => src.UsageModule))
+                .ForMember(dest => dest.AdsPolicy, opt => opt.MapFrom(src => src.AdsPolicy))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.m_bFirstDeviceLimitation, opt => opt.MapFrom(src => src.FirstDeviceLimitation));
+            
+            cfg.CreateMap<KalturaPpv, PpvModuleInternal>()
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Descriptions))
+                .ForMember(dest => dest.CouponsGroupId, opt => opt.MapFrom(src => src.CouponsGroupId))
+                .ForMember(dest => dest.DiscountId, opt => opt.MapFrom(src => src.DiscountId))
+                .ForMember(dest => dest.RelatedFileTypes, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.FileTypesIds) ? src.GetItemsIn<List<long>, long>(src.FileTypesIds, "KalturaSubscription.FileTypesIds", true) : null))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.SubscriptionOnly, opt => opt.MapFrom(src => src.IsSubscriptionOnly))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.PriceId, opt => opt.MapFrom(src => src.PriceDetailsId))
+                .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.ProductCode))
+                .ForMember(dest => dest.UsageModuleId, opt => opt.MapFrom(src => src.UsageModuleId))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.AdsPolicy, opt => opt.MapFrom(src => src.AdsPolicy))
+                .ForMember(dest => dest.FirstDeviceLimitation, opt => opt.MapFrom(src => src.FirstDeviceLimitation));
+            
+            cfg.CreateMap<PpvModuleInternal,KalturaPpv>()
+                .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.CouponsGroupId, opt => opt.MapFrom(src => src.CouponsGroupId))
+                .ForMember(dest => dest.DiscountId, opt => opt.MapFrom(src => src.DiscountId))
+                .ForMember(dest => dest.FileTypesIds, opt => opt.ResolveUsing(src => src.RelatedFileTypes != null ? string.Join(",", src.RelatedFileTypes) : string.Empty))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.IsSubscriptionOnly, opt => opt.MapFrom(src => src.SubscriptionOnly))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.PriceDetailsId, opt => opt.MapFrom(src => src.PriceId))
+                .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.ProductCode))
+                .ForMember(dest => dest.UsageModuleId, opt => opt.MapFrom(src => src.UsageModuleId))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.AdsPolicy, opt => opt.MapFrom(src => src.AdsPolicy))
+                .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId))
+                .ForMember(dest => dest.FirstDeviceLimitation, opt => opt.MapFrom(src => src.FirstDeviceLimitation));
 
             //KalturaPpvPrice
             cfg.CreateMap<ItemPriceContainer, KalturaPpvPrice>()
@@ -540,22 +636,81 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.PriceDetailsId, opt => opt.MapFrom(src => src.m_oCollectionPriceCode != null ? src.m_oCollectionPriceCode.m_nObjectID : 0))
                .ForMember(dest => dest.ProductCodes, opt => opt.ResolveUsing(src => ConvertProductCodes(src.ExternalProductCodes)))
                .ForMember(dest => dest.CouponGroups, opt => opt.ResolveUsing(src => ConvertCouponsGroup(src.CouponsGroups)))
+               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+               .ForMember(dest => dest.ChannelsIds, opt => opt.MapFrom(src =>
+                   src.m_sCodes != null && src.m_sCodes.Length > 0 ?
+                   string.Join(",", src.m_sCodes.Select(um => um.m_sCode).ToArray()) :
+                   string.Empty))
+               .ForMember(dest => dest.CollectionCouponGroup, opt => opt.MapFrom(src => ConvertCollCouponsGroup(src.CouponsGroups)))
+               .ForMember(dest => dest.DiscountModuleId, opt => opt.MapFrom(src =>
+                   src.m_oDiscountModule != null ? (long?)src.m_oDiscountModule.m_nObjectID : null))
+               .ForMember(dest => dest.UsageModuleId, opt => opt.MapFrom(src =>
+                   src.m_oCollectionUsageModule != null ? (long?)src.m_oCollectionUsageModule.m_nObjectID : null))
+               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CreateDate)))
+               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)))
+               .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId))
                ;
 
-            cfg.CreateMap<KalturaCollection, Collection>()
-               .ForMember(dest => dest.m_dStartDate, opt => opt.MapFrom(src => src.StartDate.HasValue ? DateTimeOffset.FromUnixTimeSeconds(src.StartDate.Value).DateTime : (DateTime?)null))
-               .ForMember(dest => dest.m_dEndDate, opt => opt.MapFrom(src => src.EndDate.HasValue ? DateTimeOffset.FromUnixTimeSeconds(src.EndDate.Value).DateTime : (DateTime?)null))
-               .ForMember(dest => dest.m_oDiscountModule, opt => opt.MapFrom(src => src.DiscountModule))
-               .ForMember(dest => dest.m_sCodes, opt => opt.MapFrom(src => src.Channels))
-               .ForMember(dest => dest.m_sDescription, opt => opt.MapFrom(src => ConvertLanguageContainer(src.Description)))
-               .ForMember(dest => dest.m_sName, opt => opt.MapFrom(src => ConvertLanguageContainer(src.Name)))
-               .ForMember(dest => dest.m_CollectionCode, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.m_ProductCode, opt => opt.MapFrom(src => src.ExternalId))
-               .ForMember(dest => dest.m_oCollectionUsageModule, opt => opt.MapFrom(src => src.UsageModule))
-               .ForMember(dest => dest.m_oCollectionPriceCode, opt => opt.MapFrom(src => new PriceCode((int)src.PriceDetailsId.Value)))
-               .ForMember(dest => dest.ExternalProductCodes, opt => opt.ResolveUsing(src => ConvertProductCodes(src.ProductCodes)))
-               .ForMember(dest => dest.CouponsGroups, opt => opt.ResolveUsing(src => ConvertCouponsGroup(src.CouponGroups)))
-               ;
+            cfg.CreateMap<KalturaCollection, CollectionInternal>()
+                .ForMember(dest => dest.ChannelsIds, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.ChannelsIds) ? src.GetItemsIn<List<long>, long>(src.ChannelsIds, "KalturaCollection.ChannelsIds", true) : null))
+                .ForMember(dest => dest.CouponGroups, opt => opt.MapFrom(src => ConvertCollCouponGroup(src.CollectionCouponGroup)))
+                .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => ConvertLanguageContainer(src.Description)))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate.HasValue ? DateTimeOffset.FromUnixTimeSeconds(src.EndDate.Value).DateTime : (DateTime?)null))
+                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
+                .ForMember(dest => dest.ExternalProductCodes, opt => opt.ResolveUsing(src => ConvertProductCodes(src.ProductCodes)))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.DiscountModuleId, opt => opt.MapFrom(src => src.DiscountModuleId))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.Names, opt => opt.MapFrom(src => ConvertLanguageContainer(src.Name)))
+                .ForMember(dest => dest.PriceDetailsId, opt => opt.MapFrom(src => src.PriceDetailsId))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate.HasValue ? DateTimeOffset.FromUnixTimeSeconds(src.StartDate.Value).DateTime : (DateTime?)null))
+                .ForMember(dest => dest.UsageModuleId, opt => opt.MapFrom(src => src.UsageModuleId))
+                .ForMember(dest => dest.NullableProperties, opt => opt.MapFrom(src => src.NullableProperties))
+                .AfterMap((src, dest) => dest.ChannelsIds = src.ChannelsIds != null ? dest.ChannelsIds : null)
+                .AfterMap((src, dest) => dest.CouponGroups = src.CollectionCouponGroup != null ? dest.CouponGroups : null)
+                .AfterMap((src, dest) => dest.Names = src.Name != null ? dest.Names : null)
+                .AfterMap((src, dest) => dest.Descriptions = src.Description != null ? dest.Descriptions : null)
+                .AfterMap((src, dest) => dest.ExternalProductCodes = src.ProductCodes != null ? dest.ExternalProductCodes : null)
+                .AfterMap((src, dest) => dest.IsActive = src.IsActive != null ? dest.IsActive : null)
+                ;
+
+            cfg.CreateMap<CollectionInternal, KalturaCollection>()
+                .ForMember(dest => dest.ChannelsIds, opt => opt.MapFrom(src => src.ChannelsIds != null ? string.Join(",", src.ChannelsIds) : string.Empty))
+                .ForMember(dest => dest.CollectionCouponGroup, opt => opt.Ignore())
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => MultilengualStringFactory.Create(src.Descriptions)))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.EndDate)))
+                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.DiscountModuleId, opt => opt.MapFrom(src => src.DiscountModuleId))
+                .ForMember(dest => dest.UsageModuleId, opt => opt.MapFrom(src => src.UsageModuleId))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => MultilengualStringFactory.Create(src.Names)))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.StartDate)))
+                ;
+
+            cfg.CreateMap<KalturaCollectionOrderBy, CollectionOrderBy>()
+               .ConvertUsing(type =>
+               {
+                   switch (type)
+                   {
+                       case KalturaCollectionOrderBy.NONE:
+                           return CollectionOrderBy.None;
+
+                       case KalturaCollectionOrderBy.NAME_ASC:
+                           return CollectionOrderBy.NameAsc;
+                       
+                       case KalturaCollectionOrderBy.NAME_DESC:
+                           return CollectionOrderBy.NameDesc;
+                       
+                       case KalturaCollectionOrderBy.UPDATE_DATE_ASC:
+                           return CollectionOrderBy.UpdateDataAsc;
+                       
+                       case KalturaCollectionOrderBy.UPDATE_DATE_DESC:
+                           return CollectionOrderBy.UpdateDataDesc;
+                       default:
+                           throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown CollectionOrderBy value : {type.ToString()}");
+                   }
+               });
 
             // DiscountDetails
             cfg.CreateMap<DiscountDetails, KalturaDiscountDetails>()
@@ -689,6 +844,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return res;
         }
 
+        private static long? GetCouponsGroupId(CouponsGroup couponsGroup)
+        {
+            if (couponsGroup != null && long.TryParse(couponsGroup.m_sGroupCode, out long couponGroupIdLong))
+            {
+                return couponGroupIdLong;
+            }
+            return null;
+        }
+        
+        private static int? GetDiscountModuleId(DiscountModule discountModule)
+        {
+            if (discountModule != null)
+            {
+                return discountModule.m_nObjectID;
+            }
+            return null;
+        }
         private static List<KeyValuePair<VerificationPaymentGateway, string>> ConvertProductCodes(List<KalturaProductCode> list)
         {
             List<KeyValuePair<VerificationPaymentGateway, string>> res = new List<KeyValuePair<VerificationPaymentGateway, string>>();
@@ -1293,5 +1465,49 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             return list;
         }
+
+        private static List<KalturaCollectionCouponGroup> ConvertCollCouponsGroup(List<SubscriptionCouponGroup> couponsGroups)
+        {
+            List<KalturaCollectionCouponGroup> list = null;
+
+            if (couponsGroups?.Count > 0)
+            {
+                list = new List<KalturaCollectionCouponGroup>();
+                foreach (var item in couponsGroups)
+                {
+                    long.TryParse(item.m_sGroupCode, out long id);
+                    list.Add(new KalturaCollectionCouponGroup()
+                    {
+                        CouponGroupId = id,
+                        EndDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(item.endDate),
+                        StartDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(item.startDate)
+
+                    });
+                }
+            }
+
+            return list;
+        }
+
+        private static List<SubscriptionCouponGroupDTO> ConvertCollCouponGroup(List<KalturaCollectionCouponGroup> subscriptionCouponGroup)
+        {
+            List<SubscriptionCouponGroupDTO> list = null;
+
+            if (subscriptionCouponGroup == null)
+                return null;
+
+            if (subscriptionCouponGroup.Count > 0)
+            {
+                list = new List<SubscriptionCouponGroupDTO>();
+                foreach (var item in subscriptionCouponGroup)
+                {
+                    list.Add(new SubscriptionCouponGroupDTO(item.CouponGroupId.ToString(),
+                        DateUtils.UtcUnixTimestampSecondsToDateTime(item.StartDate), DateUtils.UtcUnixTimestampSecondsToDateTime(item.EndDate)));
+                }
+            }
+
+            return list;
+        }
+
     }
 }

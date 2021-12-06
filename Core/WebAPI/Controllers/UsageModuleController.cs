@@ -16,12 +16,13 @@ namespace WebAPI.Controllers
     class UsageModuleController : IKalturaController
     {
         /// <summary>
-        ///  Internal API !!! Returns the list of available usage module
+        /// Returns the list of available usage module
         /// </summary>
+        /// /// <param name="filter">Filter request</param>
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]
-        static public KalturaUsageModuleListResponse List()
+        static public KalturaUsageModuleListResponse List(KalturaUsageModuleFilter filter = null)
         {
             int groupId = KS.GetFromRequest().GroupId;
             KalturaUsageModuleListResponse result = new KalturaUsageModuleListResponse();
@@ -29,7 +30,7 @@ namespace WebAPI.Controllers
             try
             {
                 Func<GenericListResponse<UsageModule>> getListFunc = () =>
-                  UsageModuleManager.Instance.GetUsageModules(groupId);
+                  UsageModuleManager.Instance.GetUsageModules(groupId, filter?.IdEqual);
 
                 KalturaGenericListResponse<KalturaUsageModule> response =
                     ClientUtils.GetResponseListFromWS<KalturaUsageModule, UsageModule>(getListFunc);
@@ -46,7 +47,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        ///  Internal API !!! Insert new UsageModule
+        /// Insert new UsageModule
         /// </summary>
         /// <remarks>
         /// </remarks>
@@ -77,7 +78,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        ///  Internal API !!! Delete UsageModule
+        /// Delete UsageModule
         /// </summary>
         /// <remarks>
         /// </remarks>
@@ -101,6 +102,37 @@ namespace WebAPI.Controllers
             {
                 ErrorUtils.HandleClientException(ex);
             }
+            return result;
+        }
+        
+        /// <summary>
+        /// Update usage module
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <param name="id">usage module id</param>
+        /// <param name="usageModule">usage module Object</param>
+        [Action("update")]
+        [Throws(eResponseStatus.UsageModuleDoesNotExist)]
+        [ApiAuthorize]
+        static public KalturaUsageModule Update(int id, KalturaUsageModule usageModule)
+        {
+            KalturaUsageModule result = null;
+            
+            var contextData = KS.GetContextData();
+
+            try
+            {
+                Func<UsageModuleForUpdate, GenericResponse<UsageModuleForUpdate>> updateUsageModuleFunc = (UsageModuleForUpdate usageModuleToUpdate) =>
+                    UsageModuleManager.Instance.Update(id, contextData, usageModuleToUpdate);
+
+                result = ClientUtils.GetResponseFromWS<KalturaUsageModule, UsageModuleForUpdate>(usageModule, updateUsageModuleFunc);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
             return result;
         }
     }

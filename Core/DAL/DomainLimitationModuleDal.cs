@@ -156,7 +156,9 @@ namespace DAL
                             deviceFamilyName = ODBCWrapper.Utils.GetSafeStr(dr, "NAME"),
                             concurrency = -1,
                             quantity = -1,
-                            Frequency = -1
+                            Frequency = -1,
+                            isDefaultConcurrency = false,
+                            isDefaultQuantity = false
                         };
 
                         DataRow[] drSpecific = dtSpecificLimits.Select("device_family_id = " + dfl.deviceFamily);
@@ -186,11 +188,13 @@ namespace DAL
                         if (dfl.concurrency == -1)
                         {
                             dfl.concurrency = limitationsManager.Concurrency;
+                            dfl.isDefaultConcurrency = true;
                         }
 
                         if (dfl.quantity == -1)
                         {
                             dfl.quantity = limitationsManager.Quantity;
+                            dfl.isDefaultQuantity = true;
                         }
 
                         limitationsManager.lDeviceFamilyLimitations.Add(dfl);

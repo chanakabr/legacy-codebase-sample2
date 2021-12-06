@@ -346,7 +346,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.MissingBasePackage)]
         [Throws(eResponseStatus.InvalidProductType)]
         [Throws(eResponseStatus.InvalidContentId)]
-        [Throws(eResponseStatus.UnknownPriceReason)]
+        [Throws(eResponseStatus.InvalidOffer)]
         [Throws(eResponseStatus.PurchaseFailed)]
         [Throws(eResponseStatus.PurchasePassedEntitlementFailed)]
         [Throws(eResponseStatus.IncorrectPrice)]

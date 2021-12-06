@@ -91,7 +91,7 @@ namespace WebAPI.Models.Pricing
         public string Ksql { get; set; }
 
         /// <summary>
-        /// Root only
+        ///  return also inactive 
         /// </summary>
         [DataMember(Name = "alsoInactive")]
         [JsonProperty("alsoInactive")]

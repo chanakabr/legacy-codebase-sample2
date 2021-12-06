@@ -1662,7 +1662,7 @@ namespace Core.ConditionalAccess
 
                         string productId = ODBCWrapper.Utils.ExtractString(row, "COLLECTION_CODE");
 
-                        Collection collection = Pricing.Module.GetCollectionData(groupId, productId, string.Empty, string.Empty, string.Empty, false);
+                        Collection collection = Pricing.Module.Instance.GetCollectionData(groupId, productId, string.Empty, string.Empty, string.Empty, false);
                         DateTime endDate = Utils.CalcCollectionEndDate(collection, now);
 
                         CollectionPurchase collectionPurchase = new CollectionPurchase(groupId)

@@ -42,38 +42,36 @@ namespace ApiLogic.Users.Services
             _cbManager = new CouchbaseManager.CouchbaseManager(_couchbaseBucket);
         }
 
-        public string GetDeviceRemovalCandidate(int groupId, RollingDevicePolicy rollingDeviceRemovalPolicy,
-            List<int> rollingDeviceRemovalFamilyIds,
+        public string GetDeviceRemovalCandidate(
+            int groupId,
+            RollingDevicePolicy rollingDeviceRemovalPolicy,
+            int rollingDeviceRemovalFamilyId,
             List<DeviceContainer> deviceFamilies)
         {
             if (rollingDeviceRemovalPolicy == RollingDevicePolicy.NONE)
+            {
                 return string.Empty;
+            }
 
-            // map device usage key to uuid 
-            //don't map family ids that are not in the policy
-            var deviceUuidUsageKeyToDevice = deviceFamilies.SelectMany(x => x.DeviceInstances)
-                .Where(x => rollingDeviceRemovalFamilyIds.Contains(x.m_deviceFamilyID))
-                .ToDictionary(key => GetDomainDeviceUsageDateKey(key.m_deviceUDID),
-                    value => value);
+            // don't use devices from families that are not in the policy
+            // map device usage key to uuid
+            var deviceUuidUsageKeyToDevice = deviceFamilies
+                .Where(x => x.m_deviceFamilyID == rollingDeviceRemovalFamilyId)
+                .SelectMany(x => x.DeviceInstances)
+                .ToDictionary(key => GetDomainDeviceUsageDateKey(key.m_deviceUDID), value => value);
+            if (!deviceUuidUsageKeyToDevice.Any())
+            {
+                return string.Empty;
+            }
 
-            // map device usage key to activation date
-            //don't map family ids that are not in the policy
-            var deviceUuidUsageKeyToDeviceActivationDate = deviceFamilies.SelectMany(x => x.DeviceInstances)
-                .Where(x => rollingDeviceRemovalFamilyIds.Contains(x.m_deviceFamilyID))
-                .ToDictionary(key => GetDomainDeviceUsageDateKey(key.m_deviceUDID),
-                    value => value.m_activationDate.ToUtcUnixTimestampSeconds());
-
-
-            var removalCandidateDeviceUsageKey = "";
+            var removalCandidateDeviceUsageKey = string.Empty;
             switch (rollingDeviceRemovalPolicy)
             {
                 case RollingDevicePolicy.LIFO:
-                    var maximalDate = deviceUuidUsageKeyToDeviceActivationDate.Values.Max();
-                    removalCandidateDeviceUsageKey = deviceUuidUsageKeyToDeviceActivationDate.FirstOrDefault(k => k.Value == maximalDate).Key;
+                    removalCandidateDeviceUsageKey = deviceUuidUsageKeyToDevice.OrderBy(x => x.Value.m_activationDate).Last().Key;
                     break;
                 case RollingDevicePolicy.FIFO:
-                    var minimalDate = deviceUuidUsageKeyToDeviceActivationDate.Values.Min();
-                    removalCandidateDeviceUsageKey = deviceUuidUsageKeyToDeviceActivationDate.FirstOrDefault(k => k.Value == minimalDate).Key;
+                    removalCandidateDeviceUsageKey = deviceUuidUsageKeyToDevice.OrderBy(x => x.Value.m_activationDate).First().Key;
                     break;
                 case RollingDevicePolicy.ACTIVE_DEVICE_ASCENDING:
                     // map device usage to usage date
@@ -125,8 +123,6 @@ namespace ApiLogic.Users.Services
                         }
                     }
 
-                    break;
-                case RollingDevicePolicy.NONE:
                     break;
             }
 

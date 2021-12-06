@@ -258,8 +258,8 @@ namespace Core.Pricing
             return theContainer;
         }
 
-        private Collection CreateCollectionObject(DataRow collectionRow, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, LanguageContainer[] collectionDescription, 
-            BundleCodeContainer[] collectionChannels, LanguageContainer[] collectionName, List<KeyValuePair<VerificationPaymentGateway, string>> externalProductCodes, 
+        private Collection CreateCollectionObject(DataRow collectionRow, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, LanguageContainer[] collectionDescription,
+            BundleCodeContainer[] collectionChannels, LanguageContainer[] collectionName, List<KeyValuePair<VerificationPaymentGateway, string>> externalProductCodes,
             List<SubscriptionCouponGroup> couponsGroups)
         {
             Collection retCollection = new Collection();
@@ -288,15 +288,20 @@ namespace Core.Pricing
                                            nCollectionRowCode.ToString(), collectionChannels, dStart, dEnd, null, collectionName, sPriceCode, sUsageModuleCode, sName,
                                            sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, productCode, externalProductCodes, couponsGroups);
 
+            retCollection.CreateDate = ODBCWrapper.Utils.GetDateSafeVal(collectionRow["CREATE_DATE"]);
+            retCollection.UpdateDate = ODBCWrapper.Utils.GetDateSafeVal(collectionRow["UPDATE_DATE"]);
+            retCollection.VirtualAssetId = ODBCWrapper.Utils.GetNullableLong(collectionRow, "VIRTUAL_ASSET_ID");
+            retCollection.IsActive = ODBCWrapper.Utils.GetIntSafeVal(collectionRow, "IS_ACTIVE") == 0 ? false : true;
+            
             return retCollection;
         }
 
-        public override CollectionsResponse GetCollectionsData(string[] oCollCodes, string sCountryCd, string sLanguageCode, string sDeviceName, int? couponGroupIdEqual)
+        public override CollectionsResponse GetCollectionsData(string[] oCollCodes, string sCountryCd, string sLanguageCode, string sDeviceName, int? couponGroupIdEqual, bool getAlsoInActive = false)
         {
             CollectionsResponse response = new CollectionsResponse()
             {
                 Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
-            }; 
+            };
 
             try
             {
@@ -441,7 +446,7 @@ namespace Core.Pricing
             return response;
         }
 
-        private List<Collection> CreateCollections(DataSet ds, Dictionary<long, List<LanguageContainer>> collsDescriptionsMapping, Dictionary<long, List<BundleCodeContainer>> collsChannelsMapping, 
+        private List<Collection> CreateCollections(DataSet ds, Dictionary<long, List<LanguageContainer>> collsDescriptionsMapping, Dictionary<long, List<BundleCodeContainer>> collsChannelsMapping,
             Dictionary<long, List<LanguageContainer>> collsNamesMapping, string sCountryCd, string sLanguageCode, string sDeviceName,
             Dictionary<long, List<KeyValuePair<VerificationPaymentGateway, string>>> collsExternalProductCodesMapping, Dictionary<long, List<SubscriptionCouponGroup>> collsCouponsGroup)
         {
@@ -602,7 +607,7 @@ namespace Core.Pricing
 
         private bool IsCollsDataSetValid(DataSet ds)
         {
-            return ds != null && ds.Tables != null && ds.Tables.Count >= 6; 
+            return ds != null && ds.Tables != null && ds.Tables.Count >= 6 && ds.Tables[0].Rows.Count >= 0;
         }
 
         public override IdsResponse GetCollectionIdsContainingMediaFile(int mediaId, int mediaFileId)
@@ -617,7 +622,7 @@ namespace Core.Pricing
             {
                 //get from DB subscription List
                 DataTable dt = PricingDAL.GetCollectionsChannels(m_nGroupID);
-                if (dt == null || dt.Rows == null || dt.Rows.Count == 0) 
+                if (dt == null || dt.Rows == null || dt.Rows.Count == 0)
                     return null;
 
                 Dictionary<int, List<int>> channelsCollectionsMapping = new Dictionary<int, List<int>>(); /*channelID , Collections*/

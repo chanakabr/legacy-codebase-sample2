@@ -2186,14 +2186,14 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-
-        public static ApiObjects.UserBundlesResponse GetUserBundles(int groupID, int domainID, int[] fileTypeIDs)
+        
+        public static ApiObjects.UserBundlesResponse GetUserBundles(int groupID, int domainID, int[] fileTypeIDs, bool isSubscriptionsOnly = false)
         {
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.GetUserBundles(domainID, fileTypeIDs);
+                return t.GetUserBundles(domainID, fileTypeIDs, isSubscriptionsOnly);
             }
             else
             {

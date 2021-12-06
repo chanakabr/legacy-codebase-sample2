@@ -66,5 +66,13 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "recordingType")]
         [XmlElement(ElementName = "recordingType", IsNullable = true)]
         public WebAPI.Models.ConditionalAccess.KalturaRecordingType? RecordingType { get; set; }
+
+        /// <summary>
+        /// Specifies until when the recording is available for viewing. Date and time represented as epoch.
+        /// </summary>
+        [DataMember(Name = "viewableUntilDate")]
+        [JsonProperty(PropertyName = "viewableUntilDate")]
+        [XmlElement(ElementName = "viewableUntilDate")]
+        public long ViewableUntilDate { get; set; }
     }
 }

@@ -997,7 +997,17 @@ namespace ElasticSearch.Common
 
                                     if (itemError != null)
                                     {
-                                        var failedRequest = failedBulkRequests[key];
+                                        ESBulkRequestObj<T> failedRequest;
+                                        if (!failedBulkRequests.TryGetValue(key, out failedRequest))
+                                        {
+                                            failedRequest = new ESBulkRequestObj<T>()
+                                            {
+                                                docID = (T)Convert.ChangeType(id, typeof(T)),
+                                                type = type,
+                                                index = index,
+                                            };
+                                        }
+
                                         failedRequest.error = itemError.ToString();
 
                                         invalidRecords.Add(failedRequest);

@@ -634,7 +634,7 @@ namespace Core.ConditionalAccess
                 case eBundleType.COLLECTION:
                     {
                         Collection theCol = null;
-                        theCol = Core.Pricing.Module.GetCollectionData(groupID, productCode, String.Empty, String.Empty, String.Empty, false);
+                        theCol = Core.Pricing.Module.Instance.GetCollectionData(groupID, productCode, String.Empty, String.Empty, String.Empty, false);
                         u = theCol.m_oCollectionUsageModule;
                         theBundle = theCol;
                         bIsSub = false;
@@ -1346,6 +1346,12 @@ namespace Core.ConditionalAccess
                 subscription = Pricing.Module.Instance.GetSubscriptionData(groupId, subCode, countryCode, languageCode, udid, false, userId);
                 if (subscription == null)
                 {
+                    return fullPrice;
+                }
+                
+                if(subscription.IsActive.HasValue && !subscription.IsActive.Value)
+                {
+                    fullPrice.PriceReason = PriceReason.NotForPurchase;
                     return fullPrice;
                 }
 
@@ -2208,7 +2214,7 @@ namespace Core.ConditionalAccess
         internal static Price GetCollectionFinalPrice(Int32 groupId, string sColCode, string sSiteGUID, string couponCode, ref PriceReason theReason, ref Collection collection,
             string countryCode, string sLANGUAGE_CODE, string sDEVICE_NAME, string connStr, string ip, string currencyCode = null, BlockEntitlementType blockEntitlement = BlockEntitlementType.NONE)
         {
-            collection = Pricing.Module.GetCollectionData(groupId, sColCode, countryCode, sLANGUAGE_CODE, sDEVICE_NAME, false);
+            collection = Pricing.Module.Instance.GetCollectionData(groupId, sColCode, countryCode, sLANGUAGE_CODE, sDEVICE_NAME, false);
             if (collection == null)
             {
                 theReason = PriceReason.UnKnown;

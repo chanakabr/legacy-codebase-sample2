@@ -118,45 +118,6 @@ namespace Core.Catalog
         private static string META_NOT_BELONG_TO_PARTNER = "Meta not belong to partner";
         private static string PARENT_PARNER_DIFFRENT_FROM_META_PARTNER = "Partner parent should be the some as meta partner";
 
-        private static readonly HashSet<string> reservedUnifiedSearchStringFields = new HashSet<string>()
-        {
-            NAME,
-            DESCRIPION,
-            EPG_CHANNEL_ID,
-            "crid",
-            EXTERNALID,
-            ENTRYID,
-            "...."
-        };
-
-        private static readonly HashSet<string> reservedUnifiedSearchNumericFields = new HashSet<string>()
-        {
-            "like_counter",
-            "views",
-            "rating",
-            "votes",
-            EPG_CHANNEL_ID,
-            MEDIA_ID,
-            EPG_ID,
-            LINEAR_MEDIA_ID,
-            STATUS,
-            RECORDING_ID,
-            NamingHelper.ENABLE_CDVR,
-            NamingHelper.ENABLE_CATCHUP
-        };
-
-        private static readonly HashSet<string> reservedUnifiedDateFields = new HashSet<string>()
-        {
-            CREATIONDATE,
-            PLAYBACKSTARTDATETIME,
-            START_DATE,
-            PLAYBACKENDDATETIME,
-            CATALOGSTARTDATETIME,
-            CATALOGENDDATETIME,
-            END_DATE,
-            LASTMODIFIED
-        };
-
         private static readonly HashSet<string> internalReservedUnifiedSearchNumericFields = new HashSet<string>()
         {
             "allowed_countries",
@@ -6836,7 +6797,7 @@ namespace Core.Catalog
 
             if (definitions.entitlementSearchDefinitions != null)
             {
-                UnifiedSearchDefinitionsBuilder.BuildEntitlementSearchDefinitions(definitions, request, null, group.m_nParentGroupID, group);
+                UnifiedSearchDefinitionsBuilder.BuildEntitlementSearchDefinitions(definitions, request, null, groupId, group);
             }
 
             if (definitions.shouldGetUserPreferences)
@@ -7100,7 +7061,7 @@ namespace Core.Catalog
                 {
                     // If the filter uses non-default start/end dates, we tell the definitions no to use default start/end date
                     // TODO - Lior , ask Ira if to allow this for all types or only EPG\Recording
-                    if (reservedUnifiedDateFields.Contains(searchKeyLowered))
+                    if (CatalogReservedFields.ReservedUnifiedDateFields.Contains(searchKeyLowered))
                     {
                         definitions.shouldUseStartDateForEpg = false;
                         GetLeafDate(ref leaf, request.m_dServerTime);
@@ -7315,6 +7276,13 @@ namespace Core.Catalog
                                     definitions.PersonalData.Add(NamingHelper.ENTITLED_ASSETS_FIELD);
                                     break;
                                 }
+                            case ("entitledsubscriptions"):
+                            {
+                                definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
+                                definitions.entitlementSearchDefinitions.shouldGetOnlySubscriptionAssets = true;
+                                definitions.PersonalData.Add(NamingHelper.ENTITLED_ASSETS_FIELD);
+                                break;
+                            }
                             case ("both"):
                                 {
                                     definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
@@ -7366,7 +7334,7 @@ namespace Core.Catalog
                             leaf.operand = ComparisonOperator.Contains;
                         }
                     }
-                    else if (reservedUnifiedSearchNumericFields.Contains(searchKeyLowered))
+                    else if (CatalogReservedFields.ReservedUnifiedSearchNumericFields.Contains(searchKeyLowered))
                     {
                         leaf.shouldLowercase = false;
 
@@ -7427,7 +7395,7 @@ namespace Core.Catalog
                             }
                         }
                     }
-                    else if (reservedUnifiedSearchStringFields.Contains(searchKeyLowered))
+                    else if (CatalogReservedFields.ReservedUnifiedSearchStringFields.Contains(searchKeyLowered))
                     {
                         leaf.shouldLowercase = true;
 
@@ -7670,7 +7638,8 @@ namespace Core.Catalog
                 definitions.permittedWatchRules = string.Join(" ", group.m_sPermittedWatchRules);
             }
 
-            definitions.langauge = doesGroupUsesTemplates ? catalogGroupCache.GetDefaultLanguage() : group.GetGroupDefaultLanguage();
+            var languageId = request.m_oFilter?.m_nLanguage ?? -1;
+            definitions.langauge = GetLanguage(request.m_nGroupID, languageId);
 
             #endregion
 
@@ -8146,7 +8115,7 @@ namespace Core.Catalog
                     }
 
                     bool shouldLowercase = true;
-                    if (reservedUnifiedSearchNumericFields.Contains(searchValue.m_sKey))
+                    if (CatalogReservedFields.ReservedUnifiedSearchNumericFields.Contains(searchValue.m_sKey))
                     {
                         shouldLowercase = false;
                     }
@@ -9516,9 +9485,9 @@ namespace Core.Catalog
         public static HashSet<string> GetTopicsToIgnoreOnBuildIndex()
         {
             HashSet<string> topicsToIgnore = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            topicsToIgnore.UnionWith(reservedUnifiedSearchStringFields);
-            topicsToIgnore.UnionWith(reservedUnifiedSearchNumericFields);
-            topicsToIgnore.UnionWith(reservedUnifiedDateFields);
+            topicsToIgnore.UnionWith(CatalogReservedFields.ReservedUnifiedSearchStringFields);
+            topicsToIgnore.UnionWith(CatalogReservedFields.ReservedUnifiedSearchNumericFields);
+            topicsToIgnore.UnionWith(CatalogReservedFields.ReservedUnifiedDateFields);
 
             return topicsToIgnore;
         }

@@ -259,7 +259,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("previewModuleId")]
         [XmlElement(ElementName = "previewModuleId", IsNullable = true)]
         [SchemeProperty(IsNullable = true, MinLong = 1)]
-        public long PreviewModuleId { get; set; }
+        public long? PreviewModuleId { get; set; }
 
         /// <summary>
         /// The household limitation module identifier associated with this subscription

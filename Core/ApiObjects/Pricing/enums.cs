@@ -81,6 +81,15 @@ namespace ApiObjects.Pricing
         Collection = 8,
 
     }
+    
+    [Serializable]
+    public enum PPVOrderBy
+    {
+        NameAsc = 0,
+        NameDesc = 1,
+        UpdateDataAsc = 2,
+        UpdateDataDesc = 3
+    }
 
     [Serializable]
     public enum SubscriptionOrderBy
@@ -123,5 +132,15 @@ namespace ApiObjects.Pricing
     {
         Coupon = 0,
         GiftCard = 1
+    }
+
+    [Serializable]
+    public enum CollectionOrderBy
+    {
+        None,
+        NameAsc,
+        NameDesc,
+        UpdateDataAsc,
+        UpdateDataDesc
     }
 }

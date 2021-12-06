@@ -22,7 +22,7 @@ namespace WebAPI.Models.Partner
         Opc,
         Base,
         CustomFields,
-        DefaultParentalSettings
+        DefaultParentalSettings,
     }
 
     /// <summary>

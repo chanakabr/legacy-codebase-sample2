@@ -490,7 +490,12 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("discounts_groupId_{0}", groupId);
         }
-
+        
+        public static string GetUsageModulesKey(int groupId)
+        {
+            return string.Format("UsageModules_groupId_{0}", groupId);
+        }
+        
         public static string GetGroupDiscountCodesKey(int groupId)
         {
             return string.Format("discountCodes_groupId_{0}", groupId);
@@ -565,7 +570,10 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("all_ppvs_groupId_{0}", groupId);
         }
-
+        public static string GetPpvKey(int id)
+        {
+            return string.Format("ppv_id_{0}", id);
+        }
         public static string GetAllBusinessModuleRuleIdsKey(int groupId)
         {
             return string.Format("all_business_module_rules_ids_groupId_{0}", groupId);
@@ -829,6 +837,11 @@ namespace CachingProvider.LayeredCache
             return $"domain_subcription_purchase_v1_{domainId}_{subscriptionId}";
         }
 
+        public static string GetCollectionKey(int groupId, long collId)
+        {
+            return $"Collection_groupId_{groupId}_Id_{collId}";
+        }
+
         public static string GetSubscriptionKey(int groupId, long subId)
         {
             return string.Format("Subscription_groupId_{0}_Id_{1}", groupId, subId);
@@ -852,6 +865,11 @@ namespace CachingProvider.LayeredCache
         public static string GetGroupUsingAliasNamesKey(int groupId)
         {
             return $"GroupUsingAliasNames_{groupId}";
+        }
+        
+        public static string GetListSearchPriorityGroupMappingsKey(long groupId)
+        {
+            return $"group_{groupId}_searchPriorityGroupsMappings";
         }
 
         public static string GetUserSessionProfiles(int groupId)
@@ -942,7 +960,15 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("PricingSettings_groupId_{0}", groupId);
         }
-
+        
+        public static string GetPpvGroupInvalidationKey(int groupId)
+        {
+            return string.Format("Ppv_groupId_{0}", groupId);
+        }       
+        public static string GetPpvInvalidationKey(int id)
+        {
+            return string.Format("Ppv_id_{0}", id);
+        }
         public static string GetAliasMappingFieldsInvalidationKey(int groupId)
         {
             return string.Format("invalidationKeyAliasMappingFields_groupId_{0}", groupId);
@@ -1182,6 +1208,12 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKeyDiscounts_groupId_{0}", groupId);
         }
+        
+        public static string GetGroupUsageModuleInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKeyUsageModule_groupId_{0}", groupId);
+        }
+        
         public static string GetGroupPricePlanInvalidationKey(int groupId)
         {
             return string.Format("invalidationKeyPricePlan_groupId_{0}", groupId);
@@ -1189,6 +1221,11 @@ namespace CachingProvider.LayeredCache
         public static string GetCollectionsIdsInvalidationKey(int groupId)
         {
             return string.Format("invalidationKeyCollectionsIds_groupId_{0}", groupId);
+        }
+
+        public static string GetCollectionInvalidationKey(int groupId, long collectionId)
+        {
+            return string.Format("invalidationKey_Collection_groupId_{0}_Id_{1}", groupId, collectionId);
         }
 
         public static string GetDiscountCodeInvalidationKey(int groupId, int id)
@@ -1606,6 +1643,11 @@ namespace CachingProvider.LayeredCache
         public static string GetUserSessionProfilesInvalidationKey(int groupId)
         {
             return $"invalidationKey_{GetUserSessionProfiles(groupId)}";
+        }
+
+        public static string GetListSearchPriorityGroupMappingsInvalidationKey(long groupId)
+        {
+            return $"invalidationKey_group_{groupId}_searchPriorityGroupsMappings";
         }
 
         #endregion

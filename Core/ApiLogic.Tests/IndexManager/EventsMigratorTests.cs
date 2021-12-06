@@ -20,7 +20,7 @@ namespace ApiLogic.Tests.IndexManager
         private Mock<IIndexManager> _mockIManager;
         private Mock<IEventBusPublisher> _mockIEventBusPublisher;
 
-        [SetUp]
+        //[SetUp]
         public void SetUp()
         {
             _mockRepository = new MockRepository(MockBehavior.Loose);
@@ -28,7 +28,7 @@ namespace ApiLogic.Tests.IndexManager
             _mockIEventBusPublisher = _mockRepository.Create<IEventBusPublisher>();
         }
 
-        [Test]                 
+        //[Test]                 
         public void TestCallingPublish()
         {
             var decorator = new IndexManagerEventsDecorator(_mockIManager.Object,

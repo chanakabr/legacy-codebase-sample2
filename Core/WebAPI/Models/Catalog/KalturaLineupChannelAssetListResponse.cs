@@ -9,7 +9,7 @@ namespace WebAPI.Models.Catalog
         public KalturaLineupChannelAssetListResponse()
         {
         }
-        
+
         public KalturaLineupChannelAssetListResponse(IEnumerable<KalturaLineupChannelAsset> channelAssets, int totalCount)
         {
             Objects = channelAssets.ToList();

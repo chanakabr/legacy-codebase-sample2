@@ -131,7 +131,9 @@ namespace ApiLogic.Users
                         concurrency = x.concurrency,
                         deviceFamilyName = x.deviceFamilyName,
                         Frequency = x.Frequency,
-                        quantity = x.quantity
+                        quantity = x.quantity,
+                        isDefaultConcurrency = x.isDefaultConcurrency,
+                        isDefaultQuantity = x.isDefaultQuantity
                     }).ToList();
                 }
                 #endregion

@@ -29,7 +29,7 @@ namespace EPGTransformationHandler
                     s.AddScoped<IMappingTypeResolver, MappingTypeResolver>();
                     s.AddSingleton<ICatalogManagerAdapter, CatalogManagerAdapter>();
                 })
-                .ConfigureEventBustConsumer(c =>
+                .ConfigureEventBusConsumer(c =>
                 {
                     c.DedicatedPartnerIdsResolver = () => GroupsFeatures.GetGroupsThatImplementFeature(GroupFeature.EPG_INGEST_V2);
                 });

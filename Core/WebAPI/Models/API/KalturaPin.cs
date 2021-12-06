@@ -18,7 +18,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "pin")]
         [JsonProperty(PropertyName = "pin")]
         [XmlElement(ElementName = "pin")]
-        public string PIN
+        public string Pin
         {
             get;
             set;

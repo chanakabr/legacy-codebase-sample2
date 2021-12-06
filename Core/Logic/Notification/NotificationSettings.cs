@@ -300,17 +300,6 @@ namespace Core.Notification
             return response;
         }
 
-        public static ApiObjects.IotProfile GetIotAdapter(int groupId)
-        {
-            var partnerSettingsResponse = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
-            if (partnerSettingsResponse != null &&
-                partnerSettingsResponse.settings != null)
-            {
-                return NotificationDal.Instance.GetIotProfile(groupId);
-            }
-            return null;
-        }
-
         public static bool IsUserFollowPushEnabled(UserNotificationSettings userSettings)
         {
             if (userSettings != null &&

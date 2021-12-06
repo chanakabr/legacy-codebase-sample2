@@ -1,26 +1,35 @@
-﻿using ApiLogic.Base;
+﻿using System;
+using ApiLogic.Base;
 using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Response;
-using System;
-using System.Reflection;
-using KLogMonitor;
-using Core.Notification;
-using Newtonsoft.Json;
-using DAL;
-using TVinciShared;
 using ConfigurationManager;
+using Core.Notification;
+using DAL;
+using KLogMonitor;
+using Newtonsoft.Json;
+using TVinciShared;
 
 namespace ApiLogic.Notification
 {
     public class IotProfileManager : ICrudHandler<IotProfile, long>
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly Lazy<IotProfileManager> lazy = new Lazy<IotProfileManager>(() => new IotProfileManager());
+        private static readonly KLogger log = new KLogger(nameof(IotProfileManager));
+        private static readonly Lazy<IotProfileManager> lazy = new Lazy<IotProfileManager>(()
+            => new IotProfileManager(NotificationDal.Instance, NotificationCache.Instance(), IotManager.Instance));
 
-        public static IotProfileManager Instance { get { return lazy.Value; } }
+        private readonly INotificationDal _notificationDal;
+        private readonly INotificationCache _notificationCache;
+        private readonly IIotManager _iotManager;
 
-        private IotProfileManager() { }
+        public static IotProfileManager Instance => lazy.Value;
+
+        private IotProfileManager(INotificationDal notificationDal, INotificationCache notificationCache, IIotManager iotManager)
+        {
+            _notificationDal = notificationDal ?? throw new ArgumentNullException(nameof(notificationDal));
+            _notificationCache = notificationCache ?? throw new ArgumentNullException(nameof(notificationCache));
+            _iotManager = iotManager ?? throw new ArgumentNullException(nameof(iotManager));
+        }
 
         public Status Delete(ContextData contextData, long id)
         {
@@ -32,7 +41,7 @@ namespace ApiLogic.Notification
             var updatingConfig = new IotProfile
             {
                 AdapterUrl = newConfig.AdapterUrl ?? oldConfig.AdapterUrl,
-                IotProfileAws = new IotProfileAws()
+                IotProfileAws = new IotProfileAws
                 {
                     AccessKeyId = newConfig.IotProfileAws?.AccessKeyId ?? oldConfig.IotProfileAws?.AccessKeyId,
                     SecretAccessKey = newConfig.IotProfileAws?.SecretAccessKey ?? oldConfig.IotProfileAws?.SecretAccessKey,
@@ -54,7 +63,7 @@ namespace ApiLogic.Notification
 
             try
             {
-                var partnerSettings = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
+                var partnerSettings = _notificationCache.GetPartnerNotificationSettings(groupId);
 
                 if (partnerSettings == null)
                 {
@@ -64,7 +73,7 @@ namespace ApiLogic.Notification
                     return response;
                 }
 
-                if (NotificationDal.Instance.GetIotProfile(groupId) != null)
+                if (_notificationDal.GetIotProfile(groupId) != null)
                 {
                     var error = $"Error: IotProfile already exists for group: {groupId}.";
                     log.Error(error);
@@ -92,7 +101,7 @@ namespace ApiLogic.Notification
                     return response;
                 }
 
-                iotProfile.IotProfileAws = IotManager.Instance.CreateIotEnvironment(groupId, iotProfile);
+                iotProfile.IotProfileAws = _iotManager.CreateIotEnvironment(groupId, iotProfile);
                 
                 if (iotProfile.IotProfileAws == null)
                 {
@@ -124,7 +133,7 @@ namespace ApiLogic.Notification
 
             try
             {
-                var partnerSettings = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
+                var partnerSettings = _notificationCache.GetPartnerNotificationSettings(groupId);
 
                 if (partnerSettings == null)
                 {
@@ -142,7 +151,7 @@ namespace ApiLogic.Notification
                     return response;
                 }
 
-                var currentConfigurations = NotificationDal.Instance.GetIotProfile(contextData.GroupId);
+                var currentConfigurations = _notificationDal.GetIotProfile(contextData.GroupId);
 
                 if (currentConfigurations == null)
                 {
@@ -155,12 +164,15 @@ namespace ApiLogic.Notification
                 var newConfigurations = FillMissingConfigurations(currentConfigurations, iotProfile);
 
                 newConfigurations.IotProfileAws.UpdateDate = DateUtils.GetUtcUnixTimestampNow();
-                IotManager.Instance.InvalidateClientConfiguration(groupId);
+                _iotManager.InvalidateClientConfiguration(groupId);
 
                 var saved = SaveIotProfile(groupId, newConfigurations);
 
-                response.Object = new IotProfile() { AdapterUrl = newConfigurations.AdapterUrl};
-                response.Object.IotProfileAws = IotManager.Instance.UpdateIotEnvironment(groupId, newConfigurations);
+                response.Object = new IotProfile
+                {
+                    AdapterUrl = newConfigurations.AdapterUrl,
+                    IotProfileAws = _iotManager.UpdateIotEnvironment(groupId, newConfigurations)
+                };
 
                 if (response.Object.IotProfileAws == null)
                 {
@@ -186,14 +198,14 @@ namespace ApiLogic.Notification
             var groupId = contextData.GroupId;
             try
             {
-                var partnerSettings = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
+                var partnerSettings = _notificationCache.GetPartnerNotificationSettings(groupId);
                 if (!IotManager.IsIotAllowed(partnerSettings))
                 {
                     log.Error($"Error while getting PartnerNotificationSettings for group: {groupId}.");
                     return response;
                 }
 
-                var iotProfile = NotificationDal.Instance.GetIotProfile(groupId);
+                var iotProfile = _notificationDal.GetIotProfile(groupId);
 
                 if (iotProfile == null)
                 {
@@ -202,12 +214,12 @@ namespace ApiLogic.Notification
                     return response;
                 }
 
-                IotManager.Instance.InvalidateClientConfiguration(groupId);
+                _iotManager.InvalidateClientConfiguration(groupId);
 
                 response.Object = new IotProfile
                 {
                     AdapterUrl = iotProfile.AdapterUrl,
-                    IotProfileAws = IotManager.Instance.GetClientConfiguration(groupId)
+                    IotProfileAws = _iotManager.GetClientConfiguration(groupId)
                 };
 
                 SaveIotProfile(groupId, iotProfile);
@@ -225,7 +237,7 @@ namespace ApiLogic.Notification
 
         private bool SaveIotProfile(int groupId, IotProfile msResponse)
         {
-            if (!DAL.NotificationDal.Instance.SaveIotProfile(groupId, msResponse))
+            if (!_notificationDal.SaveIotProfile(groupId, msResponse))
             {
                 log.ErrorFormat($"Error while adding Iot profile. Iot response: {JsonConvert.SerializeObject(msResponse)}");
                 return false;

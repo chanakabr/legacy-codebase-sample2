@@ -188,7 +188,7 @@ namespace ApiObjects.Response
         SubscriptionCancellationIsBlocked = 3074,
         InvalidProductType = 3075,
         InvalidContentId = 3076,
-        UnknownPriceReason = 3077,
+        InvalidOffer = 3077,
         PurchaseFailed = 3078,
         PurchasePassedEntitlementFailed = 3079,
         NetworkRuleBlock = 3080,
@@ -317,10 +317,11 @@ namespace ApiObjects.Response
         StartDateShouldBeLessThanEndDate = 4111,
         LabelAlreadyInUse = 4112,
         LabelDoesNotExist = 4113,
-        PremiumServiceDoesNotExist = 4114,
+        PremiumServiceDoesNotExist = 4114,        
         VideoCodecsDoesNotExist = 4115,
         AudioCodecsDoesNotExist = 4116,
-
+        SearchPriorityGroupDoesNotExist = 4117,
+        
         #endregion
 
         #region Api 5000 - 5999
@@ -579,6 +580,8 @@ namespace ApiObjects.Response
         PreviewModuleNotExist = 9038,
         CollectionNotExist = 9039,
         PartnerDoesNotExist = 9040,
+        PpvModuleNotExist = 9041,
+        UsageModuleExistInPpv = 9042,
 
         #endregion
 

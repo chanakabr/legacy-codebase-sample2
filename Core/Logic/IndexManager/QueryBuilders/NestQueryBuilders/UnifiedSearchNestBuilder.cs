@@ -1248,7 +1248,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
             bool shouldGetFreeAssets = entitledAssetsSearchType == "free" || entitledAssetsSearchType == "both" ||
                 entitledAssetsSearchType == "not_entitled";
             bool shouldGetPaidForAssets = entitledAssetsSearchType == "entitled" || entitledAssetsSearchType == "both" ||
-                entitledAssetsSearchType == "not_entitled";
+                entitledAssetsSearchType == "not_entitled" || entitledAssetsSearchType == "entitledsubscriptions";
 
             if (shouldGetFreeAssets)
             {
