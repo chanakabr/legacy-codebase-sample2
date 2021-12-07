@@ -122,9 +122,16 @@ namespace WebAPI.Models.Pricing
             if (MultiCurrencyDiscount.Count.Equals(0))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "multiCurrencyDiscount");
 
-            if (!Enum.IsDefined(typeof(WhenAlgoType), WhenAlgoType))
-                throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "WhenAlgoType", WhenAlgoType);
-
+            if (WhenAlgoType != 0)
+            {
+                if (!Enum.IsDefined(typeof(WhenAlgoType), WhenAlgoType))
+                    throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "WhenAlgoType", WhenAlgoType);
+            } 
+            else
+            {
+                WhenAlgoType = (int) ApiObjects.Pricing.WhenAlgoType.N_FIRST_TIMES;
+            }
+            
             ValidateMultiCurrencyDiscount();
         }
 
