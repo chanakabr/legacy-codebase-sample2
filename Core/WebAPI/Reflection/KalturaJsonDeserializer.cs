@@ -16164,6 +16164,26 @@ namespace WebAPI.Models.Notifications
             }
         }
     }
+    public partial class KalturaTopicNotificationListResponse
+    {
+        public KalturaTopicNotificationListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaTopicNotification>(typeof(KalturaTopicNotification), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaTopicNotification), parameters["objects"] as object[]);
+                    }
+                }
+            }
+        }
+    }
     public partial class KalturaTopicNotificationMessage
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTopicNotificationMessage")
@@ -18280,26 +18300,6 @@ namespace WebAPI.Models.Notification
                     else if (parameters["objects"] is IList)
                     {
                         Topics = buildList(typeof(KalturaTopic), parameters["objects"] as object[]);
-                    }
-                }
-            }
-        }
-    }
-    public partial class KalturaTopicNotificationListResponse
-    {
-        public KalturaTopicNotificationListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
-                {
-                    if (parameters["objects"] is JArray)
-                    {
-                        Objects = buildList<KalturaTopicNotification>(typeof(KalturaTopicNotification), (JArray) parameters["objects"]);
-                    }
-                    else if (parameters["objects"] is IList)
-                    {
-                        Objects = buildList(typeof(KalturaTopicNotification), parameters["objects"] as object[]);
                     }
                 }
             }

@@ -27,11 +27,13 @@ using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Domains;
 using WebAPI.Models.General;
+using WebAPI.Models.Notification;
 using WebAPI.Models.Partner;
 using WebAPI.Models.Segmentation;
 using WebAPI.Models.Users;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
+using KalturaPersonalListListResponse = WebAPI.Models.Api.KalturaPersonalListListResponse;
 
 namespace WebAPI.Clients
 {

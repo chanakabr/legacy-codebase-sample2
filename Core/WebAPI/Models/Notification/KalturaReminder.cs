@@ -4,7 +4,6 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
-using WebAPI.Models.Notification;
 
 namespace WebAPI.Models.Notifications
 {

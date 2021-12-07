@@ -6,6 +6,7 @@ using System.Xml.Serialization;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
+using WebAPI.Models.Notification;
 
 namespace WebAPI.Models.Api
 {
@@ -69,68 +70,5 @@ namespace WebAPI.Models.Api
         [JsonProperty(PropertyName = "partnerListType")]
         [XmlElement(ElementName = "partnerListType")]
         public int PartnerListType { get; set; }
-    }
-
-    /// <summary>
-    /// List of KalturaPersonalList.
-    /// </summary>
-    [DataContract(Name = "KalturaPersonalListListResponse", Namespace = "")]
-    [XmlRoot("KalturaPersonalListListResponse")]
-    public partial class KalturaPersonalListListResponse : KalturaListResponse
-    {
-        /// <summary>
-        /// Follow data list
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty("objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]
-        public List<KalturaPersonalList> PersonalListList { get; set; }
-    }
-
-    public enum KalturaPersonalListOrderBy
-    {
-        CREATE_DATE_DESC,
-        CREATE_DATE_ASC
-    }
-
-    public partial class KalturaPersonalListFilter : KalturaFilter<KalturaPersonalListOrderBy>
-    {
-        /// <summary>
-        /// Comma separated list of partner list types to search within. 
-        /// If omitted – all types should be included.
-        /// </summary>
-        [DataMember(Name = "partnerListTypeIn")]
-        [JsonProperty("partnerListTypeIn")]
-        [XmlElement(ElementName = "partnerListTypeIn", IsNullable = true)]
-        public string PartnerListTypeIn { get; set; }
-
-        internal HashSet<int> GetPartnerListTypeIn()
-        {
-            if (string.IsNullOrEmpty(PartnerListTypeIn))
-                return null;
-
-            HashSet<int> values = new HashSet<int>();
-            string[] stringValues = PartnerListTypeIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string stringValue in stringValues)
-            {
-                int value;
-                if (int.TryParse(stringValue, out value))
-                {
-                    values.Add(value);
-                }
-                else
-                {
-                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaPersonalListFilter.PartnerListTypeIn");
-                }
-            }
-
-            return values;
-        }
-
-        public override KalturaPersonalListOrderBy GetDefaultOrderByValue()
-        {
-            return KalturaPersonalListOrderBy.CREATE_DATE_DESC;
-        }
     }
 }

@@ -24,21 +24,4 @@ namespace WebAPI.Models.Notification
         [XmlArrayItem(ElementName = "item")]
         public List<KalturaInboxMessage> InboxMessages { get; set; }
     }
-
-    /// <summary>
-    /// List of inbox message.
-    /// </summary>
-    [DataContract(Name = "KalturaInboxMessageListResponse", Namespace = "")]
-    [XmlRoot("KalturaInboxMessageListResponse")]
-    public partial class KalturaInboxMessageListResponse : KalturaListResponse
-    {
-        /// <summary>
-        /// Follow data list
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty("objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]
-        public List<KalturaInboxMessage> InboxMessages { get; set; }
-    }
 }

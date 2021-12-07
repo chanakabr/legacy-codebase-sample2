@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using WebAPI.Models.General;
 using WebAPI.Models.Notifications;
 
-namespace WebAPI.Models.Notification
+namespace WebAPI.Models.Notifications
 {
     public partial class KalturaTopicNotificationListResponse : KalturaListResponse
     {

@@ -23,9 +23,8 @@ using WebAPI.Models.Notification;
 using WebAPI.Models.Notifications;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
-using WebAPI.ModelsValidators;
 using WebAPI.ObjectsConvertor.Extensions;
-using KalturaTopicNotificationListResponse = WebAPI.Models.Notification.KalturaTopicNotificationListResponse;
+using KalturaTopicNotificationListResponse = WebAPI.Models.Notifications.KalturaTopicNotificationListResponse;
 
 namespace WebAPI.Clients
 {

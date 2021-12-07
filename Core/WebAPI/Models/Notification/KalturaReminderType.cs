@@ -1,4 +1,4 @@
-﻿namespace WebAPI.Models.Notification
+﻿namespace WebAPI.Models.Notifications
 {
     public enum KalturaReminderType
     {
