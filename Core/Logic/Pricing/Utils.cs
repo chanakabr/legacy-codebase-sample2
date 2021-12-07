@@ -18,14 +18,11 @@ namespace Core.Pricing
     {
         string GetMinPeriodDescription(int id);
     }
-
-
     public class Utils : IPricingUtils
-    {      
+    {
         private static string PRICING_CONNECTION = "PRICING_CONNECTION";
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
 
         private static readonly Lazy<Utils> lazy = new Lazy<Utils>(() => new Utils(), LazyThreadSafetyMode.PublicationOnly);
 
@@ -151,7 +148,7 @@ namespace Core.Pricing
             return t;
         }
 
-     
+
         public static Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BaseCampaign t)
         {
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -397,15 +394,15 @@ namespace Core.Pricing
                     if (groupId.HasValue)
                     {
                         adsData = new APILogic.ConditionalAccess.AdsControlData();
-                        DataTable dt = DAL.PricingDAL.GetGroupAdsControlParams(groupId.Value);                        
+                        DataTable dt = DAL.PricingDAL.GetGroupAdsControlParams(groupId.Value);
                         if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                        {                            
+                        {
                             int adsPolicy = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["ADS_POLICY"]);
                             if (adsPolicy > 0)
                             {
                                 adsData.AdsPolicy = (ApiObjects.AdsPolicy)adsPolicy;
                                 adsData.AdsParam = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["ADS_PARAM"]);
-                            }                            
+                            }
                         }
 
                         res = true;
@@ -505,7 +502,7 @@ namespace Core.Pricing
             XmlNode startDateNode;
             XmlNode endtDateNode;
 
-            long id = groupCoupon.ContainsValue(couponGroup.Code) ? groupCoupon.Where(x=>x.Value == couponGroup.Code).Select(x=>x.Key).FirstOrDefault() : 0;
+            long id = groupCoupon.ContainsValue(couponGroup.Code) ? groupCoupon.Where(x => x.Value == couponGroup.Code).Select(x => x.Key).FirstOrDefault() : 0;
 
             if (id > 0)
             {
@@ -525,7 +522,7 @@ namespace Core.Pricing
 
                 rootNode.AppendChild(rowNode);
             }
-        }        
+        }
 
         internal static List<KeyValuePair<VerificationPaymentGateway, string>> GetSubscriptionExternalProductCodes(long subscriptionId, int groupId)
         {
@@ -678,8 +675,8 @@ namespace Core.Pricing
                         if (typeof(SubscriptionSetType).IsEnumDefined(subscriptionSetType))
                         {
                             type = (SubscriptionSetType)subscriptionSetType;
-                        }                        
-                       
+                        }
+
                         if (id > 0 && !string.IsNullOrEmpty(name))
                         {
                             if (type == SubscriptionSetType.Dependency)
@@ -728,7 +725,7 @@ namespace Core.Pricing
                                 subscriptionSetsMap.Add(id, (SubscriptionSet)(switchSet));
                             }
                         }
-                    }                   
+                    }
 
                     subscriptionSets = subscriptionSetsMap.Values.ToList();
                 }
@@ -754,7 +751,7 @@ namespace Core.Pricing
                     return subscriptionSets;
                 }
 
-                subscriptionSets = GetSubscriptionSets(groupId, setIds, type);                
+                subscriptionSets = GetSubscriptionSets(groupId, setIds, type);
             }
 
             catch (Exception ex)
@@ -770,7 +767,7 @@ namespace Core.Pricing
             SubscriptionSet subscriptionSet = null;
             try
             {
-                List<KeyValuePair<long, int>> subscriptionIdsToPriority = new List<KeyValuePair<long,int>>();
+                List<KeyValuePair<long, int>> subscriptionIdsToPriority = new List<KeyValuePair<long, int>>();
                 if (subscriptionIds != null && subscriptionIds.Count > 0)
                 {
                     int priority = 1;
@@ -789,7 +786,7 @@ namespace Core.Pricing
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed InsertSubscriptionSet, groupId: {0}, name: {1}, subscriptionIds: {2}", groupId, name, subscriptionIds != null ? string.Join(",", subscriptionIds) : ""), ex);                
+                log.Error(string.Format("Failed InsertSubscriptionSet, groupId: {0}, name: {1}, subscriptionIds: {2}", groupId, name, subscriptionIds != null ? string.Join(",", subscriptionIds) : ""), ex);
             }
 
             return subscriptionSet;
@@ -800,7 +797,7 @@ namespace Core.Pricing
             SubscriptionSet subscriptionSet = null;
             try
             {
-                List<KeyValuePair<long, int>> subscriptionIdsToPriority = new List<KeyValuePair<long,int>>();
+                List<KeyValuePair<long, int>> subscriptionIdsToPriority = new List<KeyValuePair<long, int>>();
                 if (subscriptionIds != null && subscriptionIds.Count > 0)
                 {
                     int priority = 1;
@@ -846,10 +843,9 @@ namespace Core.Pricing
                 productCodeIddNode.InnerText = pc.Value;
                 rowNode.AppendChild(productCodeIddNode);
 
-               rootNode.AppendChild(rowNode);
+                rootNode.AppendChild(rowNode);
             }
         }
-
 
         internal static Dictionary<long, Dictionary<long, int>> GetSetsContainingBaseSubscription(int groupId, List<long> subscriptionIds, SubscriptionSetType type = SubscriptionSetType.Dependency)
         {
@@ -897,7 +893,7 @@ namespace Core.Pricing
             List<SubscriptionSet> subscriptionSets = new List<SubscriptionSet>();
             try
             {
-                Dictionary<long, Dictionary<long, int>> subscriptionIdToSetIdsMap = GetSetsContainingBaseSubscription(groupId, subscriptionIds, type.HasValue? type.Value: SubscriptionSetType.Dependency);
+                Dictionary<long, Dictionary<long, int>> subscriptionIdToSetIdsMap = GetSetsContainingBaseSubscription(groupId, subscriptionIds, type.HasValue ? type.Value : SubscriptionSetType.Dependency);
                 if (subscriptionIdToSetIdsMap == null || subscriptionIdToSetIdsMap.Count == 0)
                 {
                     return subscriptionSets;
@@ -919,7 +915,6 @@ namespace Core.Pricing
 
             return subscriptionSets;
         }
-
 
         internal static SubscriptionSet InsertSubscriptionDependencySet(int groupId, string name, long baseSubscriptionId, List<long> subscriptionIds, SubscriptionSetType setType)
         {
@@ -954,7 +949,7 @@ namespace Core.Pricing
             return subscriptionSet;
         }
 
-        internal static SubscriptionSet UpdateSubscriptionDependencySet(int groupId, long setId, string name, long baseSubscriptionId, List<long> subscriptionIds, bool shouldUpdateSubscriptionIds, SubscriptionSetType type)    
+        internal static SubscriptionSet UpdateSubscriptionDependencySet(int groupId, long setId, string name, long baseSubscriptionId, List<long> subscriptionIds, bool shouldUpdateSubscriptionIds, SubscriptionSetType type)
         {
             SubscriptionSet subscriptionSet = null;
             try
@@ -996,7 +991,7 @@ namespace Core.Pricing
                 {
                     response.Add(BuildUsageModuleFromDataRow(row));
                 }
-                   
+
             }
             return response;
         }
@@ -1006,26 +1001,25 @@ namespace Core.Pricing
             if (usageModuleRow != null)
             {
                 return new UsageModule()
-                            {
-                                m_bIsOfflinePlayBack = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "OFFLINE_PLAYBACK") == 1 ? true : false,
-                                m_bWaiver = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "WAIVER") == 1 ? true : false,
-                                m_coupon_id = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "coupon_id"),
-                                m_ext_discount_id = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "ext_discount_id"),
-                                m_is_renew = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "is_renew"),
-                                m_nMaxNumberOfViews = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "MAX_VIEWS_NUMBER"),
-                                m_nObjectID = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "ID"),
-                                m_num_of_rec_periods = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "num_of_rec_periods"),
-                                m_nWaiverPeriod = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "WAIVER_PERIOD"),
-                                m_pricing_id = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "pricing_id"),
-                                m_sVirtualName = ODBCWrapper.Utils.GetSafeStr(usageModuleRow, "NAME"),
-                                m_tsMaxUsageModuleLifeCycle = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "FULL_LIFE_CYCLE_MIN"),
-                                m_tsViewLifeCycle = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "VIEW_LIFE_CYCLE_MIN"),
-                                m_type = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "type")
+                {
+                    m_bIsOfflinePlayBack = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "OFFLINE_PLAYBACK") == 1 ? true : false,
+                    m_bWaiver = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "WAIVER") == 1 ? true : false,
+                    m_coupon_id = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "coupon_id"),
+                    m_ext_discount_id = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "ext_discount_id"),
+                    m_is_renew = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "is_renew"),
+                    m_nMaxNumberOfViews = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "MAX_VIEWS_NUMBER"),
+                    m_nObjectID = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "ID"),
+                    m_num_of_rec_periods = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "num_of_rec_periods"),
+                    m_nWaiverPeriod = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "WAIVER_PERIOD"),
+                    m_pricing_id = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "pricing_id"),
+                    m_sVirtualName = ODBCWrapper.Utils.GetSafeStr(usageModuleRow, "NAME"),
+                    m_tsMaxUsageModuleLifeCycle = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "FULL_LIFE_CYCLE_MIN"),
+                    m_tsViewLifeCycle = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "VIEW_LIFE_CYCLE_MIN"),
+                    m_type = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "type")
                 };
             }
             return null;
         }
-
 
         internal static List<DiscountDetails> BuildDiscountsFromDataTable(DataTable discounts)
         {
@@ -1047,7 +1041,7 @@ namespace Core.Pricing
                             EndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "end_date"),
                             MultiCurrencyDiscounts = new List<Discount>(),
                             WhenAlgoTimes = ODBCWrapper.Utils.GetIntSafeVal(dr, "WHENALGO_TIMES"),
-                            WhenAlgoType = (WhenAlgoType)Enum.Parse(typeof(WhenAlgoType),ODBCWrapper.Utils.GetSafeStr(dr, "WHENALGO_TYPE"))
+                            WhenAlgoType = (WhenAlgoType)Enum.Parse(typeof(WhenAlgoType), ODBCWrapper.Utils.GetSafeStr(dr, "WHENALGO_TYPE"))
                         };
                         discountsMap.Add(id, pd);
                     }
@@ -1120,5 +1114,43 @@ namespace Core.Pricing
             return res;
         }
 
+        internal static List<PricePlan> BuildPricePlanFromDataTable(DataTable pricePlanTable)
+        {
+            List<PricePlan> response = new List<PricePlan>();
+            if (pricePlanTable != null && pricePlanTable.Rows != null && pricePlanTable.Rows.Count > 0)
+            {
+                foreach (DataRow row in pricePlanTable.Rows)
+                {
+                    if (ODBCWrapper.Utils.GetIntSafeVal(row, "type") == 2)
+                    {
+                        response.Add(BuildPricePlanFromDataRow(row));
+                    }
+                }
+            }
+            return response;
+        }
+
+        internal static PricePlan BuildPricePlanFromDataRow(DataRow pricePlaneRow)
+        {
+            if (pricePlaneRow != null)
+            {
+                return new PricePlan()
+                {
+                    IsOfflinePlayBack = ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "OFFLINE_PLAYBACK") == 1,
+                    DiscountId = ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "ext_discount_id"),
+                    IsRenewable = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "is_renew")),
+                    MaxViewsNumber = ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "MAX_VIEWS_NUMBER"),
+                    Id = ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "ID"),
+                    RenewalsNumber = ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "num_of_rec_periods"),
+                    PriceDetailsId = ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "pricing_id"),
+                    Name = ODBCWrapper.Utils.GetSafeStr(pricePlaneRow, "NAME"),
+                    FullLifeCycle = ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "FULL_LIFE_CYCLE_MIN"),
+                    ViewLifeCycle = ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "VIEW_LIFE_CYCLE_MIN"),
+                    WaiverPeriod = ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "WAIVER_PERIOD"),
+                    IsWaiverEnabled = ODBCWrapper.Utils.ExtractBoolean(pricePlaneRow, "WAIVER"),
+                };
+            }
+            return null;
+        }
     }
 }

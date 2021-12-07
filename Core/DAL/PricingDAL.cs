@@ -48,10 +48,11 @@ namespace DAL
 
     public interface IPricePlanRepository
     {
-        List<PricePlan> GetPricePlans(int groupId, List<long> pricePlanIds = null);
         bool DeletePricePlan(int groupId, long id, long userId);
         long InsertPricePlan(int groupId, PricePlan pricePlan, long userId);
         int UpdatePricePlan(int groupID, PricePlan pricePlan, long id, long userId);
+        DataTable GetPricePlansDT(int groupId, List<long> pricePlanIds = null);
+
     }
     public interface IModuleManagerRepository
     {
@@ -1993,53 +1994,6 @@ namespace DAL
             return sp.Execute();
         }
 
-        public List<PricePlan> GetPricePlans(int groupId, List<long> pricePlanIds = null)
-        {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetPricePlans");
-            sp.SetConnectionKey("pricing_connection");
-            sp.AddParameter("@groupId", groupId);
-            sp.AddIDListParameter("@usageModulesIds", pricePlanIds, "ID");
-            sp.AddParameter("@shouldGetAll", pricePlanIds == null || pricePlanIds.Count == 0 ? 1 : 0);
-
-            return BuildPricePlanFromDataTable(sp.Execute());
-        }
-
-        private List<PricePlan> BuildPricePlanFromDataTable(DataTable pricePlanTable)
-        {
-            List<PricePlan> response = new List<PricePlan>();
-            if (pricePlanTable != null && pricePlanTable.Rows != null && pricePlanTable.Rows.Count > 0)
-            {
-                foreach (DataRow row in pricePlanTable.Rows)
-                {
-                    response.Add(BuildPricePlanFromDataRow(row));
-                }
-            }
-            return response;
-        }
-
-        private PricePlan BuildPricePlanFromDataRow(DataRow pricePlaneRow)
-        {
-            if (pricePlaneRow != null)
-            {
-                return new PricePlan()
-                {
-                    IsOfflinePlayBack = ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "OFFLINE_PLAYBACK") == 1,
-                    DiscountId = ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "ext_discount_id"),
-                    IsRenewable = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "is_renew")),
-                    MaxViewsNumber = ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "MAX_VIEWS_NUMBER"),
-                    Id = ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "ID"),
-                    RenewalsNumber = ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "num_of_rec_periods"),
-                    PriceDetailsId = ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "pricing_id"),
-                    Name = ODBCWrapper.Utils.GetSafeStr(pricePlaneRow, "NAME"),
-                    FullLifeCycle = ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "FULL_LIFE_CYCLE_MIN"),
-                    ViewLifeCycle = ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "VIEW_LIFE_CYCLE_MIN"),
-                    WaiverPeriod = ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "WAIVER_PERIOD"),
-                    IsWaiverEnabled = ODBCWrapper.Utils.ExtractBoolean(pricePlaneRow, "WAIVER"),
-                };
-            }
-            return null;
-        }
-
         public List<PriceDetailsDTO> GetPriceDetails(int groupId)
         {
             List<PriceDetailsDTO> priceDetailsDTOList = null;
@@ -2638,7 +2592,7 @@ namespace DAL
                     priceDetailsMap[id].Prices.Add(price);
                 }
             }
-            
+
             return priceDetailsMap.Values.ToList();
         }
 

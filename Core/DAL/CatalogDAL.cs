@@ -2088,7 +2088,7 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static void UpdateOrInsertUsersMediaMark(UserMediaMark userMediaMark)
+        public static void UpdateOrInsertUsersMediaMark(UserMediaMark userMediaMark, bool isFirstPlay)
         {
             int limitRetries = RETRY_LIMIT;
             bool success = false;
@@ -2101,22 +2101,22 @@ namespace Tvinci.Core.DAL
                 UpdateOrInsertUsersMediaMarkOrHit(mediaMarksManager, ref limitRetries, _rand, mmKey, ref success, userMediaMark);
             }
 
-            limitRetries = RETRY_LIMIT;
-            success = false;
-
-            while (limitRetries >= 0 && !success)
+            if (isFirstPlay)
             {
-                success = InsertMediaMarkToUserMediaMarks(userMediaMark);
+                limitRetries = RETRY_LIMIT;
+                success = false;
 
-                if (!success)
+                while (limitRetries >= 0 && !success)
                 {
-                    Thread.Sleep(_rand.Next(50));
-                    limitRetries--;
+                    success = InsertMediaMarkToUserMediaMarks(userMediaMark);
+
+                    if (!success)
+                    {
+                        Thread.Sleep(_rand.Next(50));
+                        limitRetries--;
+                    }
                 }
             }
-
-            limitRetries = RETRY_LIMIT;
-            success = false;
         }
 
         private static string GetMediaMarkKey(UserMediaMark userMediaMark)

@@ -26,11 +26,17 @@ namespace ApiLogic.Tests.Pricing
             var layeredCacheMock = LayeredCacheHelper.GetLayeredCacheMock(deleteTestCase.PricePlanList, true, false);
             var priceDetailsManagerMock = new Mock<IPriceDetailsManager>();
             var discountDetailsManagerMock = new Mock<IDiscountDetailsManager>();
-            var groupSettingsManagerMock = new Mock<IGroupSettingsManager>();
+            var groupSettingsManagerMock = new Mock<IGroupSettingsManager>();            
+
             groupSettingsManagerMock.Setup(x => x.IsOpc(It.IsAny<int>())).Returns(deleteTestCase.IsOPC);
             repositoryMock.Setup(x => x.DeletePricePlan(It.IsAny<int>(), It.IsAny<long>(), It.IsAny<long>()))
                                    .Returns(deleteTestCase.DeletePricePlan);
-            PricePlanManager manager = new PricePlanManager(repositoryMock.Object, layeredCacheMock.Object, priceDetailsManagerMock.Object, discountDetailsManagerMock.Object, groupSettingsManagerMock.Object);
+            PricePlanManager manager = new PricePlanManager(repositoryMock.Object, 
+                                                            layeredCacheMock.Object, 
+                                                            priceDetailsManagerMock.Object, 
+                                                            discountDetailsManagerMock.Object, 
+                                                            groupSettingsManagerMock.Object);
+
             var response = manager.Delete(fixture.Create<ContextData>(), deleteTestCase.ExpectedId);
 
             Assert.That(response.Code, Is.EqualTo((int)deleteTestCase.ResponseStatus));
@@ -83,7 +89,11 @@ namespace ApiLogic.Tests.Pricing
             
             priceDetailsManagerMock.Setup(x => x.GetPriceDetailsById(It.IsAny<int>(), It.IsAny<long>())).Returns(insertTestCase.PriceCode);
             repositoryMock.Setup(x => x.InsertPricePlan(It.IsAny<int>(), It.IsAny<PricePlan>(), It.IsAny<long>())).Returns(insertTestCase.InsertId);
-            PricePlanManager manager = new PricePlanManager(repositoryMock.Object,  Mock.Of<ILayeredCache>(), priceDetailsManagerMock.Object, discountDetailsManagerMock.Object, groupSettingsManagerMock.Object);
+            PricePlanManager manager = new PricePlanManager(repositoryMock.Object,  
+                                                            Mock.Of<ILayeredCache>(), 
+                                                            priceDetailsManagerMock.Object, 
+                                                            discountDetailsManagerMock.Object, 
+                                                            groupSettingsManagerMock.Object);
             var response = manager.Add(fixture.Create<ContextData>(), fixture.Create<PricePlan>());
 
             Assert.That(response.Status.Code, Is.EqualTo((int)insertTestCase.ResponseStatus));
@@ -144,11 +154,16 @@ namespace ApiLogic.Tests.Pricing
             var layeredCacheMock = LayeredCacheHelper.GetLayeredCacheMock(updateTestCase.PricePlanList, true, false);
             var priceDetailsManagerMock = new Mock<IPriceDetailsManager>();
             var groupSettingsManagerMock = new Mock<IGroupSettingsManager>();
+
             groupSettingsManagerMock.Setup(x => x.IsOpc(It.IsAny<int>())).Returns(updateTestCase.IsOPC);
             discountDetailsManagerMock.Setup(x => x.GetDiscountDetailsById(It.IsAny<int>(), It.IsAny<long>())).Returns(updateTestCase.DiscountDetailsResponse);
             priceDetailsManagerMock.Setup(x => x.GetPriceDetailsById(It.IsAny<int>(), It.IsAny<long>())).Returns(updateTestCase.PriceCode);
             repositoryMock.Setup(x => x.UpdatePricePlan(It.IsAny<int>(), It.IsAny<PricePlan>(), It.IsAny<long>(), It.IsAny<long>())).Returns((int)updateTestCase.UpdatedRow);
-            PricePlanManager manager = new PricePlanManager(repositoryMock.Object, layeredCacheMock.Object, priceDetailsManagerMock.Object, discountDetailsManagerMock.Object, groupSettingsManagerMock.Object);
+            PricePlanManager manager = new PricePlanManager(repositoryMock.Object, 
+                                                            layeredCacheMock.Object, 
+                                                            priceDetailsManagerMock.Object, 
+                                                            discountDetailsManagerMock.Object, 
+                                                            groupSettingsManagerMock.Object);
             var response = manager.Update(fixture.Create<ContextData>(), updateTestCase.Id, updateTestCase.PricePlanToInsert);
 
             Assert.That(response.Status.Code, Is.EqualTo((int)updateTestCase.ResponseStatus));
@@ -230,7 +245,12 @@ namespace ApiLogic.Tests.Pricing
             var layeredCacheMock = LayeredCacheHelper.GetLayeredCacheMock(pricePlanList, true, false);
             var priceDetailsManagerMock = new Mock<IPriceDetailsManager>();
             var groupSettingsManagerMock = new Mock<IGroupSettingsManager>();
-            PricePlanManager manager = new PricePlanManager(repositoryMock.Object, layeredCacheMock.Object, priceDetailsManagerMock.Object, discountDetailsManagerMock.Object, groupSettingsManagerMock.Object);
+
+            PricePlanManager manager = new PricePlanManager(repositoryMock.Object, 
+                                                            layeredCacheMock.Object, 
+                                                            priceDetailsManagerMock.Object, 
+                                                            discountDetailsManagerMock.Object, 
+                                                            groupSettingsManagerMock.Object);
             var response = manager.GetPricePlans(fixture.Create<int>(),pricePlanIds);
 
             Assert.That(response.Objects.Count, Is.EqualTo(listCount));
