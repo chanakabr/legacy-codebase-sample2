@@ -109,8 +109,10 @@ namespace DAL
         List<PpvDTO> Get_AllPpvModuleData(int groupID);
         int InsertPPV(int groupID, long updaterId, PpvDTO ppv);
         bool DeletePPV(int groupID, long userId, long id);
-
         int UpdatePPV(int groupID, long updaterId, int id, PpvDTO ppv);
+
+        int UpdatePPVFileTypes(int groupID, int id, List<int> fileTypesIds);
+        int UpdatePPVDescriptions(int groupID, long updaterId, int id, LanguageContainer[] descriptions);
         bool UpdatePpvVirtualAssetId(int groupId, long id, long? virtualAssetId, long userId);
     }
 
@@ -1673,7 +1675,7 @@ namespace DAL
             }
             return sp.ExecuteReturnValue<int>();
         }
-
+        
         public int UpdatePPV(int groupID, long updaterId, int id, PpvDTO ppv)
         {
             StoredProcedure sp = new StoredProcedure("Update_PPVModuleById");
@@ -1690,7 +1692,6 @@ namespace DAL
             sp.AddParameter("@firstDeviceLimitation", ppv.FirstDeviceLimitation);
             sp.AddParameter("@productCode", ppv.ProductCode);
             sp.AddParameter("@IsActive", ppv.IsActive);
-            sp.AddIDListParameter<int>("@FileTypeIds", ppv.FileTypesIds, "Id");
             sp.AddParameter("@Date", DateTime.UtcNow);
             if (ppv.AdsPolicy.HasValue)
             {
@@ -1701,10 +1702,29 @@ namespace DAL
             {
                 sp.AddParameter("@virtualAssetId", ppv.VirtualAssetId.Value);
             }
-            if (ppv.Descriptions != null)
-            {
-                sp.AddKeyValueListParameter<string, string>("@Description", ppv.Descriptions.Select(d => new KeyValuePair<string, string>(d.m_sLanguageCode3, d.m_sValue)).ToList(), "key", "value");
-            }
+            return sp.ExecuteReturnValue<int>();
+        }
+        
+        public int UpdatePPVFileTypes(int groupID, int id, List<int> fileTypesIds)
+        {
+            StoredProcedure sp = new StoredProcedure("UpdatePPVFileTypes");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@PPVID", id);
+            sp.AddIDListParameter<int>("@FileTypes", fileTypesIds, "Id");
+            sp.AddParameter("@Date", DateTime.UtcNow);
+            return sp.ExecuteReturnValue<int>();
+        }
+        
+        public int UpdatePPVDescriptions(int groupID, long updaterId, int id, LanguageContainer[] descriptions)
+        {
+            StoredProcedure sp = new StoredProcedure("UpdatePPVDescriptions");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@PPVID", id);
+            sp.AddParameter("@UpdaterId", updaterId);
+            sp.AddKeyValueListParameter("@Description", descriptions.Select(d => new KeyValuePair<string, string>(d.m_sLanguageCode3, d.m_sValue)).ToList(), "key", "value");
+            sp.AddParameter("@Date", DateTime.UtcNow);
             return sp.ExecuteReturnValue<int>();
         }
         

@@ -243,6 +243,8 @@ namespace ApiLogic.Tests.Pricing.Handlers
             pricingModuleMock.Setup(x => x.GetCouponsGroup(It.IsAny<int>(), It.IsAny<long>())).Returns(updateTestCase.CouponsGroupResponse);
             
             repositoryMock.Setup(x => x.UpdatePPV(It.IsAny<int>(), It.IsAny<long>(), It.IsAny<int>(),It.IsAny<PpvDTO>())).Returns((int)updateTestCase.UpdatedRow);
+            repositoryMock.Setup(x => x.UpdatePPVDescriptions(It.IsAny<int>(), It.IsAny<long>(), It.IsAny<int>(),It.IsAny<LanguageContainer[]>())).Returns((int)updateTestCase.UpdatedRow);
+            repositoryMock.Setup(x => x.UpdatePPVFileTypes(It.IsAny<int>(), It.IsAny<int>(),It.IsAny< List<int>>())).Returns((int)updateTestCase.UpdatedRow);
             PpvManager manager = new PpvManager(repositoryMock.Object, layeredCacheMock.Object, priceDetailsManagerMock.Object,  discountDetailsManagerMock.Object, 
                 usageModuleManagerMock.Object, pricingModuleMock.Object, virtualAssetManagerMock.Object, mediaFileTypeManagerMock.Object);
             var response = manager.Update(updateTestCase.Id, fixture.Create<ContextData>(), updateTestCase.PPvToInsert);
