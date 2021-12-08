@@ -38,6 +38,15 @@ namespace Core.Catalog.CatalogManagement
 
         public GenericListResponse<LineupChannelAsset> GetLineupChannelAssets(long groupId, long regionId, UserSearchContext searchContext, int pageIndex, int pageSize)
         {
+            if (regionId == -1 || regionId == 0)
+            {
+                var defaultRegionId = _regionManager.GetDefaultRegionId((int)groupId);
+                if (defaultRegionId.HasValue)
+                {
+                    regionId = defaultRegionId.Value;
+                }
+            }
+
             // TODO: Currently AssetUserRule and GeoBlockRule are ignored so we use this UserSearchContext
             var searchContextWithoutRules = new UserSearchContext(0, 0, 0, null, null, searchContext.IgnoreEndDate, searchContext.UseStartDate, searchContext.UseFinal, searchContext.GetOnlyActiveAssets, searchContext.IsAllowedToViewInactiveAssets);
 
