@@ -81,6 +81,7 @@ namespace WebAPI.Models.Catalog
 
             int domainId = (int)(contextData.DomainId ?? 0);
             var ksqlFilter = FilterAsset.Instance.UpdateKsql(Ksql, contextData.GroupId, contextData.SessionCharacteristicKey);
+            var shouldApplyPriorityGroups = this.ShouldApplyPriorityGroupsEqual ?? false;
             if (this.ExcludeWatched)
             {
                 if (pager.getPageIndex() > 0)
@@ -92,10 +93,13 @@ namespace WebAPI.Models.Catalog
                 {
                     throw new BadRequestException(BadRequestException.INVALID_USER_ID, "userId");
                 }
+                
                 int userId = (int)contextData.UserId.Value;
+                var isAllowedToViewInactiveAssets = IsAllowedToViewInactiveAssets(contextData, contextData.UserId.ToString());
 
                 response = ClientsManager.CatalogClient().GetChannelAssetsExcludeWatched(contextData.GroupId, userId, domainId, contextData.Udid, contextData.Language, pager.getPageIndex(),
-                    pager.PageSize, this.IdEqual, this.OrderBy, ksqlFilter, this.GetShouldUseChannelDefault(), this.DynamicOrderBy, this.TrendingDaysEqual);
+                    pager.PageSize, this.IdEqual, this.OrderBy, ksqlFilter, this.GetShouldUseChannelDefault(), isAllowedToViewInactiveAssets, this.DynamicOrderBy, this.TrendingDaysEqual, 
+                    responseProfile, shouldApplyPriorityGroups);
             }
             else
             {
@@ -112,13 +116,19 @@ namespace WebAPI.Models.Catalog
 
                 var userId = contextData.UserId.ToString();
                 var allowIncludedGroupBy = GroupingOptionEqual == KalturaGroupingOption.Include;
-                bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(contextData.GroupId, userId, true);
+                var isAllowedToViewInactiveAssets = IsAllowedToViewInactiveAssets(contextData, userId);
 
                 response = ClientsManager.CatalogClient().GetChannelAssets(contextData.GroupId, userId, domainId, contextData.Udid, contextData.Language, pager.getPageIndex(), 
-                    pager.PageSize, this.IdEqual, this.OrderBy, ksqlFilter, this.GetShouldUseChannelDefault(), this.DynamicOrderBy, responseProfile, isAllowedToViewInactiveAssets, groupByList, allowIncludedGroupBy, this.TrendingDaysEqual);
+                    pager.PageSize, this.IdEqual, this.OrderBy, ksqlFilter, this.GetShouldUseChannelDefault(), this.DynamicOrderBy, responseProfile, isAllowedToViewInactiveAssets, 
+                    groupByList, allowIncludedGroupBy, this.TrendingDaysEqual, shouldApplyPriorityGroups);
             }
 
             return response;
+        }
+
+        private static bool IsAllowedToViewInactiveAssets(ContextData contextData, string userId)
+        {
+            return Utils.Utils.IsAllowedToViewInactiveAssets(contextData.GroupId, userId, true);
         }
     }
 }

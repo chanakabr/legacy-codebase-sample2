@@ -465,6 +465,8 @@ namespace WebAPI.Reflection
                     {
                         case "DynamicOrderBy":
                             return "dynamicOrderBy";
+                        case "ShouldApplyPriorityGroupsEqual":
+                            return "shouldApplyPriorityGroupsEqual";
                         case "TrendingDaysEqual":
                             return "trendingDaysEqual";
                     }
@@ -6115,6 +6117,14 @@ namespace WebAPI.Reflection
                             return "shouldGetOnlyLowest";
                         case "SubscriptionsIds":
                             return "subscriptionsIds";
+                    }
+                    break;
+                    
+                case "KalturaPriorityGroupListResponse":
+                    switch(property.Name)
+                    {
+                        case "Values":
+                            return "objects";
                     }
                     break;
                     

@@ -101,6 +101,8 @@ namespace ElasticSearch.Searcher
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public ESFunctionScoreScriptScore script_score;
 
+        public ESFunctionScoreFunction() { }
+        
         public ESFunctionScoreFunction(ESTerm filterTerm)
         {
             filter = new JObject();

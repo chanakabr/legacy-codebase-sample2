@@ -12,6 +12,7 @@ using ApiObjects.Response;
 using KLogMonitor;
 using System.Reflection;
 using ApiLogic.Catalog.Tree;
+using ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority;
 using ApiObjects;
 using ConfigurationManager;
 using Core.Api.Managers;
@@ -82,6 +83,12 @@ namespace Core.Catalog
                 {
                     CatalogLogic.UpdateNodeTreeFields(request, ref request.filterTree, definitions, group, parentGroupID);
                 }
+                
+                #region Priority Groups
+
+                definitions.PriorityGroupsMappings = PriorityGroupsPreprocessor.Instance.Preprocess(request.PriorityGroupsMappings, request, definitions, group, parentGroupID);
+
+                #endregion
 
                 // Get days offset for EPG search from TCM
                 definitions.epgDaysOffest = ApplicationConfiguration.Current.CatalogLogicConfiguration.CurrentRequestDaysOffset.Value;

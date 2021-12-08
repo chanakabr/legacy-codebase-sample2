@@ -39,6 +39,15 @@ namespace WebAPI.Models.Catalog
         [SchemeProperty(IsNullable = true, MinInteger = 1, MaxInteger = 366)]
         public int? TrendingDaysEqual { get; set; }
 
+        /// <summary>
+        /// Should apply priority groups filter or not.
+        /// </summary>
+        [DataMember(Name = "shouldApplyPriorityGroupsEqual")]
+        [JsonProperty("shouldApplyPriorityGroupsEqual")]
+        [XmlElement(ElementName = "shouldApplyPriorityGroupsEqual", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
+        public bool? ShouldApplyPriorityGroupsEqual { get; set; }
+
         internal virtual KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
         {
             // TODO refactoring. duplicate with KalturaSearchAssetFilter
@@ -65,7 +74,8 @@ namespace WebAPI.Models.Catalog
                 GroupByType = ApiObjects.SearchObjects.GroupingOption.Omit,
                 IsPersonalListSearch = false,
                 UseFinal = false,
-                TrendingDays = TrendingDaysEqual
+                TrendingDays = TrendingDaysEqual,
+                ShouldApplyPriorityGroups = ShouldApplyPriorityGroupsEqual.GetValueOrDefault()
             };
 
             var response = ClientsManager.CatalogClient().SearchAssets(searchAssetsFilter, OrderBy, DynamicOrderBy, responseProfile);

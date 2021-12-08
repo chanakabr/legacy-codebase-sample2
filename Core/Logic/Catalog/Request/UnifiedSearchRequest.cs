@@ -11,9 +11,11 @@ using System.Web;
 using Core.Catalog.Response;
 using KLogMonitor;
 using System.Reflection;
+using ApiObjects.SearchPriorityGroups;
 using Core.Catalog.Attributes;
 using Core.Catalog.Cache;
 using Catalog.Response;
+using Core.Catalog.Request.SearchPriority;
 using ElasticSearch.Searcher;
 using ElasticSearch.Common;
 
@@ -24,7 +26,7 @@ namespace Core.Catalog.Request
     /// </summary>
     [LogTopic("UnifiedSearch")]
     [DataContract]
-    public class UnifiedSearchRequest : BaseRequest, IRequestImp
+    public class UnifiedSearchRequest : BaseRequest, IRequestImp, ISearchPriorityRequest
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -100,6 +102,11 @@ namespace Core.Catalog.Request
 
         [DataMember]
         public bool isGroupingOptionInclude;
+        
+        /// <summary>
+        /// Key Value Pair. Key - Score. Value - Corresponding Priority Group.
+        /// </summary>
+        public IReadOnlyDictionary<double, SearchPriorityGroup> PriorityGroupsMappings { get; set; }
 
         #endregion
 

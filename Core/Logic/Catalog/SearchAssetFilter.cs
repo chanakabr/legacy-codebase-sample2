@@ -24,5 +24,6 @@ namespace ApiLogic.Catalog
         public bool IsPersonalListSearch { get; set; }
         public bool UseFinal { get; set; }
         public int? TrendingDays { get; set; }
+        public bool ShouldApplyPriorityGroups { get; set; }
     }
 }

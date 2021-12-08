@@ -1,9 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
+using ApiObjects.SearchPriorityGroups;
 
 namespace ApiObjects.SearchObjects
 {
@@ -387,6 +386,10 @@ namespace ApiObjects.SearchObjects
         public bool isAllowedToViewInactiveAssets { get; set; }
 
         public List<string> PersonalData { get; set; }
+
+        [JsonProperty]
+        [DataMember]
+        public IReadOnlyDictionary<double, IEsPriorityGroup> PriorityGroupsMappings { get; set; }
 
         /// <summary>
         /// The country Id of the calling user for geo availability 
