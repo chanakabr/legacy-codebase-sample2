@@ -198,6 +198,7 @@ namespace ApiObjects.Response
         PendingEntitlement = 3084, // BEO-8661
         CampaignIsAlreadyAppliedForSubscription = 3085,
         RecordingIdsExceededLimit = 3086,
+        ProgramStartOverNotEnabled = 3087,
 
         #endregion
 

@@ -165,6 +165,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType SUBSCRIPTION_SET_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.SubscriptionSetDoesNotExist, "The subscriptionSet does not exist", "The subscriptionSet does not exist");
         public static ClientExceptionType PURCHASE_PASSED_ENTITLEMENT_FAILED = new ClientExceptionType(eResponseStatus.PurchasePassedEntitlementFailed, "purchase passed but entitlement failed", "purchase passed but entitlement failed");
         public static ClientExceptionType PURCHASE_FAILED = new ClientExceptionType(eResponseStatus.PurchaseFailed, "purchase failed", "purchase failed");
+        public static ClientExceptionType PROGRAM_START_OVER_NOT_ENABLED = new ClientExceptionType(eResponseStatus.ProgramStartOverNotEnabled, "Program Start Over Not Enabled", "This program does not support start-over");
 
         #endregion
 

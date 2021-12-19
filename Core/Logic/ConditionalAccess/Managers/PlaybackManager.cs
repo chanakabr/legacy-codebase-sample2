@@ -164,7 +164,12 @@ namespace Core.ConditionalAccess
                     var tstvSettings = Utils.GetTimeShiftedTvPartnerSettings(groupId);
 
                     response.Status =  Utils.ValidateEpgForCatchUp(tstvSettings, program);
+                    if(response.Status.Code != (int)eResponseStatus.OK)
+                    {
+                        return response;
+                    }
 
+                    response.Status =  Utils.ValidateEpgForStartOver(program);
                     if(response.Status.Code != (int)eResponseStatus.OK)
                     {
                         return response;

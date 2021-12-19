@@ -5792,7 +5792,6 @@ namespace Core.ConditionalAccess
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             DateTime newEpgStartDate;
-
             if (epgStartDate.HasValue)
             {
                 newEpgStartDate = epgStartDate.Value;
@@ -5821,6 +5820,17 @@ namespace Core.ConditionalAccess
                     response.Set((int)eResponseStatus.CatchUpBufferLimitation, eResponseStatus.CatchUpBufferLimitation.ToString());
                     return response;
                 }
+            }
+
+            return response;
+        }
+
+        internal static ApiObjects.Response.Status ValidateEpgForStartOver(EPGChannelProgrammeObject epg)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            if (epg.ENABLE_START_OVER != 1)
+            {
+                response.Set((int)eResponseStatus.ProgramStartOverNotEnabled, eResponseStatus.ProgramStartOverNotEnabled.ToString());
             }
 
             return response;
