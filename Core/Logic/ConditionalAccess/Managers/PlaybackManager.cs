@@ -210,6 +210,14 @@ namespace Core.ConditionalAccess
                         }
                     }
                 }
+                else if (assetType == eAssetTypes.EPG && mediaId > 0)
+                {
+                    assetsToCheck = new List<SlimAsset>()
+                    {
+                        new SlimAsset(long.Parse(assetId), eAssetTypes.EPG),
+                        new SlimAsset(mediaId, eAssetTypes.MEDIA)
+                    };
+                }
                 else
                 {
                     assetsToCheck = AssetRuleManager.GetAssetsForValidation(assetType, groupId, long.Parse(assetId));
