@@ -2026,10 +2026,7 @@ namespace Core.Catalog
 
                                 searchResultsList.Add(result);
 
-                                if (distinctGroup != null && !string.IsNullOrEmpty(distinctGroup.Key))
-                                {
-                                    idToDocument.Add(result.AssetId, doc);
-                                }
+                                idToDocument.Add(result.AssetId, doc);
                             }
 
                             // If this is orderd by a social-stat - first we will get all asset Ids and only then we will sort and page
@@ -2045,7 +2042,7 @@ namespace Core.Catalog
 
                                 List<long> orderedIds = null;
 
-                                if (unifiedSearchDefinitions.PriorityGroupsMappings == null)
+                                if (unifiedSearchDefinitions.PriorityGroupsMappings == null || !unifiedSearchDefinitions.PriorityGroupsMappings.Any())
                                 {
                                     orderedIds = sortingByStatsService.ListOrderedIds(assetsDocumentsDecoded,
                                         assetIds,

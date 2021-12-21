@@ -465,7 +465,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 filteredQueryBuilder.Append("},");
             }
 
-            if (this.SearchDefinitions.PriorityGroupsMappings != null && this.SearchDefinitions.PriorityGroupsMappings.Count != 0)
+            if (this.SearchDefinitions.PriorityGroupsMappings != null && this.SearchDefinitions.PriorityGroupsMappings.Any())
             {
                 var priorityQueryBuilder = new PriorityQueryBuilder(this, this.SearchDefinitions.PriorityGroupsMappings);
                 var functionScore = priorityQueryBuilder.Build(queryTerm, filterPart);
