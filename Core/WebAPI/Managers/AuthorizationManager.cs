@@ -384,9 +384,12 @@ namespace WebAPI.Managers
             if (group.AutoRefreshAppToken)
             {
                 var utcNow = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
-                appToken.Expiry = (int)GetAppTokenExpiry(utcNow, appToken.Expiry, group.AppTokenMaxExpirySeconds, group.AutoRefreshAppToken);
+                var currentTokenExpiry = appToken.Expiry;
+                var newTokenExpiry = (int)GetAppTokenExpiry(utcNow, appToken.Expiry, group.AppTokenMaxExpirySeconds, group.AutoRefreshAppToken);
+                appToken.Expiry = newTokenExpiry;
                 SaveAppToken(utcNow, appTokenCbKey, appToken);
                 SendAppTokenCanaryMigrationEvent(eMigrationOperation.Update, new KalturaAppToken(appToken), groupId);
+                log.Info($"StartSessionWithAppToken: AppToken id = { id } for userId = { userId } expiry updated from { currentTokenExpiry } to { newTokenExpiry }");
             }
 
             // 6. get token expiration: the session duration will be the minimum between the token session duration and the token left expiration time
