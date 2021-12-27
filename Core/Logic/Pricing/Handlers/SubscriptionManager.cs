@@ -7,7 +7,6 @@ using Core.Api;
 using Core.Catalog.CatalogManagement;
 using Core.Domains;
 using Core.GroupManagers;
-using Core.GroupManagers.Adapters;
 using Core.Pricing;
 using DAL;
 using KLogMonitor;
@@ -34,7 +33,7 @@ namespace ApiLogic.Pricing.Handlers
                                                     PricePlanManager.Instance,
                                                     api.Instance,
                                                     PartnerPremiumServicesManager.Instance,
-                                                    GroupSettingsManagerAdapter.Instance),
+                                                    GroupSettingsManager.Instance),
                             LazyThreadSafetyMode.PublicationOnly);
 
         public static SubscriptionManager Instance => lazy.Value;

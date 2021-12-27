@@ -2507,6 +2507,24 @@ namespace Core.Api
 
         public static Status UpdateGeneralPartnerConfig(int groupId, GeneralPartnerConfig partnerConfigToUpdate)
         {
+            if (partnerConfigToUpdate.EnableMultiLcns == false)
+            {
+                var getRegionsResponse = RegionManager.Instance.GetRegions(groupId, new RegionFilter { ExclusiveLcn = false });
+                if (getRegionsResponse.IsOkStatusCode())
+                {
+                    var multiLcnsRegion = getRegionsResponse.Objects
+                        .FirstOrDefault(x => x.linearChannels.Count != x.linearChannels.Select(_ => _.Key).Distinct().Count());
+                    if (multiLcnsRegion != null)
+                    {
+                        return new Status(eResponseStatus.Error, $"Region with id={multiLcnsRegion.id} is configured with multi LCNs.");
+                    }
+                }
+                else
+                {
+                    return getRegionsResponse.Status;
+                }
+            }
+
             return GeneralPartnerConfigManager.Instance.UpdateGeneralPartnerConfig(groupId, partnerConfigToUpdate);
         }
 

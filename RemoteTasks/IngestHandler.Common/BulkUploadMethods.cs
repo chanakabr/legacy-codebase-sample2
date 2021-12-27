@@ -8,6 +8,8 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Polly;
 using System.Linq;
+using ApiLogic.EPG;
+using ApiLogic.IndexManager.Helpers;
 using ConfigurationManager;
 using ApiObjects;
 using ApiObjects.Catalog;
@@ -172,9 +174,9 @@ namespace IngestHandler.Common
             return liveAsstes;
         }
 
-        public static string GetIngestLockKey(int groupId, DateTime dateOfProgramsToIngest)
+        public static string GetIngestLockKey(string indexName)
         {
-            return $"Ingest_V2_Lock_{groupId}_{dateOfProgramsToIngest.ToString(LOCK_KEY_DATE_FORMAT)}";
+            return $"Ingest_V2_Lock_{indexName}";
         }
     }
 }

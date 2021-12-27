@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -36,6 +37,7 @@ namespace SoapAdaptersCommon.GrpcAdapters.Implementation
             response.SendWelcomeEmail = result.SendWelcomeEmail;
             return Task.FromResult(response);
         }
+
         public override Task<SetConfigurationResponse> SetConfiguration(SetConfigurationRequest request, ServerCallContext context)
         {
             var result = _SSOService.SetConfiguration(request.AdapterId, request.PartnerId, request.Configuration, request.Signature);
@@ -196,6 +198,11 @@ namespace SoapAdaptersCommon.GrpcAdapters.Implementation
             }
 
             return Task.FromResult(response);
+        }
+
+        public override Task<AdjustRegionIdResponse> AdjustRegionId(AdjustRegionIdRequest request, ServerCallContext context)
+        {
+            throw new NotImplementedException("should be used by auth ms only");
         }
 
         private static User MapSoapUserToProtoUser(SSOAdapter.Models.User user)

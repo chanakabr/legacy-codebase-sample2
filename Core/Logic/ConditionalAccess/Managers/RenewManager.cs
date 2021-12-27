@@ -439,6 +439,14 @@ namespace Core.ConditionalAccess
         internal static void EnqueueSubscriptionEndsMessage(int groupId, string siteguid, long purchaseId, long endDateUnix)
         {
             DateTime endDate = DateUtils.UtcUnixTimestampSecondsToDateTime(endDateUnix);
+
+            if (endDate > DateTime.Now.AddYears(1))
+            {
+                //BEO-11219
+                log.Debug($"BEO-11219 - skip Enqueue subscription ends msg (more then 1 year)! purchaseId:{purchaseId}, endDateUnix:{endDateUnix}");
+                return;
+            }
+
             bool enqueueSuccessful = true;
 
             var queue = new RenewTransactionsQueue();

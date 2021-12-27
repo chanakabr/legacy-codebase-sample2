@@ -1,14 +1,9 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.ClientManagers.Client;
-using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
-using WebAPI.Models.General;
-
 
 namespace WebAPI.Models.Partner
 {
@@ -164,6 +159,15 @@ namespace WebAPI.Models.Partner
         [XmlElement(ElementName = "allowDeviceMobility")]
         [SchemeProperty(IsNullable = true)]
         public bool? AllowDeviceMobility { get; set; }
+        
+        /// <summary>
+        /// Enable multi LCNs per linear channel
+        /// </summary>
+        [DataMember(Name = "enableMultiLcns")]
+        [JsonProperty("enableMultiLcns")]
+        [XmlElement(ElementName = "enableMultiLcns")]
+        [SchemeProperty(IsNullable = true)]
+        public bool? EnableMultiLcns { get; set; }
 
         internal List<int> GetSecondaryLanguagesIds()
         {

@@ -167,7 +167,10 @@ namespace EventBus.Kafka
         {
             if (ack.Error.IsError)
             {
-                _Logger.Error($"KafkaPublisher > Delivery Report key:[{ack.Key}], val:[{ack.Value}], err:[{ack.Error}]");
+                var traceId = ack.Headers.TryGetLastBytes(REQ_ID_HEADER, out var bytes)
+                    ? System.Text.Encoding.UTF8.GetString(bytes)
+                    : "unknown";
+                _Logger.Error($"KafkaPublisher > Delivery Report key:[{ack.Key}], val:[{ack.Value}], traceId:[{traceId}], err:[{ack.Error}]");
                 _IsHealthy = false;
             }
             else

@@ -420,7 +420,7 @@ namespace ElasticSearch.Common
             return result;
         }
 
-        public void DeleteIndices(List<string> lIndices)
+        public bool DeleteIndices(List<string> lIndices)
         {
             if (lIndices != null)
             {
@@ -433,10 +433,15 @@ namespace ElasticSearch.Common
                     string sRetval = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, string.Empty, true);
 
                     if (nStatus != 200)
+                    {
                         log.Error("Error - " + string.Format("Unable to delete index. index={0}; Explanation{1}", sIndex, sRetval));
+                        return false;
+                    }
                 }
 
             }
+
+            return true;
         }
 
         #endregion

@@ -15,6 +15,7 @@ namespace ConfigurationManager
         ElasticSearchHttpClientConfiguration ElasticSearchHttpClientConfiguration { get; }
         BaseValue<int> RecordingsMaxDegreeOfParallelism { get; }
         BaseValue<string> CatalogSignatureKey { get; }
+        EPGIngestV2Configuration EPGIngestV2Configuration { get; }
     }
 
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
@@ -108,7 +109,10 @@ namespace ConfigurationManager
         public GroupsManagerConfiguration GroupsManagerConfiguration => _groupsManagerConfiguration;
         public RequestParserConfiguration RequestParserConfiguration = new RequestParserConfiguration();
         public OTTUserControllerConfiguration OTTUserControllerConfiguration = new OTTUserControllerConfiguration();
-        public EPGIngestV2Configuration EPGIngestV2Configuration = new EPGIngestV2Configuration();
+        
+        public EPGIngestV2Configuration _epgIngestV2Configuration = new EPGIngestV2Configuration();
+        public EPGIngestV2Configuration EPGIngestV2Configuration => _epgIngestV2Configuration;
+        
         public ImageResizerConfiguration ImageResizerConfiguration = new ImageResizerConfiguration();
         public FtpApiServerConfiguration FtpApiServerConfiguration = new FtpApiServerConfiguration();
         public HttpClientConfiguration HttpClientConfiguration = new HttpClientConfiguration();

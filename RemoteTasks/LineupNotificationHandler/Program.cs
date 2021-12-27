@@ -7,7 +7,6 @@ using CachingProvider.LayeredCache;
 using Core.Catalog.CatalogManagement;
 using Core.Domains;
 using Core.GroupManagers;
-using Core.GroupManagers.Adapters;
 using Core.Notification;
 using DAL;
 using EventBus.RabbitMQ;
@@ -44,7 +43,7 @@ namespace LineupNotificationHandler
                         .AddSingleton<ILabelDal, LabelDal>()
                         .AddSingleton<ILabelRepository, LabelRepository>()
                         .AddSingleton<IAssetStructMetaRepository, AssetStructMetaRepository>()
-                        .AddSingleton<IGroupSettingsManager, GroupSettingsManagerAdapter>()
+                        .AddSingleton<IGroupSettingsManager, GroupSettingsManager>()
                         .AddSingleton<IGroupManager, GroupManager>()
                         .AddSingleton<IIotNotificationService, IotNotificationService>();
                 });

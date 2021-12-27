@@ -4,6 +4,8 @@ namespace KalturaRequestContext
 {
     public class RequestContextUtils : IRequestContextUtils
     {
+        private const string REQUEST_REGION = "region_id";
+
         public string GetRequestId() => GetValueOrDefault<object>(RequestContextConstants.REQUEST_ID_KEY)?.ToString();
 
         public long? GetUserId()
@@ -81,6 +83,21 @@ namespace KalturaRequestContext
             GetRequestContextValue(RequestContextConstants.REQUEST_IMPERSONATE, out bool isImpersonateRequest);
 
             return isImpersonateRequest;
+        }
+
+        public int? GetRegionId()
+        {
+            return GetValueOrDefault<int?>(REQUEST_REGION, null);
+        }
+
+        public void SetRegionId(int regionId)
+        {
+            System.Web.HttpContext.Current.Items[REQUEST_REGION] = regionId;
+        }
+
+        public void RemoveRegionId()
+        {
+            System.Web.HttpContext.Current.Items.Remove(REQUEST_REGION);
         }
     }
 }

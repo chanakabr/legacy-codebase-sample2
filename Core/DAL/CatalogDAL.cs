@@ -19,6 +19,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using DAL.BulkUpload;
 using static ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData;
 using CategoryItemDTO = DAL.DTO.CategoryItemDTO;
 using LanguageContainerDTO = DAL.DTO.LanguageContainerDTO;
@@ -2088,6 +2089,16 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
+        public static UserMediaMark GetUserMediaMark(UserMediaMark currentUserMediaMark)
+        {
+            string mmKey = GetMediaMarkKey(currentUserMediaMark);
+            CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
+            var data = cbManager.Get<string>(mmKey);
+            return !String.IsNullOrEmpty(data)
+                ? JsonConvert.DeserializeObject<MediaMarkLog>(data).LastMark
+                : currentUserMediaMark;
+        }
+        
         public static void UpdateOrInsertUsersMediaMark(UserMediaMark userMediaMark, bool isFirstPlay)
         {
             int limitRetries = RETRY_LIMIT;
@@ -2686,23 +2697,6 @@ namespace Tvinci.Core.DAL
                     defaultRegion = ODBCWrapper.Utils.ExtractInteger(groupRow, "default_region");
                 }
             }
-        }
-
-        /// <summary>
-        /// Builds a region object based on a data row
-        /// </summary>
-        /// <param name="regionRow"></param>
-        /// <returns></returns>
-        private static Region BuildRegion(DataRow regionRow)
-        {
-            Region region = new Region();
-
-            region.id = ODBCWrapper.Utils.ExtractInteger(regionRow, "ID");
-            region.name = ODBCWrapper.Utils.ExtractString(regionRow, "NAME");
-            region.externalId = ODBCWrapper.Utils.ExtractString(regionRow, "EXTERNAL_ID");
-            region.groupId = ODBCWrapper.Utils.ExtractInteger(regionRow, "GROUP_ID");
-
-            return (region);
         }
 
         public static DataSet GetMediaByEpgChannelIds(int groupId, List<string> epgChannelIds)
@@ -5987,7 +5981,7 @@ namespace Tvinci.Core.DAL
                 statusAfterUpdate = GetBulkStatusByResultsStatus(bulkUpload);
                 log.Debug($"SaveBulkUploadResultsCB > updated resultsToSave.Count:[{resultsToSave.Count}], calculated bulkUpload.Status:[{bulkUpload.Status}]");
 
-            }, compress: true, updateObjectActionIfNotExist: false, limitMaxNumOfInsertTries: MAX_CB_UPDATE_ATTEMPTS_FOR_BULK_UPLOAD);
+            }, compress: true, updateObjectActionIfNotExist: false, limitMaxNumOfInsertTries: MAX_CB_UPDATE_ATTEMPTS_FOR_BULK_UPLOAD, retryStrategy: BulkUploadRetryStrategy.Linear);
 
             status = statusAfterUpdate;
             return isUpdateSuccess;

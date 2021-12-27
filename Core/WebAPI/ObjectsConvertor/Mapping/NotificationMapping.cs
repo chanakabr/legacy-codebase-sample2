@@ -193,7 +193,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.MailSubject, opt => opt.MapFrom(src => src.MailSubject))
                  .ForMember(dest => dest.MailTemplate, opt => opt.MapFrom(src => src.MailTemplate))
                  .ForMember(dest => dest.IncludeSms, opt => opt.MapFrom(src => src.IncludeSms))
-                 .ForMember(dest => dest.IncludeIot, opt => opt.MapFrom(src => src.IncludeIot));
+                 .ForMember(dest => dest.IncludeIot, opt => opt.MapFrom(src => src.IncludeIot))
+                 .ForMember(dest => dest.IncludeUserInbox, opt => opt.MapFrom(src => src.IncludeUserInbox ?? false))
+                 ;
 
             cfg.CreateMap<KalturaAnnouncementRecipientsType, eAnnouncementRecipientsType>()
                 .ConvertUsing(KalturaRecipientsType =>
@@ -245,7 +247,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.MailSubject, opt => opt.MapFrom(src => src.MailSubject))
                  .ForMember(dest => dest.MailTemplate, opt => opt.MapFrom(src => src.MailTemplate))
                  .ForMember(dest => dest.IncludeSms, opt => opt.MapFrom(src => src.IncludeSms))
-                 .ForMember(dest => dest.IncludeIot, opt => opt.MapFrom(src => src.IncludeIot));
+                 .ForMember(dest => dest.IncludeIot, opt => opt.MapFrom(src => src.IncludeIot))
+                 .ForMember(dest => dest.IncludeUserInbox, opt => opt.MapFrom(src => src.IncludeUserInbox))
+                 ;
 
             cfg.CreateMap<eAnnouncementRecipientsType, KalturaAnnouncementRecipientsType>()
                 .ConvertUsing(recipientsType =>

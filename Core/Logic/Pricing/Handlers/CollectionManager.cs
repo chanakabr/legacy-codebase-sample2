@@ -3,10 +3,8 @@ using ApiObjects.Base;
 using ApiObjects.Pricing;
 using ApiObjects.Pricing.Dto;
 using ApiObjects.Response;
-using CachingProvider.LayeredCache;
 using Core.Api;
 using Core.GroupManagers;
-using Core.GroupManagers.Adapters;
 using Core.Pricing;
 using DAL;
 using KLogMonitor;
@@ -25,7 +23,7 @@ namespace ApiLogic.Pricing.Handlers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly Lazy<CollectionManager> lazy = new Lazy<CollectionManager>(() =>
                             new CollectionManager(PricingDAL.Instance,
-                                                  GroupSettingsManagerAdapter.Instance,
+                                                  GroupSettingsManager.Instance,
                                                   UsageModuleManager.Instance,
                                                   PriceDetailsManager.Instance,
                                                   CatalogDAL.Instance,
@@ -505,11 +503,14 @@ namespace ApiLogic.Pricing.Handlers
             #region validate usageModule
             if (collectionToUpdate.UsageModuleId.HasValue)
             {
-                status = ValidateUsageModule(contextData.GroupId, collectionToUpdate.UsageModuleId.Value);
-                if (!status.IsOkStatusCode())
+                if (collection.m_oCollectionUsageModule == null || collection.m_oCollectionUsageModule.m_nObjectID != collectionToUpdate.UsageModuleId.Value)
                 {
-                    response.SetStatus(status);
-                    return response;
+                    status = ValidateUsageModule(contextData.GroupId, collectionToUpdate.UsageModuleId.Value);
+                    if (!status.IsOkStatusCode())
+                    {
+                        response.SetStatus(status);
+                        return response;
+                    }
                 }
             }
             #endregion validate usageModule
@@ -517,11 +518,14 @@ namespace ApiLogic.Pricing.Handlers
             #region validate PriceDetailsId
             if (collectionToUpdate.PriceDetailsId.HasValue)
             {
-                status = ValidatePriceCode(contextData.GroupId, collectionToUpdate.PriceDetailsId.Value);
-                if (!status.IsOkStatusCode())
+                if (collection.m_oCollectionPriceCode == null || collection.m_oCollectionPriceCode.m_nObjectID != collectionToUpdate.PriceDetailsId.Value)
                 {
-                    response.SetStatus(status);
-                    return response;
+                    status = ValidatePriceCode(contextData.GroupId, collectionToUpdate.PriceDetailsId.Value);
+                    if (!status.IsOkStatusCode())
+                    {
+                        response.SetStatus(status);
+                        return response;
+                    }
                 }
             }
             #endregion validate PriceDetailsId
@@ -555,7 +559,7 @@ namespace ApiLogic.Pricing.Handlers
             #region validate DiscountModuleId
             if (collectionToUpdate.DiscountModuleId.HasValue)
             {
-                if (collection.m_oDiscountModule != null && collection.m_oDiscountModule.m_nObjectID != collectionToUpdate.DiscountModuleId.Value)
+                if (collection.m_oDiscountModule == null || collection.m_oDiscountModule.m_nObjectID != collectionToUpdate.DiscountModuleId.Value)
                 {
                     status = ValidateDiscountModule(contextData.GroupId, collectionToUpdate.DiscountModuleId.Value);
                     if (!status.IsOkStatusCode())
@@ -628,7 +632,7 @@ namespace ApiLogic.Pricing.Handlers
                 }
             }
 
-            collectionToUpdate.IsActive = !collectionToUpdate.IsActive.HasValue ? collection.IsActive: collectionToUpdate.IsActive;
+            collectionToUpdate.IsActive = !collectionToUpdate.IsActive.HasValue ? collection.IsActive : collectionToUpdate.IsActive;
 
             bool success = _repository.UpdateCollection(contextData.GroupId, contextData.UserId.Value, collectionToUpdate, nullableStartDate, nullableEndDate, virtualAssetId);
             if (success)
@@ -647,12 +651,13 @@ namespace ApiLogic.Pricing.Handlers
         {
             Status status = new Status(eResponseStatus.OK);
 
-            if (channelsIds.Count == 0 || codes == null)
+            if (channelsIds.Count == 0)
             {
                 return status;
             }
             else
             {
+                List<long> channelsToValidate = channelsIds;
                 // compare current channelsIds with updated list
                 if (codes != null && codes.Length > 0)
                 {
@@ -662,14 +667,16 @@ namespace ApiLogic.Pricing.Handlers
                     if (!channelsIds.SequenceEqual(currChannelsIds))
                     {
                         // need to validate new channels in the list
-                        var newChennelsInList = channelsIds.Except(currChannelsIds).ToList();
-                        status = ValidateChannels(groupId, newChennelsInList);
-                        if (!status.IsOkStatusCode())
-                        {
-                            return status;
-                        }
+                        channelsToValidate = channelsIds.Except(currChannelsIds).ToList();
                     }
                 }
+
+                status = ValidateChannels(groupId, channelsToValidate);
+                if (!status.IsOkStatusCode())
+                {
+                    return status;
+                }
+
             }
 
             return status;
@@ -720,7 +727,7 @@ namespace ApiLogic.Pricing.Handlers
         private Status ValidateDates(NullableObj<DateTime?> endDateToUpdate, NullableObj<DateTime?> startDateToUpdate, Collection collection)
         {
             DateTime? startDate = startDateToUpdate.Obj.HasValue ? startDateToUpdate.Obj.Value : collection.m_dStartDate;
-            DateTime? endDate = endDateToUpdate.Obj.HasValue ? startDateToUpdate.Obj.Value : collection.m_dStartDate;
+            DateTime? endDate = endDateToUpdate.Obj.HasValue ? endDateToUpdate.Obj.Value : collection.m_dEndDate;
 
             if (startDate.HasValue && endDate.HasValue && startDate > endDate)
             {

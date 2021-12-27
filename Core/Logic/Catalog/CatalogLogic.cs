@@ -48,6 +48,8 @@ using TVinciShared;
 using Status = ApiObjects.Response.Status;
 using ApiLogic.IndexManager.QueryBuilders;
 using ApiLogic.IndexManager.Helpers;
+using KalturaRequestContext;
+using System.Threading;
 using ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority;
 
 namespace Core.Catalog
@@ -2286,35 +2288,29 @@ namespace Core.Catalog
             // If this group has regionalization enabled at all
             if (isRegionalizationEnabled)
             {
-                // If this is a guest user or something like this - get default region
-                if (domainId == 0)
+                var regionId = GetRegionIdOfUser(groupId, domainId, siteGuid, defaultRegion);
+                // Get the region of the requesting domain
+                if (regionId == -1 && defaultRegion != 0)
                 {
-                    if (defaultRegion != 0)
-                    {
-                        regionIds = new List<int> {defaultRegion};
-                    }
+                    regionId = defaultRegion;
                 }
-                // Otherwise get the region of the requesting domain
-                else
+
+                if (regionId > -1)
                 {
-                    int regionId = GetRegionIdOfDomain(groupId, domainId, siteGuid, defaultRegion);
-                    if (regionId > -1)
+                    Region region = ApiLogic.Api.Managers.RegionManager.GetRegion(groupId, regionId);
+                    if (region != null)
                     {
-                        Region region = ApiLogic.Api.Managers.RegionManager.GetRegion(groupId, regionId);
-                        if (region != null)
+                        regionIds = new List<int> { regionId };
+                        if (region.parentId > 0)
                         {
-                            regionIds = new List<int> {regionId};
-                            if (region.parentId > 0)
-                            {
-                                regionIds.Add(region.parentId);
-                            }
+                            regionIds.Add(region.parentId);
                         }
                     }
                 }
             }
         }
 
-        public static int GetRegionIdOfDomain(int groupId, int domainId, string siteGuid, int defaultRegion = -1)
+        public static int GetRegionIdOfUser(int groupId, int domainId, string siteGuid, int defaultRegion = -1)
         {
             int regionId = -1;
             bool isRegionalizationEnabled = false;
@@ -2347,22 +2343,30 @@ namespace Core.Catalog
 
             if (isRegionalizationEnabled)
             {
-                var domainRes = Domains.Module.GetDomainInfo(groupId, domainId);
-                if (domainRes != null && domainRes.Status.IsOkStatusCode())
-                {
-                    // If the domain is not associated to a domain - get default region
-                    if (domainRes.Domain.m_nRegion > 0)
-                    {
-                        regionId = domainRes.Domain.m_nRegion;
-                    }
-                    else
-                    {
-                        regionId = defaultRegion;
-                    }
-                }
+                regionId = RequestContextUtilsInstance.Get().GetRegionId() ?? GetRegionByDomain(groupId, domainId, defaultRegion);
             }
 
             return regionId;
+        }
+
+        // Old standard - only if regionId from KS not working
+        private static int GetRegionByDomain(int groupId, int domainId, int defaultRegion)
+        {
+            var domainRes = Domains.Module.GetDomainInfo(groupId, domainId);
+            if (domainRes != null && domainRes.Status.IsOkStatusCode())
+            {
+                // If the domain is not associated to a region - get default region
+                if (domainRes.Domain.m_nRegion > 0)
+                {
+                    return domainRes.Domain.m_nRegion;
+                }
+                else
+                {
+                    return defaultRegion;
+                }
+            }
+
+            return -1;
         }
 
         /*Build Full search object*/
@@ -3061,7 +3065,7 @@ namespace Core.Catalog
                 }
                 else
                 {
-                    userMediaMark = ApiDAL.Get_UserMediaMark(devicePlayData.AssetId, devicePlayData.UserId.ToString());
+                    userMediaMark = CatalogDAL.GetUserMediaMark(userMediaMark);
                     userMediaMark.Location = locationSec;
                     userMediaMark.AssetAction = action.ToString();
                 }
@@ -6311,28 +6315,27 @@ namespace Core.Catalog
                     //        break;
                     //    }
                     case ExternalRecommendationEngineEnrichment.DTTRegion:
-                    {
-                        // External ID of region of current domain
-
-                        GroupManager manager = new GroupManager();
-                        Group group = manager.GetGroup(request.m_nGroupID);
-
-                        if (group != null && group.isRegionalizationEnabled)
                         {
-                            int regionId = GetRegionIdOfDomain(request.m_nGroupID, request.domainId,
-                                request.m_sSiteGuid, group.defaultRegion);
+                            // External ID of region of current domain
 
-                            DataRow regionRow =
+                            GroupManager manager = new GroupManager();
+                            Group group = manager.GetGroup(request.m_nGroupID);
+
+                            if (group != null && group.isRegionalizationEnabled)
+                            {
+                                int regionId = GetRegionIdOfUser(request.m_nGroupID, request.domainId, request.m_sSiteGuid, group.defaultRegion);
+
+                                DataRow regionRow =
                                 ODBCWrapper.Utils.GetTableSingleRow("linear_channels_regions", regionId);
 
-                            if (regionRow != null)
-                            {
-                                dictionary["region"] = ODBCWrapper.Utils.ExtractString(regionRow, "EXTERNAL_ID");
+                                if (regionRow != null)
+                                {
+                                    dictionary["region"] = ODBCWrapper.Utils.ExtractString(regionRow, "EXTERNAL_ID");
+                                }
                             }
-                        }
 
-                        break;
-                    }
+                            break;
+                        }
                     //case ExternalRecommendationEngineEnrichment.AtHome:
                     //    {
                     //        if (request is ExternalChannelRequest)
@@ -9867,7 +9870,7 @@ namespace Core.Catalog
                 return null;
             }
 
-            if (GroupSettingsManager.IsOpc(partnerId))
+            if (GroupSettingsManager.Instance.IsOpc(partnerId))
             {
                 return GetUserPreferencesForOpcAccount(partnerId, userId, userInterests);
             }

@@ -6,12 +6,26 @@ using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace ApiLogic.Api.Validators
 {
     public class RegionValidator : IRegionValidator
     {
-        private static readonly KLogger log = new KLogger(nameof(RegionValidator));
+        private static readonly KLogger Log = new KLogger(nameof(RegionValidator));
+
+        private static readonly Lazy<RegionValidator> Lazy = new Lazy<RegionValidator>(
+            () => new RegionValidator(GeneralPartnerConfigManager.Instance),
+            LazyThreadSafetyMode.PublicationOnly);
+
+        private readonly IGeneralPartnerConfigManager _generalPartnerConfigManager;
+
+        public static RegionValidator Instance => Lazy.Value;
+
+        public RegionValidator(IGeneralPartnerConfigManager generalPartnerConfigManager)
+        {
+            _generalPartnerConfigManager = generalPartnerConfigManager;
+        }
 
         public Status IsValidToAdd(int groupId, Region regionToAdd)
         {
@@ -36,12 +50,13 @@ namespace ApiLogic.Api.Validators
                 }
             }
 
-            if (!HasLinearChannelsValidFormat(regionToAdd, out var hasInvalidFormatStatus))
+            var enableChannelDuplicates = _generalPartnerConfigManager.GetGeneralPartnerConfig(groupId)?.EnableMultiLcns == true;
+            if (!HasLinearChannelsValidFormat(regionToAdd, enableChannelDuplicates, out var hasInvalidFormatStatus))
             {
                 return hasInvalidFormatStatus;
             }
 
-            if (HaveDuplicatedChannelsInParent(regionToAdd, parentRegion, out var duplicatedParentChannelsMessage))
+            if (HaveDuplicatedChannelsInParent(regionToAdd, parentRegion, enableChannelDuplicates, out var duplicatedParentChannelsMessage))
             {
                 return new Status(eResponseStatus.ParentAlreadyContainsChannel, duplicatedParentChannelsMessage);
             }
@@ -94,17 +109,18 @@ namespace ApiLogic.Api.Validators
                 return new Status((int)eResponseStatus.Error, "Cannot set region to sub region");
             }
 
-            if (!HasLinearChannelsValidFormat(regionToUpdate, out var hasInvalidFormatStatus))
+            var enableChannelDuplicates = _generalPartnerConfigManager.GetGeneralPartnerConfig(groupId)?.EnableMultiLcns == true;
+            if (!HasLinearChannelsValidFormat(regionToUpdate, enableChannelDuplicates, out var hasInvalidFormatStatus))
             {
                 return hasInvalidFormatStatus;
             }
 
-            if (HaveDuplicatedChannelsInParent(regionToUpdate, parentRegion, out var duplicatedParentChannelsMessage))
+            if (HaveDuplicatedChannelsInParent(regionToUpdate, parentRegion, enableChannelDuplicates, out var duplicatedParentChannelsMessage))
             {
                 return new Status(eResponseStatus.ParentAlreadyContainsChannel, duplicatedParentChannelsMessage);
             }
 
-            if (HaveDuplicatedChannelsInSubregions(groupId, regionToUpdate, out var duplicatedSubregionsChannelsMessage))
+            if (HaveDuplicatedChannelsInSubregions(groupId, regionToUpdate, enableChannelDuplicates, out var duplicatedSubregionsChannelsMessage))
             {
                 return new Status(eResponseStatus.DuplicateRegionChannel, duplicatedSubregionsChannelsMessage);
             }
@@ -161,7 +177,7 @@ namespace ApiLogic.Api.Validators
         {
             if (existingRegion == null)
             {
-                log.ErrorFormat("Region wasn't found. groupId:{0}, id:{1}", groupId, regionToUpdate.id);
+                Log.ErrorFormat("Region wasn't found. groupId:{0}, id:{1}", groupId, regionToUpdate.id);
                 return false;
             }
 
@@ -176,7 +192,7 @@ namespace ApiLogic.Api.Validators
                 var regionsResult = RegionManager.Instance.GetRegions(groupId, filter);
                 if (regionsResult.HasObjects())
                 {
-                    log.ErrorFormat("Region external ID already exists. groupId:{0}, externalId:{1}", groupId, regionToValidate.externalId);
+                    Log.ErrorFormat("Region external ID already exists. groupId:{0}, externalId:{1}", groupId, regionToValidate.externalId);
                     return false;
                 }
             }
@@ -192,7 +208,7 @@ namespace ApiLogic.Api.Validators
                 var subRegionsResult = RegionManager.Instance.GetRegions(groupId, filterParent);
                 if (subRegionsResult.HasObjects())
                 {
-                    log.ErrorFormat("Sub region cannot be parent region. groupId:{0}, regionId:{1}", groupId, existingRegion.id);
+                    Log.ErrorFormat("Sub region cannot be parent region. groupId:{0}, regionId:{1}", groupId, existingRegion.id);
                     return false;
                 }
             }
@@ -204,7 +220,7 @@ namespace ApiLogic.Api.Validators
         {
             if (parentRegion == null)
             {
-                log.ErrorFormat("Parent region wasn't found. groupId:{0}, id:{1}", groupId, regionToValidate.parentId);
+                Log.ErrorFormat("Parent region wasn't found. groupId:{0}, id:{1}", groupId, regionToValidate.parentId);
                 return false;
             }
 
@@ -215,7 +231,7 @@ namespace ApiLogic.Api.Validators
         {
             if (parentRegion.parentId > 0)
             {
-                log.ErrorFormat("Parent region cannot be parent. groupId:{0}, id:{1}", groupId, parentRegion.id);
+                Log.ErrorFormat("Parent region cannot be parent. groupId:{0}, id:{1}", groupId, parentRegion.id);
                 return false;
             }
 
@@ -237,7 +253,7 @@ namespace ApiLogic.Api.Validators
             return true;
         }
 
-        private bool HasLinearChannelsValidFormat(Region regionToValidate, out Status validationStatus)
+        private bool HasLinearChannelsValidFormat(Region regionToValidate, bool enableChannelDuplicates, out Status validationStatus)
         {
             validationStatus = Status.Ok;
             if (regionToValidate.linearChannels == null)
@@ -249,10 +265,12 @@ namespace ApiLogic.Api.Validators
             var linearChannelNumbers = new HashSet<int>();
             foreach (var item in regionToValidate.linearChannels)
             {
-                if (linearChannels.Contains(item.Key)
-                    || linearChannelNumbers.Contains(item.Value))
+                var isChannelDuplicated = linearChannels.Contains(item.Key);
+                var isChannelNumberDuplicated = linearChannelNumbers.Contains(item.Value);
+                if (isChannelDuplicated && !enableChannelDuplicates || isChannelNumberDuplicated)
                 {
                     validationStatus = new Status(eResponseStatus.DuplicateRegionChannel, $"Channel ID, {item.Key}: the channel or its LCN already appears in this bouquet or one of its subbouquets.");
+                    break;
                 }
 
                 linearChannels.Add(item.Key);
@@ -262,7 +280,7 @@ namespace ApiLogic.Api.Validators
             return validationStatus.IsOkStatusCode();
         }
 
-        private bool HaveDuplicatedChannelsInParent(Region regionToValidate, Region parentRegion, out string message)
+        private bool HaveDuplicatedChannelsInParent(Region regionToValidate, Region parentRegion, bool enableChannelDuplicates, out string message)
         {
             message = null;
             if (parentRegion == null || regionToValidate.linearChannels == null)
@@ -270,10 +288,7 @@ namespace ApiLogic.Api.Validators
                 return false;
             }
 
-            var duplicatedChannelIds = parentRegion.linearChannels
-                .Where(x => regionToValidate.linearChannels.Any(validatedLinearChannel => validatedLinearChannel.Key == x.Key || validatedLinearChannel.Value == x.Value))
-                .Select(x => x.Key)
-                .ToArray();
+            var duplicatedChannelIds = GetDuplicatedChannelIds(parentRegion, regionToValidate, enableChannelDuplicates);
             if (duplicatedChannelIds.Any())
             {
                 message = $"For the following channel(s), the channel or its LCN already appears in the parent bouquet: {string.Join(",", duplicatedChannelIds)}.";
@@ -284,7 +299,7 @@ namespace ApiLogic.Api.Validators
             return false;
         }
 
-        private bool HaveDuplicatedChannelsInSubregions(int groupId, Region regionToValidate, out string message)
+        private bool HaveDuplicatedChannelsInSubregions(int groupId, Region regionToValidate, bool enableChannelDuplicates, out string message)
         {
             message = null;
 
@@ -299,11 +314,7 @@ namespace ApiLogic.Api.Validators
             {
                 foreach (var subRegion in subRegionsResult.Objects)
                 {
-                    var duplicatedChannelIds = subRegion.linearChannels
-                        .Where(x => regionToValidate.linearChannels.Any(validatedLinearChannel => validatedLinearChannel.Key == x.Key || validatedLinearChannel.Value == x.Value))
-                        .Select(x => x.Key)
-                        .ToArray();
-
+                    var duplicatedChannelIds = GetDuplicatedChannelIds(regionToValidate, subRegion, enableChannelDuplicates);
                     if (duplicatedChannelIds.Any())
                     {
                         message = $"For the following channel(s), the channel or its LCN already appears in this bouquet or one of its subbouquets: {string.Join(",", duplicatedChannelIds)}.";
@@ -318,10 +329,10 @@ namespace ApiLogic.Api.Validators
 
         private bool AreLinearChannelsFound(int groupId, Region regionToValidate)
         {
-            var linearChannelIds = regionToValidate.linearChannels?.Select(x => x.Key).ToList();
+            var linearChannelIds = regionToValidate.linearChannels?.Select(x => x.Key).Distinct().ToList();
             if (linearChannelIds?.Count > 0 && !ValidateLinearChannelsExist(groupId, linearChannelIds))
             {
-                log.ErrorFormat("One or more of the assets in linear channel list does not exist. groupId:{0}, id:{1}", groupId, regionToValidate.id);
+                Log.ErrorFormat("One or more of the assets in linear channel list does not exist. groupId:{0}, id:{1}", groupId, regionToValidate.id);
                 return false;
             }
 
@@ -373,12 +384,13 @@ namespace ApiLogic.Api.Validators
                 validationResults.Add($"For the following channel, its LCN {regionChannelNumber.ChannelNumber} already appears in the region with id {regionToUpdate.id}.");
             }
 
-            if (HaveDuplicatedChannelsInParent(regionToUpdate, parentRegion, out var duplicatedParentChannelsMessage))
+            var enableChannelDuplicates = _generalPartnerConfigManager.GetGeneralPartnerConfig(groupId)?.EnableMultiLcns == true;
+            if (HaveDuplicatedChannelsInParent(regionToUpdate, parentRegion, enableChannelDuplicates, out var duplicatedParentChannelsMessage))
             {
                 validationResults.Add(duplicatedParentChannelsMessage);
             }
 
-            if (HaveDuplicatedChannelsInSubregions(groupId, regionToUpdate, out var duplicatedSubregionsChannelsMessage))
+            if (HaveDuplicatedChannelsInSubregions(groupId, regionToUpdate, enableChannelDuplicates, out var duplicatedSubregionsChannelsMessage))
             {
                 validationResults.Add(duplicatedSubregionsChannelsMessage);
             }
@@ -397,10 +409,19 @@ namespace ApiLogic.Api.Validators
             }
             catch (Exception ex)
             {
-                log.Error(ex.Message);
+                Log.Error(ex.Message);
             }
 
             return false;
+        }
+
+        private static IReadOnlyCollection<long> GetDuplicatedChannelIds(Region region, Region subRegion, bool enableChannelDuplicates)
+        {
+            return subRegion.linearChannels
+                .Where(x => region.linearChannels.Any(_ => _.Key == x.Key && !enableChannelDuplicates || _.Value == x.Value))
+                .Select(x => x.Key)
+                .Distinct()
+                .ToArray();
         }
 
         private Region Clone(Region region)

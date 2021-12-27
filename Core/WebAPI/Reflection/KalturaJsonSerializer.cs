@@ -35,6 +35,7 @@ using WebAPI.Models.ConditionalAccess.FilterActions.Assets;
 using WebAPI.Models.ConditionalAccess.FilterActions.Files;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
+using WebAPI.Models.IngestStatus;
 using WebAPI.Models.Api;
 using WebAPI.Models.Catalog.SearchPriorityGroup;
 
@@ -15811,6 +15812,44 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
+    public partial class KalturaRegionalChannelMultiLcns
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(LCNs != null && (retrievedProperties == null || retrievedProperties.Contains("lcns")))
+            {
+                ret.Add("lcns", "\"lcns\": " + "\"" + EscapeJson(LCNs) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(LCNs != null && (retrievedProperties == null || retrievedProperties.Contains("lcns")))
+            {
+                ret.Add("lcns", "<lcns>" + EscapeXml(LCNs) + "</lcns>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaRegionChannelNumber
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -15853,6 +15892,44 @@ namespace WebAPI.Models.API
             if((retrievedProperties == null || retrievedProperties.Contains("regionId")))
             {
                 ret.Add("regionId", "<regionId>" + RegionId + "</regionId>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaRegionChannelNumberMultiLcns
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(LCNs != null && (retrievedProperties == null || retrievedProperties.Contains("lcns")))
+            {
+                ret.Add("lcns", "\"lcns\": " + "\"" + EscapeJson(LCNs) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(LCNs != null && (retrievedProperties == null || retrievedProperties.Contains("lcns")))
+            {
+                ret.Add("lcns", "<lcns>" + EscapeXml(LCNs) + "</lcns>");
             }
             return ret;
         }
@@ -17704,6 +17781,10 @@ namespace WebAPI.Models.Notifications
             {
                 ret.Add("includeSms", "\"includeSms\": " + IncludeSms.ToString().ToLower());
             }
+            if(IncludeUserInbox.HasValue && (retrievedProperties == null || retrievedProperties.Contains("includeUserInbox")))
+            {
+                ret.Add("includeUserInbox", "\"includeUserInbox\": " + IncludeUserInbox.ToString().ToLower());
+            }
             if(MailSubject != null && (retrievedProperties == null || retrievedProperties.Contains("mailSubject")))
             {
                 ret.Add("mailSubject", "\"mailSubject\": " + "\"" + EscapeJson(MailSubject) + "\"");
@@ -17777,6 +17858,10 @@ namespace WebAPI.Models.Notifications
             if((retrievedProperties == null || retrievedProperties.Contains("includeSms")))
             {
                 ret.Add("includeSms", "<includeSms>" + IncludeSms.ToString().ToLower() + "</includeSms>");
+            }
+            if(IncludeUserInbox.HasValue && (retrievedProperties == null || retrievedProperties.Contains("includeUserInbox")))
+            {
+                ret.Add("includeUserInbox", "<includeUserInbox>" + IncludeUserInbox.ToString().ToLower() + "</includeUserInbox>");
             }
             if(MailSubject != null && (retrievedProperties == null || retrievedProperties.Contains("mailSubject")))
             {
@@ -39311,6 +39396,10 @@ namespace WebAPI.Models.Partner
             {
                 ret.Add("downgradePolicy", "\"downgradePolicy\": " + "\"" + Enum.GetName(typeof(KalturaDowngradePolicy), DowngradePolicy) + "\"");
             }
+            if(EnableMultiLcns.HasValue && (retrievedProperties == null || retrievedProperties.Contains("enableMultiLcns")))
+            {
+                ret.Add("enableMultiLcns", "\"enableMultiLcns\": " + EnableMultiLcns.ToString().ToLower());
+            }
             if(EnableRegionFiltering.HasValue && (retrievedProperties == null || retrievedProperties.Contains("enableRegionFiltering")))
             {
                 ret.Add("enableRegionFiltering", "\"enableRegionFiltering\": " + EnableRegionFiltering.ToString().ToLower());
@@ -39393,6 +39482,10 @@ namespace WebAPI.Models.Partner
             if(DowngradePolicy.HasValue && (retrievedProperties == null || retrievedProperties.Contains("downgradePolicy")))
             {
                 ret.Add("downgradePolicy", "<downgradePolicy>" + "" + Enum.GetName(typeof(KalturaDowngradePolicy), DowngradePolicy) + "" + "</downgradePolicy>");
+            }
+            if(EnableMultiLcns.HasValue && (retrievedProperties == null || retrievedProperties.Contains("enableMultiLcns")))
+            {
+                ret.Add("enableMultiLcns", "<enableMultiLcns>" + EnableMultiLcns.ToString().ToLower() + "</enableMultiLcns>");
             }
             if(EnableRegionFiltering.HasValue && (retrievedProperties == null || retrievedProperties.Contains("enableRegionFiltering")))
             {
@@ -46234,6 +46327,328 @@ namespace WebAPI.EventNotifications
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            return ret;
+        }
+    }
+}
+
+namespace WebAPI.Models.IngestStatus
+{
+    public partial class KalturaIngestByCompoundFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(CreatedDateGreaterThan.HasValue && (retrievedProperties == null || retrievedProperties.Contains("createdDateGreaterThan")))
+            {
+                ret.Add("createdDateGreaterThan", "\"createdDateGreaterThan\": " + CreatedDateGreaterThan);
+            }
+            if(CreatedDateSmallerThan.HasValue && (retrievedProperties == null || retrievedProperties.Contains("createdDateSmallerThan")))
+            {
+                ret.Add("createdDateSmallerThan", "\"createdDateSmallerThan\": " + CreatedDateSmallerThan);
+            }
+            if(IngestedByUserIdIn != null && (retrievedProperties == null || retrievedProperties.Contains("ingestedByUserIdIn")))
+            {
+                ret.Add("ingestedByUserIdIn", "\"ingestedByUserIdIn\": " + "\"" + EscapeJson(IngestedByUserIdIn) + "\"");
+            }
+            if(IngestNameContains != null && (retrievedProperties == null || retrievedProperties.Contains("ingestNameContains")))
+            {
+                ret.Add("ingestNameContains", "\"ingestNameContains\": " + "\"" + EscapeJson(IngestNameContains) + "\"");
+            }
+            if(IngestStatusIn != null && (retrievedProperties == null || retrievedProperties.Contains("ingestStatusIn")))
+            {
+                ret.Add("ingestStatusIn", "\"ingestStatusIn\": " + "\"" + EscapeJson(IngestStatusIn) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(CreatedDateGreaterThan.HasValue && (retrievedProperties == null || retrievedProperties.Contains("createdDateGreaterThan")))
+            {
+                ret.Add("createdDateGreaterThan", "<createdDateGreaterThan>" + CreatedDateGreaterThan + "</createdDateGreaterThan>");
+            }
+            if(CreatedDateSmallerThan.HasValue && (retrievedProperties == null || retrievedProperties.Contains("createdDateSmallerThan")))
+            {
+                ret.Add("createdDateSmallerThan", "<createdDateSmallerThan>" + CreatedDateSmallerThan + "</createdDateSmallerThan>");
+            }
+            if(IngestedByUserIdIn != null && (retrievedProperties == null || retrievedProperties.Contains("ingestedByUserIdIn")))
+            {
+                ret.Add("ingestedByUserIdIn", "<ingestedByUserIdIn>" + EscapeXml(IngestedByUserIdIn) + "</ingestedByUserIdIn>");
+            }
+            if(IngestNameContains != null && (retrievedProperties == null || retrievedProperties.Contains("ingestNameContains")))
+            {
+                ret.Add("ingestNameContains", "<ingestNameContains>" + EscapeXml(IngestNameContains) + "</ingestNameContains>");
+            }
+            if(IngestStatusIn != null && (retrievedProperties == null || retrievedProperties.Contains("ingestStatusIn")))
+            {
+                ret.Add("ingestStatusIn", "<ingestStatusIn>" + EscapeXml(IngestStatusIn) + "</ingestStatusIn>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaIngestByIdsFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(IngestIdIn != null && (retrievedProperties == null || retrievedProperties.Contains("ingestIdIn")))
+            {
+                ret.Add("ingestIdIn", "\"ingestIdIn\": " + "\"" + EscapeJson(IngestIdIn) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(IngestIdIn != null && (retrievedProperties == null || retrievedProperties.Contains("ingestIdIn")))
+            {
+                ret.Add("ingestIdIn", "<ingestIdIn>" + EscapeXml(IngestIdIn) + "</ingestIdIn>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaIngestEpg
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(CompletedDate.HasValue && (retrievedProperties == null || retrievedProperties.Contains("completedDate")))
+            {
+                ret.Add("completedDate", "\"completedDate\": " + CompletedDate);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("createdDate")))
+            {
+                ret.Add("createdDate", "\"createdDate\": " + CreatedDate);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("ingestedByUserId")))
+            {
+                ret.Add("ingestedByUserId", "\"ingestedByUserId\": " + IngestedByUserId);
+            }
+            if(IngestFilenameExtension != null && (retrievedProperties == null || retrievedProperties.Contains("ingestFilenameExtension")))
+            {
+                ret.Add("ingestFilenameExtension", "\"ingestFilenameExtension\": " + "\"" + EscapeJson(IngestFilenameExtension) + "\"");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("ingestId")))
+            {
+                ret.Add("ingestId", "\"ingestId\": " + IngestId);
+            }
+            if(IngestName != null && (retrievedProperties == null || retrievedProperties.Contains("ingestName")))
+            {
+                ret.Add("ingestName", "\"ingestName\": " + "\"" + EscapeJson(IngestName) + "\"");
+            }
+            if(IngestProfileId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("ingestProfileId")))
+            {
+                ret.Add("ingestProfileId", "\"ingestProfileId\": " + IngestProfileId);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("status")))
+            {
+                ret.Add("status", "\"status\": " + "\"" + Enum.GetName(typeof(KalturaIngestStatus), Status) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(CompletedDate.HasValue && (retrievedProperties == null || retrievedProperties.Contains("completedDate")))
+            {
+                ret.Add("completedDate", "<completedDate>" + CompletedDate + "</completedDate>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("createdDate")))
+            {
+                ret.Add("createdDate", "<createdDate>" + CreatedDate + "</createdDate>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("ingestedByUserId")))
+            {
+                ret.Add("ingestedByUserId", "<ingestedByUserId>" + IngestedByUserId + "</ingestedByUserId>");
+            }
+            if(IngestFilenameExtension != null && (retrievedProperties == null || retrievedProperties.Contains("ingestFilenameExtension")))
+            {
+                ret.Add("ingestFilenameExtension", "<ingestFilenameExtension>" + EscapeXml(IngestFilenameExtension) + "</ingestFilenameExtension>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("ingestId")))
+            {
+                ret.Add("ingestId", "<ingestId>" + IngestId + "</ingestId>");
+            }
+            if(IngestName != null && (retrievedProperties == null || retrievedProperties.Contains("ingestName")))
+            {
+                ret.Add("ingestName", "<ingestName>" + EscapeXml(IngestName) + "</ingestName>");
+            }
+            if(IngestProfileId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("ingestProfileId")))
+            {
+                ret.Add("ingestProfileId", "<ingestProfileId>" + IngestProfileId + "</ingestProfileId>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("status")))
+            {
+                ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaIngestStatus), Status) + "" + "</status>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaIngestStatusEpgConfiguration
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(IsSupported.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isSupported")))
+            {
+                ret.Add("isSupported", "\"isSupported\": " + IsSupported.ToString().ToLower());
+            }
+            if(RetainingPeriod.HasValue && (retrievedProperties == null || retrievedProperties.Contains("retainingPeriod")))
+            {
+                ret.Add("retainingPeriod", "\"retainingPeriod\": " + RetainingPeriod);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(IsSupported.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isSupported")))
+            {
+                ret.Add("isSupported", "<isSupported>" + IsSupported.ToString().ToLower() + "</isSupported>");
+            }
+            if(RetainingPeriod.HasValue && (retrievedProperties == null || retrievedProperties.Contains("retainingPeriod")))
+            {
+                ret.Add("retainingPeriod", "<retainingPeriod>" + RetainingPeriod + "</retainingPeriod>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaIngestStatusEpgListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+    }
+    public partial class KalturaIngestStatusPartnerConfiguration
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Epg != null && (retrievedProperties == null || retrievedProperties.Contains("epg")))
+            {
+                propertyValue = Epg.ToJson(currentVersion, omitObsolete);
+                ret.Add("epg", "\"epg\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Epg != null && (retrievedProperties == null || retrievedProperties.Contains("epg")))
+            {
+                propertyValue = Epg.ToXml(currentVersion, omitObsolete);
+                ret.Add("epg", "<epg>" + propertyValue + "</epg>");
+            }
             return ret;
         }
     }

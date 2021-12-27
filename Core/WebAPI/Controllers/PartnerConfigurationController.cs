@@ -1,6 +1,4 @@
-﻿using ApiLogic.Api.Managers;
-using ApiObjects.Response;
-using System;
+﻿using ApiObjects.Response;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;

@@ -4439,7 +4439,7 @@ namespace Core.ConditionalAccess
                         int collCode = 0;
                         if (Int32.TryParse(bundleCode, out collCode) && collCode > 0)
                         {
-                            if (!userBundleEntitlements.EntitledCollections.ContainsKey(bundleCode))
+                            if (!userBundleEntitlements.EntitledCollections.ContainsKey(bundleCode) && endDate >= DateTime.UtcNow)
                             {
                                 userBundleEntitlements.EntitledCollections.Add(bundleCode, new UserBundlePurchase()
                                 {
@@ -8033,7 +8033,7 @@ namespace Core.ConditionalAccess
 
         private static List<MediaFile> ValidateMediaFilesUponSecurity(List<MediaFile> allMediafiles, int groupId)
         {
-            if (!GroupSettingsManager.IsOpc(groupId))
+            if (!GroupSettingsManager.Instance.IsOpc(groupId))
             {
                 // If group is not OPC, we should check child subgroups for permissions as well.
                 var subGroups = new GroupManager().GetSubGroup(groupId);
@@ -8045,7 +8045,7 @@ namespace Core.ConditionalAccess
 
         public static bool IsOpc(int groupId)
         {
-            return GroupSettingsManager.IsOpc(groupId);
+            return GroupSettingsManager.Instance.IsOpc(groupId);
         }
 
         internal static ApiObjects.Response.Status GetMediaIdForAsset(int groupId, string assetId, eAssetTypes assetType, string userId, Domain domain, string udid,
@@ -9694,6 +9694,13 @@ namespace Core.ConditionalAccess
 
         internal static bool RenewUnifiedTransactionMessageInQueue(int groupId, long householdId, long endDateUnix, DateTime nextRenewalDate, long processId)
         {
+            if (nextRenewalDate > DateTime.UtcNow.AddYears(1).AddDays(5))
+            {
+                //BEO-11219
+                log.Debug($"BEO-11219 - skip Enqueue unified renew msg (more then 1 year)! processId:{processId}, endDateUnix:{endDateUnix}");
+                return true;
+            }
+
             log.DebugFormat("RenewUnifiedTransactionMessageInQueue (RenewUnifiedData) processId:{0}", processId);
 
             // add new message to new routing key queue

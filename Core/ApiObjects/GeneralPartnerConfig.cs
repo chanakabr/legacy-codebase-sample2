@@ -21,6 +21,7 @@ namespace ApiObjects
         public int? FinishedPercentThreshold { get; set; }
         public SuspensionProfileInheritanceType? SuspensionProfileInheritanceType { get; set; }
         public bool? AllowDeviceMobility { get; set; }
+        public bool? EnableMultiLcns { get; set; }
 
         public bool SetUnchangedProperties(GeneralPartnerConfig oldConfig)
         {

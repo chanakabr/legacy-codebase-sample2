@@ -17,11 +17,7 @@ namespace DAL
 {
     public interface INotificationDal
     {
-        IotProfile GetIotProfile(int groupId);
-        bool SaveRegisteredDevice(Iot msResponse);
-        Iot GetRegisteredDevice(string groupId, string udid);
-        bool RemoveRegisteredDevice(string groupId, string udid);
-        bool SaveIotProfile(int groupId, IotProfile msResponse);
+
     }
 
     /// <summary>
@@ -81,23 +77,6 @@ namespace DAL
         private static string GetUserPushKey(int groupId, long userId)
         {
             return string.Format("user_push:{0}:{1}", groupId, userId);
-        }
-
-        public bool SaveIotProfile(int groupId, IotProfile msResponse)
-        {
-            string key = GetIotProfileKey(groupId);
-            return UtilsDal.SaveObjectInCB<IotProfile>(eCouchbaseBucket.NOTIFICATION, key, msResponse);
-        }
-
-        public IotProfile GetIotProfile(int groupId)
-        {
-            string key = GetIotProfileKey(groupId);
-            return UtilsDal.GetObjectFromCB<IotProfile>(eCouchbaseBucket.NOTIFICATION, key);
-        }
-
-        private static string GetIotProfileKey(int groupId)
-        {
-            return $"Iot_Profile_{groupId}";
         }
 
         private static string GetInboxSystemAnnouncementKey(int groupId, string messageId)
@@ -1022,7 +1001,7 @@ namespace DAL
 
         public static DataRow Insert_MessageAnnouncement(int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone,
             int updaterId, string messageReference, string resultMsgId, string imageUrl, bool includeMail, string mailTemplate, string mailSubject, bool includeSMS,
-            bool includeIot, long announcement_id = 0)
+            bool includeIot, long announcement_id = 0, bool includeUserInbox = true)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("InsertMessageAnnouncement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -1046,6 +1025,7 @@ namespace DAL
             spInsert.AddParameter("@includeSMS", includeSMS);
             if (includeIot)
                 spInsert.AddParameter("@includeIOT", includeIot);
+            spInsert.AddParameter("@includeUserInbox", includeUserInbox);
 
             DataSet ds = spInsert.ExecuteDataSet();
             if (ds == null || ds.Tables == null || ds.Tables.Count == 0)
@@ -1059,7 +1039,7 @@ namespace DAL
         }
 
         public static DataRow Update_MessageAnnouncement(int id, int groupId, int recipients, string name, string message, bool enabled, DateTime startTime,
-            string timezone, int updaterId, string resultMsgId, string imageUrl, bool includeMail, string mailTemplate, string mailSubject, bool includeIot, bool includeSms)
+            string timezone, int updaterId, string resultMsgId, string imageUrl, bool includeMail, string mailTemplate, string mailSubject, bool includeIot, bool includeSms, bool includeUserInbox)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -1078,6 +1058,7 @@ namespace DAL
             spInsert.AddParameter("@mailSubject", mailSubject, true);
             spInsert.AddParameter("@includeIot", includeIot);
             spInsert.AddParameter("@includeSms", includeSms);
+            spInsert.AddParameter("@includeUserInbox", includeUserInbox);
 
             DataSet ds = spInsert.ExecuteDataSet();
             if (ds == null || ds.Tables == null || ds.Tables.Count == 0)
@@ -3213,29 +3194,6 @@ namespace DAL
         private static string GetTopicNotificationMessageKey(long id)
         {
             return string.Format("topic_notification_message:{0}", id);
-        }
-
-        public Iot GetRegisteredDevice(string groupId, string udid)
-        {
-            var key = GetIotDeviceKey(groupId, udid);
-            return UtilsDal.GetObjectFromCB<Iot>(eCouchbaseBucket.NOTIFICATION, key);
-        }
-
-        public bool SaveRegisteredDevice(Iot msResponse)
-        {
-            string key = GetIotDeviceKey(msResponse.GroupId, msResponse.Udid);
-            return UtilsDal.SaveObjectInCB<Iot>(eCouchbaseBucket.NOTIFICATION, key, msResponse);
-        }
-
-        public bool RemoveRegisteredDevice(string groupId, string udid)
-        {
-            var key = GetIotDeviceKey(groupId, udid);
-            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.NOTIFICATION, key);
-        }
-
-        private static string GetIotDeviceKey(string groupId, string udid)
-        {
-            return $"Iot_Device_{groupId}_{udid}";
         }
 
         #endregion TopicNotification & TopicNotificationMessage

@@ -12248,28 +12248,10 @@ namespace Core.ConditionalAccess
                                             }
 
                                             long endDateUnix = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds((DateTime)subscriptionEndDate);
+                                            
                                             // enqueue renew transaction
-                                            bool enqueueSuccessful = true;
-
-                                            var data = new RenewTransactionData(m_nGroupID, siteguid, purchaseID, billingGuid,
-                                                    endDateUnix, nextRenewalDate);
-
-                                            var queue = new RenewTransactionsQueue();
-
-                                            enqueueSuccessful &= queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
-                                            if (!enqueueSuccessful)
-                                            {
-                                                log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
-                                            }
-                                            else
-                                            {
-                                                log.DebugFormat("New task created (upon process subscription receipt response). Next renewal date: {0} data: {1}", nextRenewalDate, data);
-                                            }
-
-                                            if (enqueueSuccessful)
-                                            {
-                                                PurchaseManager.SendRenewalReminder(data, householdId);
-                                            }
+                                            bool enqueueSuccessful = PurchaseManager.RenewTransactionMessageInQueue(m_nGroupID, siteguid, 
+                                                billingGuid, purchaseID, endDateUnix, nextRenewalDate);                                            
                                         }
                                         catch (Exception ex)
                                         {

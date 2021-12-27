@@ -445,7 +445,8 @@ namespace ApiLogic.Api.Managers
                                 RollingDeviceRemovalData = GetRollingDeviceRemovalData(dt.Rows[0]),
                                 LinearWatchHistoryThreshold = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "LINEAR_WATCH_HISTORY_THRESHOLD", 0),
                                 FinishedPercentThreshold = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "FINISHED_PERCENT_THRESHOLD"),
-                                AllowDeviceMobility = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "ALLOW_DEVICE_MOBILITY") == 1
+                                AllowDeviceMobility = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "ALLOW_DEVICE_MOBILITY") == 1,
+                                EnableMultiLcns = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "ENABLE_MULTI_LCNS") == 1
                             };
 
                             if (!generalPartnerConfig.FinishedPercentThreshold.HasValue || generalPartnerConfig.FinishedPercentThreshold.Value == 0)

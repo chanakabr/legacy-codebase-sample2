@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using ApiLogic.Api.Managers;
 using ApiObjects.Response;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -23,28 +24,18 @@ namespace WebAPI.Controllers
         [Action("list")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        static public KalturaRegionListResponse List(KalturaBaseRegionFilter filter, KalturaFilterPager pager = null)
+        public static KalturaRegionListResponse List(KalturaBaseRegionFilter filter, KalturaFilterPager pager = null)
         {
-            KalturaRegionListResponse response = null;
-
-            int groupId = KS.GetFromRequest().GroupId;
-            KalturaBaseResponseProfile responseProfile = Utils.Utils.GetResponseProfileFromRequest();
-
-
-            // parameters validation
-            if (pager == null)
-                pager = new KalturaFilterPager();
-
             filter.Validate();
 
-            try
+            if (pager == null)
             {
-                response = filter.GetRegions(groupId, pager, responseProfile);
+                pager = new KalturaFilterPager();
             }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
+
+            var groupId = KS.GetFromRequest().GroupId;
+            var responseProfile = Utils.Utils.GetResponseProfileFromRequest();
+            var response = filter.GetRegions(groupId, pager, responseProfile);
 
             return response;
         }
@@ -62,23 +53,14 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InputFormatIsInvalid)]
         [Throws(eResponseStatus.DuplicateRegionChannel)]
         [Throws(eResponseStatus.ParentAlreadyContainsChannel)]
-        static public KalturaRegion Add(KalturaRegion region)
+        public static KalturaRegion Add(KalturaRegion region)
         {
-            KalturaRegion response = null;
+            var groupId = KS.GetFromRequest().GroupId;
+            var isMultiLcnsEnabled = GeneralPartnerConfigManager.Instance.GetGeneralPartnerConfig(groupId)?.EnableMultiLcns == true;
+            region.Validate(isMultiLcnsEnabled, true);
 
-            region.Validate(true);
-
-            int groupId = KS.GetFromRequest().GroupId;
-            long userId = long.Parse(KS.GetFromRequest().UserId);
-
-            try
-            {
-                response = ClientsManager.ApiClient().AddRegion(groupId, region, userId);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
+            var userId = Utils.Utils.GetUserIdFromKs();
+            var response = ClientsManager.ApiClient().AddRegion(groupId, region, userId);
 
             return response;
         }
@@ -97,25 +79,16 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InputFormatIsInvalid)]
         [Throws(eResponseStatus.DuplicateRegionChannel)]
         [Throws(eResponseStatus.ParentAlreadyContainsChannel)]
-        static public KalturaRegion Update(int id, KalturaRegion region)
+        public static KalturaRegion Update(int id, KalturaRegion region)
         {
-            KalturaRegion response = null;
-
-            region.Validate();
-
-            int groupId = KS.GetFromRequest().GroupId;
-            long userId = long.Parse(KS.GetFromRequest().UserId);
+            var groupId = KS.GetFromRequest().GroupId;
+            var isMultiLcnsEnabled = GeneralPartnerConfigManager.Instance.GetGeneralPartnerConfig(groupId)?.EnableMultiLcns == true;
+            region.Validate(isMultiLcnsEnabled, false);
 
             region.Id = id;
 
-            try
-            {
-                response = ClientsManager.ApiClient().UpdateRegion(groupId, region, userId);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
+            var userId = Utils.Utils.GetUserIdFromKs();
+            var response = ClientsManager.ApiClient().UpdateRegion(groupId, region, userId);
 
             return response;
         }
@@ -130,19 +103,12 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.RegionNotFound)]
         [Throws(eResponseStatus.DefaultRegionCannotBeDeleted)]
         [Throws(eResponseStatus.CannotDeleteRegionInUse)]
-        static public void Delete(int id)
+        public static void Delete(int id)
         {
-            int groupId = KS.GetFromRequest().GroupId;
-            long userId = long.Parse(KS.GetFromRequest().UserId);
+            var groupId = KS.GetFromRequest().GroupId;
+            var userId = long.Parse(KS.GetFromRequest().UserId);
 
-            try
-            {
-                ClientsManager.ApiClient().DeleteRegion(groupId, id, userId);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
+            ClientsManager.ApiClient().DeleteRegion(groupId, id, userId);
         }
 
         /// <summary>
@@ -156,23 +122,12 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         public static bool BulkAddLinearChannel(long linearChannelId, List<KalturaRegionChannelNumber> regionChannelNumbers)
         {
-            if (regionChannelNumbers == null || regionChannelNumbers.Count == 0)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, nameof(regionChannelNumbers));
-            }
-
             var groupId = KS.GetFromRequest().GroupId;
-            var userId = Utils.Utils.GetUserIdFromKs();
+            var isMultiLcnsEnabled = GeneralPartnerConfigManager.Instance.GetGeneralPartnerConfig(groupId)?.EnableMultiLcns == true;
+            KalturaRegionChannelNumber.Validate(isMultiLcnsEnabled, regionChannelNumbers);
 
-            var response = false;
-            try
-            {
-                response = ClientsManager.ApiClient().BulkUpdateRegions(groupId, userId, linearChannelId, regionChannelNumbers.AsReadOnly());
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
+            var userId = Utils.Utils.GetUserIdFromKs();
+            var response = ClientsManager.ApiClient().BulkUpdateRegions(groupId, userId, linearChannelId, regionChannelNumbers.AsReadOnly());
 
             return response;
         }

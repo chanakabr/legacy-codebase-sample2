@@ -162,7 +162,7 @@ namespace WebAPI.Managers
 
         private static KS.KSData CreateKsPayload(int groupId, string userId, int domainId, string udid, List<long> userRoles, int createDate)
         {
-            var regionId = Core.Catalog.CatalogLogic.GetRegionIdOfDomain(groupId, domainId, userId);
+            var regionId = Core.Catalog.CatalogLogic.GetRegionIdOfUser(groupId, domainId, userId);
             var userSegments = Core.Api.Module.GetUserAndHouseholdSegmentIds(groupId, userId, domainId);
 
             // SessionCharacteristicKey is initialized only in Auth MS

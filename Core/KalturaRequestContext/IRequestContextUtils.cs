@@ -10,5 +10,8 @@ namespace KalturaRequestContext
         string GetUserIp();
         void SetIsPartnerRequest();
         bool IsImpersonateRequest();
+        int? GetRegionId();
+        void SetRegionId(int regionId);
+        void RemoveRegionId();
     }
 }

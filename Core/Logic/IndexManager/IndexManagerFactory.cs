@@ -13,12 +13,14 @@ using EventBus.Kafka;
 using ElasticSearch.Common;
 using Core.Catalog.CatalogManagement;
 using ApiLogic.Catalog;
+using ApiLogic.IndexManager.Helpers;
 using ApiObjects.CanaryDeployment.Elasticsearch;
 using ElasticSearch.NEST;
 using ElasticSearch.Utilities;
 using ApiLogic.IndexManager.QueryBuilders;
 using TvinciCache.Adapters;
 using ApiLogic.IndexManager.Mappings;
+using Core.GroupManagers;
 using ApiLogic.IndexManager.Sorting;
 using TVinciShared;
 
@@ -101,7 +103,9 @@ namespace Core.Catalog
                         WatchRuleManager.Instance,
                         ChannelQueryBuilder.Instance,
                         GroupsFeatureAdapter.Instance,
-                        LayeredCache.Instance);
+                        LayeredCache.Instance,
+                        NamingHelper.Instance,
+                        GroupSettingsManager.Instance);
 
                     if (isMigrationEventsEnabled)
                     {
@@ -128,6 +132,8 @@ namespace Core.Catalog
                         WatchRuleManager.Instance,
                         ChannelQueryBuilder.Instance,
                         MappingTypeResolver.Instance,
+                        NamingHelper.Instance,
+                        GroupSettingsManager.Instance,
                         SortingByStatsService.Instance,
                         StartDateAssociationTagsSortStrategy.Instance, 
                         StatisticsSortStrategy.Instance);

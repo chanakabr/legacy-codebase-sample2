@@ -16,6 +16,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ApiLogic.EPG;
 using ApiLogic.IndexManager.Helpers;
 using ApiLogic.Tests.IndexManager.helpers;
 using Utils = ElasticSearch.Common.Utils;
@@ -31,10 +32,14 @@ using Policy = Polly.Policy;
 using ApiLogic.IndexManager.NestData;
 using ApiLogic.IndexManager.QueryBuilders;
 using ApiLogic.IndexManager.QueryBuilders.NestQueryBuilders;
+using ApiObjects.Epg;
 using ApiObjects.Response;
 using Core.Catalog.Response;
 using TvinciCache;
 using Catalog.Response;
+using Core.GroupManagers;
+using Google.Protobuf.WellKnownTypes;
+using Type = System.Type;
 
 namespace ApiLogic.Tests.IndexManager
 {
@@ -57,6 +62,8 @@ namespace ApiLogic.Tests.IndexManager
 
         private static int _nextPartnerId = 10000;
         private Random _random;
+        private INamingHelper _mockNamingHelper;
+        private IGroupSettingsManager _mockGroupSettingsManager;
 
         #region Helpers
         private IndexManagerV7 GetIndexV7Manager(int partnerId)
@@ -73,8 +80,22 @@ namespace ApiLogic.Tests.IndexManager
                     _mockWatchRuleManager.Object,
                     _mockChannelQueryBuilder.Object,
                     _mockGroupsFeatures.Object,
-                    _mockLayeredCache.Object
+                    _mockLayeredCache.Object,
+                    _mockNamingHelper,
+                    _mockGroupSettingsManager
                 );
+        }
+
+        private INamingHelper GetMockNamingHelper()
+        {
+            var epgV2ConfigManagerMock = new Mock<IEpgV2PartnerConfigurationManager>(MockBehavior.Loose);
+            epgV2ConfigManagerMock.Setup(m => m.GetConfiguration(It.IsAny<int>())).Returns(new EpgV2PartnerConfiguration()
+            {
+                IsEpgV2Enabled = true,
+                FutureIndexCompactionStart = 7,
+                PastIndexCompactionStart = 0,
+            });
+            return new NamingHelper(epgV2ConfigManagerMock.Object);
         }
 
         private static string GetAnalyzerFromMockTcm()
@@ -120,6 +141,18 @@ namespace ApiLogic.Tests.IndexManager
             _mockElasticSearchCommonUtils = _mockRepository.Create<IElasticSearchCommonUtils>();
             _mockGroupsFeatures = _mockRepository.Create<IGroupsFeatures>();
             _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitionsNest(_mockElasticSearchCommonUtils.Object, ApplicationConfiguration.Current);
+            
+            var epgV2ConfigManagerMock = new Mock<IEpgV2PartnerConfigurationManager>(MockBehavior.Loose);
+            epgV2ConfigManagerMock.Setup(m => m.GetConfiguration(It.IsAny<int>())).Returns(new EpgV2PartnerConfiguration()
+            {
+                // all tests assume they use epg v1 unless a method for epg v2 is explcitly called
+                IsEpgV2Enabled = false,
+                FutureIndexCompactionStart = 7,
+                PastIndexCompactionStart = 0,
+            });
+            
+            _mockNamingHelper = new NamingHelper(epgV2ConfigManagerMock.Object);
+            _mockGroupSettingsManager = new GroupSettingsManager(_mockLayeredCache.Object, epgV2ConfigManagerMock.Object);
         }
 
         //[Test]
@@ -143,7 +176,8 @@ namespace ApiLogic.Tests.IndexManager
                 It.Is<string>(a => a.ToLower().Contains("analyzer"))
             )).Returns(GetAnalyzerFromMockTcm());
 
-            var index = indexManager.SetupEpgV2Index(DateTime.Today);
+            var indexName = _mockNamingHelper.GetDailyEpgIndexName(partnerId, DateTime.Now);
+            var index = indexManager.SetupEpgV2Index(indexName);
             Assert.IsNotEmpty(index);
 
             var refreshInterval = new Time(TimeSpan.FromSeconds(1));
@@ -183,11 +217,11 @@ namespace ApiLogic.Tests.IndexManager
                 .ToList();
 
             //call upsert
-            indexManager.UpsertPrograms(programsToIndex, index, dateOfProgramsToIngest, language, languageObjs);
+            indexManager.UpsertPrograms(programsToIndex, index, language, languageObjs);
 
             indexManager.DeletePrograms(programsToIndex, index, languageObjs);
 
-            var res = indexManager.ForceRefreshEpgV2Index(DateTime.UtcNow);
+            var res = indexManager.ForceRefreshEpgV2Index(indexName);
             Assert.IsTrue(res);
 
             res = indexManager.FinalizeEpgV2Indices(new List<DateTime>() { DateTime.Today, DateTime.UtcNow.AddDays(-1) });
@@ -861,7 +895,8 @@ namespace ApiLogic.Tests.IndexManager
 
 
             //act
-            var setupEpgV2Index = indexManager.SetupEpgV2Index(DateTime.UtcNow);
+            var indexName = _mockNamingHelper.GetDailyEpgIndexName(randomPartnerId, DateTime.Now);
+            var setupEpgV2Index = indexManager.SetupEpgV2Index(indexName);
 
             var refreshInterval = new Time(TimeSpan.FromSeconds(1));
             var elasticClient = NESTFactory.GetInstance(ApplicationConfiguration.Current);
@@ -915,8 +950,7 @@ namespace ApiLogic.Tests.IndexManager
                 .Concat(crudOperations.ItemsToUpdate).Concat(crudOperations.AffectedItems)
                 .ToList();
 
-            indexManager.UpsertPrograms(programsToIndex, setupEpgV2Index,
-                dateOfProgramsToIngest, language, languageObjs);
+            indexManager.UpsertPrograms(programsToIndex, setupEpgV2Index, language, languageObjs);
 
             var searchPolicy = Policy.HandleResult<List<string>>(x => x == null || x.Count == 0).WaitAndRetry(
                 3,

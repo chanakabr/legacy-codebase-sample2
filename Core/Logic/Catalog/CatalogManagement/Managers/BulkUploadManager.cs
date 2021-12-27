@@ -19,7 +19,11 @@ using System.Linq;
 using System.Reflection;
 using ApiLogic.Api.Managers;
 using ApiLogic.Catalog.CatalogManagement.Helpers;
+using ApiObjects.EventBus.EpgIngest;
+using Core.Catalog.CatalogManagement.Services;
+using EventBus.Kafka;
 using Tvinci.Core.DAL;
+using TVinciShared;
 using ESUtils = ElasticSearch.Common.Utils;
 
 namespace Core.Catalog.CatalogManagement
@@ -198,9 +202,9 @@ namespace Core.Catalog.CatalogManagement
                 //
 
                 // Enqueue to CeleryQueue new BulkUpload (the remote will handle the file and its content).
-                if (jobData is BulkUploadIngestJobData)
+                if (jobData is BulkUploadIngestJobData ingestJobData)
                 {
-                    var doesGroupUseNewEpgIngest = GroupManagers.GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
+                    var doesGroupUseNewEpgIngest = GroupManagers.GroupSettingsManager.Instance.DoesGroupUseNewEpgIngest(groupId);
                     if (!doesGroupUseNewEpgIngest)
                     {
                         var msg = $"AddBulkUpload > GroupId :[{groupId}]. epg ingest using bulk upload is not supported for this account";
@@ -210,9 +214,10 @@ namespace Core.Catalog.CatalogManagement
                         response.SetStatus(eResponseStatus.AccountEpgIngestVersionDoesNotSupportBulk, msg);
                         return response;
                     }
-                   
 
-                    response = SendTransformationEventToServiceEventBus(groupId, userId, response);
+                    SendTransformationEventToServiceEventBus(groupId, userId, response.Object.Id,
+                        ingestJobData.IngestProfileId, response.Object.FileName, response.Object.CreateDate);
+                    response = UpdateBulkUploadStatusWithVersionCheck(response.Object, BulkUploadJobStatus.Queued);
                 }
                 else
                 {
@@ -231,7 +236,8 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        private static GenericResponse<BulkUpload> SendTransformationEventToServiceEventBus(int groupId, long userId, GenericResponse<BulkUpload> response)
+        private static void SendTransformationEventToServiceEventBus(int groupId, long userId, long bulkUploadId,
+            int? ingestProfileId, string ingestFileName, DateTime createdDate)
         {
             var publisher = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
             var transformationEvent = new BulkUploadTransformationEvent
@@ -239,12 +245,12 @@ namespace Core.Catalog.CatalogManagement
                 RequestId = KLogger.GetRequestId(),
                 GroupId = groupId,
                 UserId = userId,
-                BulkUploadId = response.Object.Id,
+                BulkUploadId = bulkUploadId,
             };
-
             publisher.Publish(transformationEvent);
-            response = UpdateBulkUploadStatusWithVersionCheck(response.Object, BulkUploadJobStatus.Queued);
-            return response;
+
+            EpgIngestMessaging.Instance.EpgIngestStarted(groupId, userId, bulkUploadId, ingestProfileId, ingestFileName,
+                createdDate);
         }
 
         private static GenericResponse<BulkUpload> EnqueueExcelBulkUploadJobUsingCelery(int groupId, long userId, GenericResponse<BulkUpload> response)

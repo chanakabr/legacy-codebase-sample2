@@ -16,7 +16,6 @@ using ConfigurationManager;
 using Core.Catalog.Cache;
 using Core.Catalog.Response;
 using Core.GroupManagers;
-using Core.GroupManagers.Adapters;
 using DAL;
 using DAL.DTO;
 using GroupsCacheManager;
@@ -75,7 +74,7 @@ namespace Core.Catalog.CatalogManagement
                 new CatalogManager(LabelRepository.Instance,
                     LayeredCache.Instance,
                     AssetStructMetaRepository.Instance,
-                    GroupSettingsManagerAdapter.Instance,
+                    GroupSettingsManager.Instance,
                     new GroupManager()),
             LazyThreadSafetyMode.PublicationOnly);
 
@@ -119,7 +118,7 @@ namespace Core.Catalog.CatalogManagement
                     int? groupId = funcParams["groupId"] as int?;
                     if (groupId.HasValue && groupId.Value > 0)
                     {
-                        if (!GroupSettingsManager.IsOpc(groupId.Value))
+                        if (!GroupSettingsManager.Instance.IsOpc(groupId.Value))
                         {
                             return new Tuple<CatalogGroupCache, bool>(null, false);
                         }
@@ -142,7 +141,7 @@ namespace Core.Catalog.CatalogManagement
                         // TODO uncomment when regression tests will be fixed
                         // // non-opc accounts don't have topics and don't have CatalogGroupCache at all
                         // // check together with topics, in order not to check IsOpc(call to DB) when no need
-                        // if (topics.Count == 0 && !GroupSettingsManager.IsOpc(groupId.Value))
+                        // if (topics.Count == 0 && !GroupSettingsManager.Instance.IsOpc(groupId.Value))
                         // {
                         //     return new Tuple<CatalogGroupCache, bool>(null, false);
                         // }
@@ -1256,12 +1255,12 @@ namespace Core.Catalog.CatalogManagement
         #region Public Methods
 
         /// <summary>
-        /// This method is here for backward compatability, redirecting all calls to the main method in GroupSettingsManager.
+        /// This method is here for backward compatability, redirecting all calls to the main method in GroupSettingsManager.Instance.
         /// This was done to avoid solution wide chanages
         /// </summary>
         public bool DoesGroupUsesTemplates(int groupId)
         {
-            return GroupSettingsManager.DoesGroupUsesTemplates(groupId);
+            return Core.GroupManagers.GroupSettingsManager.Instance.DoesGroupUsesTemplates(groupId);
         }
 
         public bool TryGetCatalogGroupCacheFromCache(int groupId, out CatalogGroupCache catalogGroupCache)

@@ -1470,12 +1470,7 @@ namespace Core.ConditionalAccess
                                         }
                                     }
 
-                                    long endDateUnix = 0;
-
-                                    if (endDate.HasValue)
-                                    {
-                                        endDateUnix = DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate.Value);
-                                    }
+                                    long endDateUnix = endDate.HasValue ? DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate.Value) : 0;
 
                                     // If the subscription if recurring, put a message for renewal and all that...
                                     if (subscription.m_bIsRecurring && !subscription.PreSaleDate.HasValue)
@@ -1567,10 +1562,10 @@ namespace Core.ConditionalAccess
                                             blockDoublePurchase = ODBCWrapper.Utils.GetIntSafeVal(dbBlockDoublePurchase) == 1;
                                         }
 
-                                        if (!blockDoublePurchase) // reminder message
+                                        if (!blockDoublePurchase && endDate <= DateTime.Now.AddYears(1)) // reminder message
                                         {
                                             RenewTransactionData data = new RenewTransactionData(contextData.GroupId, userId, purchaseID, billingGuid,
-                                                endDateUnix, endDate.Value, eSubscriptionRenewRequestType.Reminder);
+                                            endDateUnix, endDate.Value, eSubscriptionRenewRequestType.Reminder);
                                             PurchaseManager.SendRenewalReminder(data, householdId);
                                         }
 
@@ -1681,6 +1676,13 @@ namespace Core.ConditionalAccess
                     return;
                 }
 
+                if (data.ETA.Value > DateTime.Now.AddYears(1))
+                {
+                    //BEO-11219
+                    log.Debug($"BEO-11219 - skip Enqueue SendRenewalReminder msg (more then 1 year)! purchaseId:{data.purchaseId}, endDateUnix:{data.endDate}");
+                    return;
+                }
+
                 int renewalReminderSettings = BillingDAL.GetRenewalReminderSettings(data.GroupId);
 
                 if (renewalReminderSettings > 0)
@@ -1778,6 +1780,13 @@ namespace Core.ConditionalAccess
         public static bool RenewTransactionMessageInQueue(int groupId, string siteguid, string billingGuid,
             long purchaseID, long endDateUnix, DateTime nextRenewalDate, long householdId = 0)
         {
+            if (nextRenewalDate > DateTime.UtcNow.AddYears(1).AddDays(5))
+            {
+                //BEO-11219
+                log.Debug($"BEO-11219 - skip Enqueue renew msg (more then 1 year)! purchaseID:{purchaseID}, endDateUnix:{endDateUnix}");
+                return true;
+            }
+
             log.DebugFormat("RenewTransactionMessageInQueue (RenewTransactionData) purchaseId:{0}", purchaseID);
 
             RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseID, billingGuid, endDateUnix, nextRenewalDate);

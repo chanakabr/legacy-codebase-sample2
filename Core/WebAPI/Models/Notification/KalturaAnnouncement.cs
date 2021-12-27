@@ -125,6 +125,14 @@ namespace WebAPI.Models.Notifications
         [XmlElement(ElementName = "includeIot")]
         public bool IncludeIot { get; set; }
 
+        /// <summary>
+        /// Should add to user inbox
+        /// </summary>
+        [DataMember(Name = "includeUserInbox")]
+        [JsonProperty(PropertyName = "includeUserInbox")]
+        [XmlElement(ElementName = "includeUserInbox")]
+        [SchemeProperty(IsNullable = true)]
+        public bool? IncludeUserInbox { get; set; }
 
         internal long getStartTime()
         {

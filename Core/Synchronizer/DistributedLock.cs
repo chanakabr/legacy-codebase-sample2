@@ -46,7 +46,8 @@ namespace Synchronizer
                 _Logger.Debug($"DistributedLock > Acquiring lock on keys:[{string.Join(",", keys)}]");
 
 
-                foreach (var key in keys)
+                // Add distinct to save the users from themselves in case they are trying to lock the same key twice (should have same effect)
+                foreach (var key in keys.Distinct())
                 {
                     var isLockedSucess = LockSingleKey(numOfRetries, retryIntervalMs, ttlSeconds, lockObj, key);
                     if (!isLockedSucess)
@@ -68,8 +69,6 @@ namespace Synchronizer
             _Logger.Debug($"DistributedLock > Acquired lock on key:[{string.Join(",", keys)}]...");
             return true;
         }
-
-
 
         private bool LockSingleKey(int numOfRetries, int retryIntervalMs, int ttlSeconds, LockObjectDocument lockObj, string key)
         {
@@ -105,7 +104,7 @@ namespace Synchronizer
             if (keys == null || !keys.Any())
                 return;
 
-            foreach (var key in keys)
+            foreach (var key in keys.Distinct())
             {
                 if (_KeyValueStore.Remove(key))
                 {

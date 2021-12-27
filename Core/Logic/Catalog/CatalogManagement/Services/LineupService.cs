@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using ApiLogic.Api.Managers;
-using ApiLogic.Catalog;
 using ApiObjects.EventBus;
 using ApiObjects.Response;
+using Core.Catalog;
+using Core.Catalog.CatalogManagement;
 using EventBus.Abstraction;
 using EventBus.RabbitMQ;
 using KLogMonitor;
 
-namespace Core.Catalog.CatalogManagement
+namespace ApiLogic.Catalog.CatalogManagement.Services
 {
     public class LineupService : ILineupService
     {
@@ -48,7 +49,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             // TODO: Currently AssetUserRule and GeoBlockRule are ignored so we use this UserSearchContext
-            var searchContextWithoutRules = new UserSearchContext(0, 0, 0, null, null, searchContext.IgnoreEndDate, searchContext.UseStartDate, searchContext.UseFinal, searchContext.GetOnlyActiveAssets, searchContext.IsAllowedToViewInactiveAssets);
+            var searchContextWithoutRules = new UserSearchContext(searchContext.DomainId, 0, 0, null, null, searchContext.IgnoreEndDate, searchContext.UseStartDate, searchContext.UseFinal, searchContext.GetOnlyActiveAssets, searchContext.IsAllowedToViewInactiveAssets);
 
             var result = regionId > 0
                 ? GetRegionLineup(groupId, regionId, searchContextWithoutRules, pageIndex, pageSize)
@@ -88,7 +89,10 @@ namespace Core.Catalog.CatalogManagement
                 .Select(x => new LineupChannelAsset(linearChannels[x.Key], x.Value))
                 .ToList();
 
-            var result = new GenericListResponse<LineupChannelAsset>(Status.Ok, pagedLineupChannelAssets, linearChannels.Count);
+            var totalCount = regionResponse.Object.linearChannels
+                .Count(x => linearChannels.Keys.Contains(x.Key));
+
+            var result = new GenericListResponse<LineupChannelAsset>(Status.Ok, pagedLineupChannelAssets, totalCount);
 
             return result;
         }

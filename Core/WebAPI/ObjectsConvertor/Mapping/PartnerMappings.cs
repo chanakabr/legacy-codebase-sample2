@@ -114,6 +114,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.SuspensionProfileInheritanceType, opt => opt.ResolveUsing(src => 
                                     ConvertSuspensionProfileInheritanceType(src.SuspensionProfileInheritanceType)))
                 .ForMember(dest => dest.AllowDeviceMobility, opt => opt.MapFrom(src => src.AllowDeviceMobility))
+                .ForMember(dest => dest.EnableMultiLcns, opt => opt.MapFrom(src => src.EnableMultiLcns))
                 ;
 
             // map KalturaGeneralPartnerConfig to GeneralPartnerConfig
@@ -138,6 +139,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.SuspensionProfileInheritanceType, opt => opt.ResolveUsing(src => 
                                     ConvertSuspensionProfileInheritanceType(src.SuspensionProfileInheritanceType)))
                 .ForMember(dest => dest.AllowDeviceMobility, opt => opt.MapFrom(src => src.AllowDeviceMobility))
+                .ForMember(dest => dest.EnableMultiLcns, opt => opt.MapFrom(src => src.EnableMultiLcns))
                 ;
 
             #region KalturaObjectVirtualAssetPartnerConfig

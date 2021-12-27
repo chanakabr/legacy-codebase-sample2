@@ -2,10 +2,10 @@ using System.Collections.Generic;
 using System.Linq;
 using ApiLogic.Api.Managers;
 using ApiLogic.Catalog;
+using ApiLogic.Catalog.CatalogManagement.Services;
 using ApiObjects;
 using ApiObjects.Response;
 using Core.Catalog;
-using Core.Catalog.CatalogManagement;
 using EventBus.Abstraction;
 using FluentAssertions;
 using KLogMonitor;
@@ -66,10 +66,10 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                 .Setup(x => x.GetLinearChannels(
                     10,
                     It.Is<IEnumerable<long>>(_ => _.SequenceEqual(new List<long> { 106, 102, 107, 101, 108, 104, 103, 105 })),
-                    It.Is<UserSearchContext>(_ => _.DomainId == 0 && _.UserId == 0 && _.LanguageId == 0 && _.Udid == null && _.UserIp == null && _.IgnoreEndDate && _.UseStartDate && _.UseFinal && _.GetOnlyActiveAssets && _.IsAllowedToViewInactiveAssets)))
+                    It.Is<UserSearchContext>(_ => _.DomainId == 12 && _.UserId == 0 && _.LanguageId == 0 && _.Udid == null && _.UserIp == null && _.IgnoreEndDate && _.UseStartDate && _.UseFinal && _.GetOnlyActiveAssets && _.IsAllowedToViewInactiveAssets)))
                 .Returns(new GenericListResponse<Asset>(new Status(3, "Custom Asset Error"), null));
             _loggerMock
-                .Setup(x => x.Error("GetLinearChannels with parameters searchContext:{DomainId:0, UserId:0, LanguageId:0, Udid:, UserIp:, IgnoreEndDate:True, UseStartDate:True, UseFinal:True, GetOnlyActiveAssets:True, IsAllowedToViewInactiveAssets:True} completed with status {3 - Custom Asset Error}.", null, It.IsAny<string>()));
+                .Setup(x => x.Error("GetLinearChannels with parameters searchContext:{DomainId:12, UserId:0, LanguageId:0, Udid:, UserIp:, IgnoreEndDate:True, UseStartDate:True, UseFinal:True, GetOnlyActiveAssets:True, IsAllowedToViewInactiveAssets:True} completed with status {3 - Custom Asset Error}.", null, It.IsAny<string>()));
             var service = new LineupService(_regionManagerMock.Object, _assetManagerMock.Object, _loggerMock.Object, _publisher.Object);
 
             var result = service.GetLineupChannelAssets(10, 11, GetUserSearchContext(), 1, 3);
@@ -89,7 +89,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                 .Setup(x => x.GetLinearChannels(
                     10,
                     It.Is<IEnumerable<long>>(_ => _.SequenceEqual(new List<long> { 106, 102, 107, 101, 108, 104, 103, 105 })),
-                    It.Is<UserSearchContext>(_ => _.DomainId == 0 && _.UserId == 0 && _.LanguageId == 0 && _.Udid == null && _.UserIp == null && _.IgnoreEndDate && _.UseStartDate && _.UseFinal && _.GetOnlyActiveAssets && _.IsAllowedToViewInactiveAssets)))
+                    It.Is<UserSearchContext>(_ => _.DomainId == 12 && _.UserId == 0 && _.LanguageId == 0 && _.Udid == null && _.UserIp == null && _.IgnoreEndDate && _.UseStartDate && _.UseFinal && _.GetOnlyActiveAssets && _.IsAllowedToViewInactiveAssets)))
                 .Returns(new GenericListResponse<Asset>(Status.Ok, GetFakeAssets()));
             var service = new LineupService(_regionManagerMock.Object, _assetManagerMock.Object, _loggerMock.Object, _publisher.Object);
 
@@ -104,7 +104,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
             result.Objects[1].LinearChannelNumber.Should().Be(7);
             result.Objects[2].Id.Should().Be(101);
             result.Objects[2].LinearChannelNumber.Should().Be(8);
-            result.TotalItems.Should().Be(6);
+            result.TotalItems.Should().Be(8);
         }
 
         [TestCase(0)]
@@ -118,10 +118,10 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                 .Setup(x => x.GetLinearChannels(
                     10,
                     It.Is<IEnumerable<long>>(_ => !_.Any()),
-                    It.Is<UserSearchContext>(_ => _.DomainId == 0 && _.UserId == 0 && _.LanguageId == 0 && _.Udid == null && _.UserIp == null && _.IgnoreEndDate && _.UseStartDate && _.UseFinal && _.GetOnlyActiveAssets && _.IsAllowedToViewInactiveAssets)))
+                    It.Is<UserSearchContext>(_ => _.DomainId == 12 && _.UserId == 0 && _.LanguageId == 0 && _.Udid == null && _.UserIp == null && _.IgnoreEndDate && _.UseStartDate && _.UseFinal && _.GetOnlyActiveAssets && _.IsAllowedToViewInactiveAssets)))
                 .Returns(new GenericListResponse<Asset>(new Status(3, "Custom Asset Error"), null));
             _loggerMock
-                .Setup(x => x.Error("GetLinearChannels with parameters searchContext:{DomainId:0, UserId:0, LanguageId:0, Udid:, UserIp:, IgnoreEndDate:True, UseStartDate:True, UseFinal:True, GetOnlyActiveAssets:True, IsAllowedToViewInactiveAssets:True} completed with status {3 - Custom Asset Error}.", null, It.IsAny<string>()));
+                .Setup(x => x.Error("GetLinearChannels with parameters searchContext:{DomainId:12, UserId:0, LanguageId:0, Udid:, UserIp:, IgnoreEndDate:True, UseStartDate:True, UseFinal:True, GetOnlyActiveAssets:True, IsAllowedToViewInactiveAssets:True} completed with status {3 - Custom Asset Error}.", null, It.IsAny<string>()));
             var service = new LineupService(_regionManagerMock.Object, _assetManagerMock.Object, _loggerMock.Object, _publisher.Object);
 
             var result = service.GetLineupChannelAssets(10, regionId, GetUserSearchContext(), 1, 3);
@@ -142,7 +142,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                 .Setup(x => x.GetLinearChannels(
                     10,
                     It.Is<IEnumerable<long>>(_ => !_.Any()),
-                    It.Is<UserSearchContext>(_ => _.DomainId == 0 && _.UserId == 0 && _.LanguageId == 0 && _.Udid == null && _.UserIp == null && _.IgnoreEndDate && _.UseStartDate && _.UseFinal && _.GetOnlyActiveAssets && _.IsAllowedToViewInactiveAssets)))
+                    It.Is<UserSearchContext>(_ => _.DomainId == 12 && _.UserId == 0 && _.LanguageId == 0 && _.Udid == null && _.UserIp == null && _.IgnoreEndDate && _.UseStartDate && _.UseFinal && _.GetOnlyActiveAssets && _.IsAllowedToViewInactiveAssets)))
                 .Returns(new GenericListResponse<Asset>(Status.Ok, GetFakeAssets()));
             var service = new LineupService(_regionManagerMock.Object, _assetManagerMock.Object, _loggerMock.Object, _publisher.Object);
 
@@ -174,7 +174,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                 .Setup(x => x.GetLinearChannels(
                     10,
                     It.Is<IEnumerable<long>>(_ => _.SequenceEqual(new List<long> { 106, 102, 107, 101, 108, 104, 103, 105 })),
-                    It.Is<UserSearchContext>(_ => _.DomainId == 0 && _.UserId == 0 && _.LanguageId == 0 && _.Udid == null && _.UserIp == null && _.IgnoreEndDate && _.UseStartDate && _.UseFinal && _.GetOnlyActiveAssets && _.IsAllowedToViewInactiveAssets)))
+                    It.Is<UserSearchContext>(_ => _.DomainId == 12 && _.UserId == 0 && _.LanguageId == 0 && _.Udid == null && _.UserIp == null && _.IgnoreEndDate && _.UseStartDate && _.UseFinal && _.GetOnlyActiveAssets && _.IsAllowedToViewInactiveAssets)))
                 .Returns(new GenericListResponse<Asset>(Status.Ok, GetFakeAssets()));
             var service = new LineupService(_regionManagerMock.Object, _assetManagerMock.Object, _loggerMock.Object, _publisher.Object);
 
@@ -189,7 +189,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
             result.Objects[1].LinearChannelNumber.Should().Be(7);
             result.Objects[2].Id.Should().Be(101);
             result.Objects[2].LinearChannelNumber.Should().Be(8);
-            result.TotalItems.Should().Be(6);
+            result.TotalItems.Should().Be(8);
         }
 
         private UserSearchContext GetUserSearchContext()
@@ -211,7 +211,8 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                     new KeyValuePair<long, int>(104, 2),
                     new KeyValuePair<long, int>(103, 7),
                     new KeyValuePair<long, int>(101, 8),
-                    new KeyValuePair<long, int>(105, 5)
+                    new KeyValuePair<long, int>(105, 5),
+                    new KeyValuePair<long, int>(102, 10)
                 }
             };
         }

@@ -259,7 +259,7 @@ namespace APILogic
             // Save the compressed xml to S3 or FTP
             var catalogConfig = CatalogPartnerConfigManager.Instance.GetCatalogConfig(groupId);
 
-            if (catalogConfig.HasObject() && catalogConfig.Object.UploadExportDatalake.HasValue && catalogConfig.Object.UploadExportDatalake.Value && GroupSettingsManager.IsOpc(groupId))
+            if (catalogConfig.HasObject() && catalogConfig.Object.UploadExportDatalake.HasValue && catalogConfig.Object.UploadExportDatalake.Value)
             {
                 // Create a copy of the file with the prefix and full path requested by datalake
                 var newFile = new OTTFile($"{basePath}/{fileName}", fileName, false);

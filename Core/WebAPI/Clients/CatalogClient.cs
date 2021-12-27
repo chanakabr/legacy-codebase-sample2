@@ -8,6 +8,7 @@ using System.Text;
 using System.Web;
 using ApiLogic.Catalog;
 using ApiLogic.Catalog.CatalogManagement.Managers;
+using ApiLogic.Catalog.CatalogManagement.Services;
 using APILogic.CRUD;
 using ApiObjects;
 using ApiObjects.BulkUpload;

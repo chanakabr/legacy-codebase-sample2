@@ -510,6 +510,8 @@ namespace ApiObjects.SearchObjects
 
             assetUserRuleIds = new List<long>();
             boostScoreValues = new List<BoostScoreValueDefinition>();
+
+            PriorityGroupsMappings = new Dictionary<double, IEsPriorityGroup>();
         }
 
         #endregion

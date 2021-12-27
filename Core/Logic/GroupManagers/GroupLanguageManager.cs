@@ -17,7 +17,7 @@ namespace Core.GroupManagers
         public static List<LanguageObj> GetGroupLanguages(int groupId)
         {
 
-            if (GroupSettingsManager.IsOpc(groupId))
+            if (GroupSettingsManager.Instance.IsOpc(groupId))
             {
                 List<LanguageObj> result = null;
                 string key = LayeredCacheKeys.GetGroupLanguagesCacheKey(groupId);

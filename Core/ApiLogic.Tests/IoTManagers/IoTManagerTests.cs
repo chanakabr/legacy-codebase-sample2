@@ -100,7 +100,7 @@ namespace ApiLogic.Tests.IoTManagers
             var result = iotManager.GetClientConfiguration(contextData);
 
             result.Should().NotBeNull();
-            result.Status.Should().Be(Status.Error);
+            result.Status.Should().NotBe(Status.Ok);
         }
 
         [Test]

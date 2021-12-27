@@ -7,7 +7,6 @@ using ApiObjects.Response;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using Core.GroupManagers;
-using Core.GroupManagers.Adapters;
 using Core.Notification;
 using Core.Notification.Adapters;
 using DAL;
@@ -52,7 +51,7 @@ namespace APILogic.Notification
         private const string META_NOT_NOT_A_INTERSET = "Meta id should be recognized as interest";
 
         private static readonly Lazy<TopicInterestManager> lazy = new Lazy<TopicInterestManager>(() => new TopicInterestManager(
-                                                                    GroupSettingsManagerAdapter.Instance,
+                                                                    GroupSettingsManager.Instance,
                                                                     CatalogManager.Instance),
                                                                     LazyThreadSafetyMode.PublicationOnly);
 

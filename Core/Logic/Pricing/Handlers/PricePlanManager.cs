@@ -3,7 +3,6 @@ using ApiObjects.Pricing;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using Core.GroupManagers;
-using Core.GroupManagers.Adapters;
 using Core.Pricing;
 using DAL;
 using KLogMonitor;
@@ -30,7 +29,7 @@ namespace ApiLogic.Pricing.Handlers
                                         LayeredCache.Instance,
                                         PriceDetailsManager.Instance,
                                         DiscountDetailsManager.Instance,
-                                        GroupSettingsManagerAdapter.Instance                                 
+                                        GroupSettingsManager.Instance
                                     ),
             LazyThreadSafetyMode.PublicationOnly);
 

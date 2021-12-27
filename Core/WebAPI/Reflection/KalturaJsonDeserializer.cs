@@ -34,6 +34,7 @@ using WebAPI.Models.ConditionalAccess.FilterActions.Assets;
 using WebAPI.Models.ConditionalAccess.FilterActions.Files;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
+using WebAPI.Models.IngestStatus;
 using WebAPI.Models.Api;
 using WebAPI.Models.Catalog.SearchPriorityGroup;
 
@@ -1287,11 +1288,29 @@ namespace WebAPI.Reflection
                 case "KalturaInboxMessageTypeHolder":
                     return new KalturaInboxMessageTypeHolder(parameters, true);
                     
+                case "KalturaIngestByCompoundFilter":
+                    return new KalturaIngestByCompoundFilter(parameters, true);
+                    
+                case "KalturaIngestByIdsFilter":
+                    return new KalturaIngestByIdsFilter(parameters, true);
+                    
+                case "KalturaIngestEpg":
+                    return new KalturaIngestEpg(parameters, true);
+                    
                 case "KalturaIngestProfile":
                     return new KalturaIngestProfile(parameters, true);
                     
                 case "KalturaIngestProfileListResponse":
                     return new KalturaIngestProfileListResponse(parameters, true);
+                    
+                case "KalturaIngestStatusEpgConfiguration":
+                    return new KalturaIngestStatusEpgConfiguration(parameters, true);
+                    
+                case "KalturaIngestStatusEpgListResponse":
+                    return new KalturaIngestStatusEpgListResponse(parameters, true);
+                    
+                case "KalturaIngestStatusPartnerConfiguration":
+                    return new KalturaIngestStatusPartnerConfiguration(parameters, true);
                     
                 case "KalturaIntegerValue":
                     return new KalturaIntegerValue(parameters, true);
@@ -1914,8 +1933,14 @@ namespace WebAPI.Reflection
                 case "KalturaRegionalChannel":
                     return new KalturaRegionalChannel(parameters, true);
                     
+                case "KalturaRegionalChannelMultiLcns":
+                    return new KalturaRegionalChannelMultiLcns(parameters, true);
+                    
                 case "KalturaRegionChannelNumber":
                     return new KalturaRegionChannelNumber(parameters, true);
+                    
+                case "KalturaRegionChannelNumberMultiLcns":
+                    return new KalturaRegionChannelNumberMultiLcns(parameters, true);
                     
                 case "KalturaRegionFilter":
                     return new KalturaRegionFilter(parameters, true);
@@ -3885,78 +3910,6 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaEntitlement
     {
-        private static RuntimeSchemePropertyAttribute MediaFileIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-            MinItems = -1,
-            MaxItems = -1,
-        };
-        private static RuntimeSchemePropertyAttribute MediaIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-            MinItems = -1,
-            MaxItems = -1,
-        };
-        private static RuntimeSchemePropertyAttribute IsInGracePeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-            MinItems = -1,
-            MaxItems = -1,
-        };
-        private static RuntimeSchemePropertyAttribute IsRenewableSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-            MinItems = -1,
-            MaxItems = -1,
-        };
-        private static RuntimeSchemePropertyAttribute IsRenewableForPurchaseSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-            MinItems = -1,
-            MaxItems = -1,
-        };
-        private static RuntimeSchemePropertyAttribute NextRenewalDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-            MinItems = -1,
-            MaxItems = -1,
-        };
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
         {
             ReadOnly = true,
@@ -4137,6 +4090,78 @@ namespace WebAPI.Models.ConditionalAccess
             MinItems = -1,
             MaxItems = -1,
         };
+        private static RuntimeSchemePropertyAttribute NextRenewalDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute IsRenewableForPurchaseSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute IsRenewableSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute MediaFileIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute MediaIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute IsInGracePeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
         {
             ReadOnly = true,
@@ -4167,102 +4192,6 @@ namespace WebAPI.Models.ConditionalAccess
             {
                 Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-                if (parameters.ContainsKey("mediaFileId") && parameters["mediaFileId"] != null)
-                {
-                    if(!isOldVersion)
-                    {
-                        MediaFileIdSchemaProperty.Validate("mediaFileId", parameters["mediaFileId"]);
-                    }
-                    MediaFileId = (Int32) Convert.ChangeType(parameters["mediaFileId"], typeof(Int32));
-                }
-                if (parameters.ContainsKey("media_file_id") && parameters["media_file_id"] != null && isOldVersion)
-                {
-                    if(!isOldVersion)
-                    {
-                        MediaFileIdSchemaProperty.Validate("media_file_id", parameters["media_file_id"]);
-                    }
-                    MediaFileId = (Int32) Convert.ChangeType(parameters["media_file_id"], typeof(Int32));
-                }
-                if (parameters.ContainsKey("mediaId") && parameters["mediaId"] != null)
-                {
-                    if(!isOldVersion)
-                    {
-                        MediaIdSchemaProperty.Validate("mediaId", parameters["mediaId"]);
-                    }
-                    MediaId = (Int32) Convert.ChangeType(parameters["mediaId"], typeof(Int32));
-                }
-                if (parameters.ContainsKey("media_id") && parameters["media_id"] != null && isOldVersion)
-                {
-                    if(!isOldVersion)
-                    {
-                        MediaIdSchemaProperty.Validate("media_id", parameters["media_id"]);
-                    }
-                    MediaId = (Int32) Convert.ChangeType(parameters["media_id"], typeof(Int32));
-                }
-                if (parameters.ContainsKey("isInGracePeriod") && parameters["isInGracePeriod"] != null)
-                {
-                    if(!isOldVersion)
-                    {
-                        IsInGracePeriodSchemaProperty.Validate("isInGracePeriod", parameters["isInGracePeriod"]);
-                    }
-                    IsInGracePeriod = (Boolean) Convert.ChangeType(parameters["isInGracePeriod"], typeof(Boolean));
-                }
-                if (parameters.ContainsKey("is_in_grace_period") && parameters["is_in_grace_period"] != null && isOldVersion)
-                {
-                    if(!isOldVersion)
-                    {
-                        IsInGracePeriodSchemaProperty.Validate("is_in_grace_period", parameters["is_in_grace_period"]);
-                    }
-                    IsInGracePeriod = (Boolean) Convert.ChangeType(parameters["is_in_grace_period"], typeof(Boolean));
-                }
-                if (parameters.ContainsKey("isRenewable") && parameters["isRenewable"] != null)
-                {
-                    if(!isOldVersion)
-                    {
-                        IsRenewableSchemaProperty.Validate("isRenewable", parameters["isRenewable"]);
-                    }
-                    IsRenewable = (Boolean) Convert.ChangeType(parameters["isRenewable"], typeof(Boolean));
-                }
-                if (parameters.ContainsKey("is_renewable") && parameters["is_renewable"] != null && isOldVersion)
-                {
-                    if(!isOldVersion)
-                    {
-                        IsRenewableSchemaProperty.Validate("is_renewable", parameters["is_renewable"]);
-                    }
-                    IsRenewable = (Boolean) Convert.ChangeType(parameters["is_renewable"], typeof(Boolean));
-                }
-                if (parameters.ContainsKey("isRenewableForPurchase") && parameters["isRenewableForPurchase"] != null)
-                {
-                    if(!isOldVersion)
-                    {
-                        IsRenewableForPurchaseSchemaProperty.Validate("isRenewableForPurchase", parameters["isRenewableForPurchase"]);
-                    }
-                    IsRenewableForPurchase = (Boolean) Convert.ChangeType(parameters["isRenewableForPurchase"], typeof(Boolean));
-                }
-                if (parameters.ContainsKey("is_renewable_for_purchase") && parameters["is_renewable_for_purchase"] != null && isOldVersion)
-                {
-                    if(!isOldVersion)
-                    {
-                        IsRenewableForPurchaseSchemaProperty.Validate("is_renewable_for_purchase", parameters["is_renewable_for_purchase"]);
-                    }
-                    IsRenewableForPurchase = (Boolean) Convert.ChangeType(parameters["is_renewable_for_purchase"], typeof(Boolean));
-                }
-                if (parameters.ContainsKey("nextRenewalDate") && parameters["nextRenewalDate"] != null)
-                {
-                    if(!isOldVersion)
-                    {
-                        NextRenewalDateSchemaProperty.Validate("nextRenewalDate", parameters["nextRenewalDate"]);
-                    }
-                    NextRenewalDate = (Int64) Convert.ChangeType(parameters["nextRenewalDate"], typeof(Int64));
-                }
-                if (parameters.ContainsKey("next_renewal_date") && parameters["next_renewal_date"] != null && isOldVersion)
-                {
-                    if(!isOldVersion)
-                    {
-                        NextRenewalDateSchemaProperty.Validate("next_renewal_date", parameters["next_renewal_date"]);
-                    }
-                    NextRenewalDate = (Int64) Convert.ChangeType(parameters["next_renewal_date"], typeof(Int64));
-                }
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
                     if(!isOldVersion)
@@ -4508,6 +4437,102 @@ namespace WebAPI.Models.ConditionalAccess
                         MaxUsesSchemaProperty.Validate("max_uses", parameters["max_uses"]);
                     }
                     MaxUses = (Int32) Convert.ChangeType(parameters["max_uses"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("nextRenewalDate") && parameters["nextRenewalDate"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        NextRenewalDateSchemaProperty.Validate("nextRenewalDate", parameters["nextRenewalDate"]);
+                    }
+                    NextRenewalDate = (Int64) Convert.ChangeType(parameters["nextRenewalDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("next_renewal_date") && parameters["next_renewal_date"] != null && isOldVersion)
+                {
+                    if(!isOldVersion)
+                    {
+                        NextRenewalDateSchemaProperty.Validate("next_renewal_date", parameters["next_renewal_date"]);
+                    }
+                    NextRenewalDate = (Int64) Convert.ChangeType(parameters["next_renewal_date"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("isRenewableForPurchase") && parameters["isRenewableForPurchase"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IsRenewableForPurchaseSchemaProperty.Validate("isRenewableForPurchase", parameters["isRenewableForPurchase"]);
+                    }
+                    IsRenewableForPurchase = (Boolean) Convert.ChangeType(parameters["isRenewableForPurchase"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("is_renewable_for_purchase") && parameters["is_renewable_for_purchase"] != null && isOldVersion)
+                {
+                    if(!isOldVersion)
+                    {
+                        IsRenewableForPurchaseSchemaProperty.Validate("is_renewable_for_purchase", parameters["is_renewable_for_purchase"]);
+                    }
+                    IsRenewableForPurchase = (Boolean) Convert.ChangeType(parameters["is_renewable_for_purchase"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("isRenewable") && parameters["isRenewable"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IsRenewableSchemaProperty.Validate("isRenewable", parameters["isRenewable"]);
+                    }
+                    IsRenewable = (Boolean) Convert.ChangeType(parameters["isRenewable"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("is_renewable") && parameters["is_renewable"] != null && isOldVersion)
+                {
+                    if(!isOldVersion)
+                    {
+                        IsRenewableSchemaProperty.Validate("is_renewable", parameters["is_renewable"]);
+                    }
+                    IsRenewable = (Boolean) Convert.ChangeType(parameters["is_renewable"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("mediaFileId") && parameters["mediaFileId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        MediaFileIdSchemaProperty.Validate("mediaFileId", parameters["mediaFileId"]);
+                    }
+                    MediaFileId = (Int32) Convert.ChangeType(parameters["mediaFileId"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("media_file_id") && parameters["media_file_id"] != null && isOldVersion)
+                {
+                    if(!isOldVersion)
+                    {
+                        MediaFileIdSchemaProperty.Validate("media_file_id", parameters["media_file_id"]);
+                    }
+                    MediaFileId = (Int32) Convert.ChangeType(parameters["media_file_id"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("mediaId") && parameters["mediaId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        MediaIdSchemaProperty.Validate("mediaId", parameters["mediaId"]);
+                    }
+                    MediaId = (Int32) Convert.ChangeType(parameters["mediaId"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("media_id") && parameters["media_id"] != null && isOldVersion)
+                {
+                    if(!isOldVersion)
+                    {
+                        MediaIdSchemaProperty.Validate("media_id", parameters["media_id"]);
+                    }
+                    MediaId = (Int32) Convert.ChangeType(parameters["media_id"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("isInGracePeriod") && parameters["isInGracePeriod"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IsInGracePeriodSchemaProperty.Validate("isInGracePeriod", parameters["isInGracePeriod"]);
+                    }
+                    IsInGracePeriod = (Boolean) Convert.ChangeType(parameters["isInGracePeriod"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("is_in_grace_period") && parameters["is_in_grace_period"] != null && isOldVersion)
+                {
+                    if(!isOldVersion)
+                    {
+                        IsInGracePeriodSchemaProperty.Validate("is_in_grace_period", parameters["is_in_grace_period"]);
+                    }
+                    IsInGracePeriod = (Boolean) Convert.ChangeType(parameters["is_in_grace_period"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("userId") && parameters["userId"] != null)
                 {
@@ -9335,7 +9360,7 @@ namespace WebAPI.Models.General
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Values = buildList<KalturaLongValue>(typeof(KalturaIntegerValue), (JArray) parameters["objects"]);
+                        Values = buildList<KalturaLongValue>(typeof(KalturaLongValue), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
@@ -14317,6 +14342,19 @@ namespace WebAPI.Models.API
             }
         }
     }
+    public partial class KalturaRegionalChannelMultiLcns
+    {
+        public KalturaRegionalChannelMultiLcns(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("lcns") && parameters["lcns"] != null)
+                {
+                    LCNs = (String) Convert.ChangeType(parameters["lcns"], typeof(String));
+                }
+            }
+        }
+    }
     public partial class KalturaRegionChannelNumber
     {
         public KalturaRegionChannelNumber(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
@@ -14330,6 +14368,19 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("channelNumber") && parameters["channelNumber"] != null)
                 {
                     ChannelNumber = (Int32) Convert.ChangeType(parameters["channelNumber"], typeof(Int32));
+                }
+            }
+        }
+    }
+    public partial class KalturaRegionChannelNumberMultiLcns
+    {
+        public KalturaRegionChannelNumberMultiLcns(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("lcns") && parameters["lcns"] != null)
+                {
+                    LCNs = (String) Convert.ChangeType(parameters["lcns"], typeof(String));
                 }
             }
         }
@@ -15755,6 +15806,18 @@ namespace WebAPI.Models.Notifications
             MinItems = -1,
             MaxItems = -1,
         };
+        private static RuntimeSchemePropertyAttribute IncludeUserInboxSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAnnouncement")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
         public KalturaAnnouncement(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
@@ -15848,6 +15911,14 @@ namespace WebAPI.Models.Notifications
                 if (parameters.ContainsKey("includeIot") && parameters["includeIot"] != null)
                 {
                     IncludeIot = (Boolean) Convert.ChangeType(parameters["includeIot"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("includeUserInbox") && parameters["includeUserInbox"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IncludeUserInboxSchemaProperty.Validate("includeUserInbox", parameters["includeUserInbox"]);
+                    }
+                    IncludeUserInbox = (Boolean) Convert.ChangeType(parameters["includeUserInbox"], typeof(Boolean));
                 }
             }
         }
@@ -36087,6 +36158,18 @@ namespace WebAPI.Models.Partner
             MinItems = -1,
             MaxItems = -1,
         };
+        private static RuntimeSchemePropertyAttribute EnableMultiLcnsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGeneralPartnerConfig")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
         public KalturaGeneralPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
@@ -36241,6 +36324,14 @@ namespace WebAPI.Models.Partner
                         AllowDeviceMobilitySchemaProperty.Validate("allowDeviceMobility", parameters["allowDeviceMobility"]);
                     }
                     AllowDeviceMobility = (Boolean) Convert.ChangeType(parameters["allowDeviceMobility"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("enableMultiLcns") && parameters["enableMultiLcns"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        EnableMultiLcnsSchemaProperty.Validate("enableMultiLcns", parameters["enableMultiLcns"]);
+                    }
+                    EnableMultiLcns = (Boolean) Convert.ChangeType(parameters["enableMultiLcns"], typeof(Boolean));
                 }
             }
         }
@@ -41858,6 +41949,382 @@ namespace WebAPI.EventNotifications
     {
         public KalturaHttpNotification(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+        }
+    }
+}
+
+namespace WebAPI.Models.IngestStatus
+{
+    public partial class KalturaIngestByCompoundFilter
+    {
+        private static RuntimeSchemePropertyAttribute IngestNameContainsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByCompoundFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute IngestedByUserIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByCompoundFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute IngestStatusInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByCompoundFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute CreatedDateGreaterThanSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByCompoundFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute CreatedDateSmallerThanSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByCompoundFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaIngestByCompoundFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("ingestNameContains") && parameters["ingestNameContains"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IngestNameContainsSchemaProperty.Validate("ingestNameContains", parameters["ingestNameContains"]);
+                    }
+                    IngestNameContains = (String) Convert.ChangeType(parameters["ingestNameContains"], typeof(String));
+                }
+                if (parameters.ContainsKey("ingestedByUserIdIn") && parameters["ingestedByUserIdIn"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IngestedByUserIdInSchemaProperty.Validate("ingestedByUserIdIn", parameters["ingestedByUserIdIn"]);
+                    }
+                    IngestedByUserIdIn = (String) Convert.ChangeType(parameters["ingestedByUserIdIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("ingestStatusIn") && parameters["ingestStatusIn"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IngestStatusInSchemaProperty.Validate("ingestStatusIn", parameters["ingestStatusIn"]);
+                    }
+                    IngestStatusIn = (String) Convert.ChangeType(parameters["ingestStatusIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("createdDateGreaterThan") && parameters["createdDateGreaterThan"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        CreatedDateGreaterThanSchemaProperty.Validate("createdDateGreaterThan", parameters["createdDateGreaterThan"]);
+                    }
+                    CreatedDateGreaterThan = (Int64) Convert.ChangeType(parameters["createdDateGreaterThan"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("createdDateSmallerThan") && parameters["createdDateSmallerThan"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        CreatedDateSmallerThanSchemaProperty.Validate("createdDateSmallerThan", parameters["createdDateSmallerThan"]);
+                    }
+                    CreatedDateSmallerThan = (Int64) Convert.ChangeType(parameters["createdDateSmallerThan"], typeof(Int64));
+                }
+            }
+        }
+    }
+    public partial class KalturaIngestByIdsFilter
+    {
+        private static RuntimeSchemePropertyAttribute IngestIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByIdsFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaIngestByIdsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("ingestIdIn") && parameters["ingestIdIn"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IngestIdInSchemaProperty.Validate("ingestIdIn", parameters["ingestIdIn"]);
+                    }
+                    IngestIdIn = (String) Convert.ChangeType(parameters["ingestIdIn"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaIngestEpg
+    {
+        private static RuntimeSchemePropertyAttribute IngestIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestEpg")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinLong = 0,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute IngestNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestEpg")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = 0,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute IngestFilenameExtensionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestEpg")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = 0,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute CompletedDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestEpg")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute IngestProfileIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestEpg")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaIngestEpg(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("ingestId") && parameters["ingestId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IngestIdSchemaProperty.Validate("ingestId", parameters["ingestId"]);
+                    }
+                    IngestId = (Int64) Convert.ChangeType(parameters["ingestId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("ingestName") && parameters["ingestName"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IngestNameSchemaProperty.Validate("ingestName", parameters["ingestName"]);
+                    }
+                    IngestName = (String) Convert.ChangeType(parameters["ingestName"], typeof(String));
+                }
+                if (parameters.ContainsKey("ingestFilenameExtension") && parameters["ingestFilenameExtension"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IngestFilenameExtensionSchemaProperty.Validate("ingestFilenameExtension", parameters["ingestFilenameExtension"]);
+                    }
+                    IngestFilenameExtension = (String) Convert.ChangeType(parameters["ingestFilenameExtension"], typeof(String));
+                }
+                if (parameters.ContainsKey("createdDate") && parameters["createdDate"] != null)
+                {
+                    CreatedDate = (Int64) Convert.ChangeType(parameters["createdDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("ingestedByUserId") && parameters["ingestedByUserId"] != null)
+                {
+                    IngestedByUserId = (Int64) Convert.ChangeType(parameters["ingestedByUserId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("completedDate") && parameters["completedDate"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        CompletedDateSchemaProperty.Validate("completedDate", parameters["completedDate"]);
+                    }
+                    CompletedDate = (Int64) Convert.ChangeType(parameters["completedDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("ingestProfileId") && parameters["ingestProfileId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IngestProfileIdSchemaProperty.Validate("ingestProfileId", parameters["ingestProfileId"]);
+                    }
+                    IngestProfileId = (Int64) Convert.ChangeType(parameters["ingestProfileId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("status") && parameters["status"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["status"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "status");
+                    }
+
+                    Status = (KalturaIngestStatus) Enum.Parse(typeof(KalturaIngestStatus), parameters["status"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaIngestStatus), Status))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Status, typeof(KalturaIngestStatus)));
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaIngestStatusEpgConfiguration
+    {
+        private static RuntimeSchemePropertyAttribute IsSupportedSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestStatusEpgConfiguration")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute RetainingPeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestStatusEpgConfiguration")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaIngestStatusEpgConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("isSupported") && parameters["isSupported"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IsSupportedSchemaProperty.Validate("isSupported", parameters["isSupported"]);
+                    }
+                    IsSupported = (Boolean) Convert.ChangeType(parameters["isSupported"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("retainingPeriod") && parameters["retainingPeriod"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        RetainingPeriodSchemaProperty.Validate("retainingPeriod", parameters["retainingPeriod"]);
+                    }
+                    RetainingPeriod = (Int32) Convert.ChangeType(parameters["retainingPeriod"], typeof(Int32));
+                }
+            }
+        }
+    }
+    public partial class KalturaIngestStatusEpgListResponse
+    {
+        public KalturaIngestStatusEpgListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaIngestStatusPartnerConfiguration
+    {
+        private static RuntimeSchemePropertyAttribute EpgSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestStatusPartnerConfiguration")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaIngestStatusPartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("epg") && parameters["epg"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        EpgSchemaProperty.Validate("epg", parameters["epg"]);
+                    }
+                    if (parameters["epg"] is JObject)
+                    {
+                        Epg = (KalturaIngestStatusEpgConfiguration) Deserializer.deserialize(typeof(KalturaIngestStatusEpgConfiguration), ((JObject) parameters["epg"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["epg"] is IDictionary)
+                    {
+                        Epg = (KalturaIngestStatusEpgConfiguration) Deserializer.deserialize(typeof(KalturaIngestStatusEpgConfiguration), (Dictionary<string, object>) parameters["epg"]);
+                    }
+                }
+            }
         }
     }
 }

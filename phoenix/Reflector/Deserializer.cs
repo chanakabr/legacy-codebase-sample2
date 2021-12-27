@@ -16,8 +16,8 @@ namespace Reflector
         public static string GetJsonDeserializerCSFilePath()
         {
             var currentLocation = AppDomain.CurrentDomain.BaseDirectory;
-            var solutionDir = Directory.GetParent(currentLocation).Parent.Parent.Parent.Parent;
-            var filePath = Path.Combine(solutionDir.FullName, @"..\Core\WebAPI\Reflection\KalturaJsonDeserializer.cs");
+            var solutionDir = Directory.GetParent(currentLocation).Parent.Parent.Parent.Parent.Parent;
+            var filePath = Path.Combine(solutionDir.FullName, "Core", "WebAPI", "Reflection", "KalturaJsonDeserializer.cs");
             return filePath;
         }
 

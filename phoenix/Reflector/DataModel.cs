@@ -19,8 +19,8 @@ namespace Reflector
         public static string GetDataModelCSFilePath()
         {
             var currentLocation = AppDomain.CurrentDomain.BaseDirectory;
-            var solutionDir = Directory.GetParent(currentLocation).Parent.Parent.Parent.Parent;
-            var filePath = Path.Combine(solutionDir.FullName, @"..\Core\WebAPI\Reflection\DataModel.cs");
+            var solutionDir = Directory.GetParent(currentLocation).Parent.Parent.Parent.Parent.Parent;
+            var filePath = Path.Combine(solutionDir.FullName, "Core", "WebAPI", "Reflection", "DataModel.cs");
             return filePath;
         }
 
