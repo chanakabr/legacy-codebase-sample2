@@ -65,6 +65,7 @@ namespace ApiLogic.Users.Managers
                 if (!objectToAdd.Insert())
                 {
                     log.Error($"Error while Save HouseholdSegment. contextData: {contextData.ToString()}.");
+                    response.SetStatus(objectToAdd.ActionStatus);
                     return response;
                 }
                 response.Object = objectToAdd;
