@@ -24,6 +24,7 @@ using WebAPI.App_Start;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.Pricing;
 using WebAPI.Models.Segmentation;
+using WebAPI.Models.Catalog.Ordering;
 using WebAPI.Models.Users;
 using WebAPI.Models.Partner;
 using WebAPI.Models.Upload;
@@ -1638,6 +1639,8 @@ namespace WebAPI.Reflection
                             return "order";
                         case "OrderBy":
                             return "orderBy";
+                        case "OrderingParameters":
+                            return "orderingParametersEqual";
                         case "SupportSegmentBasedOrdering":
                             return "supportSegmentBasedOrdering";
                         case "SystemName":
@@ -1646,6 +1649,16 @@ namespace WebAPI.Reflection
                             return "updateDate";
                         case "VirtualAssetId":
                             return "virtualAssetId";
+                    }
+                    break;
+                    
+                case "KalturaChannelDynamicOrder":
+                    switch(property.Name)
+                    {
+                        case "Name":
+                            return "name";
+                        case "OrderBy":
+                            return "orderBy";
                     }
                     break;
                     
@@ -1658,6 +1671,14 @@ namespace WebAPI.Reflection
                             return "idEqual";
                         case "UtcOffsetEqual":
                             return "utcOffsetEqual";
+                    }
+                    break;
+                    
+                case "KalturaChannelFieldOrder":
+                    switch(property.Name)
+                    {
+                        case "OrderBy":
+                            return "orderBy";
                     }
                     break;
                     
@@ -1734,6 +1755,16 @@ namespace WebAPI.Reflection
                             return "nameEqual";
                         case "NameStartsWith":
                             return "nameStartsWith";
+                    }
+                    break;
+                    
+                case "KalturaChannelSlidingWindowOrder":
+                    switch(property.Name)
+                    {
+                        case "OrderBy":
+                            return "orderBy";
+                        case "SlidingWindowPeriod":
+                            return "period";
                     }
                     break;
                     

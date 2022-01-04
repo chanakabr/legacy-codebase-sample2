@@ -19,6 +19,7 @@ using WebAPI.Models.Notification;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.Pricing;
 using WebAPI.Models.Segmentation;
+using WebAPI.Models.Catalog.Ordering;
 using WebAPI.Models.Users;
 using WebAPI.Models.Partner;
 using WebAPI.Models.Upload;
@@ -301,6 +302,9 @@ namespace WebAPI.Reflection
                 case "KalturaBaseChannel":
                     return new KalturaBaseChannel(parameters, true);
                     
+                case "KalturaBaseChannelOrder":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
                 case "KalturaBaseOTTUser":
                     return new KalturaBaseOTTUser(parameters, true);
                     
@@ -547,11 +551,17 @@ namespace WebAPI.Reflection
                 case "KalturaChannel":
                     return new KalturaChannel(parameters, true);
                     
+                case "KalturaChannelDynamicOrder":
+                    return new KalturaChannelDynamicOrder(parameters, true);
+                    
                 case "KalturaChannelEnrichmentHolder":
                     return new KalturaChannelEnrichmentHolder(parameters, true);
                     
                 case "KalturaChannelExternalFilter":
                     return new KalturaChannelExternalFilter(parameters, true);
+                    
+                case "KalturaChannelFieldOrder":
+                    return new KalturaChannelFieldOrder(parameters, true);
                     
                 case "KalturaChannelFilter":
                     return new KalturaChannelFilter(parameters, true);
@@ -573,6 +583,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaChannelsFilter":
                     return new KalturaChannelsFilter(parameters, true);
+                    
+                case "KalturaChannelSlidingWindowOrder":
+                    return new KalturaChannelSlidingWindowOrder(parameters, true);
                     
                 case "KalturaClientConfiguration":
                     return new KalturaClientConfiguration(parameters, true);
@@ -22229,6 +22242,17 @@ namespace WebAPI.Models.Catalog
                         OrderBy = (KalturaChannelOrder) Deserializer.deserialize(typeof(KalturaChannelOrder), (Dictionary<string, object>) parameters["orderBy"]);
                     }
                 }
+                if (parameters.ContainsKey("orderingParametersEqual") && parameters["orderingParametersEqual"] != null)
+                {
+                    if (parameters["orderingParametersEqual"] is JArray)
+                    {
+                        OrderingParameters = buildList<KalturaBaseChannelOrder>(typeof(KalturaBaseChannelOrder), (JArray) parameters["orderingParametersEqual"]);
+                    }
+                    else if (parameters["orderingParametersEqual"] is IList)
+                    {
+                        OrderingParameters = buildList(typeof(KalturaBaseChannelOrder), parameters["orderingParametersEqual"] as object[]);
+                    }
+                }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
                     if(!isOldVersion)
@@ -33101,6 +33125,112 @@ namespace WebAPI.Models.Segmentation
                     else if (parameters["objects"] is IList)
                     {
                         Segments = buildList(typeof(KalturaUserSegment), parameters["objects"] as object[]);
+                    }
+                }
+            }
+        }
+    }
+}
+
+namespace WebAPI.Models.Catalog.Ordering
+{
+    public partial class KalturaBaseChannelOrder
+    {
+        public KalturaBaseChannelOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaChannelDynamicOrder
+    {
+        public KalturaChannelDynamicOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("name") && parameters["name"] != null)
+                {
+                    Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
+                }
+                if (parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["orderBy"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "orderBy");
+                    }
+
+                    OrderBy = (KalturaMetaTagOrderBy) Enum.Parse(typeof(KalturaMetaTagOrderBy), parameters["orderBy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaMetaTagOrderBy), OrderBy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", OrderBy, typeof(KalturaMetaTagOrderBy)));
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaChannelFieldOrder
+    {
+        public KalturaChannelFieldOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["orderBy"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "orderBy");
+                    }
+
+                    OrderBy = (KalturaChannelFieldOrderByType) Enum.Parse(typeof(KalturaChannelFieldOrderByType), parameters["orderBy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaChannelFieldOrderByType), OrderBy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", OrderBy, typeof(KalturaChannelFieldOrderByType)));
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaChannelSlidingWindowOrder
+    {
+        private static RuntimeSchemePropertyAttribute SlidingWindowPeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannelSlidingWindowOrder")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaChannelSlidingWindowOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("period") && parameters["period"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        SlidingWindowPeriodSchemaProperty.Validate("period", parameters["period"]);
+                    }
+                    SlidingWindowPeriod = (Int32) Convert.ChangeType(parameters["period"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["orderBy"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "orderBy");
+                    }
+
+                    OrderBy = (KalturaChannelSlidingWindowOrderByType) Enum.Parse(typeof(KalturaChannelSlidingWindowOrderByType), parameters["orderBy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaChannelSlidingWindowOrderByType), OrderBy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", OrderBy, typeof(KalturaChannelSlidingWindowOrderByType)));
                     }
                 }
             }

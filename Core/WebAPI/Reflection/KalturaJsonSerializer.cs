@@ -20,6 +20,7 @@ using WebAPI.App_Start;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.Pricing;
 using WebAPI.Models.Segmentation;
+using WebAPI.Models.Catalog.Ordering;
 using WebAPI.Models.Users;
 using WebAPI.Models.Partner;
 using WebAPI.Models.Upload;
@@ -25453,6 +25454,11 @@ namespace WebAPI.Models.Catalog
                 propertyValue = OrderBy.ToJson(currentVersion, omitObsolete);
                 ret.Add("orderBy", "\"orderBy\": " + propertyValue);
             }
+            if(OrderingParameters != null && (retrievedProperties == null || retrievedProperties.Contains("orderingParametersEqual")))
+            {
+                propertyValue = "[" + String.Join(", ", OrderingParameters.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("orderingParametersEqual", "\"orderingParametersEqual\": " + propertyValue);
+            }
             if((retrievedProperties == null || retrievedProperties.Contains("supportSegmentBasedOrdering")))
             {
                 ret.Add("supportSegmentBasedOrdering", "\"supportSegmentBasedOrdering\": " + SupportSegmentBasedOrdering.ToString().ToLower());
@@ -25568,6 +25574,11 @@ namespace WebAPI.Models.Catalog
             {
                 propertyValue = OrderBy.ToXml(currentVersion, omitObsolete);
                 ret.Add("orderBy", "<orderBy>" + propertyValue + "</orderBy>");
+            }
+            if(OrderingParameters != null && (retrievedProperties == null || retrievedProperties.Contains("orderingParametersEqual")))
+            {
+                propertyValue = OrderingParameters.Count > 0 ? "<item>" + String.Join("</item><item>", OrderingParameters.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("orderingParametersEqual", "<orderingParametersEqual>" + propertyValue + "</orderingParametersEqual>");
             }
             if((retrievedProperties == null || retrievedProperties.Contains("supportSegmentBasedOrdering")))
             {
@@ -36193,6 +36204,170 @@ namespace WebAPI.Models.Segmentation
             {
                 propertyValue = Segments.Count > 0 ? "<item>" + String.Join("</item><item>", Segments.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
+            return ret;
+        }
+    }
+}
+
+namespace WebAPI.Models.Catalog.Ordering
+{
+    public partial class KalturaBaseChannelOrder
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+    }
+    public partial class KalturaChannelDynamicOrder
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            {
+                ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("orderBy")))
+            {
+                ret.Add("orderBy", "\"orderBy\": " + "\"" + Enum.GetName(typeof(KalturaMetaTagOrderBy), OrderBy) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            {
+                ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("orderBy")))
+            {
+                ret.Add("orderBy", "<orderBy>" + "" + Enum.GetName(typeof(KalturaMetaTagOrderBy), OrderBy) + "" + "</orderBy>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaChannelFieldOrder
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("orderBy")))
+            {
+                ret.Add("orderBy", "\"orderBy\": " + "\"" + Enum.GetName(typeof(KalturaChannelFieldOrderByType), OrderBy) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("orderBy")))
+            {
+                ret.Add("orderBy", "<orderBy>" + "" + Enum.GetName(typeof(KalturaChannelFieldOrderByType), OrderBy) + "" + "</orderBy>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaChannelSlidingWindowOrder
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("orderBy")))
+            {
+                ret.Add("orderBy", "\"orderBy\": " + "\"" + Enum.GetName(typeof(KalturaChannelSlidingWindowOrderByType), OrderBy) + "\"");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("period")))
+            {
+                ret.Add("period", "\"period\": " + SlidingWindowPeriod);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("orderBy")))
+            {
+                ret.Add("orderBy", "<orderBy>" + "" + Enum.GetName(typeof(KalturaChannelSlidingWindowOrderByType), OrderBy) + "" + "</orderBy>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("period")))
+            {
+                ret.Add("period", "<period>" + SlidingWindowPeriod + "</period>");
             }
             return ret;
         }

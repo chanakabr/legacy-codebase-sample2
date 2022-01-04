@@ -20,6 +20,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using DAL.BulkUpload;
+using DAL.SearchObjects.Converters;
 using static ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData;
 using CategoryItemDTO = DAL.DTO.CategoryItemDTO;
 using LanguageContainerDTO = DAL.DTO.LanguageContainerDTO;
@@ -5621,10 +5622,30 @@ namespace Tvinci.Core.DAL
             return res.ToDictionary(x => x.Id, x => x.MetaData);
         }
 
-        public static DataSet InsertChannel(int groupId, string systemName, string name, string description, int? isActive, int orderBy, int orderByDir, string orderByValue, int? isSlidingWindow,
-                                            int? slidingWindowPeriod, int channelType, string filterQuery, List<int> assetTypes, string groupBy, List<KeyValuePair<string, string>> namesInOtherLanguages,
-                                            List<KeyValuePair<string, string>> descriptionsInOtherLanguages, List<KeyValuePair<long, int>> mediaIdsToOrderNum, long userId,
-                                            bool supportSegmentBasedOrdering, long? assetUserRuleId, bool hasMetadata, List<ManualAsset> manualAssets)
+        public static DataSet InsertChannel(
+            int groupId,
+            string systemName,
+            string name,
+            string description,
+            int? isActive,
+            int orderBy,
+            int orderByDir,
+            string orderByValue,
+            bool isSlidingWindow,
+            int? slidingWindowPeriod,
+            List<AssetOrder> orderingParameters,
+            int channelType,
+            string filterQuery,
+            List<int> assetTypes,
+            string groupBy,
+            List<KeyValuePair<string, string>> namesInOtherLanguages,
+            List<KeyValuePair<string, string>> descriptionsInOtherLanguages,
+            List<KeyValuePair<long, int>> mediaIdsToOrderNum,
+            long userId,
+            bool supportSegmentBasedOrdering,
+            long? assetUserRuleId,
+            bool hasMetadata,
+            List<ManualAsset> manualAssets)
         {
             DataTable manualAssetsDt = SetManualAssetsTable(manualAssets);
 
@@ -5637,7 +5658,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@orderBy", orderBy);
             sp.AddParameter("@orderDirection", orderByDir + 1);
             sp.AddParameter("@orderByValue", orderByValue);
-            sp.AddParameter("@IsSlidingWindow", isSlidingWindow);
+            sp.AddParameter("@IsSlidingWindow", isSlidingWindow ? 1 : 0);
             sp.AddParameter("@SlidingWindowPeriod", slidingWindowPeriod);
             sp.AddParameter("@channelType", channelType);
             sp.AddParameter("@Filter", filterQuery);
@@ -5658,15 +5679,38 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@manualAssetsExist", manualAssets == null ? 0 : 1);
             sp.AddDataTableParameter("@manualAssets", manualAssetsDt);
 
+            var orderingParametersJson = JsonConvert.SerializeObject(orderingParameters, Formatting.None, new AssetOrderConverter());
+            sp.AddParameter("@orderingParameters", orderingParametersJson);
+
             return sp.ExecuteDataSet();
         }
 
         public static DataSet UpdateChannel(
-            int groupId, int id, string systemName, string name, string description, int? isActive, int? orderBy,
-            int? orderByDir, string orderByValue, int? isSlidingWindow, int? slidingWindowPeriod, string filterQuery, List<int> assetTypes, string groupBy,
-            List<KeyValuePair<string, string>> namesInOtherLanguages, List<KeyValuePair<string, string>> descriptionsInOtherLanguages,
-            List<KeyValuePair<long, int>> mediaIdsToOrderNum, long userId, bool supportSegmentBasedOrdering,
-            long? assetUserRuleId, int assetTypesValuesInd, bool? hasMetadata, List<ManualAsset> manualAssets, int? channelType = null)
+            int groupId, 
+            int id,
+            string systemName, 
+            string name, 
+            string description,
+            int? isActive,
+            int? orderBy,
+            int? orderByDir, 
+            string orderByValue, 
+            bool? isSlidingWindow, 
+            int? slidingWindowPeriod, 
+            List<AssetOrder> orderingParameters,
+            string filterQuery,
+            List<int> assetTypes,
+            string groupBy,
+            List<KeyValuePair<string, string>> namesInOtherLanguages,
+            List<KeyValuePair<string, string>> descriptionsInOtherLanguages,
+            List<KeyValuePair<long, int>> mediaIdsToOrderNum,
+            long userId,
+            bool supportSegmentBasedOrdering,
+            long? assetUserRuleId, 
+            int assetTypesValuesInd,
+            bool? hasMetadata, 
+            List<ManualAsset> manualAssets, 
+            int? channelType = null)
         {
             DataTable manualAssetsDt = SetManualAssetsTable(manualAssets);
             
@@ -5697,6 +5741,11 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@supportSegmentBasedOrdering", supportSegmentBasedOrdering);
             sp.AddParameter("@ChannelType", channelType);
             sp.AddParameter("@AssetRuleId", assetUserRuleId);
+
+            var orderingParametersJson = orderingParameters?.Any() == true
+                ? JsonConvert.SerializeObject(orderingParameters, Formatting.None, new AssetOrderConverter())
+                : null;
+            sp.AddParameter("@orderingParameters", orderingParametersJson);
 
             if (hasMetadata.HasValue)
             {

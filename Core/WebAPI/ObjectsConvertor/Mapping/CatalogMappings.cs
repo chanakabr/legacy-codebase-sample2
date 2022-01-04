@@ -21,10 +21,12 @@ using WebAPI.App_Start;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.Catalog.Ordering;
 using WebAPI.Models.Catalog.SearchPriorityGroup;
 using WebAPI.Models.General;
 using WebAPI.Models.Upload;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
+using OrderDir = ApiObjects.SearchObjects.OrderDir;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -242,7 +244,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaChannel, KSQLChannel>()
                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name != null ? src.Name.GetDefaultLanugageValue() : src.OldName))
-               .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.getAssetTypes()))
+               .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.GetAssetTypes()))
                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description != null ? src.Description.GetDefaultLanugageValue() : src.OldDescription))
                .ForMember(dest => dest.FilterQuery, opt => opt.MapFrom(src => src.FilterExpression))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive.HasValue && src.IsActive.Value ? 1 : 0))
@@ -263,7 +265,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ApiMappings.ConvertOrderObjToOrder(src.Order)));
 
             //Channel (Catalog) to KalturaDynamicChannel
-            cfg.CreateMap<GroupsCacheManager.Channel, WebAPI.Models.Catalog.KalturaDynamicChannel>()
+            cfg.CreateMap<GroupsCacheManager.Channel, KalturaDynamicChannel>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nChannelID))
                 .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesInOtherLanguages, src.m_sName)))
@@ -271,7 +273,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.m_nMediaType))
                 .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.filterQuery))
                 .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => ConvertToNullableBool(src.m_nIsActive)))
-                .ForMember(dest => dest.OrderBy, opt => opt.ResolveUsing(src => ConvertToKalturaChannelOrder(src.m_OrderObject)))
+                .ForMember(dest => dest.OrderingParameters, opt => opt.MapFrom(src => src.OrderingParameters))
+                .ForMember(dest => dest.OrderBy, opt => opt.ResolveUsing(src => GetKalturaChannelOrder(src.OrderingParameters)))
                 .ForMember(dest => dest.GroupBy, opt => opt.ResolveUsing(src => ConvertToGroupBy(src.searchGroupBy)))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CreateDate)))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)))
@@ -282,7 +285,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
 
             //KalturaDynamicChannel to Channel (Catalog)  
-            cfg.CreateMap<WebAPI.Models.Catalog.KalturaDynamicChannel, GroupsCacheManager.Channel>()
+            cfg.CreateMap<KalturaDynamicChannel, GroupsCacheManager.Channel>()
                .ForMember(dest => dest.m_nChannelID, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
                .ForMember(dest => dest.m_sName, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
@@ -292,7 +295,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.DescriptionInOtherLanguages, opt => opt.MapFrom(src => src.Description.GetNoneDefaultLanugageContainer()))
                .ForMember(dest => dest.filterQuery, opt => opt.MapFrom(src => src.Ksql))
                .ForMember(dest => dest.m_nIsActive, opt => opt.MapFrom(src => ConvertToNullableInt(src.IsActive)))
-               .ForMember(dest => dest.m_OrderObject, opt => opt.ResolveUsing(src => ConvertAssetOrderToOrderObj(src.OrderBy)))
+               .ForMember(dest => dest.OrderingParameters, opt => opt.MapFrom(src => src.OrderingParameters))
+               .ForMember(dest => dest.m_OrderObject, opt => opt.ResolveUsing(src => GetOrderObj(src.OrderingParameters)))
                .ForMember(dest => dest.searchGroupBy, opt => opt.ResolveUsing(src => ConvertToGroupBy(src.GroupBy)))
                .ForMember(dest => dest.m_nChannelTypeID, opt => opt.MapFrom(src => (int)ChannelType.KSQL))
                .ForMember(dest => dest.m_eOrderBy, opt => opt.Ignore())
@@ -305,13 +309,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .AfterMap((src, dest) => dest.MetaData = src.MetaData != null ? dest.MetaData : null);
 
             //Channel (Catalog) to KalturaManualChannel
-            cfg.CreateMap<GroupsCacheManager.Channel, WebAPI.Models.Catalog.KalturaManualChannel>()
+            cfg.CreateMap<GroupsCacheManager.Channel, KalturaManualChannel>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nChannelID))
                 .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesInOtherLanguages, src.m_sName)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.DescriptionInOtherLanguages, src.m_sDescription)))
                 .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => ConvertToNullableBool(src.m_nIsActive)))
-                .ForMember(dest => dest.OrderBy, opt => opt.ResolveUsing(src => ConvertToKalturaChannelOrder(src.m_OrderObject)))
+                .ForMember(dest => dest.OrderingParameters, opt => opt.MapFrom(src => src.OrderingParameters))
+                .ForMember(dest => dest.OrderBy, opt => opt.ResolveUsing(src => GetKalturaChannelOrder(src.OrderingParameters)))
                 .ForMember(dest => dest.MediaIds, opt => opt.MapFrom(src => src.m_lManualMedias != null ? string.Join(",", src.m_lManualMedias.OrderBy(x => x.m_nOrderNum).Select(x => x.m_sMediaId)) : string.Empty))
                 .ForMember(dest => dest.Assets, opt => opt.ResolveUsing(src => ConvertToManualAssets(src.ManualAssets)))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CreateDate)))
@@ -322,18 +327,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .AfterMap((src, dest) => dest.MetaData = dest.MetaData != null && dest.MetaData.Any() ? dest.MetaData : null);
 
             //KalturaManualChannel to Channel (Catalog)
-            cfg.CreateMap<WebAPI.Models.Catalog.KalturaManualChannel, GroupsCacheManager.Channel>()
+            cfg.CreateMap<KalturaManualChannel, GroupsCacheManager.Channel>()
                .ForMember(dest => dest.m_nChannelID, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
                .ForMember(dest => dest.m_sName, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
                .ForMember(dest => dest.NamesInOtherLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer()))
-               .ForMember(dest => dest.m_nMediaType, opt => opt.MapFrom(src => src.getAssetTypes()))
+               .ForMember(dest => dest.m_nMediaType, opt => opt.MapFrom(src => src.GetAssetTypes()))
                .ForMember(dest => dest.m_sDescription, opt => opt.MapFrom(src => src.Description.GetDefaultLanugageValue()))
                .ForMember(dest => dest.DescriptionInOtherLanguages, opt => opt.MapFrom(src => src.Description.GetNoneDefaultLanugageContainer()))
                .ForMember(dest => dest.m_lManualMedias, opt => opt.ResolveUsing(src => ConvertToManualMedias(src.MediaIds)))
                .ForMember(dest => dest.ManualAssets, opt => opt.ResolveUsing(src => ConvertToManualAssets(src.Assets)))
                .ForMember(dest => dest.m_nIsActive, opt => opt.MapFrom(src => ConvertToNullableInt(src.IsActive)))
-               .ForMember(dest => dest.m_OrderObject, opt => opt.ResolveUsing(src => ConvertAssetOrderToOrderObj(src.OrderBy)))
+               .ForMember(dest => dest.OrderingParameters, opt => opt.MapFrom(src => src.OrderingParameters))
+               .ForMember(dest => dest.m_OrderObject, opt => opt.ResolveUsing(src => GetOrderObj(src.OrderingParameters)))
                .ForMember(dest => dest.searchGroupBy, opt => opt.ResolveUsing(src => ConvertToGroupBy(src.GroupBy)))
                .ForMember(dest => dest.m_nChannelTypeID, opt => opt.MapFrom(src => (int)ChannelType.Manual))
                .ForMember(dest => dest.m_eOrderBy, opt => opt.Ignore())
@@ -1637,6 +1643,55 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 });
 
             #endregion
+
+            #region Ordering
+
+            cfg.CreateMap<KalturaBaseChannelOrder, AssetOrder>()
+                .Include<KalturaChannelFieldOrder, AssetOrder>()
+                .Include<KalturaChannelDynamicOrder, AssetOrderByMeta>()
+                .Include<KalturaChannelSlidingWindowOrder, AssetSlidingWindowOrder>();
+
+            cfg.CreateMap<KalturaChannelFieldOrder, AssetOrder>()
+                .ForMember(dest => dest.Field, opt => opt.ResolveUsing(src => GetOrderBy(src.OrderBy)))
+                .ForMember(dest => dest.Direction, opt => opt.ResolveUsing(src => GetOrderDir(src.OrderBy)));
+
+            cfg.CreateMap<KalturaChannelDynamicOrder, AssetOrderByMeta>()
+                .ForMember(dest => dest.Field, opt => opt.ResolveUsing(src => GetOrderBy(src.OrderBy)))
+                .ForMember(dest => dest.Direction, opt => opt.ResolveUsing(src => GetOrderDir(src.OrderBy)))
+                .ForMember(dest => dest.MetaName, opt => opt.MapFrom(src => src.Name));
+
+            cfg.CreateMap<KalturaChannelSlidingWindowOrder, AssetSlidingWindowOrder>()
+                .ForMember(dest => dest.Field, opt => opt.ResolveUsing(src => GetOrderBy(src.OrderBy)))
+                .ForMember(dest => dest.Direction, opt => opt.ResolveUsing(src => GetOrderDir(src.OrderBy)))
+                .ForMember(dest => dest.SlidingWindowPeriod, opt => opt.MapFrom(src => src.SlidingWindowPeriod));
+
+            cfg.CreateMap<AssetOrder, KalturaBaseChannelOrder>()
+                .ConstructUsing((assetOrder, context) =>
+                {
+                    switch (assetOrder)
+                    {
+                        case AssetOrderByMeta _:
+                            return new KalturaChannelDynamicOrder();
+                        case AssetSlidingWindowOrder _:
+                            return new KalturaChannelSlidingWindowOrder();
+                        case AssetOrder _:
+                            return new KalturaChannelFieldOrder { OrderBy = GetKalturaChannelFieldOrderBy(assetOrder.Field, assetOrder.Direction) };
+                        default:
+                            throw new ClientException((int)StatusCode.Error, $"{nameof(KalturaBaseChannelOrder)} can not be defined.");
+                    }
+                })
+                .Include<AssetOrderByMeta, KalturaChannelDynamicOrder>()
+                .Include<AssetSlidingWindowOrder, KalturaChannelSlidingWindowOrder>();
+
+            cfg.CreateMap<AssetOrderByMeta, KalturaChannelDynamicOrder>()
+                .ForMember(dest => dest.OrderBy, opt => opt.ResolveUsing(src => GetKalturaMetaTagOrderBy(src.Field, src.Direction)))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.MetaName));
+
+            cfg.CreateMap<AssetSlidingWindowOrder, KalturaChannelSlidingWindowOrder>()
+                .ForMember(dest => dest.OrderBy, opt => opt.ResolveUsing(src => GetKalturaChannelSlidingWindowOrderBy(src.Field, src.Direction)))
+                .ForMember(dest => dest.SlidingWindowPeriod, opt => opt.MapFrom(src => src.SlidingWindowPeriod));
+
+            #endregion
         }
 
         private static MediaFileTypeQuality ToMediaFileTypeQuality(KalturaMediaFileTypeQuality t)
@@ -2171,213 +2226,319 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        public static OrderObj ConvertAssetOrderToOrderObj(KalturaChannelOrder order)
+        private static OrderBy GetOrderBy(KalturaChannelFieldOrderByType orderBy)
         {
-            OrderObj result = null;
-            if (order != null)
+            switch (orderBy)
             {
-                result = new OrderObj();
-                if (order.DynamicOrderBy != null)
-                {
-                    result.m_eOrderBy = OrderBy.META;
-                    result.m_eOrderDir = order.DynamicOrderBy.OrderBy.HasValue ? order.DynamicOrderBy.OrderBy.Value == KalturaMetaTagOrderBy.META_ASC ? ApiObjects.SearchObjects.OrderDir.ASC : ApiObjects.SearchObjects.OrderDir.DESC : ApiObjects.SearchObjects.OrderDir.ASC;
-                    result.m_sOrderValue = order.DynamicOrderBy.Name;
-                }
-                else
-                {
-                    result.m_sOrderValue = null;
-                    switch (order.orderBy)
-                    {
-                        case KalturaChannelOrderBy.NAME_ASC:
-                            result.m_eOrderBy = OrderBy.NAME;
-                            result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
-                            break;
-                        case KalturaChannelOrderBy.NAME_DESC:
-                            result.m_eOrderBy = OrderBy.NAME;
-                            result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-                            break;
-                        case KalturaChannelOrderBy.VIEWS_DESC:
-                            result.m_eOrderBy = OrderBy.VIEWS;
-                            result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-                            break;
-                        case KalturaChannelOrderBy.RATINGS_DESC:
-                            result.m_eOrderBy = OrderBy.RATING;
-                            result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-                            break;
-                        case KalturaChannelOrderBy.VOTES_DESC:
-                            result.m_eOrderBy = OrderBy.VOTES_COUNT;
-                            result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-                            break;
-                        case KalturaChannelOrderBy.START_DATE_DESC:
-                            result.m_eOrderBy = OrderBy.START_DATE;
-                            result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-                            break;
-                        case KalturaChannelOrderBy.RELEVANCY_DESC:
-                            result.m_eOrderBy = OrderBy.RELATED;
-                            result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-                            break;
-                        case KalturaChannelOrderBy.START_DATE_ASC:
-                            result.m_eOrderBy = OrderBy.START_DATE;
-                            result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
-                            break;
-                        case KalturaChannelOrderBy.CREATE_DATE_ASC:
-                            result.m_eOrderBy = OrderBy.CREATE_DATE;
-                            result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
-                            break;
-                        case KalturaChannelOrderBy.CREATE_DATE_DESC:
-                            result.m_eOrderBy = OrderBy.CREATE_DATE;
-                            result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-                            break;
-                        case KalturaChannelOrderBy.LIKES_DESC:
-                            result.m_eOrderBy = OrderBy.LIKE_COUNTER;
-                            result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-                            break;
-                        case KalturaChannelOrderBy.ORDER_NUM:
-                            result.m_eOrderBy = OrderBy.ID;
-                            result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
-                            break;
-                    }
-
-                    if (order.SlidingWindowPeriod.HasValue)
-                    {
-                        result.m_bIsSlidingWindowField = result.isSlidingWindowFromRestApi = true;
-                        result.lu_min_period_id = order.SlidingWindowPeriod.Value;
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        public static KalturaChannelOrder ConvertToKalturaChannelOrder(OrderObj orderObj)
-        {
-            KalturaChannelOrder result = new KalturaChannelOrder();
-
-            switch (orderObj.m_eOrderBy)
-            {
-                case OrderBy.VIEWS:
-                    {
-                        result.orderBy = KalturaChannelOrderBy.VIEWS_DESC;
-                        break;
-                    }
-                case OrderBy.RATING:
-                    {
-                        result.orderBy = KalturaChannelOrderBy.RATINGS_DESC;
-                        break;
-                    }
-                case OrderBy.VOTES_COUNT:
-                    {
-                        result.orderBy = KalturaChannelOrderBy.VOTES_DESC;
-                        break;
-                    }
-                case OrderBy.START_DATE:
-                    {
-                        if (orderObj.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC)
-                        {
-                            result.orderBy = KalturaChannelOrderBy.START_DATE_DESC;
-                        }
-                        else
-                        {
-                            result.orderBy = KalturaChannelOrderBy.START_DATE_ASC;
-                        }
-                        break;
-                    }
-                case OrderBy.CREATE_DATE:
-                    {
-                        if (orderObj.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC)
-                        {
-                            result.orderBy = KalturaChannelOrderBy.CREATE_DATE_DESC;
-                        }
-                        else
-                        {
-                            result.orderBy = KalturaChannelOrderBy.CREATE_DATE_ASC;
-                        }
-                        break;
-                    }
-                case OrderBy.NAME:
-                    {
-                        if (orderObj.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.ASC)
-                        {
-                            result.orderBy = KalturaChannelOrderBy.NAME_ASC;
-                        }
-                        else
-                        {
-                            result.orderBy = KalturaChannelOrderBy.NAME_DESC;
-                        }
-                        break;
-                    }
-                case OrderBy.RELATED:
-                    {
-                        result.orderBy = KalturaChannelOrderBy.RELEVANCY_DESC;
-                        break;
-                    }
-                case OrderBy.META:
-                    {
-                        KalturaMetaTagOrderBy metaOrderBy = orderObj.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC ? KalturaMetaTagOrderBy.META_DESC : KalturaMetaTagOrderBy.META_ASC;
-                        result.DynamicOrderBy = new KalturaDynamicOrderBy() { OrderBy = metaOrderBy, Name = orderObj.m_sOrderValue };
-                        break;
-                    }
-                case OrderBy.LIKE_COUNTER:
-                    {
-                        result.orderBy = KalturaChannelOrderBy.LIKES_DESC;
-                        break;
-                    }
-                case OrderBy.RECOMMENDATION:
-                case OrderBy.RANDOM:
-                case OrderBy.NONE:
-                case OrderBy.ID:
+                case KalturaChannelFieldOrderByType.NAME_ASC:
+                case KalturaChannelFieldOrderByType.NAME_DESC:
+                    return OrderBy.NAME;
+                case KalturaChannelFieldOrderByType.START_DATE_ASC:
+                case KalturaChannelFieldOrderByType.START_DATE_DESC:
+                    return OrderBy.START_DATE;
+                case KalturaChannelFieldOrderByType.CREATE_DATE_ASC:
+                case KalturaChannelFieldOrderByType.CREATE_DATE_DESC:
+                    return OrderBy.CREATE_DATE;
+                case KalturaChannelFieldOrderByType.RELEVANCY_DESC:
+                    return OrderBy.RELATED;
+                case KalturaChannelFieldOrderByType.ORDER_NUM:
+                    return OrderBy.ID;
                 default:
-                    break;
+                    throw new ClientException((int)StatusCode.Error, $"Unknown {nameof(KalturaChannelFieldOrderByType)}.");
             }
-
-            if (orderObj.isSlidingWindowFromRestApi)
-            {
-                result.SlidingWindowPeriod = orderObj.lu_min_period_id;
-            }
-
-            return result;
         }
 
-        public static OrderBy ConvertToOrderBy(KalturaChannelOrder kalturaChannelOrder)
+        private static OrderBy GetOrderBy(KalturaMetaTagOrderBy orderBy)
         {
-            OrderBy orderBy = OrderBy.NONE;
-
-            switch (kalturaChannelOrder.orderBy.Value)
+            switch (orderBy)
             {
-                case KalturaChannelOrderBy.RELEVANCY_DESC:
-                    orderBy = OrderBy.RELATED;
-                    break;
-                case KalturaChannelOrderBy.NAME_ASC:
-                case KalturaChannelOrderBy.NAME_DESC:
-                    orderBy = OrderBy.NAME;
-                    break;
-                case KalturaChannelOrderBy.VIEWS_DESC:
-                    orderBy = OrderBy.VIEWS;
-                    break;
-                case KalturaChannelOrderBy.RATINGS_DESC:
-                    orderBy = OrderBy.RATING;
-                    break;
-                case KalturaChannelOrderBy.VOTES_DESC:
-                    orderBy = OrderBy.VOTES_COUNT;
-                    break;
-                case KalturaChannelOrderBy.START_DATE_DESC:
-                case KalturaChannelOrderBy.START_DATE_ASC:
-                    orderBy = OrderBy.START_DATE;
-                    break;
-                case KalturaChannelOrderBy.LIKES_DESC:
-                    break;
-                case KalturaChannelOrderBy.CREATE_DATE_ASC:
-                case KalturaChannelOrderBy.CREATE_DATE_DESC:
-                    orderBy = OrderBy.CREATE_DATE;
-                    break;
-                case KalturaChannelOrderBy.ORDER_NUM:
+                case KalturaMetaTagOrderBy.META_ASC:
+                case KalturaMetaTagOrderBy.META_DESC:
+                    return OrderBy.META;
                 default:
-                    break;
+                    throw new ClientException((int)StatusCode.Error, $"Unknown {nameof(KalturaChannelDynamicOrder)}.");
             }
-
-            return orderBy;
         }
 
+        private static OrderBy GetOrderBy(KalturaChannelSlidingWindowOrderByType orderBy)
+        {
+            switch (orderBy)
+            {
+                case KalturaChannelSlidingWindowOrderByType.LIKES_DESC:
+                    return OrderBy.LIKE_COUNTER;
+                case KalturaChannelSlidingWindowOrderByType.RATINGS_DESC:
+                    return OrderBy.RATING;
+                case KalturaChannelSlidingWindowOrderByType.VOTES_DESC:
+                    return OrderBy.VOTES_COUNT;
+                case KalturaChannelSlidingWindowOrderByType.VIEWS_DESC:
+                    return OrderBy.VIEWS;
+                default:
+                    throw new ClientException((int)StatusCode.Error, $"Unknown {nameof(KalturaChannelSlidingWindowOrderByType)}.");
+            }
+        }
+
+        private static OrderDir GetOrderDir(KalturaChannelFieldOrderByType orderBy)
+        {
+            switch (orderBy)
+            {
+                case KalturaChannelFieldOrderByType.NAME_ASC:
+                case KalturaChannelFieldOrderByType.CREATE_DATE_ASC:
+                case KalturaChannelFieldOrderByType.START_DATE_ASC:
+                case KalturaChannelFieldOrderByType.ORDER_NUM:
+                    return OrderDir.ASC;
+                case KalturaChannelFieldOrderByType.NAME_DESC:
+                case KalturaChannelFieldOrderByType.CREATE_DATE_DESC:
+                case KalturaChannelFieldOrderByType.START_DATE_DESC:
+                case KalturaChannelFieldOrderByType.RELEVANCY_DESC:
+                    return OrderDir.DESC;
+                default:
+                    throw new ClientException((int)StatusCode.Error, $"Unknown {nameof(KalturaChannelFieldOrderByType)}.");
+            }
+        }
+
+        private static OrderDir GetOrderDir(KalturaMetaTagOrderBy orderBy)
+        {
+            switch (orderBy)
+            {
+                case KalturaMetaTagOrderBy.META_ASC:
+                    return OrderDir.ASC;
+                case KalturaMetaTagOrderBy.META_DESC:
+                    return OrderDir.DESC;
+                default:
+                    throw new ClientException((int)StatusCode.Error, $"Unknown {nameof(KalturaMetaTagOrderBy)}.");
+            }
+        }
+
+        private static OrderDir GetOrderDir(KalturaChannelSlidingWindowOrderByType orderBy)
+        {
+            switch (orderBy)
+            {
+                case KalturaChannelSlidingWindowOrderByType.LIKES_DESC:
+                case KalturaChannelSlidingWindowOrderByType.RATINGS_DESC:
+                case KalturaChannelSlidingWindowOrderByType.VOTES_DESC:
+                case KalturaChannelSlidingWindowOrderByType.VIEWS_DESC:
+                    return OrderDir.DESC;
+                default:
+                    throw new ClientException((int)StatusCode.Error, $"Unknown {nameof(KalturaChannelSlidingWindowOrderByType)}.");
+            }
+        }
+
+        private static KalturaChannelFieldOrderByType GetKalturaChannelFieldOrderBy(OrderBy orderBy, OrderDir orderDir)
+        {
+            if (orderBy == OrderBy.NAME && orderDir == OrderDir.ASC)
+            {
+                return KalturaChannelFieldOrderByType.NAME_ASC;
+            }
+
+            if (orderBy == OrderBy.NAME && orderDir == OrderDir.DESC)
+            {
+                return KalturaChannelFieldOrderByType.NAME_DESC;
+            }
+
+            if (orderBy == OrderBy.START_DATE && orderDir == OrderDir.ASC)
+            {
+                return KalturaChannelFieldOrderByType.START_DATE_ASC;
+            }
+
+            if (orderBy == OrderBy.START_DATE && orderDir == OrderDir.DESC)
+            {
+                return KalturaChannelFieldOrderByType.START_DATE_DESC;
+            }
+
+            if (orderBy == OrderBy.CREATE_DATE && orderDir == OrderDir.ASC)
+            {
+                return KalturaChannelFieldOrderByType.CREATE_DATE_ASC;
+            }
+
+            if (orderBy == OrderBy.CREATE_DATE && orderDir == OrderDir.DESC)
+            {
+                return KalturaChannelFieldOrderByType.CREATE_DATE_DESC;
+            }
+
+            if (orderBy == OrderBy.RELATED)
+            {
+                return KalturaChannelFieldOrderByType.RELEVANCY_DESC;
+            }
+
+            if (orderBy == OrderBy.ID)
+            {
+                return KalturaChannelFieldOrderByType.ORDER_NUM;
+            }
+
+            throw new ClientException((int)StatusCode.Error, $"{nameof(KalturaChannelFieldOrderByType)} can not be defined: {nameof(orderBy)}={orderBy}, {nameof(orderDir)}={orderDir}.");
+        }
+
+        private static KalturaMetaTagOrderBy GetKalturaMetaTagOrderBy(OrderBy orderBy, OrderDir orderDir)
+        {
+            if (orderBy == OrderBy.META && orderDir == OrderDir.ASC)
+            {
+                return KalturaMetaTagOrderBy.META_ASC;
+            }
+
+            if (orderBy == OrderBy.META && orderDir == OrderDir.DESC)
+            {
+                return KalturaMetaTagOrderBy.META_DESC;
+            }
+
+            throw new ClientException((int)StatusCode.Error, $"{nameof(KalturaMetaTagOrderBy)} can not be defined: {nameof(orderBy)}={orderBy}, {nameof(orderDir)}={orderDir}.");
+        }
+
+        private static KalturaChannelSlidingWindowOrderByType GetKalturaChannelSlidingWindowOrderBy(OrderBy orderBy, OrderDir orderDir)
+        {
+            if (orderBy == OrderBy.LIKE_COUNTER)
+            {
+                return KalturaChannelSlidingWindowOrderByType.LIKES_DESC;
+            }
+
+            if (orderBy == OrderBy.RATING)
+            {
+                return KalturaChannelSlidingWindowOrderByType.RATINGS_DESC;
+            }
+
+            if (orderBy == OrderBy.VOTES_COUNT)
+            {
+                return KalturaChannelSlidingWindowOrderByType.VOTES_DESC;
+            }
+
+            if (orderBy == OrderBy.VIEWS)
+            {
+                return KalturaChannelSlidingWindowOrderByType.VIEWS_DESC;
+            }
+
+            throw new ClientException((int)StatusCode.Error, $"{nameof(KalturaChannelSlidingWindowOrderByType)} can not be defined: {nameof(orderBy)}={orderBy}, {nameof(orderDir)}={orderDir}.");
+        }
+
+        private static KalturaChannelOrderBy GetKalturaChannelOrderBy(OrderBy orderBy, OrderDir orderDir)
+        {
+            if (orderBy == OrderBy.NAME && orderDir == OrderDir.ASC)
+            {
+                return KalturaChannelOrderBy.NAME_ASC;
+            }
+
+            if (orderBy == OrderBy.NAME && orderDir == OrderDir.DESC)
+            {
+                return KalturaChannelOrderBy.NAME_DESC;
+            }
+
+            if (orderBy == OrderBy.START_DATE && orderDir == OrderDir.ASC)
+            {
+                return KalturaChannelOrderBy.START_DATE_ASC;
+            }
+
+            if (orderBy == OrderBy.START_DATE && orderDir == OrderDir.DESC)
+            {
+                return KalturaChannelOrderBy.START_DATE_DESC;
+            }
+
+            if (orderBy == OrderBy.CREATE_DATE && orderDir == OrderDir.ASC)
+            {
+                return KalturaChannelOrderBy.CREATE_DATE_ASC;
+            }
+
+            if (orderBy == OrderBy.CREATE_DATE && orderDir == OrderDir.DESC)
+            {
+                return KalturaChannelOrderBy.CREATE_DATE_DESC;
+            }
+
+            if (orderBy == OrderBy.ID)
+            {
+                return KalturaChannelOrderBy.ORDER_NUM;
+            }
+
+            if (orderBy == OrderBy.RELATED)
+            {
+                return KalturaChannelOrderBy.RELEVANCY_DESC;
+            }
+
+            if (orderBy == OrderBy.VIEWS)
+            {
+                return KalturaChannelOrderBy.VIEWS_DESC;
+            }
+
+            if (orderBy == OrderBy.RATING)
+            {
+                return KalturaChannelOrderBy.RATINGS_DESC;
+            }
+
+            if (orderBy == OrderBy.LIKE_COUNTER)
+            {
+                return KalturaChannelOrderBy.LIKES_DESC;
+            }
+
+            if (orderBy == OrderBy.VOTES_COUNT)
+            {
+                return KalturaChannelOrderBy.VOTES_DESC;
+            }
+
+            throw new ClientException((int)StatusCode.Error, $"{nameof(KalturaChannelOrderBy)} can not be defined: {nameof(orderBy)}={orderBy}, {nameof(orderDir)}={orderDir}.");
+        }
+
+        private static KalturaChannelOrder GetKalturaChannelOrder(IEnumerable<AssetOrder> orderingParameters)
+        {
+            var channelOrder = new KalturaChannelOrder();
+
+            var assetOrder = orderingParameters.First();
+            if (assetOrder is AssetOrderByMeta orderByMeta)
+            {
+                var orderBy = GetKalturaMetaTagOrderBy(orderByMeta.Field, orderByMeta.Direction);
+                channelOrder.DynamicOrderBy = new KalturaDynamicOrderBy
+                {
+                    OrderBy = orderBy,
+                    Name = orderByMeta.MetaName
+                };
+            }
+            else if (assetOrder is AssetSlidingWindowOrder slidingWindowOrder)
+            {
+                var orderBy = GetKalturaChannelOrderBy(slidingWindowOrder.Field, slidingWindowOrder.Direction);
+                channelOrder.orderBy = orderBy;
+                channelOrder.SlidingWindowPeriod = slidingWindowOrder.SlidingWindowPeriod;
+            }
+            else if (assetOrder != null)
+            {
+                var orderBy = GetKalturaChannelOrderBy(assetOrder.Field, assetOrder.Direction);
+                channelOrder.orderBy = orderBy;
+            }
+            else
+            {
+                throw new ClientException((int)StatusCode.Error, $"{nameof(KalturaChannelOrder)} can not be defined.");
+            }
+
+            return channelOrder;
+        }
+
+        private static OrderObj GetOrderObj(IEnumerable<KalturaBaseChannelOrder> orderingParameters)
+        {
+            var orderObj = new OrderObj();
+            var channelOrder = orderingParameters.FirstOrDefault();
+            switch (channelOrder)
+            {
+                case KalturaChannelDynamicOrder dynamicOrder:
+                    orderObj.m_eOrderBy = GetOrderBy(dynamicOrder.OrderBy);
+                    orderObj.m_eOrderDir = GetOrderDir(dynamicOrder.OrderBy);
+                    orderObj.m_sOrderValue = dynamicOrder.Name;
+                    break;
+                case KalturaChannelSlidingWindowOrder slidingWindowOrder:
+                    orderObj.m_eOrderBy = GetOrderBy(slidingWindowOrder.OrderBy);
+                    orderObj.m_eOrderDir = GetOrderDir(slidingWindowOrder.OrderBy);
+                    orderObj.m_bIsSlidingWindowField = true;
+                    orderObj.lu_min_period_id = slidingWindowOrder.SlidingWindowPeriod;
+                    orderObj.isSlidingWindowFromRestApi = true;
+                    break;
+                case KalturaChannelFieldOrder fieldOrder:
+                    orderObj.m_eOrderBy = GetOrderBy(fieldOrder.OrderBy);
+                    orderObj.m_eOrderDir = GetOrderDir(fieldOrder.OrderBy);
+                    break;
+                case null:
+                    orderObj = null;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, $"{nameof(OrderObj)} can not be defined.");
+            }
+
+            return orderObj;
+        }
+
+        // ReSharper disable once UnusedMember.Global
         public static ApiObjects.SearchObjects.OrderDir ConvertToOrderDir(KalturaChannelOrder kalturaChannelOrder)
         {
             ApiObjects.SearchObjects.OrderDir orderDir = ApiObjects.SearchObjects.OrderDir.NONE;

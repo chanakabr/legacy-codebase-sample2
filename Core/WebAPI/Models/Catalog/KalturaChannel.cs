@@ -1,11 +1,13 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
+using Newtonsoft.Json;
+using WebAPI.Models.Catalog.Ordering;
 
 namespace WebAPI.Models.Catalog
 {
@@ -14,8 +16,8 @@ namespace WebAPI.Models.Catalog
     /// </summary>
     public partial class KalturaChannel : KalturaBaseChannel
     {
-
         private const string OPC_MERGE_VERSION = "5.0.0.0";
+        private const int ORDERING_PARAMETERS_MAX_COUNT = 2;
 
         /// <summary>
         /// Unique identifier for the channel
@@ -73,7 +75,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "images")]
         [JsonProperty(PropertyName = "images")]
-        [XmlArray(ElementName = "images", IsNullable = true)] 
+        [XmlArray(ElementName = "images", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
         [XmlArrayItem("item")]
         [Deprecated(OPC_MERGE_VERSION)]
@@ -91,7 +93,7 @@ namespace WebAPI.Models.Catalog
         [Deprecated(OPC_MERGE_VERSION)]
         [Obsolete]
         public List<KalturaIntegerValue> AssetTypes { get; set; }
-        
+
         /// <summary>
         /// Media types in the channel 
         /// -26 is EPG
@@ -166,6 +168,15 @@ namespace WebAPI.Models.Catalog
         public KalturaChannelOrder OrderBy { get; set; }
 
         /// <summary>
+        /// Parameters for asset list sorting.
+        /// </summary>
+        [DataMember(Name = "orderingParametersEqual")]
+        [JsonProperty(PropertyName = "orderingParametersEqual")]
+        [XmlElement(ElementName = "orderingParametersEqual")]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public List<KalturaBaseChannelOrder> OrderingParameters { get; set; }
+
+        /// <summary>
         /// Specifies when was the Channel was created. Date and time represented as epoch.
         /// </summary>
         [DataMember(Name = "createDate")]
@@ -192,13 +203,12 @@ namespace WebAPI.Models.Catalog
         [SchemeProperty()]
         public bool SupportSegmentBasedOrdering { get; set; }
 
-
         /// <summary>
         /// Asset user rule identifier 
         /// </summary>
         [DataMember(Name = "assetUserRuleId")]
         [JsonProperty("assetUserRuleId")]
-        [XmlElement(ElementName = "assetUserRuleId")]        
+        [XmlElement(ElementName = "assetUserRuleId")]
         [SchemeProperty(RequiresPermission = (int)RequestType.WRITE, IsNullable = true)]
         public long? AssetUserRuleId { get; set; }
 
@@ -220,6 +230,11 @@ namespace WebAPI.Models.Catalog
         [SchemeProperty(ReadOnly = true)]
         public long? VirtualAssetId { get; set; }
 
+        internal void BuildOrderingsForInsert()
+        {
+            BuildOrderings(true);
+        }
+
         internal virtual void ValidateForInsert()
         {
             if (string.IsNullOrEmpty(SystemName))
@@ -227,7 +242,7 @@ namespace WebAPI.Models.Catalog
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "systemName");
             }
 
-            if (Name == null || Name.Values == null || Name.Values.Count == 0)
+            if (Name?.Values == null || Name.Values.Count == 0)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
             }
@@ -244,9 +259,29 @@ namespace WebAPI.Models.Catalog
                 {
                     Description.Validate("multilingualDescription");
                 }
-            }            
+            }
 
-            OrderBy.Validate(this.GetType());
+            OrderBy?.Validate(GetType());
+
+            if (!OrderingParameters.Any())
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "orderingParametersEqual");
+            }
+
+            if (OrderingParameters.Count > ORDERING_PARAMETERS_MAX_COUNT)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_MAX_ITEMS_CROSSED, "orderingParametersEqual", ORDERING_PARAMETERS_MAX_COUNT);
+            }
+
+            if (OrderingParameters.Count > 1 && GroupBy != null)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "groupBy", "orderingParametersEqual");
+            }
+        }
+
+        internal void BuildOrderingsForUpdate()
+        {
+            BuildOrderings(OrderBy != null);
         }
 
         internal virtual void ValidateForUpdate()
@@ -258,7 +293,7 @@ namespace WebAPI.Models.Catalog
 
             if (Name != null)
             {
-                if ((Name.Values == null || Name.Values.Count == 0))
+                if (Name.Values == null || Name.Values.Count == 0)
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
                 }
@@ -270,7 +305,7 @@ namespace WebAPI.Models.Catalog
 
             if (Description != null)
             {
-                if ((Description.Values == null || Description.Values.Count == 0))
+                if (Description.Values == null || Description.Values.Count == 0)
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "description");
                 }
@@ -280,13 +315,20 @@ namespace WebAPI.Models.Catalog
                 }
             }
 
-            if (OrderBy != null)
+            OrderBy?.Validate(GetType());
+
+            if (OrderingParameters?.Count > ORDERING_PARAMETERS_MAX_COUNT)
             {
-                OrderBy.Validate(this.GetType());
+                throw new BadRequestException(BadRequestException.ARGUMENT_MAX_ITEMS_CROSSED, "orderingParametersEqual", ORDERING_PARAMETERS_MAX_COUNT);
+            }
+
+            if (OrderingParameters?.Count > 1 && GroupBy != null)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "groupBy", "orderingParametersEqual");
             }
         }
 
-        internal virtual void FillEmptyFeildsForUpdate()
+        internal virtual void FillEmptyFieldsForUpdate()
         {
             if (this.NullableProperties != null && this.NullableProperties.Contains("metadata"))
             {
@@ -294,7 +336,7 @@ namespace WebAPI.Models.Catalog
             }
         }
 
-        public int[] getAssetTypes()
+        public int[] GetAssetTypes()
         {
             if (AssetTypes == null && MediaTypes != null)
                 AssetTypes = MediaTypes;
@@ -311,5 +353,64 @@ namespace WebAPI.Models.Catalog
             return assetTypes;
         }
 
+        private void BuildOrderings(bool isOrderingParametersRequired)
+        {
+            if (OrderingParameters == null)
+            {
+                OrderingParameters = new List<KalturaBaseChannelOrder>();
+            }
+
+            if (OrderingParameters.Any() && OrderBy != null)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "orderingParametersEqual", "orderBy");
+            }
+
+            if (!OrderingParameters.Any() && isOrderingParametersRequired)
+            {
+                var orderBy = OrderBy ?? new KalturaChannelOrder { orderBy = KalturaChannelOrderBy.CREATE_DATE_DESC };
+                var assetOrder = CreateBaseChannelOrder(orderBy);
+                OrderingParameters.Add(assetOrder);
+            }
+        }
+
+        private KalturaBaseChannelOrder CreateBaseChannelOrder(KalturaChannelOrder order)
+        {
+            if (order.DynamicOrderBy != null)
+            {
+                var metaTagOrderBy = OrderBy.DynamicOrderBy.OrderBy ?? KalturaMetaTagOrderBy.META_ASC;
+                return new KalturaChannelDynamicOrder { Name = OrderBy.DynamicOrderBy.Name, OrderBy = metaTagOrderBy };
+            }
+
+            var slidingWindowPeriod = order.SlidingWindowPeriod ?? 0;
+            switch (order.orderBy)
+            {
+                case KalturaChannelOrderBy.NAME_ASC:
+                    return new KalturaChannelFieldOrder { OrderBy = KalturaChannelFieldOrderByType.NAME_ASC };
+                case KalturaChannelOrderBy.NAME_DESC:
+                    return new KalturaChannelFieldOrder { OrderBy = KalturaChannelFieldOrderByType.NAME_DESC };
+                case KalturaChannelOrderBy.START_DATE_ASC:
+                    return new KalturaChannelFieldOrder { OrderBy = KalturaChannelFieldOrderByType.START_DATE_ASC };
+                case KalturaChannelOrderBy.START_DATE_DESC:
+                    return new KalturaChannelFieldOrder { OrderBy = KalturaChannelFieldOrderByType.START_DATE_DESC };
+                case KalturaChannelOrderBy.CREATE_DATE_ASC:
+                    return new KalturaChannelFieldOrder { OrderBy = KalturaChannelFieldOrderByType.CREATE_DATE_ASC };
+                case KalturaChannelOrderBy.CREATE_DATE_DESC:
+                    return new KalturaChannelFieldOrder { OrderBy = KalturaChannelFieldOrderByType.CREATE_DATE_DESC };
+                case KalturaChannelOrderBy.RELEVANCY_DESC:
+                    return new KalturaChannelFieldOrder { OrderBy = KalturaChannelFieldOrderByType.RELEVANCY_DESC };
+                case KalturaChannelOrderBy.ORDER_NUM:
+                    return new KalturaChannelFieldOrder { OrderBy = KalturaChannelFieldOrderByType.ORDER_NUM };
+                case KalturaChannelOrderBy.LIKES_DESC:
+                    return new KalturaChannelSlidingWindowOrder { OrderBy = KalturaChannelSlidingWindowOrderByType.LIKES_DESC, SlidingWindowPeriod = slidingWindowPeriod };
+                case KalturaChannelOrderBy.VOTES_DESC:
+                    return new KalturaChannelSlidingWindowOrder { OrderBy = KalturaChannelSlidingWindowOrderByType.VOTES_DESC, SlidingWindowPeriod = slidingWindowPeriod };
+                case KalturaChannelOrderBy.RATINGS_DESC:
+                    return new KalturaChannelSlidingWindowOrder { OrderBy = KalturaChannelSlidingWindowOrderByType.RATINGS_DESC, SlidingWindowPeriod = slidingWindowPeriod };
+                case KalturaChannelOrderBy.VIEWS_DESC:
+                    return new KalturaChannelSlidingWindowOrder { OrderBy = KalturaChannelSlidingWindowOrderByType.VIEWS_DESC, SlidingWindowPeriod = slidingWindowPeriod };
+                default:
+                    throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, order.orderBy, "orderBy.orderBy");
+            }
+        }
     }
 }
