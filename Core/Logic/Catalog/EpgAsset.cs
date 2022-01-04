@@ -85,6 +85,10 @@ namespace Core.Catalog
                         this.CatchUpEnabled = GetEnableData(defaultEpgCB.EnableCatchUp, linearChannelSettings.EnableCatchUp);
                         this.TrickPlayEnabled = GetEnableData(defaultEpgCB.EnableTrickPlay, linearChannelSettings.EnableTrickPlay);
                     }
+                    else
+                    {
+                        this.LinearAssetId = defaultEpgCB.LinearMediaId;
+                    }
 
                     SetImages(defaultEpgCB.pictures, groupEpgPicturesSizes, groupId);
                 }
