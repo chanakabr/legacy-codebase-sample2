@@ -299,7 +299,9 @@ namespace ExcelFeeder
                         sIsActive = "false";
                     }
 
-                    sMFeedXML.Append("co_guid=\"" + sCoGuid + "\" action=\"insert\" is_active=\"" + sIsActive + "\" erase=\"false\">");
+                    string entryId = GetColValue("BASIC", (int)hBasicsIndex["entry_id"], 0, string.Empty, dd, i);
+
+                    sMFeedXML.Append("co_guid=\"" + sCoGuid + "\" action=\"insert\" is_active=\"" + sIsActive + "\" erase=\"false\" entry_id = \"" + entryId + "\">");
 
                     //basic metas
                     sMFeedXML.Append("<basic>");
@@ -308,7 +310,7 @@ namespace ExcelFeeder
 
                     //EPG
                     string sEPG = GetColValue("BASIC", (int)hBasicsIndex["epg_identifier"], 0, string.Empty, dd, i);
-                    sMFeedXML.Append("<epg_identifier>" + TVinciShared.ProtocolsFuncs.XMLEncode(sEPG, true) + "</epg_identifier>");
+                    sMFeedXML.Append("<epg_identifier>" + TVinciShared.ProtocolsFuncs.XMLEncode(sEPG, true) + "</epg_identifier>");                   
 
                     //name
                     sMFeedXML.Append("<name>");

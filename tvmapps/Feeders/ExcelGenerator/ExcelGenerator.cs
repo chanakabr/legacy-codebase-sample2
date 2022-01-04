@@ -668,6 +668,9 @@ namespace ExcelGenerator
             string sEPG = ODBCWrapper.Utils.GetStrSafeVal(selectMediasQuery, "epg_identifier", mediaRowIndex);
             mediaRow[GetHeaderName(CellType.BASIC, (int)hBasics["epg_identifier"], 0, string.Empty)] = sEPG;
 
+            string entryId = ODBCWrapper.Utils.GetStrSafeVal(selectMediasQuery, "entry_id", mediaRowIndex);
+            mediaRow[GetHeaderName(CellType.BASIC, (int)hBasics["entry_id"], 0, string.Empty)] = entryId;
+
             foreach (int nIndex in meta_double)
             {
                 string dVal = ODBCWrapper.Utils.GetStrSafeVal(selectMediasQuery, "meta" + nIndex + "_double", mediaRowIndex);
