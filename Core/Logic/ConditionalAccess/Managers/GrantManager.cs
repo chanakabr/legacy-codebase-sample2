@@ -669,7 +669,7 @@ namespace Core.ConditionalAccess
                 bool dlmCheck = subscription.m_nDomainLimitationModule > 0 ? true : false;
 
                 // if subscription for grant contain DLM \ Quota ==> than check overlapping  DLM or Quota in any of subscriptions  in permitted subscription 
-                if (subscription.m_lServices != null && subscription.m_lServices.Select(x => x.ID == (long)eService.NPVR).Count() > 0)
+                if (subscription.m_lServices != null && subscription.m_lServices.Any(x => x.ID == (long)eService.NPVR))
                 {
                     npvrCheck = true;
                 }
