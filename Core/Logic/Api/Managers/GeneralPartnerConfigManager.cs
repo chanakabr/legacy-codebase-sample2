@@ -206,13 +206,8 @@ namespace ApiLogic.Api.Managers
                                                && defaultRegion.id != catalogGroupCache.DefaultRegion);
                 }
 
-                if (partnerConfigToUpdate?.RollingDeviceRemovalData?.RollingDeviceRemovalFamilyIds?.Count > 0)
+                if (partnerConfigToUpdate?.RollingDeviceRemovalData?.RollingDeviceRemovalFamilyIds?.Count > 0 || partnerConfigToUpdate.DowngradePriorityFamilyIds.Count > 0)
                 {
-                    var rollingDeviceRemovalFamilyIds = partnerConfigToUpdate.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds;
-
-                    partnerConfigToUpdate.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds =
-                        rollingDeviceRemovalFamilyIds.Distinct().ToList();
-
                     // validate deviceFamilyIds
                     var deviceFamilyList = Core.Api.Module.GetDeviceFamilyList(groupId);
                     List<DeviceFamily> deviceFamilies = deviceFamilyList.DeviceFamilies;
@@ -222,8 +217,24 @@ namespace ApiLogic.Api.Managers
                         return response;
                     }
 
-                    var existingFamilies = rollingDeviceRemovalFamilyIds.Intersect(deviceFamilies.Select(x => x.Id));
-                    var notDeviceFamilies = rollingDeviceRemovalFamilyIds.Except(existingFamilies).ToList();
+                    List<int> allFamilyIds = new List<int>();
+                    if (partnerConfigToUpdate?.RollingDeviceRemovalData?.RollingDeviceRemovalFamilyIds?.Count > 0)
+                    {
+                        var rollingDeviceRemovalFamilyIds = partnerConfigToUpdate.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds;
+
+                        partnerConfigToUpdate.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds =
+                            rollingDeviceRemovalFamilyIds.Distinct().ToList();
+                        allFamilyIds.AddRange((rollingDeviceRemovalFamilyIds));
+                        
+                    }
+
+                    if (partnerConfigToUpdate.DowngradePriorityFamilyIds.Count > 0)
+                    {
+                        allFamilyIds.AddRange((partnerConfigToUpdate.DowngradePriorityFamilyIds));
+                    }
+                    
+                    var existingFamilies = allFamilyIds.Intersect(deviceFamilies.Select(x => x.Id));
+                    var notDeviceFamilies = allFamilyIds.Except(existingFamilies).ToList();
 
                     if (notDeviceFamilies.Count > 0)
                     {
@@ -231,6 +242,7 @@ namespace ApiLogic.Api.Managers
                             $"The ids: {string.Join(", ", notDeviceFamilies)} are non-existing DeviceFamilyIds");
                         return response;
                     }
+
                 }
 
                 var generalPartnerConfig = GetGeneralPartnerConfig(groupId);
@@ -239,7 +251,7 @@ namespace ApiLogic.Api.Managers
                     partnerConfigToUpdate.SetUnchangedProperties(generalPartnerConfig);
                 }
 
-                // upsert GeneralPartnerConfig            
+                // upsert GeneralPartnerConfig -           
                 if (!ApiDAL.UpdateGeneralPartnerConfig(groupId, partnerConfigToUpdate))
                 {
                     log.ErrorFormat("Error while update generalPartnerConfig. groupId: {0}", groupId);
@@ -459,7 +471,7 @@ namespace ApiLogic.Api.Managers
                             int? defaultRegion = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DEFAULT_REGION");
                             int? enableRegionFiltering = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "IS_REGIONALIZATION_ENABLED");
                             int? suspensionProfileInheritanceType = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "SUSPENSION_PROFILE_INHERITANCE_TYPE");
-
+                            string downgradePriority = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "DOWNGRADE_DEVICE_PRIORITY_FAMILY_IDS");
                             if (deleteMediaPolicy.HasValue)
                             {
                                 generalPartnerConfig.DeleteMediaPolicy = (DeleteMediaPolicy)deleteMediaPolicy.Value;
@@ -468,6 +480,15 @@ namespace ApiLogic.Api.Managers
                             if (downgradePolicy.HasValue)
                             {
                                 generalPartnerConfig.DowngradePolicy = (DowngradePolicy)downgradePolicy.Value;
+                            }
+                            string rollingDeviceRemovalPolicyIds =
+                                ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "ROLLING_DEVICE_REMOVAL_FAMILY_IDS");
+
+
+                            if (!downgradePriority.IsNullOrEmptyOrWhiteSpace())
+                            {
+                                //gets the family ids
+                                generalPartnerConfig.DowngradePriorityFamilyIds = downgradePriority.Split(',').Select(int.Parse).ToList();
                             }
 
                             if (enableRegionFiltering.HasValue)
@@ -544,8 +565,6 @@ namespace ApiLogic.Api.Managers
 
                 if (familyIds.Any())
                 {
-
-
                     rollingDeviceRemovalData.RollingDeviceRemovalFamilyIds.AddRange(familyIds);
 
                     //gets policy

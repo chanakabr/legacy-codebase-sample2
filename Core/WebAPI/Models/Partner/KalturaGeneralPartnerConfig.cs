@@ -74,6 +74,14 @@ namespace WebAPI.Models.Partner
         public KalturaDowngradePolicy? DowngradePolicy { get; set; }
 
         /// <summary>
+        /// Priority Family Ids to remove devices on downgrade (first in the list first to remove)
+        /// </summary>
+        [DataMember(Name = "downgradePriorityFamilyIds")]
+        [JsonProperty("downgradePriorityFamilyIds")]
+        [XmlElement(ElementName = "downgradePriorityFamilyIds")]
+        public string DowngradePriorityFamilyIds { get; set; }
+        
+        /// <summary>
         /// Mail settings
         /// </summary>
         [DataMember(Name = "mailSettings")]
@@ -178,6 +186,10 @@ namespace WebAPI.Models.Partner
         {
             return GetItemsIn<List<int>, int>(SecondaryCurrencies, "KalturaGeneralPartnerConfig.secondaryCurrencies", false, false);
         }
+        internal List<int> GetDowngradePriorityFamilyIds()
+        {
+            return GetItemsIn<List<int>, int>(DowngradePriorityFamilyIds, "KalturaRollingDeviceRemovalData.DowngradePriorityFamilyIds", false, false);
+        }
 
         internal override bool Update(int groupId)
         {
@@ -189,7 +201,7 @@ namespace WebAPI.Models.Partner
 
     public enum KalturaDeleteMediaPolicy { Disable = 0, Delete = 1 }
 
-    public enum KalturaDowngradePolicy { LIFO = 0, FIFO = 1 }
+    public enum KalturaDowngradePolicy { LIFO = 0, FIFO = 1, ACTIVE_DATE = 2 }
 
     public enum KalturaRollingDevicePolicy
     {

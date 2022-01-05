@@ -39,6 +39,7 @@ namespace Core.Users
         public string m_pin;
 
         public DateTime m_activationDate;
+        public DateTime? m_updateDate;
 
         public DeviceState m_state;
 
@@ -93,7 +94,7 @@ namespace Core.Users
         }
 
         public Device(string sUDID, int nDeviceBrandID, int nGroupID, string sDeviceName, int nDomainID, int nDeviceID, int nDeviceFamilyID,
-            string sDeviceFamilyName, string sPin, DateTime dtActivationDate, DeviceState eState)
+            string sDeviceFamilyName, string sPin, DateTime dtActivationDate, DeviceState eState, DateTime? dtUpdateDate = null)
         {
             m_deviceUDID = sUDID;
             m_deviceBrandID = nDeviceBrandID;
@@ -106,6 +107,7 @@ namespace Core.Users
             m_pin = sPin;
             m_activationDate = dtActivationDate;
             m_state = eState;
+            m_updateDate = dtUpdateDate;
 
             if (nDeviceBrandID > 0)
             {

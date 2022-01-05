@@ -5499,6 +5499,11 @@ namespace DAL
             }
             if (partnerConfig.DowngradePolicy.HasValue)
                 sp.AddParameter("@downgradePolicy", partnerConfig.DowngradePolicy.Value);
+            if (partnerConfig?.DowngradePriorityFamilyIds != null)
+            {
+                sp.AddParameter("@downgradePriorityFamilyIds",
+                    string.Join(",", partnerConfig.DowngradePriorityFamilyIds));
+            }
             sp.AddParameter("@mailSettings", partnerConfig.MailSettings);
             sp.AddParameter("@dateFormat", partnerConfig.DateFormat);
             if (partnerConfig.HouseholdLimitationModule.HasValue)

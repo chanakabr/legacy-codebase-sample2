@@ -36370,6 +36370,10 @@ namespace WebAPI.Models.Partner
                         throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", DowngradePolicy, typeof(KalturaDowngradePolicy)));
                     }
                 }
+                if (parameters.ContainsKey("downgradePriorityFamilyIds") && parameters["downgradePriorityFamilyIds"] != null)
+                {
+                    DowngradePriorityFamilyIds = (String) Convert.ChangeType(parameters["downgradePriorityFamilyIds"], typeof(String));
+                }
                 if (parameters.ContainsKey("mailSettings") && parameters["mailSettings"] != null)
                 {
                     MailSettings = (String) Convert.ChangeType(parameters["mailSettings"], typeof(String));

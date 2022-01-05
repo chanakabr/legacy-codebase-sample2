@@ -11,6 +11,7 @@ namespace ApiObjects
         public int? MainCurrency { get; set; }
         public List<int> SecondaryCurrencies { get; set; }
         public DowngradePolicy? DowngradePolicy { get; set; }
+        public List<int> DowngradePriorityFamilyIds { get; set; }
         public string MailSettings { get; set; }
         public string DateFormat { get; set; }
         public int? HouseholdLimitationModule { get; set; }

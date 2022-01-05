@@ -39571,6 +39571,10 @@ namespace WebAPI.Models.Partner
             {
                 ret.Add("downgradePolicy", "\"downgradePolicy\": " + "\"" + Enum.GetName(typeof(KalturaDowngradePolicy), DowngradePolicy) + "\"");
             }
+            if(DowngradePriorityFamilyIds != null && (retrievedProperties == null || retrievedProperties.Contains("downgradePriorityFamilyIds")))
+            {
+                ret.Add("downgradePriorityFamilyIds", "\"downgradePriorityFamilyIds\": " + "\"" + EscapeJson(DowngradePriorityFamilyIds) + "\"");
+            }
             if(EnableMultiLcns.HasValue && (retrievedProperties == null || retrievedProperties.Contains("enableMultiLcns")))
             {
                 ret.Add("enableMultiLcns", "\"enableMultiLcns\": " + EnableMultiLcns.ToString().ToLower());
@@ -39657,6 +39661,10 @@ namespace WebAPI.Models.Partner
             if(DowngradePolicy.HasValue && (retrievedProperties == null || retrievedProperties.Contains("downgradePolicy")))
             {
                 ret.Add("downgradePolicy", "<downgradePolicy>" + "" + Enum.GetName(typeof(KalturaDowngradePolicy), DowngradePolicy) + "" + "</downgradePolicy>");
+            }
+            if(DowngradePriorityFamilyIds != null && (retrievedProperties == null || retrievedProperties.Contains("downgradePriorityFamilyIds")))
+            {
+                ret.Add("downgradePriorityFamilyIds", "<downgradePriorityFamilyIds>" + EscapeXml(DowngradePriorityFamilyIds) + "</downgradePriorityFamilyIds>");
             }
             if(EnableMultiLcns.HasValue && (retrievedProperties == null || retrievedProperties.Contains("enableMultiLcns")))
             {

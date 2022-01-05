@@ -114,6 +114,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.SuspensionProfileInheritanceType, opt => opt.ResolveUsing(src => 
                                     ConvertSuspensionProfileInheritanceType(src.SuspensionProfileInheritanceType)))
                 .ForMember(dest => dest.AllowDeviceMobility, opt => opt.MapFrom(src => src.AllowDeviceMobility))
+                .ForMember(dest => dest.DowngradePriorityFamilyIds, opt => opt.MapFrom(src => src.DowngradePriorityFamilyIds != null ?
+                    string.Join(",", src.DowngradePriorityFamilyIds) : string.Empty))
                 .ForMember(dest => dest.EnableMultiLcns, opt => opt.MapFrom(src => src.EnableMultiLcns))
                 ;
 
@@ -139,6 +141,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.SuspensionProfileInheritanceType, opt => opt.ResolveUsing(src => 
                                     ConvertSuspensionProfileInheritanceType(src.SuspensionProfileInheritanceType)))
                 .ForMember(dest => dest.AllowDeviceMobility, opt => opt.MapFrom(src => src.AllowDeviceMobility))
+                .ForMember(dest => dest.DowngradePriorityFamilyIds, opt => opt.MapFrom(src => src.GetDowngradePriorityFamilyIds()))
                 .ForMember(dest => dest.EnableMultiLcns, opt => opt.MapFrom(src => src.EnableMultiLcns))
                 ;
 
@@ -624,6 +627,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     case DowngradePolicy.LIFO:
                         result = KalturaDowngradePolicy.LIFO;
                         break;
+                    case DowngradePolicy.ACTIVE_DATE:
+                        result = KalturaDowngradePolicy.ACTIVE_DATE;
+                        break;
                     default:
                         throw new ClientException((int)StatusCode.Error, "Unknown DowngradePolicy");
                 }
@@ -645,6 +651,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         break;
                     case KalturaDowngradePolicy.LIFO:
                         result = DowngradePolicy.LIFO;
+                        break;
+                    case KalturaDowngradePolicy.ACTIVE_DATE:
+                        result = DowngradePolicy.ACTIVE_DATE;
                         break;
                     default:
                         throw new ClientException((int)StatusCode.Error, "Unknown DowngradePolicy");

@@ -3511,6 +3511,8 @@ namespace WebAPI.Reflection
                             return "deleteMediaPolicy";
                         case "DowngradePolicy":
                             return "downgradePolicy";
+                        case "DowngradePriorityFamilyIds":
+                            return "downgradePriorityFamilyIds";
                         case "EnableMultiLcns":
                             return "enableMultiLcns";
                         case "EnableRegionFiltering":
