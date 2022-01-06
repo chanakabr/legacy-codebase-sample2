@@ -14,7 +14,7 @@ using Core.Api;
 using Core.Catalog.CatalogManagement;
 using Core.Pricing;
 using DAL;
-using KLogMonitor;
+using Phx.Lib.Log;
 
 namespace ApiLogic.Pricing.Handlers
 {

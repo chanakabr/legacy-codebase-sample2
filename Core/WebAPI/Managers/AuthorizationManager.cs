@@ -11,11 +11,11 @@ using ApiObjects.User.SessionProfile;
 using AuthenticationGrpcClientWrapper;
 using CachingProvider.LayeredCache;
 using CanaryDeploymentManager;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Users;
 using EventBus.Kafka;
 using Grpc.Core;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Newtonsoft.Json;
 using SessionManager;
 using System;
@@ -886,11 +886,16 @@ namespace WebAPI.Managers
                 {
                     var ksData = KSUtils.ExtractKSPayload(ks);
 
+                    // true
                     var sessionAlive = ksData.CreateDate >= usersSessions.UserRevocation;
 
+                    // true
                     var hasSessionWithUdid = !string.IsNullOrEmpty(ksData.UDID) && usersSessions.UserWithUdidRevocations.ContainsKey(ksData.UDID);
+                    
+                    // false
                     var sessionWithUdidAlive = hasSessionWithUdid && ksData.CreateDate >= usersSessions.UserWithUdidRevocations[ksData.UDID];
 
+                    //true
                     if (usersSessions.UserRevocation > 0)
                     {
                         return sessionAlive && (!hasSessionWithUdid || sessionWithUdidAlive);

@@ -2,12 +2,12 @@
 using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using DAL;
 using ElasticSearch.Common;
-using KLogMonitor;
+using Phx.Lib.Log;
 using QueueWrapper;
 using QueueWrapper.Enums;
 using QueueWrapper.Queues;

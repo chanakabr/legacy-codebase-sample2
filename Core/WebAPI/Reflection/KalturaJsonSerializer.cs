@@ -1,4 +1,13 @@
 // NOTICE: This is a generated file, to modify it, edit Program.cs in Reflector project
+// disable compiler warning due to generation of empty usages ot unused vars
+// ReSharper disable CheckNamespace
+// ReSharper disable NotAccessedVariable
+// ReSharper disable UnusedVariable
+// ReSharper disable RedundantAssignment
+// ReSharper disable PossibleMultipleEnumeration
+#pragma warning disable 168
+#pragma warning disable 219
+#pragma warning disable 612
 using System;
 using System.Linq;
 using System.Web;

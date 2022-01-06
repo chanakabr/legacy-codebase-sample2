@@ -6,7 +6,7 @@ using ApiObjects.EventBus.EpgIngest;
 using ApiObjects.Response;
 using EventBus.Abstraction;
 using EventBus.Kafka;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Newtonsoft.Json;
 using TVinciShared;
 

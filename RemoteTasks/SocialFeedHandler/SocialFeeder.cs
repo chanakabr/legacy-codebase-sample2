@@ -6,7 +6,7 @@ using System.Reflection;
 using System.ServiceModel;
 using System.Text;
 using System.Web;
-using KLogMonitor;
+using Phx.Lib.Log;
 
 namespace SocialFeedHandler
 {

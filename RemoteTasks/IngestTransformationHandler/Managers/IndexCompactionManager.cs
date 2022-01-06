@@ -8,11 +8,12 @@ using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Epg;
 using ApiObjects.Response;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Catalog;
 using CouchbaseManager;
 using IngestHandler.Common;
-using KLogMonitor;
+using Phx.Lib.Appconfig.Types;
+using Phx.Lib.Log;
 using Synchronizer;
 
 namespace IngestTransformationHandler.Managers

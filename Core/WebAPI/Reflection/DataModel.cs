@@ -1,4 +1,21 @@
 // NOTICE: This is a generated file, to modify it, edit Program.cs in Reflector project
+// disable compiler warning due to generation of empty usages ot unused vars
+// ReSharper disable RedundantUsingDirective
+// ReSharper disable CheckNamespace
+// ReSharper disable NotAccessedVariable
+// ReSharper disable UnusedVariable
+// ReSharper disable RedundantAssignment
+// ReSharper disable PossibleMultipleEnumeration
+// ReSharper disable UnusedParameter.Local
+// ReSharper disable PossibleNullReferenceException
+// ReSharper disable AssignNullToNotNullAttribute
+// ReSharper disable BadChildStatementIndent
+// ReSharper disable StringLiteralTypo
+// ReSharper disable RedundantArgumentDefaultValue
+// ReSharper disable ExpressionIsAlwaysNull
+#pragma warning disable 168
+#pragma warning disable 1522
+#pragma warning disable 612
 using System;
 using System.Net;
 using System.Collections.Generic;

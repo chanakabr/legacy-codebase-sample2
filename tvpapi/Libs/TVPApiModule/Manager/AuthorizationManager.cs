@@ -1,6 +1,6 @@
 ﻿using ApiObjects;
 using Core.Users;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -15,7 +15,7 @@ using TVPApiModule.Services;
 using TVPPro.SiteManager.Helper;
 using Domain = Core.Users.Domain;
 using TVinciShared;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace TVPApiModule.Manager
 {

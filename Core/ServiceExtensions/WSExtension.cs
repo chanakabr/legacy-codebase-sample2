@@ -2,7 +2,7 @@
 using System;
 using System.Web.Services.Protocols;
 using System.Threading;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 
 namespace ServiceExtensions

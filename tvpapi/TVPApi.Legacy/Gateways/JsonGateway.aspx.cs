@@ -13,6 +13,7 @@ using KLogMonitor;
 using ApiObjects;
 using InitializationObject = TVPApi.InitializationObject;
 using TVPApi.Common;
+using Phx.Lib.Log;
 
 public partial class Gateways_JsonGateway : BaseGateway
 {

@@ -1,5 +1,5 @@
 ﻿using ApiObjects.SearchObjects;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using System;
 using System.Collections.Generic;
 using System.Data;

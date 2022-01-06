@@ -7,7 +7,7 @@ using TVPPro.SiteManager.Services;
 using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPApiModule.Objects.Responses;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using ApiObjects;
 using TVPApiModule.Manager;
@@ -38,7 +38,7 @@ namespace TVPApiModule.Services
             GroupOperator[] response = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     response = Core.Api.Module.GetGroupOperators(m_groupID, scope);
                 }
@@ -58,7 +58,7 @@ namespace TVPApiModule.Services
             {
                 List<GroupOperator> operators = null;
 
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     operators = Core.Api.Module.GetOperator(m_groupID, operatorIds == null ? null : operatorIds.ToList());
                 }
@@ -93,7 +93,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     mediaMark = Core.Api.Module.GetMediaMark(m_groupID, iMediaID, sSiteGuid);
                 }
@@ -111,7 +111,7 @@ namespace TVPApiModule.Services
             bool bRet = false;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     bRet = Core.Api.Module.AddUserSocialAction(m_groupID, iMediaID, sSiteGuid, Action, socialPlatform);
                 }
@@ -129,7 +129,7 @@ namespace TVPApiModule.Services
             RateMediaObject res = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     res = Core.Api.Module.RateMedia(m_groupID, mediaId, siteGuid, rating);
                 }
@@ -147,7 +147,7 @@ namespace TVPApiModule.Services
             string geo = string.Empty;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     geo = Core.Api.Module.CheckGeoBlockMedia(m_groupID, iMediaID, UserIP);
                 }
@@ -164,7 +164,7 @@ namespace TVPApiModule.Services
             EPGChannelObject[] objEPGRes = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var temp = Core.Api.Module.GetEPGChannel(m_groupID, sPicSize);
 
@@ -226,7 +226,7 @@ namespace TVPApiModule.Services
             GroupRule[] res = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var temp = Core.Api.Module.GetGroupMediaRules(m_groupID, MediaId, siteGuid, SiteHelper.GetClientIP(), udid);
                     res = temp == null ? null : temp.ToArray();
@@ -244,7 +244,7 @@ namespace TVPApiModule.Services
             GroupRule[] res = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var temp = Core.Api.Module.GetGroupRules(m_groupID);
                     res = temp == null ? null : temp.ToArray();
@@ -262,7 +262,7 @@ namespace TVPApiModule.Services
             GroupRule[] res = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var temp = Core.Api.Module.GetUserGroupRules(m_groupID, siteGuid);
                     res = temp == null ? null : temp.ToArray();
@@ -280,7 +280,7 @@ namespace TVPApiModule.Services
             bool res = false;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     res = Core.Api.Module.SetUserGroupRule(m_groupID, siteGuid, ruleID, PIN, isActive);
                 }
@@ -297,7 +297,7 @@ namespace TVPApiModule.Services
             bool res = false;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     res = Core.Api.Module.CheckParentalPIN(m_groupID, siteGuid, ruleID, PIN);
                 }
@@ -314,7 +314,7 @@ namespace TVPApiModule.Services
             string[] res = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var temp = Core.Api.Module.GetAutoCompleteList(m_groupID, new RequestObj()
                     {
@@ -345,7 +345,7 @@ namespace TVPApiModule.Services
             bool res = false;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     res = Core.Api.Module.SetRuleState(m_groupID, domainID, siteGuid, ruleID, isActive);
                 }
@@ -363,7 +363,7 @@ namespace TVPApiModule.Services
             GroupRule[] res = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var temp = Core.Api.Module.GetDomainGroupRules(m_groupID, domainID);
                     res = temp == null ? null : temp.ToArray();
@@ -381,7 +381,7 @@ namespace TVPApiModule.Services
             bool res = false;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     res = Core.Api.Module.SetDomainGroupRule(m_groupID, domainID, ruleID, PIN, isActive);
                 }
@@ -399,7 +399,7 @@ namespace TVPApiModule.Services
             GroupRule[] res = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var temp= Core.Api.Module.GetEPGProgramRules(m_groupID, MediaId, programId, siteGuid, IP, udid);
                     res = temp == null ? null : temp.ToArray();
@@ -417,7 +417,7 @@ namespace TVPApiModule.Services
             string[] res = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     res = Core.Api.Module.GetUserStartedWatchingMedias(m_groupID, siteGuid, numOfItems);
                 }
@@ -434,7 +434,7 @@ namespace TVPApiModule.Services
             bool res = false;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var status = Core.Api.Module.CleanUserHistory(m_groupID, siteGuid, mediaIDs == null ? null : mediaIDs.ToList());
                     if (status != null && status.Code == 0)
@@ -459,7 +459,7 @@ namespace TVPApiModule.Services
             bool res = false;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     res = Core.Api.Module.SendToFriend(m_groupID, senderName, senderMail, mailTo, nameTo, mediaID);
                 }
@@ -478,7 +478,7 @@ namespace TVPApiModule.Services
             try
             {
                 var regionsResult = new ApiObjects.RegionsResponse();
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     regionsResult = Core.Api.Module.GetRegions(m_groupID, externalRegionIds == null ? null : externalRegionIds.ToList(), RegionOrderBy.CreateDateAsc);
                 }
@@ -511,7 +511,7 @@ namespace TVPApiModule.Services
             AdminAccountUserResponse result = new AdminAccountUserResponse();
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     result = Core.Api.Module.AdminSignIn(m_groupID, username, password);
                 }
@@ -540,7 +540,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var webServiceResponse = Core.Api.Module.GetParentalRules(m_groupID);
                     response = new Objects.Responses.ParentalRulesResponse(webServiceResponse);
@@ -561,7 +561,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var webServiceResponse = Core.Api.Module.GetDomainParentalRules(m_groupID, domainId);
                     response = new Objects.Responses.ParentalRulesResponse(webServiceResponse);
@@ -582,7 +582,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var webServiceResponse = Core.Api.Module.GetUserParentalRules(m_groupID, siteGuid, domainId);
                     response = new Objects.Responses.ParentalRulesResponse(webServiceResponse);
@@ -605,7 +605,7 @@ namespace TVPApiModule.Services
             {
                 if (!string.IsNullOrEmpty(siteGuid))
                 {
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                     {
                         var webServiceRespone = Core.Api.Module.SetUserParentalRules(m_groupID, siteGuid, ruleId, isActive, domainID);
                         status.Code = webServiceRespone.Code;
@@ -614,7 +614,7 @@ namespace TVPApiModule.Services
                 }
                 else
                 {
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                     {
                         var webServiceRespone = Core.Api.Module.SetDomainParentalRules(m_groupID, domainID, ruleId, isActive);
                         status.Code = webServiceRespone.Code;
@@ -637,7 +637,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var webServiceResponse = Core.Api.Module.GetParentalPIN(m_groupID, domainId, siteGuid, ruleId);
                     response = new Objects.Responses.PinResponse(webServiceResponse);
@@ -658,7 +658,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var webServiceRespone = Core.Api.Module.SetParentalPIN(m_groupID, domainID, siteGuid, pin, ruleId);
                     status.Code = webServiceRespone.Code;
@@ -680,7 +680,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var webServiceResponse = Core.Api.Module.GetPurchaseSettings(m_groupID, domainId, siteGuid);
                     response = new Objects.Responses.PurchaseSettingsResponse(webServiceResponse);
@@ -701,7 +701,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var webServiceRespone = Core.Api.Module.SetPurchaseSettings(m_groupID, domainId, siteGuid, setting);
                     status.Code = webServiceRespone.Code;
@@ -723,7 +723,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var webServiceResponse = Core.Api.Module.GetPurchasePIN(m_groupID, domainId, siteGuid);
                     response = new Objects.Responses.PurchaseSettingsResponse(webServiceResponse);
@@ -744,7 +744,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var webServiceRespone = Core.Api.Module.SetPurchasePIN(m_groupID, domainId, siteGuid, pin);
                     status.Code = webServiceRespone.Code;
@@ -766,7 +766,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var webServiceRespone = Core.Api.Module.ValidateParentalPIN(m_groupID, siteGuid, pin, domainId, ruleId);
                     status.Code = webServiceRespone.Code;
@@ -788,7 +788,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var webServiceRespone = Core.Api.Module.ValidatePurchasePIN(m_groupID, siteGuid, pin, domainId);
                     status.Code = webServiceRespone.Code;
@@ -810,7 +810,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var webServiceResponse = Core.Api.Module.GetParentalMediaRules(m_groupID, siteGuid, mediaId, domainId);
                     response = new Objects.Responses.ParentalRulesResponse(webServiceResponse);
@@ -831,7 +831,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var webServiceResponse = Core.Api.Module.GetParentalEPGRules(m_groupID, siteGuid, epgId, domainId);
                     response = new Objects.Responses.ParentalRulesResponse(webServiceResponse);
@@ -854,7 +854,7 @@ namespace TVPApiModule.Services
             {
                 if (!string.IsNullOrEmpty(siteGuid))
                 {
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                     {
                         var webServiceRespone = Core.Api.Module.DisableUserDefaultParentalRule(m_groupID, siteGuid, domainId);
                         status.Code = webServiceRespone.Code;
@@ -863,7 +863,7 @@ namespace TVPApiModule.Services
                 }
                 else
                 {
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                     {
                         var webServiceRespone = Core.Api.Module.DisableDomainDefaultParentalRule(m_groupID, domainId);
                         status.Code = webServiceRespone.Code;
@@ -886,7 +886,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var webServiceResponse = Core.Api.Module.GetMediaRules(m_groupID, siteGuid, mediaId, domainId, ip, udid, GenericRuleOrderBy.NameAsc);
                     response = new Objects.Responses.GenericRulesResponse(webServiceResponse);
@@ -907,7 +907,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var webServiceResponse = Core.Api.Module.GetEpgRules(m_groupID, siteGuid, epgId, channelMediaId, domainId, ip, GenericRuleOrderBy.NameAsc);
                     response = new Objects.Responses.GenericRulesResponse(webServiceResponse);

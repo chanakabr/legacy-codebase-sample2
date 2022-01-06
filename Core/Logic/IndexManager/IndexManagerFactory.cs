@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using System.Threading;
 using ApiLogic.Catalog.IndexManager;
 using CachingProvider.LayeredCache;
 using CanaryDeploymentManager;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Catalog.Cache;
 using EventBus.Kafka;
 using ElasticSearch.Common;

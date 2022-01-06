@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reflection;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Polly;
 
 namespace EpgNotificationHandler.EpgCache

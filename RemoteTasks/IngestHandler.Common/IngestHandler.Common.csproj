@@ -5,16 +5,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Polly" Version="7.1.0" />
+    <PackageReference Include="Polly" Version="7.2.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj" />
-    <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj" />
     <ProjectReference Include="..\..\Core\DalCB\DalCB.csproj" />
     <ProjectReference Include="..\..\Core\ElasticSearch\ElasticSearch.csproj" />
     <ProjectReference Include="..\..\Core\GroupsCacheManager\GroupsCacheManager.csproj" />
-    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />
   </ItemGroup>
 

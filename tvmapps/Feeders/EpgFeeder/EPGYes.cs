@@ -9,9 +9,9 @@ using System.Net;
 using ApiObjects;
 using System.Configuration;
 using System.Web;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace EpgFeeder
 {

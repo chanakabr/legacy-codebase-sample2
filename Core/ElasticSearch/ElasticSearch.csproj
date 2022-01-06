@@ -15,16 +15,12 @@
   
   <ItemGroup>
     <PackageReference Include="NEST" Version="7.13.2" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Microsoft.CSharp" Version="4.6.0" />
   </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\ApiObjects\ApiObjects.csproj" />
-    <ProjectReference Include="..\TCMClient\TCMClient.csproj" />
     <ProjectReference Include="..\GroupsCacheManager\GroupsCacheManager.csproj" />
-    <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj" />
-    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\TVinciShared\TVinciShared.csproj" />
   </ItemGroup>
   

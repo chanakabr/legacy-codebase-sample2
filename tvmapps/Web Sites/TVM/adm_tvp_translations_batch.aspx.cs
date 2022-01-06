@@ -9,7 +9,7 @@ using System.Data;
 using System.Text;
 using System.IO;
 using System.Data.OleDb;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 
 public partial class adm_tvp_translations_batch : System.Web.UI.Page

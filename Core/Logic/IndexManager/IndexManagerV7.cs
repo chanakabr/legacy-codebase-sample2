@@ -11,10 +11,10 @@ using Nest;
 using Newtonsoft.Json.Linq;
 using Polly.Retry;
 using ESUtils = ElasticSearch.Common.Utils;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Status = ApiObjects.Response.Status;
 using System.Linq;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using System.Threading.Tasks;
 using Core.Catalog.CatalogManagement;
@@ -30,7 +30,7 @@ using Elasticsearch.Net;
 using ElasticSearch.Utilities;
 using Newtonsoft.Json;
 using Polly;
-using KlogMonitorHelper;
+
 using Policy = Polly.Policy;
 using System.Net;
 using System.Net.Sockets;
@@ -2099,7 +2099,7 @@ namespace Core.Catalog
 
                 try
                 {
-                    ContextData contextData = new ContextData();
+                    LogContextData contextData = new LogContextData();
                     // Create a task for the search and merge of partial aggregations
                     Task task = Task.Run(() =>
                     {
@@ -4236,7 +4236,7 @@ namespace Core.Catalog
             {
                 var maxDegreeOfParallelism = GetMaxDegreeOfParallelism();
                 var options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
-                var contextData = new ContextData();
+                var contextData = new LogContextData();
                 ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount;
 
                 HashSet<string> metasToPad = GetMetasToPad();
@@ -4403,7 +4403,7 @@ namespace Core.Catalog
         {
             var bulkList = new List<NestEsBulkRequest<NestChannelMetadata>>();
             var sizeOfBulk = GetBulkSize(50);
-            var cd = new ContextData();
+            var cd = new LogContextData();
             var channelMetadatas = allChannels.Select(x => NestDataCreator.GetChannelMetadata(x));
             foreach (var channelMetadata in channelMetadatas)
             {
@@ -4669,7 +4669,7 @@ namespace Core.Catalog
 
                 var maxDegreeOfParallelism = GetMaxDegreeOfParallelism();
                 var options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
-                var contextData = new ContextData();
+                var contextData = new LogContextData();
                 ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount;
                 // Send request to elastic search in a different thread
                 Parallel.ForEach(bulkRequests, options, (bulkRequest, state) =>

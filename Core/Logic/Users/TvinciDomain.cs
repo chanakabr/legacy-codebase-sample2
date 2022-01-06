@@ -1,8 +1,8 @@
 ﻿using CachingProvider.LayeredCache;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Users.Cache;
 using DAL;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Reflection;
 using System.Text;

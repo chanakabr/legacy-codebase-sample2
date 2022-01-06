@@ -7,9 +7,9 @@ using System.Threading;
 using ApiObjects;
 using ApiObjects.Notification;
 using CouchbaseManager;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Newtonsoft.Json;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace DAL
 {

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Core.Metrics;
 using Core.Middleware;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -21,7 +21,7 @@ namespace IngetsNetCore
             
             var apiVersion = System.Configuration.ConfigurationManager.AppSettings.Get("apiVersion");
             var defaultLogDir = $@"/var/log/ws-ingest/{apiVersion}";
-            ConfigurationManager.ApplicationConfiguration.Init();
+            Phx.Lib.Appconfig.ApplicationConfiguration.Init();
 
             await KalturaWebHostBuilder.RunWebServerAsync<Startup>(new WebServerConfiguration
             {

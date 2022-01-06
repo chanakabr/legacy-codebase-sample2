@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using CachingProvider;
 using CouchbaseManager;
-using KLogMonitor;
+using Phx.Lib.Log;
 
 namespace Synchronizer
 {

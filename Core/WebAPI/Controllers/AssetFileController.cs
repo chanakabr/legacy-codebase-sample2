@@ -1,6 +1,6 @@
 ﻿using ApiObjects.Response;
-using ConfigurationManager;
-using KLogMonitor;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
 using System;
 using System.Net;
 using System.Reflection;

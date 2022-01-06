@@ -14,7 +14,7 @@ using Core.Catalog.CatalogManagement.Services;
 using Core.GroupManagers;
 using ElasticSearch.Common;
 using IngestHandler.Common;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Polly;
 using Polly.Retry;
 using TVinciShared;

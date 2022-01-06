@@ -2,11 +2,11 @@
 using ApiObjects;
 using ApiObjects.Notification;
 using ApiObjects.Response;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Notification.Adapters;
 using Core.Pricing;
 using DAL;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Data;

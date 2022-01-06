@@ -2,8 +2,8 @@ using System;
 using System.Reflection;
 using System.Web;
 using CachingProvider.LayeredCache;
-using ConfigurationManager;
-using KLogMonitor;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
 
 namespace ODBCWrapper
 {

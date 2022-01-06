@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Core\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\Core\Logic\ApiLogic.csproj" />
   </ItemGroup>
 

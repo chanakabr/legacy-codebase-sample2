@@ -11,13 +11,13 @@ using System.Text;
 using System.Security.Cryptography;
 using System.Collections.Specialized;
 using ApiObjects;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using Core.Users;
 using Core.Billing;
 using ApiObjects.Social;
 using ApiObjects.Billing;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace WS_Social
 {

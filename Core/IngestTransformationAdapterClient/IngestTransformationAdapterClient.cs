@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using RestAdaptersCommon;
 using Newtonsoft.Json;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using AdapterClients.IngestTransformation.Models;
 using ApiObjects;

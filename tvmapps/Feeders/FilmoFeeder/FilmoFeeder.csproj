@@ -1,20 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.21022</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{DA261890-8871-4FF7-AD5E-8AAB713A05E9}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FilmoFeeder</RootNamespace>
-    <AssemblyName>FilmoFeeder</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFramework>net48</TargetFramework>
+    <FileUpgradeFlags />
     <UpgradeBackupLocation />
     <PublishUrl>http://localhost/FilmoFeeder/</PublishUrl>
     <Install>true</Install>
@@ -31,98 +20,29 @@
     <IsWebBootstrapper>true</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkProfile />
+    <AssemblyTitle>FilmoFeeder</AssemblyTitle>
+    <Product>FilmoFeeder</Product>
+    <Copyright>Copyright ©  2010</Copyright>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Local|AnyCPU'">
-    <OutputPath>bin\Local\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <Reference Include="System.Data.DataSetExtensions" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Feeder.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <ProjectReference Include="..\..\..\Core\ODBCWrapper\ODBCWrapper.csproj" />
+    <ProjectReference Include="..\..\..\Core\ScheduledTasks\ScheduledTasks.csproj" />
+    <ProjectReference Include="..\..\..\Core\TVinciShared\TVinciShared.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
-      <Visible>False</Visible>
-      <ProductName>Windows Installer 3.1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\Core\KLogMonitor\KLogMonitor.csproj">
-      <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
-      <Name>KLogMonitor</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Core\ODBCWrapper\ODBCWrapper.csproj">
-      <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
-      <Name>ODBCWrapper</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Core\ScheduledTasks\ScheduledTasks.csproj">
-      <Project>{4eb719ed-06b1-4c05-a7ca-269d802105ea}</Project>
-      <Name>ScheduledTasks</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Core\TVinciShared\TVinciShared.csproj">
-      <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
-      <Name>TVinciShared</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

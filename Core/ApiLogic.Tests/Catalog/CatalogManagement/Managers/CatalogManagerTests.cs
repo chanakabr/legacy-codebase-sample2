@@ -11,7 +11,7 @@ using Core.GroupManagers;
 using DAL;
 using FluentAssertions;
 using GroupsCacheManager;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Moq;
 using NUnit.Framework;
 

@@ -8,7 +8,7 @@ using ApiObjects.Response;
 using Core.Catalog;
 using EventBus.Abstraction;
 using FluentAssertions;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Moq;
 using NUnit.Framework;
 

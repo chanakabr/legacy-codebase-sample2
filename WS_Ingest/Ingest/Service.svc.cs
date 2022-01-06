@@ -4,7 +4,7 @@ using Core.Catalog;
 using Ingest.Clients.ClientManager;
 using Ingest.Importers;
 using Ingest.Models;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using System.ServiceModel;
 

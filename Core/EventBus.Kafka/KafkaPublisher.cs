@@ -1,15 +1,18 @@
-﻿using ConfigurationManager;
+﻿using Phx.Lib.Appconfig;
 using Confluent.Kafka;
 using Confluent.Kafka.Admin;
 using Couchbase.N1QL;
 using EventBus.Abstraction;
-using KLogMonitor;
+using Phx.Lib.Log;
+using Phx.Lib.Appconfig;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Phx.Lib.Appconfig.Types;
+
 
 namespace EventBus.Kafka
 {

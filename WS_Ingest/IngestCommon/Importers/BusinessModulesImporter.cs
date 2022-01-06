@@ -2,7 +2,7 @@
 using ApiObjects.IngestBusinessModules;
 using Ingest.Clients.ClientManager;
 using Ingest.Models;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -55,7 +55,7 @@ namespace Ingest.Importers
             }
             else
             {
-                path = TCMClient.Settings.Instance.GetValue<string>("business_modules_report_log_path");
+                path = Phx.Lib.Appconfig.TCMClient.Settings.Instance.GetValue<string>("business_modules_report_log_path");
             }
 
             return path;
@@ -114,7 +114,7 @@ namespace Ingest.Importers
                 Task[] tasks = new Task[multiPricePlans.Count];
 
                 // create context for logs
-                KlogMonitorHelper.ContextData ctx = new KlogMonitorHelper.ContextData();
+                var ctx = new LogContextData();
 
                 // start tasks            
                 for (int i = 0; i < multiPricePlans.Count; i++)
@@ -141,7 +141,7 @@ namespace Ingest.Importers
                 Task[] tasks = new Task[pricePlans.Count];
 
                 // create context for logs
-                KlogMonitorHelper.ContextData ctx = new KlogMonitorHelper.ContextData();
+                var ctx = new LogContextData();
 
                 // start tasks
                 for (int i = 0; i < pricePlans.Count; i++)
@@ -168,7 +168,7 @@ namespace Ingest.Importers
                 Task[] tasks = new Task[ppvs.Count];
 
                 // create context for logs
-                KlogMonitorHelper.ContextData ctx = new KlogMonitorHelper.ContextData();
+                var ctx = new LogContextData();
 
                 // start tasks
                 for (int i = 0; i < ppvs.Count; i++)

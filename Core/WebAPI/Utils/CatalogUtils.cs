@@ -6,7 +6,7 @@ using Core.Catalog;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using ElasticSearch.Searcher;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;

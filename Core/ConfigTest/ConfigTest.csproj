@@ -14,13 +14,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj" />
-    <ProjectReference Include="..\..\Core\TCMClient\TCMClient.csproj" />
+    <PackageReference Include="Phx.Lib.Appconfig" Version="1.2.0" />
   </ItemGroup>
 
 </Project>

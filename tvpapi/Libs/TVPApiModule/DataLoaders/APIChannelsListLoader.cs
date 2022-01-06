@@ -11,7 +11,7 @@ using TVPApiModule.CatalogLoaders;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.Manager;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace TVPApi
 {

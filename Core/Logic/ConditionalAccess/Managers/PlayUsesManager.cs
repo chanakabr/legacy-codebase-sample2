@@ -1,11 +1,11 @@
 ﻿using ApiObjects;
 using ApiObjects.Catalog;
 using CachingProvider.LayeredCache;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Pricing;
 using DAL;
-using KLogMonitor;
-using KlogMonitorHelper;
+using Phx.Lib.Log;
+
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -47,7 +47,7 @@ namespace Core.ConditionalAccess
                                 itemPriceContainer.m_oPrice.m_oCurrency.m_sCurrencyCD3, mediaFileId, couponCode, ip, countryCode, languageCode, udid, false, 0, releventCollectionID, domainId);
             Int32 nRelPP = ExtractRelevantPrePaidID(itemPriceContainer);
             List<Task> tasks = new List<Task>();
-            ContextData contextData = new ContextData();
+            LogContextData contextData = new LogContextData();
             if (IsPurchasedAsPurePPV(itemPriceContainer))
             {
                 HandlePpvPlayUses(userId, mediaFileId, countryCode, languageCode, udid, domainId, groupId, itemPriceContainer, mediaId, releventCollectionID, 
@@ -75,7 +75,7 @@ namespace Core.ConditionalAccess
 
         private static void HandlePpvPlayUses(string userId, Int32 mediaFileId, string countryCode, string languageCode, string udid, 
             long domainId, int groupId, ItemPriceContainer itemPriceContainer, int mediaId, int releventCollectionID, Int32 nRelPP, 
-            List<Task> tasks, ContextData contextData, bool isLive)
+            List<Task> tasks, LogContextData contextData, bool isLive)
         {
             string sPPVMCd = itemPriceContainer.m_sPPVModuleCode;
 
@@ -129,7 +129,7 @@ namespace Core.ConditionalAccess
         }
 
         private static void HandleSubscriptionPlayUses(string userId, Int32 mediaFileId, string countryCode, string languageCode, string udid, long domainId, int groupId, 
-            ItemPriceContainer itemPriceContainer, int mediaId, int releventCollectionID, Int32 nRelPP, List<Task> tasks, ContextData contextData, bool isLive)
+            ItemPriceContainer itemPriceContainer, int mediaId, int releventCollectionID, Int32 nRelPP, List<Task> tasks, LogContextData contextData, bool isLive)
         {
             int numOfUses = 0;
             bool setPurchaseInvalidationKey = false;
@@ -233,7 +233,7 @@ namespace Core.ConditionalAccess
         }
 
         private static void HandleCollectionPlayUses(string userId, Int32 mediaFileId, string countryCode, string languageCode, string udid, long domainId, int groupId, 
-            ItemPriceContainer itemPriceContainer, int mediaId, int releventCollectionID, Int32 nRelPP, List<Task> tasks, ContextData contextData, bool isLive)
+            ItemPriceContainer itemPriceContainer, int mediaId, int releventCollectionID, Int32 nRelPP, List<Task> tasks, LogContextData contextData, bool isLive)
         {
             int numOfUses = 0;
             bool setPurchaseInvalidationKey = false;

@@ -11,7 +11,7 @@ using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Xml.Linq;
-using KLogMonitor;
+using Phx.Lib.Log;
 using TVinciShared;
 
 public partial class adm_bs_bug_close : System.Web.UI.Page

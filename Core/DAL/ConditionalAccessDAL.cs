@@ -1,8 +1,8 @@
 ﻿using ApiObjects;
 using ApiObjects.ConditionalAccess;
 using ApiObjects.SubscriptionSet;
-using ConfigurationManager;
-using KLogMonitor;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
 using ODBCWrapper;
 using System;
 using System.Collections.Generic;

@@ -2,14 +2,14 @@
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
 using Catalog.Response;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Catalog.Cache;
 using Core.Catalog.Response;
 using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 using GroupsCacheManager;
-using KLogMonitor;
-using KlogMonitorHelper;
+using Phx.Lib.Log;
+
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
@@ -3072,7 +3072,7 @@ namespace Core.Catalog
 
                 try
                 {
-                    ContextData contextData = new ContextData();
+                    LogContextData contextData = new LogContextData();
                     // Create a task for the search and merge of partial aggregations
                     Task task = Task.Run(() =>
                     {
@@ -5458,14 +5458,14 @@ namespace Core.Catalog
                     }
 
                     var options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
-                    var contextData = new ContextData();
+                    var LogContextData = new LogContextData();
                     ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount;
 
                     var failedBulkRequests = new System.Collections.Concurrent.ConcurrentBag<List<ESBulkRequestObj<int>>>();
                     // Send request to elastic search in a different thread
                     Parallel.ForEach(bulkRequests, options, (bulkRequest, state) =>
                     {
-                        contextData.Load();
+                        LogContextData.Load();
                         List<ESBulkRequestObj<int>> invalidResults;
                         bool bulkResult = _elasticSearchApi.CreateBulkRequests(bulkRequest.Value, out invalidResults);
 
@@ -5731,7 +5731,7 @@ namespace Core.Catalog
 
         private void CleanupChannelsPercolators(List<string> previousChannelIds, HashSet<string> channelsToRemove, HashSet<int> channelIds)
         {
-            ContextData cd = new ContextData();
+            LogContextData cd = new LogContextData();
             string indexName = $"{_partnerId}";
 
             // remove old deleted channels
@@ -5818,7 +5818,7 @@ namespace Core.Catalog
         {
             List<ESBulkRequestObj<string>> bulkList = new List<ESBulkRequestObj<string>>();
             int sizeOfBulk = SIZE_OF_BULK;
-            ContextData cd = new ContextData();
+            LogContextData cd = new LogContextData();
 
             // Default for size of bulk should be 50, if not stated otherwise in TCM
             if (sizeOfBulk == 0)
@@ -6107,7 +6107,7 @@ namespace Core.Catalog
 
         public void InsertTagsToIndex(string newIndexName, List<ApiObjects.SearchObjects.TagValue> allTagValues)
         {
-            ContextData cd = new ContextData();
+            LogContextData cd = new LogContextData();
             int sizeOfBulk = TVinciShared.WS_Utils.GetTcmIntValue("ES_BULK_SIZE");
 
             // Default for size of bulk should be 50, if not stated otherwise in TCM
@@ -6394,7 +6394,7 @@ namespace Core.Catalog
                 }
 
                 ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
-                ContextData contextData = new ContextData();
+                LogContextData contextData = new LogContextData();
                 System.Net.ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount;
                 System.Collections.Concurrent.ConcurrentBag<List<ESBulkRequestObj<ulong>>> failedBulkRequests = new System.Collections.Concurrent.ConcurrentBag<List<ESBulkRequestObj<ulong>>>();
                 // Send request to elastic search in a different thread

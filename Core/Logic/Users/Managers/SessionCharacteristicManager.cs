@@ -6,7 +6,7 @@ using ApiObjects.Response;
 using ApiObjects.User.SessionProfile;
 using CachingProvider.LayeredCache;
 using CouchbaseManager;
-using KLogMonitor;
+using Phx.Lib.Log;
 using TVinciShared;
 
 namespace ApiLogic.Users.Managers

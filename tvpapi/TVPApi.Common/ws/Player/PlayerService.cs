@@ -12,7 +12,7 @@ using TVPApiModule.Services;
 using System.ServiceModel;
 using TVPPro.Configuration.Technical;
 using TVPApiModule.Interfaces;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using ApiObjects;
 using InitializationObject = TVPApi.InitializationObject;

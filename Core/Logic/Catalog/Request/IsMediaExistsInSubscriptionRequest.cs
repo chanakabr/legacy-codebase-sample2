@@ -10,8 +10,8 @@ using ApiObjects.SearchObjects;
 using Core.Catalog.Cache;
 using Core.Catalog.Response;
 using GroupsCacheManager;
-using KLogMonitor;
-using KlogMonitorHelper;
+using Phx.Lib.Log;
+
 using TVinciShared;
 using ApiObjects.Catalog;
 

@@ -1,4 +1,4 @@
-﻿using ConfigurationManager;
+﻿using Phx.Lib.Appconfig;
 using GroupsCacheManager;
 using System;
 using System.Collections.Generic;

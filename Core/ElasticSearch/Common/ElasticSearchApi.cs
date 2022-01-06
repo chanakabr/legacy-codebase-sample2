@@ -6,9 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using ElasticSearch.Searcher;
 using System.Net.Http;
 using TVinciShared;
@@ -1431,7 +1431,7 @@ namespace ElasticSearch.Common
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_ELASTIC, null, null, null, null)
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_ELASTIC, null, null, null, null)
                 {
                     Database = url,
                     Table = requestGuid
@@ -1489,7 +1489,7 @@ namespace ElasticSearch.Common
             try
             {
 
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_ELASTIC, null, null, null, null)
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_ELASTIC, null, null, null, null)
                 {
                     Database = url,
                     Table = requestGuid
@@ -1530,7 +1530,7 @@ namespace ElasticSearch.Common
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_ELASTIC, null, null, null, null)
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_ELASTIC, null, null, null, null)
                 {
                     Database = url,
                     Table = requestGuid
@@ -1565,7 +1565,7 @@ namespace ElasticSearch.Common
                     if (errorStream != null) errorStream.Close();
                 }
 
-                log.Critical($"ElasticSearch API post request error: guid = {requestGuid}, url = {url}, parameters = " +
+                log.Error($"ElasticSearch API post request error: guid = {requestGuid}, url = {url}, parameters = " +
                     $"{parameters}, body length = {parameters.Length}, response = {result}\nex = {ex}");
             }
             catch (Exception ex)

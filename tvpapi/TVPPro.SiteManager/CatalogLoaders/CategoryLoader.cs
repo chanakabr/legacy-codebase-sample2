@@ -8,7 +8,7 @@ using Core.Catalog.Request;
 using Core.Catalog.Response;
 using TVPPro.SiteManager.Manager;
 using TVPPro.SiteManager.DataEntities;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 
 namespace TVPPro.SiteManager.CatalogLoaders

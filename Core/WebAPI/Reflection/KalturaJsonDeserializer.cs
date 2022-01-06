@@ -1,4 +1,14 @@
 // NOTICE: This is a generated file, to modify it, edit Program.cs in Reflector project
+// disable compiler warning due to generation of empty usages ot unused vars
+// ReSharper disable CheckNamespace
+// ReSharper disable NotAccessedVariable
+// ReSharper disable UnusedVariable
+// ReSharper disable RedundantAssignment
+// ReSharper disable PossibleMultipleEnumeration
+// ReSharper disable UnusedParameter.Local
+// ReSharper disable PossibleNullReferenceException
+// ReSharper disable AssignNullToNotNullAttribute
+// ReSharper disable BadChildStatementIndent
 using Newtonsoft.Json.Linq;
 using System;
 using System.Web;

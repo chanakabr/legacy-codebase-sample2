@@ -22,7 +22,6 @@
     <PackageReference Include="AutoMapper" Version="7.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="2.2.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
     <Reference Include="System.Web.Services" />
@@ -36,13 +35,12 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.WebApiCompatShim" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.ApiExplorer" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
-    <ProjectReference Include="..\..\Core\StaticHttpContextForNetCore\StaticHttpContextForNetCore.csproj" />
   </ItemGroup>
+  
   <ItemGroup>
+    <!--<ProjectReference Include="..\..\..\libs\phx-lib-rest\Phx.Lib.REST\Phx.Lib.REST.csproj" />-->
     <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj" />
-    <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj" />
     <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />
-    <ProjectReference Include="..\..\Core\TCMClient\TCMClient.csproj" />
     <ProjectReference Include="..\..\Core\CachingManager\CachingManager.csproj" />
     <ProjectReference Include="..\..\Core\CachingProvider\CachingProvider.csproj" />
     <ProjectReference Include="..\..\Core\CouchbaseManager\CouchbaseManager.csproj" />
@@ -50,8 +48,6 @@
     <ProjectReference Include="..\..\Core\EventManager\EventManager.csproj" />
     <ProjectReference Include="..\..\Core\GoogleAPI\GoogleAPI.csproj" />
     <ProjectReference Include="..\..\Core\GroupsCacheManager\GroupsCacheManager.csproj" />
-    <ProjectReference Include="..\..\Core\KlogMonitorHelper\KlogMonitorHelper.csproj" />
-    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\..\Core\M1BL\M1BL.csproj" />
     <ProjectReference Include="..\..\Core\ODBCWrapper\ODBCWrapper.csproj" />
     <ProjectReference Include="..\..\Core\QueueWrapper\QueueWrapper.csproj" />

@@ -13,16 +13,11 @@
   <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
     <TargetFrameworks>netcoreapp3.1;net48</TargetFrameworks>
   </PropertyGroup>
-  
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-  </ItemGroup>
  
   
   <ItemGroup>
     <ProjectReference Include="..\ApiObjects\ApiObjects.csproj" />
     <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj" />
-    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj" />
   </ItemGroup>
   

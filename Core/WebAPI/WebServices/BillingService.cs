@@ -1,7 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Billing;
 using Core.Billing;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -37,7 +37,7 @@ namespace WebAPI.WebServices
         public string CC_GetUserCCDigits(string sWSUserName, string sWSPassword, string sSiteGUID)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.Billing.Utils.GetGroupID(sWSUserName, sWSPassword, "CC_GetUserCCDigits");
@@ -56,7 +56,7 @@ namespace WebAPI.WebServices
         public void CC_DeleteUserCCDigits(string sWSUserName, string sWSPassword, string sSiteGUID)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.Billing.Utils.GetGroupID(sWSUserName, sWSPassword, "CC_DeleteUserCCDigits");
@@ -123,7 +123,7 @@ namespace WebAPI.WebServices
         public AdyenBillingDetail GetLastBillingUserInfo(string sWSUserName, string sWSPassword, string sSiteGUID, int nBillingMethod)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.Billing.Utils.GetGroupID(sWSUserName, sWSPassword, "GetLastBillingUserInfo");
@@ -144,7 +144,7 @@ namespace WebAPI.WebServices
         public AdyenBillingDetail GetLastBillingTypeUserInfo(string sWSUserName, string sWSPassword, string sSiteGUID)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             Int32 nGroupID = Core.Billing.Utils.GetGroupID(sWSUserName, sWSPassword, "GetLastBillingTypeUserInfo");
             if (nGroupID != 0)
@@ -202,7 +202,7 @@ namespace WebAPI.WebServices
         public BillingResponse DD_ChargeUser(string sWSUserName, string sWSPassword, string sSiteGUID, double dChargePrice, string sCurrencyCode, string sUserIP, string sCustomData, Int32 nPaymentNumber, Int32 nNumberOfPayments, string sExtraParameters, int nBillingMethod)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.Billing.Utils.GetGroupID(sWSUserName, sWSPassword, "CC_ChargeUser");
@@ -224,7 +224,7 @@ namespace WebAPI.WebServices
         public InAppBillingResponse InApp_ChargeUser(string sWSUserName, string sWSPassword, string sSiteGUID, double dChargePrice, string sCurrencyCode, string sUserIP, string sCustomData, Int32 nPaymentNumber, Int32 nNumberOfPayments, string ReceiptData)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.Billing.Utils.GetGroupID(sWSUserName, sWSPassword, "InApp_ChargeUser");
@@ -245,7 +245,7 @@ namespace WebAPI.WebServices
         public InAppBillingResponse InApp_ReneweInAppPurchase(string sWSUserName, string sWSPassword, string sSiteGUID, double dChargePrice, string sCurrencyCode, string sCustomData, Int32 nPaymentNumber, Int32 nNumberOfPayments, int nInAppTransactionID)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.Billing.Utils.GetGroupID(sWSUserName, sWSPassword, "InApp_ChargeUser");
@@ -269,7 +269,7 @@ namespace WebAPI.WebServices
         public bool DD_RefundUser(string sWSUserName, string sWSPassword, string sPSPReference, string sSiteGuid, double dChargePrice, string sCurrencyCode, long lPurchaseID, int nType, int nHowManyCancelOrRefundAttemptsSoFarNotIncludingThisOne)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
 
 
             Int32 nGroupID = Core.Billing.Utils.GetGroupID(sWSUserName, sWSPassword, "CC_ChargeUser");
@@ -291,7 +291,7 @@ namespace WebAPI.WebServices
         public BillingResponse CC_DummyChargeUser(string sWSUserName, string sWSPassword, string sSiteGUID, double dChargePrice, string sCurrencyCode, string sUserIP, string sCustomData, Int32 nPaymentNumber, Int32 nNumberOfPayments, string sExtraParameters)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.Billing.Utils.GetGroupID(sWSUserName, sWSPassword, "CC_DummyChargeUser");
@@ -313,7 +313,7 @@ namespace WebAPI.WebServices
         public BillingResponse SMS_SendCode(string sWSUserName, string sWSPassword, string sSiteGUID, string sCellPhone, string sReferenceCode, string sExtraParameters)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.Billing.Utils.GetGroupID(sWSUserName, sWSPassword, "SMS_SendCode");
@@ -335,7 +335,7 @@ namespace WebAPI.WebServices
         public BillingResponse SMS_CheckCode(string sWSUserName, string sWSPassword, string sSiteGUID, string sCellPhone, string sSMSCode, string sReferenceCode)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.Billing.Utils.GetGroupID(sWSUserName, sWSPassword, "SMS_CheckCode");
@@ -356,7 +356,7 @@ namespace WebAPI.WebServices
         public bool SendPurchaseMail(string sWSUserName, string sWSPassword, string sSiteGUID, string sPaymentMethod, string sItemName, Int32 nBillingTransID, string stotalAmount, string scurrency, string sExternalNum)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.Billing.Utils.GetGroupID(sWSUserName, sWSPassword, "SendPurchaseMail");
@@ -379,7 +379,7 @@ namespace WebAPI.WebServices
         public BillingResponse Cellular_ChargeUser(string sWSUserName, string sWSPassword, string sSiteGUID, double dChargePrice, string sCurrencyCode, string sUserIP, string sCustomData, Int32 nPaymentNumber, Int32 nNumberOfPayments, string sExtraParameters)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.Billing.Utils.GetGroupID(sWSUserName, sWSPassword, "Cellular_ChargeUser");
@@ -619,7 +619,7 @@ namespace WebAPI.WebServices
         public ApiObjects.Response.Status SetHouseholdPaymentGateway(string sWSUserName, string sWSPassword, int paymentGwID, string siteGuid, int householdId)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
 
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
 
@@ -642,7 +642,7 @@ namespace WebAPI.WebServices
         public ApiObjects.Response.Status DeleteHouseholdPaymentGateway(string sWSUserName, string sWSPassword, int paymentGatewayId, string siteGuid, int householdId)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
 
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
 
@@ -665,7 +665,7 @@ namespace WebAPI.WebServices
         public PaymentGatewayListResponse GetHouseholdPaymentGateways(string sWSUserName, string sWSPassword, string siteGuid, int householdId)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
 
             PaymentGatewayListResponse response = new PaymentGatewayListResponse();
 
@@ -751,7 +751,7 @@ namespace WebAPI.WebServices
             string customData, int productID, eTransactionType productType, int contentID, string billingGuid, int paymentGWId, int paymentGatewayHHPaymentMethodId, string adapterData)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGUID != null ? siteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = siteGUID != null ? siteGUID : "null";
 
             TransactResult response = null;
 
@@ -852,7 +852,7 @@ namespace WebAPI.WebServices
             long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
 
             TransactResult response = new TransactResult();
 
@@ -880,7 +880,7 @@ namespace WebAPI.WebServices
             string customData, int productID, string productCode, eTransactionType productType, int contentID, string purchaseToken, string paymentGatewayType, string billingGuid)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGUID != null ? siteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = siteGUID != null ? siteGUID : "null";
 
             TransactResult response = null;
 
@@ -920,7 +920,7 @@ namespace WebAPI.WebServices
             string customData, int productId, string productCode, int paymentNumber, int numberOfPayments, string billingGuid, int gracePeriodMinutes)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGUID != null ? siteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = siteGUID != null ? siteGUID : "null";
 
             TransactResult response = null;
 
@@ -1206,7 +1206,7 @@ namespace WebAPI.WebServices
         public ApiObjects.Response.Status SetPaymentMethodHouseholdPaymentGateway(string sWSUserName, string sWSPassword, int paymentGatewayID, string siteGuid, int householdId, int paymentMethodId)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
 
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
 
@@ -1229,7 +1229,7 @@ namespace WebAPI.WebServices
         public ApiObjects.Response.Status RemovePaymentMethodHouseholdPaymentGateway(string sWSUserName, string sWSPassword, int paymentGatewayID, string siteGuid, int householdId, int paymentMethodId, bool force)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
 
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
 

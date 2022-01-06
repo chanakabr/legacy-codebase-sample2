@@ -1,4 +1,4 @@
-﻿using KLogMonitor;
+﻿using Phx.Lib.Log;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using System;

@@ -1,7 +1,7 @@
 ﻿using ApiLogic.Catalog;
 using ApiObjects.Response;
-using ConfigurationManager;
-using KLogMonitor;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
 using Core.Catalog;
 using System;
 using System.IO;

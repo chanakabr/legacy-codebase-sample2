@@ -6,7 +6,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using CachingProvider.LayeredCache;
-using KLogMonitor;
+using Phx.Lib.Log;
 using TVinciShared;
 
 public partial class adm_discounts_locales : System.Web.UI.Page

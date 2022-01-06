@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using System.Collections.Concurrent;
 using QueueWrapper.Enums;
 
@@ -100,7 +100,7 @@ namespace QueueWrapper
                     {
                         ulong a = ulong.Parse(sAckId);
 
-                        using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_RABBITMQ, null, null, null, null)
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_RABBITMQ, null, null, null, null)
                         {
                             Database = configuration.Exchange
                         })
@@ -168,7 +168,7 @@ namespace QueueWrapper
                             properties.DeliveryMode = 2;
                             properties.Persistent = true;
 
-                            using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_RABBITMQ, null, null, null, null)
+                            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_RABBITMQ, null, null, null, null)
                             {
                                 Database = configuration.Exchange
                             })
@@ -382,7 +382,7 @@ namespace QueueWrapper
                     if (model != null)
                     {
 
-                        using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_RABBITMQ, null, null, null, null)
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_RABBITMQ, null, null, null, null)
                         {
                             Database = configuration.Exchange
                         })

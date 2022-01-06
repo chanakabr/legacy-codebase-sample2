@@ -11,7 +11,6 @@
     <Reference Include="System.Data.DataSetExtensions" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\DataLoader\Tvinci.Data.DataLoader.csproj" />
     <ProjectReference Include="..\Tvinci.Performance\Tvinci.Performance.csproj" />
   </ItemGroup>

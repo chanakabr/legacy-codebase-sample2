@@ -16,7 +16,6 @@
   
   <ItemGroup>
     <ProjectReference Include="..\..\Core\CachingManager\CachingManager.csproj" />
-    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\ODBCWrapper\TVPApi.ODBCWrapper.csproj" />
     <ProjectReference Include="..\Tvinci.Performance\Tvinci.Performance.csproj" />
   </ItemGroup>

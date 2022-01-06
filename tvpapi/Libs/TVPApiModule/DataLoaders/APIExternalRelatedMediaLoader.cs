@@ -13,7 +13,7 @@ using Core.Catalog;
 using ApiObjects.SearchObjects;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace TVPApi
 {

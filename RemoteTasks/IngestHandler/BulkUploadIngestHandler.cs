@@ -11,7 +11,7 @@ using CouchbaseManager;
 using EpgBL;
 using EventBus.Abstraction;
 using IngestHandler.Common;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Polly;
 using Polly.Retry;
 using Synchronizer;

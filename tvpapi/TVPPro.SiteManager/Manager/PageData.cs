@@ -10,7 +10,7 @@ using TVPPro.SiteManager.Helper;
 using System.Data;
 using System.Collections;
 using TVPPro.Configuration.Site;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 
 namespace TVPPro.SiteManager.Manager

@@ -1,7 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.Social;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Catalog;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
@@ -9,7 +9,7 @@ using Core.Social.SocialFeed;
 using Core.Social.SocialFeed.SocialFeedJsonTemplates;
 using Core.Users;
 using DAL;
-using KLogMonitor;
+using Phx.Lib.Log;
 using LinqToTwitter;
 using Newtonsoft.Json;
 using ODBCWrapper;

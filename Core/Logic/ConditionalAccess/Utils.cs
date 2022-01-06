@@ -14,7 +14,7 @@ using ApiObjects.Rules;
 using ApiObjects.SubscriptionSet;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Api.Managers;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
@@ -27,8 +27,8 @@ using Core.Users;
 using DAL;
 using EpgBL;
 using GroupsCacheManager;
-using KLogMonitor;
-using KlogMonitorHelper;
+using Phx.Lib.Log;
+
 using NPVR;
 using QueueWrapper;
 using System;
@@ -8892,7 +8892,7 @@ namespace Core.ConditionalAccess
             return (dtEndDate);
         }
 
-        internal static void InsertOfflinePpvUse(int groupId, int mediaFileId, string productCode, string userId, string countryCode, string languageCode, string udid, int nRelPP, int releventCollectionID, ContextData context)
+        internal static void InsertOfflinePpvUse(int groupId, int mediaFileId, string productCode, string userId, string countryCode, string languageCode, string udid, int nRelPP, int releventCollectionID, LogContextData context)
         {
             try
             {
@@ -8908,7 +8908,7 @@ namespace Core.ConditionalAccess
             }
         }
 
-        internal static void InsertOfflineSubscriptionUse(int groupId, int mediaFileId, string productCode, string userId, string countryCode, string languageCode, string udid, int nRelPP, ContextData context)
+        internal static void InsertOfflineSubscriptionUse(int groupId, int mediaFileId, string productCode, string userId, string countryCode, string languageCode, string udid, int nRelPP, LogContextData context)
         {
             try
             {
@@ -9749,7 +9749,7 @@ namespace Core.ConditionalAccess
             }
         }
 
-        internal static void InsertOfflineCollectionUse(int groupId, int mediaFileId, string productCode, string userId, string countryCode, string languageCode, string udid, int nRelPP, ContextData context)
+        internal static void InsertOfflineCollectionUse(int groupId, int mediaFileId, string productCode, string userId, string countryCode, string languageCode, string udid, int nRelPP, LogContextData context)
         {
             try
             {

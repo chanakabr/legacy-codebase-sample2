@@ -7,12 +7,12 @@ using TVPPro.SiteManager.Helper;
 using System.Xml.Serialization;
 using System.IO;
 using System.Configuration;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using Core.Catalog.Request;
 using Core.Catalog;
 using Core.Catalog.Response;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace TVPPro.SiteManager.CatalogLoaders
 {

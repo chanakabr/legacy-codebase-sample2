@@ -4,8 +4,8 @@ using ApiObjects.SearchObjects;
 using Core.Catalog.Cache;
 using Core.Catalog.Response;
 using GroupsCacheManager;
-using KLogMonitor;
-using KlogMonitorHelper;
+using Phx.Lib.Log;
+
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -190,7 +190,7 @@ namespace Core.Catalog.Request
             Task[] channelsSearchObjectTasks = new Task[allChannels.Count];
 
             // save monitor and logs context data
-            ContextData contextData = new ContextData();
+            LogContextData contextData = new LogContextData();
 
             // Building search object for each channel
             for (int searchObjectIndex = 0; searchObjectIndex < allChannels.Count; searchObjectIndex++)

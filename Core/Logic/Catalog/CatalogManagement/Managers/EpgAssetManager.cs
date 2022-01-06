@@ -6,7 +6,7 @@ using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using Core.GroupManagers;
 using EpgBL;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -474,7 +474,7 @@ namespace Core.Catalog.CatalogManagement
         internal static void SendActionEvent(int groupId, long epgId, eAction action, EPGChannelProgrammeObject epg = null)
         {
             log.DebugFormat("Calling IngestRecording for groupId: {0}, epgId: {1}, action: {2}", groupId, epgId, action);
-            KlogMonitorHelper.ContextData contextData = new KlogMonitorHelper.ContextData();
+            LogContextData contextData = new LogContextData();
             Task.Factory.StartNew(() =>
             {
                 contextData.Load();

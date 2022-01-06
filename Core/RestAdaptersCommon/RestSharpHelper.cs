@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using KLogMonitor;
+using Phx.Lib.Log;
 using RestSharp;
 
 namespace RestAdaptersCommon
@@ -26,7 +26,7 @@ namespace RestAdaptersCommon
 			var stopWatch = new Stopwatch();
 			try
 			{
-				request.AddHeader(KLogMonitor.Constants.REQUEST_ID_KEY, KLogger.GetRequestId());
+				request.AddHeader(Phx.Lib.Log.Constants.REQUEST_ID_KEY, KLogger.GetRequestId());
 				using (var km = new KMonitor(Events.eEvent.EVENT_WS))
 				{
 					km.Event = "external";

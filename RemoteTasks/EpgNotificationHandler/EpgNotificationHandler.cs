@@ -11,7 +11,7 @@ using Core.Notification;
 using EpgNotificationHandler.Configuration;
 using EpgNotificationHandler.DTO;
 using EventBus.Abstraction;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Newtonsoft.Json;
 using NotificationHandlers.Common;
 using TVinciShared;

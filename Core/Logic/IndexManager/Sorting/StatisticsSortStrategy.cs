@@ -7,11 +7,10 @@ using System.Threading.Tasks;
 using ApiLogic.IndexManager.Helpers;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using ElasticSearch.Common;
 using ElasticSearch.Searcher;
-using KLogMonitor;
-using KlogMonitorHelper;
+using Phx.Lib.Log;
 
 namespace ApiLogic.IndexManager.Sorting
 {
@@ -485,7 +484,7 @@ namespace ApiLogic.IndexManager.Sorting
 
                 try
                 {
-                    var contextData = new ContextData();
+                    var contextData = new LogContextData();
                     // Create a task for the search and merge of partial aggregations
                     var task = Task.Run(() =>
                     {

@@ -8,13 +8,13 @@ using System.IO;
 using Tvinci.Data.Loaders;
 using TVPPro.SiteManager.Helper;
 using System.Configuration;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using Core.Catalog;
 using ApiObjects.SearchObjects;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace TVPPro.SiteManager.CatalogLoaders
 {

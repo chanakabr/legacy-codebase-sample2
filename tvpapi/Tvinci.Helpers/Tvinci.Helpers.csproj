@@ -23,7 +23,6 @@
     <None Remove="FriendlyUrl\**" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\DataLoader\Tvinci.Data.DataLoader.csproj" />
     <ProjectReference Include="..\ODBCWrapper\TVPApi.ODBCWrapper.csproj" />
   </ItemGroup>

@@ -3,7 +3,7 @@ using ConfigurationManager;
 using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 using ConfigurationManager.Types;
 using ElasticSearch.NEST;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Moq;
 using NUnit.Framework;
 

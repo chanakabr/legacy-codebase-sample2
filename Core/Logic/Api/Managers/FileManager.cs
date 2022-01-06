@@ -2,9 +2,9 @@
 using Amazon.S3.Transfer;
 using ApiLogic.Catalog;
 using ApiObjects.Response;
-using ConfigurationManager;
-using ConfigurationManager.Types;
-using KLogMonitor;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Appconfig.Types;
+using Phx.Lib.Log;
 using Core.Catalog;
 using System;
 using System.Collections.Generic;

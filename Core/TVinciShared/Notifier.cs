@@ -5,9 +5,9 @@ using System.Web;
 using System.Net;
 using System.IO;
 using System.Configuration;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace TVinciShared
 {

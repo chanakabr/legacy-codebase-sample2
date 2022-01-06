@@ -1,4 +1,4 @@
-﻿using ConfigurationManager;
+﻿using Phx.Lib.Appconfig;
 using System;
 
 public partial class AjaxSubDateChange : System.Web.UI.Page

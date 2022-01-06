@@ -9,7 +9,7 @@ using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using EventBus.Abstraction;
 using EventBus.RabbitMQ;
-using KLogMonitor;
+using Phx.Lib.Log;
 
 namespace ApiLogic.Catalog.CatalogManagement.Services
 {

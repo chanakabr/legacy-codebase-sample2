@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TVPApi;
 using TVPApiModule.Objects;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using ApiObjects.Notification;
 using Notification = TVPApiModule.Objects.Notification;
@@ -34,7 +34,7 @@ namespace TVPApiModule.Services
             List<Notification> res = new List<Notification>();
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var notificationMessages = Core.Notification.Module.GetDeviceNotifications(m_groupID, sGuid, sDeviceUDID, notificationType, viewStatus, messageCount);
                     if (notificationMessages != null)
@@ -85,7 +85,7 @@ namespace TVPApiModule.Services
             bool res = false;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     res = Core.Notification.Module.SetNotificationMessageViewStatus(m_groupID, sGuid, notificationRequestID, notificationMessageID, viewStatus);
                 }
@@ -103,7 +103,7 @@ namespace TVPApiModule.Services
             bool res = false;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     res = Core.Notification.Module.AddNotificationRequest(m_groupID, sGuid, triggerType, mediaId);
                 }
@@ -122,7 +122,7 @@ namespace TVPApiModule.Services
             try
             {
                 Dictionary<string, List<string>> dictTags = tags.ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Values.ToList());
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     res = Core.Notification.Module.SubscribeByTag(m_groupID, sGuid, dictTags);
                 }
@@ -141,7 +141,7 @@ namespace TVPApiModule.Services
             try
             {
                 Dictionary<string, List<string>> dictTags = tags.ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Values.ToList());
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     res = Core.Notification.Module.UnsubscribeFollowUpByTag(m_groupID, sGuid, dictTags);
                 }
@@ -160,7 +160,7 @@ namespace TVPApiModule.Services
             List<TVPApi.TagMetaPairArray> finalRes = new List<TagMetaPairArray>();
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     clientRes = Core.Notification.Module.GetUserStatusSubscriptions(m_groupID, sGuid);
                 }

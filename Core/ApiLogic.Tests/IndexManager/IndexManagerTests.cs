@@ -1,6 +1,6 @@
 using ApiObjects;
 using ApiObjects.SearchObjects;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using Core.Catalog.Response;

@@ -7,8 +7,7 @@ using System.Linq;
 using System.ServiceProcess;
 using System.Text;
 using System.Threading;
-using System.ServiceProcess;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 
 

@@ -1,7 +1,7 @@
 ﻿using Amazon.S3.Model;
 using CachingProvider.LayeredCache;
-using ConfigurationManager;
-using KLogMonitor;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;

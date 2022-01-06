@@ -4,7 +4,7 @@ using ApiObjects;
 using ApiObjects.SearchObjects;
 using ApiObjects.Statistics;
 using CachingProvider.LayeredCache;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Catalog;
 using Core.Catalog.Cache;
 using Core.Catalog.CatalogManagement;

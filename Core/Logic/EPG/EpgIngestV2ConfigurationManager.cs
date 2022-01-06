@@ -6,7 +6,7 @@ using ApiObjects;
 using ApiObjects.Epg;
 using CachingProvider.LayeredCache;
 using CouchbaseManager;
-using KLogMonitor;
+using Phx.Lib.Log;
 
 namespace ApiLogic.EPG
 {

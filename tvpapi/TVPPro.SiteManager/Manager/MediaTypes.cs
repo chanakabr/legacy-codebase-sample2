@@ -5,7 +5,7 @@ using System.Text;
 using TVPPro.SiteManager.DataLoaders;
 using System.Data;
 using TVPPro.Configuration.Technical;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 
 namespace TVPPro.SiteManager.Manager

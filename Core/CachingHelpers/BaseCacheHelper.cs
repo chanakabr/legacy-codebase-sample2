@@ -1,7 +1,7 @@
 ﻿using CachingProvider;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using CouchbaseManager;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;

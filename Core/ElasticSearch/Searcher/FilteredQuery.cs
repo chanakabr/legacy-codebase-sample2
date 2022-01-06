@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ApiObjects.SearchObjects;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace ElasticSearch.Searcher
 {

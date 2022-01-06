@@ -5,7 +5,7 @@ using ApiObjects;
 using ApiObjects.Notification;
 using Core.Notification.Adapters;
 using DAL;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

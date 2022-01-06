@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Reflection;
 using ApiObjects;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Newtonsoft.Json;
 
 namespace Core.Users
@@ -198,7 +198,7 @@ namespace Core.Users
             {
                 log.Debug($"ValidateCredentials - username:{username}, password:{password}, clientIp:{clientIp}");
                 KdgLoginResp kdgLoginRespObj = new KdgLoginResp() { Status = eKdgStatus.Unknown };
-                string kdgUrl = TCMClient.Settings.Instance.GetValue<string>("KDG-AuthURL");
+                string kdgUrl = Phx.Lib.Appconfig.TCMClient.Settings.Instance.GetValue<string>("KDG-AuthURL");
 
                 if (!string.IsNullOrEmpty(kdgUrl))
                 {

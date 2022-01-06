@@ -8,14 +8,14 @@ using System.Web;
 using System.Web.Hosting;
 using System.Web.Http;
 using System.Web.Routing;
-using KLogMonitor;
-using KlogMonitorHelper;
+using Phx.Lib.Log;
 using WebAPI.App_Start;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using System.Xml;
 using ApiObjects;
+using System.Text;
 
 namespace WebAPI
 {
@@ -186,14 +186,14 @@ namespace WebAPI
                 }
 
                 // initialize monitor and logs parameters
-                string requestString = MonitorLogsHelper.GetWebServiceRequestString();
+                string requestString = GetWebServiceRequestString();
                 if (!string.IsNullOrEmpty(requestString))
                 {
                     if (requestString.ToLower().Contains("<soap"))
                     {
                         // soap request
                         int groupId = GetGroupID(requestString);
-                        MonitorLogsHelper.InitMonitorLogsDataWS("USERS", requestString, groupId);
+                        MonitorLogsHelper.InitMonitorLogsDataWs("USERS", requestString, groupId);
                     }
                     else if (Request.ContentType == FORM_URL_ENCODED)
                     {
@@ -215,6 +215,34 @@ namespace WebAPI
                     HttpContext.Current.Items[Constants.HOST_IP] = HttpContext.Current.Request.UserHostAddress;
 
             }
+        }
+
+        private static string GetWebServiceRequestString()
+        {
+            try
+            {
+                var req = HttpContext.Current?.Request;
+                if (req != null)
+                {
+                    // create byte array to hold request bytes
+                    byte[] inputStream = new byte[req.ContentLength];
+
+                    // read entire request input stream
+                    req.InputStream.Read(inputStream, 0, inputStream.Length);
+
+                    // set stream back to beginning
+                    req.InputStream.Position = 0;
+
+                    // get request string
+                    return ASCIIEncoding.ASCII.GetString(inputStream);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error while trying to get request string", ex);
+            }
+
+            return null;
         }
     }
 }

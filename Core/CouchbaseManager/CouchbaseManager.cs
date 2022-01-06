@@ -2,7 +2,7 @@
 using Couchbase.Configuration.Client;
 using Couchbase.Core.Serialization;
 using Couchbase.Core.Transcoders;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
@@ -13,7 +13,7 @@ using System.Threading;
 using Couchbase.N1QL;
 using System.Linq;
 using System.Threading.Tasks;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using CouchbaseManager.Models;
 
 namespace CouchbaseManager
@@ -114,7 +114,7 @@ namespace CouchbaseManager
             serializer.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
             clientConfiguration = GetCouchbaseClientConfiguration();
 
-            var maxDegreeOfParallelism = TCMClient.Settings.Instance.GetValue<int>($"{COUCHBASE_TCM_CONFIG_KEY}.{MAX_DEGREE_OF_PARALLELISM_KEY}");
+            var maxDegreeOfParallelism = Phx.Lib.Appconfig.TCMClient.Settings.Instance.GetValue<int>($"{COUCHBASE_TCM_CONFIG_KEY}.{MAX_DEGREE_OF_PARALLELISM_KEY}");
             PARALLEL_OPTIONS.MaxDegreeOfParallelism = maxDegreeOfParallelism > 1 ? maxDegreeOfParallelism : 1;
 
 
@@ -275,7 +275,7 @@ namespace CouchbaseManager
             string bucketName = string.Empty;
             try
             {
-                Dictionary<string, string> couchbaseBucketWithBucketNameDic = TCMClient.Settings.Instance.GetValue<Dictionary<string, string>>("CouchbaseSectionMapping");
+                Dictionary<string, string> couchbaseBucketWithBucketNameDic = Phx.Lib.Appconfig.TCMClient.Settings.Instance.GetValue<Dictionary<string, string>>("CouchbaseSectionMapping");
                 if (couchbaseBucketWithBucketNameDic != null)
                 {
                     if (couchbaseBucketWithBucketNameDic.ContainsKey(couchbaseBucket.ToLower()))

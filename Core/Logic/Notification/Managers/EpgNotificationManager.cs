@@ -2,7 +2,7 @@
 using Core.Notification;
 using EventBus.Abstraction;
 using EventBus.RabbitMQ;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Reflection;
 using System.Threading;

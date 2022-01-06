@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using CouchbaseManager;
 using DAL.DTO;
 

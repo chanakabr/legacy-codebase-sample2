@@ -9,7 +9,7 @@ using Core.Catalog;
 using IngestHandler.Common.Infrastructure;
 using IngestTransformationHandler.Managers;
 using IngestTransformationHandler.Repositories;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Moq;
 using NUnit.Framework;
 

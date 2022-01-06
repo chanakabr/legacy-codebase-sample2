@@ -1,6 +1,6 @@
-﻿using ConfigurationManager;
-using ConfigurationManager.Types;
-using KLogMonitor;
+﻿using Phx.Lib.Appconfig;
+using Phx.Lib.Appconfig.Types;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Net;

@@ -5,7 +5,7 @@ using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.Rules;
 using CachingProvider.LayeredCache;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
@@ -13,8 +13,8 @@ using Core.Catalog.Response;
 using DAL;
 using DAL.Api;
 using GroupsCacheManager;
-using KLogMonitor;
-using KlogMonitorHelper;
+using Phx.Lib.Log;
+
 using Newtonsoft.Json;
 using QueueWrapper;
 using System;
@@ -141,7 +141,7 @@ namespace Core.Api.Managers
                         }
 
                         ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
-                        ContextData contextData = new ContextData();
+                        LogContextData contextData = new LogContextData();
                         ConcurrentBag<int> assetIds = new ConcurrentBag<int>();
                         Parallel.ForEach(rules, options, (rule) =>
                         {
@@ -1086,7 +1086,7 @@ namespace Core.Api.Managers
                             }
 
                             ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
-                            ContextData contextData = new ContextData();
+                            LogContextData contextData = new LogContextData();
                             ConcurrentBag<AssetRule> assetRules = new ConcurrentBag<AssetRule>();
 
                             Parallel.ForEach(assetRulesWithKsql, options, (currAssetRuleWithKsql) =>

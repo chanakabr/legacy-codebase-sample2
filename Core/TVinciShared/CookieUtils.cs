@@ -3,7 +3,7 @@ using System.Data;
 using System.Configuration;
 using System.Web;
 
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 
 #if NETFRAMEWORK

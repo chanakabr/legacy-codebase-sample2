@@ -48,14 +48,23 @@
     <Reference Include="AutoMapper, Version=7.0.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
       <HintPath>..\packages\AutoMapper.7.0.1\lib\net45\AutoMapper.dll</HintPath>
     </Reference>
+    <Reference Include="Common.Logging, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Common.Logging.3.4.1\lib\net40\Common.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Logging.Core, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Common.Logging.Core.3.4.1\lib\net40\Common.Logging.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Couchbase.NetClient, Version=2.7.16.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
+      <HintPath>..\packages\CouchbaseNetClient.2.7.16\lib\net452\Couchbase.NetClient.dll</HintPath>
+    </Reference>
     <Reference Include="HttpMultipartParser, Version=2.2.4.0, Culture=neutral, PublicKeyToken=6d293681fa6c7a03, processorArchitecture=MSIL">
       <HintPath>..\packages\HttpMultipartParser.2.2.4\lib\net46\HttpMultipartParser.dll</HintPath>
     </Reference>
     <Reference Include="Jil, Version=2.16.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Jil.2.16.0\lib\net45\Jil.dll</HintPath>
     </Reference>
-    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+    <Reference Include="log4net, Version=2.0.12.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.12\lib\net45\log4net.dll</HintPath>
     </Reference>
     <Reference Include="log4stash, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\log4stash.2.2.1\lib\net45\log4stash.dll</HintPath>
@@ -63,11 +72,62 @@
     <Reference Include="Microsoft.AspNet.WebApi.MessageHandlers.Compression, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.MessageHandlers.Compression.1.3.0\lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1\Microsoft.AspNet.WebApi.MessageHandlers.Compression.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.1.1.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp">
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Microsoft.Extensions.Configuration, Version=3.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Configuration.3.1.0\lib\netstandard2.0\Microsoft.Extensions.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Configuration.Abstractions, Version=3.1.22.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
+      <HintPath>..\packages\Microsoft.Extensions.Configuration.Abstractions.3.1.22\lib\netstandard2.0\Microsoft.Extensions.Configuration.Abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Configuration.Binder, Version=3.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Configuration.Binder.3.1.0\lib\netstandard2.0\Microsoft.Extensions.Configuration.Binder.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection, Version=3.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.3.1.0\lib\net461\Microsoft.Extensions.DependencyInjection.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=3.1.21.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.3.1.21\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Logging, Version=3.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Logging.3.1.0\lib\netstandard2.0\Microsoft.Extensions.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=3.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Logging.Abstractions.3.1.0\lib\netstandard2.0\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Options, Version=3.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Options.3.1.0\lib\netstandard2.0\Microsoft.Extensions.Options.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Primitives, Version=3.1.22.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
+      <HintPath>..\packages\Microsoft.Extensions.Primitives.3.1.22\lib\netstandard2.0\Microsoft.Extensions.Primitives.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="mscorlib" />
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenTracing, Version=0.12.0.0, Culture=neutral, PublicKeyToken=61503406977abdaf, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenTracing.0.12.0\lib\net45\OpenTracing.dll</HintPath>
+    </Reference>
+    <Reference Include="Phx.Lib.Appconfig, Version=1.2.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Phx.Lib.Appconfig.1.2.0\lib\netstandard2.0\Phx.Lib.Appconfig.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Phx.Lib.Log, Version=1.2.3.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Phx.Lib.Log.1.2.3\lib\net48\Phx.Lib.Log.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Phx.Lib.Static.HttpContext, Version=1.5.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Phx.Lib.Static.HttpContext.1.5.1\lib\net48\Phx.Lib.Static.HttpContext.dll</HintPath>
+    </Reference>
+    <Reference Include="Polly, Version=7.0.0.0, Culture=neutral, PublicKeyToken=c8a3ffc3f8f825cc, processorArchitecture=MSIL">
+      <HintPath>..\packages\Polly.7.2.2\lib\net472\Polly.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore">
       <Private>True</Private>
@@ -78,11 +138,24 @@
     <Reference Include="Sigil, Version=4.7.0.0, Culture=neutral, PublicKeyToken=2d06c3494341c8ab, processorArchitecture=MSIL">
       <HintPath>..\packages\Sigil.4.7.0\lib\net45\Sigil.dll</HintPath>
     </Reference>
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.Annotations, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ComponentModel.Annotations.4.7.0\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Configuration.ConfigurationManager, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Configuration.ConfigurationManager.4.5.0\lib\net461\System.Configuration.ConfigurationManager.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.OracleClient" />
     <Reference Include="System.IdentityModel">
       <Private>True</Private>
     </Reference>
     <Reference Include="System.IO.Compression">
       <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Memory.4.5.3\lib\netstandard2.0\System.Memory.dll</HintPath>
     </Reference>
     <Reference Include="System.Net">
       <Private>True</Private>
@@ -105,11 +178,22 @@
     <Reference Include="System.Numerics">
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Runtime.CompilerServices.Unsafe.4.7.1\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Runtime.Serialization">
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Security">
       <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.AccessControl, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.AccessControl.4.5.0\lib\net461\System.Security.AccessControl.dll</HintPath>
     </Reference>
     <Reference Include="System.Security.Cryptography.Algorithms, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Security.Cryptography.Algorithms.4.3.0\lib\net461\System.Security.Cryptography.Algorithms.dll</HintPath>
@@ -122,6 +206,12 @@
     </Reference>
     <Reference Include="System.Security.Cryptography.X509Certificates, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Security.Cryptography.X509Certificates.4.3.0\lib\net461\System.Security.Cryptography.X509Certificates.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Permissions, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Permissions.4.5.0\lib\net461\System.Security.Permissions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Principal.Windows, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Principal.Windows.4.5.0\lib\net461\System.Security.Principal.Windows.dll</HintPath>
     </Reference>
     <Reference Include="System.ServiceModel">
       <Private>True</Private>
@@ -137,6 +227,9 @@
     </Reference>
     <Reference Include="System.ServiceProcess">
       <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="System.Transactions">
       <Private>True</Private>
@@ -197,6 +290,9 @@
     </Reference>
     <Reference Include="System.EnterpriseServices">
       <Private>True</Private>
+    </Reference>
+    <Reference Include="YamlDotNet, Version=11.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL">
+      <HintPath>..\packages\YamlDotNet.11.2.1\lib\net45\YamlDotNet.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -424,10 +520,6 @@
       <Project>{4191d9e7-8502-4b00-a488-771240e2cf40}</Project>
       <Name>CachingProvider</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj">
-      <Project>{27cc9e99-d886-4403-899b-1e0769fdb649}</Project>
-      <Name>ConfigurationManager</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Core\DAL\DAL.csproj">
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
       <Name>DAL</Name>
@@ -452,14 +544,6 @@
       <Project>{a967ecf4-2751-41ba-bec5-b13801ed03e5}</Project>
       <Name>KalturaRequestContext</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Core\KlogMonitorHelper\KlogMonitorHelper.csproj">
-      <Project>{fa277e9a-4c82-4ff7-a6e7-60feaeb363e2}</Project>
-      <Name>KlogMonitorHelper</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj">
-      <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
-      <Name>KLogMonitor</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj">
       <Project>{27c6f3ed-b660-466a-9415-de2d43e58ff0}</Project>
       <Name>ApiLogic</Name>
@@ -479,10 +563,6 @@
     <ProjectReference Include="..\..\Core\ScheduledTasks\ScheduledTasks.csproj">
       <Project>{4eb719ed-06b1-4c05-a7ca-269d802105ea}</Project>
       <Name>ScheduledTasks</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Core\TCMClient\TCMClient.csproj">
-      <Project>{bc7b010e-bfe3-4666-bb4d-6ecc6fab9472}</Project>
-      <Name>TCMClient</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Core\TvinciCache\TvinciCache.csproj">
       <Project>{d57b2371-da31-4035-8b00-6a6d0256ec00}</Project>

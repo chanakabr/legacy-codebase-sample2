@@ -7,7 +7,7 @@ using System.Configuration;
 using TVPPro.Configuration.Technical;
 using Tvinci.Data.TVMDataLoader.Protocols;
 using System.Threading;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 
 namespace TVPPro.Configuration.Technical

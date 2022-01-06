@@ -2,8 +2,8 @@
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using DAL;
-using KLogMonitor;
-using KlogMonitorHelper;
+using Phx.Lib.Log;
+
 using System;
 using System.Collections.Generic;
 using System.Data;

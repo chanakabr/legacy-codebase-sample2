@@ -22,12 +22,11 @@
     <PackageReference Include="System.Data.SqlClient" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj" />
-    <ProjectReference Include="..\TCMClient\TCMClient.csproj" />
+    <PackageReference Include="Phx.Lib.Appconfig" Version="1.2.0" />
+    
     <ProjectReference Include="..\CachingManager\CachingManager.csproj" />
     <ProjectReference Include="..\CachingProvider\CachingProvider.csproj" />
     <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj" />
-    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
   </ItemGroup>
 
   <!-- 

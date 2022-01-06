@@ -2,7 +2,7 @@
 using System.ServiceModel.Channels;
 using System.ServiceModel.Dispatcher;
 using System.Web;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using System.ServiceModel.Configuration;
 using System.ServiceModel.Description;
@@ -32,18 +32,18 @@ namespace ServiceExtensions
 
             // add request ID to message header
             if (request.Headers != null &&
-                request.Headers.FindHeader(KLogMonitor.Constants.REQUEST_ID_KEY.ToString(), string.Empty) == -1)
+                request.Headers.FindHeader(Phx.Lib.Log.Constants.REQUEST_ID_KEY.ToString(), string.Empty) == -1)
             {
-                if (KLogMonitor.KLogger.AppType == KLogEnums.AppType.WCF)
+                if (Phx.Lib.Log.KLogger.AppType == KLogEnums.AppType.WCF)
                 {
                     if (OperationContext.Current != null)
                     {
                         object res = null;
-                        if (OperationContext.Current.IncomingMessageProperties.TryGetValue(KLogMonitor.Constants.REQUEST_ID_KEY, out res))
-                            request.Headers.Add(MessageHeader.CreateHeader(KLogMonitor.Constants.REQUEST_ID_KEY, string.Empty, res.ToString()));
+                        if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Phx.Lib.Log.Constants.REQUEST_ID_KEY, out res))
+                            request.Headers.Add(MessageHeader.CreateHeader(Phx.Lib.Log.Constants.REQUEST_ID_KEY, string.Empty, res.ToString()));
 
-                        if (OperationContext.Current.IncomingMessageProperties.TryGetValue(KLogMonitor.Constants.KS, out res))
-                            request.Headers.Add(MessageHeader.CreateHeader(KLogMonitor.Constants.KS, string.Empty, res.ToString()));
+                        if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Phx.Lib.Log.Constants.KS, out res))
+                            request.Headers.Add(MessageHeader.CreateHeader(Phx.Lib.Log.Constants.KS, string.Empty, res.ToString()));
                     }
                 }
                 else
@@ -54,18 +54,18 @@ namespace ServiceExtensions
                         var ks = KLogger.LogContextData[Constants.KS]?.ToString();
 
                         // backward compatibility for phoenix on windows
-                        if (string.IsNullOrEmpty(ks) && HttpContext.Current != null && HttpContext.Current.Items[KLogMonitor.Constants.KS] != null)
+                        if (string.IsNullOrEmpty(ks) && HttpContext.Current != null && HttpContext.Current.Items[Phx.Lib.Log.Constants.KS] != null)
                         {
-                            ks = HttpContext.Current.Items[KLogMonitor.Constants.KS].ToString();
+                            ks = HttpContext.Current.Items[Phx.Lib.Log.Constants.KS].ToString();
                         }
 
                         if (!string.IsNullOrEmpty(requestId))
-                            request.Headers.Add(MessageHeader.CreateHeader(KLogMonitor.Constants.REQUEST_ID_KEY, string.Empty, requestId));
+                            request.Headers.Add(MessageHeader.CreateHeader(Phx.Lib.Log.Constants.REQUEST_ID_KEY, string.Empty, requestId));
                         else
                             log.Warn($"could not find request Id to send to WCF service: [{_Endpoint.Address.Uri}]");
 
                         if (!string.IsNullOrEmpty(ks))
-                            request.Headers.Add(MessageHeader.CreateHeader(KLogMonitor.Constants.KS, string.Empty, ks));
+                            request.Headers.Add(MessageHeader.CreateHeader(Phx.Lib.Log.Constants.KS, string.Empty, ks));
                         else
                             log.Warn($"could not find Ks to send to WCF service: [{_Endpoint.Address.Uri}]");
                     }

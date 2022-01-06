@@ -4,7 +4,7 @@ using ApiObjects;
 using ApiObjects.Response;
 using AuthenticationGrpcClientWrapper;
 using CachingProvider.LayeredCache;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using DAL;
 using System;
 using System.Collections.Generic;

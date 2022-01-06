@@ -11,7 +11,7 @@ using System.Xml.Serialization;
 using System.Data;
 using ApiObjects.SearchObjects;
 using Core.Catalog.Response;
-using KLogMonitor;
+using Phx.Lib.Log;
 using ElasticSearch.Searcher;
 using Catalog.Response;
 using ApiObjects.Response;

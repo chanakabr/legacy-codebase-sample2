@@ -9,7 +9,7 @@ using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using TVinciShared;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 public partial class AjaxLogin : System.Web.UI.Page
 {

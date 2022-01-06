@@ -1,8 +1,8 @@
 ﻿using ApiObjects;
 using ApiObjects.Epg;
 using CachingProvider.LayeredCache;
-using ConfigurationManager;
-using KLogMonitor;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NPVR.AlcatelLucentResponses;

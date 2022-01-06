@@ -4,7 +4,7 @@ using ApiLogic.Api.Managers.Handlers;
 using ApiLogic.Catalog;
 using ApiObjects.Response;
 using AutoFixture;
-using ConfigurationManager.Types;
+using Phx.Lib.Appconfig.Types;
 using Moq;
 using NUnit.Framework;
 using System;

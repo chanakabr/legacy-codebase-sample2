@@ -29,7 +29,6 @@
     <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj" />
     <ProjectReference Include="..\..\Core\EventBus.Abstraction\EventBus.Abstraction.csproj" />
     <ProjectReference Include="..\..\Core\EventBus.RabbitMQ\EventBus.RabbitMQ.csproj" />
-    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\..\Core\WebAPI\WebAPI.csproj" />
   </ItemGroup>
 

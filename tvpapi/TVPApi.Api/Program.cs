@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Metrics;
 using Core.Middleware;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -22,8 +22,8 @@ namespace TVPApi.Web
             
             var apiVersion = System.Configuration.ConfigurationManager.AppSettings.Get("apiVersion");
             var defaultLogDir = $@"/var/log/tvpapi/{apiVersion}";
-            KLogMonitor.KLogger.InitLogger("log4net.config", KLogEnums.AppType.WS, defaultLogDir);
-            ConfigurationManager.ApplicationConfiguration.Init();
+            Phx.Lib.Log.KLogger.InitLogger("log4net.config", KLogEnums.AppType.WS, defaultLogDir);
+            ApplicationConfiguration.Init();
             await KalturaWebHostBuilder.RunWebServerAsync<Startup>(new WebServerConfiguration
             {
                 CommandlineArgs = args,

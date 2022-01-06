@@ -1,5 +1,4 @@
-﻿using KLogMonitor;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -10,12 +9,14 @@ using System.Web.SessionState;
 using System.Reflection;
 using TVinciShared;
 using WebAPI.Filters;
+using Phx.Lib.Log;
+using Phx.Lib.Appconfig;
 
 namespace WAP_TVPApi
 {
     public class Global : System.Web.HttpApplication
     {
-        private static readonly KLogMonitor.KLogger logger = new KLogMonitor.KLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger logger = new KLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public static log4net.ILog performanceLogger = log4net.LogManager.GetLogger("GlobalASCX");
 
         protected void Application_Start(object sender, EventArgs e)
@@ -40,10 +41,10 @@ namespace WAP_TVPApi
             log4net.GlobalContext.Properties["LogDir"] = logDir;
 
             // set monitor and log configuration files
-            KLogMonitor.KMonitor.Configure("log4net.config", KLogMonitor.KLogEnums.AppType.WS);
-            KLogMonitor.KLogger.Configure("log4net.config", KLogMonitor.KLogEnums.AppType.WS);
+            Phx.Lib.Log.KMonitor.Configure("log4net.config", Phx.Lib.Log.KLogEnums.AppType.WS);
+            Phx.Lib.Log.KLogger.Configure("log4net.config", Phx.Lib.Log.KLogEnums.AppType.WS);
 
-            ConfigurationManager.ApplicationConfiguration.Init();
+            ApplicationConfiguration.Init();
 
             AutoMapperConfig.RegisterMappings();
             EventNotificationsConfig.SubscribeConsumers();
@@ -98,7 +99,7 @@ namespace WAP_TVPApi
             }
             Guid sessionId;
 
-            var headerRequest = HttpContext.Current.Request.Headers.Get(KLogMonitor.Constants.REQUEST_ID_KEY);
+            var headerRequest = HttpContext.Current.Request.Headers.Get(Constants.REQUEST_ID_KEY);
             if (!string.IsNullOrEmpty(headerRequest))
             {
                 sessionId = new Guid(headerRequest);
@@ -110,7 +111,7 @@ namespace WAP_TVPApi
 
             //HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] = Session.ToString();
 
-            HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] = sessionId.ToString();
+            HttpContext.Current.Items[Constants.REQUEST_ID_KEY] = sessionId.ToString();
             KLogger.SetRequestId(sessionId.ToString());
 
             HttpContext.Current.Response.Headers["X-Kaltura-Session"] = sessionId.ToString();
@@ -119,22 +120,22 @@ namespace WAP_TVPApi
             if (HttpContext.Current.Request.QueryString["m"] != null)
             {
                 var m = HttpContext.Current.Request.QueryString["m"];
-                HttpContext.Current.Items[KLogMonitor.Constants.ACTION] = m;
+                HttpContext.Current.Items[Constants.ACTION] = m;
                 KLogger.SetAction(m);
             }
 
             // get user agent
             if (HttpContext.Current.Request.UserAgent != null)
             {
-                HttpContext.Current.Items[KLogMonitor.Constants.CLIENT_TAG] = HttpContext.Current.Request.UserAgent;
-                KLogger.LogContextData[KLogMonitor.Constants.CLIENT_TAG] = HttpContext.Current.Request.UserAgent;
+                HttpContext.Current.Items[Constants.CLIENT_TAG] = HttpContext.Current.Request.UserAgent;
+                KLogger.LogContextData[Constants.CLIENT_TAG] = HttpContext.Current.Request.UserAgent;
             }
 
             // get host IP
             if (HttpContext.Current.Request.UserHostAddress != null)
             {
-                HttpContext.Current.Items[KLogMonitor.Constants.HOST_IP] = HttpContext.Current.Request.UserHostAddress;
-                KLogger.LogContextData[KLogMonitor.Constants.HOST_IP] = HttpContext.Current.Request.UserHostAddress;
+                HttpContext.Current.Items[Constants.HOST_IP] = HttpContext.Current.Request.UserHostAddress;
+                KLogger.LogContextData[Constants.HOST_IP] = HttpContext.Current.Request.UserHostAddress;
             }
         }
 

@@ -10,7 +10,7 @@ using TVPPro.SiteManager.Helper;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using ApiObjects;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace TVPPro.SiteManager.DataLoaders
 {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using ApiObjects.BulkUpload;
 using Core.Catalog;
-using KLogMonitor;
+using Phx.Lib.Log;
 using ESUtils = ElasticSearch.Common.Utils;
 
 namespace IngestTransformationHandler.Repositories

@@ -28,11 +28,6 @@ pipeline {
                 echo "Cleanning Nugets dir before packaging new nugets"
                 dir("nugets"){ deleteDir() }
 
-                bat "dotnet pack Core/ConfigurationManager/ConfigurationManager.csproj -o ${WORKSPACE}/nugets/" 
-                bat "dotnet pack Core/TCMClient/TCMClient.csproj -o ${WORKSPACE}/nugets/" 
-                bat "dotnet pack Core/StaticHttpContextForNetCore/StaticHttpContextForNetCore.csproj -o ${WORKSPACE}/nugets/" 
-                bat "dotnet pack Core/KLogMonitor/KLogMonitor.csproj -o ${WORKSPACE}/nugets/" 
-                bat "dotnet pack Core/KlogMonitorHelper/KlogMonitorHelper.csproj -o ${WORKSPACE}/nugets/"                 
                 bat "dotnet pack Core/CouchbaseManager/CouchbaseManager.csproj -o ${WORKSPACE}/nugets/" 
                 bat "dotnet pack Core/ODBCWrapper/ODBCWrapper.csproj -o ${WORKSPACE}/nugets/" 
                 bat "dotnet pack Core/CachingManager/CachingManager.csproj -o ${WORKSPACE}/nugets/" 

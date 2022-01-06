@@ -7,14 +7,14 @@ using ApiLogic.Api.Validators;
 using ApiObjects;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Api;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using Core.GroupManagers;
 using DAL;
 using GroupsCacheManager;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Utils = ODBCWrapper.Utils;
 
 namespace ApiLogic.Api.Managers

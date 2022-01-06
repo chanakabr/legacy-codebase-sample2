@@ -1,5 +1,5 @@
-﻿using ConfigurationManager;
-using KLogMonitor;
+﻿using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,7 +50,7 @@ namespace RemoteTasksService
         protected void Application_BeginRequest(object sender, EventArgs e)
         {
             // get request ID
-            HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] = Guid.NewGuid().ToString();
+            KLogger.SetRequestId(Guid.NewGuid().ToString());
         }
 
         protected void Application_AuthenticateRequest(object sender, EventArgs e)

@@ -14,7 +14,7 @@ using System.Web;
 using TVPApiModule.Manager;
 using TVPApiModule.Objects.Authorization;
 using TVPApiModule.Objects.Responses;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using Core.Users;
 using Core.Social.Responses;
@@ -25,7 +25,7 @@ using TVinciShared;
 using Menu = TVPApi.Menu;
 using SocialActivityDoc = TVPApiModule.Objects.SocialActivityDoc;
 using TVPApiModule.Objects.CRM;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace TVPApiServices
 {
@@ -2121,7 +2121,7 @@ namespace TVPApiServices
 
                     if (logLevel != null)
                     {
-                        KLogMonitor.KLogger.SetLogLevel(logLevel);
+                        Phx.Lib.Log.KLogger.SetLogLevel(logLevel);
                         response = true;
                     }
                 }
@@ -2148,7 +2148,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    var level = KLogMonitor.KLogger.GetLogLevel();
+                    var level = Phx.Lib.Log.KLogger.GetLogLevel();
                     response = level.Name;
                 }
                 catch (Exception ex)

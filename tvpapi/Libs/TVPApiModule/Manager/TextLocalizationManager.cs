@@ -8,7 +8,7 @@ using TVPApi;
 using Tvinci.Localization;
 using System.Threading;
 using TVPApiModule.Objects;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 
 namespace TVPApiModule.Manager

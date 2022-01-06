@@ -8,7 +8,7 @@ using EventBus.RabbitMQ;
 using IngestHandler.Common.Infrastructure;
 using IngestTransformationHandler.Managers;
 using IngestTransformationHandler.Repositories;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TvinciCache;

@@ -7,10 +7,10 @@ using ApiObjects.SearchObjects;
 using GroupsCacheManager;
 using System.Data;
 using System.Threading.Tasks;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using ApiObjects.Response;
-using KlogMonitorHelper;
+
 using Core.Catalog.CatalogManagement;
 using Core.Catalog;
 
@@ -31,7 +31,7 @@ namespace ElasticSearchHandler.IndexBuilders
         {
             bool result = false;
 
-            ContextData cd = new ContextData();
+            LogContextData cd = new LogContextData();
 
             CatalogGroupCache catalogGroupCache = null;
             Group group = null;

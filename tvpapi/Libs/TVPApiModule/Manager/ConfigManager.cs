@@ -11,10 +11,10 @@ using TVPApi.Configuration.Site;
 using TVPApi.Configuration.Media;
 using TVPPro.Configuration.PlatformServices;
 using TVPApi.Configuration.OrcaConfiguration;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using TVinciShared;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 /// <summary>
 /// Summary description for ConfigurationManager

@@ -17,8 +17,7 @@
 
 
   <ItemGroup>
-    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
-    <ProjectReference Include="..\StaticHttpContextForNetCore\StaticHttpContextForNetCore.csproj" />
+    <PackageReference Include="Phx.Lib.Log" Version="1.2.3" />
   </ItemGroup>
 
 </Project>

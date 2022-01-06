@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 using System.IO;
 using System.Xml;
 using TVPPro.Configuration.PlatformServices;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using Core.Catalog.Response;
 using Core.Catalog.Request;
@@ -49,7 +49,7 @@ namespace Tvinci.Data.Loaders
             {
                 if (!FailOverManager.Instance.SafeMode)
                 {
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                     {
                         response = request.GetMediasByIDs(request);
                     }
@@ -83,7 +83,7 @@ namespace Tvinci.Data.Loaders
             {
                 if (!FailOverManager.Instance.SafeMode)
                 {
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                     {
                         response = request.GetResponse(request);
                     }
@@ -115,7 +115,7 @@ namespace Tvinci.Data.Loaders
             {
                 if (!FailOverManager.Instance.SafeMode)
                 {
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                     {
                         response = request.GetProgramsByIDs(request);
                     }

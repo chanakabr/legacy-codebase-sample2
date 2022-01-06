@@ -1,5 +1,4 @@
-﻿using ConfigurationManager;
-using KLogMonitor;
+﻿using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,7 +29,7 @@ namespace Ingest
             log4net.GlobalContext.Properties["LogDir"] = logDir;
             
             // init TCM
-            ApplicationConfiguration.Init();
+            Phx.Lib.Appconfig.ApplicationConfiguration.Init();
 
             // set monitor and log configuration files
             KMonitor.Configure("log4net.config", KLogEnums.AppType.WCF);

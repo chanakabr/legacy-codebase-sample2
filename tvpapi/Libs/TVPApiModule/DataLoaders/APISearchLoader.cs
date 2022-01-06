@@ -12,7 +12,7 @@ using TVPPro.SiteManager.Manager;
 using TVPApiModule.Helper;
 using TVPApiModule.Manager;
 using ApiObjects.SearchObjects;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace TVPApi
 {

@@ -6,8 +6,8 @@ using ApiLogic.IndexManager.Helpers;
 using ApiLogic.IndexManager.NestData;
 using ApiLogic.IndexManager.QueryBuilders.NestQueryBuilders.Queries;
 using ApiObjects.SearchObjects;
-using ConfigurationManager;
-using KLogMonitor;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
 using Nest;
 
 namespace ApiLogic.IndexManager.QueryBuilders.NestQueryBuilders

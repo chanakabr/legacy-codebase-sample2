@@ -10,9 +10,9 @@ using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace QueueWrapper
 {
@@ -65,7 +65,7 @@ namespace QueueWrapper
                     {
                         ulong a = ulong.Parse(sAckId);
 
-                        using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_RABBITMQ, null, null, null, null) { Database = m_Configuration.Exchange })
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_RABBITMQ, null, null, null, null) { Database = m_Configuration.Exchange })
                         {
                             m_Model.BasicAck(ulong.Parse(sAckId), false);
                         }
@@ -96,7 +96,7 @@ namespace QueueWrapper
                         {
                             var body = Encoding.UTF8.GetBytes(sMessage.ToString());
                             IBasicProperties properties = m_Model.CreateBasicProperties();
-                            using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_RABBITMQ, null, null, null, null) { Database = m_Configuration.Exchange })
+                            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_RABBITMQ, null, null, null, null) { Database = m_Configuration.Exchange })
                             {
                                 m_Model.BasicPublish(m_Configuration.Exchange, m_Configuration.RoutingKey, properties, body);
                             }
@@ -126,7 +126,7 @@ namespace QueueWrapper
                 {
                     if (this.m_Model != null)
                     {
-                        using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_RABBITMQ, null, null, null, null) { Database = m_Configuration.Exchange })
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_RABBITMQ, null, null, null, null) { Database = m_Configuration.Exchange })
                         {
                             BasicGetResult bgr = m_Model.BasicGet(m_Configuration.QueueName, false);
 

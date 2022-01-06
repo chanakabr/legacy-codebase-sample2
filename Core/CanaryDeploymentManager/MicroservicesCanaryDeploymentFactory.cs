@@ -3,6 +3,7 @@ using System.Threading;
 using ApiObjects.CanaryDeployment.Microservices;
 using ApiObjects.Response;
 
+
 namespace CanaryDeploymentManager
 {
     public class CanaryDeploymentFactory
@@ -16,7 +17,7 @@ namespace CanaryDeploymentManager
 
         private CanaryDeploymentFactory()
         {
-            isCanaryDeploymentConfigurationEnabled = ConfigurationManager.ApplicationConfiguration.Current.MicroservicesClientConfiguration.ShouldAllowCanaryDeploymentConfiguration.Value;
+            isCanaryDeploymentConfigurationEnabled = Phx.Lib.Appconfig.ApplicationConfiguration.Current.MicroservicesClientConfiguration.ShouldAllowCanaryDeploymentConfiguration.Value;
         }
 
         public IMicroservicesCanaryDeploymentManager GetMicroservicesCanaryDeploymentManager()

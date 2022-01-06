@@ -9,7 +9,7 @@ using System.IO;
 using System.Data;
 using System.Configuration;
 using System.Xml.Serialization;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 
 namespace ADIFeeder

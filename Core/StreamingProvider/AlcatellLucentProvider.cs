@@ -9,8 +9,8 @@ using System.Text;
 using System.Xml;
 using ApiObjects;
 using ApiObjects.Epg;
-using ConfigurationManager;
-using KLogMonitor;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
 using TVinciShared;
 
 namespace StreamingProvider

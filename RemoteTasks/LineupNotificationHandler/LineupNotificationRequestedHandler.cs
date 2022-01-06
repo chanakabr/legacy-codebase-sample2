@@ -9,7 +9,7 @@ using ApiObjects.Notification;
 using Core.Catalog.CatalogManagement;
 using Core.Notification;
 using EventBus.Abstraction;
-using KLogMonitor;
+using Phx.Lib.Log;
 using LineupNotificationHandler.Configuration;
 using Newtonsoft.Json;
 using NotificationHandlers.Common;

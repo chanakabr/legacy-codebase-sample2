@@ -9,12 +9,12 @@ using Core.Catalog.Cache;
 using GroupsCacheManager;
 using TVinciShared;
 using ApiObjects.Response;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using ApiLogic.Catalog.Tree;
 using ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority;
 using ApiObjects;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Api.Managers;
 
 namespace Core.Catalog

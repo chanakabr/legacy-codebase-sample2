@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ApiObjects.SearchObjects;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 using OrderDir = ApiObjects.SearchObjects.OrderDir;

@@ -1,7 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Billing;
 using Core.Billing;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,7 +39,7 @@ namespace Core.Billing
         public static string CC_GetUserCCDigits(int nGroupID, string sSiteGUID)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             BaseCreditCard t = null;
             Utils.GetBaseCreditCardImpl(ref t, nGroupID);
@@ -57,7 +57,7 @@ namespace Core.Billing
         public static void CC_DeleteUserCCDigits(int nGroupID, string sSiteGUID)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             BaseCreditCard t = null;
             Utils.GetBaseCreditCardImpl(ref t, nGroupID);
@@ -117,7 +117,7 @@ namespace Core.Billing
         public static AdyenBillingDetail GetLastBillingUserInfo(int nGroupID, string sSiteGUID, int nBillingMethod)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             BaseDirectDebit t = null;
             Utils.GetBaseDirectDebitImpl(ref t, nGroupID);
@@ -136,7 +136,7 @@ namespace Core.Billing
         public static AdyenBillingDetail GetLastBillingTypeUserInfo(int nGroupID, string sSiteGUID)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             return Utils.GetLastBillingTypeUserInfo(nGroupID, sSiteGUID);
         }
@@ -178,7 +178,7 @@ namespace Core.Billing
         public static BillingResponse DD_ChargeUser(int nGroupID, string sSiteGUID, double dChargePrice, string sCurrencyCode, string sUserIP, string sCustomData, Int32 nPaymentNumber, Int32 nNumberOfPayments, string sExtraParameters, int nBillingMethod)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             BaseDirectDebit t = null;
             Utils.GetBaseDirectDebitImpl(ref t, nGroupID);
@@ -196,7 +196,7 @@ namespace Core.Billing
         public static InAppBillingResponse InApp_ChargeUser(int nGroupID, string sSiteGUID, double dChargePrice, string sCurrencyCode, string sUserIP, string sCustomData, Int32 nPaymentNumber, Int32 nNumberOfPayments, string ReceiptData)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             BaseInAppPurchase t = null;
             Utils.GetBaseInAppPurchaseImpl(ref t, nGroupID);
@@ -213,7 +213,7 @@ namespace Core.Billing
         public static InAppBillingResponse InApp_ReneweInAppPurchase(int nGroupID, string sSiteGUID, double dChargePrice, string sCurrencyCode, string sCustomData, Int32 nPaymentNumber, Int32 nNumberOfPayments, int nInAppTransactionID)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             BaseInAppPurchase t = null;
             Utils.GetBaseInAppPurchaseImpl(ref t, nGroupID);
@@ -233,7 +233,7 @@ namespace Core.Billing
         public static bool DD_RefundUser(int nGroupID, string sPSPReference, string sSiteGuid, double dChargePrice, string sCurrencyCode, long lPurchaseID, int nType, int nHowManyCancelOrRefundAttemptsSoFarNotIncludingThisOne)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
 
             BaseDirectDebit t = null;
             Utils.GetBaseDirectDebitImpl(ref t, nGroupID);
@@ -251,7 +251,7 @@ namespace Core.Billing
         public static BillingResponse CC_DummyChargeUser(int nGroupID, string sSiteGUID, double dChargePrice, string sCurrencyCode, string sUserIP, string sCustomData, Int32 nPaymentNumber, Int32 nNumberOfPayments, string sExtraParameters)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             BaseCreditCard t = null;
             Utils.GetDummyCreditCardImpl(ref t, nGroupID);
@@ -270,7 +270,7 @@ namespace Core.Billing
         public static BillingResponse SMS_SendCode(int nGroupID, string sSiteGUID, string sCellPhone, string sReferenceCode, string sExtraParameters)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             BaseSMS t = null;
             Utils.GetBaseSMSImpl(ref t, nGroupID);
@@ -288,7 +288,7 @@ namespace Core.Billing
         public static BillingResponse SMS_CheckCode(int nGroupID, string sSiteGUID, string sCellPhone, string sSMSCode, string sReferenceCode)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             BaseSMS t = null;
             Utils.GetBaseSMSImpl(ref t, nGroupID);
@@ -305,7 +305,7 @@ namespace Core.Billing
         public static bool SendPurchaseMail(int nGroupID, string sSiteGUID, string sPaymentMethod, string sItemName, Int32 nBillingTransID, string stotalAmount, string scurrency, string sExternalNum)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             BaseBilling t = null;
             Utils.GetBaseBillingImpl(ref t, nGroupID);
@@ -324,7 +324,7 @@ namespace Core.Billing
         public static BillingResponse Cellular_ChargeUser(int nGroupID, string sSiteGUID, double dChargePrice, string sCurrencyCode, string sUserIP, string sCustomData, Int32 nPaymentNumber, Int32 nNumberOfPayments, string sExtraParameters)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             BaseCellularCreditCard t = null;
             Utils.GetBaseCellularCreditCardImpl(ref t, nGroupID);
@@ -549,7 +549,7 @@ namespace Core.Billing
         public static ApiObjects.Response.Status SetHouseholdPaymentGateway(int nGroupID, int paymentGwID, string siteGuid, int householdId)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
 
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
             BasePaymentGateway t = new BasePaymentGateway(nGroupID);
@@ -570,7 +570,7 @@ namespace Core.Billing
         public static ApiObjects.Response.Status DeleteHouseholdPaymentGateway(int nGroupID, int paymentGatewayId, string siteGuid, int householdId)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
 
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
             BasePaymentGateway t = new BasePaymentGateway(nGroupID);
@@ -591,7 +591,7 @@ namespace Core.Billing
         public static PaymentGatewayListResponse GetHouseholdPaymentGateways(int nGroupID, string siteGuid, int householdId)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
 
             PaymentGatewayListResponse response = new PaymentGatewayListResponse();
             BasePaymentGateway t = new BasePaymentGateway(nGroupID);
@@ -667,7 +667,7 @@ namespace Core.Billing
             string customData, int productID, eTransactionType productType, int contentID, string billingGuid, int paymentGWId, int paymentGatewayHHPaymentMethodId, string adapterData)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGUID != null ? siteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = siteGUID != null ? siteGUID : "null";
 
             TransactResult response = null;
 
@@ -773,7 +773,7 @@ namespace Core.Billing
             long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
 
             TransactResult response = new TransactResult();
 
@@ -799,7 +799,7 @@ namespace Core.Billing
                                                    string paymentGatewayType, string billingGuid, string adapterData)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGUID ?? "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = siteGUID ?? "null";
 
             TransactResult response = null;
 
@@ -834,7 +834,7 @@ namespace Core.Billing
         public static TransactResult ProcessRenewal(RenewDetails renewDetails, string productCode, List<KeyValuePair<VerificationPaymentGateway, string>> productCodes = null)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = renewDetails.UserId ?? "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = renewDetails.UserId ?? "null";
 
             TransactResult response = null;
 
@@ -1062,7 +1062,7 @@ namespace Core.Billing
         public static ApiObjects.Response.Status SetPaymentMethodHouseholdPaymentGateway(int nGroupID, int paymentGatewayID, string siteGuid, int householdId, int paymentMethodId)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
 
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
             BasePaymentGateway t = new BasePaymentGateway(nGroupID);
@@ -1083,7 +1083,7 @@ namespace Core.Billing
         public static ApiObjects.Response.Status RemovePaymentMethodHouseholdPaymentGateway(int nGroupID, int paymentGatewayID, string siteGuid, int householdId, int paymentMethodId, bool force)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
 
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
             BasePaymentGateway t = new BasePaymentGateway(nGroupID);
@@ -1255,7 +1255,7 @@ namespace Core.Billing
             int paymentMethodId, string userIp, ref List<RenewDetails> renewUnified, ref PaymentGateway paymentGateway, long processId)
         {   
             // add siteguid to logs/monitor
-            // HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGUID != null ? siteGUID : "null";
+            // HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = siteGUID != null ? siteGUID : "null";
             TransactResult response = null;
 
             try

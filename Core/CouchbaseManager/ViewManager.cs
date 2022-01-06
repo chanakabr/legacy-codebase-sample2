@@ -1,7 +1,7 @@
 ﻿using Couchbase;
 using Couchbase.Core;
 using Couchbase.Views;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections;
 using System.Collections.Generic;

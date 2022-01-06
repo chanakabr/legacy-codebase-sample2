@@ -13,7 +13,7 @@ using ApiObjects.Statistics;
 using CachingHelpers;
 using CachingProvider.LayeredCache;
 using Catalog.Response;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Catalog.Cache;
 using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
@@ -26,8 +26,8 @@ using DalCB;
 using ElasticSearch.Searcher;
 using EpgBL;
 using GroupsCacheManager;
-using KLogMonitor;
-using KlogMonitorHelper;
+using Phx.Lib.Log;
+
 using Newtonsoft.Json;
 using NPVR;
 using QueueWrapper;
@@ -251,7 +251,7 @@ namespace Core.Catalog
             List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
 
             // save monitor and logs context data
-            ContextData contextData = new ContextData();
+            LogContextData contextData = new LogContextData();
 
             List<int> nonExistingMediaIDs = new List<int>();
 

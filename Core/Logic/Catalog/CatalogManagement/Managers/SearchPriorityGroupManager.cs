@@ -10,7 +10,7 @@ using ApiObjects.SearchPriorityGroups;
 using CachingProvider.LayeredCache;
 using Core.Catalog.CatalogManagement;
 using DAL.SearchPriorityGroups;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Microsoft.Extensions.Logging;
 
 namespace ApiLogic.Catalog.CatalogManagement.Managers

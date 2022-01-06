@@ -1,13 +1,13 @@
 ﻿using ApiLogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Catalog;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using Core.GroupManagers;
 using GroupsCacheManager;
-using KLogMonitor;
-using KlogMonitorHelper;
+using Phx.Lib.Log;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -190,7 +190,7 @@ namespace ElasticSearchHandler.Updaters
                     //wait to finish
                     //bulk insert
                     // It's absolutely useless to run 100+ epgs retrieval tasks -> due to context switching we can't retrieve them in reasonable amount of time. 
-                    var cd = new ContextData();
+                    var cd = new LogContextData();
                     var epgBL = EpgBL.Utils.GetInstance(groupId);
                     foreach (var chunk in BaseConditionalAccess.Chunkify(epgIds, CHUNK_EPG_SIZE))
                     {

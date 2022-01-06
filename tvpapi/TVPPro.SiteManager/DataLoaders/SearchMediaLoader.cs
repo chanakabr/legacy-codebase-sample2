@@ -17,9 +17,9 @@ using Core.Catalog.Response;
 using ApiObjects;
 using ApiObjects.Response;
 using TVPPro.SiteManager.Services;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace TVPPro.SiteManager.DataLoaders
 {

@@ -10,7 +10,7 @@ using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
 using ElasticSearch.Searcher;
 using GroupsCacheManager;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Nest;
 using System;
 using System.Collections.Generic;

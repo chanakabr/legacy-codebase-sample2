@@ -20,7 +20,7 @@ using ApiObjects.Rules;
 using ApiObjects.Segmentation;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Api;
 using Core.Api.Managers;
 using Core.Catalog.Response;
@@ -31,8 +31,8 @@ using Core.Recordings;
 using Core.Users;
 using DAL;
 using EpgBL;
-using KLogMonitor;
-using KlogMonitorHelper;
+using Phx.Lib.Log;
+
 using NPVR;
 using QueueWrapper;
 using ScheduledTasks;
@@ -14240,7 +14240,7 @@ namespace Core.ConditionalAccess
                     recording.RecordingStatus = tstvRecordingStatus;
                 }
 
-                var contextData = new ContextData();
+                var contextData = new LogContextData();
                 Task.Run(() =>
                 {
                     contextData.Load();
@@ -15605,7 +15605,7 @@ namespace Core.ConditionalAccess
                         maxDegreeOfParallelism = 5;
                     }
                     ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
-                    ContextData contextData = new ContextData();
+                    LogContextData contextData = new LogContextData();
                     Parallel.ForEach(recordingsForDeletion.Values.AsEnumerable(), options, (pair) =>
                     {
                         try
@@ -15942,7 +15942,7 @@ namespace Core.ConditionalAccess
                     ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
                     while (modifiedDomainRecordings != null && modifiedDomainRecordings.Rows != null && modifiedDomainRecordings.Rows.Count > 0)
                     {
-                        ContextData contextData = new ContextData();
+                        LogContextData contextData = new LogContextData();
                         Parallel.For(0, modifiedDomainRecordings.Rows.Count, options, i =>
                         {
                             contextData.Load();
@@ -16054,7 +16054,7 @@ namespace Core.ConditionalAccess
 
                     ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
 
-                    ContextData contextData = new ContextData();
+                    LogContextData contextData = new LogContextData();
                     Parallel.For(0, userDomainlist.Count, options, i =>
                     {
                         contextData.Load();
@@ -16147,7 +16147,7 @@ namespace Core.ConditionalAccess
                             maxDegreeOfParallelism = 5;
                         }
                         ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
-                        ContextData contextData = new ContextData();
+                        LogContextData contextData = new LogContextData();
                         Parallel.ForEach(dtNotEntitled.AsEnumerable(), options, (drow) =>
                         {
                             contextData.Load();
@@ -16685,7 +16685,7 @@ namespace Core.ConditionalAccess
                             maxDegreeOfParallelism = 5;
                         }
                         ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
-                        ContextData contextData = new ContextData();
+                        LogContextData contextData = new LogContextData();
                         Parallel.ForEach(domainFutureSingleRecordings.AsEnumerable(), options, (pair) =>
                         {
                             contextData.Load();
@@ -16903,7 +16903,7 @@ namespace Core.ConditionalAccess
             {
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(m_nGroupID, domainId));
 
-                var contextData = new ContextData();
+                var contextData = new LogContextData();
                 Task.Run(() =>
                 {
                     contextData.Load();
@@ -17199,7 +17199,7 @@ namespace Core.ConditionalAccess
             }
 
             ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
-            ContextData contextData = new ContextData();
+            LogContextData contextData = new LogContextData();
             // loop on all rows
             Parallel.For(0, followingDomains.Rows.Count, options, i =>
             {
@@ -17327,7 +17327,7 @@ namespace Core.ConditionalAccess
                 }
 
                 ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
-                ContextData contextData = new ContextData();
+                LogContextData contextData = new LogContextData();
 
                 int epgSeasonNumber = 0;
                 int epgEpisodeNumber = 0;
@@ -18656,7 +18656,7 @@ namespace Core.ConditionalAccess
             if (!TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS)
                 && recording.EpgStartDate <= DateTime.UtcNow)
             {
-                var contextData = new ContextData();
+                var contextData = new LogContextData();
                 Task.Run(() =>
                 {
                     contextData.Load();

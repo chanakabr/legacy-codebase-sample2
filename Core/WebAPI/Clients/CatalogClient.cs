@@ -24,7 +24,7 @@ using Core.Catalog.Request;
 using Core.Catalog.Response;
 using GroupsCacheManager;
 using KalturaRequestContext;
-using KLogMonitor;
+using Phx.Lib.Log;
 using TVinciShared;
 using WebAPI.App_Start;
 using WebAPI.ClientManagers;

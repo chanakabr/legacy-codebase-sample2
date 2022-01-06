@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
-using KlogMonitorHelper;
+
 
 namespace Core.Notification
 {
@@ -44,7 +44,7 @@ namespace Core.Notification
         /// the job consuming job itself is implemented by the Process() method.
         /// </summary>
         /// <returns></returns>
-        public Task Start(ContextData contextData)
+        public Task Start(LogContextData contextData)
         {
             Task task = Task.Run(() =>
             {

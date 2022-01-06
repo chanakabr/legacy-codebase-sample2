@@ -14,15 +14,12 @@
  
   
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Runtime.Caching" Version="4.5.0" />
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj" />
     <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj" />
     <ProjectReference Include="..\EventBus.Kafka\EventBus.Kafka.csproj" />
-    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\RedisManager\RedisManager.csproj" />
   </ItemGroup>
   
@@ -31,7 +28,7 @@
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <ProjectReference Include="..\StaticHttpContextForNetCore\StaticHttpContextForNetCore.csproj" />
+    <PackageReference Include="Phx.Lib.Static.HttpContext" Version="1.5.1" />
   </ItemGroup>
   
    <!-- This is a workaround that will allow TVM website project to build, if you read this an 

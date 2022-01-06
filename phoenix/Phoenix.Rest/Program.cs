@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Metrics;
 using Core.Middleware;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
@@ -18,7 +18,7 @@ namespace Phoenix.Rest
             var defaultLogDir = $@"/var/log/phoenix/{apiVersion}";
             KLogger.InitLogger("log4net.config", KLogEnums.AppType.WS, defaultLogDir);
 
-            ConfigurationManager.ApplicationConfiguration.Init();
+            ApplicationConfiguration.Init();
 
             var host = KalturaWebHostBuilder.BuildWebServerAsync<Startup>(new WebServerConfiguration
             {

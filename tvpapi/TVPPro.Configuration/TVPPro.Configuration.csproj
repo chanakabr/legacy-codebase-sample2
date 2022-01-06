@@ -39,7 +39,6 @@
     <None Include="Technical\TechnicalData.xsd" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\Tvinci.Configuration\Tvinci.Configuration.csproj" />
     <ProjectReference Include="..\TvmDataLoader\Tvinci.Data.TVMDataLoader.csproj" />
   </ItemGroup>

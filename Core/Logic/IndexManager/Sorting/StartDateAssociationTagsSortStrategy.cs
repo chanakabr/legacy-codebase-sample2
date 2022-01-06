@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using ApiLogic.IndexManager.Helpers;
 using ApiObjects.SearchObjects;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 

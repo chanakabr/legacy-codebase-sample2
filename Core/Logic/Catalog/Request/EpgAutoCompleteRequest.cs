@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using ApiObjects.SearchObjects;
 using Core.Catalog.Response;
-using KLogMonitor;
+using Phx.Lib.Log;
 
 namespace Core.Catalog.Request
 {

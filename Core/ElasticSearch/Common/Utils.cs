@@ -5,8 +5,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using ConfigurationManager;
-using KLogMonitor;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
 using Newtonsoft.Json.Linq;
 
 namespace ElasticSearch.Common
