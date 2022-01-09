@@ -7,7 +7,7 @@ stage('Unified-CI'){
         //ECR_REPOSITORY = "${ECR_URL}/${REPOSITORY_NAME}"
         STAGE = 'build'
         PIPECLI = cd.get_pipecli()
-        currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME} - ${committerEmail}"
+        //currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME} - ${committerEmail}"
 
         properties([
             // buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '50')),
