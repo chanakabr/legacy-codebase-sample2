@@ -4,7 +4,7 @@ stage('Unified-CI'){
         AWS_REGION = 'us-west-2'
         ECR_URL = '870777418594.dkr.ecr.us-west-2.amazonaws.com'
         component = env.JOB_NAME
-        ECR_REPOSITORY = "${ECR_URL}/${REPOSITORY_NAME}"
+        //ECR_REPOSITORY = "${ECR_URL}/${REPOSITORY_NAME}"
         STAGE = 'build'
         PIPECLI = cd.get_pipecli()
         currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME} - ${committerEmail}"
