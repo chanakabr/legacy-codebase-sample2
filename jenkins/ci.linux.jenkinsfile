@@ -1,7 +1,7 @@
 library identifier: 'ott-lib-jenkins@master', retriever: modernSCM([$class: 'GitSCMSource', credentialsId: 'github-ott-ci-cd', remote: 'https://github.com/kaltura/ott-lib-jenkins'])
 stage('Unified-CI'){
     parallel(
-        Linux: {
+        linux: {
             node('Linux'){
                 // parameters {
                 //     booleanParam(name: 'TRIGGER_RC', defaultValue: true, description: 'Should trigger Release Candidate?')
@@ -97,7 +97,7 @@ stage('Unified-CI'){
             }
         },
         // Windows
-        Windows: {
+        windows: {
             node('Windows'){
                 STAGE = "build"
                 AWS_REGION="us-west-2"
