@@ -64,19 +64,14 @@ stage('Unified-CI'){
                         //     }
                         // }
                         stage("Trigger Sonar Scan"){
-                            when {
-                                expression {
-                                    BRANCH_NAME == "master"
-                                }
-                            }
-                            steps{
+                            if (BRANCH_NAME == "master") {
                                 build (
-                                    job: "OTT-BE-Sonar-Scan", 
-                                    wait: false,
+                                    wait: false, 
+                                    job: 'OTT-BE-Sonar-Scan', 
                                     parameters: [
-                                        [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
-                                        [$class: 'StringParameterValue', name: 'PROJECT', value: "ott-backend-netcore"],
-                                    ]
+                                        string(name: 'BRANCH_NAME', value: "${BRANCH_NAME}"), 
+                                        string(name: 'PROJECT', value: 'ott-backend-netcore')
+                                        ]
                                 )
                             }
                         }
