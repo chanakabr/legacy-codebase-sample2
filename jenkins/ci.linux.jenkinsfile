@@ -14,7 +14,7 @@ stage('Unified-CI'){
                 {
                     properties([
                         buildDiscarder(logRotator(numToKeepStr:'50')),
-                        skipDefaultCheckout true,
+                        skipDefaultCheckout: true,
                         disableConcurrentBuilds(),
                         quietPeriod(50)
                     ])
