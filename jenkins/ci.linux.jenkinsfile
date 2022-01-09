@@ -8,7 +8,7 @@ stage('Unified-CI'){
         STAGE = 'build'
         PIPECLI = cd.get_pipecli()
         currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME} - ${committerEmail}"
-        
+
         properties([
             // buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '50')),
             // skipDefaultCheckout: true,
@@ -100,8 +100,8 @@ stage('Unified-CI'){
             // Windows
             windows: {
                 node('Windows'){
-                    STAGE = "build"
-                    AWS_REGION="us-west-2"
+                    //STAGE = "build"
+                    //AWS_REGION="us-west-2"
                     PIPECLI = cd.get_pipecli()
                     def msbuild = tool name: 'default', type:'hudson.plugins.msbuild.MsBuildInstallation'
                     try{
