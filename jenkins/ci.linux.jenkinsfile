@@ -1,8 +1,8 @@
 library identifier: 'ott-lib-jenkins@master', retriever: modernSCM([$class: 'GitSCMSource', credentialsId: 'github-ott-ci-cd', remote: 'https://github.com/kaltura/ott-lib-jenkins'])
 pipeline {
-    agent {
-        label 'Linux'
-    }
+    // agent {
+        // label 'Linux'
+    // }
     options {
         buildDiscarder(logRotator(numToKeepStr:'50'))
         skipDefaultCheckout true
@@ -23,7 +23,10 @@ pipeline {
     stages {
         stage('unified build'){
             parallel {
-                stage('Linux'){        
+                stage('Linux'){   
+                    agent {
+                        label 'Linux'
+                    }
                     stages {    
                         stage('Checkout'){
                             steps{
