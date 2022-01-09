@@ -1,27 +1,26 @@
 library identifier: 'ott-lib-jenkins@master', retriever: modernSCM([$class: 'GitSCMSource', credentialsId: 'github-ott-ci-cd', remote: 'https://github.com/kaltura/ott-lib-jenkins'])
 stage('Unified-CI'){
     parallel(
-         Linux: {
+        Linux: {
             node('Linux'){
-                withEnv([
-                    'AWS_REGION=us-west-2',
-                    'ECR_URL=870777418594.dkr.ecr.us-west-2.amazonaws.com',
-                    "component=${env.JOB_NAME}",
-                    "ECR_REPOSITORY=${ECR_URL}/${REPOSITORY_NAME}",
-                    'STAGE=build',
-                    'PIPECLI=cd.get_pipecli()'
-                ])
-                {
-                    properties([
-                        buildDiscarder(logRotator(numToKeepStr:'50')),
-                        skipDefaultCheckout: true,
-                        disableConcurrentBuilds(),
-                        quietPeriod(50)
-                    ])
                 // parameters {
                 //     booleanParam(name: 'TRIGGER_RC', defaultValue: true, description: 'Should trigger Release Candidate?')
                 // }    
-                    try{  
+                try{  
+                    withEnv([
+                        'AWS_REGION=us-west-2',
+                        'ECR_URL=870777418594.dkr.ecr.us-west-2.amazonaws.com',
+                        "component=${env.JOB_NAME}",
+                        "ECR_REPOSITORY=${ECR_URL}/${REPOSITORY_NAME}",
+                        'STAGE=build',
+                        'PIPECLI=cd.get_pipecli()'
+                    ]){
+                        properties([
+                            buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '50')),
+                            skipDefaultCheckout: true,
+                            disableConcurrentBuilds(),
+                            quietPeriod(50)
+                        ])                        
                         stage('Checkout'){
                             steps{
                                 git(url: 'https://github.com/kaltura/ott-backend.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd")
@@ -88,12 +87,12 @@ stage('Unified-CI'){
                                 )
                             }
                         }
-                    } catch (e){
-                        throw e
-                    } finally{
-                            linux_report()
-                            sleep 10
                     }
+                } catch (e){
+                    throw e
+                } finally{
+                        linux_report()
+                        sleep 10
                 }
             }
         },
@@ -108,7 +107,7 @@ stage('Unified-CI'){
                     withEnv(['MSBUILD=msbuild', "component=${env.JOB_NAME}"]){
                             properties([
                                 buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '50')),
-                                disableConcurrentBuilds(), 
+                                disableConcurrentBuilds()
                                 //parameters([booleanParam(defaultValue: true, description: 'Should trigger Release Candidate?', name: 'TRIGGER_RC')]), 
                             ])
                             stage('Clean') {
