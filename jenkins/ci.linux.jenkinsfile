@@ -25,7 +25,7 @@ stage('Unified-CI'){
                     try{                        
                         stage('Checkout'){
                             steps{
-                                git(url: 'https://github.com/kaltura/ott-backend.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd")
+                                git(url: 'https://github.com/kaltura/ott-backend.git', branch: "itayvolo_noRC_test", credentialsId: "github-ott-ci-cd")
                                 script {
                                     committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim() 
                                         }
