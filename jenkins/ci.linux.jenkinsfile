@@ -10,10 +10,10 @@ stage('Unified-CI'){
         //currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME} - ${committerEmail}"
 
         properties([
-            // buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '50')),
-            // skipDefaultCheckout: true,
-            // disableConcurrentBuilds(),
-            // quietPeriod(50)
+            buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '50')),
+            skipDefaultCheckout: true,
+            disableConcurrentBuilds(),
+            quietPeriod(50)
         ])
 
         parallel(
