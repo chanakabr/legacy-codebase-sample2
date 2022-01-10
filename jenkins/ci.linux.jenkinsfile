@@ -11,10 +11,10 @@ stage('Unified-CI'){
 
         properties([
             //buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '50')),
-            [$class: 'BuildDiscarderProperty', strategy: [$class: 'LogRotator', artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '50']]
-            [skipDefaultCheckout()]
-            [disableConcurrentBuilds()]
-            [quietPeriod(50)]
+            //[$class: 'BuildDiscarderProperty', strategy: [$class: 'LogRotator', artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '50']]
+            skipDefaultCheckout(),
+            disableConcurrentBuilds(),
+            quietPeriod(50)
         ])
 
         parallel(
@@ -79,7 +79,7 @@ stage('Unified-CI'){
                     } catch (e){
                         throw e
                     } finally{
-                            linux_report()
+                            report()
                             sleep 10
                     }
                 }
@@ -89,7 +89,7 @@ stage('Unified-CI'){
                 node('Windows'){
                     //STAGE = "build"
                     //AWS_REGION="us-west-2"
-                    PIPECLI = cd.get_pipecli()
+                    //PIPECLI = cd.get_pipecli()
                     def msbuild = tool name: 'default', type:'hudson.plugins.msbuild.MsBuildInstallation'
                     try{
                         withEnv(['MSBUILD=msbuild', "component=${env.JOB_NAME}"]){
@@ -193,12 +193,15 @@ stage('Unified-CI'){
                     } catch (e){
                         throw e
                     } finally{
-                            windows_report()
+                            report()
                             sleep 10
                     }
                 }       
             }
-        )
+        failFast: true)
+        stage('Trigger Wrapper'){
+            triggerWrapper()
+        }
     }
 }
 
@@ -283,16 +286,6 @@ def buildDockerAndPushToEcr(componentName, dockerfile){
     echo "Docker build image: ${ECR_REPOSITORY}:${FULL_VERSION}"
 }
 
-def linux_report(){
-    sh ("set +x;\$(aws ecr get-login --no-include-email --region ${AWS_REGION})")
-    //configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
-    def committerEmail = sh ( script: 'set +x;git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
-    def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "set +x;git rev-parse HEAD", returnStdout: true).trim();
-    //def reportout = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult} ${GIT_COMMIT} NA ${committerEmail}", returnStdout: true)
-    //echo "${reportout}"
-    def report = sh (script: "set +x;${PIPECLI} report job -b ${BRANCH_NAME} -s ${STAGE} --buildnum ${env.BUILD_NUMBER} --job ${env.JOB_NAME} --type build --buildstatus ${currentBuild.currentResult} --gitcommit ${GIT_COMMIT} --ecr NA --commiter ${committerEmail}", returnStdout: true)
-}
-
 //windows funcs
 def buildMsProject(projectFilePath, outputPath, component){
     bat (label:"Buil ${projectFilePath}" , script:"\"${MSBUILD}\" ${projectFilePath} -m:4 -nr:False -t:Restore,Build,WebPublish"
@@ -304,18 +297,25 @@ def buildMsProject(projectFilePath, outputPath, component){
     )               
 }
 
-
-def windows_report(){
-    def committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
-    def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "git rev-parse HEAD", returnStdout: true).trim()
-    // def reportout = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult} ${GIT_COMMIT} NA ${committerEmail}", returnStdout: true)
-    // echo "${reportout}"
+//unified-report
+def report(){
     node('Linux'){
+        def committerEmail = sh ( script: 'set +x;git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
+        def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "set +x;git rev-parse HEAD", returnStdout: true).trim();
+        // def reportout = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult} ${GIT_COMMIT} NA ${committerEmail}", returnStdout: true)
+        // echo "${reportout}"
         sh "\$(aws ecr get-login --no-include-email --region ${AWS_REGION})"
-        def report = sh (script: "${PIPECLI} report job -b ${BRANCH_NAME} -s ${STAGE} --buildnum ${env.BUILD_NUMBER} --job ${env.JOB_NAME} --type build --buildstatus ${currentBuild.currentResult} --gitcommit ${GIT_COMMIT} --ecr NA --commiter ${committerEmail}", returnStdout: true)
-        echo "${report}"
-    }
-    
+        def report = sh (script: "set +x;${PIPECLI} report job -b ${BRANCH_NAME} -s ${STAGE} --buildnum ${env.BUILD_NUMBER} --job ${env.JOB_NAME} --type build --buildstatus ${currentBuild.currentResult} --gitcommit ${GIT_COMMIT} --ecr NA --commiter ${committerEmail}", returnStdout: true)
+    } 
+}
+
+//Trigger Wrapper
+def triggerWrapper(){
+    build job: 'OTT-BE-Sanity-Wrapper', parameters: [
+                                                string(name: 'BRANCH', value: "${BRANCH_NAME}"),
+                                                string(name: 'AUTOKILL', value: "true"),
+                                                string(name: 'Linux', value: "true")
+                                                ], wait: false
 }
 
 
