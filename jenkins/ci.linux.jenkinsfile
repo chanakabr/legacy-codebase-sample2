@@ -18,7 +18,7 @@ stage('Unified-CI'){
         ])
 
         parallel(
-            linux: {
+            "Linux" : {
                 node('Linux'){
                     // parameters {
                     //     booleanParam(name: 'TRIGGER_RC', defaultValue: true, description: 'Should trigger Release Candidate?')
@@ -84,8 +84,7 @@ stage('Unified-CI'){
                     }
                 }
             },
-            // Windows
-            windows: {
+            "Windows" : {
                 node('Windows'){
                     //STAGE = "build"
                     //AWS_REGION="us-west-2"
@@ -198,7 +197,7 @@ stage('Unified-CI'){
                     }
                 }       
             },
-        failFast: true)
+            failFast: true)
         stage('Trigger Wrapper'){
             triggerWrapper()
         }
