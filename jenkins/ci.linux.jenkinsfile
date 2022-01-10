@@ -12,7 +12,7 @@ stage('Unified-CI'){
         properties([
             //buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '50')),
             [$class: 'BuildDiscarderProperty', strategy: [$class: 'LogRotator', artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '50']];
-            skipDefaultCheckout: true,
+            skipDefaultCheckout(),
             disableConcurrentBuilds(),
             quietPeriod(50)
         ])
