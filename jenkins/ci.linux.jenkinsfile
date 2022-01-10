@@ -313,7 +313,7 @@ def report(){
 
 //Trigger Wrapper
 def triggerWrapper(){
-    build job: 'OTT-BE-Sanity-Wrapper', parameters: [
+    build job: 'Sanity-noRC-TEST', parameters: [
                                                 string(name: 'BRANCH', value: "${BRANCH_NAME}"),
                                                 string(name: 'AUTOKILL', value: "true"),
                                                 string(name: 'Linux', value: "true")
