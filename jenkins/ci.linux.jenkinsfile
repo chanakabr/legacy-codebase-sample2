@@ -197,7 +197,7 @@ stage('Unified-CI'){
                             sleep 10
                     }
                 }       
-            }
+            },
         failFast: true)
         stage('Trigger Wrapper'){
             triggerWrapper()
