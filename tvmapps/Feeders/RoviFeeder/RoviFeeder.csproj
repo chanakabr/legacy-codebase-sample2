@@ -10,7 +10,6 @@
     <Copyright>Copyright © Microsoft 2013</Copyright>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <PostBuildEvent />
-    <PreBuildEvent>if $(ConfigurationName) == Release ( cd $(ProjectDir) &amp; powershell –NonInteractive –ExecutionPolicy Unrestricted ..\..\..\Core\DllVersioning.ps1 $(ProjectDir) )</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -26,9 +25,6 @@
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent />
-  </PropertyGroup>
-  <PropertyGroup>
-    <PreBuildEvent>if $(ConfigurationName) == Release ( cd $(ProjectDir) &amp; powershell –NonInteractive –ExecutionPolicy Unrestricted ..\..\..\Core\DllVersioning.ps1 $(ProjectDir) )</PreBuildEvent>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="EntityFramework" Version="6.0.2" />

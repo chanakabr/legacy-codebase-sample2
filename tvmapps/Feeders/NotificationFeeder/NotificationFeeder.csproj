@@ -7,7 +7,6 @@
     <Product>NotificationFeeder</Product>
     <Copyright>Copyright ©  2013</Copyright>
     <OutputPath>bin\$(Configuration)\</OutputPath>
-    <PreBuildEvent>if $(ConfigurationName) == Release ( cd $(ProjectDir) &amp; powershell –NonInteractive –ExecutionPolicy Unrestricted ..\..\..\Core\DllVersioning.ps1 $(ProjectDir) )</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -20,9 +19,6 @@
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PreBuildEvent>if $(ConfigurationName) == Release ( cd $(ProjectDir) &amp; powershell –NonInteractive –ExecutionPolicy Unrestricted ..\..\..\Core\DllVersioning.ps1 $(ProjectDir) )</PreBuildEvent>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.Data.DataSetExtensions" />

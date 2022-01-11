@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Reflection;
-using ConfigurationManager;
 using IngestTransformationHandler.Managers;
-using KLogMonitor;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
 
 namespace IngestV2.Compaction.Tool
 {

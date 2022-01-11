@@ -11,6 +11,11 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Phx.Lib.Appconfig" Version="1.2.0" />
+      <PackageReference Include="Phx.Lib.Log" Version="1.2.3" />
+    </ItemGroup>
+
+    <ItemGroup>
       <Content Include="log4net.config">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>

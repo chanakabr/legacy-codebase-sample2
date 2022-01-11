@@ -1,11 +1,10 @@
 using System;
-using ConfigurationManager;
-using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
-using ConfigurationManager.Types;
 using ElasticSearch.NEST;
 using Phx.Lib.Log;
 using Moq;
 using NUnit.Framework;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Appconfig.Types;
 
 namespace ElasticSearch.Test
 {
