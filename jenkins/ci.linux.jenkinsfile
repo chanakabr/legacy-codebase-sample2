@@ -19,10 +19,7 @@ stage('Unified-CI'){
 
         parallel(
             "Linux" : {
-                node('Linux'){
-                    // parameters {
-                    //     booleanParam(name: 'TRIGGER_RC', defaultValue: true, description: 'Should trigger Release Candidate?')
-                    // }    
+                node('Linux'){   
                     try{                        
                         stage('Checkout'){
                             git branch: "${BRANCH_NAME}", credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend'
