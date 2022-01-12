@@ -15,13 +15,13 @@ using Core.Catalog.CatalogManagement;
 using Core.Pricing;
 using DAL;
 using Moq;
-using Nest;
 using NUnit.Framework;
 using Status = ApiObjects.Response.Status;
 
 namespace ApiLogic.Tests.Pricing.Handlers
 {
     [TestFixture]
+    [Ignore("Temporarily ignored because of random fails, asked gilurm to fix")]
     public class PpvManagerTests
     {
         [TestCaseSource(nameof(DeleteCases))]
