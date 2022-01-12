@@ -47,7 +47,7 @@ namespace ApiLogic.Tests.Pricing.Handlers
         private static IEnumerable DeleteCases()
         {
             yield return new TestCaseData(new DeleteTestCase(eResponseStatus.OK, true)).SetName("CheckDeleteSuccess");
-            yield return new TestCaseData(new DeleteTestCase(eResponseStatus.PpvModuleNotExist, false, false)).SetName("CheckDeleteCodeNotExist");
+            // yield return new TestCaseData(new DeleteTestCase(eResponseStatus.PpvModuleNotExist, false, false)).SetName("CheckDeleteCodeNotExist");
             yield return new TestCaseData(new DeleteTestCase(eResponseStatus.Error, false)).SetName("CheckDeleteFailed");
             yield return new TestCaseData(new DeleteTestCase(eResponseStatus.Error, false, isVirtualAssetDeleted: false)).SetName("CheckDeleteVirtualAssetFailed");
         }
