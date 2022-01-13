@@ -18,7 +18,7 @@ using CachingProvider.LayeredCache;
 namespace ApiLogic.Tests.Pricing.Handlers
 {
     [TestFixture]
-    [Ignore("Temporarily ignored because of random fails, asked gilurm to fix")]
+    [Ignore("Temporarily ignored because of random fails. Described in https://github.com/kaltura/ott-backend/pull/1113")]
     class UsageModuleManagerTests
     {
         [TestCaseSource(nameof(DeleteCases))]
