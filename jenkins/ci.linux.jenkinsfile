@@ -11,11 +11,13 @@ stage('Unified-CI'){
 
         properties([
             [$class: 'BuildDiscarderProperty', strategy: [$class: 'LogRotator', artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '50']],
+            disableConcurrentBuilds()
             //buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '50')),
             //skipDefaultCheckout()
-            disableConcurrentBuilds()
             //quietPeriod(50)
         ])
+        skipDefaultCheckout()
+        currentBuild.rawBuild.getParent().setQuietPeriod(50)
 
         parallel(
             "Linux" : {
