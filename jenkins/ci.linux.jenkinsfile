@@ -17,7 +17,7 @@ stage('Unified-CI'){
             //quietPeriod(50)
         ])
         skipDefaultCheckout()
-        currentBuild.rawBuild.getParent().setQuietPeriod(50)
+        //currentBuild.rawBuild.getParent().setQuietPeriod(50)
 
         parallel(
             "Linux" : {
