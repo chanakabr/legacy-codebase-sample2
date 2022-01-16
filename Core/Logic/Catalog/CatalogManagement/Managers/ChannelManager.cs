@@ -15,8 +15,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using DAL.SearchObjects.Converters;
-using Newtonsoft.Json;
+using GroupsCacheManager.Mappers;
 using Tvinci.Core.DAL;
 using static ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData;
 
@@ -199,8 +198,8 @@ namespace Core.Catalog.CatalogManagement
 
             #region Order
 
-            channel.OrderingParameters = BuildOrderingParameters(dr);
-            channel.m_OrderObject = BuildOrderObj(channel.OrderingParameters.First());
+            channel.OrderingParameters = ChannelDataRowMapper.BuildOrderingParameters(dr);
+            channel.m_OrderObject = ChannelDataRowMapper.BuildOrderObj(channel.OrderingParameters.First());
 
             #endregion
 
@@ -307,81 +306,6 @@ namespace Core.Catalog.CatalogManagement
             channel.AssetUserRuleId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ASSET_RULE_ID");
 
             return channel;
-        }
-
-        private static List<AssetOrder> BuildOrderingParameters(DataRow dr)
-        {
-            List<AssetOrder> result;
-            var orderingParametersJson = ODBCWrapper.Utils.GetSafeStr(dr["ORDERING_PARAMETERS"]);
-            if (string.IsNullOrEmpty(orderingParametersJson))
-            {
-                var channelOrder = BuildBaseChannelOrder(dr);
-                result = new List<AssetOrder> { channelOrder };
-            }
-            else
-            {
-                result = JsonConvert.DeserializeObject<List<AssetOrder>>(orderingParametersJson, new AssetOrderConverter());
-            }
-
-            return result;
-        }
-
-        private static AssetOrder BuildBaseChannelOrder(DataRow dr)
-        {
-            var orderByInt = ODBCWrapper.Utils.GetIntSafeVal(dr["order_by_type"]);
-            var orderDirInt = ODBCWrapper.Utils.GetIntSafeVal(dr["order_by_dir"]) - 1;
-            var orderBy = (OrderBy)Enum.ToObject(typeof(OrderBy), orderByInt);
-            var orderDir = (OrderDir)Enum.ToObject(typeof(OrderDir), orderDirInt);
-
-            AssetOrder channelOrder;
-            switch (orderBy)
-            {
-                case OrderBy.NAME:
-                case OrderBy.START_DATE:
-                case OrderBy.CREATE_DATE:
-                case OrderBy.RELATED:
-                case OrderBy.ID:
-                    channelOrder = new AssetOrder { Field = orderBy, Direction = orderDir };
-                    break;
-                case OrderBy.META:
-                    var orderByValue = ODBCWrapper.Utils.GetSafeStr(dr, "ORDER_BY_VALUE");
-                    channelOrder = new AssetOrderByMeta { Field = orderBy, Direction = orderDir, MetaName = orderByValue };
-                    break;
-                case OrderBy.LIKE_COUNTER:
-                case OrderBy.RATING:
-                case OrderBy.VOTES_COUNT:
-                case OrderBy.VIEWS:
-                    var slidingWindowPeriod = ODBCWrapper.Utils.GetIntSafeVal(dr["SlidingWindowPeriod"]);
-                    channelOrder = new AssetSlidingWindowOrder { Field = orderBy, Direction = orderDir, SlidingWindowPeriod = slidingWindowPeriod };
-                    break;
-                default:
-                    channelOrder = new AssetOrder { Field = OrderBy.CREATE_DATE, Direction = OrderDir.DESC };
-                    log.Warn($"{nameof(AssetOrder)} can not be determined: {nameof(orderBy)}={orderBy}. The default channel order has been created.");
-                    break;
-            }
-
-            return channelOrder;
-        }
-
-        private static OrderObj BuildOrderObj(AssetOrder channelOrder)
-        {
-            var orderObj = new OrderObj
-            {
-                m_eOrderBy = channelOrder.Field,
-                m_eOrderDir = channelOrder.Direction
-            };
-
-            if (channelOrder is AssetOrderByMeta orderByMeta)
-            {
-                orderObj.m_sOrderValue = orderByMeta.MetaName;
-            }
-            else if (channelOrder is AssetSlidingWindowOrder slidingWindowOrder)
-            {
-                orderObj.m_bIsSlidingWindowField = orderObj.isSlidingWindowFromRestApi = true;
-                orderObj.lu_min_period_id = slidingWindowOrder.SlidingWindowPeriod;
-            }
-
-            return orderObj;
         }
 
         private static List<Channel> GetChannels(int groupId, List<int> channelIds, bool isAllowedToViewInactiveAssets)
