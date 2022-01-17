@@ -640,7 +640,13 @@ namespace Core.Users
         protected override bool DoInsert()
         {
             UpdateUserTypeOnBasicData(GroupId);
-            var userInputModel = MapToUserInputModel();
+            
+            var userDataEncryptor = UserDataEncryptor.Instance();
+            var encryptionType = userDataEncryptor.GetUsernameEncryptionType(GroupId);
+            m_oBasicData.m_sUserName = userDataEncryptor.CorrectUsernameCase(encryptionType, m_oBasicData.m_sUserName);
+            var encryptedUsername = userDataEncryptor.EncryptUsername(GroupId, encryptionType, m_oBasicData.m_sUserName);
+            
+            var userInputModel = MapToUserInputModel(encryptedUsername, encryptionType);
             var result = UsersDal.InsertUser(userInputModel);
             if (result != null)
             {
@@ -648,6 +654,7 @@ namespace Core.Users
                 m_oBasicData.CreateDate = result.CreateDate;
                 m_oBasicData.UpdateDate = result.UpdateDate;
                 m_sSiteGUID = userId.ToString();
+                
                 if (UsersDal.UpsertUserRoleIds(GroupId, userId, m_oBasicData.RoleIds))
                 {
                     var invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(GroupId, m_sSiteGUID);
@@ -1289,16 +1296,13 @@ namespace Core.Users
             return UpdateFailCount(groupId, add, userId, user, setLoginDate);
         }
 
-        private InsertUserInputModel MapToUserInputModel()
+        private InsertUserInputModel MapToUserInputModel(string encryptedUsername, EncryptionType? encryptionType)
         {
-            var userDataEncryptor = UserDataEncryptor.Instance();
-            var encryptionType = userDataEncryptor.GetUsernameEncryptionType(GroupId);
-            var username = userDataEncryptor.EncryptUsername(GroupId, encryptionType, m_oBasicData.m_sUserName);
             var countryId = m_oBasicData.m_Country?.m_nObjecrtID;
 
             return new InsertUserInputModel
             {
-                Username = username,
+                Username = encryptedUsername,
                 Password = m_oBasicData.m_sPassword,
                 Salt = m_oBasicData.m_sSalt,
                 FirstName = m_oBasicData.m_sFirstName,
