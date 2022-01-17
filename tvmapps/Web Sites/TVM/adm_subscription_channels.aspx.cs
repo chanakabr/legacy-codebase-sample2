@@ -163,6 +163,7 @@ public partial class adm_subscription_channels : System.Web.UI.Page
             InsertSubscriptionChannelID(int.Parse(sID), int.Parse(Session["subscription_id"].ToString()), nLogedInGroupID);
         }
 
+        InvalidateSubscription(nSubscriptionID);
 
         return "";
     }
@@ -236,5 +237,11 @@ public partial class adm_subscription_channels : System.Web.UI.Page
         dualList.Add("withCalendar", false);
 
         return dualList.ToJSON();
+    }
+
+    private void InvalidateSubscription(int subscriptionId)
+    {
+        Core.Pricing.PricingCache.Instance.InvalidateSubscription(LoginManager.GetLoginGroupID(), subscriptionId);
+        log.Debug($"InvalidateSubscription {subscriptionId}");
     }
 }
