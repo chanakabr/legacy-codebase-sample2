@@ -4,12 +4,12 @@ using System.Data;
 using System.Reflection;
 using ApiObjects.SearchObjects;
 using DAL.SearchObjects.Converters;
-using KLogMonitor;
 using Newtonsoft.Json;
+using Phx.Lib.Log;
 
 namespace GroupsCacheManager.Mappers
 {
-    public class ChannelDataRowMapper
+    public static class ChannelDataRowMapper
     {
         private static readonly KLogger Log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType?.ToString());
         
