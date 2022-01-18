@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Reflection;
 using ApiObjects.SearchObjects;
-using DAL.SearchObjects.Converters;
 using Newtonsoft.Json;
 using Phx.Lib.Log;
 
@@ -11,8 +9,8 @@ namespace GroupsCacheManager.Mappers
 {
     public static class ChannelDataRowMapper
     {
-        private static readonly KLogger Log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType?.ToString());
-        
+        private static readonly KLogger Log = new KLogger(nameof(ChannelDataRowMapper));
+
         public static List<AssetOrder> BuildOrderingParameters(DataRow dr)
         {
             List<AssetOrder> result;
@@ -20,12 +18,11 @@ namespace GroupsCacheManager.Mappers
             if (string.IsNullOrEmpty(orderingParametersJson))
             {
                 var channelOrder = BuildBaseChannelOrder(dr);
-                result = new List<AssetOrder> {channelOrder};
+                result = new List<AssetOrder> { channelOrder };
             }
             else
             {
-                result = JsonConvert.DeserializeObject<List<AssetOrder>>(orderingParametersJson,
-                    new AssetOrderConverter());
+                result = JsonConvert.DeserializeObject<List<AssetOrder>>(orderingParametersJson);
             }
 
             return result;
@@ -35,8 +32,8 @@ namespace GroupsCacheManager.Mappers
         {
             var orderByInt = ODBCWrapper.Utils.GetIntSafeVal(dr["order_by_type"]);
             var orderDirInt = ODBCWrapper.Utils.GetIntSafeVal(dr["order_by_dir"]) - 1;
-            var orderBy = (OrderBy) Enum.ToObject(typeof(OrderBy), orderByInt);
-            var orderDir = (OrderDir) Enum.ToObject(typeof(OrderDir), orderDirInt);
+            var orderBy = (OrderBy)Enum.ToObject(typeof(OrderBy), orderByInt);
+            var orderDir = (OrderDir)Enum.ToObject(typeof(OrderDir), orderDirInt);
 
             AssetOrder channelOrder;
             switch (orderBy)
@@ -46,25 +43,22 @@ namespace GroupsCacheManager.Mappers
                 case OrderBy.CREATE_DATE:
                 case OrderBy.RELATED:
                 case OrderBy.ID:
-                    channelOrder = new AssetOrder {Field = orderBy, Direction = orderDir};
+                    channelOrder = new AssetOrder { Field = orderBy, Direction = orderDir };
                     break;
                 case OrderBy.META:
                     var orderByValue = ODBCWrapper.Utils.GetSafeStr(dr, "ORDER_BY_VALUE");
-                    channelOrder = new AssetOrderByMeta
-                        {Field = orderBy, Direction = orderDir, MetaName = orderByValue};
+                    channelOrder = new AssetOrderByMeta { Field = orderBy, Direction = orderDir, MetaName = orderByValue };
                     break;
                 case OrderBy.LIKE_COUNTER:
                 case OrderBy.RATING:
                 case OrderBy.VOTES_COUNT:
                 case OrderBy.VIEWS:
                     var slidingWindowPeriod = ODBCWrapper.Utils.GetIntSafeVal(dr["SlidingWindowPeriod"]);
-                    channelOrder = new AssetSlidingWindowOrder
-                        {Field = orderBy, Direction = orderDir, SlidingWindowPeriod = slidingWindowPeriod};
+                    channelOrder = new AssetSlidingWindowOrder { Field = orderBy, Direction = orderDir, SlidingWindowPeriod = slidingWindowPeriod };
                     break;
                 default:
-                    channelOrder = new AssetOrder {Field = OrderBy.CREATE_DATE, Direction = OrderDir.DESC};
-                    Log.Warn(
-                        $"{nameof(AssetOrder)} can not be determined: {nameof(orderBy)}={orderBy}. The default channel order has been created.");
+                    channelOrder = new AssetOrder { Field = OrderBy.CREATE_DATE, Direction = OrderDir.DESC };
+                    Log.Warn($"{nameof(AssetOrder)} can not be determined: {nameof(orderBy)}={orderBy}. The default channel order has been created.");
                     break;
             }
 
