@@ -62,7 +62,7 @@ namespace Core.Catalog.CatalogManagement
         public const string PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME = "PlaybackEndDateTime";
         public const string CREATE_DATE_TIME_META_SYSTEM_NAME = "CreateDate";
 
-        internal const string CHANNEL_ID_META_SYSTEM_NAME = "ChannelId";
+        internal const string CHANNEL_ID_META_SYSTEM_NAME = "CollectionEntityId";  //BEO-11199
         internal const string MANUAL_ASSET_STRUCT_NAME = "Manual";
         internal const string DYNAMIC_ASSET_STRUCT_NAME = "Dynamic";
         internal const string EXTERNAL_ASSET_STRUCT_NAME = "External";
