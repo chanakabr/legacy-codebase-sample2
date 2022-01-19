@@ -276,11 +276,11 @@ def buildDockerAndPushToEcr(componentName, dockerfile){
     }
     
     sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:build")
-    sh(label: "Remove Image", script: "docker rmi -f ${ECR_REPOSITORY}:build")
+    sh(label: "Remove Image", script: "docker rmi -f ${ECR_REPOSITORY}:build || true")
     sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:${GIT_COMMIT}")
-    sh(label: "Remove Image", script: "docker rmi -f ${ECR_REPOSITORY}:${GIT_COMMIT}")
+    sh(label: "Remove Image", script: "docker rmi -f ${ECR_REPOSITORY}:${GIT_COMMIT} || true")
     sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:${FULL_VERSION}")
-    sh(label: "Remove Image", script: "docker rmi -f ${ECR_REPOSITORY}:${FULL_VERSION}")
+    sh(label: "Remove Image", script: "docker rmi -f ${ECR_REPOSITORY}:${FULL_VERSION} || true")
     echo "Docker build image: ${ECR_REPOSITORY}:${FULL_VERSION}"
 }
 
