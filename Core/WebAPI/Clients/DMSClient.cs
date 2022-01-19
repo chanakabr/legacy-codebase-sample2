@@ -468,7 +468,8 @@ namespace WebAPI.Clients
 
             if (!(response.Status == DMSeStatus.Success || response.Status == DMSeStatus.Registered))
             {
-                throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Status), string.Empty);
+                var status = DMSMapping.ConvertDMSStatus(response.Status);
+                throw new ClientException((int)status, status.ToString());
             }
 
             return result;
