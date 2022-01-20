@@ -10,6 +10,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using Tvinci.Core.DAL;
 using static ODBCWrapper.Utils;
 
@@ -2031,6 +2032,18 @@ namespace DAL
             }, true);
 
             return isSaveSuccess;
+        }
+        
+        public static void RemoveArchiveCampaignFromInboxMessage(int groupId, long userId,  List<Campaign> archiveCampaigns)
+        {
+            CampaignInboxMessageMap campaignInboxMessageMap = GetCampaignInboxMessageMapCB(groupId, userId);
+            var archiveCampaignsId = archiveCampaigns.Select(x=> x.Id).ToHashSet();
+            var archiveCampaignInboxMessageMap = campaignInboxMessageMap.Campaigns.Where(x => archiveCampaignsId.Contains(x.Key));
+
+            Parallel.ForEach(archiveCampaignInboxMessageMap, inboxMessage =>
+            {
+                cbManager.Remove(GetInboxMessageKey(groupId, userId, inboxMessage.Value.MessageId));
+            });
         }
 
         public static CampaignInboxMessageMap GetCampaignInboxMessageMapCB(int groupId, long userId)
