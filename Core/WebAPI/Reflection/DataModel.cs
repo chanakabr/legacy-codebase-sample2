@@ -3763,7 +3763,7 @@ namespace WebAPI.Reflection
                         case "Frequency":
                             return "frequency";
                         case "IsDefaultConcurrentLimit":
-                            return "isDefaultConcurrentLimit ";
+                            return "isDefaultConcurrentLimit";
                         case "IsDefaultDeviceLimit":
                             return "isDefaultDeviceLimit";
                     }

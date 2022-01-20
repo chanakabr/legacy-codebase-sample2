@@ -43491,9 +43491,9 @@ namespace WebAPI.Models.Domains
             {
                 ret.Add("frequency", "\"frequency\": " + Frequency);
             }
-            if(IsDefaultConcurrentLimit.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isDefaultConcurrentLimit ")))
+            if(IsDefaultConcurrentLimit.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isDefaultConcurrentLimit")))
             {
-                ret.Add("isDefaultConcurrentLimit ", "\"isDefaultConcurrentLimit \": " + IsDefaultConcurrentLimit.ToString().ToLower());
+                ret.Add("isDefaultConcurrentLimit", "\"isDefaultConcurrentLimit\": " + IsDefaultConcurrentLimit.ToString().ToLower());
             }
             if(IsDefaultDeviceLimit.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isDefaultDeviceLimit")))
             {
@@ -43533,9 +43533,9 @@ namespace WebAPI.Models.Domains
             {
                 ret.Add("frequency", "<frequency>" + Frequency + "</frequency>");
             }
-            if(IsDefaultConcurrentLimit.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isDefaultConcurrentLimit ")))
+            if(IsDefaultConcurrentLimit.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isDefaultConcurrentLimit")))
             {
-                ret.Add("isDefaultConcurrentLimit ", "<isDefaultConcurrentLimit >" + IsDefaultConcurrentLimit.ToString().ToLower() + "</isDefaultConcurrentLimit >");
+                ret.Add("isDefaultConcurrentLimit", "<isDefaultConcurrentLimit>" + IsDefaultConcurrentLimit.ToString().ToLower() + "</isDefaultConcurrentLimit>");
             }
             if(IsDefaultDeviceLimit.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isDefaultDeviceLimit")))
             {
