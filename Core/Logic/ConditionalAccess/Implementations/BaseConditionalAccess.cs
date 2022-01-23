@@ -18393,7 +18393,7 @@ namespace Core.ConditionalAccess
                 return true;
             }
 
-            DataRow dataRow = ConditionalAccessDAL.Get_SubscriptionPurchaseData(this.m_nGroupID, householdId, purchaseId);
+            DataRow dataRow = ConditionalAccessDAL.Get_SubscriptionPurchaseData(this.m_nGroupID, purchaseId);
 
             if (dataRow == null)
             {

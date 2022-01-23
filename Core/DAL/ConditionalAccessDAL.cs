@@ -3461,7 +3461,7 @@ namespace DAL
             return null;
         }
 
-        public static DataRow Get_SubscriptionPurchaseData(int groupId, long domainId, long purchaseId)
+        public static DataRow Get_SubscriptionPurchaseData(int groupId, long purchaseId)
         {
             DataRow result = null;
 
@@ -3470,7 +3470,6 @@ namespace DAL
                 ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_SubscriptionPurchaseData");
                 storedProcedure.SetConnectionKey("CA_CONNECTION_STRING");
                 storedProcedure.AddParameter("@groupID", groupId);
-                storedProcedure.AddParameter("@domainId", domainId);
                 storedProcedure.AddParameter("@purchaseId", purchaseId);
 
                 DataTable table = storedProcedure.Execute();
