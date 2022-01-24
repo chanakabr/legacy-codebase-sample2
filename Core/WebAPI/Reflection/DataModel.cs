@@ -10670,6 +10670,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "get":
+                            RolesManager.ValidateActionPermitted("lineup", "get", false);
                             return LineupController.Get((Nullable<int>) methodParams[0], (Nullable<int>) methodParams[1]);
                             
                         case "sendupdatednotification":
