@@ -24,7 +24,6 @@ namespace OPC_Migration
      * PROGRAM_MEDIA_TYPE_ID (should be >= 0)
      * SHOULD_BACKUP
      * SHOULD_USE_MIG_TABLE_PREFIX
-     * SHOULD_START_MIGRATION_AUTOMATICALLY
      */
 
     class Program
@@ -234,16 +233,10 @@ namespace OPC_Migration
                 if (_shouldMigrate)
                 {
                     bool shouldStartMigration = false;
-
-                    string shouldStartMigrationAutomatically = Environment.GetEnvironmentVariable("SHOULD_START_MIGRATION_AUTOMATICALLY");
-
-                    if (!bool.TryParse(shouldStartMigrationAutomatically, out shouldStartMigration) || !shouldStartMigration)
+                    Console.WriteLine("Start migration? true/false");
+                    while (!bool.TryParse(Console.ReadLine(), out shouldStartMigration))
                     {
-                        Console.WriteLine("Start migration? true/false");
-                        while (!bool.TryParse(Console.ReadLine(), out shouldStartMigration))
-                        {
-                            Console.WriteLine("Please enter a valid answer (true or false)");
-                        }
+                        Console.WriteLine("Please enter a valid answer (true or false)");
                     }
 
                     string shouldUseMigTablePrefix = Environment.GetEnvironmentVariable("SHOULD_USE_MIG_TABLE_PREFIX");
