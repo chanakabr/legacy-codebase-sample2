@@ -136,7 +136,6 @@ namespace OPC_Migration
                 #region Initialize objects
 
                 HashSet<long> groupExtraLanguageIdsToSave = new HashSet<long>();
-                HashSet<long> groupPicIdsToSave = new HashSet<long>();
                 Dictionary<string, Core.Catalog.Ratio> groupRatios = new Dictionary<string, Core.Catalog.Ratio>(StringComparer.OrdinalIgnoreCase);
                 Dictionary<string, ImageType> groupImageTypes = new Dictionary<string, ImageType>(StringComparer.OrdinalIgnoreCase);
                 Dictionary<long, MediaFileType> groupMediaFileTypes = new Dictionary<long, MediaFileType>();
@@ -174,9 +173,9 @@ namespace OPC_Migration
                     Console.WriteLine("Starting validation and data preparation");
                     log.DebugFormat("Starting validation and data preparation");
                     _watch.Restart();
-                    List<eMigrationResultStatus> prepareDataResults = prepDataMang.PrepareMigrationData(group, ref groupPicIdsToSave, ref groupRatios, ref groupImageTypes, ref groupMediaFileTypes, ref mediaTypeIdToMediaFileTypeIdMap,
+                    List<eMigrationResultStatus> prepareDataResults = prepDataMang.PrepareMigrationData(group, ref groupRatios, ref groupImageTypes, ref groupMediaFileTypes, ref mediaTypeIdToMediaFileTypeIdMap,
                                                                                 ref groupTopics, ref groupAssetStructs, ref assetStructTopicsMap, ref assets, ref picIdToImageTypeNameMap,
-                                                                                ref groupChannels, ref assetsImageTypesToAdd, ref picIdToUpdatedContentIdValue, ref groupExtraLanguageIdsToSave);
+                                                                                ref groupChannels, ref assetsImageTypesToAdd, ref picIdToUpdatedContentIdValue);
                     _watch.Stop();
                     Console.WriteLine("Validation and prepare data results: {0}, ElapsedMilliseconds: {1}", string.Join(",", prepareDataResults.Select(x => x.ToString())), _watch.ElapsedMilliseconds);
                     log.DebugFormat("Validation and prepare data results: {0}, ElapsedMilliseconds: {1}", string.Join(",", prepareDataResults.Select(x => x.ToString())), _watch.ElapsedMilliseconds);
@@ -265,9 +264,9 @@ namespace OPC_Migration
                         Console.WriteLine("Performing Migration");
                         log.DebugFormat("Performing Migration");
                         _watch.Restart();
-                        var migrationStatuses = migrationMang.PerformMigration(group, groupPicIdsToSave, ref groupRatios, ref groupImageTypes, ref groupMediaFileTypes, ref mediaTypeIdToMediaFileTypeIdMap,
+                        var migrationStatuses = migrationMang.PerformMigration(group, ref groupRatios, ref groupImageTypes, ref groupMediaFileTypes, ref mediaTypeIdToMediaFileTypeIdMap,
                                                                                 ref groupTopics, groupAssetStructs, assetStructTopicsMap, assets, picIdToImageTypeNameMap,
-                                                                                assetsImageTypesToAdd, picIdToUpdatedContentIdValue, groupChannels, groupExtraLanguageIdsToSave);
+                                                                                assetsImageTypesToAdd, picIdToUpdatedContentIdValue, groupChannels);
                         _watch.Stop();
                         log.DebugFormat("Migration result: {0}, ElapsedMilliseconds: {1}", string.Join(",", migrationStatuses.Select(x => x.ToString())), _watch.ElapsedMilliseconds);
                         Console.WriteLine("Migration result: {0}, ElapsedMilliseconds: {1}", string.Join(",", migrationStatuses.Select(x => x.ToString())), _watch.ElapsedMilliseconds);
