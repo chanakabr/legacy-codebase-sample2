@@ -263,7 +263,7 @@ namespace OPC_Migration
             try
             {
 
-                res = OPCMigrationDAL.UpdateGroupExtraLanguages(groupId, groupIds, Utils.UPDATING_USER_ID, sequenceId, shouldBackup);
+                res = OPCMigrationDAL.UpdateGroupExtraLanguages(groupId, groupIds, Utils.UPDATING_USER_ID);
             }
             catch (Exception ex)
             {
@@ -279,7 +279,7 @@ namespace OPC_Migration
             bool res = true;
             try
             {
-                    res = OPCMigrationDAL.UpdateGroupPicIds(groupId, groupIds, Utils.UPDATING_USER_ID, sequenceId, shouldBackup);
+                res = OPCMigrationDAL.UpdateGroupPicIds(groupId, groupIds, Utils.UPDATING_USER_ID);
             }
             catch (Exception ex)
             {
@@ -1118,6 +1118,5 @@ namespace OPC_Migration
 
             return res;
         }
-
     }
 }
