@@ -42,20 +42,19 @@ namespace OPC_Migration
             this.tablesPrefix = this.useMigTablesPrefix ? "mig_" : string.Empty;
         }
 
-        public List<eMigrationResultStatus> PerformMigration(Group group, HashSet<long> groupIdsToSave, ref Dictionary<string, Core.Catalog.Ratio> groupRatios, ref Dictionary<string, ImageType> groupImageTypes,
+        public eMigrationResultStatus PerformMigration(Group group, HashSet<long> groupIdsToSave, ref Dictionary<string, Core.Catalog.Ratio> groupRatios, ref Dictionary<string, ImageType> groupImageTypes,
                                         ref Dictionary<long, MediaFileType> groupMediaFileTypes, ref Dictionary<int, long> mediaTypeIdToMediaFileTypeIdMap, ref Dictionary<string, Dictionary<string, Topic>> groupTopics,
                                         Dictionary<string, AssetStruct> groupAssetStructs, Dictionary<long, Dictionary<string, string>> assetStructTopicsMap, List<MediaAsset> assets,
                                         Dictionary<long, string> picIdToImageTypeNameMap, Dictionary<long, Dictionary<string, string>> assetsImageTypesToAdd,
                                         Dictionary<long, string> picIdToUpdatedContentIdValue, List<Channel> groupChannels, HashSet<long> groupExtraLanguageIdsToSave)
-        {
-            List<eMigrationResultStatus> result = new List<eMigrationResultStatus>();
-
+        {            
+            eMigrationResultStatus result = eMigrationResultStatus.OK;
             List<int> groupIds = GroupsCacheManager.Utils.Get_SubGroupsTree(groupId);
             if (!UpdateGroupExtraLanguages(groupId, groupIds, groupExtraLanguageIdsToSave))
             {
                 log.Error("UpdateGroupExtraLanguages failed");
                 Console.WriteLine("UpdateGroupExtraLanguages failed");
-                result.Add(eMigrationResultStatus.UpdateGroupExtraLanguagesFailed);
+                return eMigrationResultStatus.UpdateGroupExtraLanguagesFailed;
             }
 
             log.Debug("UpdateGroupExtraLanguages succeeded");
@@ -65,7 +64,7 @@ namespace OPC_Migration
             {
                 log.Error("UpdateGroupPicsIds failed");
                 Console.WriteLine("UpdateGroupPicsIds failed");
-                result.Add(eMigrationResultStatus.UpdateGroupPicsIdsFailed);
+                return eMigrationResultStatus.UpdateGroupPicsIdsFailed;
             }
 
             log.Debug("UpdateGroupPicsIds succeeded");
@@ -74,7 +73,7 @@ namespace OPC_Migration
             {
                 log.Error("UpdateGroupIdInNeededTables failed");
                 Console.WriteLine("UpdateGroupIdInNeededTables failed");
-                result.Add(eMigrationResultStatus.UpdateGroupIdInNeededTablesFailed);
+                return eMigrationResultStatus.UpdateGroupIdInNeededTablesFailed;
             }
 
             log.Debug("UpdateGroupIdInNeededTables succeeded");
@@ -83,7 +82,7 @@ namespace OPC_Migration
             {
                 log.Error("ClearAllCaches failed");
                 Console.WriteLine("ClearAllCaches failed");
-                result.Add(eMigrationResultStatus.ClearAllCachesFailed);
+                return eMigrationResultStatus.ClearAllCachesFailed;
             }
 
             log.Debug("ClearAllCaches succeeded");
@@ -92,7 +91,7 @@ namespace OPC_Migration
             {
                 log.Error("InsertGroupRatios failed");
                 Console.WriteLine("InsertGroupRatios failed");
-                result.Add(eMigrationResultStatus.InsertGroupRatiosFailed);
+                return eMigrationResultStatus.InsertGroupRatiosFailed;
             }
 
             log.Debug("InsertGroupRatios succeeded");
@@ -101,7 +100,7 @@ namespace OPC_Migration
             {
                 log.Error("InsertGroupImageTypes failed");
                 Console.WriteLine("InsertGroupImageTypes failed");
-                result.Add(eMigrationResultStatus.InsertGroupImageTypesFailed);
+                return eMigrationResultStatus.InsertGroupImageTypesFailed;
             }
 
             log.Debug("InsertGroupImageTypes succeeded");
@@ -110,7 +109,7 @@ namespace OPC_Migration
             {
                 log.Error("UpdateGroupMediaFileTypes failed");
                 Console.WriteLine("UpdateGroupMediaFileTypes failed");
-                result.Add(eMigrationResultStatus.UpdateGroupMediaFileTypesFailed);
+                return eMigrationResultStatus.UpdateGroupMediaFileTypesFailed;
             }
 
             log.Debug("UpdateGroupMediaFileTypes succeeded");
@@ -119,7 +118,7 @@ namespace OPC_Migration
             {
                 log.Error("InsertGroupTopics failed");
                 Console.WriteLine("InsertGroupTopics failed");
-                result.Add(eMigrationResultStatus.InsertGroupTopicsFailed);
+                return eMigrationResultStatus.InsertGroupTopicsFailed;
             }
 
             List<KeyValuePair<long, long>> tagTypeToTopicIdMap = new List<KeyValuePair<long, long>>();
@@ -141,7 +140,7 @@ namespace OPC_Migration
             {
                 log.Error("UpdateTagTableWithTopicIds failed");
                 Console.WriteLine("UpdateTagTableWithTopicIds failed");
-                result.Add(eMigrationResultStatus.UpdateTagTableWithTopicIdsFailed);
+                return eMigrationResultStatus.UpdateTagTableWithTopicIdsFailed;
             }
 
             log.Debug("UpdateTagTableWithTopicIds succeeded");
@@ -150,7 +149,7 @@ namespace OPC_Migration
             {
                 log.Error("UpdateMediaConcurrencyRulesTableWithTopicIds failed");
                 Console.WriteLine("UpdateMediaConcurrencyRulesTableWithTopicIds failed");
-                result.Add(eMigrationResultStatus.UpdateMediaConcurrencyRulesTableWithTopicIdsFailed);
+                return eMigrationResultStatus.UpdateMediaConcurrencyRulesTableWithTopicIdsFailed;
             }
 
             log.Debug("UpdateMediaConcurrencyRulesTableWithTopicIds succeeded");
@@ -159,7 +158,7 @@ namespace OPC_Migration
             {
                 log.Error("UpdateParentalRulesTableWithTopicIds failed");
                 Console.WriteLine("UpdateParentalRulesTableWithTopicIds failed");
-                result.Add(eMigrationResultStatus.UpdateParentalRulesTableWithTopicIdsFailed);
+                return eMigrationResultStatus.UpdateParentalRulesTableWithTopicIdsFailed;
             }
 
             log.Debug("UpdateParentalRulesTableWithTopicIds succeeded");
@@ -168,7 +167,7 @@ namespace OPC_Migration
             {
                 log.Error("UpdateGroupChannels failed");
                 Console.WriteLine("UpdateGroupChannels failed");
-                result.Add(eMigrationResultStatus.UpdateGroupChannelsFailed);
+                return eMigrationResultStatus.UpdateGroupChannelsFailed;
             }
 
             log.Debug("UpdateGroupChannels succeeded");
@@ -177,7 +176,7 @@ namespace OPC_Migration
             {
                 log.Error("ClearAllCaches failed");
                 Console.WriteLine("ClearAllCaches failed");
-                result.Add(eMigrationResultStatus.ClearAllCachesFailed);
+                return eMigrationResultStatus.ClearAllCachesFailed;
             }
 
             log.Debug("ClearAllCaches succeeded");
@@ -185,8 +184,8 @@ namespace OPC_Migration
             if (!UpdateDuplicateTagValuesAndTagTranslations(groupId))
             {
                 log.Error("UpdateDuplicateTagValuesAndParentalRuleTagValues failed");
-                Console.WriteLine("UpdateDuplicateTagValuesAndTagTranslationsFailed failed");
-                result.Add(eMigrationResultStatus.UpdateDuplicateTagValuesAndTagTranslationsFailed);
+                Console.WriteLine("UpdateDuplicateTagValuesAndParentalRuleTagValues failed");
+                return eMigrationResultStatus.UpdateDuplicateTagValuesAndTagTranslationsFailed;
             }
 
             log.Debug("UpdateDuplicateTagValuesAndParentalRuleTagValues succeeded");
@@ -195,7 +194,7 @@ namespace OPC_Migration
             {
                 log.Error("ClearAllCaches failed");
                 Console.WriteLine("ClearAllCaches failed");
-                result.Add(eMigrationResultStatus.ClearAllCachesFailed);
+                return eMigrationResultStatus.ClearAllCachesFailed;
             }
 
             log.Debug("ClearAllCaches succeeded");
@@ -204,7 +203,7 @@ namespace OPC_Migration
             {
                 log.Error("AddOrUpdateGroupAssetStructs failed");
                 Console.WriteLine("AddOrUpdateGroupAssetStructs failed");
-                result.Add(eMigrationResultStatus.AddOrUpdateGroupAssetStructsFailed);
+                return eMigrationResultStatus.AddOrUpdateGroupAssetStructsFailed;
             }
 
             log.Debug("AddOrUpdateGroupAssetStructs succeeded");
@@ -213,7 +212,7 @@ namespace OPC_Migration
             {
                 log.Error("ClearAllCaches failed");
                 Console.WriteLine("ClearAllCaches failed");
-                result.Add(eMigrationResultStatus.ClearAllCachesFailed);
+                return eMigrationResultStatus.ClearAllCachesFailed;
             }
 
             log.Debug("ClearAllCaches succeeded");
@@ -222,7 +221,7 @@ namespace OPC_Migration
             {
                 log.Error("UpdateGroupMediaAssets failed");
                 Console.WriteLine("UpdateGroupMediaAssets failed");
-                result.Add(eMigrationResultStatus.UpdateGroupMediaAssetsFailed);
+                return eMigrationResultStatus.UpdateGroupMediaAssetsFailed;
             }
 
             log.Debug("UpdateGroupMediaAssets succeeded");
@@ -231,7 +230,7 @@ namespace OPC_Migration
             {
                 log.Error("ClearAllCaches failed");
                 Console.WriteLine("ClearAllCaches failed");
-                result.Add(eMigrationResultStatus.ClearAllCachesFailed);
+                return eMigrationResultStatus.ClearAllCachesFailed;
             }
 
             log.Debug("ClearAllCaches succeeded");
@@ -240,7 +239,7 @@ namespace OPC_Migration
             {
                 log.Error("AddImagesToAsset failed");
                 Console.WriteLine("AddImagesToAsset failed");
-                result.Add(eMigrationResultStatus.AddImagesToAssetFailed);
+                return eMigrationResultStatus.AddImagesToAssetFailed;
             }
 
             log.Debug("AddImagesToAsset succeeded");
@@ -249,7 +248,7 @@ namespace OPC_Migration
             {
                 log.Error("ClearAllCaches failed");
                 Console.WriteLine("ClearAllCaches failed");
-                result.Add(eMigrationResultStatus.ClearAllCachesFailed);
+                return eMigrationResultStatus.ClearAllCachesFailed;
             }
 
             log.Debug("ClearAllCaches succeeded");
@@ -258,7 +257,7 @@ namespace OPC_Migration
             {
                 log.Error("UpdateGroupMediaAssetsImages failed");
                 Console.WriteLine("UpdateGroupMediaAssetsImages failed");
-                result.Add(eMigrationResultStatus.FailedValidationOfPicSizesFailed);
+                return eMigrationResultStatus.FailedValidationOfPicSizesFailed;
             }
 
             log.Debug("UpdateGroupMediaAssetsImages succeeded");
@@ -267,7 +266,7 @@ namespace OPC_Migration
             {
                 log.Error("ClearAllCaches failed");
                 Console.WriteLine("ClearAllCaches failed");
-                result.Add(eMigrationResultStatus.ClearAllCachesFailed);
+                return eMigrationResultStatus.ClearAllCachesFailed;
             }
 
             log.Debug("ClearAllCaches succeeded");
@@ -276,7 +275,7 @@ namespace OPC_Migration
             {
                 log.Error("UpdatePicsContentIdBaseUrl failed");
                 Console.WriteLine("UpdatePicsContentIdBaseUrl failed");
-                result.Add(eMigrationResultStatus.UpdatePicsContentIdBaseUrlFailed);
+                return eMigrationResultStatus.UpdatePicsContentIdBaseUrlFailed;
             }
 
             log.Debug("UpdatePicsContentIdBaseUrl succeeded");
@@ -285,7 +284,7 @@ namespace OPC_Migration
             {
                 log.Error("ClearAllCaches failed");
                 Console.WriteLine("ClearAllCaches failed");
-                result.Add(eMigrationResultStatus.ClearAllCachesFailed);
+                return eMigrationResultStatus.ClearAllCachesFailed;
             }
 
             log.Debug("ClearAllCaches succeeded");
@@ -294,7 +293,7 @@ namespace OPC_Migration
             {
                 log.Error("UpdateGroupMediaAssetsFiles failed");
                 Console.WriteLine("UpdateGroupMediaAssetsFiles failed");
-                result.Add(eMigrationResultStatus.UpdateGroupMediaAssetsFilesFailed);
+                return eMigrationResultStatus.UpdateGroupMediaAssetsFilesFailed;
             }
 
             log.Debug("UpdateGroupMediaAssetsFiles succeeded");
@@ -303,7 +302,7 @@ namespace OPC_Migration
             {
                 log.Error("ClearAllCaches failed");
                 Console.WriteLine("ClearAllCaches failed");
-                result.Add(eMigrationResultStatus.ClearAllCachesFailed);
+                return eMigrationResultStatus.ClearAllCachesFailed;
             }
 
             log.Debug("ClearAllCaches succeeded");

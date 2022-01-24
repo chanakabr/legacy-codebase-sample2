@@ -22,8 +22,6 @@ namespace OPC_Migration
      * REGULAR_GROUP_ID (should be > 0)
      * LINEAR_MEDIA_TYPE_ID (should be >= 0)
      * PROGRAM_MEDIA_TYPE_ID (should be >= 0)
-     * SHOULD_BACKUP
-     * SHOULD_USE_MIG_TABLE_PREFIX
      */
 
     class Program
@@ -195,14 +193,10 @@ namespace OPC_Migration
                 // added for https://kaltura.atlassian.net/browse/GEN-693 - Simplify the OPC migration script to not relate to the rollback script
                 if (_shouldMigrate)
                 {
-                    string shouldBackupString = Environment.GetEnvironmentVariable("SHOULD_BACKUP");
-                    if (string.IsNullOrEmpty(shouldBackupString) || !bool.TryParse(shouldBackupString, out _shouldBackup))
+                    Console.WriteLine("Do you want to create backup? (true/false) THIS ISN'T NEEDED IF YOU ARE USING MIGRATION PROCESS CREATED BY Arnon Lempert!!!");
+                    while (!bool.TryParse(Console.ReadLine(), out _shouldBackup))
                     {
-                        Console.WriteLine("Do you want to create backup? (true/false) THIS ISN'T NEEDED IF YOU ARE USING MIGRATION PROCESS CREATED BY Arnon Lempert!!!");
-                        while (!bool.TryParse(Console.ReadLine(), out _shouldBackup))
-                        {
-                            Console.WriteLine("Please enter a valid answer (true or false)");
-                        }
+                        Console.WriteLine("Please enter a valid answer (true or false)");
                     }
                 }
 
@@ -239,16 +233,11 @@ namespace OPC_Migration
                         Console.WriteLine("Please enter a valid answer (true or false)");
                     }
 
-                    string shouldUseMigTablePrefix = Environment.GetEnvironmentVariable("SHOULD_USE_MIG_TABLE_PREFIX");
-
+                    Console.WriteLine("Use mig_ table prefix? true/false");
                     bool useMigTablesPrefix = false;
-                    if (string.IsNullOrEmpty(shouldUseMigTablePrefix) || !bool.TryParse(shouldUseMigTablePrefix, out useMigTablesPrefix))
+                    while (!bool.TryParse(Console.ReadLine(), out useMigTablesPrefix))
                     {
-                        Console.WriteLine("Use mig_ table prefix? true/false");
-                        while (!bool.TryParse(Console.ReadLine(), out useMigTablesPrefix))
-                        {
-                            Console.WriteLine("Please enter a valid answer (true or false)");
-                        }
+                        Console.WriteLine("Please enter a valid answer (true or false)");
                     }
 
                     if (shouldStartMigration)
@@ -258,13 +247,13 @@ namespace OPC_Migration
                         Console.WriteLine("Performing Migration");
                         log.DebugFormat("Performing Migration");
                         _watch.Restart();
-                        var migrationStatuses = migrationMang.PerformMigration(group, groupPicIdsToSave, ref groupRatios, ref groupImageTypes, ref groupMediaFileTypes, ref mediaTypeIdToMediaFileTypeIdMap,
+                        eMigrationResultStatus migrationStatus = migrationMang.PerformMigration(group, groupPicIdsToSave, ref groupRatios, ref groupImageTypes, ref groupMediaFileTypes, ref mediaTypeIdToMediaFileTypeIdMap,
                                                                                 ref groupTopics, groupAssetStructs, assetStructTopicsMap, assets, picIdToImageTypeNameMap,
                                                                                 assetsImageTypesToAdd, picIdToUpdatedContentIdValue, groupChannels, groupExtraLanguageIdsToSave);
                         _watch.Stop();
-                        log.DebugFormat("Migration result: {0}, ElapsedMilliseconds: {1}", string.Join(",", migrationStatuses.Select(x => x.ToString())), _watch.ElapsedMilliseconds);
-                        Console.WriteLine("Migration result: {0}, ElapsedMilliseconds: {1}", string.Join(",", migrationStatuses.Select(x => x.ToString())), _watch.ElapsedMilliseconds);
-                        if (migrationStatuses.Any(status => status != eMigrationResultStatus.OK))
+                        log.DebugFormat("Migration result: {0}, ElapsedMilliseconds: {1}", migrationStatus.ToString(), _watch.ElapsedMilliseconds);
+                        Console.WriteLine("Migration result: {0}, ElapsedMilliseconds: {1}", migrationStatus.ToString(), _watch.ElapsedMilliseconds);
+                        if (migrationStatus != eMigrationResultStatus.OK)
                         {
                             log.ErrorFormat("Stopping Migration process until issues will be resolved for groupId: {0}", _groupId);
                             Console.WriteLine("Stopping Migration process until issues will be resolved");
