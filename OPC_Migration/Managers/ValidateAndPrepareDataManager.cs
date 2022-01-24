@@ -1,18 +1,18 @@
 ﻿using ApiObjects;
-using ApiObjects.Catalog;
-using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using GroupsCacheManager;
 using Phx.Lib.Log;
 using System;
-using System.Collections.Concurrent;
+using System.Linq;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Tvinci.Core.DAL;
+using System.Text;
+using ApiObjects.Catalog;
+using Core.Catalog;
+using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace OPC_Migration
 {
@@ -42,25 +42,36 @@ namespace OPC_Migration
             this.programMediaTypeId = programMediaTypeId;
         }
 
-        public List<eMigrationResultStatus> PrepareMigrationData(
-            Group group, 
-            ref Dictionary<string, Core.Catalog.Ratio> groupRatios,
-            ref Dictionary<string, ImageType> groupImageTypes, 
-            ref Dictionary<long, MediaFileType> groupMediaFileTypes,
-            ref Dictionary<int, long> mediaTypeIdToMediaFileTypeIdMap, 
-            ref Dictionary<string, Dictionary<string, Topic>> groupTopics, 
-            ref Dictionary<string, AssetStruct> groupAssetStructs,
-            ref Dictionary<long, Dictionary<string, string>> assetStructTopicsMap, 
-            ref List<MediaAsset> assets, 
-            ref Dictionary<long, string> picIdToImageTypeNameMap,
-            ref List<Channel> groupChannels, 
-            ref Dictionary<long, Dictionary<string, string>> assetsImageTypesToAdd,
-            ref Dictionary<long, string> picIdToUpdatedContentIdValue)
+        public List<eMigrationResultStatus> PrepareMigrationData(Group group, ref HashSet<long> groupPicIdsToSave, ref Dictionary<string, Core.Catalog.Ratio> groupRatios,
+                                        ref Dictionary<string, ImageType> groupImageTypes, ref Dictionary<long, MediaFileType> groupMediaFileTypes,
+                                        ref Dictionary<int, long> mediaTypeIdToMediaFileTypeIdMap, ref Dictionary<string, Dictionary<string, Topic>> groupTopics, ref Dictionary<string, AssetStruct> groupAssetStructs,
+                                        ref Dictionary<long, Dictionary<string, string>> assetStructTopicsMap, ref List<MediaAsset> assets, ref Dictionary<long, string> picIdToImageTypeNameMap,
+                                        ref List<Channel> groupChannels, ref Dictionary<long, Dictionary<string, string>> assetsImageTypesToAdd,
+                                        ref Dictionary<long, string> picIdToUpdatedContentIdValue, ref HashSet<long> groupExtraLanguageIdsToSave)
         {
             List<eMigrationResultStatus> result = new List<eMigrationResultStatus>();
             List<int> groupIds = GroupsCacheManager.Utils.Get_SubGroupsTree(groupId);
             // Get all linear media types so we will know when migrating medias
             linearMediaTypeIds = GetGroupLinearMediaTypeIds(groupIds);
+            if (!ValidateExtraLanguages(groupIds, ref groupExtraLanguageIdsToSave))
+            {
+                log.Error("ValidateExtraLanguages failed");
+                result.Add(eMigrationResultStatus.FailedValidationOfLanguagesPicSizes);
+            }
+            else
+            {
+                log.Debug("ValidateExtraLanguages succeeded");
+            }
+
+            if (!ValidatePicSizes(groupIds, ref groupPicIdsToSave))
+            {
+                log.Error("ValidatePicSizes failed");
+                result.Add(eMigrationResultStatus.FailedValidationOfPicSizes);
+            }
+            else
+            {
+                log.Debug("ValidatePicSizes succeeded");
+            }
 
             if (!CreateGroupRatios(groupIds, ref groupRatios))
             {
@@ -178,9 +189,9 @@ namespace OPC_Migration
             return result;
         }
 
-        private bool GetExtraLanguages(List<int> groupIds, ref HashSet<long> groupExtraLanguageIdsToSave)
+        private bool ValidateExtraLanguages(List<int> groupIds, ref HashSet<long> groupExtraLanguageIdsToSave)
         {
-            log.DebugFormat("starting GetExtraLanguages");
+            log.DebugFormat("starting ValidateExtraLanguages");
             bool result = true;
             try
             {
@@ -206,6 +217,63 @@ namespace OPC_Migration
             catch (Exception ex)
             {
                 log.Error("Failed ValidateExtraLanguages", ex);
+                return false;
+            }
+
+            return result;
+        }
+
+        private bool ValidatePicSizes(List<int> groupIds, ref HashSet<long> groupPicIdsToSave)
+        {
+            log.DebugFormat("starting ValidatePicSizes");
+            bool result = true;
+            try
+            {
+                if (groupIds != null && groupIds.Count > 0)
+                {
+                    Dictionary<int, HashSet<string>> ratioIdToSizesMap = new Dictionary<int, HashSet<string>>();
+                    foreach (int groupId in groupIds)
+                    {
+                        // ignore parent group pics, we will mark them as status=2 before merging the regular and virtual groups
+                        if (groupId == this.groupId)
+                        {
+                            continue;
+                        }
+
+                        List<Core.Catalog.PicSize> pictureSizes = Core.Catalog.Cache.CatalogCache.Instance().GetGroupPicSizes(groupId);
+                        if (pictureSizes != null)
+                        {
+                            foreach (Core.Catalog.PicSize picSize in pictureSizes)
+                            {
+                                string key = string.Format("H{0}_W{1}", picSize.Height, picSize.Width);
+                                if (!ratioIdToSizesMap.ContainsKey(picSize.RatioId))
+                                {
+                                    ratioIdToSizesMap.Add(picSize.RatioId, new HashSet<string>());
+                                }
+
+                                // if this ratio and pic size doesn't already exist, add it
+                                if (!ratioIdToSizesMap.ContainsKey(picSize.RatioId) || !ratioIdToSizesMap[picSize.RatioId].Contains(key))
+                                {
+                                    ratioIdToSizesMap[picSize.RatioId].Add(key);
+                                    groupPicIdsToSave.Add(picSize.Id);
+                                }
+                                // if it this ratio and pic size already exists than no point of having a duplicate
+                                else
+                                {
+                                    //result = false;
+                                    log.WarnFormat("PicSizes Validation, found that two different ratios are connected to the same pic size, H:{0}, W:{1}, ratioId:{2}, key:{3}",
+                                                    picSize.Height, picSize.Width, picSize.RatioId, key);
+                                }
+                            }
+                        }
+                    }
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed ValidatePicSizes", ex);
                 return false;
             }
 

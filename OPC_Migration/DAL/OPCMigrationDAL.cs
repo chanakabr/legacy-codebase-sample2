@@ -463,13 +463,14 @@ namespace OPC_Migration
             return sp.Execute(true);
         }
 
-        internal static bool UpdateGroupPicIds(int groupId, List<int> groupIds, long updaterId, long sequenceId, bool shouldBackup)
+        internal static bool UpdateGroupPicIds(int groupId, List<int> groupIds, HashSet<long> groupIdsToSave, long updaterId, long sequenceId, bool shouldBackup)
         {
             StoredProcedure sp = new StoredProcedure("UpdateGroupPicIds");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.SetTimeout(GetTimeoutValue());
             sp.AddParameter("@GroupId", groupId);            
-            sp.AddIDListParameter<int>("@GroupIds", groupIds, "Id");         
+            sp.AddIDListParameter<int>("@GroupIds", groupIds, "Id");
+            sp.AddIDListParameter<long>("@GroupIdsToSave", groupIdsToSave, "Id");            
             sp.AddParameter("@UpdaterId", updaterId);
             sp.AddParameter("@SequenceId", sequenceId);
             sp.AddParameter("@ShouldBackup", shouldBackup ? 1 : 0);
@@ -508,13 +509,14 @@ namespace OPC_Migration
             return sp.Execute(true);
         }
 
-        internal static bool UpdateGroupExtraLanguages(int groupId, List<int> groupIds, long updaterId, long sequenceId, bool shouldBackup)
+        internal static bool UpdateGroupExtraLanguages(int groupId, List<int> groupIds, HashSet<long> groupExtraLanguageIdsToSave, long updaterId, long sequenceId, bool shouldBackup)
         {
             StoredProcedure sp = new StoredProcedure("UpdateGroupExtraLanguages");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.SetTimeout(GetTimeoutValue());
             sp.AddParameter("@GroupId", groupId);
             sp.AddIDListParameter<int>("@GroupIds", groupIds, "Id");
+            sp.AddIDListParameter<long>("@GroupExtraLanguageIdsToSave", groupExtraLanguageIdsToSave, "Id");
             sp.AddParameter("@UpdaterId", updaterId);
             sp.AddParameter("@SequenceId", sequenceId);
             sp.AddParameter("@ShouldBackup", shouldBackup ? 1 : 0);

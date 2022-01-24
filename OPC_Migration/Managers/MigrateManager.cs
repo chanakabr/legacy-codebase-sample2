@@ -42,24 +42,23 @@ namespace OPC_Migration
             this.tablesPrefix = this.useMigTablesPrefix ? "mig_" : string.Empty;
         }
 
-        public List<eMigrationResultStatus> PerformMigration(
-            Group group, ref Dictionary<string, Core.Catalog.Ratio> groupRatios, ref Dictionary<string, ImageType> groupImageTypes,
+        public List<eMigrationResultStatus> PerformMigration(Group group, HashSet<long> groupIdsToSave, ref Dictionary<string, Core.Catalog.Ratio> groupRatios, ref Dictionary<string, ImageType> groupImageTypes,
                                         ref Dictionary<long, MediaFileType> groupMediaFileTypes, ref Dictionary<int, long> mediaTypeIdToMediaFileTypeIdMap, ref Dictionary<string, Dictionary<string, Topic>> groupTopics,
                                         Dictionary<string, AssetStruct> groupAssetStructs, Dictionary<long, Dictionary<string, string>> assetStructTopicsMap, List<MediaAsset> assets,
                                         Dictionary<long, string> picIdToImageTypeNameMap, Dictionary<long, Dictionary<string, string>> assetsImageTypesToAdd,
-                                        Dictionary<long, string> picIdToUpdatedContentIdValue, List<Channel> groupChannels)
+                                        Dictionary<long, string> picIdToUpdatedContentIdValue, List<Channel> groupChannels, HashSet<long> groupExtraLanguageIdsToSave)
         {
             List<eMigrationResultStatus> result = new List<eMigrationResultStatus>();
 
             List<int> groupIds = GroupsCacheManager.Utils.Get_SubGroupsTree(groupId);
-            if (!UpdateGroupExtraLanguages(groupId, groupIds))
+            if (!UpdateGroupExtraLanguages(groupId, groupIds, groupExtraLanguageIdsToSave))
             {
                 log.Error("UpdateGroupExtraLanguages failed");
                 result.Add(eMigrationResultStatus.UpdateGroupExtraLanguagesFailed);
             }
             log.Debug("UpdateGroupExtraLanguages succeeded");
 
-            if (!UpdateGroupPicsIds(groupId, groupIds))
+            if (!UpdateGroupPicsIds(groupId, groupIds, groupIdsToSave))
             {
                 log.Error("UpdateGroupPicsIds failed");
                 result.Add(eMigrationResultStatus.UpdateGroupPicsIdsFailed);
@@ -257,13 +256,15 @@ namespace OPC_Migration
             return result;
         }
 
-        private bool UpdateGroupExtraLanguages(int groupId, List<int> groupIds)
+        private bool UpdateGroupExtraLanguages(int groupId, List<int> groupIds, HashSet<long> groupExtraLanguageIdsToSave)
         {
             bool res = true;
             try
             {
-
-                res = OPCMigrationDAL.UpdateGroupExtraLanguages(groupId, groupIds, Utils.UPDATING_USER_ID, sequenceId, shouldBackup);
+                if (groupExtraLanguageIdsToSave != null && groupExtraLanguageIdsToSave.Count > 0)
+                {
+                    res = OPCMigrationDAL.UpdateGroupExtraLanguages(groupId, groupIds, groupExtraLanguageIdsToSave, Utils.UPDATING_USER_ID, sequenceId, shouldBackup);
+                }
             }
             catch (Exception ex)
             {
@@ -274,12 +275,15 @@ namespace OPC_Migration
             return res;
         }
 
-        private bool UpdateGroupPicsIds(int groupId, List<int> groupIds)
+        private bool UpdateGroupPicsIds(int groupId, List<int> groupIds, HashSet<long> groupIdsToSave)
         {
             bool res = true;
             try
             {
-                    res = OPCMigrationDAL.UpdateGroupPicIds(groupId, groupIds, Utils.UPDATING_USER_ID, sequenceId, shouldBackup);
+                if (groupIdsToSave != null && groupIdsToSave.Count > 0)
+                {
+                    res = OPCMigrationDAL.UpdateGroupPicIds(groupId, groupIds, groupIdsToSave, Utils.UPDATING_USER_ID, sequenceId, shouldBackup);
+                }
             }
             catch (Exception ex)
             {
