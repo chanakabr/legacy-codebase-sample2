@@ -11,72 +11,120 @@ using Phx.Lib.Appconfig;
 
 namespace OPC_Migration
 {
+    /*
+     * Env vars:
+     * OPERATION - valid values (not case sensitive)
+     *  validate
+     *  migrate
+     *  rollback
+     *  backup
+     * PARENT_GROUP_ID (should be > 0)
+     * REGULAR_GROUP_ID (should be > 0)
+     * LINEAR_MEDIA_TYPE_ID (should be >= 0)
+     * PROGRAM_MEDIA_TYPE_ID (should be >= 0)
+     */
+
     class Program
     {
-
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        public static int groupId = 0, regularGroupId = 0, linearMediaTypeId = 0, programMediaTypeId = 0;
-        public static bool shouldValidate = false, shouldMigrate = false, shouldBackup = false, shouldRollback = false;
-        public static Stopwatch watch = new Stopwatch();
-        public static long sequenceId = 0;
+        public static int _groupId = 0;
+        public static int _regularGroupId = 0;
+        public static int _linearMediaTypeId = 0;
+        public static int _programMediaTypeId = 0;
+        public static bool _shouldValidate = false;
+        public static bool _shouldMigrate = false;
+        public static bool _shouldBackup = false;
+        public static bool _shouldRollback = false;
+        public static Stopwatch _watch = new Stopwatch();
+        public static long _sequenceId = 0;
 
         static void Main(string[] args)
         {
             try
             {
                 Initialize();
-                Console.WriteLine("Enter selected operation:\n 1.Migration\n 2.Validation\n 3.Backup\n 4.Rollback");
 
                 #region Select operation and get input variables
 
-                int operation = 0;
-                while (!int.TryParse(Console.ReadLine(), out operation) || operation < 1 || operation > 4)
+                var operationEnv = Environment.GetEnvironmentVariable("OPERATION");
+
+                MigratorOperation migratorOperation = MigratorOperation.none;
+                if (!string.IsNullOrEmpty(operationEnv))
                 {
-                    Console.WriteLine("Please enter a valid operation number between 1-4");
+                    Enum.TryParse<MigratorOperation>(operationEnv.ToLowerInvariant(), out migratorOperation);
                 }
 
-                switch (operation)
+                if (migratorOperation == MigratorOperation.none)
                 {
-                    // only migration
-                    case 1:
-                        shouldMigrate = true;
-                        break;
-                    // only validation
-                    case 2:
-                        shouldValidate = true;
-                        break;
-                    // only backup
-                    case 3:
-                        shouldBackup = true;
-                        break;
-                    // only rollback
-                    case 4:
-                        shouldRollback = true;
-                        break;
-                }
+                    Console.WriteLine("Enter selected operation:\n 1.Migration\n 2.Validation\n 3.Backup\n 4.Rollback");
 
-                Console.WriteLine("Enter parent groupId");
-                while (!int.TryParse(Console.ReadLine(), out groupId) || groupId < 1)
-                {
-                    Console.WriteLine("Please enter a valid groupId");
-                }
-
-                if (shouldValidate || shouldMigrate)
-                {
-                    Console.WriteLine("Enter regular groupId");
-                    while (!int.TryParse(Console.ReadLine(), out regularGroupId) || groupId < 1)
+                    int operation = 0;
+                    while (!int.TryParse(Console.ReadLine(), out operation) || operation < 1 || operation > 4)
                     {
-                        Console.WriteLine("Please enter a valid regular groupId");
+                        Console.WriteLine("Please enter a valid operation number between 1-4");
                     }
-                    Console.WriteLine("Enter Linear media type id, 0 for none");
-                    while (!int.TryParse(Console.ReadLine(), out linearMediaTypeId) || groupId < 1)
+
+                    migratorOperation = (MigratorOperation)operation;
+                }
+                switch (migratorOperation)
+                {
+                    case MigratorOperation.migrate:
+                        _shouldMigrate = true;
+                        break;
+                    case MigratorOperation.validate:
+                        _shouldValidate = true;
+                        break;
+                    case MigratorOperation.backup:
+                        _shouldBackup = true;
+                        break;
+                    case MigratorOperation.rollback:
+                        _shouldRollback = true;
+                        break;
+                }
+
+                int.TryParse(Environment.GetEnvironmentVariable("PARENT_GROUP_ID"), out _groupId);
+
+                if (_groupId < 1)
+                {
+                    Console.WriteLine("Enter parent groupId");
+                    while (!int.TryParse(Console.ReadLine(), out _groupId) || _groupId < 1)
                     {
-                        Console.WriteLine("Please enter a valid Linear media type id or 0 for none");
+                        Console.WriteLine("Please enter a valid groupId");
                     }
-                    Console.WriteLine("Enter Program(EPG) media type id, 0 for none");
-                    while (!int.TryParse(Console.ReadLine(), out programMediaTypeId) || groupId < 1)
+                }
+
+                if (_shouldValidate || _shouldMigrate)
+                {
+                    int.TryParse(Environment.GetEnvironmentVariable("REGULAR_GROUP_ID"), out _regularGroupId);
+
+                    if (_regularGroupId < 1)
                     {
-                        Console.WriteLine("Please enter a valid Program(EPG) media type id or 0 for none");
+                        Console.WriteLine("Enter regular groupId");
+                        while (!int.TryParse(Console.ReadLine(), out _regularGroupId) || _regularGroupId < 1)
+                        {
+                            Console.WriteLine("Please enter a valid regular groupId");
+                        }
+                    }
+
+                    int.TryParse(Environment.GetEnvironmentVariable("LINEAR_MEDIA_TYPE_ID"), out _linearMediaTypeId);
+
+                    if (_linearMediaTypeId < 0)
+                    {
+                        Console.WriteLine("Enter Linear media type id, 0 for none");
+                        while (!int.TryParse(Console.ReadLine(), out _linearMediaTypeId) || _linearMediaTypeId < 0)
+                        {
+                            Console.WriteLine("Please enter a valid Linear media type id or 0 for none");
+                        }
+                    }
+                    int.TryParse(Environment.GetEnvironmentVariable("PROGRAM_MEDIA_TYPE_ID"), out _programMediaTypeId);
+
+                    if (_programMediaTypeId < 1)
+                    {
+                        Console.WriteLine("Enter Program(EPG) media type id, 0 for none");
+                        while (!int.TryParse(Console.ReadLine(), out _programMediaTypeId) || _programMediaTypeId < 0)
+                        {
+                            Console.WriteLine("Please enter a valid Program(EPG) media type id or 0 for none");
+                        }
                     }
                 }
 
@@ -104,14 +152,13 @@ namespace OPC_Migration
 
                 #region Validation and prepare data
 
-                if (shouldValidate || shouldMigrate)
+                if (_shouldValidate || _shouldMigrate)
                 {
-
-                    group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
+                    group = new GroupsCacheManager.GroupManager().GetGroup(_groupId);
                     if (group == null)
                     {
-                        log.ErrorFormat("Failed getting group object for groupId: {0}, stopping validation and data preparation process until issue will be solved", groupId);
-                        Console.WriteLine("Failed getting group object for groupId: {0}, stopping validation and data preparation process until issue will be solved", groupId);
+                        log.ErrorFormat("Failed getting group object for groupId: {0}, stopping validation and data preparation process until issue will be solved", _groupId);
+                        Console.WriteLine("Failed getting group object for groupId: {0}, stopping validation and data preparation process until issue will be solved", _groupId);
                         return;
                     }
                     else
@@ -120,20 +167,20 @@ namespace OPC_Migration
                     }
 
                     // Validate and prepare data
-                    ValidateAndPrepareDataManager prepDataMang = new ValidateAndPrepareDataManager(groupId, regularGroupId, linearMediaTypeId, programMediaTypeId);
+                    ValidateAndPrepareDataManager prepDataMang = new ValidateAndPrepareDataManager(_groupId, _regularGroupId, _linearMediaTypeId, _programMediaTypeId);
                     Console.WriteLine("Starting validation and data preparation");
                     log.DebugFormat("Starting validation and data preparation");
-                    watch.Restart();
+                    _watch.Restart();
                     List<eMigrationResultStatus> prepareDataResults = prepDataMang.PrepareMigrationData(group, ref groupPicIdsToSave, ref groupRatios, ref groupImageTypes, ref groupMediaFileTypes, ref mediaTypeIdToMediaFileTypeIdMap,
                                                                                 ref groupTopics, ref groupAssetStructs, ref assetStructTopicsMap, ref assets, ref picIdToImageTypeNameMap,
                                                                                 ref groupChannels, ref assetsImageTypesToAdd, ref picIdToUpdatedContentIdValue, ref groupExtraLanguageIdsToSave);
-                    watch.Stop();
-                    Console.WriteLine("Validation and prepare data results: {0}, ElapsedMilliseconds: {1}", string.Join(",", prepareDataResults.Select(x => x.ToString())), watch.ElapsedMilliseconds);
-                    log.DebugFormat("Validation and prepare data results: {0}, ElapsedMilliseconds: {1}", string.Join(",", prepareDataResults.Select(x => x.ToString())), watch.ElapsedMilliseconds);
+                    _watch.Stop();
+                    Console.WriteLine("Validation and prepare data results: {0}, ElapsedMilliseconds: {1}", string.Join(",", prepareDataResults.Select(x => x.ToString())), _watch.ElapsedMilliseconds);
+                    log.DebugFormat("Validation and prepare data results: {0}, ElapsedMilliseconds: {1}", string.Join(",", prepareDataResults.Select(x => x.ToString())), _watch.ElapsedMilliseconds);
                     if (prepareDataResults.Count > 1 || prepareDataResults[0] != eMigrationResultStatus.OK)
                     {
-                        log.ErrorFormat("Stopping validation and data preparation process until issues will be resolved for groupId: {0}", groupId);
-                        Console.WriteLine("Stopping validation and data preparation process until issues will be resolved for groupId: {0} press enter to close", groupId);
+                        log.ErrorFormat("Stopping validation and data preparation process until issues will be resolved for groupId: {0}", _groupId);
+                        Console.WriteLine("Stopping validation and data preparation process until issues will be resolved for groupId: {0} press enter to close", _groupId);
                         Console.ReadLine();
                         return;
                     }
@@ -144,31 +191,31 @@ namespace OPC_Migration
                 #region Backup
 
                 // added for https://kaltura.atlassian.net/browse/GEN-693 - Simplify the OPC migration script to not relate to the rollback script
-                if (shouldMigrate)
+                if (_shouldMigrate)
                 {
                     Console.WriteLine("Do you want to create backup? (true/false) THIS ISN'T NEEDED IF YOU ARE USING MIGRATION PROCESS CREATED BY Arnon Lempert!!!");
-                    while (!bool.TryParse(Console.ReadLine(), out shouldBackup))
+                    while (!bool.TryParse(Console.ReadLine(), out _shouldBackup))
                     {
                         Console.WriteLine("Please enter a valid answer (true or false)");
                     }
                 }
 
-                if (shouldBackup)
+                if (_shouldBackup)
                 {
                     // Backup existing data before migration
-                    BackupManager backupMang = new BackupManager(groupId);
+                    BackupManager backupMang = new BackupManager(_groupId);
                     Console.WriteLine("Starting backup process");
                     log.DebugFormat("Starting backup process");
-                    watch.Restart();
+                    _watch.Restart();
                     eMigrationResultStatus backUpStatus = backupMang.CreateBackup();
-                    watch.Stop();
-                    log.DebugFormat("Backup result: {0}, ElapsedMilliseconds: {1}, sequenceId: {2}", backUpStatus.ToString(), watch.ElapsedMilliseconds, backupMang.SequenceId);
-                    Console.WriteLine("Backup result: {0}, ElapsedMilliseconds: {1}, sequenceId: {2}", backUpStatus.ToString(), watch.ElapsedMilliseconds, backupMang.SequenceId);
-                    sequenceId = backupMang.SequenceId;
+                    _watch.Stop();
+                    log.DebugFormat("Backup result: {0}, ElapsedMilliseconds: {1}, sequenceId: {2}", backUpStatus.ToString(), _watch.ElapsedMilliseconds, backupMang.SequenceId);
+                    Console.WriteLine("Backup result: {0}, ElapsedMilliseconds: {1}, sequenceId: {2}", backUpStatus.ToString(), _watch.ElapsedMilliseconds, backupMang.SequenceId);
+                    _sequenceId = backupMang.SequenceId;
                     if (backUpStatus != eMigrationResultStatus.OK)
                     {
-                        log.ErrorFormat("Stopping Backup process until backup issues will be resolved for groupId: {0}", groupId);
-                        Console.WriteLine("Stopping Backup process until backup issues will be resolved for groupId: {0}, press enter to close", groupId);
+                        log.ErrorFormat("Stopping Backup process until backup issues will be resolved for groupId: {0}", _groupId);
+                        Console.WriteLine("Stopping Backup process until backup issues will be resolved for groupId: {0}, press enter to close", _groupId);
                         return;
                     }
                 }
@@ -177,7 +224,7 @@ namespace OPC_Migration
 
                 #region Migration
 
-                if (shouldMigrate)
+                if (_shouldMigrate)
                 {
                     bool shouldStartMigration = false;
                     Console.WriteLine("Start migration? true/false");
@@ -185,7 +232,7 @@ namespace OPC_Migration
                     {
                         Console.WriteLine("Please enter a valid answer (true or false)");
                     }
-                    
+
                     Console.WriteLine("Use mig_ table prefix? true/false");
                     bool useMigTablesPrefix = false;
                     while (!bool.TryParse(Console.ReadLine(), out useMigTablesPrefix))
@@ -196,19 +243,19 @@ namespace OPC_Migration
                     if (shouldStartMigration)
                     {
                         // Perform the migration
-                        MigrateManager migrationMang = new MigrateManager(groupId, sequenceId, shouldBackup, useMigTablesPrefix);
+                        MigrateManager migrationMang = new MigrateManager(_groupId, _sequenceId, _shouldBackup, useMigTablesPrefix);
                         Console.WriteLine("Performing Migration");
                         log.DebugFormat("Performing Migration");
-                        watch.Restart();
+                        _watch.Restart();
                         eMigrationResultStatus migrationStatus = migrationMang.PerformMigration(group, groupPicIdsToSave, ref groupRatios, ref groupImageTypes, ref groupMediaFileTypes, ref mediaTypeIdToMediaFileTypeIdMap,
                                                                                 ref groupTopics, groupAssetStructs, assetStructTopicsMap, assets, picIdToImageTypeNameMap,
                                                                                 assetsImageTypesToAdd, picIdToUpdatedContentIdValue, groupChannels, groupExtraLanguageIdsToSave);
-                        watch.Stop();
-                        log.DebugFormat("Migration result: {0}, ElapsedMilliseconds: {1}", migrationStatus.ToString(), watch.ElapsedMilliseconds);
-                        Console.WriteLine("Migration result: {0}, ElapsedMilliseconds: {1}", migrationStatus.ToString(), watch.ElapsedMilliseconds);
+                        _watch.Stop();
+                        log.DebugFormat("Migration result: {0}, ElapsedMilliseconds: {1}", migrationStatus.ToString(), _watch.ElapsedMilliseconds);
+                        Console.WriteLine("Migration result: {0}, ElapsedMilliseconds: {1}", migrationStatus.ToString(), _watch.ElapsedMilliseconds);
                         if (migrationStatus != eMigrationResultStatus.OK)
                         {
-                            log.ErrorFormat("Stopping Migration process until issues will be resolved for groupId: {0}", groupId);
+                            log.ErrorFormat("Stopping Migration process until issues will be resolved for groupId: {0}", _groupId);
                             Console.WriteLine("Stopping Migration process until issues will be resolved");
                             // Rollback data
                             Console.WriteLine("Should perform rollBack? true/false");
@@ -225,12 +272,12 @@ namespace OPC_Migration
 
                 #region Rollback
 
-                if (shouldRollback)
+                if (_shouldRollback)
                 {
-                    if (sequenceId == 0)
+                    if (_sequenceId == 0)
                     {
                         Console.WriteLine("Please enter a valid sequenceId to perform rollback");
-                        while (!long.TryParse(Console.ReadLine(), out sequenceId) || sequenceId < 1)
+                        while (!long.TryParse(Console.ReadLine(), out _sequenceId) || _sequenceId < 1)
                         {
                             Console.WriteLine("Please enter a valid sequenceId to perform rollback");
                         }
@@ -255,13 +302,13 @@ namespace OPC_Migration
         {
             Console.WriteLine("Starting rollback");
             log.DebugFormat("Starting rollback");
-            watch.Restart();
+            _watch.Restart();
             // Rollback the migration
-            RollbackManager rollbackManager = new RollbackManager(groupId, sequenceId);
+            RollbackManager rollbackManager = new RollbackManager(_groupId, _sequenceId);
             eMigrationResultStatus rollBackStatus = rollbackManager.PerformRollback();
-            watch.Stop();
-            log.DebugFormat("Rollback result: {0}, ElapsedMilliseconds: {1}", rollBackStatus.ToString(), watch.ElapsedMilliseconds);
-            Console.WriteLine("Rollback result: {0}, ElapsedMilliseconds: {1}", rollBackStatus.ToString(), watch.ElapsedMilliseconds);
+            _watch.Stop();
+            log.DebugFormat("Rollback result: {0}, ElapsedMilliseconds: {1}", rollBackStatus.ToString(), _watch.ElapsedMilliseconds);
+            Console.WriteLine("Rollback result: {0}, ElapsedMilliseconds: {1}", rollBackStatus.ToString(), _watch.ElapsedMilliseconds);
         }
 
         private static void Initialize()
@@ -273,6 +320,14 @@ namespace OPC_Migration
             ApplicationConfiguration.Init();
             CachingProvider.LayeredCache.LayeredCache.Instance.DisableInMemoryCache();
         }
+    }
 
+    public enum MigratorOperation
+    {
+        none = 0,
+        migrate = 1,
+        validate = 2,
+        backup = 3,
+        rollback = 4
     }
 }
