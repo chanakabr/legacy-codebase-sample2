@@ -54,71 +54,55 @@ namespace OPC_Migration
             if (!UpdateGroupExtraLanguages(groupId, groupIds, groupExtraLanguageIdsToSave))
             {
                 log.Error("UpdateGroupExtraLanguages failed");
-                Console.WriteLine("UpdateGroupExtraLanguages failed");
                 result.Add(eMigrationResultStatus.UpdateGroupExtraLanguagesFailed);
             }
-
             log.Debug("UpdateGroupExtraLanguages succeeded");
-            Console.WriteLine("UpdateGroupExtraLanguages succeeded");
 
             if (!UpdateGroupPicsIds(groupId, groupIds, groupIdsToSave))
             {
                 log.Error("UpdateGroupPicsIds failed");
-                Console.WriteLine("UpdateGroupPicsIds failed");
                 result.Add(eMigrationResultStatus.UpdateGroupPicsIdsFailed);
             }
-
             log.Debug("UpdateGroupPicsIds succeeded");
-            Console.WriteLine("UpdateGroupPicsIds succeeded");
+
             if (!UpdateGroupIdInNeededTables())
             {
                 log.Error("UpdateGroupIdInNeededTables failed");
-                Console.WriteLine("UpdateGroupIdInNeededTables failed");
                 result.Add(eMigrationResultStatus.UpdateGroupIdInNeededTablesFailed);
             }
-
             log.Debug("UpdateGroupIdInNeededTables succeeded");
-            Console.WriteLine("UpdateGroupIdInNeededTables succeeded");
+
             if (!Utils.ClearAllCaches(groupId))
             {
                 log.Error("ClearAllCaches failed");
-                Console.WriteLine("ClearAllCaches failed");
                 result.Add(eMigrationResultStatus.ClearAllCachesFailed);
             }
 
             log.Debug("ClearAllCaches succeeded");
-            Console.WriteLine("ClearAllCaches succeeded");
             if (!InsertGroupRatios(ref groupRatios))
             {
                 log.Error("InsertGroupRatios failed");
-                Console.WriteLine("InsertGroupRatios failed");
                 result.Add(eMigrationResultStatus.InsertGroupRatiosFailed);
             }
 
             log.Debug("InsertGroupRatios succeeded");
-            Console.WriteLine("InsertGroupRatios succeeded");
             if (!InsertGroupImageTypes(ref groupImageTypes, groupRatios))
             {
                 log.Error("InsertGroupImageTypes failed");
-                Console.WriteLine("InsertGroupImageTypes failed");
                 result.Add(eMigrationResultStatus.InsertGroupImageTypesFailed);
             }
 
             log.Debug("InsertGroupImageTypes succeeded");
-            Console.WriteLine("InsertGroupImageTypes succeeded");
             if (!UpdateGroupMediaFileTypes(ref groupMediaFileTypes))
             {
                 log.Error("UpdateGroupMediaFileTypes failed");
-                Console.WriteLine("UpdateGroupMediaFileTypes failed");
                 result.Add(eMigrationResultStatus.UpdateGroupMediaFileTypesFailed);
             }
 
             log.Debug("UpdateGroupMediaFileTypes succeeded");
-            Console.WriteLine("UpdateGroupMediaFileTypes succeeded");
             if (!InsertGroupTopics(ref groupTopics))
             {
                 log.Error("InsertGroupTopics failed");
-                Console.WriteLine("InsertGroupTopics failed");
                 result.Add(eMigrationResultStatus.InsertGroupTopicsFailed);
             }
 
@@ -127,7 +111,7 @@ namespace OPC_Migration
             {
                 foreach (KeyValuePair<int, string> tagType in group.m_oGroupTags)
                 {
-                    if (groupTopics.ContainsKey(tagType.Value) && groupTopics[tagType.Value].ContainsKey(ApiObjects.MetaType.Tag.ToString()) 
+                    if (groupTopics.ContainsKey(tagType.Value) && groupTopics[tagType.Value].ContainsKey(ApiObjects.MetaType.Tag.ToString())
                         && groupTopics[tagType.Value][ApiObjects.MetaType.Tag.ToString()].Id > 0)
                     {
                         tagTypeToTopicIdMap.Add(new KeyValuePair<long, long>(tagType.Key, groupTopics[tagType.Value][ApiObjects.MetaType.Tag.ToString()].Id));
@@ -136,178 +120,139 @@ namespace OPC_Migration
             }
 
             log.Debug("InsertGroupTopics succeeded");
-            Console.WriteLine("InsertGroupTopics succeeded");
             if (!UpdateTagTableWithTopicIds(groupId, tagTypeToTopicIdMap))
             {
                 log.Error("UpdateTagTableWithTopicIds failed");
-                Console.WriteLine("UpdateTagTableWithTopicIds failed");
                 result.Add(eMigrationResultStatus.UpdateTagTableWithTopicIdsFailed);
             }
 
             log.Debug("UpdateTagTableWithTopicIds succeeded");
-            Console.WriteLine("UpdateTagTableWithTopicIds succeeded");
             if (!UpdateMediaConcurrencyRulesTableWithTopicIds(groupId, tagTypeToTopicIdMap))
             {
                 log.Error("UpdateMediaConcurrencyRulesTableWithTopicIds failed");
-                Console.WriteLine("UpdateMediaConcurrencyRulesTableWithTopicIds failed");
                 result.Add(eMigrationResultStatus.UpdateMediaConcurrencyRulesTableWithTopicIdsFailed);
             }
 
             log.Debug("UpdateMediaConcurrencyRulesTableWithTopicIds succeeded");
-            Console.WriteLine("UpdateMediaConcurrencyRulesTableWithTopicIds succeeded");
             if (!UpdateParentalRulesTableWithTopicIds(groupId, tagTypeToTopicIdMap, group.m_oEpgGroupSettings, groupTopics))
             {
                 log.Error("UpdateParentalRulesTableWithTopicIds failed");
-                Console.WriteLine("UpdateParentalRulesTableWithTopicIds failed");
                 result.Add(eMigrationResultStatus.UpdateParentalRulesTableWithTopicIdsFailed);
             }
 
             log.Debug("UpdateParentalRulesTableWithTopicIds succeeded");
-            Console.WriteLine("UpdateParentalRulesTableWithTopicIds succeeded");
             if (!UpdateGroupChannels(groupChannels))
             {
                 log.Error("UpdateGroupChannels failed");
-                Console.WriteLine("UpdateGroupChannels failed");
                 result.Add(eMigrationResultStatus.UpdateGroupChannelsFailed);
             }
 
             log.Debug("UpdateGroupChannels succeeded");
-            Console.WriteLine("UpdateGroupChannels succeeded");
             if (!Utils.ClearAllCaches(groupId))
             {
                 log.Error("ClearAllCaches failed");
-                Console.WriteLine("ClearAllCaches failed");
                 result.Add(eMigrationResultStatus.ClearAllCachesFailed);
             }
 
             log.Debug("ClearAllCaches succeeded");
-            Console.WriteLine("ClearAllCaches succeeded");
             if (!UpdateDuplicateTagValuesAndTagTranslations(groupId))
             {
                 log.Error("UpdateDuplicateTagValuesAndParentalRuleTagValues failed");
-                Console.WriteLine("UpdateDuplicateTagValuesAndTagTranslationsFailed failed");
                 result.Add(eMigrationResultStatus.UpdateDuplicateTagValuesAndTagTranslationsFailed);
             }
 
             log.Debug("UpdateDuplicateTagValuesAndParentalRuleTagValues succeeded");
-            Console.WriteLine("UpdateDuplicateTagValuesAndParentalRuleTagValues succeeded");
             if (!Utils.ClearAllCaches(groupId))
             {
                 log.Error("ClearAllCaches failed");
-                Console.WriteLine("ClearAllCaches failed");
                 result.Add(eMigrationResultStatus.ClearAllCachesFailed);
             }
 
             log.Debug("ClearAllCaches succeeded");
-            Console.WriteLine("ClearAllCaches succeeded");
             if (!AddOrUpdateGroupAssetStructs(groupAssetStructs, groupTopics, assetStructTopicsMap))
             {
                 log.Error("AddOrUpdateGroupAssetStructs failed");
-                Console.WriteLine("AddOrUpdateGroupAssetStructs failed");
                 result.Add(eMigrationResultStatus.AddOrUpdateGroupAssetStructsFailed);
             }
 
             log.Debug("AddOrUpdateGroupAssetStructs succeeded");
-            Console.WriteLine("AddOrUpdateGroupAssetStructs succeeded");
             if (!Utils.ClearAllCaches(groupId))
             {
                 log.Error("ClearAllCaches failed");
-                Console.WriteLine("ClearAllCaches failed");
                 result.Add(eMigrationResultStatus.ClearAllCachesFailed);
             }
 
             log.Debug("ClearAllCaches succeeded");
-            Console.WriteLine("ClearAllCaches succeeded");
             if (!UpdateGroupMediaAssets(assets))
             {
                 log.Error("UpdateGroupMediaAssets failed");
-                Console.WriteLine("UpdateGroupMediaAssets failed");
                 result.Add(eMigrationResultStatus.UpdateGroupMediaAssetsFailed);
             }
 
             log.Debug("UpdateGroupMediaAssets succeeded");
-            Console.WriteLine("UpdateGroupMediaAssets succeeded");
             if (!Utils.ClearAllCaches(groupId))
             {
                 log.Error("ClearAllCaches failed");
-                Console.WriteLine("ClearAllCaches failed");
                 result.Add(eMigrationResultStatus.ClearAllCachesFailed);
             }
 
             log.Debug("ClearAllCaches succeeded");
-            Console.WriteLine("ClearAllCaches succeeded");
             if (!AddImagesToAsset(assetsImageTypesToAdd, groupImageTypes))
             {
                 log.Error("AddImagesToAsset failed");
-                Console.WriteLine("AddImagesToAsset failed");
                 result.Add(eMigrationResultStatus.AddImagesToAssetFailed);
             }
 
             log.Debug("AddImagesToAsset succeeded");
-            Console.WriteLine("AddImagesToAsset succeeded");
             if (!Utils.ClearAllCaches(groupId))
             {
                 log.Error("ClearAllCaches failed");
-                Console.WriteLine("ClearAllCaches failed");
                 result.Add(eMigrationResultStatus.ClearAllCachesFailed);
             }
 
             log.Debug("ClearAllCaches succeeded");
-            Console.WriteLine("ClearAllCaches succeeded");
             if (!UpdateGroupMediaAssetsImages(picIdToImageTypeNameMap, groupImageTypes))
             {
                 log.Error("UpdateGroupMediaAssetsImages failed");
-                Console.WriteLine("UpdateGroupMediaAssetsImages failed");
                 result.Add(eMigrationResultStatus.FailedValidationOfPicSizesFailed);
             }
 
             log.Debug("UpdateGroupMediaAssetsImages succeeded");
-            Console.WriteLine("UpdateGroupMediaAssetsImages succeeded");
             if (!Utils.ClearAllCaches(groupId))
             {
                 log.Error("ClearAllCaches failed");
-                Console.WriteLine("ClearAllCaches failed");
                 result.Add(eMigrationResultStatus.ClearAllCachesFailed);
             }
 
             log.Debug("ClearAllCaches succeeded");
-            Console.WriteLine("ClearAllCaches succeeded");
             if (!UpdatePicsContentIdBaseUrl(picIdToUpdatedContentIdValue))
             {
                 log.Error("UpdatePicsContentIdBaseUrl failed");
-                Console.WriteLine("UpdatePicsContentIdBaseUrl failed");
                 result.Add(eMigrationResultStatus.UpdatePicsContentIdBaseUrlFailed);
             }
 
             log.Debug("UpdatePicsContentIdBaseUrl succeeded");
-            Console.WriteLine("UpdatePicsContentIdBaseUrl succeeded");
             if (!Utils.ClearAllCaches(groupId))
             {
                 log.Error("ClearAllCaches failed");
-                Console.WriteLine("ClearAllCaches failed");
                 result.Add(eMigrationResultStatus.ClearAllCachesFailed);
             }
 
             log.Debug("ClearAllCaches succeeded");
-            Console.WriteLine("ClearAllCaches succeeded");
             if (!UpdateGroupMediaAssetsFiles(mediaTypeIdToMediaFileTypeIdMap))
             {
                 log.Error("UpdateGroupMediaAssetsFiles failed");
-                Console.WriteLine("UpdateGroupMediaAssetsFiles failed");
                 result.Add(eMigrationResultStatus.UpdateGroupMediaAssetsFilesFailed);
             }
 
             log.Debug("UpdateGroupMediaAssetsFiles succeeded");
-            Console.WriteLine("UpdateGroupMediaAssetsFiles succeeded");
             if (!Utils.ClearAllCaches(groupId))
             {
                 log.Error("ClearAllCaches failed");
-                Console.WriteLine("ClearAllCaches failed");
                 result.Add(eMigrationResultStatus.ClearAllCachesFailed);
             }
 
             log.Debug("ClearAllCaches succeeded");
-            Console.WriteLine("ClearAllCaches succeeded");
             return result;
         }
 
@@ -391,7 +336,7 @@ namespace OPC_Migration
                         imageType.Value.RatioId = ratio.Id;
                     }
 
-                    GenericResponse <ImageType> response = Core.Catalog.CatalogManagement.ImageManager.AddImageType(groupId, imageType.Value, Utils.UPDATING_USER_ID);
+                    GenericResponse<ImageType> response = Core.Catalog.CatalogManagement.ImageManager.AddImageType(groupId, imageType.Value, Utils.UPDATING_USER_ID);
                     if (!response.HasObject() || response.Object.Id == 0)
                     {
                         log.ErrorFormat("Failed adding imageType with name: {0}", imageType.Key);
@@ -584,7 +529,7 @@ namespace OPC_Migration
                         {
                             foreach (KeyValuePair<string, string> topicSystemNameAndType in assetStructTopicsMap[assetStruct.Id])
                             {
-                                if (groupTopics.ContainsKey(topicSystemNameAndType.Key) 
+                                if (groupTopics.ContainsKey(topicSystemNameAndType.Key)
                                     && groupTopics[topicSystemNameAndType.Key].ContainsKey(topicSystemNameAndType.Value))
                                 {
                                     assetStruct.MetaIds.Add(groupTopics[topicSystemNameAndType.Key][topicSystemNameAndType.Value].Id);
@@ -721,7 +666,7 @@ namespace OPC_Migration
                             if (!response.HasObject() || response.Object.Id != assetToRetry.Id)
                             {
                                 string responseStatus = response.Status != null ? response.Status.ToString() : "null";
-                                log.ErrorFormat($"failed to update linear asset  (no retry) with id: {assetToRetry.Id}, will retry synchronously, response status: {responseStatus}");                                
+                                log.ErrorFormat($"failed to update linear asset  (no retry) with id: {assetToRetry.Id}, will retry synchronously, response status: {responseStatus}");
                                 return false;
                             }
                         }
@@ -736,7 +681,7 @@ namespace OPC_Migration
                             if (!response.HasObject() || response.Object.Id != assetToRetry.Id)
                             {
                                 string responseStatus = response.Status != null ? response.Status.ToString() : "null";
-                                log.ErrorFormat($"failed to update asset (no retry) with id: {assetToRetry.Id}, response status: {responseStatus}");                                
+                                log.ErrorFormat($"failed to update asset (no retry) with id: {assetToRetry.Id}, response status: {responseStatus}");
                                 return false;
                             }
                         }
@@ -878,7 +823,7 @@ namespace OPC_Migration
                             if (!OPCMigrationDAL.UpdatePicContentIdsBaseUrl(picIdToUpdatedBaseUrl.Take(amountToTake).ToList(), Utils.UPDATING_USER_ID, sequenceId, shouldBackup))
                             {
                                 updateMorePicsBaseUrls = false;
-                                res = false;                                
+                                res = false;
                             }
                             else
                             {
@@ -1022,7 +967,7 @@ namespace OPC_Migration
                             res = false;
                         }
                         else
-                        {                            
+                        {
                             bool withUpdateUserId = true;
                             bool withUpdateDate = true;
                             switch (tableName)
@@ -1046,7 +991,7 @@ namespace OPC_Migration
                                 log.DebugFormat("table {0} update groupId is done", tableName);
                             }
                             else
-                            {                                
+                            {
                                 log.WarnFormat("table {0} update groupId retry has failed", tableName);
                                 res = false;
                             }
@@ -1099,7 +1044,7 @@ namespace OPC_Migration
                                 pageIndex++;
                             }
                         }
-                        
+
                         GenericResponse<Channel> response = ChannelManager.Instance.UpdateChannel(groupId, channel.m_nChannelID, channel, Utils.UPDATING_USER_ID, true);
                         if (!response.HasObject() || response.Object.m_nChannelID != channel.m_nChannelID)
                         {

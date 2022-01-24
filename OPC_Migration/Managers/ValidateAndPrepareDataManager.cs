@@ -50,128 +50,108 @@ namespace OPC_Migration
                                         ref Dictionary<long, string> picIdToUpdatedContentIdValue, ref HashSet<long> groupExtraLanguageIdsToSave)
         {
             List<eMigrationResultStatus> result = new List<eMigrationResultStatus>();
-            List <int> groupIds = GroupsCacheManager.Utils.Get_SubGroupsTree(groupId);
+            List<int> groupIds = GroupsCacheManager.Utils.Get_SubGroupsTree(groupId);
             // Get all linear media types so we will know when migrating medias
             linearMediaTypeIds = GetGroupLinearMediaTypeIds(groupIds);
             if (!ValidateExtraLanguages(groupIds, ref groupExtraLanguageIdsToSave))
             {
                 log.Error("ValidateExtraLanguages failed");
-                Console.WriteLine("ValidateExtraLanguages failed");
                 result.Add(eMigrationResultStatus.FailedValidationOfLanguagesPicSizes);
             }
             else
             {
                 log.Debug("ValidateExtraLanguages succeeded");
-                Console.WriteLine("ValidateExtraLanguages succeeded");
             }
 
             if (!ValidatePicSizes(groupIds, ref groupPicIdsToSave))
             {
                 log.Error("ValidatePicSizes failed");
-                Console.WriteLine("ValidatePicSizes failed");
                 result.Add(eMigrationResultStatus.FailedValidationOfPicSizes);
             }
             else
             {
                 log.Debug("ValidatePicSizes succeeded");
-                Console.WriteLine("ValidatePicSizes succeeded");
             }
 
             if (!CreateGroupRatios(groupIds, ref groupRatios))
             {
                 log.Error("CreateGroupRatios failed");
-                Console.WriteLine("CreateGroupRatios failed");
                 result.Add(eMigrationResultStatus.FailedValidationOfGroupRatios);
             }
             else
             {
                 log.Debug("CreateGroupRatios succeeded");
-                Console.WriteLine("CreateGroupRatios succeeded");
             }
 
             if (!CreateGroupImageTypes(groupRatios, ref groupImageTypes))
             {
                 log.Error("CreateGroupImageTypes failed");
-                Console.WriteLine("CreateGroupImageTypes failed");
                 result.Add(eMigrationResultStatus.FailedValidationOfGroupImageTypes);
             }
             else
             {
                 log.Debug("CreateGroupImageTypes succeeded");
-                Console.WriteLine("CreateGroupImageTypes succeeded");
             }
 
             if (!CreateGroupFilesTypes(groupIds, ref groupMediaFileTypes, ref mediaTypeIdToMediaFileTypeIdMap))
             {
                 log.Error("CreateGroupFilesTypes failed");
-                Console.WriteLine("CreateGroupFilesTypes failed");
                 result.Add(eMigrationResultStatus.FailedValidationOfGroupFileTypes);
             }
             else
             {
                 log.Debug("CreateGroupFilesTypes succeeded");
-                Console.WriteLine("CreateGroupFilesTypes succeeded");
             }
 
             Dictionary<string, string> epgAssetStructTopics = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             if (!CreateGroupTopicsMapping(group, ref groupTopics, ref epgAssetStructTopics))
             {
                 log.Error("CreateGroupTopicsMapping failed");
-                Console.WriteLine("CreateGroupTopicsMapping failed");
                 result.Add(eMigrationResultStatus.FailedValidationOfGroupTopics);
             }
             else
             {
                 log.Debug("CreateGroupTopicsMapping succeeded");
-                Console.WriteLine("CreateGroupTopicsMapping succeeded");
             }
 
             if (!CreateGroupAssetStructsMapping(ref groupAssetStructs))
             {
                 log.Error("CreateGroupAssetStructsMapping failed");
-                Console.WriteLine("CreateGroupAssetStructsMapping failed");
                 result.Add(eMigrationResultStatus.FailedValidationOfGroupAssetStructs);
             }
             else
             {
                 log.Debug("CreateGroupAssetStructsMapping succeeded");
-                Console.WriteLine("CreateGroupAssetStructsMapping succeeded");
             }
 
             if (!CreateAssetStructTopicsMapping(group.m_oMetasValuesByGroupId, ref groupAssetStructs, groupTopics, ref assetStructTopicsMap, epgAssetStructTopics))
             {
                 log.Error("CreateAssetStructTopicsMapping failed");
-                Console.WriteLine("CreateAssetStructTopicsMapping failed");
                 result.Add(eMigrationResultStatus.FailedValidationOfAssetStructToTopicsMapping);
             }
             else
             {
                 log.Debug("CreateAssetStructTopicsMapping succeeded");
-                Console.WriteLine("CreateAssetStructTopicsMapping succeeded");
             }
 
             if (!CreateAssets(groupIds, ref assets, ref picIdToImageTypeNameMap, ref assetsImageTypesToAdd, ref picIdToUpdatedContentIdValue))
             {
                 log.Error("CreateAssets failed");
-                Console.WriteLine("CreateAssets failed");
                 result.Add(eMigrationResultStatus.FailedValidationOfAssets);
             }
             else
             {
                 log.Debug("CreateAssets succeeded");
-                Console.WriteLine("CreateAssets succeeded");
             }
 
             if (!CreateGroupChannelsMapping(groupIds, group.GetLangauges(), ref groupChannels))
             {
                 log.Error("CreateGroupChannelsMapping failed");
-                Console.WriteLine("CreateGroupChannelsMapping failed");
                 result.Add(eMigrationResultStatus.FailedValidationOfChannels);
             }
             else
             {
                 log.Debug("CreateGroupChannelsMapping succeeded");
-                Console.WriteLine("CreateGroupChannelsMapping succeeded");
             }
 
             if (result.Count == 0)
@@ -251,7 +231,7 @@ namespace OPC_Migration
             {
                 if (groupIds != null && groupIds.Count > 0)
                 {
-                    Dictionary<int, HashSet<string>> ratioIdToSizesMap = new Dictionary<int, HashSet<string>>();           
+                    Dictionary<int, HashSet<string>> ratioIdToSizesMap = new Dictionary<int, HashSet<string>>();
                     foreach (int groupId in groupIds)
                     {
                         // ignore parent group pics, we will mark them as status=2 before merging the regular and virtual groups
@@ -333,7 +313,7 @@ namespace OPC_Migration
             {
                 log.Error("Failed CreateGroupRatios", ex);
                 return false;
-            }            
+            }
         }
 
         private bool CreateGroupImageTypes(Dictionary<string, Core.Catalog.Ratio> groupRatios, ref Dictionary<string, ImageType> groupImageTypes)
@@ -358,7 +338,7 @@ namespace OPC_Migration
             {
                 log.Error("Failed CreateGroupImageTypes", ex);
                 return false;
-            }            
+            }
         }
 
         private Dictionary<long, int> CreateMediaFileTypesQualityMap(List<int> groupIds)
@@ -382,7 +362,7 @@ namespace OPC_Migration
                 else
                 {
                     log.Warn("Didn't find any mapping between fileType to quality");
-                    return null;                    
+                    return null;
                 }
             }
             catch (Exception ex)
@@ -446,7 +426,7 @@ namespace OPC_Migration
                                     }
 
                                     groupMediaFileTypes.Add(id, mediaFileType);
-                                }    
+                                }
                             }
                         }
                     }
@@ -459,7 +439,7 @@ namespace OPC_Migration
             {
                 log.Error("Failed CreateGroupFilesTypes", ex);
                 return false;
-            }            
+            }
         }
 
         private bool CreateGroupTopicsMapping(Group group, ref Dictionary<string, Dictionary<string, Topic>> groupTopics, ref Dictionary<string, string> epgAssetStructTopics)
@@ -484,7 +464,7 @@ namespace OPC_Migration
                  * object tag type name (DEFAULT_GROUP_TAG_FREE on ChannelRepository.cs) */
                 else if (groupTopics.ContainsKey(GROUP_TAG_FREE_CB_VALUE) &&
                         groupTopics[GROUP_TAG_FREE_CB_VALUE].ContainsKey(MetaType.Tag.ToString()))
-                {                        
+                {
                     Topic updatedTopic = new Topic(groupTopics[GROUP_TAG_FREE_CB_VALUE][MetaType.Tag.ToString()]);
                     updatedTopic.SystemName = GROUP_TAG_FREE_DB_VALUE;
                     updatedTopic.Name = GROUP_TAG_FREE_DB_VALUE;
@@ -532,7 +512,7 @@ namespace OPC_Migration
                 return false;
             }
 
-            return result;        
+            return result;
         }
 
         private bool CreateGroupAssetStructsMapping(ref Dictionary<string, AssetStruct> groupAssetStructs)
@@ -567,9 +547,9 @@ namespace OPC_Migration
                             Name = mediaType.Key,
                             SystemName = mediaType.Key,
                             ParentId = parentId,
-                            IsLinearAssetStruct = linearMediaTypeId == mediaType.Value                            
+                            IsLinearAssetStruct = linearMediaTypeId == mediaType.Value
                         };
-                        
+
                         groupAssetStructs.Add(mediaType.Key, assetStruct);
                     }
                 }
@@ -583,7 +563,7 @@ namespace OPC_Migration
                         Name = Utils.PROGRAM_ASSET_STRUCT,
                         SystemName = Utils.PROGRAM_ASSET_STRUCT,
                         ParentId = null,
-                        IsLinearAssetStruct = false                        
+                        IsLinearAssetStruct = false
                     };
 
                     groupAssetStructs.Add(Utils.PROGRAM_ASSET_STRUCT, assetStruct);
@@ -612,7 +592,7 @@ namespace OPC_Migration
                         basicMediaTopics.AddRange(pair.Values.Where(x => x.IsPredefined.HasValue && x.IsPredefined.Value));
                     }
                 }
-                
+
                 if (basicMediaTopics != null && basicMediaTopics.Count > 0 && assetStructToGroupId != null && assetStructToGroupId.Count > 0)
                 {
                     foreach (AssetStruct assetStruct in groupAssetStructs.Values.Where(x => !x.IsProgramAssetStruct))
@@ -700,7 +680,6 @@ namespace OPC_Migration
                 else
                 {
                     log.DebugFormat("Finished getting group existing assets, total of {0} assets found starting to validate them", existingAssets.Count);
-                    Console.WriteLine("Finished getting group existing assets, total of {0} assets found starting to validate them", existingAssets.Count);
                     ConcurrentDictionary<string, string> picContentIdToImageTypeNameMap = new ConcurrentDictionary<string, string>();
                     ConcurrentDictionary<string, string> picContentIdToUpdatedContentId = new ConcurrentDictionary<string, string>();
                     ConcurrentDictionary<string, string> mediaIdToEpgChannelMap = new ConcurrentDictionary<string, string>();
@@ -711,7 +690,7 @@ namespace OPC_Migration
                     ConcurrentDictionary<long, ConcurrentDictionary<string, string>> opcAssetsImageTypesToAdd = new ConcurrentDictionary<long, ConcurrentDictionary<string, string>>();
                     bool validateAssetsResult = true;
                     Parallel.ForEach(existingAssets, (mediaObj) =>
-                    {                        
+                    {
                         if (mediaObj == null)
                         {
                             return;
@@ -743,7 +722,7 @@ namespace OPC_Migration
                         }
 
                         MediaAsset mediaAsset = new MediaAsset(regularGroupId, mediaObj);
-                        mediaAsset.MediaAssetType = linearMediaTypeIds.Contains(mediaObj.m_oMediaType.m_nTypeID) ? MediaAssetType.Linear : MediaAssetType.Media;                        
+                        mediaAsset.MediaAssetType = linearMediaTypeIds.Contains(mediaObj.m_oMediaType.m_nTypeID) ? MediaAssetType.Linear : MediaAssetType.Media;
 
                         if (mediaAsset.MediaAssetType == MediaAssetType.Linear)
                         {
@@ -908,7 +887,7 @@ namespace OPC_Migration
             {
                 log.Error("Failed CreateAssets", ex);
                 return false;
-            }  
+            }
         }
 
         private ConcurrentBag<Core.Catalog.Response.MediaObj> GetExistingGroupsAssets(List<int> groupIds, ref bool gotExistingGroupAssets)
@@ -999,13 +978,12 @@ namespace OPC_Migration
                 else
                 {
                     log.Warn("No media assets found for the account");
-                    Console.WriteLine("No media assets found for the account");
-                }            
+                }
             }
             catch (Exception ex)
             {
                 log.Error("Failed GetExistingGroupsAssetsWithParallel", ex);
-                gotExistingGroupAssets = false;                
+                gotExistingGroupAssets = false;
             }
 
             gotExistingGroupAssets = true;
@@ -1047,7 +1025,7 @@ namespace OPC_Migration
         {
             bool result = true;
             try
-            {                
+            {
                 if (metasValuesByGroupId != null)
                 {
                     foreach (KeyValuePair<int, Dictionary<string, string>> pair in metasValuesByGroupId)
@@ -1085,7 +1063,7 @@ namespace OPC_Migration
                                         }
                                         else if (!groupTopics.ContainsKey(meta.Value))
                                         {
-                                            groupTopics.Add(meta.Value, new Dictionary<string, Topic>(StringComparer.OrdinalIgnoreCase));                                            
+                                            groupTopics.Add(meta.Value, new Dictionary<string, Topic>(StringComparer.OrdinalIgnoreCase));
                                         }
 
                                         if (!groupTopics[meta.Value].ContainsKey(metaType.ToString()))
@@ -1148,7 +1126,7 @@ namespace OPC_Migration
                             {
                                 groupTopics[tag.Value].Add(metaType.ToString(), topic);
                             }
-                            
+
                         }
                     }
                 }
@@ -1203,7 +1181,7 @@ namespace OPC_Migration
                             }
                         }
 
-                        
+
                     }
                 }
             }
@@ -1242,10 +1220,10 @@ namespace OPC_Migration
 
                         if (!isMedia && !epgBasicTopics.ContainsKey(topicToAdd.SystemName))
                         {
-                            epgBasicTopics.Add(topicToAdd.SystemName, topicToAdd.Type.ToString());                        
+                            epgBasicTopics.Add(topicToAdd.SystemName, topicToAdd.Type.ToString());
                         }
                     }
-                }            
+                }
             }
             catch (Exception ex)
             {
@@ -1254,7 +1232,7 @@ namespace OPC_Migration
             }
 
             return result;
-        }        
+        }
 
         private Dictionary<long, int> GetMediaTypesIdToGroupIdMap()
         {
@@ -1473,14 +1451,13 @@ namespace OPC_Migration
                     GroupManager groupManager = new GroupManager();
                     List<Channel> channels = groupManager.GetChannels(channelIds.ToList(), groupId, true);
                     log.DebugFormat("Finished getting group existing channels, total of {0} channels found starting to validate them", channels.Count);
-                    Console.WriteLine("Finished getting group existing channels, total of {0} channels found starting to validate them", channels.Count);
                     if (channels == null || channels.Count == 0)
                     {
                         log.Warn("Failed getting channels from groupManager.GetChannels");
 
                     }
 
-                    ConcurrentDictionary<string, Channel> channelNamesToChannelMap = new ConcurrentDictionary<string, Channel>();                    
+                    ConcurrentDictionary<string, Channel> channelNamesToChannelMap = new ConcurrentDictionary<string, Channel>();
                     Parallel.ForEach(channels, (channel) =>
                     {
                         if (channel != null && channel.m_nChannelID > 0)
@@ -1526,7 +1503,7 @@ namespace OPC_Migration
                                                     }
                                                 }
                                             }
-                                            
+
                                             sb.Append(")");
                                         }
                                     }
@@ -1561,7 +1538,7 @@ namespace OPC_Migration
                             }
                             else
                             {
-                                channelNamesToChannelMap.TryAdd(channel.SystemName, channel);                                
+                                channelNamesToChannelMap.TryAdd(channel.SystemName, channel);
                             }
                         }
                     });
@@ -1581,7 +1558,7 @@ namespace OPC_Migration
                 log.Error("Failed CreateGroupChannelsMapping", ex);
                 result = false;
             }
-            
+
             return result;
         }
 
@@ -1611,7 +1588,7 @@ namespace OPC_Migration
             return channelIds;
         }
 
-        private bool PopulateChannelsTranslationsMapping(List<int> groupIds, HashSet<int> channelIds, List<LanguageObj> groupLanguages, 
+        private bool PopulateChannelsTranslationsMapping(List<int> groupIds, HashSet<int> channelIds, List<LanguageObj> groupLanguages,
                                                             ref Dictionary<int, List<LanguageContainer>> channelsNameTranslationsMapping,
                                                             ref Dictionary<int, List<LanguageContainer>> channelsDescriptionTranslationsMapping)
         {
@@ -1688,7 +1665,7 @@ namespace OPC_Migration
                             if (defaultRatiosImages.Contains(picData.Ratio))
                             {
                                 log.ErrorFormat("ratio {0} has more than 1 default image for the account", picData.Ratio);
-                                result = false;                              
+                                result = false;
                             }
                             else
                             {
@@ -1696,13 +1673,13 @@ namespace OPC_Migration
                                 if (picIdToImageTypeNameMap.ContainsKey(picData.PicId))
                                 {
                                     log.ErrorFormat("picId {0} was already added as a default image", picData.PicId);
-                                    result = false;                                    
+                                    result = false;
                                 }
                                 else
                                 {
                                     picIdToImageTypeNameMap.Add(picData.PicId, picData.Ratio);
                                 }
-                            }                            
+                            }
                         }
                     }
                 }
@@ -1710,7 +1687,7 @@ namespace OPC_Migration
             catch (Exception ex)
             {
                 log.Error("failed Core.Catalog.Cache.CatalogCache.Instance().GetDefaultImages", ex);
-                result = false;                
+                result = false;
             }
 
             return result;
