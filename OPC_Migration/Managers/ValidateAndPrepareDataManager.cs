@@ -1485,8 +1485,8 @@ namespace OPC_Migration
                     {
                         if (channel != null && channel.m_nChannelID > 0)
                         {
-                            // Automatic channel needs to be changed to KSQL channel
-                            if (channel.m_nChannelTypeID == (int)ChannelType.Automatic)
+                                // Automatic channel needs to be changed to KSQL channel
+                                if (channel.m_nChannelTypeID == (int)ChannelType.Automatic)
                             {
                                 StringBuilder sb = new StringBuilder();
                                 bool hasMediaTypes = true;
