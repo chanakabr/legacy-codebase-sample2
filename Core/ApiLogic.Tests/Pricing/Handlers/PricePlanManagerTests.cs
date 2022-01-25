@@ -16,6 +16,8 @@ using Core.GroupManagers;
 namespace ApiLogic.Tests.Pricing
 {
     [TestFixture]
+    [Ignore("Temporarily ignored because of random fails. Described in https://github.com/kaltura/ott-backend/pull/1113")]
+
     public class PricePlanManagerTests
     {
         [TestCaseSource(nameof(DeleteCases))]

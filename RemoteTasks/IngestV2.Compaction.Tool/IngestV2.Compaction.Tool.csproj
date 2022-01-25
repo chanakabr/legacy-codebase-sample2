@@ -6,7 +6,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj" />
       <ProjectReference Include="..\IngestTransformationHandler\IngestTransformationHandler.csproj" />
     </ItemGroup>
 
