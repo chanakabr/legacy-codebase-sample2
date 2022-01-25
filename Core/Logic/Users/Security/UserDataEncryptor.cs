@@ -35,6 +35,16 @@ namespace ApiLogic.Users.Security
             return usernameEncryption.EncryptionType;
         }
 
+        public string CorrectUsernameCase(EncryptionType? encryptionType, string clearUsername)
+        {
+            if (encryptionType == null)
+            {
+                return clearUsername;
+            }
+
+            return clearUsername?.ToLower();
+        }
+
         public string DecryptUsername(int groupId, EncryptionType? encryptionType, string encryptedUsername)
         {
             if (string.IsNullOrEmpty(encryptedUsername) || encryptionType == null) return encryptedUsername;
@@ -54,8 +64,10 @@ namespace ApiLogic.Users.Security
         {
             if (string.IsNullOrEmpty(clearUsername) || encryptionType == null) return clearUsername;
 
+            var userNameInCorrectCase = CorrectUsernameCase(encryptionType, clearUsername);
+            
             var key = GetKey(groupId);
-            return Encrypt(key, clearUsername, encryptionType.Value);
+            return Encrypt(key, userNameInCorrectCase, encryptionType.Value);
         }
 
         private byte[] GetKey(int groupId)
@@ -70,7 +82,7 @@ namespace ApiLogic.Users.Security
         {
             switch (encryptionType)
             {
-                case EncryptionType.aes256: return AesEncrypt(username.ToLower(), key);
+                case EncryptionType.aes256: return AesEncrypt(username, key);
                 default: throw new NotSupportedException("Unknown encryption type");
             }
         }
