@@ -196,9 +196,10 @@ namespace Core.Users
             try
             {
                 List<ePlayType> playTypes = new List<ePlayType>() { ePlayType.MEDIA };
-                if (assetType == eAssetTypes.EPG)
+                if (assetType == eAssetTypes.EPG || assetType == eAssetTypes.NPVR)
                 {
                     playTypes.Add(ePlayType.EPG);
+                    playTypes.Add(ePlayType.NPVR);
                 }
 
                 List<DevicePlayData> devicePlayDataList =
