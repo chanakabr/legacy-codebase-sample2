@@ -40,6 +40,6 @@ namespace SSOAdapter
         SSOAdapterProfileInvokeResponse Invoke(int adapterId, SSOAdapterProfileInvokeModel ssoAdapterProfileInvokeModel);
 
         [OperationContract]
-        AdjustRegionIdResponse AdjustRegionId(int adapterId, int dafaultRegionId, User ottUser, List<long> userSegments);
+        AdjustRegionIdResponse AdjustRegionId(int adapterId, int dafaultRegionId, User ottUser, List<long> userSegments, IDictionary<string, string> adapterData);
     }
 }
