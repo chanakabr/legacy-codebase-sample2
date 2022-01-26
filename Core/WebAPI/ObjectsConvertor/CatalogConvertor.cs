@@ -10,6 +10,7 @@ using System.Linq;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Models.Catalog;
+using OrderDir = ApiObjects.SearchObjects.OrderDir;
 
 namespace WebAPI.ObjectsConvertor
 {
@@ -238,81 +239,24 @@ namespace WebAPI.ObjectsConvertor
             }
             return result;
         }
-
-        public static OrderObj ConvertOrderToOrderObj(KalturaAssetOrderBy order, KalturaDynamicOrderBy dynamicOrderBy = null)
+        
+        public static AggregationOrder? ConvertToAggregationOrder(KalturaGroupByOrder? source)
         {
-            OrderObj result = new OrderObj();
-            if (dynamicOrderBy != null && dynamicOrderBy.OrderBy.HasValue)
+            switch (source)
             {
-                switch (dynamicOrderBy.OrderBy.Value)
-                {
-                    case KalturaMetaTagOrderBy.META_ASC:
-                        result.m_eOrderBy = OrderBy.META;
-                        result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
-                        result.m_sOrderValue = dynamicOrderBy.Name;
-                        break;
-                    case KalturaMetaTagOrderBy.META_DESC:
-                        result.m_eOrderBy = OrderBy.META;
-                        result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-                        result.m_sOrderValue = dynamicOrderBy.Name;
-                        break;
-                }
+                case KalturaGroupByOrder.defaultOrder:
+                    return AggregationOrder.Default;
+                case KalturaGroupByOrder.count_asc:
+                    return AggregationOrder.Count_Asc;
+                case KalturaGroupByOrder.count_desc:
+                    return AggregationOrder.Count_Desc;
+                case KalturaGroupByOrder.value_asc:
+                    return AggregationOrder.Value_Asc;
+                case KalturaGroupByOrder.value_desc:
+                    return AggregationOrder.Value_Desc;
+                default:
+                    return null;
             }
-
-            else
-            {
-
-                switch (order)
-                {
-                    case KalturaAssetOrderBy.NAME_ASC:
-                        result.m_eOrderBy = OrderBy.NAME;
-                        result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
-                        break;
-                    case KalturaAssetOrderBy.NAME_DESC:
-                        result.m_eOrderBy = OrderBy.NAME;
-                        result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-                        break;
-                    case KalturaAssetOrderBy.VIEWS_DESC:
-                        result.m_eOrderBy = OrderBy.VIEWS;
-                        result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-                        break;
-                    case KalturaAssetOrderBy.RATINGS_DESC:
-                        result.m_eOrderBy = OrderBy.RATING;
-                        result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-                        break;
-                    case KalturaAssetOrderBy.VOTES_DESC:
-                        result.m_eOrderBy = OrderBy.VOTES_COUNT;
-                        result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-                        break;
-                    case KalturaAssetOrderBy.START_DATE_DESC:
-                        result.m_eOrderBy = OrderBy.START_DATE;
-                        result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-                        break;
-                    case KalturaAssetOrderBy.RELEVANCY_DESC:
-                        result.m_eOrderBy = OrderBy.RELATED;
-                        result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-                        break;
-                    case KalturaAssetOrderBy.START_DATE_ASC:
-                        result.m_eOrderBy = OrderBy.START_DATE;
-                        result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
-                        break;
-                    case KalturaAssetOrderBy.CREATE_DATE_ASC:
-                        result.m_eOrderBy = OrderBy.CREATE_DATE;
-                        result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
-                        break;
-                    case KalturaAssetOrderBy.CREATE_DATE_DESC:
-                        result.m_eOrderBy = OrderBy.CREATE_DATE;
-                        result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-                        break;
-                    case KalturaAssetOrderBy.LIKES_DESC:
-                        {
-                            result.m_eOrderBy = OrderBy.LIKE_COUNTER;
-                            result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-                            break;
-                        }
-                }
-            }
-            return result;
         }
 
         public static OrderObj ConvertOrderToOrderObj(KalturaAssetCommentOrderBy order)

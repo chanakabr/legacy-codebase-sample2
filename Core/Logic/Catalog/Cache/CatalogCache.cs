@@ -17,6 +17,7 @@ namespace Core.Catalog.Cache
     public interface ICatalogCache
     {
         Dictionary<string, LinearChannelSettings> GetLinearChannelSettings(int groupID, List<string> keys);
+        int GetParentGroup(int groupId);
     }
 
     public class CatalogCache : ICatalogCache

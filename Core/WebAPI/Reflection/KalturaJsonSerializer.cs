@@ -22352,6 +22352,52 @@ namespace WebAPI.Models.Catalog
             return ret;
         }
     }
+    public partial class KalturaAssetDynamicOrder
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            {
+                ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("orderBy")))
+            {
+                ret.Add("orderBy", "\"orderBy\": " + "\"" + Enum.GetName(typeof(KalturaMetaTagOrderBy), OrderBy) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            {
+                ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("orderBy")))
+            {
+                ret.Add("orderBy", "<orderBy>" + "" + Enum.GetName(typeof(KalturaMetaTagOrderBy), OrderBy) + "" + "</orderBy>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaAssetFieldGroupBy
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -22446,6 +22492,15 @@ namespace WebAPI.Models.Catalog
                 propertyValue = DynamicOrderBy.ToJson(currentVersion, omitObsolete);
                 ret.Add("dynamicOrderBy", "\"dynamicOrderBy\": " + propertyValue);
             }
+            if(!ret.ContainsKey("orderBy") && OrderBy.HasValue && (retrievedProperties == null || retrievedProperties.Contains("orderBy")))
+            {
+                ret.Add("orderBy", "\"orderBy\": " + "\"" + Enum.GetName(typeof(KalturaAssetOrderBy), OrderBy) + "\"");
+            }
+            if(OrderParameters != null && (retrievedProperties == null || retrievedProperties.Contains("orderingParameters")))
+            {
+                propertyValue = "[" + String.Join(", ", OrderParameters.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("orderingParameters", "\"orderingParameters\": " + propertyValue);
+            }
             if(ShouldApplyPriorityGroupsEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("shouldApplyPriorityGroupsEqual")))
             {
                 ret.Add("shouldApplyPriorityGroupsEqual", "\"shouldApplyPriorityGroupsEqual\": " + ShouldApplyPriorityGroupsEqual.ToString().ToLower());
@@ -22472,6 +22527,15 @@ namespace WebAPI.Models.Catalog
             {
                 propertyValue = DynamicOrderBy.ToXml(currentVersion, omitObsolete);
                 ret.Add("dynamicOrderBy", "<dynamicOrderBy>" + propertyValue + "</dynamicOrderBy>");
+            }
+            if(!ret.ContainsKey("orderBy") && OrderBy.HasValue && (retrievedProperties == null || retrievedProperties.Contains("orderBy")))
+            {
+                ret.Add("orderBy", "<orderBy>" + "" + Enum.GetName(typeof(KalturaAssetOrderBy), OrderBy) + "" + "</orderBy>");
+            }
+            if(OrderParameters != null && (retrievedProperties == null || retrievedProperties.Contains("orderingParameters")))
+            {
+                propertyValue = OrderParameters.Count > 0 ? "<item>" + String.Join("</item><item>", OrderParameters.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("orderingParameters", "<orderingParameters>" + propertyValue + "</orderingParameters>");
             }
             if(ShouldApplyPriorityGroupsEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("shouldApplyPriorityGroupsEqual")))
             {
@@ -23146,6 +23210,44 @@ namespace WebAPI.Models.Catalog
             return ret;
         }
     }
+    public partial class KalturaAssetOrder
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("orderBy")))
+            {
+                ret.Add("orderBy", "\"orderBy\": " + "\"" + Enum.GetName(typeof(KalturaAssetOrderByType), OrderBy) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("orderBy")))
+            {
+                ret.Add("orderBy", "<orderBy>" + "" + Enum.GetName(typeof(KalturaAssetOrderByType), OrderBy) + "" + "</orderBy>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaAssetsBookmarksResponse
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -23422,6 +23524,52 @@ namespace WebAPI.Models.Catalog
             {
                 propertyValue = AssetsStatistics.Count > 0 ? "<item>" + String.Join("</item><item>", AssetsStatistics.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaAssetStatisticsOrder
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("orderBy")))
+            {
+                ret.Add("orderBy", "\"orderBy\": " + "\"" + Enum.GetName(typeof(KalturaAssetOrderByStatistics), OrderBy) + "\"");
+            }
+            if(TrendingDaysEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("trendingDaysEqual")))
+            {
+                ret.Add("trendingDaysEqual", "\"trendingDaysEqual\": " + TrendingDaysEqual);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("orderBy")))
+            {
+                ret.Add("orderBy", "<orderBy>" + "" + Enum.GetName(typeof(KalturaAssetOrderByStatistics), OrderBy) + "" + "</orderBy>");
+            }
+            if(TrendingDaysEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("trendingDaysEqual")))
+            {
+                ret.Add("trendingDaysEqual", "<trendingDaysEqual>" + TrendingDaysEqual + "</trendingDaysEqual>");
             }
             return ret;
         }
@@ -24031,6 +24179,36 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("type", "<type>" + Type + "</type>");
             }
+            return ret;
+        }
+    }
+    public partial class KalturaBaseAssetOrder
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
             return ret;
         }
     }
@@ -25683,10 +25861,6 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("idEqual", "\"idEqual\": " + IdEqual);
             }
-            if(!ret.ContainsKey("orderBy") && (retrievedProperties == null || retrievedProperties.Contains("orderBy")))
-            {
-                ret.Add("orderBy", "\"orderBy\": " + "\"" + Enum.GetName(typeof(KalturaAssetOrderBy), OrderBy) + "\"");
-            }
             return ret;
         }
         
@@ -25708,10 +25882,6 @@ namespace WebAPI.Models.Catalog
             if((retrievedProperties == null || retrievedProperties.Contains("idEqual")))
             {
                 ret.Add("idEqual", "<idEqual>" + IdEqual + "</idEqual>");
-            }
-            if(!ret.ContainsKey("orderBy") && (retrievedProperties == null || retrievedProperties.Contains("orderBy")))
-            {
-                ret.Add("orderBy", "<orderBy>" + "" + Enum.GetName(typeof(KalturaAssetOrderBy), OrderBy) + "" + "</orderBy>");
             }
             return ret;
         }

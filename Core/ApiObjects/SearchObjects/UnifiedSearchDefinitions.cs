@@ -46,6 +46,10 @@ namespace ApiObjects.SearchObjects
         [JsonProperty()]
         [DataMember]
         public OrderObj order;
+        
+        [JsonProperty()]
+        [DataMember]
+        public IReadOnlyCollection<IEsOrderByField> orderByFields;
 
         [JsonProperty()]
         [DataMember]
@@ -187,7 +191,7 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         [JsonProperty()]
         [DataMember]
-        public List<string> extraReturnFields;
+        public HashSet<string> extraReturnFields;
 
         /// <summary>
         /// How many days forward and backward do we search for EPGs
@@ -264,7 +268,7 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         [JsonProperty()]
         [DataMember]
-        public List<KeyValuePair<eAssetTypes, long>> specificOrder;
+        public List<long> specificOrder;
 
         /// <summary>
         /// All definitions regarding entitled assets of the user
@@ -485,7 +489,7 @@ namespace ApiObjects.SearchObjects
 
             mediaTypes = new List<int>();
             ksqlAssetTypes = new List<string>();
-            extraReturnFields = new List<string>();
+            extraReturnFields = new HashSet<string>();
             parentMediaTypes = new Dictionary<int, int>();
             associationTags = new Dictionary<int, string>();
             geoBlockRules = new List<int>();

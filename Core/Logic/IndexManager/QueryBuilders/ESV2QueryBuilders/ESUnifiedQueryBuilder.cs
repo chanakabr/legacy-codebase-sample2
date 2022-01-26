@@ -12,7 +12,10 @@ using OrderDir = ApiObjects.SearchObjects.OrderDir;
 using ElasticSearch.Searcher;
 using Nest;
 using ApiLogic.IndexManager.Helpers;
+using ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders;
 using ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority;
+using ApiLogic.IndexManager.Sorting;
+using ElasticSearch.Utils;
 
 namespace ApiLogic.IndexManager.QueryBuilders
 {
@@ -20,7 +23,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
     {
         #region Consts and readonlys 
 
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger log = new KLogger(nameof(ESUnifiedQueryBuilder));
 
         protected static readonly List<string> DEFAULT_RETURN_FIELDS = new List<string>(7) {
                 "\"_id\"", "\"_index\"", "\"_type\"", "\"_score\"", "\"group_id\"", "\"name\"", "\"cache_date\"",  "\"update_date\""};
@@ -153,15 +156,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
         public ESUnifiedQueryBuilder(UnifiedSearchDefinitions definitions, int groupId = 0)
         {
             this.SearchDefinitions = definitions;
-
-            if (definitions != null)
-            {
-                this.GroupID = definitions.groupId;
-            }
-            else
-            {
-                this.GroupID = groupId;
-            }
+            this.GroupID = definitions?.groupId ?? groupId;
         }
 
         #endregion
@@ -172,7 +167,10 @@ namespace ApiLogic.IndexManager.QueryBuilders
         /// Builds the request body for Elasticsearch search action
         /// </summary>
         /// <returns></returns>
-        public virtual string BuildSearchQueryString(bool bIgnoreDeviceRuleID = false, bool bAddActive = true, bool addMissingToGroupByAgg = false)
+        public virtual string BuildSearchQueryString(
+            bool bIgnoreDeviceRuleID = false,
+            bool bAddActive = true,
+            bool addMissingToGroupByAgg = false)
         {
             this.ReturnFields = DEFAULT_RETURN_FIELDS.ToList();
             this.ReturnFields.AddRange(this.SearchDefinitions.extraReturnFields.Distinct().Select(field => string.Format("\"{0}\"", field)));
@@ -299,7 +297,9 @@ namespace ApiLogic.IndexManager.QueryBuilders
             var isBoostScoreValues = this.SearchDefinitions.boostScoreValues != null && this.SearchDefinitions.boostScoreValues.Count > 0;
             var isPriorityGroupMappingsDefined = this.SearchDefinitions.PriorityGroupsMappings != null && this.SearchDefinitions.PriorityGroupsMappings.Any();
             bool functionScoreSort = isBoostScoreValues || isPriorityGroupMappingsDefined;
-            string sortString = SortUtils.GetSort(this.SearchDefinitions.order, this.ReturnFields, functionScoreSort);
+            // TODO: SortingAdapter is a temporary solution, but if it's required to inject services here then SearchDefinitions should be moved to method parameters.
+            var esOrderFields = SortingAdapter.Instance.ResolveOrdering(SearchDefinitions);
+            var sortString = EsSortingService.Instance.GetSorting(esOrderFields, functionScoreSort);
 
             filteredQueryBuilder.AppendFormat("{0}, ", sortString);
 
@@ -307,7 +307,6 @@ namespace ApiLogic.IndexManager.QueryBuilders
             {
                 this.Aggregations = new List<ESBaseAggsItem>();
                 ESBaseAggsItem currentAggregation = null;
-                ESBaseAggsItem orderAggregation = null;
 
                 string aggregationsOrder = string.Empty;
                 string aggregationsOrderDirection = string.Empty;
@@ -391,37 +390,28 @@ namespace ApiLogic.IndexManager.QueryBuilders
                                 topHitsSize = MAX_RESULTS;
                             }
 
-                            currentAggregation.SubAggrgations = new List<ESBaseAggsItem>()
+                            currentAggregation.SubAggrgations = new List<ESBaseAggsItem>
                             {
-                                new ESTopHitsAggregation()
+                                new ESTopHitsAggregation
                                 {
                                     Name = ESTopHitsAggregation.DEFAULT_NAME,
                                     Size = topHitsSize,
                                     // order just like regular search
-                                    Sort = new OrderObj()
-                                    {
-                                        m_eOrderDir = this.SearchDefinitions.order.m_eOrderDir,
-                                        m_eOrderBy = this.SearchDefinitions.order.m_eOrderBy,
-                                        m_sOrderValue = this.SearchDefinitions.order.m_sOrderValue
-                                    },
-                                    SourceIncludes = this.ReturnFields,
+                                    EsOrderByFields = esOrderFields,
+                                    SourceIncludes = this.ReturnFields
                                 }
                             };
 
-                            string distinctOrder;
-                            string distinctOrderDirection;
-                            GetAggregationsOrder(this.SearchDefinitions.order,
-                                  out distinctOrder, out distinctOrderDirection, out orderAggregation);
-
-                            if (orderAggregation != null)
+                            var orderAggregationParameters = GetOrderAggregationParameters(esOrderFields);
+                            if (orderAggregationParameters?.OrderAggregation != null)
                             {
-                                currentAggregation.SubAggrgations.Add(orderAggregation);
+                                currentAggregation.SubAggrgations.Add(orderAggregationParameters.OrderAggregation);
                             }
 
-                            if (!string.IsNullOrEmpty(distinctOrder))
+                            if (!string.IsNullOrEmpty(orderAggregationParameters?.DistinctOrder))
                             {
-                                currentAggregation.Order = distinctOrder;
-                                currentAggregation.OrderDirection = distinctOrderDirection;
+                                currentAggregation.Order = orderAggregationParameters?.DistinctOrder;
+                                currentAggregation.OrderDirection = orderAggregationParameters?.DistinctDirection;
                             }
 
                             ESBaseAggsItem cardinality = new ESBaseAggsItem()
@@ -2667,108 +2657,59 @@ namespace ApiLogic.IndexManager.QueryBuilders
             return term;
         }
 
-        /// <summary>
-        /// Returns the sort string for the query
-        /// </summary>
-        /// <returns></returns>
-        public static string GetSort(OrderObj order, List<string> returnFields, bool functionScoreSort = false)
+        public static EsOrderAggregation GetOrderAggregationParameters(
+            IReadOnlyCollection<IEsOrderByField> esOrderByFields)
         {
-            return SortUtils.GetSort(order, returnFields, functionScoreSort);
-        }
-
-        public static string GetMetaSortField(OrderObj order)
-        {
-            return SortUtils.GetMetaSortField(order);
-        }
-
-        public static void GetAggregationsOrder(OrderObj orderObj,
-            out string aggregationsOrder, out string aggregationsOrderDirection, out ESBaseAggsItem orderAggregation)
-        {
-            aggregationsOrder = "order_aggregation";
-            aggregationsOrderDirection = "asc";
-            orderAggregation = null;
-
-            eElasticAggregationType aggregationType = eElasticAggregationType.min;
-            string field = string.Empty;
-            string script = null;
-
-            if (orderObj.m_eOrderDir == OrderDir.DESC)
+            var result = new EsOrderAggregation
             {
-                aggregationType = eElasticAggregationType.max;
-                aggregationsOrderDirection = "desc";
+                DistinctOrder = "_term",
+                DistinctDirection = "asc"
+            };
+
+            if (esOrderByFields?.Count != 1 || !(esOrderByFields.Single() is EsOrderByField esOrderByField))
+            {
+                return result;
             }
 
-            switch (orderObj.m_eOrderBy)
+            var orderAggregation = GetOrderAggregation(esOrderByField);
+            if (orderAggregation != null)
             {
-                case OrderBy.ID:
-                    {
-                        aggregationsOrder = "_term";
-                        aggregationsOrderDirection = "asc";
+                result.DistinctOrder = orderAggregation.Name;
+                result.DistinctDirection = esOrderByField.OrderByDirection == OrderDir.DESC ? "desc" : "asc";
+                result.OrderAggregation = orderAggregation;
+            }
 
-                        break;
-                    }
-                case OrderBy.VIEWS:
-                    break;
-                case OrderBy.RATING:
-                    break;
-                case OrderBy.VOTES_COUNT:
-                    break;
-                case OrderBy.LIKE_COUNTER:
-                    break;
+            return result;
+        }
+
+        private static ESBaseAggsItem GetOrderAggregation(EsOrderByField esOrderByField)
+        {
+            var result = new ESBaseAggsItem
+            {
+                Name = "order_aggregation",
+                Type = esOrderByField.OrderByDirection == OrderDir.DESC
+                    ? eElasticAggregationType.max
+                    : eElasticAggregationType.min,
+                Size = 0
+            };
+
+            switch (esOrderByField.OrderByField)
+            {
                 case OrderBy.START_DATE:
-                    {
-                        field = "start_date";
-                        break;
-                    }
-                case OrderBy.NAME:
-                    {
-                        aggregationsOrder = "_term";
-                        aggregationsOrderDirection = "asc";
-
-                        break;
-                    }
+                    result.Field = "start_date";
+                    break;
                 case OrderBy.CREATE_DATE:
-                    {
-                        field = "create_date";
-                        break;
-                    }
-                case OrderBy.META:
-                    {
-                        aggregationsOrder = "_term";
-                        aggregationsOrderDirection = "asc";
-
-                        break;
-                    }
-                case OrderBy.RANDOM:
+                    result.Field = "create_date";
                     break;
                 case OrderBy.RELATED:
-                    {
-                        script = "_score";
-                        break;
-                    }
                 case OrderBy.NONE:
-                    {
-                        script = "_score";
-                        break;
-                    }
-                case OrderBy.RECOMMENDATION:
-                    break;
-
-                default:
+                    result.Script = "_score";
                     break;
             }
 
-            if (!string.IsNullOrEmpty(field) || !string.IsNullOrEmpty(script))
-            {
-                orderAggregation = new ESBaseAggsItem()
-                {
-                    Field = field,
-                    Name = aggregationsOrder,
-                    Type = aggregationType,
-                    Size = 0,
-                    Script = script,
-                };
-            }
+            return !string.IsNullOrEmpty(result.Field) || !string.IsNullOrEmpty(result.Script)
+                ? result
+                : null;
         }
 
         private FilterCompositeType BuildMediaDatesComposite()

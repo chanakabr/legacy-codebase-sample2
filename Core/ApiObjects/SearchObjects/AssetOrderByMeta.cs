@@ -1,4 +1,4 @@
-namespace ApiObjects.SearchObjects
+﻿namespace ApiObjects.SearchObjects
 {
     public class AssetOrderByMeta : AssetOrder
     {

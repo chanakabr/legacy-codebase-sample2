@@ -322,11 +322,9 @@ namespace WebAPI.Utils
             return result;
         }
 
-        public static KalturaAssetListResponse GetMedia(BaseRequest request, bool isAllowedToViewInactiveAssets, string key, KalturaBaseResponseProfile responseProfile = null)
+        public static KalturaAssetListResponse GetMedia(BaseRequest request, bool isAllowedToViewInactiveAssets, KalturaBaseResponseProfile responseProfile = null)
         {
-            // fire request
-            UnifiedSearchResponse mediaIdsResponse = new UnifiedSearchResponse();
-            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out mediaIdsResponse, true, key))
+            if (!GetBaseResponse(request, out UnifiedSearchResponse mediaIdsResponse))
             {
                 // general error
                 throw new ClientException(StatusCode.Error);
@@ -337,7 +335,10 @@ namespace WebAPI.Utils
                 throw new ClientException(mediaIdsResponse.status.Code, mediaIdsResponse.status.Message);
             }
 
-            var priorityGroupsMappings = request is ISearchPriorityRequest priorityRequest ? priorityRequest.PriorityGroupsMappings : null;
+            var priorityGroupsMappings = request is ISearchPriorityRequest priorityRequest
+                ? priorityRequest.PriorityGroupsMappings
+                : null;
+            
             return ClientManagers.Client.ClientsManager.CatalogClient()
                 .GetAssetFromUnifiedSearchResponse(request.m_nGroupID,
                     mediaIdsResponse,
@@ -615,8 +616,24 @@ namespace WebAPI.Utils
             return result;
         }
 
-        public static UnifiedSearchResponse SearchAssets(int groupId, int userId, int domainId, string udid, string language, int pageIndex, int? pageSize, string filter, List<int> assetTypes,
-            DateTime serverTime, OrderObj order, Group group, string signature, string signString, string failoverCacheKey, ref UnifiedSearchRequest request, bool isGroupingOptionInclude, bool shouldApplyPriorityGroups)
+        public static UnifiedSearchResponse SearchAssets(
+            int groupId,
+            int userId,
+            int domainId,
+            string udid,
+            string language,
+            int pageIndex,
+            int? pageSize,
+            string filter,
+            List<int> assetTypes,
+            DateTime serverTime,
+            IReadOnlyCollection<AssetOrder> orderingParameters,
+            Group group,
+            string signature,
+            string signString,
+            ref UnifiedSearchRequest request,
+            bool isGroupingOptionInclude,
+            bool shouldApplyPriorityGroups)
         {
             UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
 
@@ -638,7 +655,7 @@ namespace WebAPI.Utils
                 m_nPageSize = pageSize.Value,
                 filterQuery = filter,
                 m_dServerTime = serverTime,
-                order = order,
+                orderingParameters = orderingParameters,
                 assetTypes = assetTypes,
                 m_sSiteGuid = userId.ToString(),
                 domainId = domainId,
@@ -650,7 +667,7 @@ namespace WebAPI.Utils
             }
 
             // fire unified search request
-            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out searchResponse, true, failoverCacheKey))
+            if (!GetBaseResponse(request, out searchResponse))
             {
                 // general error
                 throw new ClientException(StatusCode.Error);
@@ -691,17 +708,30 @@ namespace WebAPI.Utils
             return mediaIds;
         }
 
-        public static UnifiedSearchResponse GetChannelAssets(int groupId, int userId, int domainId, string udid, string language, int pageIndex, int? pageSize, int internalChannelId,
-            string filterQuery, DateTime serverTime, OrderObj order, Group group, string signature, string signString, string failoverCacheKey, ref InternalChannelRequest request, bool shouldApplyPriorityGroups = false)
+        public static UnifiedSearchResponse GetChannelAssets(
+            int groupId,
+            int userId,
+            int domainId,
+            string udid,
+            string language,
+            int pageIndex,
+            int? pageSize,
+            int internalChannelId,
+            string filterQuery,
+            DateTime serverTime,
+            IReadOnlyCollection<AssetOrder> orderingParameters,
+            Group group,
+            string signature,
+            string signString,
+            ref InternalChannelRequest request,
+            bool shouldApplyPriorityGroups = false)
         {
-            UnifiedSearchResponse channelResponse = new UnifiedSearchResponse();
-
             // build request
-            request = new InternalChannelRequest()
+            request = new InternalChannelRequest
             {
                 m_sSignature = signature,
                 m_sSignString = signString,
-                m_oFilter = new Filter()
+                m_oFilter = new Filter
                 {
                     m_sDeviceId = udid,
                     m_nLanguage = Utils.GetLanguageId(groupId, language),
@@ -714,7 +744,7 @@ namespace WebAPI.Utils
                 m_nPageSize = pageSize.Value,
                 m_sSiteGuid = userId.ToString(),
                 domainId = domainId,
-                order = order,
+                orderingParameters = orderingParameters,
                 internalChannelID = internalChannelId.ToString(),
                 filterQuery = filterQuery,
                 m_dServerTime = serverTime,
@@ -726,7 +756,7 @@ namespace WebAPI.Utils
             }
 
             // fire request
-            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out channelResponse, true, failoverCacheKey))
+            if (!GetBaseResponse(request, out UnifiedSearchResponse channelResponse))
             {
                 // general error
                 throw new ClientException(StatusCode.Error);
@@ -741,18 +771,31 @@ namespace WebAPI.Utils
             return channelResponse;
         }
 
-        internal static UnifiedSearchResponse GetMediaExcludeWatched(int groupId, int userId, int domainId, string udid, string language,
-            int pageIndex, int? pageSize, int mediaId, string filter, List<int> mediaTypes, DateTime dateTime, OrderObj order, Group group,
-            string signature, string signString, string failoverCacheKey, ref MediaRelatedRequest request, bool shouldApplyPriorityGroups)
+        internal static UnifiedSearchResponse GetMediaExcludeWatched(int groupId,
+            int userId,
+            int domainId,
+            string udid,
+            string language,
+            int pageIndex,
+            int? pageSize,
+            int mediaId,
+            string filter,
+            List<int> mediaTypes,
+            IReadOnlyCollection<AssetOrder> orderingParameters,
+            Group group,
+            string signature,
+            string signString,
+            ref MediaRelatedRequest request,
+            bool shouldApplyPriorityGroups)
         {
             UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
 
             // build request
-            request = new MediaRelatedRequest()
+            request = new MediaRelatedRequest
             {
                 m_sSignature = signature,
                 m_sSignString = signString,
-                m_oFilter = new Filter()
+                m_oFilter = new Filter
                 {
                     m_sDeviceId = udid,
                     m_nLanguage = Utils.GetLanguageId(groupId, language),
@@ -768,15 +811,16 @@ namespace WebAPI.Utils
                 m_sSiteGuid = userId.ToString(),
                 domainId = domainId,
                 m_sFilter = filter,
-                OrderObj = order
+                OrderingParameters = orderingParameters
             };
+
             if (shouldApplyPriorityGroups)
             {
                 request.PriorityGroupsMappings = SearchPriorityGroupManager.Instance.ListSearchPriorityGroupMappings(groupId);
             }
 
             // fire request            
-            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out searchResponse, true, failoverCacheKey))
+            if (!GetBaseResponse(request, out searchResponse))
             {
                 // general error
                 throw new ClientException(StatusCode.Error);

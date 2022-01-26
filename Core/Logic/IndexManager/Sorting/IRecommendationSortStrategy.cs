@@ -5,6 +5,6 @@ namespace ApiLogic.IndexManager.Sorting
 {
     public interface IRecommendationSortStrategy
     {
-        IEnumerable<long> Sort(IEnumerable<long> assetIds, UnifiedSearchDefinitions unifiedSearchDefinitions);
+        IEnumerable<(long id, string sortValue)> Sort(IEnumerable<long> assetIds, UnifiedSearchDefinitions unifiedSearchDefinitions);
     }
 }

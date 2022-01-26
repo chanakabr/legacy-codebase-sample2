@@ -153,6 +153,9 @@ namespace WebAPI.Reflection
                 case "KalturaAssetCountListResponse":
                     return new KalturaAssetCountListResponse(parameters, true);
                     
+                case "KalturaAssetDynamicOrder":
+                    return new KalturaAssetDynamicOrder(parameters, true);
+                    
                 case "KalturaAssetEvent":
                     return new KalturaAssetEvent(parameters, true);
                     
@@ -219,6 +222,9 @@ namespace WebAPI.Reflection
                 case "KalturaAssetMetaOrTagGroupBy":
                     return new KalturaAssetMetaOrTagGroupBy(parameters, true);
                     
+                case "KalturaAssetOrder":
+                    return new KalturaAssetOrder(parameters, true);
+                    
                 case "KalturaAssetOrderSegmentAction":
                     return new KalturaAssetOrderSegmentAction(parameters, true);
                     
@@ -260,6 +266,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaAssetStatisticsListResponse":
                     return new KalturaAssetStatisticsListResponse(parameters, true);
+                    
+                case "KalturaAssetStatisticsOrder":
+                    return new KalturaAssetStatisticsOrder(parameters, true);
                     
                 case "KalturaAssetStatisticsQuery":
                     return new KalturaAssetStatisticsQuery(parameters, true);
@@ -305,6 +314,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaBaseAssetInfo":
                     return new KalturaBaseAssetInfo(parameters, true);
+                    
+                case "KalturaBaseAssetOrder":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaBaseAssetStructFilter":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
@@ -19106,6 +19118,33 @@ namespace WebAPI.Models.Catalog
             }
         }
     }
+    public partial class KalturaAssetDynamicOrder
+    {
+        public KalturaAssetDynamicOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("name") && parameters["name"] != null)
+                {
+                    Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
+                }
+                if (parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["orderBy"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "orderBy");
+                    }
+
+                    OrderBy = (KalturaMetaTagOrderBy) Enum.Parse(typeof(KalturaMetaTagOrderBy), parameters["orderBy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaMetaTagOrderBy), OrderBy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", OrderBy, typeof(KalturaMetaTagOrderBy)));
+                    }
+                }
+            }
+        }
+    }
     public partial class KalturaAssetFieldGroupBy
     {
         public KalturaAssetFieldGroupBy(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
@@ -19176,6 +19215,20 @@ namespace WebAPI.Models.Catalog
             {
                 Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["orderBy"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "orderBy");
+                    }
+
+                    OrderBy = (KalturaAssetOrderBy) Enum.Parse(typeof(KalturaAssetOrderBy), parameters["orderBy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetOrderBy), OrderBy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", OrderBy, typeof(KalturaAssetOrderBy)));
+                    }
+                }
                 if (parameters.ContainsKey("dynamicOrderBy") && parameters["dynamicOrderBy"] != null)
                 {
                     if (parameters["dynamicOrderBy"] is JObject)
@@ -19185,6 +19238,17 @@ namespace WebAPI.Models.Catalog
                     else if (parameters["dynamicOrderBy"] is IDictionary)
                     {
                         DynamicOrderBy = (KalturaDynamicOrderBy) Deserializer.deserialize(typeof(KalturaDynamicOrderBy), (Dictionary<string, object>) parameters["dynamicOrderBy"]);
+                    }
+                }
+                if (parameters.ContainsKey("orderingParameters") && parameters["orderingParameters"] != null)
+                {
+                    if (parameters["orderingParameters"] is JArray)
+                    {
+                        OrderParameters = buildList<KalturaBaseAssetOrder>(typeof(KalturaBaseAssetOrder), (JArray) parameters["orderingParameters"]);
+                    }
+                    else if (parameters["orderingParameters"] is IList)
+                    {
+                        OrderParameters = buildList(typeof(KalturaBaseAssetOrder), parameters["orderingParameters"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("trendingDaysEqual") && parameters["trendingDaysEqual"] != null)
@@ -19666,6 +19730,29 @@ namespace WebAPI.Models.Catalog
             }
         }
     }
+    public partial class KalturaAssetOrder
+    {
+        public KalturaAssetOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["orderBy"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "orderBy");
+                    }
+
+                    OrderBy = (KalturaAssetOrderByType) Enum.Parse(typeof(KalturaAssetOrderByType), parameters["orderBy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetOrderByType), OrderBy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", OrderBy, typeof(KalturaAssetOrderByType)));
+                    }
+                }
+            }
+        }
+    }
     public partial class KalturaAssetsBookmarksResponse
     {
         public KalturaAssetsBookmarksResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
@@ -19819,6 +19906,53 @@ namespace WebAPI.Models.Catalog
                     else if (parameters["objects"] is IList)
                     {
                         AssetsStatistics = buildList(typeof(KalturaAssetStatistics), parameters["objects"] as object[]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaAssetStatisticsOrder
+    {
+        private static RuntimeSchemePropertyAttribute TrendingDaysEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStatisticsOrder")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MaxInteger = 366,
+            MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaAssetStatisticsOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("trendingDaysEqual") && parameters["trendingDaysEqual"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        TrendingDaysEqualSchemaProperty.Validate("trendingDaysEqual", parameters["trendingDaysEqual"]);
+                    }
+                    TrendingDaysEqual = (Int32) Convert.ChangeType(parameters["trendingDaysEqual"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["orderBy"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "orderBy");
+                    }
+
+                    OrderBy = (KalturaAssetOrderByStatistics) Enum.Parse(typeof(KalturaAssetOrderByStatistics), parameters["orderBy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetOrderByStatistics), OrderBy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", OrderBy, typeof(KalturaAssetOrderByStatistics)));
                     }
                 }
             }
@@ -20558,6 +20692,12 @@ namespace WebAPI.Models.Catalog
                     }
                 }
             }
+        }
+    }
+    public partial class KalturaBaseAssetOrder
+    {
+        public KalturaBaseAssetOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
         }
     }
     public partial class KalturaBaseAssetStructFilter
@@ -22415,20 +22555,6 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("excludeWatched") && parameters["excludeWatched"] != null)
                 {
                     ExcludeWatched = (Boolean) Convert.ChangeType(parameters["excludeWatched"], typeof(Boolean));
-                }
-                if (parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
-                {
-                    if(string.IsNullOrEmpty(parameters["orderBy"].ToString()))
-                    {
-                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "orderBy");
-                    }
-
-                    OrderBy = (KalturaAssetOrderBy) Enum.Parse(typeof(KalturaAssetOrderBy), parameters["orderBy"].ToString(), true);
-
-                    if (!Enum.IsDefined(typeof(KalturaAssetOrderBy), OrderBy))
-                    {
-                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", OrderBy, typeof(KalturaAssetOrderBy)));
-                    }
                 }
             }
         }

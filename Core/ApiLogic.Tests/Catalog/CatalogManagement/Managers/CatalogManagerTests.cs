@@ -6,6 +6,7 @@ using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
+using Core.Catalog.Cache;
 using Core.Catalog.CatalogManagement;
 using Core.GroupManagers;
 using DAL;
@@ -26,6 +27,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
         private Mock<ILabelRepository> _labelRepositoryMock;
         private Mock<IGroupManager> _groupManagerMock;
         private Mock<IGroupSettingsManager> _groupSettingsManagerMock;
+        private Mock<ICatalogCache> _catalogCache;
         private Mock<IKLogger> _loggerMock;
 
         [SetUp]
@@ -37,6 +39,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
             _assetStructMetaRepositoryMock = _mockRepository.Create<IAssetStructMetaRepository>();
             _loggerMock = _mockRepository.Create<IKLogger>();
             _groupManagerMock = _mockRepository.Create<IGroupManager>();
+            _catalogCache = _mockRepository.Create<ICatalogCache>();
             _groupSettingsManagerMock = _mockRepository.Create<IGroupSettingsManager>();
         }
 
@@ -60,6 +63,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
                 _assetStructMetaRepositoryMock.Object,
                 _groupSettingsManagerMock.Object,
                 _groupManagerMock.Object,
+                _catalogCache.Object,
                 _loggerMock.Object);
 
             var result = catalogManager.AddLabel(1, fakeLabel, 2);
@@ -83,6 +87,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
                 _assetStructMetaRepositoryMock.Object,
                 _groupSettingsManagerMock.Object,
                 _groupManagerMock.Object,
+                _catalogCache.Object,
                 _loggerMock.Object);
 
             var result = catalogManager.AddLabel(1, fakeLabel, 2);
@@ -106,6 +111,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
                 _assetStructMetaRepositoryMock.Object,
                 _groupSettingsManagerMock.Object,
                 _groupManagerMock.Object,
+                _catalogCache.Object,
                 _loggerMock.Object);
 
             var result = catalogManager.UpdateLabel(1, fakeLabel, 2);
@@ -129,6 +135,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
                 _assetStructMetaRepositoryMock.Object,
                 _groupSettingsManagerMock.Object,
                 _groupManagerMock.Object,
+                _catalogCache.Object,
                 _loggerMock.Object);
 
             var result = catalogManager.UpdateLabel(1, fakeLabel, 2);
@@ -151,6 +158,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
                 _assetStructMetaRepositoryMock.Object,
                 _groupSettingsManagerMock.Object,
                 _groupManagerMock.Object,
+                _catalogCache.Object,
                 _loggerMock.Object);
 
             var result = catalogManager.DeleteLabel(1, 2, 3);
@@ -173,6 +181,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
                 _assetStructMetaRepositoryMock.Object,
                 _groupSettingsManagerMock.Object,
                 _groupManagerMock.Object,
+                _catalogCache.Object,
                 _loggerMock.Object);
 
             var result = catalogManager.DeleteLabel(1, 2, 3);
@@ -193,6 +202,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
                 _assetStructMetaRepositoryMock.Object,
                 _groupSettingsManagerMock.Object,
                 _groupManagerMock.Object,
+                _catalogCache.Object,
                 _loggerMock.Object);
 
             var result = catalogManager.SearchLabels(1, Enumerable.Range(10, 25).Select(x => (long)x).ToList(), null, null, EntityAttribute.MediaFileLabels, 1, 3);
@@ -216,6 +226,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
                 _assetStructMetaRepositoryMock.Object,
                 _groupSettingsManagerMock.Object,
                 _groupManagerMock.Object,
+                _catalogCache.Object,
                 _loggerMock.Object);
 
             var result = catalogManager.SearchLabels(1, null, "LaBeL_7", null, EntityAttribute.MediaFileLabels, 0, 3);
@@ -239,6 +250,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
                 _assetStructMetaRepositoryMock.Object,
                 _groupSettingsManagerMock.Object,
                 _groupManagerMock.Object,
+                _catalogCache.Object,
                 _loggerMock.Object);
 
             var result = catalogManager.SearchLabels(1, null, "label_3", null, EntityAttribute.MediaFileLabels, 0, 3);
@@ -262,6 +274,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
                 _assetStructMetaRepositoryMock.Object,
                 _groupSettingsManagerMock.Object,
                 _groupManagerMock.Object,
+                _catalogCache.Object,
                 _loggerMock.Object);
 
             var result = catalogManager.SearchLabels(1, null, null, "LaBeL_1", EntityAttribute.MediaFileLabels, 1, 3);
@@ -285,6 +298,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
                 _assetStructMetaRepositoryMock.Object,
                 _groupSettingsManagerMock.Object,
                 _groupManagerMock.Object,
+                _catalogCache.Object,
                 _loggerMock.Object);
 
             var result = catalogManager.SearchLabels(1, null, null, null, EntityAttribute.MediaFileLabels, 1, 3);
@@ -308,6 +322,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
                 _assetStructMetaRepositoryMock.Object,
                 _groupSettingsManagerMock.Object,
                 _groupManagerMock.Object,
+                _catalogCache.Object,
                 _loggerMock.Object);
 
             var result = catalogManager.SearchLabels(1, new List<long> { 1, 2 }, "labelEqualValue", "labelStartWithValue", EntityAttribute.MediaFileLabels, 1, 3);
@@ -333,6 +348,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
                 _assetStructMetaRepositoryMock.Object,
                 _groupSettingsManagerMock.Object,
                 _groupManagerMock.Object,
+                _catalogCache.Object,
                 _loggerMock.Object);
 
             var result = catalogManager.SearchLabels(1, new List<long> { 1, 2 }, "labelEqualValue", "labelStartWithValue", EntityAttribute.MediaFileLabels, 1, 3);

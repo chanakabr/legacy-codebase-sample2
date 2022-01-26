@@ -405,6 +405,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAssetDynamicOrder":
+                    switch(property.Name)
+                    {
+                        case "Name":
+                            return "name";
+                        case "OrderBy":
+                            return "orderBy";
+                    }
+                    break;
+                    
                 case "KalturaAssetEvent":
                     switch(property.Name)
                     {
@@ -486,6 +496,10 @@ namespace WebAPI.Reflection
                     {
                         case "DynamicOrderBy":
                             return "dynamicOrderBy";
+                        case "OrderBy":
+                            return "orderBy";
+                        case "OrderParameters":
+                            return "orderingParameters";
                         case "ShouldApplyPriorityGroupsEqual":
                             return "shouldApplyPriorityGroupsEqual";
                         case "TrendingDaysEqual":
@@ -619,6 +633,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAssetOrder":
+                    switch(property.Name)
+                    {
+                        case "OrderBy":
+                            return "orderBy";
+                    }
+                    break;
+                    
                 case "KalturaAssetOrderSegmentAction":
                     switch(property.Name)
                     {
@@ -732,6 +754,16 @@ namespace WebAPI.Reflection
                     {
                         case "AssetsStatistics":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaAssetStatisticsOrder":
+                    switch(property.Name)
+                    {
+                        case "OrderBy":
+                            return "orderBy";
+                        case "TrendingDaysEqual":
+                            return "trendingDaysEqual";
                     }
                     break;
                     
@@ -1706,8 +1738,6 @@ namespace WebAPI.Reflection
                             return "excludeWatched";
                         case "IdEqual":
                             return "idEqual";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     

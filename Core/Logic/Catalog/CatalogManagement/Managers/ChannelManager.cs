@@ -963,7 +963,7 @@ namespace Core.Catalog.CatalogManagement
                     foreach (var orderByMeta in channelToAdd.OrderingParameters.OfType<AssetOrderByMeta>())
                     {
                         if (!string.IsNullOrEmpty(orderByMeta.MetaName)
-                            && !CatalogManager.Instance.CheckMetaExsits(groupId, orderByMeta.MetaName))
+                            && !CatalogManager.Instance.CheckMetaExists(groupId, orderByMeta.MetaName))
                         {
                             response.SetStatus(eResponseStatus.ChannelMetaOrderByIsInvalid);
                             return response;
@@ -990,7 +990,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 string groupBy = channelToAdd.searchGroupBy != null && channelToAdd.searchGroupBy.groupBy != null && channelToAdd.searchGroupBy.groupBy.Count == 1 ? channelToAdd.searchGroupBy.groupBy.First() : null;
-                
+
                 long assetUserRuleId = AssetUserRuleManager.GetAssetUserRule(groupId, userId, true);
                 if (channelToAdd.AssetUserRuleId.HasValue && channelToAdd.AssetUserRuleId.Value > 0)
                 {
@@ -1222,7 +1222,7 @@ namespace Core.Catalog.CatalogManagement
                     foreach (var orderByMeta in channelToUpdate.OrderingParameters?.OfType<AssetOrderByMeta>())
                     {
                         if (!string.IsNullOrEmpty(orderByMeta.MetaName)
-                            && !CatalogManager.Instance.CheckMetaExsits(groupId, orderByMeta.MetaName))
+                            && !CatalogManager.Instance.CheckMetaExists(groupId, orderByMeta.MetaName))
                         {
                             response.SetStatus(eResponseStatus.ChannelMetaOrderByIsInvalid);
                             return response;

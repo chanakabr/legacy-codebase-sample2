@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,22 +34,22 @@ namespace ApiLogic.IndexManager.Sorting
             _elasticSearchApi = elasticSearchApi;
         }
         
-        public IEnumerable<long> SortAssetsByStats(IEnumerable<long> assetIds, OrderBy orderBy, OrderDir orderDir, DateTime? trendingAssetWindow, int partnerId)
+        public IEnumerable<(long id, string sortValue)> SortAssetsByStatsWithSortValues(IEnumerable<long> assetIds, EsOrderByStatisticsField esOrderByField, int partnerId)
         {
-            if (trendingAssetWindow.HasValue)
+            if (esOrderByField.TrendingAssetWindow.HasValue)
             {
                 //BEO-9415
-                return SortAssetsByStats(assetIds,
-                    orderBy,
-                    orderDir,
+                return SortAssetsByStatsWithSortValues(assetIds,
+                    esOrderByField.OrderByField,
+                    esOrderByField.OrderByDirection,
                     partnerId,
-                    trendingAssetWindow,
+                    esOrderByField.TrendingAssetWindow,
                     DateTime.UtcNow);
             }
 
-            return SortAssetsByStats(assetIds, orderBy, orderDir, partnerId);
+            return SortAssetsByStatsWithSortValues(assetIds, esOrderByField.OrderByField, esOrderByField.OrderByDirection, partnerId);
         }
-        
+
         /// <summary>
         /// For a given list of asset Ids, returns a list of the same IDs, after sorting them by a specific statistics
         /// </summary>
@@ -57,7 +58,7 @@ namespace ApiLogic.IndexManager.Sorting
         /// <param name="orderBy"></param>
         /// <param name="orderDirection"></param>
         /// <returns></returns>
-        public IEnumerable<long> SortAssetsByStats(IEnumerable<long> assetIds, OrderBy orderBy, OrderDir orderDirection, int partnerId, DateTime? startDate = null, DateTime? endDate = null)
+        public IEnumerable<(long id, string sortValue)> SortAssetsByStatsWithSortValues(IEnumerable<long> assetIds, OrderBy orderBy, OrderDir orderDirection, int partnerId, DateTime? startDate = null, DateTime? endDate = null)
         {
             assetIds = assetIds.Distinct().ToList();
 
@@ -84,63 +85,68 @@ namespace ApiLogic.IndexManager.Sorting
 
             #region Process Aggregations
 
-            // get a sorted list of the asset Ids that have statistical data in the aggregations dictionary
-            var sortedList = new List<long>();
             var alreadyContainedIds = new HashSet<long>();
 
             // Ratings is a special case, because it is not based on count, but on average instead
-            if (orderBy == OrderBy.RATING)
-            {
-                ProcessRatingsAggregationsResult(ratingsAggregationsDictionary, orderDirection, alreadyContainedIds, sortedList);
-            }
-            // If it is not ratings - just use count
-            else
-            {
-                ProcessCountDictionaryResults(countsAggregationsDictionary, orderDirection, alreadyContainedIds, sortedList);
-            }
+            var sortedListWithSortValues = orderBy == OrderBy.RATING
+                ? ProcessRatingsAggregationsResult(ratingsAggregationsDictionary, orderDirection, alreadyContainedIds)
+                : ProcessCountDictionaryResults(countsAggregationsDictionary, orderDirection, alreadyContainedIds);
 
             #endregion
-
-            if (sortedList == null)
-            {
-                sortedList = new List<long>();
-            }
 
             // Add all ids that don't have stats
             foreach (var currentId in assetIds)
             {
-                if (alreadyContainedIds == null || !alreadyContainedIds.Contains(currentId))
+                if (!alreadyContainedIds.Contains(currentId))
                 {
                     // Depending on direction - if it is ascending, insert Id at start. Otherwise at end
                     if (orderDirection == OrderDir.ASC)
                     {
-                        sortedList.Insert(0, currentId);
+                        sortedListWithSortValues.Insert(0, (currentId, null));
                     }
                     else
                     {
-                        sortedList.Add(currentId);
+                        sortedListWithSortValues.Add((currentId, null));
                     }
                 }
             }
 
-            return sortedList;
+            return sortedListWithSortValues;
         }
+
+        public IEnumerable<long> SortAssetsByStats(
+            IEnumerable<long> assetIds,
+            EsOrderByStatisticsField esOrderByStatisticsField,
+            int partnerId)
+            => SortAssetsByStatsWithSortValues(assetIds, esOrderByStatisticsField, partnerId)
+                .Select(x => x.id)
+                .ToArray();
+
+        public IEnumerable<long> SortAssetsByStats(
+            IEnumerable<long> assetIds,
+            OrderBy orderBy,
+            OrderDir orderDirection,
+            int partnerId,
+            DateTime? startDate = null,
+            DateTime? endDate = null)
+            => SortAssetsByStatsWithSortValues(assetIds, orderBy, orderDirection, partnerId, startDate, endDate)
+                .Select(x => x.id)
+                .ToArray();
 
         /// <summary>
         /// After receiving a result from ES server, process it to create a list of Ids with the given order
         /// </summary>
-        /// <param name=")"></param>
-        /// <param name="orderBy"></param>
+        /// <param name="statisticsDictionary"></param>
         /// <param name="orderDirection"></param>
         /// <param name="alreadyContainedIds"></param>
         /// <returns></returns>
-        private static void ProcessRatingsAggregationsResult(
+        private static IList<(long, string)> ProcessRatingsAggregationsResult(
             ConcurrentDictionary<string, List<StatisticsAggregationResult>> statisticsDictionary,
             OrderDir orderDirection,
-            ISet<long> alreadyContainedIds,
-            IList<long> sortedList)
+            ISet<long> alreadyContainedIds)
         {
-            if (statisticsDictionary != null && statisticsDictionary.Count > 0)
+            var sortedListWithSortValues = new List<(long, string)>();
+            if (statisticsDictionary?.Count > 0)
             {
                 //retrieve specific aggregation result
                 statisticsDictionary.TryGetValue("stats", out var statResult);
@@ -157,11 +163,11 @@ namespace ApiLogic.IndexManager.Sorting
                         {
                             if (orderDirection == OrderDir.ASC)
                             {
-                                sortedList.Insert(0, currentId);
+                                sortedListWithSortValues.Insert(0, (currentId, result.avg.ToString(CultureInfo.InvariantCulture)));
                             }
                             else
                             {
-                                sortedList.Add(currentId);
+                                sortedListWithSortValues.Add((currentId, result.avg.ToString(CultureInfo.InvariantCulture)));
                             }
 
                             alreadyContainedIds.Add(currentId);
@@ -169,23 +175,24 @@ namespace ApiLogic.IndexManager.Sorting
                     }
                 }
             }
+
+            return sortedListWithSortValues;
         }
 
         /// <summary>
         /// After receiving a result from ES server, process it to create a list of Ids with the given order
         /// </summary>
         /// <param name="statsDictionary"></param>
-        /// <param name="orderBy"></param>
         /// <param name="orderDirection"></param>
         /// <param name="alreadyContainedIds"></param>
         /// <returns></returns>
-        private static void ProcessCountDictionaryResults(
+        private static IList<(long, string)> ProcessCountDictionaryResults(
             ConcurrentDictionary<string, ConcurrentDictionary<string, int>> statsDictionary,
             OrderDir orderDirection,
-            ISet<long> alreadyContainedIds,
-            IList<long> sortedList)
+            ISet<long> alreadyContainedIds)
         {
-            if (statsDictionary != null && statsDictionary.Count > 0)
+            var sortedListWithSortValues = new List<(long, string)>();
+            if (statsDictionary?.Count > 0)
             {
                 //retrieve specific stats result
                 statsDictionary.TryGetValue("stats", out var statResult);
@@ -200,13 +207,15 @@ namespace ApiLogic.IndexManager.Sorting
                         if (int.TryParse(currentValue.Key, out var currentId))
                         {
                             // Depending on direction - if it is ascending, insert Id at start. Otherwise at end
+                            var sortValue = currentValue.Value.ToString();
+                            // TODO: Decide what we could refactor there.
                             if (orderDirection == OrderDir.ASC)
                             {
-                                sortedList.Insert(0, currentId);
+                                sortedListWithSortValues.Insert(0, (currentId, sortValue));
                             }
                             else
                             {
-                                sortedList.Add(currentId);
+                                sortedListWithSortValues.Add((currentId, sortValue));
                             }
 
                             alreadyContainedIds.Add(currentId);
@@ -214,6 +223,8 @@ namespace ApiLogic.IndexManager.Sorting
                     }
                 }
             }
+
+            return sortedListWithSortValues;
         }
 
         private Dictionary<string, int> SortAssetsByStatsWithLayeredCache(IEnumerable<long> assetIds, OrderBy orderBy, OrderDir orderDirection, int partnerId)
@@ -542,7 +553,7 @@ namespace ApiLogic.IndexManager.Sorting
                 }
                 catch (Exception ex)
                 {
-                    _log.ErrorFormat("Error in SortAssetsByStats, Exception: {0}", ex);
+                    _log.ErrorFormat("Error in SortAssetsByStatsWithSortValues, Exception: {0}", ex);
                 }
             }
 
@@ -552,7 +563,7 @@ namespace ApiLogic.IndexManager.Sorting
             }
             catch (Exception ex)
             {
-                _log.ErrorFormat("Error in SortAssetsByStats (WAIT ALL), Exception: {0}", ex);
+                _log.ErrorFormat("Error in SortAssetsByStatsWithSortValues (WAIT ALL), Exception: {0}", ex);
             }
 
             #endregion
