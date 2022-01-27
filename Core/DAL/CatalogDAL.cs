@@ -1,4 +1,10 @@
-﻿using ApiObjects;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
 using ApiObjects.CouchbaseWrapperObjects;
@@ -6,21 +12,14 @@ using ApiObjects.Epg;
 using ApiObjects.MediaMarks;
 using ApiObjects.PlayCycle;
 using ApiObjects.SearchObjects;
-using Phx.Lib.Appconfig;
 using CouchbaseManager;
 using DAL;
+using DAL.BulkUpload;
 using DAL.DTO;
+using ODBCWrapper;
+using Phx.Lib.Appconfig;
 using Phx.Lib.Log;
 using Newtonsoft.Json;
-using ODBCWrapper;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using DAL.BulkUpload;
-using DAL.SearchObjects.Converters;
 using static ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData;
 using CategoryItemDTO = DAL.DTO.CategoryItemDTO;
 using LanguageContainerDTO = DAL.DTO.LanguageContainerDTO;
@@ -5679,7 +5678,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@manualAssetsExist", manualAssets == null ? 0 : 1);
             sp.AddDataTableParameter("@manualAssets", manualAssetsDt);
 
-            var orderingParametersJson = JsonConvert.SerializeObject(orderingParameters, Formatting.None, new AssetOrderConverter());
+            var orderingParametersJson = JsonConvert.SerializeObject(orderingParameters, Formatting.None);
             sp.AddParameter("@orderingParameters", orderingParametersJson);
 
             return sp.ExecuteDataSet();
@@ -5743,7 +5742,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@AssetRuleId", assetUserRuleId);
 
             var orderingParametersJson = orderingParameters?.Any() == true
-                ? JsonConvert.SerializeObject(orderingParameters, Formatting.None, new AssetOrderConverter())
+                ? JsonConvert.SerializeObject(orderingParameters, Formatting.None)
                 : null;
             sp.AddParameter("@orderingParameters", orderingParametersJson);
 
