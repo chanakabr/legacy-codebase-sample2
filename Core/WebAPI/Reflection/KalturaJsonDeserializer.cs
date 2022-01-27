@@ -18750,10 +18750,7 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("trendingDaysEqual") && parameters["trendingDaysEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TrendingDaysEqualSchemaProperty.Validate("trendingDaysEqual", parameters["trendingDaysEqual"]);
-                    }
+                    TrendingDaysEqualSchemaProperty.Validate("trendingDaysEqual", parameters["trendingDaysEqual"]);
                     TrendingDaysEqual = (Int32) Convert.ChangeType(parameters["trendingDaysEqual"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
