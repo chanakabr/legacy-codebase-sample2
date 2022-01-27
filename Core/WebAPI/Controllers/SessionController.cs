@@ -71,6 +71,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [OldStandardArgument("session", "ks_to_parse")]
         [Obsolete]
+        [SchemeArgument("session", RequiresPermission = true)]
         static public KalturaSessionInfo GetOldStandard(string session = null)
         {
             KS ks, ksFromRequest = KS.GetFromRequest();

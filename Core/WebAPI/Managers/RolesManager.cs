@@ -263,8 +263,12 @@ namespace WebAPI.Managers
 
         private static bool IsArgumentPermittedForRoles(int groupId, string service, string action, string argument, List<long> roleIds, out string usersGroup)
         {
-            usersGroup = null;
-            StringBuilder usersGroupStringBuilder = new StringBuilder();
+            // TODO: this if should be deleted when all "OldStandard" methods will be removed
+            var oldStandardIndex = action.IndexOf("OldStandard");
+            if (oldStandardIndex > -1) 
+            {
+                action = action.Remove(oldStandardIndex);
+            }
 
             // build the key for the service action key for roles schema (permission items - roles dictionary)
             string methodArgumentKey = string.Format("{0}_{1}_{2}", service, action, argument).ToLower();

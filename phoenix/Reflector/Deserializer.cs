@@ -77,10 +77,7 @@ namespace Reflector
             SchemePropertyAttribute schemaProperty = property.GetCustomAttribute<SchemePropertyAttribute>();
             if (schemaProperty != null)
             {
-                file.WriteLine("                    if(!isOldVersion)");
-                file.WriteLine("                    {");
-                file.WriteLine("                        " + property.Name + "SchemaProperty.Validate(\"" + apiName + "\", parameters[\"" + apiName + "\"]);");
-                file.WriteLine("                    }");
+                file.WriteLine("                    " + property.Name + "SchemaProperty.Validate(\"" + apiName + "\", parameters[\"" + apiName + "\"]);");
             }
 
             if(propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))

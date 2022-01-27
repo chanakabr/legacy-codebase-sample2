@@ -21238,6 +21238,13 @@ namespace WebAPI.Reflection
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("session", "session", "getOldStandard") {
+                                    RequiresPermission = true,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
+                                },
                             });
                             return ret;
                             
