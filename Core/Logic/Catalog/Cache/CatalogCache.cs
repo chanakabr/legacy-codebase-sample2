@@ -68,7 +68,7 @@ namespace Core.Catalog.Cache
             this.CacheService = SingleInMemoryCache.GetInstance(InMemoryCacheType.General, expirationInSeconds);
         }
 
-        private CatalogCache()
+        public CatalogCache()
         {
             dCacheTT = GetDefaultCacheTimeInSeconds();
             InitializeCachingService(GetCacheName(), dCacheTT);

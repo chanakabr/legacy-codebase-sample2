@@ -70,7 +70,7 @@ namespace DAL
 
         public static ApiDAL Instance { get { return lazy.Value; } }
 
-        private ApiDAL()
+        public ApiDAL()
         {
         }
 
