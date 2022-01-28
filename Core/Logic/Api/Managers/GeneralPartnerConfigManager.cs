@@ -37,7 +37,7 @@ namespace ApiLogic.Api.Managers
 
         public static GeneralPartnerConfigManager Instance { get { return lazy.Value; } }
 
-        private GeneralPartnerConfigManager(IGeneralPartnerConfigRepository repository)
+        public GeneralPartnerConfigManager(IGeneralPartnerConfigRepository repository)
         {
             _repository = repository;
         }
