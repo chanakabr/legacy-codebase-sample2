@@ -6318,6 +6318,8 @@ namespace WebAPI.Reflection
                             return "epgChannelId";
                         case "EpgId":
                             return "epgId";
+                        case "ExternalOfferIds":
+                            return "externalOfferIds";
                         case "LinearAssetId":
                             return "linearAssetId";
                         case "RelatedMediaId":

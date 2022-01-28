@@ -134,6 +134,10 @@ namespace ApiObjects
 
         [JsonProperty("suppressed")]
         public string Suppressed { get; set; }
+
+        [JsonProperty("external_offer_ids")]
+        public List<string> ExternalOfferIds { get; set; }
+
         #endregion
 
         #region Ctor
@@ -176,6 +180,8 @@ namespace ApiObjects
             DocumentId = string.Empty;
 
             IsIngestV2 = false;
+
+            ExternalOfferIds = new List<string>();
         }
 
         public EpgCB(EpgCB epgCb)
@@ -233,6 +239,7 @@ namespace ApiObjects
             this.Crid = epgCb.Crid;
             this.IsIngestV2 = epgCb.IsIngestV2;
             this.LinearMediaId = epgCb.LinearMediaId;
+            this.ExternalOfferIds = new List<string>(epgCb.ExternalOfferIds ?? new List<string>());
         }
 
         public void Initialize(int kalturaChannelID, int groupId, int parentGroupId, string externalId, DateTime startDate, DateTime endDate,
@@ -259,7 +266,7 @@ namespace ApiObjects
 
         public bool Equals(EpgCB obj, List<FieldTypeEntity> fieldEntityMapping)
         {
-            //Check for null and compare run-time types. 
+            //Check for null and compare run-time types.
             if ((obj == null) || !this.GetType().Equals(obj.GetType()))
             {
                 return false;
@@ -356,7 +363,12 @@ namespace ApiObjects
                 #endregion
 
                 #region Pictures
-                if (this.pictures != null && obj.pictures != null && this.pictures.Count == obj.pictures.Count)
+                if (this.pictures?.Count != obj.pictures?.Count)
+                {
+                    return false;
+                }
+
+                if (this.pictures != null && obj.pictures != null)
                 {
                     foreach (EpgPicture epgPicture in obj.pictures) // compare the values between the lists
                     {
@@ -375,15 +387,25 @@ namespace ApiObjects
                     }
                 }
                 #endregion
+
+                #region External Offer IDs
+
+                if (this.ExternalOfferIds?.Count != obj.ExternalOfferIds?.Count)
+                {
+                    return false;
+                }
+
+                if (this.ExternalOfferIds != null && obj.ExternalOfferIds != null)
+                {
+                    var hashSet = new HashSet<string>(this.ExternalOfferIds);
+                    if (!hashSet.SetEquals(obj.ExternalOfferIds))
+                    {
+                        return false;
+                    }
+                }
+                #endregion
             }
             return true;
-        }
-
-        public EpgCB DeepCopy(string language)
-        {
-            EpgCB cloneEpg = (EpgCB)this.MemberwiseClone();
-            cloneEpg.Language = String.Copy(language);
-            return cloneEpg;
         }
 
         public void PadMetas(HashSet<string> metasToPad)

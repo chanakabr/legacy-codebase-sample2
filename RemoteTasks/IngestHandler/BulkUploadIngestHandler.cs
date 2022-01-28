@@ -36,7 +36,7 @@ namespace IngestHandler
         private readonly IIngestProtectProcessor _ingestProtectProcessor;
         private readonly ICatalogManagerAdapter _catalogManagerAdapter;
         private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        
+
         private readonly CouchbaseManager.CouchbaseManager _couchbaseManager;
 
         private IIndexManager _indexManager;
@@ -81,7 +81,7 @@ namespace IngestHandler
                     if (serviceEvent.DateOfProgramsToIngest == null) throw new Exception("could not parse target index  DateOfProgramsToIngest and TargetIndexName are null and");
                     serviceEvent.TargetIndexName = NamingHelper.Instance.GetDailyEpgIndexName(serviceEvent.GroupId, serviceEvent.DateOfProgramsToIngest);
                 }
-                
+
                 _indexManager = IndexManagerFactory.Instance.GetIndexManager(serviceEvent.GroupId);
                 _logger.Info($"Starting ingest write handler BulkUploadId: [{serviceEvent.BulkUploadId}], TargetIndexName:[{serviceEvent.TargetIndexName}], BulkUploadId:[{serviceEvent.BulkUploadId}], crud operations: [{serviceEvent.CrudOperations}]");
                 await HandleIngestCrudOperations(serviceEvent);
@@ -360,6 +360,8 @@ namespace IngestHandler
             epgItem.Tags = parsedProg.ParseTags(langCode, defaultLangCode, bulkUploadResultItem, isMultilingualFallback);
             epgItem.regions = GetRegions(epgItem.LinearMediaId);
 
+            epgItem.ExternalOfferIds = parsedProg.ParseExternalOfferIds(langCode, defaultLangCode, bulkUploadResultItem);
+
             PrepareEpgItemImages(parsedProg.icon, epgItem);
 
             return epgItem;
@@ -476,11 +478,11 @@ namespace IngestHandler
                 ? regions
                 : null;
         }
-        
+
         private void TrySendIngestCompleted(BulkUploadJobStatus newStatus)
         {
             if (!BulkUpload.IsProcessCompletedByStatus(newStatus)) return;
-            
+
             var updateDate = DateTime.UtcNow; // TODO looks like _bulUpload.UpdateDate is not updated in CB
             _epgIngestMessaging.EpgIngestCompleted(_bulkUpload.GroupId, _bulkUpload.UpdaterId,
                 _bulkUpload.Id, newStatus, _bulkUpload.Errors, updateDate);

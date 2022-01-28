@@ -25396,6 +25396,10 @@ namespace WebAPI.Models.Catalog
                 {
                     TrickPlayEnabled = (Boolean) Convert.ChangeType(parameters["enableTrickPlay"], typeof(Boolean));
                 }
+                if (parameters.ContainsKey("externalOfferIds") && parameters["externalOfferIds"] != null)
+                {
+                    ExternalOfferIds = (String) Convert.ChangeType(parameters["externalOfferIds"], typeof(String));
+                }
             }
         }
     }

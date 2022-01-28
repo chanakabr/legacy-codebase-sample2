@@ -35,7 +35,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
         public static void RegisterMappings(MapperConfigurationExpression cfg)
         {
             #region Picture, EpgPicture -> KalturaMediaImage
-            
+
             // Picture to KalturaMediaImage
             cfg.CreateMap<Picture, KalturaMediaImage>()
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.m_sURL))
@@ -70,7 +70,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region FileMedia, KalturaMediaFile
 
-            //File 
+            //File
             cfg.CreateMap<FileMedia, KalturaMediaFile>()
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.m_nMediaID))
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nFileId))
@@ -104,7 +104,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region AssetStatsResult, KalturaAssetStatistics
 
-            //AssetStats 
+            //AssetStats
             cfg.CreateMap<AssetStatsResult, KalturaAssetStatistics>()
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.m_nAssetID))
                  .ForMember(dest => dest.Likes, opt => opt.MapFrom(src => src.m_nLikes))
@@ -284,7 +284,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .AfterMap((src, dest) => dest.MetaData = dest.MetaData != null && dest.MetaData.Any() ? dest.MetaData : null);
 
 
-            //KalturaDynamicChannel to Channel (Catalog)  
+            //KalturaDynamicChannel to Channel (Catalog)
             cfg.CreateMap<KalturaDynamicChannel, GroupsCacheManager.Channel>()
                .ForMember(dest => dest.m_nChannelID, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
@@ -606,7 +606,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.CdvrEnabled, opt => opt.MapFrom(src => src.CdvrEnabled))
                 .ForMember(dest => dest.CatchUpEnabled, opt => opt.MapFrom(src => src.CatchUpEnabled))
                 .ForMember(dest => dest.StartOverEnabled, opt => opt.MapFrom(src => src.StartOverEnabled))
-                .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.TrickPlayEnabled));
+                .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.TrickPlayEnabled))
+                .ForMember(dest => dest.ExternalOfferIds, opt =>
+                {
+                    opt.Condition(src => src.ExternalOfferIds != null);
+                    opt.ResolveUsing(src => src.ExternalOfferIds
+                        .GetItemsIn<string>(out var failed, true)
+                        .ThrowIfFailed(failed, () => new ClientException((int) StatusCode.InvalidArgumentValue, "Invalid value in ExternalOfferIds")));
+                }); // Workaround for automatic null to empty list conversion.
 
             cfg.CreateMap<RecordingAsset, KalturaRecordingAsset>()
                 .IncludeBase<EpgAsset, KalturaProgramAsset>()
@@ -685,7 +692,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EnableCdvr, opt => opt.MapFrom(src => src.CdvrEnabled))
                 .ForMember(dest => dest.EnableCatchUp, opt => opt.MapFrom(src => src.CatchUpEnabled))
                 .ForMember(dest => dest.EnableStartOver, opt => opt.MapFrom(src => src.StartOverEnabled))
-                .ForMember(dest => dest.EnableTrickPlay, opt => opt.MapFrom(src => src.TrickPlayEnabled));
+                .ForMember(dest => dest.EnableTrickPlay, opt => opt.MapFrom(src => src.TrickPlayEnabled))
+                .ForMember(dest => dest.ExternalOfferIds, opt => opt.ResolveUsing(src => src.ExternalOfferIds.ConvertToCommaSeparatedString(string.Empty)));
             //TODO ANAT - ASK LIOR ABOUT IMAGES (WHY WE ARE NOT MAPPING THEM HERE INSTED OF OUTSIDE THE MAPPING)
             //.ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Epg.EPG_PICTURES));
 
@@ -938,7 +946,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.TagsInOtherLanguages, opt => opt.MapFrom(src => src.Tag.GetNoneDefaultLanugageContainer()))
              ;
 
-            #endregion       
+            #endregion
 
             #region ImageType
 
@@ -960,7 +968,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
              ;
 
-            #endregion       
+            #endregion
 
             #region Ratio
 
@@ -1007,7 +1015,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
 
             #region AssetFile
-            //File 
+            //File
             cfg.CreateMap<AssetFile, KalturaMediaFile>()
                  .ForMember(dest => dest.AdditionalData, opt => opt.MapFrom(src => src.AdditionalData))
                  .ForMember(dest => dest.AltExternalId, opt => opt.MapFrom(src => src.AltExternalId))
@@ -1372,7 +1380,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .IncludeBase<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
 
-            #endregion CategoryItem            
+            #endregion CategoryItem
 
             cfg.CreateMap<UserWatchHistory, KalturaAssetHistory>()
                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => long.Parse(src.AssetId)))
@@ -2122,7 +2130,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
                     if (convertedImage != null)
                     {
-                        convertedImage.ImageTypeName = imageTypeIdToNameMap != null && imageTypeIdToNameMap.ContainsKey(image.ImageTypeId) ? 
+                        convertedImage.ImageTypeName = imageTypeIdToNameMap != null && imageTypeIdToNameMap.ContainsKey(image.ImageTypeId) ?
                             imageTypeIdToNameMap[image.ImageTypeId] : string.Empty;
                         result.Add(convertedImage);
                     }
@@ -2718,7 +2726,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return searchAggregationGroupBy;
         }
 
-        // eUserType to KalturaPositionOwner 
+        // eUserType to KalturaPositionOwner
         public static KalturaPositionOwner ConvertPositionOwner(eUserType userType)
         {
             KalturaPositionOwner result;

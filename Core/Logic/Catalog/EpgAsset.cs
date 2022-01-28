@@ -11,6 +11,8 @@ using System.Linq;
 using System.Reflection;
 using TVinciShared;
 using ApiObjects.Notification;
+using Nest;
+using Newtonsoft.Json;
 
 namespace Core.Catalog
 {
@@ -36,6 +38,12 @@ namespace Core.Catalog
         public string FaceBookObjectId { get; set; }
         public DateTime SearchEndDate { get; set; }
         public bool IsIngestV2 { get; set; }
+
+        [JsonProperty(PropertyName = "ExternalOfferIds",
+            TypeNameHandling = TypeNameHandling.Auto,
+            ItemTypeNameHandling = TypeNameHandling.Auto,
+            ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
+        public List<string> ExternalOfferIds { get; set; }
 
         public EpgAsset()
             : base()
@@ -75,6 +83,7 @@ namespace Core.Catalog
                     this.CoGuid = defaultEpgCB.EpgIdentifier;
                     this.SearchEndDate = defaultEpgCB.SearchEndDate;
                     this.IsIngestV2 = defaultEpgCB.IsIngestV2;
+                    this.ExternalOfferIds = new List<string>(defaultEpgCB.ExternalOfferIds ?? new List<string>());
 
                     var linearChannelSettings = EpgManager.GetLinearChannelSettings(groupId, this.EpgChannelId);
                     if (linearChannelSettings != null)
@@ -172,7 +181,7 @@ namespace Core.Catalog
                     {
                         tagsToSet[tag.Key] = new List<List<LanguageContainer>>();
                         foreach (var tagValueDefaultLang in tagValuesDefaultLanaguage)
-                        {    
+                        {
                             tagsToSet[tag.Key].Add(new List<LanguageContainer>() { tagValueDefaultLang });
                         }
                     }
@@ -339,6 +348,7 @@ namespace Core.Catalog
                 this.TrickPlayEnabled = this.TrickPlayEnabled.GetUpdatedValue(epgAsset.TrickPlayEnabled, ref needToUpdateBasicData);
                 this.FaceBookObjectId = this.FaceBookObjectId.GetUpdatedValue(epgAsset.FaceBookObjectId, ref needToUpdateBasicData);
                 this.Crid = this.Crid.GetUpdatedValue(epgAsset.Crid, ref needToUpdateBasicData);
+                this.ExternalOfferIds = this.ExternalOfferIds.GetUpdatedValue(epgAsset.ExternalOfferIds, ref needToUpdateBasicData);
 
                 if (this.PicId != epgAsset.PicId && this.PicId > 0)
                 {

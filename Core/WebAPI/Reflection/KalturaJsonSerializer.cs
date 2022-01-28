@@ -28732,6 +28732,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("epgId", "\"epgId\": " + "\"" + EscapeJson(EpgId) + "\"");
             }
+            if(ExternalOfferIds != null && (retrievedProperties == null || retrievedProperties.Contains("externalOfferIds")))
+            {
+                ret.Add("externalOfferIds", "\"externalOfferIds\": " + "\"" + EscapeJson(ExternalOfferIds) + "\"");
+            }
             if(LinearAssetId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("linearAssetId")))
             {
                 ret.Add("linearAssetId", "\"linearAssetId\": " + LinearAssetId);
@@ -28782,6 +28786,10 @@ namespace WebAPI.Models.Catalog
             if(EpgId != null && (retrievedProperties == null || retrievedProperties.Contains("epgId")))
             {
                 ret.Add("epgId", "<epgId>" + EscapeXml(EpgId) + "</epgId>");
+            }
+            if(ExternalOfferIds != null && (retrievedProperties == null || retrievedProperties.Contains("externalOfferIds")))
+            {
+                ret.Add("externalOfferIds", "<externalOfferIds>" + EscapeXml(ExternalOfferIds) + "</externalOfferIds>");
             }
             if(LinearAssetId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("linearAssetId")))
             {
