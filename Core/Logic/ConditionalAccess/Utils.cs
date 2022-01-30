@@ -3991,11 +3991,13 @@ namespace Core.ConditionalAccess
             {
                 string productCode = string.Empty;
                 MediaFileStatus eMediaFileStatus = MediaFileStatus.OK;
+                bool isOpc = false;
 
                 Dictionary<int, int> mapperDic = new Dictionary<int, int>();
 
                 if (withMediaFilesInvalidation)
                 {
+                    isOpc = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
                     MeidaMaper[] mapper = GetMediaMapper(groupId, nMediaFiles);
                     if (mapper != null)
                     {
@@ -4026,7 +4028,14 @@ namespace Core.ConditionalAccess
 
                     if (mapperDic.ContainsKey(mf))
                     {
-                        invalidationKeysMap.Add(mfKey, new List<string>() { LayeredCacheKeys.GetAssetInvalidationKey(groupId, eAssetTypes.MEDIA.ToString(), mapperDic[mf]) });
+                        string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(groupId, eAssetTypes.MEDIA.ToString(), mapperDic[mf]);
+                        
+                        if (!isOpc)
+                        {
+                            invalidationKey = LayeredCacheKeys.GetMediaInvalidationKey(groupId, mapperDic[mf]);
+                        }
+                        
+                        invalidationKeysMap.Add(mfKey, new List<string>() { invalidationKey });
                     }
                 }
 
