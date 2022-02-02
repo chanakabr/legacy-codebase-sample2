@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ApiLogic.Api.Managers;
+using ApiLogic.Catalog.CatalogManagement.Models;
 using ApiLogic.Catalog.CatalogManagement.Repositories;
 using ApiObjects;
 using ApiObjects.Catalog;
@@ -45,6 +46,7 @@ namespace Core.Catalog.CatalogManagement
         HashSet<BooleanLeafFieldDefinitions> GetUnifiedSearchKey(int groupId, string originalKey);
         List<AssetStruct> GetLinearMediaTypes(int groupId);
         bool IsRegionalizationEnabled(int groupId);
+        BooleanLeafFieldDefinitions GetMetaByName(MetaByNameInput input);
     }
 
     public class CatalogManager : ICatalogManager, ITagManager
@@ -57,6 +59,7 @@ namespace Core.Catalog.CatalogManagement
         private readonly IGroupManager _groupManager;
         private readonly ILayeredCache _layeredCache;
         private readonly IAssetStructMetaRepository _assetStructMetaRepository;
+        private readonly ICatalogCache _catalogCache;
 
         internal static readonly HashSet<string> TopicsToIgnore = CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
         internal const string OPC_UI_METADATA = "metadata";
@@ -75,7 +78,8 @@ namespace Core.Catalog.CatalogManagement
                     LayeredCache.Instance,
                     AssetStructMetaRepository.Instance,
                     GroupSettingsManager.Instance,
-                    new GroupManager()),
+                    GroupManager.Instance,
+                    CatalogCache.Instance()),
             LazyThreadSafetyMode.PublicationOnly);
 
         public static CatalogManager Instance => lazy.Value;
@@ -85,13 +89,15 @@ namespace Core.Catalog.CatalogManagement
             ILayeredCache layeredCache,
             IAssetStructMetaRepository assetStructMetaRepository,
             IGroupSettingsManager groupSettingsManager,
-            IGroupManager groupManager)
+            IGroupManager groupManager,
+            ICatalogCache catalogCache)
         {
             _labelRepository = labelRepository ?? throw new ArgumentNullException(nameof(labelRepository));
             _layeredCache = layeredCache ?? throw new ArgumentNullException(nameof(layeredCache));
             _assetStructMetaRepository = assetStructMetaRepository ?? throw new ArgumentNullException(nameof(assetStructMetaRepository));
             _groupSettingsManager = groupSettingsManager ?? throw new ArgumentNullException(nameof(groupSettingsManager));
             _groupManager = groupManager ?? throw new ArgumentNullException(nameof(groupManager));
+            _catalogCache = catalogCache ?? throw new ArgumentNullException(nameof(catalogCache));
         }
 
         public CatalogManager(
@@ -100,7 +106,8 @@ namespace Core.Catalog.CatalogManagement
             IAssetStructMetaRepository assetStructMetaRepository,
             IGroupSettingsManager groupSettingsManager,
             IGroupManager groupManager,
-            IKLogger logger) : this(labelRepository, layeredCache, assetStructMetaRepository, groupSettingsManager, groupManager)
+            ICatalogCache catalogCache,
+            IKLogger logger) : this(labelRepository, layeredCache, assetStructMetaRepository, groupSettingsManager, groupManager, catalogCache)
         {
             log = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -1948,6 +1955,48 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
+        public BooleanLeafFieldDefinitions GetMetaByName(MetaByNameInput input)
+        {
+            if (!CheckMetaExists(input))
+            {
+                var errorMessage = $"meta not exists for group -  unified search definitions. groupId = {input.GroupId}, meta name = {input.MetaName}";
+                //return error - meta not exists
+                log.Error(errorMessage);
+
+                throw new Exception(errorMessage);
+            }
+
+            var lowercasedMetaName = input.MetaName.ToLower();
+            if (DoesGroupUsesTemplates(input.GroupId))
+            {
+                return GetUnifiedSearchKey(input.GroupId, lowercasedMetaName).FirstOrDefault();
+            }
+
+            var parentGroupId = _catalogCache.GetParentGroup(input.GroupId);
+            var parentGroup = _groupManager.GetGroup(parentGroupId);
+
+            return CatalogLogic.GetUnifiedSearchKey(input.MetaName, parentGroup).FirstOrDefault();
+        }
+
+        private bool CheckMetaExists(MetaByNameInput input)
+        {
+            var lowercasedMetaName = input.MetaName.ToLower();
+            if (DoesGroupUsesTemplates(input.GroupId))
+            {
+                return CheckMetaExists(input.GroupId, lowercasedMetaName);
+            }
+
+            var parentGroupId = _catalogCache.GetParentGroup(input.GroupId);
+            var parentGroup = _groupManager.GetGroup(parentGroupId);
+
+            return Utils.CheckMetaExsits(
+                input.ShouldSearchEpg,
+                input.ShouldSearchMedia,
+                input.ShouldSearchRecordings,
+                parentGroup,
+                lowercasedMetaName);
+        }
+
         public HashSet<BooleanLeafFieldDefinitions> GetUnifiedSearchKey(int groupId, string originalKey)
         {
             Type valueType = typeof(string);
@@ -2056,7 +2105,7 @@ namespace Core.Catalog.CatalogManagement
             return searchKeys;
         }
 
-        public bool CheckMetaExsits(int groupId, string metaName)
+        public bool CheckMetaExists(int groupId, string metaName)
         {
             bool result = false;
             try

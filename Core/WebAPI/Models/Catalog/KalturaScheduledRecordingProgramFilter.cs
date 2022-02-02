@@ -54,18 +54,15 @@ namespace WebAPI.Models.Catalog
         [SchemeProperty(IsNullable = true)]
         public string SeriesIdsIn { get; set; }
 
-        public List<long> ConvertChannelsIn()
-        {
-            return this.GetItemsIn<List<long>, long>(ChannelsIn, "KalturaScheduledRecordingProgramFilter.ChannelsIn");
-        }
+        private List<long> ConvertChannelsIn()
+            => GetItemsIn<List<long>, long>(ChannelsIn, "KalturaScheduledRecordingProgramFilter.ChannelsIn");
 
-        public List<string> ConvertSeriesIdsIn()
-        {
-            return this.GetItemsIn<List<string>, string>(SeriesIdsIn, "KalturaScheduledRecordingProgramFilter.SeriesIdsIn");
-        }
+        private List<string> ConvertSeriesIdsIn()
+            => GetItemsIn<List<string>, string>(SeriesIdsIn, "KalturaScheduledRecordingProgramFilter.SeriesIdsIn");
 
-        private void ValidateSeriesSearch()
+        internal override void Validate()
         {
+            base.Validate();
             if (!string.IsNullOrEmpty(SeriesIdsIn) && RecordingTypeEqual != KalturaScheduledRecordingAssetType.series)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "KalturaScheduledRecordingProgramFilter.SeriesIdsIn", "KalturaScheduledRecordingProgramFilter.RecordingTypeEqual");
@@ -73,15 +70,28 @@ namespace WebAPI.Models.Catalog
         }
 
         // returns assets that are scheduled to be recorded
-        internal override KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
+        internal override KalturaAssetListResponse GetAssets(
+            ContextData contextData,
+            KalturaBaseResponseProfile responseProfile,
+            KalturaFilterPager pager)
         {
-            ValidateSeriesSearch();
-            int domainId = (int)(contextData.DomainId ?? 0);
+            var domainId = (int)(contextData.DomainId ?? 0);
+            var userId = contextData.UserId.ToString();
 
-            var response = ClientsManager.CatalogClient().GetScheduledRecordingAssets(contextData.GroupId, contextData.UserId.ToString(), domainId, contextData.Udid, contextData.Language, this.ConvertChannelsIn(),
-                pager.getPageIndex(), pager.getPageSize(), this.StartDateGreaterThanOrNull, this.EndDateLessThanOrNull, this.OrderBy, this.RecordingTypeEqual, this.DynamicOrderBy, this.TrendingDaysEqual, this.ConvertSeriesIdsIn());
-
-            return response;
+            return ClientsManager.CatalogClient().GetScheduledRecordingAssets(
+                contextData.GroupId,
+                userId,
+                domainId,
+                contextData.Udid,
+                contextData.Language,
+                ConvertChannelsIn(),
+                pager.getPageIndex(),
+                pager.getPageSize(),
+                StartDateGreaterThanOrNull,
+                EndDateLessThanOrNull,
+                Orderings,
+                RecordingTypeEqual,
+                ConvertSeriesIdsIn());
         }
     }
 }

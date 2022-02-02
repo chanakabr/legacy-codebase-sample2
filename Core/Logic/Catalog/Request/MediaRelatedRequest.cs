@@ -40,6 +40,9 @@ namespace Core.Catalog.Request
 
         [DataMember]
         public OrderObj OrderObj;
+
+        [DataMember]
+        public IReadOnlyCollection<AssetOrder> OrderingParameters;
         
         [DataMember]
         public SearchAggregationGroupBy searchGroupBy;
@@ -56,15 +59,6 @@ namespace Core.Catalog.Request
             m_nMediaTypes = new List<Int32>();
         }
 
-        public MediaRelatedRequest(Int32 nMediaID, Int32 nGroupID, Int32 nPageSize, Int32 nPageIndex, string sUserIP, Filter oFilter, string sSignature, string sSignString, List<Int32> nMediaTypes, OrderObj orderObj)
-            : base(nPageSize, nPageIndex, sUserIP, nGroupID, oFilter, sSignature, sSignString)
-        {
-            m_nMediaID = nMediaID;
-            m_nMediaTypes = nMediaTypes;
-            m_nMediaTypes = new List<Int32>();
-            OrderObj = orderObj;
-        }
-
         public MediaRelatedRequest(MediaRelatedRequest m)
             : base(m.m_nPageSize, m.m_nPageIndex, m.m_sUserIP, m.m_nGroupID, m.m_oFilter, m.m_sSignature, m.m_sSignString)
         {
@@ -72,6 +66,7 @@ namespace Core.Catalog.Request
             m_nMediaTypes = m.m_nMediaTypes;
             m_nMediaTypes = new List<Int32>();
             OrderObj = m.OrderObj;
+            OrderingParameters = m.OrderingParameters;
             searchGroupBy = m.searchGroupBy;
         }
 
@@ -80,7 +75,6 @@ namespace Core.Catalog.Request
             MediaRelatedRequest request = oBaseRequest as MediaRelatedRequest;
             UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
 
-            Filter oFilter = new Filter();
             try
             {
                 //Build  MediaSearchRequest object
@@ -89,7 +83,7 @@ namespace Core.Catalog.Request
 
                 CheckSignature(request);
 
-                if (request.m_dServerTime == default(DateTime) || request.m_dServerTime == DateTime.MinValue)
+                if (request.m_dServerTime == default || request.m_dServerTime == DateTime.MinValue)
                 {
                     request.m_dServerTime = DateTime.UtcNow;
                 }

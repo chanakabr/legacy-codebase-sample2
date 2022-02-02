@@ -30,6 +30,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: InvalidActionParameters=500013.</remarks>
         /// /api_v3/service/lineup/action/get/partnerId/{{partnerId}}/regionId/{{regionId}}?pageIndex={{pageIndex}}&amp;pageSize={{pageSize}}&amp;language={{language}}
         [Action("get")]
+        [ApiAuthorize]
         [AllowContentNotModifiedResponse]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]

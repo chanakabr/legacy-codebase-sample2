@@ -146,6 +146,7 @@ message AdjustRegionIdRequest{
 	int32 DafaultRegionId=2;
 	User OttUser=3;
 	ListOfInt64 UserSegments=4;
+	map<string, string> AdapterData=5;
 }
 
 message AdjustRegionIdResponse{

@@ -28,6 +28,8 @@ namespace Core.Catalog.Request
         [DataMember]
         public OrderObj m_oOrderObj;
         [DataMember]
+        public IReadOnlyCollection<AssetOrder> orderingParameters;
+        [DataMember]
         public string m_sMediaType;
         [DataMember]
         public bool isAllowedToViewInactiveAssets;
@@ -114,8 +116,15 @@ namespace Core.Catalog.Request
                             sMediaTypesFromRequest = request.m_sMediaType.Split(';');
                         }
 
-                        List<BaseSearchObject> searchObjectsList = BuildBaseSearchObjects(request, groupInCache, allChannels, sMediaTypesFromRequest, request.m_oOrderObj, parentGroupId, 
-                            doesGroupUsesTemplates, request.isAllowedToViewInactiveAssets, request.AssetFilterKsql);
+                        List<BaseSearchObject> searchObjectsList = BuildBaseSearchObjects(
+                            request,
+                            groupInCache,
+                            allChannels,
+                            sMediaTypesFromRequest,
+                            parentGroupId,
+                            doesGroupUsesTemplates,
+                            request.isAllowedToViewInactiveAssets,
+                            request.AssetFilterKsql);
 
                         if (searchObjectsList != null && searchObjectsList.Count > 0)
                         {
@@ -170,9 +179,8 @@ namespace Core.Catalog.Request
         public static List<BaseSearchObject> BuildBaseSearchObjects(
             BaseRequest request,
             Group groupInCache, 
-            List<GroupsCacheManager.Channel> allChannels,
+            List<Channel> allChannels,
             string[] mediaTypes,
-            OrderObj notUsed,
             int groupId,
             bool doesGroupUsesTemplates,
             bool isAllowedToViewInactiveAssets,

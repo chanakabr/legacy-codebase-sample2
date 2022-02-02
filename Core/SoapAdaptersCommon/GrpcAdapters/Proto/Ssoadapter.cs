@@ -89,65 +89,68 @@ namespace SoapAdaptersCommon.GrpcAdapters {
             "U09SZXNwb25zZVN0YXR1cxI1CgtBZGFwdGVyRGF0YRgDIAMoCzIgLkludm9r",
             "ZVJlc3BvbnNlLkFkYXB0ZXJEYXRhRW50cnkSDAoEQ29kZRgEIAEoCRIPCgdN",
             "ZXNzYWdlGAUgASgJGjIKEEFkYXB0ZXJEYXRhRW50cnkSCwoDa2V5GAEgASgJ",
-            "Eg0KBXZhbHVlGAIgASgJOgI4ASJ/ChVBZGp1c3RSZWdpb25JZFJlcXVlc3QS",
-            "EQoJQWRhcHRlcklkGAEgASgFEhcKD0RhZmF1bHRSZWdpb25JZBgCIAEoBRIW",
-            "CgdPdHRVc2VyGAMgASgLMgUuVXNlchIiCgxVc2VyU2VnbWVudHMYBCABKAsy",
-            "DC5MaXN0T2ZJbnQ2NCKIAQoWQWRqdXN0UmVnaW9uSWRSZXNwb25zZRItChFB",
-            "ZGFwdGVyU3RhdHVzQ29kZRgBIAEoDjISLkFkYXB0ZXJTdGF0dXNDb2RlEhAK",
-            "CFJlZ2lvbklkGAIgASgFEi0KEVNTT1Jlc3BvbnNlU3RhdHVzGAMgASgLMhIu",
-            "U1NPUmVzcG9uc2VTdGF0dXMiHAoLTGlzdE9mSW50NjQSDQoFdmFsdWUYASAD",
-            "KAMipwQKBFVzZXISLQoMQ3VzdG9tUGFyYW1zGAEgAygLMhcuVXNlci5DdXN0",
-            "b21QYXJhbXNFbnRyeRIoChFJc0hvdXNlaG9sZE1hc3RlchgCIAEoCzINLk51",
-            "bGxhYmxlQm9vbBIrCgtEeW5hbWljRGF0YRgDIAMoCzIWLlVzZXIuRHluYW1p",
-            "Y0RhdGFFbnRyeRIbCghVc2VyVHlwZRgEIAEoCzIJLlVzZXJUeXBlEhIKCkV4",
-            "dGVybmFsSWQYBSABKAkSDQoFUGhvbmUYBiABKAkSCwoDWmlwGAcgASgJEiEK",
-            "CUNvdW50cnlJZBgIIAEoCzIOLk51bGxhYmxlSW50MzISDAoEQ2l0eRgJIAEo",
-            "CRIPCgdBZGRyZXNzGAogASgJEg0KBUVtYWlsGAsgASgJEiMKC0hvdXNlaG9s",
-            "ZElEGAwgASgLMg4uTnVsbGFibGVJbnQzMhIQCghMYXN0TmFtZRgNIAEoCRIR",
-            "CglGaXJzdE5hbWUYDiABKAkSEAoIVXNlcm5hbWUYDyABKAkSCgoCSWQYECAB",
-            "KAUSFwoPU3VzcGVuc2lvblN0YXRlGBEgASgFEhEKCVVzZXJTdGF0ZRgSIAEo",
-            "BRozChFDdXN0b21QYXJhbXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUY",
-            "AiABKAk6AjgBGjIKEER5bmFtaWNEYXRhRW50cnkSCwoDa2V5GAEgASgJEg0K",
-            "BXZhbHVlGAIgASgJOgI4ASIrCghVc2VyVHlwZRIKCgJJZBgBIAEoBRITCgtE",
-            "ZXNjcmlwdGlvbhgCIAEoCSKUBgoRU1NPUmVzcG9uc2VTdGF0dXMSPAoKU3Rh",
-            "dHVzQ29kZRgBIAEoDjIoLlNTT1Jlc3BvbnNlU3RhdHVzLlNTT1VzZXJSZXNw",
-            "b25zZVN0YXR1cxIUCgxFeHRlcm5hbENvZGUYAiABKAUSFwoPRXh0ZXJuYWxN",
-            "ZXNzYWdlGAMgASgJIpEFChVTU09Vc2VyUmVzcG9uc2VTdGF0dXMSBgoCT0sQ",
-            "ABIOCgpVc2VyRXhpc3RzEAESFAoQVXNlckRvZXNOb3RFeGlzdBACEhsKF1dy",
-            "b25nUGFzc3dvcmRPclVzZXJOYW1lEAMSEgoOSW5zaWRlTG9ja1RpbWUQBBIV",
-            "ChFOb3RJbXBsZW1lbnRlZFlldBAFEhQKEFVzZXJOb3RBY3RpdmF0ZWQQBhIX",
-            "ChNVc2VyQWxyZWFkeUxvZ2dlZEluEAcSEwoPVXNlckRvdWJsZUxvZ0luEAgS",
-            "FAoQU2Vzc2lvbkxvZ2dlZE91dBAJEhcKE0RldmljZU5vdFJlZ2lzdGVyZWQQ",
-            "ChIWChJFcnJvck9uU2VuZGluZ01haWwQCxIaChZVc2VyRW1haWxBbHJlYWR5",
-            "RXhpc3RzEAwSGwoXRXJyb3JPblVwZGF0aW5nVXNlclR5cGUQDRIUChBVc2Vy",
-            "VHlwZU5vdEV4aXN0EA4SGQoVVXNlck5vdE1hc3RlckFwcHJvdmVkEA8SEwoP",
-            "RXJyb3JPbkluaXRVc2VyEBASEwoPRXJyb3JPblNhdmVVc2VyEBESFAoQVXNl",
-            "ck5vdEluZERvbWFpbhASEhEKDVRva2VuTm90Rm91bmQQExIdChlVc2VyQWxy",
-            "ZWFkeU1hc3RlckFwcHJvdmVkEBQSFAoQVXNlcldpdGhOb0RvbWFpbhAVEhMK",
-            "D0xvZ2luU2VydmVyRG93bhAWEhEKDVVzZXJTdXNwZW5kZWQQFxIZChVVc2Vy",
-            "Q3JlYXRlZFdpdGhOb1JvbGUQGBIbChdFeHRlcm5hbElkQWxyZWFkeUV4aXN0",
-            "cxAZEhEKDUV4dGVybmFsRXJyb3IQGhISCg1JbnRlcm5hbEVycm9yEOcHIh0K",
-            "DE51bGxhYmxlQm9vbBINCgVWYWx1ZRgBIAEoCCIeCg1OdWxsYWJsZUludDMy",
-            "Eg0KBVZhbHVlGAEgASgFKlcKEUFkYXB0ZXJTdGF0dXNDb2RlEgYKAk9LEAAS",
-            "CQoFRXJyb3IQARIVChFTaWduYXR1cmVNaXNtYXRjaBACEhgKFE5vQ29uZmln",
-            "dXJhdGlvbkZvdW5kEAMqlQEKClNTT01ldGhvZHMSDQoJUHJlU2lnbkluEAAS",
-            "DgoKUG9zdFNpZ25JbhABEhIKDlByZUdldFVzZXJEYXRhEAISEwoPUG9zdEdl",
-            "dFVzZXJEYXRhEAMSDgoKUHJlU2lnbk91dBAEEg8KC1Bvc3RTaWduT3V0EAUS",
-            "CgoGSW52b2tlEAYSEgoOQWRqdXN0UmVnaW9uSWQQBzLNBAoOU1NPQWRhcHRl",
-            "ckdSUEMSRwoQU2V0Q29uZmlndXJhdGlvbhIYLlNldENvbmZpZ3VyYXRpb25S",
-            "ZXF1ZXN0GhkuU2V0Q29uZmlndXJhdGlvblJlc3BvbnNlEkcKEEdldENvbmZp",
-            "Z3VyYXRpb24SGC5HZXRDb25maWd1cmF0aW9uUmVxdWVzdBoZLkdldENvbmZp",
-            "Z3VyYXRpb25SZXNwb25zZRIyCglQcmVTaWduSW4SES5QcmVTaWduSW5SZXF1",
-            "ZXN0GhIuUHJlU2lnbkluUmVzcG9uc2USLwoKUG9zdFNpZ25JbhISLlBvc3RT",
-            "aWduSW5SZXF1ZXN0Gg0uVXNlclJlc3BvbnNlEi8KClByZVNpZ25PdXQSEi5Q",
-            "cmVTaWduT3V0UmVxdWVzdBoNLlVzZXJSZXNwb25zZRIxCgtQb3N0U2lnbk91",
-            "dBITLlBvc3RTaWduT3V0UmVxdWVzdBoNLlVzZXJSZXNwb25zZRI3Cg5QcmVH",
-            "ZXRVc2VyRGF0YRIWLlByZUdldFVzZXJEYXRhUmVxdWVzdBoNLlVzZXJSZXNw",
-            "b25zZRI5Cg9Qb3N0R2V0VXNlckRhdGESFy5Qb3N0R2V0VXNlckRhdGFSZXF1",
-            "ZXN0Gg0uVXNlclJlc3BvbnNlEikKBkludm9rZRIOLkludm9rZVJlcXVlc3Qa",
-            "Dy5JbnZva2VSZXNwb25zZRJBCg5BZGp1c3RSZWdpb25JZBIWLkFkanVzdFJl",
-            "Z2lvbklkUmVxdWVzdBoXLkFkanVzdFJlZ2lvbklkUmVzcG9uc2VCIqoCH1Nv",
-            "YXBBZGFwdGVyc0NvbW1vbi5HcnBjQWRhcHRlcnNiBnByb3RvMw=="));
+            "Eg0KBXZhbHVlGAIgASgJOgI4ASLxAQoVQWRqdXN0UmVnaW9uSWRSZXF1ZXN0",
+            "EhEKCUFkYXB0ZXJJZBgBIAEoBRIXCg9EYWZhdWx0UmVnaW9uSWQYAiABKAUS",
+            "FgoHT3R0VXNlchgDIAEoCzIFLlVzZXISIgoMVXNlclNlZ21lbnRzGAQgASgL",
+            "MgwuTGlzdE9mSW50NjQSPAoLQWRhcHRlckRhdGEYBSADKAsyJy5BZGp1c3RS",
+            "ZWdpb25JZFJlcXVlc3QuQWRhcHRlckRhdGFFbnRyeRoyChBBZGFwdGVyRGF0",
+            "YUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiiAEKFkFk",
+            "anVzdFJlZ2lvbklkUmVzcG9uc2USLQoRQWRhcHRlclN0YXR1c0NvZGUYASAB",
+            "KA4yEi5BZGFwdGVyU3RhdHVzQ29kZRIQCghSZWdpb25JZBgCIAEoBRItChFT",
+            "U09SZXNwb25zZVN0YXR1cxgDIAEoCzISLlNTT1Jlc3BvbnNlU3RhdHVzIhwK",
+            "C0xpc3RPZkludDY0Eg0KBXZhbHVlGAEgAygDIqcECgRVc2VyEi0KDEN1c3Rv",
+            "bVBhcmFtcxgBIAMoCzIXLlVzZXIuQ3VzdG9tUGFyYW1zRW50cnkSKAoRSXNI",
+            "b3VzZWhvbGRNYXN0ZXIYAiABKAsyDS5OdWxsYWJsZUJvb2wSKwoLRHluYW1p",
+            "Y0RhdGEYAyADKAsyFi5Vc2VyLkR5bmFtaWNEYXRhRW50cnkSGwoIVXNlclR5",
+            "cGUYBCABKAsyCS5Vc2VyVHlwZRISCgpFeHRlcm5hbElkGAUgASgJEg0KBVBo",
+            "b25lGAYgASgJEgsKA1ppcBgHIAEoCRIhCglDb3VudHJ5SWQYCCABKAsyDi5O",
+            "dWxsYWJsZUludDMyEgwKBENpdHkYCSABKAkSDwoHQWRkcmVzcxgKIAEoCRIN",
+            "CgVFbWFpbBgLIAEoCRIjCgtIb3VzZWhvbGRJRBgMIAEoCzIOLk51bGxhYmxl",
+            "SW50MzISEAoITGFzdE5hbWUYDSABKAkSEQoJRmlyc3ROYW1lGA4gASgJEhAK",
+            "CFVzZXJuYW1lGA8gASgJEgoKAklkGBAgASgFEhcKD1N1c3BlbnNpb25TdGF0",
+            "ZRgRIAEoBRIRCglVc2VyU3RhdGUYEiABKAUaMwoRQ3VzdG9tUGFyYW1zRW50",
+            "cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ARoyChBEeW5hbWlj",
+            "RGF0YUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiKwoI",
+            "VXNlclR5cGUSCgoCSWQYASABKAUSEwoLRGVzY3JpcHRpb24YAiABKAkilAYK",
+            "EVNTT1Jlc3BvbnNlU3RhdHVzEjwKClN0YXR1c0NvZGUYASABKA4yKC5TU09S",
+            "ZXNwb25zZVN0YXR1cy5TU09Vc2VyUmVzcG9uc2VTdGF0dXMSFAoMRXh0ZXJu",
+            "YWxDb2RlGAIgASgFEhcKD0V4dGVybmFsTWVzc2FnZRgDIAEoCSKRBQoVU1NP",
+            "VXNlclJlc3BvbnNlU3RhdHVzEgYKAk9LEAASDgoKVXNlckV4aXN0cxABEhQK",
+            "EFVzZXJEb2VzTm90RXhpc3QQAhIbChdXcm9uZ1Bhc3N3b3JkT3JVc2VyTmFt",
+            "ZRADEhIKDkluc2lkZUxvY2tUaW1lEAQSFQoRTm90SW1wbGVtZW50ZWRZZXQQ",
+            "BRIUChBVc2VyTm90QWN0aXZhdGVkEAYSFwoTVXNlckFscmVhZHlMb2dnZWRJ",
+            "bhAHEhMKD1VzZXJEb3VibGVMb2dJbhAIEhQKEFNlc3Npb25Mb2dnZWRPdXQQ",
+            "CRIXChNEZXZpY2VOb3RSZWdpc3RlcmVkEAoSFgoSRXJyb3JPblNlbmRpbmdN",
+            "YWlsEAsSGgoWVXNlckVtYWlsQWxyZWFkeUV4aXN0cxAMEhsKF0Vycm9yT25V",
+            "cGRhdGluZ1VzZXJUeXBlEA0SFAoQVXNlclR5cGVOb3RFeGlzdBAOEhkKFVVz",
+            "ZXJOb3RNYXN0ZXJBcHByb3ZlZBAPEhMKD0Vycm9yT25Jbml0VXNlchAQEhMK",
+            "D0Vycm9yT25TYXZlVXNlchAREhQKEFVzZXJOb3RJbmREb21haW4QEhIRCg1U",
+            "b2tlbk5vdEZvdW5kEBMSHQoZVXNlckFscmVhZHlNYXN0ZXJBcHByb3ZlZBAU",
+            "EhQKEFVzZXJXaXRoTm9Eb21haW4QFRITCg9Mb2dpblNlcnZlckRvd24QFhIR",
+            "Cg1Vc2VyU3VzcGVuZGVkEBcSGQoVVXNlckNyZWF0ZWRXaXRoTm9Sb2xlEBgS",
+            "GwoXRXh0ZXJuYWxJZEFscmVhZHlFeGlzdHMQGRIRCg1FeHRlcm5hbEVycm9y",
+            "EBoSEgoNSW50ZXJuYWxFcnJvchDnByIdCgxOdWxsYWJsZUJvb2wSDQoFVmFs",
+            "dWUYASABKAgiHgoNTnVsbGFibGVJbnQzMhINCgVWYWx1ZRgBIAEoBSpXChFB",
+            "ZGFwdGVyU3RhdHVzQ29kZRIGCgJPSxAAEgkKBUVycm9yEAESFQoRU2lnbmF0",
+            "dXJlTWlzbWF0Y2gQAhIYChROb0NvbmZpZ3VyYXRpb25Gb3VuZBADKpUBCgpT",
+            "U09NZXRob2RzEg0KCVByZVNpZ25JbhAAEg4KClBvc3RTaWduSW4QARISCg5Q",
+            "cmVHZXRVc2VyRGF0YRACEhMKD1Bvc3RHZXRVc2VyRGF0YRADEg4KClByZVNp",
+            "Z25PdXQQBBIPCgtQb3N0U2lnbk91dBAFEgoKBkludm9rZRAGEhIKDkFkanVz",
+            "dFJlZ2lvbklkEAcyzQQKDlNTT0FkYXB0ZXJHUlBDEkcKEFNldENvbmZpZ3Vy",
+            "YXRpb24SGC5TZXRDb25maWd1cmF0aW9uUmVxdWVzdBoZLlNldENvbmZpZ3Vy",
+            "YXRpb25SZXNwb25zZRJHChBHZXRDb25maWd1cmF0aW9uEhguR2V0Q29uZmln",
+            "dXJhdGlvblJlcXVlc3QaGS5HZXRDb25maWd1cmF0aW9uUmVzcG9uc2USMgoJ",
+            "UHJlU2lnbkluEhEuUHJlU2lnbkluUmVxdWVzdBoSLlByZVNpZ25JblJlc3Bv",
+            "bnNlEi8KClBvc3RTaWduSW4SEi5Qb3N0U2lnbkluUmVxdWVzdBoNLlVzZXJS",
+            "ZXNwb25zZRIvCgpQcmVTaWduT3V0EhIuUHJlU2lnbk91dFJlcXVlc3QaDS5V",
+            "c2VyUmVzcG9uc2USMQoLUG9zdFNpZ25PdXQSEy5Qb3N0U2lnbk91dFJlcXVl",
+            "c3QaDS5Vc2VyUmVzcG9uc2USNwoOUHJlR2V0VXNlckRhdGESFi5QcmVHZXRV",
+            "c2VyRGF0YVJlcXVlc3QaDS5Vc2VyUmVzcG9uc2USOQoPUG9zdEdldFVzZXJE",
+            "YXRhEhcuUG9zdEdldFVzZXJEYXRhUmVxdWVzdBoNLlVzZXJSZXNwb25zZRIp",
+            "CgZJbnZva2USDi5JbnZva2VSZXF1ZXN0Gg8uSW52b2tlUmVzcG9uc2USQQoO",
+            "QWRqdXN0UmVnaW9uSWQSFi5BZGp1c3RSZWdpb25JZFJlcXVlc3QaFy5BZGp1",
+            "c3RSZWdpb25JZFJlc3BvbnNlQiKqAh9Tb2FwQWRhcHRlcnNDb21tb24uR3Jw",
+            "Y0FkYXB0ZXJzYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::SoapAdaptersCommon.GrpcAdapters.AdapterStatusCode), typeof(global::SoapAdaptersCommon.GrpcAdapters.SSOMethods), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -166,7 +169,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
             new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.PreGetUserDataRequest), global::SoapAdaptersCommon.GrpcAdapters.PreGetUserDataRequest.Parser, new[]{ "AdapterId", "UserId", "IpAddress", "CustomParams", "Signature" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, }),
             new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.InvokeRequest), global::SoapAdaptersCommon.GrpcAdapters.InvokeRequest.Parser, new[]{ "AdapterId", "Intent", "AdapterData" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, }),
             new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.InvokeResponse), global::SoapAdaptersCommon.GrpcAdapters.InvokeResponse.Parser, new[]{ "AdapterStatus", "SSOResponseStatus", "AdapterData", "Code", "Message" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, }),
-            new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdRequest), global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdRequest.Parser, new[]{ "AdapterId", "DafaultRegionId", "OttUser", "UserSegments" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdRequest), global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdRequest.Parser, new[]{ "AdapterId", "DafaultRegionId", "OttUser", "UserSegments", "AdapterData" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, }),
             new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdResponse), global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdResponse.Parser, new[]{ "AdapterStatusCode", "RegionId", "SSOResponseStatus" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.ListOfInt64), global::SoapAdaptersCommon.GrpcAdapters.ListOfInt64.Parser, new[]{ "Value" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.User), global::SoapAdaptersCommon.GrpcAdapters.User.Parser, new[]{ "CustomParams", "IsHouseholdMaster", "DynamicData", "UserType", "ExternalId", "Phone", "Zip", "CountryId", "City", "Address", "Email", "HouseholdID", "LastName", "FirstName", "Username", "Id", "SuspensionState", "UserState" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, null, }),
@@ -4608,6 +4611,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
       dafaultRegionId_ = other.dafaultRegionId_;
       ottUser_ = other.ottUser_ != null ? other.ottUser_.Clone() : null;
       userSegments_ = other.userSegments_ != null ? other.userSegments_.Clone() : null;
+      adapterData_ = other.adapterData_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -4660,6 +4664,16 @@ namespace SoapAdaptersCommon.GrpcAdapters {
       }
     }
 
+    /// <summary>Field number for the "AdapterData" field.</summary>
+    public const int AdapterDataFieldNumber = 5;
+    private static readonly pbc::MapField<string, string>.Codec _map_adapterData_codec
+        = new pbc::MapField<string, string>.Codec(pb::FieldCodec.ForString(10, ""), pb::FieldCodec.ForString(18, ""), 42);
+    private readonly pbc::MapField<string, string> adapterData_ = new pbc::MapField<string, string>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::MapField<string, string> AdapterData {
+      get { return adapterData_; }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as AdjustRegionIdRequest);
@@ -4677,6 +4691,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
       if (DafaultRegionId != other.DafaultRegionId) return false;
       if (!object.Equals(OttUser, other.OttUser)) return false;
       if (!object.Equals(UserSegments, other.UserSegments)) return false;
+      if (!AdapterData.Equals(other.AdapterData)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -4687,6 +4702,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
       if (DafaultRegionId != 0) hash ^= DafaultRegionId.GetHashCode();
       if (ottUser_ != null) hash ^= OttUser.GetHashCode();
       if (userSegments_ != null) hash ^= UserSegments.GetHashCode();
+      hash ^= AdapterData.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -4719,6 +4735,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
         output.WriteRawTag(34);
         output.WriteMessage(UserSegments);
       }
+      adapterData_.WriteTo(output, _map_adapterData_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -4744,6 +4761,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
         output.WriteRawTag(34);
         output.WriteMessage(UserSegments);
       }
+      adapterData_.WriteTo(ref output, _map_adapterData_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -4765,6 +4783,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
       if (userSegments_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(UserSegments);
       }
+      size += adapterData_.CalculateSize(_map_adapterData_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -4794,6 +4813,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
         }
         UserSegments.MergeFrom(other.UserSegments);
       }
+      adapterData_.Add(other.adapterData_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -4830,6 +4850,10 @@ namespace SoapAdaptersCommon.GrpcAdapters {
             input.ReadMessage(UserSegments);
             break;
           }
+          case 42: {
+            adapterData_.AddEntriesFrom(input, _map_adapterData_codec);
+            break;
+          }
         }
       }
     #endif
@@ -4864,6 +4888,10 @@ namespace SoapAdaptersCommon.GrpcAdapters {
               UserSegments = new global::SoapAdaptersCommon.GrpcAdapters.ListOfInt64();
             }
             input.ReadMessage(UserSegments);
+            break;
+          }
+          case 42: {
+            adapterData_.AddEntriesFrom(ref input, _map_adapterData_codec);
             break;
           }
         }

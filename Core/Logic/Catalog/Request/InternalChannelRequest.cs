@@ -22,7 +22,10 @@ namespace Core.Catalog.Request
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [DataMember]
-        public ApiObjects.SearchObjects.OrderObj order;
+        public OrderObj order;
+
+        [DataMember]
+        public IReadOnlyCollection<AssetOrder> orderingParameters;
         
         [DataMember]
         public bool m_bIgnoreDeviceRuleID;
@@ -47,8 +50,18 @@ namespace Core.Catalog.Request
         {
         }
 
-        public InternalChannelRequest(string channelId, string externalIdentifier, int groupID,
-            int pageSize, int pageIndex, string userIP, string signature, string signString, Filter filter, string filterQuery, ApiObjects.SearchObjects.OrderObj order)
+        public InternalChannelRequest(
+            string channelId,
+            string externalIdentifier,
+            int groupID,
+            int pageSize,
+            int pageIndex,
+            string userIP,
+            string signature,
+            string signString,
+            Filter filter,
+            string filterQuery,
+            OrderObj order)
             : base(groupID, pageSize, pageIndex, userIP, signature, signString, filter, filterQuery, channelId, externalIdentifier)
         {
             this.filterQuery = filterQuery;

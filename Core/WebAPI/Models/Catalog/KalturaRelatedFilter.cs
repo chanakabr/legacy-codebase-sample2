@@ -41,21 +41,21 @@ namespace WebAPI.Models.Catalog
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public bool ExcludeWatched { get; set; }
 
-        public int getMediaId()
-        {
-            return IdEqual.Value;
-        }
+        public int GetMediaId => IdEqual.Value;
 
-        internal List<int> getTypeIn()
-        {
-            return this.GetItemsIn<List<int>, int>(TypeIn, "KalturaRelatedFilter.typeIn");
-        }
+        internal List<int> GetTypeIn => GetItemsIn<List<int>, int>(TypeIn, "KalturaRelatedFilter.typeIn");
 
         internal override void Validate()
         {
+            base.Validate();
             if (!IdEqual.HasValue)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaRelatedFilter.IdEqual");
+            }
+
+            if (ExcludeWatched && getGroupByValue()?.Count > 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "excludeWatched", "groupBy");
             }
         }
 
@@ -64,41 +64,45 @@ namespace WebAPI.Models.Catalog
         //Response is ordered by relevancy. On-demand, per asset enrichment is supported. Maximum number of returned assets – 20, using paging
         internal override KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
         {
-            KalturaAssetListResponse response = null;
-            int domainId = (int)(contextData.DomainId ?? 0);
+            var domainId = (int)(contextData.DomainId ?? 0);
             var ksqlFilter = FilterAsset.Instance.UpdateKsql(Ksql, contextData.GroupId, contextData.SessionCharacteristicKey);
             var shouldApplyPriorityGroups = this.ShouldApplyPriorityGroupsEqual ?? false;
-            if (this.ExcludeWatched)
+            if (!ExcludeWatched)
             {
-                if (pager.getPageIndex() > 0)
-                {
-                    throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "excludeWatched", "pageIndex");
-                }
-
-                if (!contextData.UserId.HasValue || contextData.UserId.Value == 0)
-                {
-                    throw new BadRequestException(BadRequestException.INVALID_USER_ID, "userId");
-                }
-                int userId = (int)contextData.UserId.Value;
-
-                var groupbys = this.getGroupByValue();
-                if (groupbys != null && groupbys.Count > 0)
-                {
-                    throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "excludeWatched", "groupBy");
-                }
-
-                response = ClientsManager.CatalogClient().GetRelatedMediaExcludeWatched(contextData.GroupId, userId, domainId, contextData.Udid,
-                    contextData.Language, pager.getPageIndex(), pager.PageSize, this.getMediaId(), ksqlFilter, this.getTypeIn(),
-                    this.OrderBy, this.DynamicOrderBy, this.TrendingDaysEqual, responseProfile, shouldApplyPriorityGroups);
-            }
-            else
-            {
-                response = ClientsManager.CatalogClient().GetRelatedMedia(contextData.GroupId, contextData.UserId.ToString(), domainId, contextData.Udid,
-                    contextData.Language, pager.getPageIndex(), pager.PageSize, this.getMediaId(), ksqlFilter, this.getTypeIn(),
-                    this.OrderBy, this.DynamicOrderBy, this.getGroupByValue(), responseProfile, this.TrendingDaysEqual, shouldApplyPriorityGroups);
+                return ClientsManager.CatalogClient().GetRelatedMedia(
+                    contextData.GroupId,
+                    contextData.UserId.ToString(),
+                    domainId,
+                    contextData.Udid,
+                    contextData.Language,
+                    pager.getPageIndex(),
+                    pager.PageSize,
+                    GetMediaId,
+                    ksqlFilter,
+                    GetTypeIn,
+                    Orderings,
+                    getGroupByValue(),
+                    responseProfile,
+                    shouldApplyPriorityGroups);
             }
 
-            return response;
+            ValidateForExcludeWatched(contextData, pager);
+
+            return ClientsManager.CatalogClient().GetRelatedMediaExcludeWatched(
+                contextData.GroupId,
+                (int)contextData.UserId.Value,
+                domainId,
+                contextData.Udid,
+                contextData.Language,
+                pager.getPageIndex(),
+                pager.PageSize,
+                GetMediaId,
+                ksqlFilter,
+                GetTypeIn,
+                Orderings,
+                responseProfile,
+                shouldApplyPriorityGroups);
+
         }
     }
 }

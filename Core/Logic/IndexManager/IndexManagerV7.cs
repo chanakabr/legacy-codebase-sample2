@@ -1728,10 +1728,8 @@ namespace Core.Catalog
                 else if (definitions.order.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.RECOMMENDATION)
                 {
                     orderedResults = new List<UnifiedSearchResult>();
-                    Dictionary<KeyValuePair<eAssetTypes, long>, UnifiedSearchResult> resultsDictionary =
-                        searchResultsList.ToDictionary(
-                            x => new KeyValuePair<eAssetTypes, long>(x.AssetType, long.Parse(x.AssetId)),
-                            x => x);
+                    Dictionary<long, UnifiedSearchResult> resultsDictionary =
+                        searchResultsList.ToDictionary(x => long.Parse(x.AssetId));
                     // Add all ordered ids from definitions first
                     foreach (var asset in definitions.specificOrder)
                     {

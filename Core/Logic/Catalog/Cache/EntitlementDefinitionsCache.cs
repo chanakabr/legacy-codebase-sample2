@@ -44,17 +44,15 @@ namespace Core.Catalog
             int groupId = (int)parameters[0];
             UnifiedSearchDefinitions definitions = (UnifiedSearchDefinitions)parameters[1];
             BaseRequest request = (BaseRequest)parameters[2];
-            OrderObj order = (OrderObj)parameters[3];
-            Group group = (Group)parameters[4];
+            Group group = (Group)parameters[3];
 
-            UnifiedSearchDefinitionsBuilder.BuildEntitlementSearchDefinitions(definitions, request, order, groupId, group);
+            UnifiedSearchDefinitionsBuilder.BuildEntitlementSearchDefinitions(definitions, request, groupId, group);
 
             return definitions.entitlementSearchDefinitions;
         }
 
         public EntitlementSearchDefinitions GetEntitlementSearchDefinitions(UnifiedSearchDefinitions definitions,
             BaseRequest request,
-            OrderObj order,
             int groupId, 
             Group group,
             eEntitlementSearchType type)
@@ -66,13 +64,13 @@ namespace Core.Catalog
             // If it is the first page, always rebuild value and set it
             if (request.m_nPageIndex == 0)
             {
-                result = BuildValue(groupId, definitions, request, order, group);
+                result = BuildValue(groupId, definitions, request, group);
                 this.cacheService.Set(cacheKey, new CachingProvider.BaseModuleCache(result), cacheTime);
             }
             else
             {
                 // For second page onwards, use cache
-                result = base.Get(cacheKey, groupId, definitions, request, order, group);
+                result = base.Get(cacheKey, groupId, definitions, request, group);
             }
 
             return result;

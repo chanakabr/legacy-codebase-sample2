@@ -202,7 +202,10 @@ namespace SoapAdaptersCommon.GrpcAdapters.Implementation
 
         public override Task<AdjustRegionIdResponse> AdjustRegionId(AdjustRegionIdRequest request, ServerCallContext context)
         {
-            throw new NotImplementedException("should be used by auth ms only");
+            var user = MapProtoUserToSoapUser(request.OttUser);
+            var result = _SSOService.AdjustRegionId(request.AdapterId, request.DafaultRegionId, user, request.UserSegments.Value.Select(us => us).ToList(), request.AdapterData);
+            var response = new AdjustRegionIdResponse { RegionId = result.RegionId, AdapterStatusCode = (AdapterStatusCode)result.AdapterStatus, SSOResponseStatus = MapSoapSSOResponseToProtoSSOResponse(result.SSOResponseStatus) };
+            return Task.FromResult(response);
         }
 
         private static User MapSoapUserToProtoUser(SSOAdapter.Models.User user)

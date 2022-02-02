@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
-using ApiObjects;
 using ApiObjects.SearchObjects;
+using WebAPI.Models.Catalog;
+using WebAPI.Models.General;
 
-namespace ApiLogic.Catalog
+namespace WebAPI.InternalModels
 {
     public class SearchAssetsFilter
     {
@@ -23,7 +24,9 @@ namespace ApiLogic.Catalog
         public GroupingOption GroupByType { get; set; } = GroupingOption.Omit;
         public bool IsPersonalListSearch { get; set; }
         public bool UseFinal { get; set; }
-        public int? TrendingDays { get; set; }
+        public KalturaBaseResponseProfile ResponseProfile { get; set; }
+        public KalturaGroupByOrder? GroupByOrder { get; set; }
+        public IReadOnlyCollection<KalturaBaseAssetOrder> OrderingParameters { get; set; }
         public bool ShouldApplyPriorityGroups { get; set; }
     }
 }

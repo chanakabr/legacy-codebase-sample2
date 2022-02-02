@@ -162,7 +162,11 @@ public partial class adm_subscription_file_types : System.Web.UI.Page
         {
             InsertSubscriptionFileTypeID(int.Parse(sID), int.Parse(Session["subscription_id"].ToString()), nLogedInGroupID);
         }
-
+        
+        if (int.TryParse(Session["subscription_id"].ToString(), out int subId))
+        {
+            InvalidateSubscription(subId);
+        }
 
         return "";
     }
@@ -229,6 +233,12 @@ public partial class adm_subscription_file_types : System.Web.UI.Page
         dualList.Add("withCalendar", false);
 
         return dualList.ToJSON();
+    }
+
+    private void InvalidateSubscription(int subscriptionId)
+    {
+        Core.Pricing.PricingCache.Instance.InvalidateSubscription(LoginManager.GetLoginGroupID(), subscriptionId);
+        log.Debug($"InvalidateSubscription {subscriptionId}");
     }
 
 }

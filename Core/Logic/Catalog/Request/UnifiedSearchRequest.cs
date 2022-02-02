@@ -34,6 +34,9 @@ namespace Core.Catalog.Request
 
         [DataMember]
         public OrderObj order;
+        
+        [DataMember]
+        public IReadOnlyCollection<AssetOrder> orderingParameters;
 
         [DataMember]
         public List<int> assetTypes;
@@ -254,10 +257,10 @@ namespace Core.Catalog.Request
                 int totalItems = 0;
                 int to = 0;
 
-                List<AggregationsResult> aggregationsResults;
-
-                List<UnifiedSearchResult> assetsResults =
-                    CatalogLogic.GetAssetIdFromSearcher(request, ref totalItems, ref to, out aggregationsResults);
+                var assetsResults = CatalogLogic.Instance.GetAssetIdFromSearcher(
+                    request, ref totalItems,
+                    ref to,
+                    out var aggregationsResults);
 
                 response.m_nTotalItems = totalItems;
 

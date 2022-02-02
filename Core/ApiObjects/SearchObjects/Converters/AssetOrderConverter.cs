@@ -1,11 +1,10 @@
 using System;
 using System.Linq;
-using ApiObjects.SearchObjects;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
-namespace DAL.SearchObjects.Converters
+namespace ApiObjects.SearchObjects.Converters
 {
     public class AssetOrderConverter : JsonConverter<AssetOrder>
     {

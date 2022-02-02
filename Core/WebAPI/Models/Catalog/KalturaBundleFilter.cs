@@ -1,12 +1,14 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using ApiLogic.Api.Managers.Rule;
+using ApiObjects.Base;
+using ApiObjects.SearchObjects;
+using Newtonsoft.Json;
+using WebAPI.ClientManagers.Client;
+using WebAPI.InternalModels;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
-using ApiObjects.Base;
-using WebAPI.ClientManagers.Client;
 
 namespace WebAPI.Models.Catalog
 {
@@ -39,18 +41,18 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "bundleTypeEqual")]
         public KalturaBundleType BundleTypeEqual { get; set; }
 
-        internal List<int> getTypeIn()
-        {
-            return this.GetItemsIn<List<int>, int>(TypeIn, "KalturaBundleFilter.typeIn");
-        }
+        private List<int> getTypeIn() => GetItemsIn<List<int>, int>(TypeIn, "KalturaBundleFilter.typeIn");
 
         internal override KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
         {
             var userId = contextData.UserId.ToString();
-            int domainId = (int)(contextData.DomainId ?? 0);
-            bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(contextData.GroupId, userId, true);
+            var domainId = (int)(contextData.DomainId ?? 0);
+            var isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(
+                contextData.GroupId,
+                userId,
+                ignoreDoesGroupUsesTemplates: true);
 
-            var filter = new ApiLogic.Catalog.SearchAssetsFilter
+            var filter = new SearchAssetsFilter
             {
                 GroupId = contextData.GroupId,
                 SiteGuid = userId,
@@ -59,16 +61,14 @@ namespace WebAPI.Models.Catalog
                 Language = contextData.Language,
                 PageIndex = pager.getPageIndex(),
                 PageSize = pager.PageSize,
-                AssetTypes = this.getTypeIn(),
+                AssetTypes = getTypeIn(),
                 IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
-                TrendingDays = TrendingDaysEqual,
-                GroupByType = ApiObjects.SearchObjects.GroupingOption.Omit,
-                Filter = FilterAsset.Instance.UpdateKsql(null, contextData.GroupId, contextData.SessionCharacteristicKey)
+                GroupByType = GroupingOption.Omit,
+                Filter = FilterAsset.Instance.UpdateKsql(null, contextData.GroupId, contextData.SessionCharacteristicKey),
+                OrderingParameters = Orderings
             };
 
-            var response = ClientsManager.CatalogClient().GetBundleAssets(filter, this.IdEqual, this.OrderBy, this.BundleTypeEqual, this.DynamicOrderBy);
-            
-            return response;
+            return ClientsManager.CatalogClient().GetBundleAssets(filter, this.IdEqual, this.BundleTypeEqual);
         }
     }
 }

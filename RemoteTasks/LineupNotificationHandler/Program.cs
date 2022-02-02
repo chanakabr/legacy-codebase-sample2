@@ -1,9 +1,24 @@
 ﻿using System.Threading.Tasks;
+using ApiLogic.Api.Managers;
+using ApiLogic.Api.Validators;
+using ApiLogic.Catalog.CatalogManagement.Repositories;
+using ApiLogic.EPG;
+using ApiLogic.Notification;
+using CachingProvider.LayeredCache;
+using Core.Catalog.Cache;
+using Core.Catalog.CatalogManagement;
+using Core.Domains;
+using Core.GroupManagers;
+using Core.Notification;
+using DAL;
 using EventBus.RabbitMQ;
-using LineupNotificationHandler.Infrastructure;
+using GroupsCacheManager;
+using LineupNotificationHandler.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NotificationHandlers.Common;
 using WebAPI.Filters;
+using Module = Core.Domains.Module;
 
 namespace LineupNotificationHandler
 {
@@ -15,7 +30,29 @@ namespace LineupNotificationHandler
                 .ConfigureMappings()
                 .ConfigureEventNotificationsConfig()
                 .ConfigureEventBusConsumer()
-                .ConfigureServices(serviceCollection => serviceCollection.AddLineupNotificationHandlerDependencies());
+                .ConfigureServices(services =>
+                {
+                    services
+                        .AddScoped<IIotManager, IotManager>()
+                        .AddSingleton<IEpgV2PartnerConfigurationManager>(EpgV2PartnerConfigurationManager.Instance)
+                        .AddSingleton<IGeneralPartnerConfigManager, GeneralPartnerConfigManager>()
+                        .AddSingleton<IGeneralPartnerConfigRepository, ApiDAL>()
+                        .AddSingleton<ILineupNotificationConfiguration, LineupNotificationConfiguration>()
+                        .AddSingleton<INotificationDal, NotificationDal>()
+                        .AddSingleton<ILayeredCache, LayeredCache>()
+                        .AddSingleton<IDomainModule, Module>()
+                        .AddSingleton<INotificationCache, NotificationCache>()
+                        .AddSingleton<ICatalogCache, CatalogCache>()
+                        .AddSingleton<ICatalogManager, CatalogManager>()
+                        .AddSingleton<IRegionManager, RegionManager>()
+                        .AddSingleton<IRegionValidator, RegionValidator>()
+                        .AddSingleton<ILabelDal, LabelDal>()
+                        .AddSingleton<ILabelRepository, LabelRepository>()
+                        .AddSingleton<IAssetStructMetaRepository, AssetStructMetaRepository>()
+                        .AddSingleton<IGroupSettingsManager, GroupSettingsManager>()
+                        .AddSingleton<IGroupManager, GroupManager>()
+                        .AddSingleton<IIotNotificationService, IotNotificationService>();
+                });
 
             AppMetrics.Start();
 

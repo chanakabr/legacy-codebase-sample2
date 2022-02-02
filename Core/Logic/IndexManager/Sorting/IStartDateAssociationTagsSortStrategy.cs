@@ -6,11 +6,16 @@ namespace ApiLogic.IndexManager.Sorting
 {
     public interface IStartDateAssociationTagsSortStrategy
     {
-        List<long> SortAssetsByStartDate(
+        IEnumerable<(long id, string sortValue)> SortAssetsByStartDate(
             IEnumerable<ElasticSearchApi.ESAssetDocument> assets,
             OrderDir orderDirection,
             Dictionary<int, string> associationTags,
             Dictionary<int, int> mediaTypeParent,
             int partnerId);
+
+        IEnumerable<(long id, string sortValue)> SortAssetsByStartDate(
+            IEnumerable<ElasticSearchApi.ESAssetDocument> assets,
+            OrderDir orderDirection,
+            UnifiedSearchDefinitions unifiedSearchDefinitions);
     }
 }

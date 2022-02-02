@@ -40,9 +40,13 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
+using ApiLogic.Catalog.CatalogManagement.Models;
+using ApiLogic.Catalog.CatalogManagement.Services;
 using ApiLogic.Catalog.Tree;
+using ApiLogic.IndexManager;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using Status = ApiObjects.Response.Status;
@@ -51,18 +55,21 @@ using ApiLogic.IndexManager.Helpers;
 using KalturaRequestContext;
 using System.Threading;
 using ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority;
+using ApiLogic.IndexManager.Sorting;
+using ElasticSearch.Utils;
+using OrderDir = ApiObjects.SearchObjects.OrderDir;
 
 namespace Core.Catalog
 {
-    public class CatalogLogic
+    public class CatalogLogic : ICatalogLogic
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger log = new KLogger(nameof(CatalogLogic));
 
         private static readonly KLogger statisticsLog =
-            new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString(), "MediaEohLogger");
+            new KLogger(nameof(CatalogLogic), "MediaEohLogger");
 
         private static readonly KLogger newWatcherMediaActionLog =
-            new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString(), "NewWatcherMediaActionLogger");
+            new KLogger(nameof(CatalogLogic), "NewWatcherMediaActionLogger");
 
         public static readonly string TAGS = "tags";
         public static readonly string METAS = "metas";
@@ -145,7 +152,20 @@ namespace Core.Catalog
             "recording"
         };
 
+        private static readonly Lazy<ICatalogLogic> LazyInstance = new Lazy<ICatalogLogic>(
+                () => new CatalogLogic(SortingAdapter.Instance),
+                LazyThreadSafetyMode.PublicationOnly);
+
         private static int maxNGram = -1;
+
+        private readonly ISortingAdapter _sortingAdapter;
+
+        private CatalogLogic(ISortingAdapter sortingAdapter)
+        {
+            _sortingAdapter = sortingAdapter ?? throw new ArgumentNullException(nameof(sortingAdapter));
+        }
+
+        public static ICatalogLogic Instance => LazyInstance.Value;
 
         /* Get All Relevant Details About Media (by id), use LayeredCache */
         internal static bool CompleteDetailsForMediaResponse(MediasProtocolRequest mediaRequest,
@@ -1354,7 +1374,7 @@ namespace Core.Catalog
         /// <param name="request"></param>
         /// <param name="totalItems"></param>
         /// <returns></returns>
-        public static List<UnifiedSearchResult> GetAssetIdFromSearcher(UnifiedSearchRequest request, ref int totalItems,
+        public List<UnifiedSearchResult> GetAssetIdFromSearcher(UnifiedSearchRequest request, ref int totalItems,
             ref int to,
             out List<AggregationsResult> aggregationsResults)
         {
@@ -1533,14 +1553,16 @@ namespace Core.Catalog
         internal static UnifiedSearchDefinitions BuildUnifiedSearchObject(UnifiedSearchRequest request)
         {
             CatalogGroupCache catalogGroupCache = null;
-            var _ = CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(request.m_nGroupID) &&
-                    CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(request.m_nGroupID,
-                        out catalogGroupCache);
-
+            var _ = CatalogManager.Instance.DoesGroupUsesTemplates(request.m_nGroupID) &&
+                CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(request.m_nGroupID, out catalogGroupCache);
+            
             var resultProcessor = new FilterTreeResultProcessor();
             var filterTreeValidator =
                 new FilterTreeValidator(resultProcessor, catalogGroupCache?.GetProgramAssetStructId());
-            UnifiedSearchDefinitionsBuilder definitionsCache = new UnifiedSearchDefinitionsBuilder(filterTreeValidator);
+            UnifiedSearchDefinitionsBuilder definitionsCache = new UnifiedSearchDefinitionsBuilder(
+                filterTreeValidator,
+                AssetOrderingService.Instance,
+                EsSortingService.Instance);
 
             UnifiedSearchDefinitions definitions = definitionsCache.GetDefinitions(request);
 
@@ -2131,7 +2153,7 @@ namespace Core.Catalog
                 {
                     if (CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(request.m_nGroupID))
                     {
-                        if (!CatalogManagement.CatalogManager.Instance.CheckMetaExsits(request.m_nGroupID,
+                        if (!CatalogManagement.CatalogManager.Instance.CheckMetaExists(request.m_nGroupID,
                             searchObj.m_oOrder.m_sOrderValue.ToLower()))
                         {
                             //return error - meta not erxsits
@@ -2620,9 +2642,16 @@ namespace Core.Catalog
         #region Build search Object for search Related
 
         /*Build the right MediaSearchRequest for a Search Related Media */
-        public static MediaSearchRequest BuildMediasRequest(Int32 nMediaID, bool bIsMainLang, Filter filterRequest,
-            ref Filter oFilter, Int32 nGroupID, List<Int32> nMediaTypes,
-            string sSiteGuid, OrderObj orderObj, bool doesGroupUsesTemplates, CatalogGroupCache catalogGroupCache)
+        public static MediaSearchRequest BuildMediasRequest(
+            Int32 nMediaID,
+            bool bIsMainLang,
+            Filter filterRequest,
+            ref Filter oFilter,
+            Int32 nGroupID,
+            List<Int32> nMediaTypes,
+            string sSiteGuid,
+            bool doesGroupUsesTemplates,
+            CatalogGroupCache catalogGroupCache)
         {
             try
             {
@@ -2643,7 +2672,6 @@ namespace Core.Catalog
 
                 oMediasRequest.m_nGroupID = nGroupID;
                 oMediasRequest.m_sSiteGuid = sSiteGuid;
-                oMediasRequest.m_oOrderObj = orderObj;
 
                 if (doesGroupUsesTemplates)
                 {
@@ -5839,8 +5867,7 @@ namespace Core.Catalog
                 }
 
                 // Map order of IDs
-                searchDefinitions.specificOrder = recommendations.Select(
-                    item => new KeyValuePair<eAssetTypes, long>(item.type, long.Parse(item.id))).ToList();
+                searchDefinitions.specificOrder = recommendations.Select(item => long.Parse(item.id)).ToList();
 
                 int parentGroupId = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
                 var indexManager = IndexManagerFactory.Instance.GetIndexManager(parentGroupId);
@@ -6381,10 +6408,15 @@ namespace Core.Catalog
             UnifiedSearchDefinitions definitions = BuildUnifiedSearchObject(alternateRequest);
 
             // Order is a new kind - "recommendation". Which means the order is predefined
-            definitions.order = new OrderObj()
+            definitions.order = new OrderObj
             {
-                m_eOrderBy = ApiObjects.SearchObjects.OrderBy.RECOMMENDATION,
-                m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC
+                m_eOrderBy = OrderBy.RECOMMENDATION,
+                m_eOrderDir = OrderDir.ASC
+            };
+
+            definitions.orderByFields = new List<IEsOrderByField>
+            {
+                new EsOrderByField(OrderBy.RECOMMENDATION, OrderDir.ASC)
             };
 
             return definitions;
@@ -6410,10 +6442,9 @@ namespace Core.Catalog
             int parentGroupID = request.m_nGroupID;
             Group group = null;
             CatalogGroupCache catalogGroupCache = null;
-            if (CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(request.m_nGroupID))
+            if (CatalogManager.Instance.DoesGroupUsesTemplates(request.m_nGroupID))
             {
-                long userId = 0;
-                long.TryParse(request.m_sSiteGuid, out userId);
+                long.TryParse(request.m_sSiteGuid, out var userId);
 
                 GenericResponse<GroupsCacheManager.Channel> response =
                     ChannelManager.Instance.GetChannelById(request.m_nGroupID, channelId,
@@ -6510,18 +6541,6 @@ namespace Core.Catalog
                 };
             }
 
-            // If this is a manual channel, a sliding window or we have an additional filter - 
-            // the initial search will not be paged. Paging will be done later on
-            int pageIndex = 0;
-            int pageSize = 0;
-            if (channel.m_nChannelTypeID == (int) ChannelType.Manual || ChannelRequest.IsSlidingWindow(channel))
-            {
-                pageIndex = unifiedSearchDefinitions.pageIndex;
-                pageSize = unifiedSearchDefinitions.pageSize;
-                unifiedSearchDefinitions.pageSize = 0;
-                unifiedSearchDefinitions.pageIndex = 0;
-            }
-
             // Perform initial search of channel
             int totalItems = 0;
             var searchResults =
@@ -6539,113 +6558,6 @@ namespace Core.Catalog
                     status = Status.Ok
                 };
             }
-
-            var assetIDs = searchResults.Select(item => int.Parse(item.AssetId)).ToList();
-
-            #region Sliding Window
-
-            if (ChannelRequest.IsSlidingWindow(channel))
-            {
-                assetIDs = indexManager.OrderMediaBySlidingWindow(channel.m_OrderObject.m_eOrderBy,
-                    channel.m_OrderObject.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC,
-                    pageSize, pageIndex, assetIDs, channel.m_OrderObject.m_dSlidingWindowStartTimeField);
-                if (assetIDs != null && assetIDs.Count > 0)
-                {
-                    Dictionary<string, UnifiedSearchResult> assetDictionary =
-                        searchResults.ToDictionary(item => item.AssetId);
-
-                    searchResults.Clear();
-
-                    foreach (int item in assetIDs)
-                    {
-                        if (assetDictionary.ContainsKey(item.ToString()))
-                        {
-                            searchResults.Add(assetDictionary[item.ToString()]);
-                        }
-                    }
-                }
-                else
-                {
-                    searchResults.Clear();
-                    totalItems = 0;
-                }
-            }
-
-            #endregion
-
-            #region Channel Type - Manual
-
-            if (channel.m_nChannelTypeID == (int) ChannelType.Manual)
-            {
-                ChannelRequest.OrderMediasByOrderNum(ref assetIDs, channel, unifiedSearchDefinitions.order);
-
-                if (channel.SupportSegmentBasedOrdering && searchResults[0].Score > 0)
-                {
-                    Dictionary<int, int> IdsToManualOrder = new Dictionary<int, int>();
-                    int index = 0;
-                    foreach (int aid in assetIDs)
-                    {
-                        IdsToManualOrder.Add(aid, index);
-                        index++;
-                    }
-
-                    List<AssetScoreOrder> aso = new List<AssetScoreOrder>();
-
-                    foreach (var searchResult in searchResults)
-                    {
-                        int assetId = int.Parse(searchResult.AssetId);
-                        aso.Add(new AssetScoreOrder()
-                        {
-                            AssetId = assetId,
-                            Score = searchResult.Score,
-                            ChannelOrder = IdsToManualOrder[assetId]
-                        });
-                    }
-
-                    assetIDs = aso.OrderByDescending(x => x.Score).ThenBy(y => y.ChannelOrder).Select(z => z.AssetId)
-                        .ToList();
-                }
-
-                int validNumberOfMediasRange = pageSize;
-
-                if (Utils.ValidatePageSizeAndPageIndexAgainstNumberOfMedias(assetIDs.Count, pageIndex,
-                    ref validNumberOfMediasRange))
-                {
-                    if (validNumberOfMediasRange > 0)
-                    {
-                        assetIDs = assetIDs.GetRange(pageSize * pageIndex, validNumberOfMediasRange);
-                    }
-                }
-                else
-                {
-                    assetIDs.Clear();
-                }
-
-                if (assetIDs != null && assetIDs.Count > 0)
-                {
-                    Dictionary<string, UnifiedSearchResult> assetDictionary =
-                        searchResults.ToDictionary(item => item.AssetId);
-
-                    searchResults = new List<UnifiedSearchResult>();
-
-                    foreach (int item in assetIDs)
-                    {
-                        if (assetDictionary.ContainsKey(item.ToString()))
-                        {
-                            searchResults.Add(assetDictionary[item.ToString()]);
-                        }
-                    }
-                }
-                else
-                {
-                    searchResults.Clear();
-                }
-            }
-
-            #endregion
-
-            if (assetIDs == null)
-                return new UnifiedSearchResponse {status = Status.ErrorMessage("Failed performing channel search")};
 
             return new UnifiedSearchResponse
             {
@@ -6839,7 +6751,7 @@ namespace Core.Catalog
             return key;
         }
 
-        private static string GetSearchCacheKey(int groupId, string userId, int domainId, string udid, string ip,
+        private string GetSearchCacheKey(int groupId, string userId, int domainId, string udid, string ip,
             List<int> assetTypes, string ksql, UnifiedSearchDefinitions unifiedSearchDefinitions,
             List<string> personalData)
         {
@@ -6851,17 +6763,8 @@ namespace Core.Catalog
                 {
                     StringBuilder cacheKey = new StringBuilder("search");
                     cacheKey.AppendFormat("_gId={0}", groupId);
-                    cacheKey.AppendFormat("_paging={0}|{1}", unifiedSearchDefinitions.pageIndex,
-                        unifiedSearchDefinitions.pageSize);
-                    cacheKey.AppendFormat("_order={0}|{1}", unifiedSearchDefinitions.order.m_eOrderBy,
-                        unifiedSearchDefinitions.order.m_eOrderDir);
-
-                    if (unifiedSearchDefinitions.order.m_eOrderBy == OrderBy.META)
-                    {
-                        cacheKey.AppendFormat("|{0}", unifiedSearchDefinitions.order.m_sOrderValue);
-                        // IRA: what else with ordering
-                    }
-
+                    cacheKey.AppendFormat("_paging={0}|{1}", unifiedSearchDefinitions.pageIndex, unifiedSearchDefinitions.pageSize);
+                    cacheKey.Append(BuildOrderCacheKeyPart(unifiedSearchDefinitions));
                     if (assetTypes != null && assetTypes.Count > 0)
                     {
                         cacheKey.AppendFormat("_types={0}", string.Join("|", assetTypes.OrderBy(at => at)));
@@ -6966,7 +6869,51 @@ namespace Core.Catalog
             return key;
         }
 
-        internal static ApiObjects.Response.Status GetRelatedAssets(MediaRelatedRequest request, out int totalItems,
+        private string BuildOrderCacheKeyPart(UnifiedSearchDefinitions definitions)
+        {
+            var esOrderByFields = _sortingAdapter.ResolveOrdering(definitions);
+            var pagingCacheKeyParts = new List<string>();
+            foreach (var orderByField in esOrderByFields)
+            {
+                var pagingCacheKeyPart = new StringBuilder(BuildOrderByFieldPart(orderByField));
+                if (orderByField is EsOrderByMetaField orderByMetaField)
+                {
+                    pagingCacheKeyPart.Append($"|{orderByMetaField.MetaName}");
+                }
+
+                pagingCacheKeyParts.Add(pagingCacheKeyPart.ToString());
+                // IRA: what else with ordering
+            }
+
+            return $"_order={string.Join("|", pagingCacheKeyParts)}";
+        }
+
+        private static string BuildOrderByFieldPart(IEsOrderByField esOrderByField)
+        {
+            switch (esOrderByField)
+            {
+                case EsOrderByField orderByField:
+                    return $"{orderByField.OrderByField}|{orderByField.OrderByDirection}";
+                case EsOrderBySlidingWindow orderBySlidingWindowField:
+                    return $"{orderBySlidingWindowField.OrderByField}" +
+                        $"|{orderBySlidingWindowField.OrderByDirection}" +
+                        $"|{orderBySlidingWindowField.SlidingWindowPeriod}";
+                case EsOrderByStatisticsField orderByStatisticsField:
+                    return $"{orderByStatisticsField.OrderByField}" +
+                        $"|{orderByStatisticsField.OrderByDirection}" +
+                        $"|{orderByStatisticsField.TrendingAssetWindow}";
+                case EsOrderByMetaField orderByMetaField:
+                    return $"{OrderBy.META}" +
+                        $"|{orderByMetaField.OrderByDirection}" +
+                        $"|{orderByMetaField.MetaName}";
+                case EsOrderByStartDateAndAssociationTags _:
+                    return $"{OrderBy.START_DATE}|{esOrderByField.OrderByDirection}";
+                default:
+                    return string.Empty;
+            }
+        }
+
+        internal static Status GetRelatedAssets(MediaRelatedRequest request, out int totalItems,
             out List<UnifiedSearchResult> searchResults, out List<AggregationsResult> aggregationsResults)
         {
             // Set default values for out parameters
@@ -7063,7 +7010,7 @@ namespace Core.Catalog
 
             MediaSearchRequest mediaSearchRequest = BuildMediasRequest(request.m_nMediaID, bIsMainLang,
                 request.m_oFilter, ref filter, request.m_nGroupID, request.m_nMediaTypes, request.m_sSiteGuid,
-                request.OrderObj, doesGroupUsesTemplates, catalogGroupCache);
+                doesGroupUsesTemplates, catalogGroupCache);
 
             if (mediaSearchRequest == null)
             {
@@ -7091,70 +7038,6 @@ namespace Core.Catalog
 
             definitions.pageIndex = request.m_nPageIndex;
             definitions.pageSize = request.m_nPageSize;
-
-            #endregion
-
-            #region Order
-
-            if (request.OrderObj == null &&
-                request.m_nMediaID > 0)
-            {
-                definitions.order = new OrderObj()
-                {
-                    m_eOrderBy = OrderBy.RELATED,
-                    m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC
-                };
-            }
-            else
-            {
-                OrderObj order = new OrderObj();
-                order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.NONE;
-                order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-
-                CatalogLogic.GetOrderValues(ref order, request.OrderObj);
-
-                if (order.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META &&
-                    string.IsNullOrEmpty(order.m_sOrderValue))
-                {
-                    order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
-                    order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-                }
-                else if (order.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META &&
-                         !string.IsNullOrEmpty(order.m_sOrderValue))
-                {
-                    if (doesGroupUsesTemplates)
-                    {
-                        if (!CatalogManagement.CatalogManager.Instance.CheckMetaExsits(request.m_nGroupID,
-                            order.m_sOrderValue.ToLower()))
-                        {
-                            //return error - meta not erxsits
-                            log.ErrorFormat(
-                                "meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}",
-                                request.m_nGroupID, order.m_sOrderValue);
-                            throw new Exception(string.Format(
-                                "meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}",
-                                request.m_nGroupID, order.m_sOrderValue));
-                        }
-                    }
-                    else if (!Utils.CheckMetaExsits(false, true, false, group, order.m_sOrderValue.ToLower()))
-                    {
-                        //return error - meta not erxsits
-                        log.ErrorFormat(
-                            "meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}",
-                            request.m_nGroupID, order.m_sOrderValue);
-                        throw new Exception(string.Format(
-                            "meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}",
-                            request.m_nGroupID, order.m_sOrderValue));
-                    }
-                }
-
-                definitions.order = new OrderObj()
-                {
-                    m_eOrderDir = order.m_eOrderDir,
-                    m_eOrderBy = order.m_eOrderBy,
-                    m_sOrderValue = order.m_sOrderValue
-                };
-            }
 
             #endregion
 
@@ -7335,8 +7218,7 @@ namespace Core.Catalog
 
             if (definitions.entitlementSearchDefinitions != null)
             {
-                UnifiedSearchDefinitionsBuilder.BuildEntitlementSearchDefinitions(definitions, request, null, groupId,
-                    group);
+                UnifiedSearchDefinitionsBuilder.BuildEntitlementSearchDefinitions(definitions, request, groupId, group);
             }
 
             if (definitions.shouldGetUserPreferences)
@@ -7395,6 +7277,28 @@ namespace Core.Catalog
             #region Search Results Priority
 
             definitions.PriorityGroupsMappings = PriorityGroupsPreprocessor.Instance.Preprocess(request.PriorityGroupsMappings, request, definitions, group, groupId);
+
+            #endregion
+
+            #region Order
+
+            // Ordering should go at the end as it depends on other definitions properties.
+            var model = new AssetListEsOrderingCommonInput
+            {
+                GroupId = definitions.groupId,
+                ShouldSearchEpg = definitions.shouldSearchEpg,
+                ShouldSearchMedia = definitions.shouldSearchRecordings,
+                ShouldSearchRecordings = definitions.shouldSearchRecordings,
+                AssociationTags = definitions.associationTags,
+                ParentMediaTypes = definitions.parentMediaTypes
+            };
+
+            var orderingResult = AssetOrderingService.Instance.MapToEsOrderByFields(request, model);
+            definitions.orderByFields = orderingResult.EsOrderByFields;
+            definitions.extraReturnFields.UnionWith(
+                EsSortingService.Instance.BuildExtraReturnFields(orderingResult.EsOrderByFields));
+            definitions.order = orderingResult.Order;
+            definitions.trendingAssetWindow = orderingResult.Order.trendingAssetWindow;
 
             #endregion
 
@@ -8237,39 +8141,6 @@ namespace Core.Catalog
 
             #endregion
 
-            #region Order
-
-            var orderObj = request.order;
-
-            ApiObjects.SearchObjects.OrderObj searcherOrderObj = new ApiObjects.SearchObjects.OrderObj();
-
-            if (orderObj != null && orderObj.m_eOrderBy != ApiObjects.SearchObjects.OrderBy.NONE)
-            {
-                GetOrderValues(ref searcherOrderObj, orderObj);
-            }
-            else
-            {
-                // change default channel order to ID when we have groupBy + orderBy is not supported
-                // because we don't support all orderBy's with groupBy
-                var defaultChannelOrder = channel.m_OrderObject;
-                if (request.searchGroupBy?.groupBy?.Count == 1 &&
-                    defaultChannelOrder != null &&
-                    !IndexManagerCommonHelpers.GroupBySearchIsSupportedForOrder(defaultChannelOrder.m_eOrderBy))
-                {
-                    defaultChannelOrder = new OrderObj
-                    {
-                        m_eOrderBy = OrderBy.ID,
-                        m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC
-                    };
-                }
-
-                GetOrderValues(ref searcherOrderObj, defaultChannelOrder);
-            }
-
-            definitions.order = searcherOrderObj;
-
-            #endregion
-
             BooleanPhraseNode initialTree = null;
             bool emptyRequest = false;
 
@@ -8373,35 +8244,6 @@ namespace Core.Catalog
                     {
                         throw new KalturaException(string.Format("Invalid media type was sent: {0}", mediaType),
                             (int) eResponseStatus.BadSearchRequest);
-                    }
-                }
-
-                if (searcherOrderObj.m_eOrderBy == OrderBy.META)
-                {
-                    if (doesGroupUsesTemplates)
-                    {
-                        if (!CatalogManagement.CatalogManager.Instance.CheckMetaExsits(request.m_nGroupID,
-                            searcherOrderObj.m_sOrderValue.ToLower()))
-                        {
-                            //return error - meta not exists
-                            log.ErrorFormat(
-                                "meta not exists for group -  unified search definitions. groupId = {0}, meta name = {1}",
-                                request.m_nGroupID, searcherOrderObj.m_sOrderValue);
-                            throw new Exception(string.Format(
-                                "meta not exists for group -  unified search definitions. groupId = {0}, meta name = {1}",
-                                request.m_nGroupID, searcherOrderObj.m_sOrderValue));
-                        }
-                    }
-                    else if (!Utils.CheckMetaExsits(definitions.shouldSearchEpg, definitions.shouldSearchMedia,
-                        definitions.shouldSearchRecordings, group, searcherOrderObj.m_sOrderValue.ToLower()))
-                    {
-                        //return error - meta not exists
-                        log.ErrorFormat(
-                            "meta not exists for group -  unified search definitions. groupId = {0}, meta name = {1}",
-                            request.m_nGroupID, searcherOrderObj.m_sOrderValue);
-                        throw new Exception(string.Format(
-                            "meta not exists for group -  unified search definitions. groupId = {0}, meta name = {1}",
-                            request.m_nGroupID, searcherOrderObj.m_sOrderValue));
                     }
                 }
 
@@ -8523,8 +8365,7 @@ namespace Core.Catalog
 
             if (!isSearchEntitlementInternal && definitions.entitlementSearchDefinitions != null)
             {
-                UnifiedSearchDefinitionsBuilder.BuildEntitlementSearchDefinitions(definitions, request, request.order,
-                    doesGroupUsesTemplates ? groupId : group.m_nParentGroupID, group);
+                UnifiedSearchDefinitionsBuilder.BuildEntitlementSearchDefinitions(definitions, request, doesGroupUsesTemplates ? groupId : group.m_nParentGroupID, group);
             }
 
             if (definitions.shouldGetUserPreferences)
@@ -8725,7 +8566,34 @@ namespace Core.Catalog
 
             definitions.isGroupingOptionInclude =
                 request.searchGroupBy != null && request.searchGroupBy.isGroupingOptionInclude;
-            definitions.trendingAssetWindow = request.order?.trendingAssetWindow;
+
+            #endregion
+
+            #region Order
+
+            // Ordering should go at the end as it depends on other definitions properties.
+            var model = new AssetListEsOrderingCommonInput
+            {
+                GroupId = definitions.groupId,
+                ShouldSearchEpg = definitions.shouldSearchEpg,
+                ShouldSearchMedia = definitions.shouldSearchRecordings,
+                ShouldSearchRecordings = definitions.shouldSearchRecordings,
+                AssociationTags = definitions.associationTags,
+                ParentMediaTypes = definitions.parentMediaTypes
+            };
+
+            var orderingResult = AssetOrderingService.Instance.MapToChannelEsOrderByFields(request, channel, model);
+            definitions.orderByFields = orderingResult.EsOrderByFields;
+            definitions.extraReturnFields.UnionWith(
+                EsSortingService.Instance.BuildExtraReturnFields(orderingResult.EsOrderByFields));
+            if (orderingResult.SpecificOrder?.Count > 0)
+            {
+                definitions.specificOrder = orderingResult.SpecificOrder.ToList();
+            }
+
+            // Still need these assignments as IndexManagerV7 doesn't support secondary sorting.
+            definitions.order = orderingResult.Order;
+            definitions.trendingAssetWindow = definitions.order.trendingAssetWindow;
 
             #endregion
 
@@ -9289,7 +9157,7 @@ namespace Core.Catalog
                             specificAssets = new Dictionary<eAssetTypes, List<string>>(),
                             shouldAddIsActiveTerm = true,
                             shouldIgnoreDeviceRuleID = true,
-                            extraReturnFields = new List<string>()
+                            extraReturnFields = new HashSet<string>()
                         };
 
                         if (!string.IsNullOrEmpty(filterQuery)) //BEO - 9621.use filterQuery
@@ -9725,7 +9593,7 @@ namespace Core.Catalog
                     shouldUseStartDateForMedia = true,
                     shouldAddIsActiveTerm = true,
                     filterPhrase = filterTree,
-                    extraReturnFields = new List<string>() {"metas.episodenumber", "metas.seasonnumber"},
+                    extraReturnFields = new HashSet<string>{"metas.episodenumber", "metas.seasonnumber"},
                     shouldReturnExtendedSearchResult = true,
                     isEpgV2 = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EPG_INGEST_V2)
                 };

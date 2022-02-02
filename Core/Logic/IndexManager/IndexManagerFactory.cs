@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Phx.Lib.Log;
@@ -22,6 +22,7 @@ using TvinciCache.Adapters;
 using ApiLogic.IndexManager.Mappings;
 using Core.GroupManagers;
 using ApiLogic.IndexManager.Sorting;
+using ElasticSearch.Utils;
 using TVinciShared;
 
 namespace Core.Catalog
@@ -134,9 +135,11 @@ namespace Core.Catalog
                         MappingTypeResolver.Instance,
                         NamingHelper.Instance,
                         GroupSettingsManager.Instance,
-                        SortingByStatsService.Instance,
+                        SortingService.Instance,
                         StartDateAssociationTagsSortStrategy.Instance, 
-                        StatisticsSortStrategy.Instance);
+                        StatisticsSortStrategy.Instance,
+                        SortingAdapter.Instance,
+                        EsSortingService.Instance);
 
                     if (isMigrationEventsEnabled)
                     {

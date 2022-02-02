@@ -35,6 +35,7 @@ using ApiLogic.IndexManager.Mappings;
 using ApiObjects.Epg;
 using Core.GroupManagers;
 using ApiLogic.IndexManager.Sorting;
+using ElasticSearch.Utils;
 
 namespace ApiLogic.Tests.IndexManager
 {
@@ -55,9 +56,11 @@ namespace ApiLogic.Tests.IndexManager
         private Mock<IMappingTypeResolver> _mockMappingTypeResolver;
         private INamingHelper _mockNamingHelper;
         private IGroupSettingsManager _mockGroupSettingsManager;
-        private Mock<ISortingByStatsService> _mockSortingByStatsService;
         private Mock<IStartDateAssociationTagsSortStrategy> _mockStartDateAssociationTagsSortStrategy;
         private Mock<IStatisticsSortStrategy> _mockStatisticsSortStrategy;
+        private Mock<ISortingService> _mockSortingService;
+        private Mock<ISortingAdapter> _mockSortingAdapter;
+        private Mock<IEsSortingService> _mockEsSortingService;
 
         private IndexManagerV2 GetIndexV2Manager(int partnerId)
         {
@@ -75,9 +78,11 @@ namespace ApiLogic.Tests.IndexManager
                 _mockMappingTypeResolver.Object,
                 _mockNamingHelper,
                 _mockGroupSettingsManager,
-                _mockSortingByStatsService.Object,
+                _mockSortingService.Object,
                 _mockStartDateAssociationTagsSortStrategy.Object,
-                _mockStatisticsSortStrategy.Object
+                _mockStatisticsSortStrategy.Object,
+                _mockSortingAdapter.Object,
+                _mockEsSortingService.Object
             );
         }
 
@@ -100,7 +105,7 @@ namespace ApiLogic.Tests.IndexManager
             _mockChannelQueryBuilder = _mockRepository.Create<IChannelQueryBuilder>();
             _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitions(ElasticSearch.Common.Utils.Instance, ApplicationConfiguration.Current);
             _mockMappingTypeResolver = _mockRepository.Create<IMappingTypeResolver>();
-            
+
             var epgV2ConfigManagerMock = new Mock<IEpgV2PartnerConfigurationManager>(MockBehavior.Loose);
             epgV2ConfigManagerMock.Setup(m => m.GetConfiguration(It.IsAny<int>())).Returns(new EpgV2PartnerConfiguration()
             {
@@ -109,10 +114,10 @@ namespace ApiLogic.Tests.IndexManager
                 FutureIndexCompactionStart = 7,
                 PastIndexCompactionStart = 0,
             });
-            
+
             _mockNamingHelper = new NamingHelper(epgV2ConfigManagerMock.Object);
             _mockGroupSettingsManager = new GroupSettingsManager(_mockLayeredCache.Object, epgV2ConfigManagerMock.Object);
-            _mockSortingByStatsService = _mockRepository.Create<ISortingByStatsService>();
+            _mockSortingService = _mockRepository.Create<ISortingService>();
             _mockStartDateAssociationTagsSortStrategy = _mockRepository.Create<IStartDateAssociationTagsSortStrategy>();
             _mockStatisticsSortStrategy = _mockRepository.Create<IStatisticsSortStrategy>();
         }

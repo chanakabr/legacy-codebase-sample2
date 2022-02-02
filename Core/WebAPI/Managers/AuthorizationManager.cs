@@ -380,19 +380,24 @@ namespace WebAPI.Managers
                 throw new ForbiddenException(ForbiddenException.INVALID_APP_TOKEN_HASH);
             }
 
-            // 5. If it is enabled, update AppToken's expiry and save it to CB
+            // 5. Get user role ids by userId, by the userId of the token itself
+            UsersClient usersClient = ClientsManager.UsersClient();
+            var userIdForRoles = appToken.SessionUserId;
+            var userRoles = usersClient.GetUserRoleIds(groupId, userIdForRoles);
+
+            // 6. If it is enabled, update AppToken's expiry and save it to CB
             if (group.AutoRefreshAppToken)
             {
                 var utcNow = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
                 var currentTokenExpiry = appToken.Expiry;
-                var newTokenExpiry = (int)GetAppTokenExpiry(utcNow, appToken.Expiry, group.AppTokenMaxExpirySeconds, group.AutoRefreshAppToken);
+                var newTokenExpiry = (int)GetAppTokenExpiry(utcNow, appToken.Expiry, group.AppTokenMaxExpirySeconds, group.AutoRefreshAppToken, !IsEndUser(groupId, userRoles));
                 appToken.Expiry = newTokenExpiry;
                 SaveAppToken(utcNow, appTokenCbKey, appToken);
                 SendAppTokenCanaryMigrationEvent(eMigrationOperation.Update, new KalturaAppToken(appToken), groupId);
-                log.Info($"StartSessionWithAppToken: AppToken id = {id} for userId = {userId} expiry updated from {currentTokenExpiry} to {newTokenExpiry}");
+                log.Info($"StartSessionWithAppToken: AppToken id = {id} for userId = {userIdForRoles} expiry updated from {currentTokenExpiry} to {newTokenExpiry}");
             }
 
-            // 6. get token expiration: the session duration will be the minimum between the token session duration and the token left expiration time
+            // 7. get token expiration: the session duration will be the minimum between the token session duration and the token left expiration time
             long sessionDuration = 0;
             if (appToken.Expiry > 0)
             {
@@ -416,15 +421,15 @@ namespace WebAPI.Managers
                 sessionDuration = Math.Min(sessionDuration, expiry.Value);
             }
 
-            // 7. get session type from cb token - user if not defined - we currently support only user
+            // 8. get session type from cb token - user if not defined - we currently support only user
             KalturaSessionType sessionType = KalturaSessionType.USER;
 
-            // 8. get session user id from cb token - if not defined - use the supplied userId
+            // 9. get session user id from cb token - if not defined - use the supplied userId
 
             if (!string.IsNullOrEmpty(appToken.SessionUserId))
             {
                 userId = appToken.SessionUserId;
-                if (domainId == 0)//handle anonymous login ks
+                if (IsAnonymousLoginKs(domainId))//handle anonymous login ks
                 {
                     var domainResponse = Core.Domains.Module.GetDomainByUser(groupId, userId);
                     if (domainResponse != null && domainResponse.Domain != null)
@@ -433,10 +438,7 @@ namespace WebAPI.Managers
                     }
                 }
             }
-
-            UsersClient usersClient = ClientsManager.UsersClient();
             
-            var userRoles = usersClient.GetUserRoleIds(groupId, userId);
             var userStatus = ValidateUser(groupId, userId, usersClient);
             
             if (!group.ApptokenUserValidationDisabled)
@@ -454,10 +456,10 @@ namespace WebAPI.Managers
                 log.Warn($"StartSessionWithAppToken InvalidUser groupId:{groupId}, userId:{userId}");
             }
 
-            // 9. get the group secret by the session type
+            // 10. get the group secret by the session type
             string secret = sessionType == KalturaSessionType.ADMIN ? group.AdminSecret : group.UserSecret;
 
-            // 10. privileges - we do not support it so copy from app token
+            // 11. privileges - we do not support it so copy from app token
             var privilegesList = new Dictionary<string, string>();
 
             if (!privilegesList.ContainsKey(APP_TOKEN_PRIVILEGE_APP_TOKEN))
@@ -501,16 +503,16 @@ namespace WebAPI.Managers
                 throw new InternalServerErrorException();
             }
 
-            // 11. build the ks:
+            // 12. build the ks:
             KS ks = new KS(secret, groupId.ToString(), userId, (int)sessionDuration, sessionType, payload, privilegesList, KS.KSVersion.V2);
 
-            // 12. update last login date
+            // 13. update last login date
             usersClient.UpdateLastLoginDate(groupId, userId);
 
-            // 13. update udid last activity
+            // 14. update udid last activity
             DeviceRemovalPolicyHandler.Instance.SaveDomainDeviceUsageDate(udid, groupId);
 
-            // 14. build the response from the ks:
+            // 15. build the response from the ks:
             response = new KalturaSessionInfo(ks);
 
             return response;
@@ -519,6 +521,11 @@ namespace WebAPI.Managers
         private static bool IsEndUser(int groupId, List<long> roleIds)
         {
             return !RolesManager.IsPartner(groupId, roleIds);
+        }
+
+        private static bool IsAnonymousLoginKs(int domainId)
+        {
+            return domainId == 0;
         }
 
         private static readonly HashSet<ResponseStatus> validUserStatus = new HashSet<ResponseStatus> { ResponseStatus.OK, ResponseStatus.UserWithNoDomain, ResponseStatus.UserNotIndDomain, ResponseStatus.UserNotMasterApproved };
@@ -581,7 +588,7 @@ namespace WebAPI.Managers
 
             // 3. set default values for empty properties
             var utcNow = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
-            appToken.Expiry = (int)GetAppTokenExpiry(utcNow, appToken.getExpiry(), group.AppTokenMaxExpirySeconds, false);
+            appToken.Expiry = (int)GetAppTokenExpiry(utcNow, appToken.getExpiry(), group.AppTokenMaxExpirySeconds, false, RequestContextUtils.IsPartnerRequest());
             appToken.CreateDate = utcNow;
 
             // session duration
@@ -1107,9 +1114,9 @@ namespace WebAPI.Managers
             return session;
         }
 
-        private static long GetAppTokenExpiry(long utcNow, long appTokenExpiry, long maxExpirySeconds, bool autoRefreshExpiry)
+        private static long GetAppTokenExpiry(long utcNow, long appTokenExpiry, long maxExpirySeconds, bool autoRefreshExpiry, bool isPartner)
         {
-            if (RequestContextUtils.IsPartnerRequest())
+            if (isPartner)
             {
                 return appTokenExpiry;
             }

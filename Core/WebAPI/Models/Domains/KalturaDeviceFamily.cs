@@ -114,9 +114,9 @@ namespace WebAPI.Models.Domains
         /// <summary>
         /// Is the Max number of streams allowed for this family is default value or not
         /// </summary>
-        [DataMember(Name = "isDefaultConcurrentLimit ")]
-        [JsonProperty("isDefaultConcurrentLimit ")]
-        [XmlElement(ElementName = "isDefaultConcurrentLimit ")]
+        [DataMember(Name = "isDefaultConcurrentLimit")]
+        [JsonProperty("isDefaultConcurrentLimit")]
+        [XmlElement(ElementName = "isDefaultConcurrentLimit")]
         [SchemeProperty(ReadOnly = true, IsNullable = true)]
         public bool? IsDefaultConcurrentLimit { get; set; }
     }
