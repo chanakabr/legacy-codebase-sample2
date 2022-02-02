@@ -4,8 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using ConfigurationManager;
-using KLogMonitor;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
 using System.Reflection;
 
 namespace Phoenix.Rest.Middleware
@@ -21,7 +21,7 @@ namespace Phoenix.Rest.Middleware
         /// <param name="app"></param>
         public static void UsePhoenixLocalFileSystem(this IApplicationBuilder app)
         {
-            if (ApplicationConfiguration.Current.FileUpload.Type.Value != ConfigurationManager.Types.eFileUploadType.FileSystem)
+            if (ApplicationConfiguration.Current.FileUpload.Type.Value != Phx.Lib.Appconfig.Types.eFileUploadType.FileSystem)
                 return;
 
             string destinationPath = ApplicationConfiguration.Current.FileUpload.FileSystem.DestPath.Value;

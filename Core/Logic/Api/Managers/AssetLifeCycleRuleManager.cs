@@ -3,14 +3,14 @@ using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.Response;
 using ApiObjects.Rules;
 using ApiObjects.SearchObjects;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using Core.GroupManagers;
 using DAL;
 using DAL.Api;
-using KLogMonitor;
-using KlogMonitorHelper;
+using Phx.Lib.Log;
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -86,7 +86,7 @@ namespace Core.Api.Managers
             {
                 if (assetIds != null && assetIds.Count > 0 && ruleToApply != null && ruleToApply.Actions != null)
                 {
-                    bool isOpc = GroupSettingsManager.IsOpc(groupId); //BEO-9685
+                    bool isOpc = GroupSettingsManager.Instance.IsOpc(groupId); //BEO-9685
 
                     res = ApplyLifeCycleRuleTagTransitionsOnAssets(isOpc, assetIds, ruleToApply.Actions.TagIdsToAdd, ruleToApply.Actions.TagIdsToRemove) &&
                           ApplyLifeCycleRuleFileTypeAndPpvTransitionsOnAssets(assetIds, ruleToApply.Actions.FileTypesAndPpvsToAdd, ruleToApply.Actions.FileTypesAndPpvsToRemove) &&
@@ -129,7 +129,7 @@ namespace Core.Api.Managers
                     }
 
                     ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
-                    ContextData contextData = new ContextData();
+                    LogContextData contextData = new LogContextData();
                     Parallel.ForEach(rules, options, (rule) =>
                     {
                         contextData.Load();

@@ -16,6 +16,7 @@ using TVPPro.SiteManager.Helper;
 using System.Security.Cryptography;
 using System.Configuration;
 using TVPApi.Common;
+using Phx.Lib.Log;
 
 public partial class Gateways_JsonPostGW : BaseGateway
 {
@@ -28,7 +29,7 @@ public partial class Gateways_JsonPostGW : BaseGateway
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_CLIENT_API_START, null, null, null, null))
+        using (KMonitor km = new KMonitor(Phx.Lib.Log.Events.eEvent.EVENT_CLIENT_API_START, null, null, null, null))
         {
             Response.ContentType = "application/json; charset=utf-8";
             Response.AppendHeader("Access-Control-Allow-Origin", "*");

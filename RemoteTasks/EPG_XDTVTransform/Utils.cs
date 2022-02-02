@@ -5,7 +5,7 @@ using System.Text;
 using System.Xml;
 using System.IO;
 using System.IO.Compression;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 
 namespace EPG_XDTVTransform

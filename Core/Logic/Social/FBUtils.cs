@@ -1,6 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Social;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Users;
 using Newtonsoft.Json;
 using System;

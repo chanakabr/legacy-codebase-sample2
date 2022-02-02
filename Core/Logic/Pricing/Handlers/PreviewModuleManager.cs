@@ -3,7 +3,7 @@ using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using Core.Pricing;
 using DAL;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -12,7 +12,6 @@ using System.Threading;
 using System.Linq;
 using ApiObjects.Pricing.Dto;
 using Core.GroupManagers;
-using Core.GroupManagers.Adapters;
 
 namespace ApiLogic.Pricing.Handlers
 {
@@ -28,7 +27,7 @@ namespace ApiLogic.Pricing.Handlers
         private static readonly Lazy<PreviewModuleManager> lazy = new Lazy<PreviewModuleManager>(() =>
             new PreviewModuleManager(PricingDAL.Instance,
                                      PreviewModuleCache.Instance,
-                                     GroupSettingsManagerAdapter.Instance),
+                                     GroupSettingsManager.Instance),
             LazyThreadSafetyMode.PublicationOnly);
 
         public static PreviewModuleManager Instance => lazy.Value;

@@ -18,9 +18,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj" />
+    <PackageReference Include="Phx.Lib.Appconfig" Version="1.2.0" />
     <ProjectReference Include="..\GrpcClientCommon\GrpcClientCommon.csproj" />
-    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
   </ItemGroup>
   
 

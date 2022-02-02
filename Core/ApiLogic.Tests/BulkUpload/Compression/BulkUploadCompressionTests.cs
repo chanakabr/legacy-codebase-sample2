@@ -30,7 +30,7 @@ namespace ApiLogic.Tests.BulkUpload.Compression
         [OneTimeSetUp]
         public void OnetimeSetup()
         {
-            ConfigurationManager.ApplicationConfiguration.Init();
+            Phx.Lib.Appconfig.ApplicationConfiguration.Init();
         }
         
         [SetUp]

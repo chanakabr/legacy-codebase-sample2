@@ -8,7 +8,7 @@ using System.Text;
 using System.IO;
 using System.Diagnostics;
 using ApiObjects.Response;
-using KLogMonitor;
+using Phx.Lib.Log;
 using ApiObjects.Billing;
 using System.Reflection;
 using ApiObjects;
@@ -30,7 +30,7 @@ namespace WebAPI.WebServices
         public PermittedMediaContainer[] GetUserPermittedItems(string sWSUserName, string sWSPassword, string sSiteGUID)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -73,7 +73,7 @@ namespace WebAPI.WebServices
         public PermittedMediaContainer[] GetUserExpiredItems(string sWSUserName, string sWSPassword, string sSiteGUID, int numOfItems)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -94,7 +94,7 @@ namespace WebAPI.WebServices
         public UserCAStatus GetUserCAStatus(string sWSUserName, string sWSPassword, string sSiteGUID)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -116,7 +116,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             if (String.IsNullOrEmpty(sCountryCd2))
                 sCountryCd2 = "";
@@ -144,7 +144,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName, int nFormatType)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             if (String.IsNullOrEmpty(sCountryCd2))
                 sCountryCd2 = string.Empty;
@@ -173,7 +173,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string couponCode)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             if (String.IsNullOrEmpty(sCountryCd2) == true)
                 sCountryCd2 = "";
@@ -255,7 +255,7 @@ namespace WebAPI.WebServices
         public PermittedSubscriptionContainer[] GetUserPermittedSubscriptions(string sWSUserName, string sWSPassword, string sSiteGUID)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -294,7 +294,7 @@ namespace WebAPI.WebServices
         public PermittedCollectionContainer[] GetUserPermittedCollections(string sWSUserName, string sWSPassword, string sSiteGUID)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -315,7 +315,7 @@ namespace WebAPI.WebServices
         public PermittedSubscriptionContainer[] GetUserExpiredSubscriptions(string sWSUserName, string sWSPassword, string sSiteGUID, int numOfItems)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -337,7 +337,7 @@ namespace WebAPI.WebServices
         public PermittedCollectionContainer[] GetUserExpiredCollections(string sWSUserName, string sWSPassword, string sSiteGUID, int numOfItems)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -359,7 +359,7 @@ namespace WebAPI.WebServices
         public bool IsPermittedItem(string sWSUserName, string sWSPassword, string sSiteGUID, int mediaID)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -380,7 +380,7 @@ namespace WebAPI.WebServices
         public bool IsPermittedSubscription(string sWSUserName, string sWSPassword, string sSiteGUID, int subID, ref string reason)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -408,7 +408,7 @@ namespace WebAPI.WebServices
                 foreach (var siteGuid in arrSiteGUIDs)
                     sb.Append(String.Format("{0} ", siteGuid));
 
-                HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sb.ToString();
+                HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sb.ToString();
             }
 
 
@@ -472,7 +472,7 @@ namespace WebAPI.WebServices
         public BillingTransactions GetUserBillingHistory(string sWSUserName, string sWSPassword, string sSiteGUID, Int32 nStartIndex, Int32 nNumberOfItems, TransactionHistoryOrderBy orderBy)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -492,7 +492,7 @@ namespace WebAPI.WebServices
         public bool RenewCancledSubscription(string sWSUserName, string sWSPassword, string sSiteGUID, string sSubscriptionCode, Int32 nSubscriptionPurchaseID)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -512,7 +512,7 @@ namespace WebAPI.WebServices
         public bool CancelSubscription(string sWSUserName, string sWSPassword, string sSiteGUID, string sSubscriptionCode, Int32 nSubscriptionPurchaseID)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -562,7 +562,7 @@ namespace WebAPI.WebServices
             Int32 nSubscriptionPurchaseID, Int32 dAdditionInDays, bool bNewRenewable)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -592,7 +592,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -650,7 +650,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -679,7 +679,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -708,7 +708,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -737,7 +737,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
             MediaFileItemPricesContainerResponse response = new MediaFileItemPricesContainerResponse();
 
@@ -768,7 +768,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -793,7 +793,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -818,7 +818,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string clientIP)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
             CollectionsPricesResponse response = new CollectionsPricesResponse()
             {
@@ -848,7 +848,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -874,7 +874,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -901,7 +901,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
             SubscriptionsPricesResponse response = new SubscriptionsPricesResponse();
 
@@ -929,7 +929,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
             CollectionsPricesResponse response = new CollectionsPricesResponse()
             {
@@ -959,7 +959,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -985,7 +985,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
@@ -1009,7 +1009,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
             CollectionsPricesResponse response = new CollectionsPricesResponse()
             {
@@ -1039,7 +1039,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
@@ -1063,7 +1063,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
@@ -1088,7 +1088,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
             string[] sSep = { ";" };
             string[] sSubscriptions = sSubscriptionsList.Split(sSep, StringSplitOptions.RemoveEmptyEntries);
@@ -1116,7 +1116,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
             CollectionsPricesResponse response = new CollectionsPricesResponse()
             {
@@ -1146,7 +1146,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
@@ -1173,7 +1173,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
             string[] sSep = { ";" };
             Int32[] nMediaFileIDs = null;
@@ -1208,7 +1208,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
             string[] sSep = { ";" };
             Int32[] nMediaFileIDs = null;
@@ -1239,7 +1239,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             if (String.IsNullOrEmpty(sCountryCd2) == true)
                 sCountryCd2 = "";
@@ -1268,7 +1268,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
@@ -1290,7 +1290,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
@@ -1313,7 +1313,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
@@ -1336,7 +1336,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
@@ -1359,7 +1359,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
@@ -1382,7 +1382,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sPaymentMethodID, string sEncryptedCVV)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             BillingStatusResponse response = new BillingStatusResponse();
 
@@ -1436,7 +1436,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sPaymentMethodID, string sEncryptedCVV)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             BillingStatusResponse response = new BillingStatusResponse();
 
@@ -1461,7 +1461,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sPaymentMethodID, string sEncryptedCVV)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
@@ -1485,7 +1485,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -1509,7 +1509,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName, int assetType)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -1532,7 +1532,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName, int assetType, string sOverrideEndDate, string sPreviewModuleID)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -1558,7 +1558,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -1584,7 +1584,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -1609,7 +1609,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -1634,7 +1634,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -1659,7 +1659,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -1701,7 +1701,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             if (String.IsNullOrEmpty(sCountryCd2) == true)
                 sCountryCd2 = "";
@@ -1729,7 +1729,7 @@ namespace WebAPI.WebServices
         public UserPrePaidContainer GetUserPrePaidStatus(string sWSUserName, string sWSPassword, string sSiteGUID, string sCurrencyCode3)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -1751,7 +1751,7 @@ namespace WebAPI.WebServices
         public PrePaidHistoryResponse GetUserPrePaidHistory(string sWSUserName, string sWSPassword, string sSiteGUID, Int32 nNumberOfItems)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -1773,7 +1773,7 @@ namespace WebAPI.WebServices
             string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             if (String.IsNullOrEmpty(sCOUNTRY_CODE) == true)
                 sCOUNTRY_CODE = "";
@@ -1801,7 +1801,7 @@ namespace WebAPI.WebServices
             string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, bool isRecording)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             EntitlementResponse objResponse = null;
 
@@ -1832,7 +1832,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string ReceiptData)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
@@ -1855,7 +1855,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string ReceiptData)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
@@ -1897,7 +1897,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
@@ -1918,7 +1918,7 @@ namespace WebAPI.WebServices
         public ChangeSubscriptionStatus ChangeSubscription(string sWSUserName, string sWSPassword, string sSiteGuid, int nOldSubscription, int nNewSubscription, string udid)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -1966,7 +1966,7 @@ namespace WebAPI.WebServices
         public bool CancelTransaction(string sWSUserName, string sWSPassword, string sSiteGuid, int nAssetID, eTransactionType transactionType, bool bIsForce = false)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -1991,7 +1991,7 @@ namespace WebAPI.WebServices
         public ApiObjects.Response.Status WaiverTransaction(string sWSUserName, string sWSPassword, string sSiteGuid, int nAssetID, eTransactionType transactionType)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -2013,7 +2013,7 @@ namespace WebAPI.WebServices
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             if (String.IsNullOrEmpty(sCountryCd2))
                 sCountryCd2 = string.Empty;
@@ -2063,12 +2063,12 @@ namespace WebAPI.WebServices
         public NPVRResponse GetNPVRResponse(BaseNPVRCommand command)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = command != null && command.siteGuid != null ? command.siteGuid : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = command != null && command.siteGuid != null ? command.siteGuid : "null";
 
             if (command != null)
             {
                 // get action ID
-                HttpContext.Current.Items[KLogMonitor.Constants.ACTION] = command.GetType();
+                HttpContext.Current.Items[Phx.Lib.Log.Constants.ACTION] = command.GetType();
 
                 return command.Execute();
             }
@@ -2137,7 +2137,7 @@ namespace WebAPI.WebServices
             TransactionResponse response = new TransactionResponse();
 
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteguid != null ? siteguid : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = siteguid != null ? siteguid : "null";
 
             // get partner implementation and group ID
             BaseConditionalAccess casImpl = null;
@@ -2176,7 +2176,7 @@ namespace WebAPI.WebServices
             TransactionResponse response = new TransactionResponse();
 
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteguid != null ? siteguid : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = siteguid != null ? siteguid : "null";
 
             // get partner implementation and group ID
             BaseConditionalAccess casImpl = null;
@@ -2206,7 +2206,7 @@ namespace WebAPI.WebServices
 
 
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteguid != null ? siteguid : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = siteguid != null ? siteguid : "null";
 
             // get partner implementation and group ID
             BaseConditionalAccess casImpl = null;
@@ -2331,7 +2331,7 @@ namespace WebAPI.WebServices
             bool response = false;
 
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteguid != null ? siteguid : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = siteguid != null ? siteguid : "null";
 
             // get partner implementation and group ID
             BaseConditionalAccess casImpl = null;
@@ -2382,7 +2382,7 @@ namespace WebAPI.WebServices
             List<ApiObjects.AssetFiles> assetFiles)
         {
             AssetItemPriceResponse response = null;
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
 
             BaseConditionalAccess conditionalAccess = null;
 
@@ -2471,7 +2471,7 @@ namespace WebAPI.WebServices
             };
 
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = userId != null ? userId : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = userId != null ? userId : "null";
 
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -2917,7 +2917,7 @@ namespace WebAPI.WebServices
         public Status RemovePaymentMethodHouseholdPaymentGateway(string sWSUserName, string sWSPassword, int paymentGatewayID, string siteGuid, int householdId, int paymentMethodId, bool force)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
 
             Status response = new Status();
 
@@ -3307,7 +3307,7 @@ namespace WebAPI.WebServices
             bool response = false;
 
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteguid != null ? siteguid : "null";
+            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = siteguid != null ? siteguid : "null";
 
             // get partner implementation and group ID
             BaseConditionalAccess casImpl = null;

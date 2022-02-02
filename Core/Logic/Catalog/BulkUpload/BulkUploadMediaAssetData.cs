@@ -35,6 +35,7 @@ namespace Core.Catalog
                 Status = BulkUploadResultStatus.InProgress,
                 Type = mediaAsset.MediaType != null && mediaAsset.MediaType.m_nTypeID > 0 ? mediaAsset.MediaType.m_nTypeID : (int?)null,
                 ExternalId = string.IsNullOrEmpty(mediaAsset.CoGuid) ? null : mediaAsset.CoGuid,
+                EntryId = string.IsNullOrEmpty(mediaAsset.EntryId) ? null : mediaAsset.EntryId,
                 Object = bulkUploadObject
             };
 

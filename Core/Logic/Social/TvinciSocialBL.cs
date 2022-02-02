@@ -12,7 +12,7 @@ using CachingManager;
 using ApiObjects.MediaMarks;
 using EpgBL;
 using DalCB;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using ApiObjects.Response;
 using ApiObjects.Social;
@@ -20,7 +20,7 @@ using Core.Users;
 using Core.Catalog.Response;
 using Core.Catalog.Request;
 using Core.Catalog;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using ApiLogic.Users.Security;
 
 namespace Core.Social

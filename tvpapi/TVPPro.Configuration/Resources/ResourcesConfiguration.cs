@@ -5,7 +5,7 @@ using System.Text;
 using Tvinci.Configuration;
 using System.Threading;
 using System.Configuration;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 
 namespace TVPPro.Configuration.ResourcesConfiguration

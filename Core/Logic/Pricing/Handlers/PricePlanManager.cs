@@ -1,19 +1,17 @@
-﻿using ApiObjects;
-using ApiObjects.Base;
+﻿using ApiObjects.Base;
 using ApiObjects.Pricing;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
+using Core.GroupManagers;
 using Core.Pricing;
 using DAL;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using Core.GroupManagers;
-using Core.GroupManagers.Adapters;
 
 namespace ApiLogic.Pricing.Handlers
 {
@@ -31,7 +29,7 @@ namespace ApiLogic.Pricing.Handlers
                                         LayeredCache.Instance,
                                         PriceDetailsManager.Instance,
                                         DiscountDetailsManager.Instance,
-                                        GroupSettingsManagerAdapter.Instance
+                                        GroupSettingsManager.Instance
                                     ),
             LazyThreadSafetyMode.PublicationOnly);
 
@@ -63,8 +61,8 @@ namespace ApiLogic.Pricing.Handlers
             var funcParams = new Dictionary<string, object>() { { "groupId", groupId } };
             List<PricePlan> PricePlans = null;
 
-            if(!_layeredCache.Get(key, ref PricePlans, GetPricePlans, funcParams, groupId,
-                LayeredCacheConfigNames.GET_GROUP_PRICE_PLAN_LAYERED_CACHE_CONFIG_NAME, new List<string>(){LayeredCacheKeys.GetGroupPricePlanInvalidationKey(groupId) }))
+            if (!_layeredCache.Get(key, ref PricePlans, GetPricePlans, funcParams, groupId,
+                LayeredCacheConfigNames.GET_GROUP_PRICE_PLAN_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupPricePlanInvalidationKey(groupId) }))
             {
                 log.Error($"faild to GetPricePlans from layeredCache for groupId:{groupId}.");
                 return response;
@@ -116,7 +114,7 @@ namespace ApiLogic.Pricing.Handlers
             }
 
             var oldPricePlan = PricePlanResponse.Object;
-            Status validate =  Validate(contextData.GroupId, pricePlanToUpdate);
+            Status validate = Validate(contextData.GroupId, pricePlanToUpdate);
 
             if (!validate.IsOkStatusCode())
             {
@@ -155,10 +153,10 @@ namespace ApiLogic.Pricing.Handlers
                 result.Set(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
                 return result;
             }
-            
+
             var PricePlanResponse = GetPricePlane(contextData.GroupId, id);
             if (!PricePlanResponse.HasObject())
-            { 
+            {
                 result.Set(PricePlanResponse.Status);
                 return result;
             }
@@ -245,7 +243,13 @@ namespace ApiLogic.Pricing.Handlers
             if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("groupId"))
             {
                 int? groupId = funcParams["groupId"] as int?;
-                pricePlan = _repository.GetPricePlans(groupId.Value);
+
+                DataTable pricePlans = _repository.GetPricePlansDT(groupId.Value);
+
+                if (pricePlans?.Rows.Count > 0)
+                {
+                    pricePlan = Utils.BuildPricePlanFromDataTable(pricePlans);
+                }
             }
             bool res = pricePlan != null;
 

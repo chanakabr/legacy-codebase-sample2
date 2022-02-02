@@ -1,6 +1,6 @@
 ﻿using System;
 using ApiObjects;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace ElasticSearch.Utilities
 {

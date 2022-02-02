@@ -18,8 +18,8 @@ namespace Reflector
         public static string GetJsonDeserializerCSFilePath()
         {
             var currentLocation = AppDomain.CurrentDomain.BaseDirectory;
-            var solutionDir = Directory.GetParent(currentLocation).Parent.Parent.Parent.Parent;
-            var filePath = Path.Combine(solutionDir.FullName, @"..\Core\WebAPI\Reflection\KalturaJsonDeserializer.cs");
+            var solutionDir = Directory.GetParent(currentLocation).Parent.Parent.Parent.Parent.Parent;
+            var filePath = Path.Combine(solutionDir.FullName, "Core", "WebAPI", "Reflection", "KalturaJsonDeserializer.cs");
             return filePath;
         }
 
@@ -35,6 +35,18 @@ namespace Reflector
         protected override void writeHeader()
         {
             file.WriteLine("// NOTICE: This is a generated file, to modify it, edit Program.cs in Reflector project");
+            file.WriteLine("// disable compiler warning due to generation of empty usages ot unused vars");
+            file.WriteLine("// ReSharper disable CheckNamespace");
+            file.WriteLine("// ReSharper disable NotAccessedVariable");
+            file.WriteLine("// ReSharper disable UnusedVariable");
+            file.WriteLine("// ReSharper disable RedundantAssignment");
+            file.WriteLine("// ReSharper disable PossibleMultipleEnumeration");
+            file.WriteLine("// ReSharper disable UnusedParameter.Local");
+            file.WriteLine("// ReSharper disable PossibleNullReferenceException");
+            file.WriteLine("// ReSharper disable AssignNullToNotNullAttribute");
+            file.WriteLine("// ReSharper disable BadChildStatementIndent");
+            #pragma warning disable 612
+            #pragma warning disable 612
             file.WriteLine("using Newtonsoft.Json.Linq;");
             file.WriteLine("using System;");
             file.WriteLine("using System.Web;");
@@ -70,10 +82,7 @@ namespace Reflector
             SchemePropertyAttribute schemaProperty = property.GetCustomAttribute<SchemePropertyAttribute>();
             if (schemaProperty != null)
             {
-                file.WriteLine("                    if(!isOldVersion)");
-                file.WriteLine("                    {");
-                file.WriteLine("                        " + property.Name + "SchemaProperty.Validate(\"" + apiName + "\", parameters[\"" + apiName + "\"]);");
-                file.WriteLine("                    }");
+                file.WriteLine("                    " + property.Name + "SchemaProperty.Validate(\"" + apiName + "\", parameters[\"" + apiName + "\"]);");
             }
 
             if(propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))

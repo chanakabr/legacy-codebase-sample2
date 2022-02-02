@@ -8,8 +8,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using ConfigurationManager;
-using KLogMonitor;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
 
 namespace EventBus.Kafka.Test
 {
@@ -23,7 +23,7 @@ namespace EventBus.Kafka.Test
         {
             // Tcm will not init twice and that way we make sure it is init from local file
             KLogger.InitLogger("log4net.config", KLogEnums.AppType.WS, "/var/log/kafka-tests/");
-            TCMClient.Settings.Instance.Init(fromLocal: true);
+            Phx.Lib.Appconfig.TCMClient.Settings.Instance.Init(fromLocal: true);
             ApplicationConfiguration.Init();
             var kafkaConf = ApplicationConfiguration.Current.KafkaClientConfiguration;
             kafkaConf.BootstrapServers.Value = "localhost:9092";

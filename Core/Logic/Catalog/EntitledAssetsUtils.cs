@@ -5,7 +5,7 @@ using ApiObjects.SearchObjects;
 using Core.Catalog.Cache;
 using Core.Catalog.Request;
 using GroupsCacheManager;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -16,8 +16,16 @@ namespace Core.Catalog
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         
-        public static List<BaseSearchObject> GetUserBundlePurchasedSearchObjects(BaseRequest request, int groupId, string siteGuid, int domainId, int[] fileTypeIds,
-            OrderObj order, string[] mediaTypes = null, int[] deviceRuleIds = null, CatalogGroupCache catalogGroupCache = null, bool isSubscriptionsOnly = false)
+        public static List<BaseSearchObject> GetUserBundlePurchasedSearchObjects(
+            BaseRequest request,
+            int groupId,
+            string siteGuid,
+            int domainId,
+            int[] fileTypeIds,
+            string[] mediaTypes = null,
+            int[] deviceRuleIds = null,
+            CatalogGroupCache catalogGroupCache = null,
+            bool isSubscriptionsOnly = false)
         {
             List<BaseSearchObject> result = new List<BaseSearchObject>();
 
@@ -90,7 +98,15 @@ namespace Core.Catalog
                 if (allChannels != null && allChannels.Count > 0)
                 {
                     // Build search object for each channel
-                    var searchObjects = BundleAssetsRequest.BuildBaseSearchObjects(request, group, allChannels, mediaTypes, order, groupId, doesGroupUsesTemplates, false, null);
+                    var searchObjects = BundleAssetsRequest.BuildBaseSearchObjects(
+                        request,
+                        group,
+                        allChannels,
+                        mediaTypes,
+                        groupId,
+                        doesGroupUsesTemplates,
+                        false,
+                        null);
                     result.AddRange(searchObjects);
                 }
             }

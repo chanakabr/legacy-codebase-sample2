@@ -6,7 +6,7 @@ using System.Collections;
 using System.Xml;
 using System.Data;
 using System.Threading;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 
 namespace Financial

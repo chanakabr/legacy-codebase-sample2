@@ -10,8 +10,8 @@ using System.Reflection;
 using ApiObjects.Notification;
 using System.Threading;
 using System.Text.RegularExpressions;
-using KLogMonitor;
-using KlogMonitorHelper;
+using Phx.Lib.Log;
+
 using Core.Users;
 using ApiObjects.Response;
 using Newtonsoft.Json;
@@ -77,7 +77,7 @@ namespace Core.Notification
                 if (requestsList != null && requestsList.Count > 0)
                 {
                     // save monitor and logs context data
-                    ContextData contextData = new ContextData();
+                    LogContextData contextData = new LogContextData();
 
                     Task[] tasks = new Task[requestsList.Count];
                     //send push notification to device + send SMS

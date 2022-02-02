@@ -1,9 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
+using ApiObjects.SearchPriorityGroups;
 
 namespace ApiObjects.SearchObjects
 {
@@ -47,6 +46,10 @@ namespace ApiObjects.SearchObjects
         [JsonProperty()]
         [DataMember]
         public OrderObj order;
+        
+        [JsonProperty()]
+        [DataMember]
+        public IReadOnlyCollection<IEsOrderByField> orderByFields;
 
         [JsonProperty()]
         [DataMember]
@@ -188,7 +191,7 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         [JsonProperty()]
         [DataMember]
-        public List<string> extraReturnFields;
+        public HashSet<string> extraReturnFields;
 
         /// <summary>
         /// How many days forward and backward do we search for EPGs
@@ -265,7 +268,7 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         [JsonProperty()]
         [DataMember]
-        public List<KeyValuePair<eAssetTypes, long>> specificOrder;
+        public List<long> specificOrder;
 
         /// <summary>
         /// All definitions regarding entitled assets of the user
@@ -388,6 +391,10 @@ namespace ApiObjects.SearchObjects
 
         public List<string> PersonalData { get; set; }
 
+        [JsonProperty]
+        [DataMember]
+        public IReadOnlyDictionary<double, IEsPriorityGroup> PriorityGroupsMappings { get; set; }
+
         /// <summary>
         /// The country Id of the calling user for geo availability 
         /// </summary>
@@ -482,7 +489,7 @@ namespace ApiObjects.SearchObjects
 
             mediaTypes = new List<int>();
             ksqlAssetTypes = new List<string>();
-            extraReturnFields = new List<string>();
+            extraReturnFields = new HashSet<string>();
             parentMediaTypes = new Dictionary<int, int>();
             associationTags = new Dictionary<int, string>();
             geoBlockRules = new List<int>();
@@ -507,6 +514,8 @@ namespace ApiObjects.SearchObjects
 
             assetUserRuleIds = new List<long>();
             boostScoreValues = new List<BoostScoreValueDefinition>();
+
+            PriorityGroupsMappings = new Dictionary<double, IEsPriorityGroup>();
         }
 
         #endregion

@@ -1,4 +1,4 @@
-﻿using KLogMonitor;
+﻿using Phx.Lib.Log;
 using System.IO;
 using System.Reflection;
 using WebAPI.ClientManagers;
@@ -13,7 +13,7 @@ using System.Linq;
 using WebAPI.ObjectsConvertor;
 using ApiLogic.Catalog;
 using WebAPI.Models.General;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace WebAPI.Managers
 {

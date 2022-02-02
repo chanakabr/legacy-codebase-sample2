@@ -1,4 +1,4 @@
-﻿using KLogMonitor;
+﻿using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -18,7 +18,7 @@ using TVPPro.Configuration.Technical;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Helper;
 using UnifiedSearchResponse = Core.Catalog.Response.UnifiedSearchResponse;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace TVPApiModule.CatalogLoaders
 {

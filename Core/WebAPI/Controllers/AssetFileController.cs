@@ -1,6 +1,6 @@
 ﻿using ApiObjects.Response;
-using ConfigurationManager;
-using KLogMonitor;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
 using System;
 using System.Net;
 using System.Reflection;
@@ -106,6 +106,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.CatchUpBufferLimitation)]
         [Throws(eResponseStatus.NetworkRuleBlock)]
         [Throws(eResponseStatus.ActionBlocked)]
+        [Throws(eResponseStatus.ProgramStartOverNotEnabled)]
         static public KalturaAssetFile PlayManifest(int partnerId, string assetId, KalturaAssetType assetType, 
             long assetFileId, KalturaPlaybackContextType contextType, string ks = null, string tokenizedUrl = null, bool isAltUrl = false)
         {

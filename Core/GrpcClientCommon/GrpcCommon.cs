@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using Grpc.Core;
 using Grpc.Core.Interceptors;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 
 namespace GrpcClientCommon

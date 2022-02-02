@@ -8,7 +8,7 @@ using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.Helper;
 using System.Configuration;
 using TVPPro.SiteManager.Manager;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace TVPPro.SiteManager.DataLoaders
 {

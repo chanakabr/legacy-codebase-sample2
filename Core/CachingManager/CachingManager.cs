@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using System.Runtime.Caching;
 using CachingProvider;

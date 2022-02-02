@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using ApiObjects.CanaryDeployment.Elasticsearch;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using ElasticSearch.Searcher.Settings;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

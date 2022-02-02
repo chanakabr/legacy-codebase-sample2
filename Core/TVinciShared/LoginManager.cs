@@ -1,9 +1,9 @@
 using System;
 using System.Web;
 using System.Text.RegularExpressions;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace TVinciShared
 {

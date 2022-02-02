@@ -1,14 +1,15 @@
-﻿using ApiObjects.Base;
-using Newtonsoft.Json;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using ApiLogic.Api.Managers.Rule;
+using ApiObjects.Base;
+using ApiObjects.SearchObjects;
+using Newtonsoft.Json;
+using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.InternalModels;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
-using ApiObjects.SearchObjects;
-using TVinciShared;
 
 namespace WebAPI.Models.Catalog
 {
@@ -23,35 +24,29 @@ namespace WebAPI.Models.Catalog
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public bool ExcludeWatched { get; set; }
 
+        internal override void Validate()
+        {
+            base.Validate();
+            if (ExcludeWatched && getGroupByValue()?.Count > 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "excludeWatched", "groupBy");
+            }
+        }
+
         //SearchAssets - Unified search across – VOD: Movies, TV Series/episodes, EPG content.
         internal override KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
         {
-            if (!this.ExcludeWatched)
+            if (!ExcludeWatched)
             {
                 return base.GetAssets(contextData, responseProfile, pager);
             }
 
-            if (pager.getPageIndex() > 0)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "excludeWatched", "pageIndex");
-            }
-
-            if (!contextData.UserId.HasValue || contextData.UserId.Value == 0)
-            {
-                throw new BadRequestException(BadRequestException.INVALID_USER_ID, "userId");
-            }
-            int userId = (int)contextData.UserId.Value;
-
-            var groupbys = this.getGroupByValue();
-            if (groupbys != null && groupbys.Count > 0)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "excludeWatched", "groupBy");
-            }
-
-            int domainId = (int)(contextData.DomainId ?? 0);
+            ValidateForExcludeWatched(contextData, pager);
+            var userId = (int)contextData.UserId.Value;
+            var domainId = (int)(contextData.DomainId ?? 0);
             var ksqlFilter = FilterAsset.Instance.UpdateKsql(Ksql, contextData.GroupId, contextData.SessionCharacteristicKey);
 
-            var filter = new ApiLogic.Catalog.SearchAssetsFilter
+            var filter = new SearchAssetsFilter
             {
                 GroupId = contextData.GroupId,
                 SiteGuid = userId.ToString(),
@@ -61,16 +56,16 @@ namespace WebAPI.Models.Catalog
                 PageIndex = pager.getPageIndex(),
                 PageSize = pager.PageSize,
                 Filter = ksqlFilter,
-                AssetTypes = this.getTypeIn(),
+                AssetTypes = getTypeIn(),
                 EpgChannelIds = this.getEpgChannelIdIn(),
-                TrendingDays = TrendingDaysEqual,
                 GroupByType = GenericExtensionMethods.ConvertEnumsById<KalturaGroupingOption, GroupingOption>
-                                (this.GroupingOptionEqual, GroupingOption.Omit).Value
+                                (this.GroupingOptionEqual, GroupingOption.Omit).Value,
+                OrderingParameters = Orderings,
+                ShouldApplyPriorityGroups = this.ShouldApplyPriorityGroupsEqual ?? false,
+                ResponseProfile = responseProfile
             };
 
-            var response = ClientsManager.CatalogClient().SearchAssetsExcludeWatched(filter, this.OrderBy, contextData.ManagementData, this.DynamicOrderBy);
-
-            return response;
+            return ClientsManager.CatalogClient().SearchAssetsExcludeWatched(filter, contextData.ManagementData);
         }
     }
 }

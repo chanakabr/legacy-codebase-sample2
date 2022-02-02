@@ -1,4 +1,4 @@
-﻿using KLogMonitor;
+﻿using Phx.Lib.Log;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using System;
@@ -26,6 +26,8 @@ namespace SoapAdaptersCommon.GrpcAdapters
 
         private const string GRPC_PORT_ENV_KEY = "GRPC_PORT";
         private const string GRPC_CERT_ENV_KEY = "GRPC_CERT";
+        private const string GRPC_SSL_CRT_FILE_ENV = "OTT_GRPC_SSL_CRT_FILE";
+        private const string GRPC_SSL_CRT_KEY_ENV = "OTT_GRPC_SSL_CRT_KEY";
         private const string GRPC_CERT_PASSWORD_ENV_KEY = "GRPC_CERT_PASSWORD";
 
         public GrpcServer(IServiceCollection parentServiceCollection)
@@ -36,13 +38,30 @@ namespace SoapAdaptersCommon.GrpcAdapters
         public Task StartAsync(CancellationToken cancellationToken)
         {
             var grpcPort = Environment.GetEnvironmentVariable(GRPC_PORT_ENV_KEY);
-            var grpcCertFilePath = Environment.GetEnvironmentVariable(GRPC_CERT_ENV_KEY);
-            var grpcCertPassword = Environment.GetEnvironmentVariable(GRPC_CERT_PASSWORD_ENV_KEY);
-            if (string.IsNullOrEmpty(grpcPort) || string.IsNullOrEmpty(grpcCertFilePath) || string.IsNullOrEmpty(grpcCertPassword))
+            if (string.IsNullOrEmpty(grpcPort))
             {
-                _Logger.Warn($"{GRPC_PORT_ENV_KEY} or {GRPC_CERT_ENV_KEY} or {GRPC_CERT_PASSWORD_ENV_KEY} is not specifed, grpc engpint will not start");
+                _Logger.Warn($"{GRPC_PORT_ENV_KEY}");
                 return Task.CompletedTask;
             }
+            
+            // using PFX
+            var grpcCertFilePath = Environment.GetEnvironmentVariable(GRPC_CERT_ENV_KEY);
+            var grpcCertPassword = Environment.GetEnvironmentVariable(GRPC_CERT_PASSWORD_ENV_KEY);
+            var isPfxProvided = !string.IsNullOrEmpty(grpcCertFilePath) && !string.IsNullOrEmpty(grpcCertPassword);
+            
+            // using CRT and PEM
+            var grpcSSLCertFilePath = Environment.GetEnvironmentVariable(GRPC_SSL_CRT_FILE_ENV);
+            var grpcSSLCertKey = Environment.GetEnvironmentVariable(GRPC_SSL_CRT_KEY_ENV);
+            var isCrtPemProvided = !string.IsNullOrEmpty(grpcSSLCertFilePath) && !string.IsNullOrEmpty(grpcSSLCertKey);
+            
+            
+            if (!isPfxProvided && !isCrtPemProvided)
+            {
+                _Logger.Warn($"missing SSL certificate: please configure {GRPC_CERT_ENV_KEY}/{GRPC_CERT_PASSWORD_ENV_KEY} or {GRPC_SSL_CRT_FILE_ENV}/{GRPC_SSL_CRT_KEY_ENV} , grpc engpint will not start");
+                return Task.CompletedTask;
+            }
+            
+            
             int intPort;
             if (!int.TryParse(grpcPort, out intPort))
             {
@@ -58,12 +77,19 @@ namespace SoapAdaptersCommon.GrpcAdapters
                 .ConfigureKestrel(o =>
                 {
                     var port = intPort;
-                    var certFilePath = grpcCertFilePath;
-                    var certPassword = grpcCertPassword;
                     o.Limits.MinRequestBodyDataRate = null;
                     o.ListenAnyIP(port, listenOptions =>
                     {
-                        listenOptions.UseHttps(certFilePath, certPassword);
+                        if (isCrtPemProvided)
+                        {
+                            var cert = SSLHelpers.NewX509Certificate2FromCrtAndKey(grpcSSLCertFilePath, grpcSSLCertKey);
+                            listenOptions.UseHttps(cert);
+                        }
+                        else if (isPfxProvided)
+                        {
+                            listenOptions.UseHttps(grpcCertFilePath, grpcCertPassword);
+                        }
+                        
                         listenOptions.Protocols = HttpProtocols.Http2;
                     });
                 })
@@ -78,6 +104,11 @@ namespace SoapAdaptersCommon.GrpcAdapters
 
             _GrpcServerTask = _GrpcHost.RunAsync();
             return Task.CompletedTask;
+        }
+
+        private void ConfigureSSL(ListenOptions listenOptions)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)

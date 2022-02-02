@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using KLogMonitor;
+using Phx.Lib.Log;
 
 namespace Core.Middleware
 {
     public static class KloggerSessionBuilder
     {
-        public const string SESSION_HEADER_KEY = Constants.SESSION_ID_KEY;
+        // TODO: this value has been removed from Klogger and PHx.Lib.Log, need to replace with RequestContextConstants.SESSION_ID_KEY
+        // after bringing Phx.Lib.Rest
+        public const string SESSION_HEADER_KEY = "x-kaltura-session-id";
         public const string LEGACY_SESSION_HEADER_KEY = Constants.REQUEST_ID_KEY;
 
         public static IApplicationBuilder UseKloggerSessionIdBuilder(this IApplicationBuilder app)

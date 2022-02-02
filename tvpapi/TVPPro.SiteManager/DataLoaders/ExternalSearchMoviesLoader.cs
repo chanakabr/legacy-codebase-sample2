@@ -13,14 +13,14 @@ using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Manager;
 using System.Collections.Generic;
 using TVPPro.SiteManager.Services;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using ApiObjects;
 using ApiObjects.Response;
 using Core.Catalog;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace TVPPro.SiteManager.DataLoaders
 {

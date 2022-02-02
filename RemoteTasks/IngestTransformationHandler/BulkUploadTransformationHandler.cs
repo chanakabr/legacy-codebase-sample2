@@ -14,24 +14,27 @@ using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
 using ApiObjects.EventBus;
 using ApiObjects.Response;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Catalog;
 using EventBus.Abstraction;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Core.Catalog.CatalogManagement;
+using Core.Catalog.CatalogManagement.Services;
 using Core.Profiles;
 using EventBus.RabbitMQ;
 using IngestHandler.Common;
 using IngestTransformationHandler.Managers;
 using Synchronizer;
 using Tvinci.Core.DAL;
-
+using ApiLogic.IndexManager.Helpers;
 
 namespace IngestTransformationHandler
 {
     public class BulkUploadTransformationHandler : IServiceEventHandler<BulkUploadTransformationEvent>
     {
+        private readonly IndexCompactionManager _indexCompactionManager;
         private readonly IEpgCRUDOperationsManager _crudOperationsManager;
+        private readonly IEpgIngestMessaging _epgIngestMessaging;
         private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly XmlSerializer _XmlTVSerializer = new XmlSerializer(typeof(EpgChannels));
 
@@ -46,9 +49,11 @@ namespace IngestTransformationHandler
         private IngestProfile _ingestProfile;
         private DistributedLock _locker;
 
-        public BulkUploadTransformationHandler(IEpgCRUDOperationsManager crudOperationsManager)
+        public BulkUploadTransformationHandler(IndexCompactionManager indexCompactionManager, IEpgCRUDOperationsManager crudOperationsManager, IEpgIngestMessaging epgIngestMessaging)
         {
+            _indexCompactionManager = indexCompactionManager;
             _crudOperationsManager = crudOperationsManager;
+            _epgIngestMessaging = epgIngestMessaging;
         }
 
         public Task Handle(BulkUploadTransformationEvent serviceEvent)
@@ -56,14 +61,16 @@ namespace IngestTransformationHandler
             try
             {
                 _logger.Debug($"Starting ingest transformation handler requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}]");
+                _indexCompactionManager.RunEpgIndexCompactionIfRequired(serviceEvent.GroupId);
+                
                 InitHandlerProperties(serviceEvent);
-                BulkUploadManager.UpdateBulkUpload(_bulUpload, BulkUploadJobStatus.Parsing);
+                UpdateBulkUpload(BulkUploadJobStatus.Parsing);
 
                 var validationResult = ValidateBulkUpload();
                 if (validationResult == Status.Error)
                 {
                     _bulUpload.Results.ForEach(r => r.Status = BulkUploadResultStatus.Error);
-                    BulkUploadManager.UpdateBulkUpload(_bulUpload, BulkUploadJobStatus.Failed);
+                    UpdateBulkUpload(BulkUploadJobStatus.Failed);
                     return Task.CompletedTask;
                 }
 
@@ -72,7 +79,7 @@ namespace IngestTransformationHandler
                 {
                     // failed to parse, update status to failed, and compete
                     _bulUpload.Results.ForEach(r => r.Status = BulkUploadResultStatus.Error);
-                    BulkUploadManager.UpdateBulkUpload(_bulUpload, BulkUploadJobStatus.Failed);
+                    UpdateBulkUpload(BulkUploadJobStatus.Failed);
                     return Task.CompletedTask;
                 }
 
@@ -80,7 +87,7 @@ namespace IngestTransformationHandler
                 if (_bulUpload.NumOfObjects == 0)
                 {
                     _logger.Warn($"received an empty deserialized result from ingest, groupId:[{_bulUpload.GroupId}], bulkUploadId:[{_bulUpload.Id}]");
-                    BulkUploadManager.UpdateBulkUpload(_bulUpload, BulkUploadJobStatus.Success);
+                    UpdateBulkUpload(BulkUploadJobStatus.Success);
                     return Task.CompletedTask;
                 }
 
@@ -90,10 +97,13 @@ namespace IngestTransformationHandler
                 // updateResults: will update existing result according to new result set
                 // todo: arthur: talk to lior about dropping this madness that shir used for VOD bulk uploads, and using one single save ,method, this is crazzzzyyyy.... 
                 _logger.Info($"Transformation successful, setting results in couchbase, , groupId:[{_bulUpload.GroupId}], bulkUploadId:[{_bulUpload.Id}]");
-                BulkUploadManager.UpdateBulkUpload(_bulUpload, BulkUploadJobStatus.Processing);
+                UpdateBulkUpload(BulkUploadJobStatus.Processing);
 
                 // start lock before calculating crude so that the schedule will not change while we try to calculate and ingest
-                SetDatesOfIngestToJobData(CalculateIngestDates(_bulUpload.Results));
+                var targetDates = CalculateIngestDates(_bulUpload.Results);
+                var targetIndices = targetDates.Select(d => NamingHelper.Instance.GetDailyEpgIndexName(_eventData.GroupId, d));
+                _jobData.LockKeys = targetIndices.Select(i => BulkUploadMethods.GetIngestLockKey(i)).Distinct().ToArray();
+                _jobData.DatesOfProgramsToIngest = targetDates.Distinct().ToArray();
                 AcquireLockOnIngestRange();
 
                 var crudOperations = _crudOperationsManager.CalculateCRUDOperations(_bulUpload, _ingestProfile.DefaultOverlapPolicy, _ingestProfile.DefaultAutoFillPolicy, _languagesInfo);
@@ -101,7 +111,7 @@ namespace IngestTransformationHandler
                 {
                     _bulUpload.AddError(eResponseStatus.Error, "error while trying to calculate required changes to Epg, see results for more information");
                     _bulUpload.Results.ForEach(r => r.Status = BulkUploadResultStatus.Error);
-                    BulkUploadManager.UpdateBulkUpload(_bulUpload, BulkUploadJobStatus.Failed);
+                    UpdateBulkUpload(BulkUploadJobStatus.Failed);
                     Unlock();
                     return Task.CompletedTask;
                 }
@@ -118,7 +128,7 @@ namespace IngestTransformationHandler
                 SetToBulkUpload(crudOperations.ItemsToAdd, (u, i) => u.AddedObjects = i);
 
 
-                BulkUploadManager.UpdateBulkUpload(_bulUpload, BulkUploadJobStatus.Processed);
+                UpdateBulkUpload(BulkUploadJobStatus.Processed);
                 EnqueueIngestEvents(crudOperations);
             }
             catch (Exception ex)
@@ -130,7 +140,7 @@ namespace IngestTransformationHandler
                     _bulUpload.Results.ForEach(r => r.Status = BulkUploadResultStatus.Error);
                     _bulUpload.AddError(eResponseStatus.Error, $"An unexpected error occurred during transformation handler, {ex.Message}");
                     _logger.Error($"Trying to set fatal status on BulkUploadId:[{serviceEvent.BulkUploadId}]", ex);
-                    var result = BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_bulUpload, BulkUploadJobStatus.Fatal);
+                    var result = UpdateBulkUploadStatusAndErrors(BulkUploadJobStatus.Fatal);
                     _logger.Error($"An Exception occurred in transformation handler requestId:[{_eventData.RequestId}], BulkUploadId:[{_eventData.BulkUploadId}], update result status [{result.Status}].", ex);
                     Unlock();
                 }
@@ -191,7 +201,7 @@ namespace IngestTransformationHandler
             // else update the bulk upload object that an error occured
             _logger.Error($"ProcessBulkUpload cannot Deserialize file because JobData or ObjectData are null for groupId:{_bulUpload.GroupId}, bulkUploadId:{_bulUpload.Id}.");
             _bulUpload.AddError(eResponseStatus.Error, $"Error validate bulk upload. groupId: {_bulUpload.GroupId}, bulkUploadId: {_bulUpload.Id}");
-            BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_bulUpload, BulkUploadJobStatus.Fatal);
+            UpdateBulkUploadStatusAndErrors(BulkUploadJobStatus.Fatal);
             return Status.Error;
         }
 
@@ -414,19 +424,26 @@ namespace IngestTransformationHandler
                 _logger.Warn($"EnqueueIngestEvents > bulkUpload:[{_bulUpload.Id}], crudOperations:[{crudOperations}] resulted in an empty list, this might be due to policy set to CUT Source and the items to ingest were completely overlapped, so they were removed");
                 Unlock();
                 _bulUpload.Results.ForEach(r => r.Status = BulkUploadResultStatus.Ok);
-                BulkUploadManager.UpdateBulkUpload(_bulUpload, BulkUploadJobStatus.Success);
+                UpdateBulkUpload(BulkUploadJobStatus.Success);
             }
 
             // in case the actual crud calculations are less thant the keys we locked initially this means we can unlock few days
-            var effectiveLockDays = ingestEvents.Select(e => e.DateOfProgramsToIngest).ToList();
-            var effectiveLockKeys = effectiveLockDays.Select(day => BulkUploadMethods.GetIngestLockKey(_bulUpload.GroupId, day));
+
+            var effectiveLocIndices = ingestEvents.Select(e => e.TargetIndexName).ToList();
+            var effectiveLockKeys = effectiveLocIndices.Select(targetIndexName => BulkUploadMethods.GetIngestLockKey(targetIndexName));
             var keysToUnlock = _jobData.LockKeys.Except(effectiveLockKeys);
             if (keysToUnlock.Any())
             {
                 _logger.Info($"calculated crud operations did not include several days that were locked, unlocking:[{string.Join(",", keysToUnlock)}]");
                 _locker.Unlock(keysToUnlock);
-                SetDatesOfIngestToJobData(effectiveLockDays);
-                BulkUploadManager.UpdateBulkUpload(_bulUpload, _bulUpload.Status);
+                var allCrudOperations = crudOperations.ItemsToAdd
+                .Concat(crudOperations.ItemsToUpdate)
+                .Concat(crudOperations.ItemsToDelete)
+                .Concat(crudOperations.AffectedItems)
+                .ToList();
+                _jobData.DatesOfProgramsToIngest = allCrudOperations.Select(c=>c.StartDate.Date).Distinct().ToArray();
+                _jobData.LockKeys = effectiveLockKeys.Distinct().ToArray();
+                UpdateBulkUpload(_bulUpload.Status);
             }
 
             var publisher = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
@@ -445,17 +462,18 @@ namespace IngestTransformationHandler
             //.Concat(crudOperations.RemainingItems)
 
 
-            var allCrudDates = allCrudOperations.Select(o => o.StartDate.Date).Distinct().ToList();
-            _logger.Debug($"bulkUploadId:[{_bulUpload.Id}] calculated crud dates:[{string.Join(",", allCrudDates)}]");
+            var nh = NamingHelper.Instance;
+            var allCrudTargetIndices = allCrudOperations.Select(o => nh.GetDailyEpgIndexName(o.GroupId, o.StartDate.Date)).Distinct().ToList();
+            _logger.Debug($"bulkUploadId:[{_bulUpload.Id}] calculated crud dates:[{string.Join(",", allCrudTargetIndices)}]");
 
             var ingestEvents = new List<BulkUploadIngestEvent>();
-            foreach (var crudDate in allCrudDates)
+            foreach (var crudIndexName in allCrudTargetIndices)
             {
                 var crudOpsOfDay = new CRUDOperations<EpgProgramBulkUploadObject>();
-                crudOpsOfDay.ItemsToAdd = crudOperations.ItemsToAdd.Where(i => i.StartDate.Date == crudDate).ToList();
-                crudOpsOfDay.ItemsToDelete = crudOperations.ItemsToDelete.Where(i => i.StartDate.Date == crudDate).ToList();
-                crudOpsOfDay.ItemsToUpdate = crudOperations.ItemsToUpdate.Where(i => i.StartDate.Date == crudDate).ToList();
-                crudOpsOfDay.AffectedItems = crudOperations.AffectedItems.Where(i => i.StartDate.Date == crudDate).ToList();
+                crudOpsOfDay.ItemsToAdd = crudOperations.ItemsToAdd.Where(i => nh.GetDailyEpgIndexName(i.GroupId, i.StartDate.Date) == crudIndexName).ToList();
+                crudOpsOfDay.ItemsToDelete = crudOperations.ItemsToDelete.Where(i => nh.GetDailyEpgIndexName(i.GroupId, i.StartDate.Date) == crudIndexName).ToList();
+                crudOpsOfDay.ItemsToUpdate = crudOperations.ItemsToUpdate.Where(i => nh.GetDailyEpgIndexName(i.GroupId, i.StartDate.Date) == crudIndexName).ToList();
+                crudOpsOfDay.AffectedItems = crudOperations.AffectedItems.Where(i => nh.GetDailyEpgIndexName(i.GroupId, i.StartDate.Date) == crudIndexName).ToList();
 
                 // we dont add remaining items because of the same comment above ...
                 //crudOpsOfDay.RemainingItems.AddRange(crudOperations.RemainingItems.Where(i => i.StartDate.Date == crudDate));
@@ -465,7 +483,7 @@ namespace IngestTransformationHandler
                     GroupId = _eventData.GroupId,
                     RequestId = _eventData.RequestId,
                     UserId = _eventData.UserId,
-                    DateOfProgramsToIngest = crudDate,
+                    TargetIndexName = crudIndexName,
                     CrudOperations = crudOpsOfDay
                 };
                 ingestEvents.Add(ingestEvent);
@@ -521,11 +539,28 @@ namespace IngestTransformationHandler
             }
         }
         
-        private void SetDatesOfIngestToJobData(IEnumerable<DateTime> dates)
+
+        private void UpdateBulkUpload(BulkUploadJobStatus newStatus)
         {
-            var orderedDates = dates.OrderBy(d => d).ToArray();
-            _jobData.DatesOfProgramsToIngest = orderedDates;
-            _jobData.LockKeys = orderedDates.Select(programDate => BulkUploadMethods.GetIngestLockKey(_bulUpload.GroupId, programDate)).ToArray();
+            var result = BulkUploadManager.UpdateBulkUpload(_bulUpload, newStatus);
+            if (result.IsOkStatusCode()) TrySendIngestCompleted(newStatus);
+        }
+        
+        private GenericResponse<BulkUpload> UpdateBulkUploadStatusAndErrors(BulkUploadJobStatus newStatus)
+        {
+            var result = BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_bulUpload, newStatus);
+            if (result.IsOkStatusCode()) TrySendIngestCompleted(newStatus);
+
+            return result;
+        }
+
+        private void TrySendIngestCompleted(BulkUploadJobStatus newStatus)
+        {
+            if (!BulkUpload.IsProcessCompletedByStatus(newStatus)) return;
+            
+            var updateDate = DateTime.UtcNow; // TODO looks like _bulUpload.UpdateDate is not updated in CB
+            _epgIngestMessaging.EpgIngestCompleted(_bulUpload.GroupId, _bulUpload.UpdaterId,
+                _bulUpload.Id, newStatus, _bulUpload.Errors, updateDate);
         }
     }
 }

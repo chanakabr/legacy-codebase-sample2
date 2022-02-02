@@ -1,4 +1,4 @@
-﻿using ConfigurationManager;
+﻿using Phx.Lib.Appconfig;
 using ODBCWrapper;
 using System;
 using System.Collections.Generic;

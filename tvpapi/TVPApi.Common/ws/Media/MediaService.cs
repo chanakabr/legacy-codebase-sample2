@@ -19,7 +19,7 @@ using RecordedEPGOrderObj = ApiObjects.RecordedEPGOrderObj;
 using System.Data;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Objects.Authorization;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using TVPApiModule.Objects.Requests;
 using System.Threading;
@@ -44,7 +44,7 @@ using Media = TVPApi.Media;
 using EPGUnit = ApiObjects.EPGUnit;
 using TVinciShared;
 using Language = ApiObjects.Language;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using TVPApiModule.Objects.CRM;
 
 namespace TVPApiServices

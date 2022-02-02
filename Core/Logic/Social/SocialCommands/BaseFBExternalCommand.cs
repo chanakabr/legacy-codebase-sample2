@@ -1,10 +1,10 @@
 ﻿using ApiObjects;
 using ApiObjects.Social;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Social.Requests;
 using Core.Social.Responses;
 using Core.Users;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;

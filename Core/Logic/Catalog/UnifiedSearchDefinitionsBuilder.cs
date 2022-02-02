@@ -9,27 +9,42 @@ using Core.Catalog.Cache;
 using GroupsCacheManager;
 using TVinciShared;
 using ApiObjects.Response;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
+using ApiLogic.Catalog;
+using ApiLogic.Catalog.CatalogManagement.Models;
+using ApiLogic.Catalog.CatalogManagement.Services;
 using ApiLogic.Catalog.Tree;
+using ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority;
+using ApiLogic.IndexManager.Sorting;
 using ApiObjects;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Api.Managers;
+using Core.Catalog.CatalogManagement;
+using ElasticSearch.Utils;
+using OrderDir = ApiObjects.SearchObjects.OrderDir;
 
 namespace Core.Catalog
 {
     public class UnifiedSearchDefinitionsBuilder
     {
         private readonly IFilterTreeValidator _filterTreeValidator;
+        private readonly IAssetOrderingService _assetOrderingService;
+        private readonly IEsSortingService _esSortingService;
 
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger log = new KLogger(nameof(UnifiedSearchDefinitionsBuilder));
         private bool shouldUseCache = false;
 
         #region Ctor
 
-        public UnifiedSearchDefinitionsBuilder(IFilterTreeValidator filterTreeValidator)
+        public UnifiedSearchDefinitionsBuilder(
+            IFilterTreeValidator filterTreeValidator,
+            IAssetOrderingService assetOrderingService,
+            IEsSortingService esSortingService)
         {
             _filterTreeValidator = filterTreeValidator;
+            _assetOrderingService = assetOrderingService ?? throw new ArgumentNullException(nameof(assetOrderingService));
+            _esSortingService = esSortingService ?? throw new ArgumentNullException(nameof(esSortingService));
             shouldUseCache = ApplicationConfiguration.Current.CatalogLogicConfiguration.ShouldUseSearchCache.Value;
         }
 
@@ -82,6 +97,12 @@ namespace Core.Catalog
                 {
                     CatalogLogic.UpdateNodeTreeFields(request, ref request.filterTree, definitions, group, parentGroupID);
                 }
+                
+                #region Priority Groups
+
+                definitions.PriorityGroupsMappings = PriorityGroupsPreprocessor.Instance.Preprocess(request.PriorityGroupsMappings, request, definitions, group, parentGroupID);
+
+                #endregion
 
                 // Get days offset for EPG search from TCM
                 definitions.epgDaysOffest = ApplicationConfiguration.Current.CatalogLogicConfiguration.CurrentRequestDaysOffset.Value;
@@ -103,24 +124,6 @@ namespace Core.Catalog
                 definitions.shouldUseStartDateForMedia = !request.isAllowedToViewInactiveAssets;
                 definitions.shouldUseCatalogStartDateForMedia = doesGroupUsesTemplates;
                 definitions.shouldIgnoreEndDate = request.isAllowedToViewInactiveAssets || request.shouldIgnoreEndDate;
-
-                OrderObj order = new OrderObj();
-                order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.NONE;
-                order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-
-                CatalogLogic.GetOrderValues(ref order, request.order);
-
-                if (order.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META && string.IsNullOrEmpty(order.m_sOrderValue))
-                {
-                    order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
-                    order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-                }
-
-
-                definitions.order = new OrderObj();
-                definitions.order.m_eOrderDir = order.m_eOrderDir;
-                definitions.order.m_eOrderBy = order.m_eOrderBy;
-                definitions.order.m_sOrderValue = order.m_sOrderValue;
 
                 definitions.groupId = request.m_nGroupID;
                 definitions.permittedWatchRules = CatalogLogic.GetPermittedWatchRules(request.m_nGroupID);
@@ -210,49 +213,6 @@ namespace Core.Catalog
                     }
                 }
 
-                if (order.m_eOrderBy == OrderBy.META)
-                {
-                    bool isTagOrMeta = false;
-                    Type type = null;
-                    bool isMetaValid = false;
-
-                    if (doesGroupUsesTemplates)
-                    {
-                        if (!CatalogManagement.CatalogManager.Instance.CheckMetaExsits(request.m_nGroupID, order.m_sOrderValue.ToLower()))
-                        {
-                            //return error - meta not erxsits
-                            log.ErrorFormat("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue);
-                            throw new Exception(string.Format("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue));
-                        }
-                        else
-                        {
-                            isMetaValid = true;
-                            var searchKeys = CatalogManagement.CatalogManager.Instance.GetUnifiedSearchKey(request.m_nGroupID, order.m_sOrderValue.ToLower());
-                            type = searchKeys.FirstOrDefault().ValueType;
-                        }
-                    }
-                    else
-                    {
-                        if (!Utils.CheckMetaExsits(definitions.shouldSearchEpg, definitions.shouldSearchMedia, definitions.shouldSearchRecordings, group, order.m_sOrderValue.ToLower()))
-                        {
-                            //return error - meta not erxsits
-                            log.ErrorFormat("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue);
-                            throw new Exception(string.Format("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue));
-                        }
-                        else
-                        {
-                            isMetaValid = true;
-                            var searchKeys = CatalogLogic.GetUnifiedSearchKey(order.m_sOrderValue, group);
-                            type = searchKeys.FirstOrDefault().ValueType;
-                        }
-                    }
-
-                    if (isMetaValid && definitions.shouldSearchEpg && (type == typeof(int) || type == typeof(double) || type == typeof(long) || type == typeof(float)))
-                    {
-                        definitions.order.shouldPadString = true;
-                    }
-                }
-
                 #endregion
 
                 #region Regions
@@ -303,11 +263,11 @@ namespace Core.Catalog
                         if (shouldUseCache)
                         {
                             definitions.entitlementSearchDefinitions =
-                                EntitlementDefinitionsCache.Instance().GetEntitlementSearchDefinitions(definitions, request, request.order, parentGroupID, group, type);
+                                EntitlementDefinitionsCache.Instance().GetEntitlementSearchDefinitions(definitions, request, parentGroupID, group, type);
                         }
                         else
                         {
-                            BuildEntitlementSearchDefinitions(definitions, request, request.order, parentGroupID, group);
+                            BuildEntitlementSearchDefinitions(definitions, request, parentGroupID, group);
                         }
                     }
                 }
@@ -338,7 +298,6 @@ namespace Core.Catalog
                 }
 
                 definitions.isGroupingOptionInclude = request.searchGroupBy != null && (request.searchGroupBy.isGroupingOptionInclude || request.isGroupingOptionInclude);
-                definitions.trendingAssetWindow = request.order?.trendingAssetWindow;
                 #endregion
 
                 #region Get Recordings
@@ -399,10 +358,7 @@ namespace Core.Catalog
                 {
                     foreach (var field in extraReturnFields)
                     {
-                        if (!definitions.extraReturnFields.Contains(field.ToLower()))
-                        {
-                            definitions.extraReturnFields.Add(field.ToLower());
-                        }
+                        definitions.extraReturnFields.Add(field.ToLower());
                     }
 
                     definitions.shouldReturnExtendedSearchResult = true;
@@ -461,6 +417,33 @@ namespace Core.Catalog
                 {
                     definitions.preference = "BeInternal";
                 }
+
+                #endregion
+
+                #region Order
+                // Ordering should go at the end as it depends on other definitions properties.
+                var model = new AssetListEsOrderingCommonInput
+                {
+                    GroupId = definitions.groupId,
+                    ShouldSearchEpg = definitions.shouldSearchEpg,
+                    ShouldSearchMedia = definitions.shouldSearchRecordings,
+                    ShouldSearchRecordings = definitions.shouldSearchRecordings,
+                    AssociationTags = definitions.associationTags,
+                    ParentMediaTypes = definitions.parentMediaTypes
+                };
+
+                var orderingResult = _assetOrderingService.MapToEsOrderByFields(
+                    request.order,
+                    request.orderingParameters,
+                    model);
+
+                definitions.orderByFields = orderingResult.EsOrderByFields;
+                definitions.extraReturnFields.UnionWith(
+                    _esSortingService.BuildExtraReturnFields(orderingResult.EsOrderByFields));
+
+                // Still need these assignments as IndexManagerV7 doesn't support secondary sorting.
+                definitions.order = orderingResult.Order;
+                definitions.trendingAssetWindow = definitions.order.trendingAssetWindow;
 
                 #endregion
             }
@@ -631,7 +614,11 @@ namespace Core.Catalog
             return result;
         }
 
-        public static void BuildEntitlementSearchDefinitions(UnifiedSearchDefinitions definitions, BaseRequest request, OrderObj order, int parentGroupID, Group group)
+        public static void BuildEntitlementSearchDefinitions(
+            UnifiedSearchDefinitions definitions,
+            BaseRequest request,
+            int parentGroupID,
+            Group group)
         {
             int[] fileTypes = null;
             CatalogGroupCache catalogGroupCache = null;
@@ -711,8 +698,7 @@ namespace Core.Catalog
             if (entitlementSearchDefinitions.shouldGetPurchasedAssets)
             {
                 entitlementSearchDefinitions.subscriptionSearchObjects =
-                    EntitledAssetsUtils.GetUserBundlePurchasedSearchObjects(request, parentGroupID, request.m_sSiteGuid, request.domainId, fileTypes,
-                    order, entitlementMediaTypes, definitions.deviceRuleId, null, entitlementSearchDefinitions.shouldGetOnlySubscriptionAssets);
+                    EntitledAssetsUtils.GetUserBundlePurchasedSearchObjects(request, parentGroupID, request.m_sSiteGuid, request.domainId, fileTypes, entitlementMediaTypes, definitions.deviceRuleId, null, entitlementSearchDefinitions.shouldGetOnlySubscriptionAssets);
             }
 
             if (entitlementSearchDefinitions.shouldGetFreeAssets)
@@ -744,7 +730,12 @@ namespace Core.Catalog
 
             // TODO: Maybe this will be the method that gets the FREE epg channel IDs
             var entitledChannelIds =
-                EntitledAssetsUtils.GetUserEntitledEpgChannelIds(parentGroupID, request.m_sSiteGuid, definitions, linearChannelMediaTypes, doesGroupUsesTemplates);
+                EntitledAssetsUtils.GetUserEntitledEpgChannelIds(
+                    parentGroupID,
+                    request.m_sSiteGuid,
+                    definitions,
+                    linearChannelMediaTypes,
+                    doesGroupUsesTemplates);
 
             epgChannelIds.AddRange(entitledChannelIds);
 

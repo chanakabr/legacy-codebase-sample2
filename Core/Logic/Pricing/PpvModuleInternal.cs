@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ApiObjects;
 
 namespace Core.Pricing
@@ -19,7 +20,7 @@ namespace Core.Pricing
         public bool? SubscriptionOnly { get; set; }
         public bool? IsActive { get; set; }
         public bool? FirstDeviceLimitation { get; set; }
-        public List<int> RelatedFileTypes;
+        public List<int> RelatedFileTypes{ get; set; }
         public AdsPolicy? AdsPolicy { get; set; }
         public long? VirtualAssetId { get; set; }
         public DateTime? CreateDate { get; set; }
@@ -100,29 +101,11 @@ namespace Core.Pricing
             {
                 shouldUpdate = true;
             }
-            else if(oldPPVModule.m_oCouponsGroup != null)
+            else if (oldPPVModule.m_oCouponsGroup != null)
             {
                 CouponsGroupId = couponGroupIdLong;
-            }   
-            
-            if (Description != null &&  Description != oldPPVModule.m_sDescription)
-            {
-                shouldUpdate = true;
             }
-            else
-            {
-                Description = oldPPVModule.m_sDescription;
-            }
-            
-            if (RelatedFileTypes != null && RelatedFileTypes != oldPPVModule.m_relatedFileTypes)
-            {
-                shouldUpdate = true;
-            }
-            else
-            {
-                RelatedFileTypes = oldPPVModule.m_relatedFileTypes;
-            }
-            
+
             if (SubscriptionOnly != null && SubscriptionOnly !=oldPPVModule.m_bSubscriptionOnly)
             {
                 shouldUpdate = true;
@@ -160,5 +143,31 @@ namespace Core.Pricing
             
             return shouldUpdate;
         }
+
+        public bool ShouldUpdateFileTypes(PPVModule oldPPVModule)
+        {
+            if (RelatedFileTypes != null && (
+                (RelatedFileTypes?.Count != 0 && oldPPVModule.m_relatedFileTypes == null) ||
+                (oldPPVModule.m_relatedFileTypes != null && !Enumerable.SequenceEqual(oldPPVModule.m_relatedFileTypes,
+                    RelatedFileTypes))))
+            {
+                return true;
+            }
+
+            return false;
+        }
+        
+        public bool ShouldUpdateDescription(PPVModule oldPPVModule)
+        {
+            if (Description != null && (
+                (Description.Length != 0 && oldPPVModule.m_sDescription == null) ||
+                (oldPPVModule.m_sDescription != null && !Enumerable.SequenceEqual(oldPPVModule.m_sDescription, Description))))
+            {
+                return true;
+            }
+
+            return false;
+        }
     }
+    
 }

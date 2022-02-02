@@ -5,11 +5,11 @@ using System.Reflection;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Newtonsoft.Json;
 using TVinciShared;
 using APILogic.DmsService;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace Core.Notification.Adapters
 {

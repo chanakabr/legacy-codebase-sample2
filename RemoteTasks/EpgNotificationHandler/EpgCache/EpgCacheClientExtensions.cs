@@ -1,4 +1,4 @@
-﻿using ConfigurationManager;
+﻿using Phx.Lib.Appconfig;
 using EpgCacheGrpcClientWrapper;
 using GrpcClientCommon;
 using Microsoft.Extensions.DependencyInjection;

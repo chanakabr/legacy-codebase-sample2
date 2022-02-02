@@ -4,7 +4,7 @@ using ApiObjects.Base;
 using ApiObjects.Pricing;
 using ApiObjects.Pricing.Dto;
 using CouchbaseManager;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Newtonsoft.Json;
 using ODBCWrapper;
 using System;
@@ -48,10 +48,11 @@ namespace DAL
 
     public interface IPricePlanRepository
     {
-        List<PricePlan> GetPricePlans(int groupId, List<long> pricePlanIds = null);
         bool DeletePricePlan(int groupId, long id, long userId);
         long InsertPricePlan(int groupId, PricePlan pricePlan, long userId);
         int UpdatePricePlan(int groupID, PricePlan pricePlan, long id, long userId);
+        DataTable GetPricePlansDT(int groupId, List<long> pricePlanIds = null);
+
     }
     public interface IModuleManagerRepository
     {
@@ -108,8 +109,10 @@ namespace DAL
         List<PpvDTO> Get_AllPpvModuleData(int groupID);
         int InsertPPV(int groupID, long updaterId, PpvDTO ppv);
         bool DeletePPV(int groupID, long userId, long id);
-
         int UpdatePPV(int groupID, long updaterId, int id, PpvDTO ppv);
+
+        int UpdatePPVFileTypes(int groupID, int id, List<int> fileTypesIds);
+        int UpdatePPVDescriptions(int groupID, long updaterId, int id, LanguageContainer[] descriptions);
         bool UpdatePpvVirtualAssetId(int groupId, long id, long? virtualAssetId, long userId);
     }
 
@@ -1672,7 +1675,7 @@ namespace DAL
             }
             return sp.ExecuteReturnValue<int>();
         }
-
+        
         public int UpdatePPV(int groupID, long updaterId, int id, PpvDTO ppv)
         {
             StoredProcedure sp = new StoredProcedure("Update_PPVModuleById");
@@ -1689,7 +1692,6 @@ namespace DAL
             sp.AddParameter("@firstDeviceLimitation", ppv.FirstDeviceLimitation);
             sp.AddParameter("@productCode", ppv.ProductCode);
             sp.AddParameter("@IsActive", ppv.IsActive);
-            sp.AddIDListParameter<int>("@FileTypeIds", ppv.FileTypesIds, "Id");
             sp.AddParameter("@Date", DateTime.UtcNow);
             if (ppv.AdsPolicy.HasValue)
             {
@@ -1700,10 +1702,29 @@ namespace DAL
             {
                 sp.AddParameter("@virtualAssetId", ppv.VirtualAssetId.Value);
             }
-            if (ppv.Descriptions != null)
-            {
-                sp.AddKeyValueListParameter<string, string>("@Description", ppv.Descriptions.Select(d => new KeyValuePair<string, string>(d.m_sLanguageCode3, d.m_sValue)).ToList(), "key", "value");
-            }
+            return sp.ExecuteReturnValue<int>();
+        }
+        
+        public int UpdatePPVFileTypes(int groupID, int id, List<int> fileTypesIds)
+        {
+            StoredProcedure sp = new StoredProcedure("UpdatePPVFileTypes");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@PPVID", id);
+            sp.AddIDListParameter<int>("@FileTypes", fileTypesIds, "Id");
+            sp.AddParameter("@Date", DateTime.UtcNow);
+            return sp.ExecuteReturnValue<int>();
+        }
+        
+        public int UpdatePPVDescriptions(int groupID, long updaterId, int id, LanguageContainer[] descriptions)
+        {
+            StoredProcedure sp = new StoredProcedure("UpdatePPVDescriptions");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@PPVID", id);
+            sp.AddParameter("@UpdaterId", updaterId);
+            sp.AddKeyValueListParameter("@Description", descriptions.Select(d => new KeyValuePair<string, string>(d.m_sLanguageCode3, d.m_sValue)).ToList(), "key", "value");
+            sp.AddParameter("@Date", DateTime.UtcNow);
             return sp.ExecuteReturnValue<int>();
         }
         
@@ -1991,53 +2012,6 @@ namespace DAL
             sp.AddIDListParameter("@usageModulesIds", pricePlanIds, "ID");
             sp.AddParameter("@shouldGetAll", pricePlanIds == null || pricePlanIds.Count == 0 ? 1 : 0);
             return sp.Execute();
-        }
-
-        public List<PricePlan> GetPricePlans(int groupId, List<long> pricePlanIds = null)
-        {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetPricePlans");
-            sp.SetConnectionKey("pricing_connection");
-            sp.AddParameter("@groupId", groupId);
-            sp.AddIDListParameter("@usageModulesIds", pricePlanIds, "ID");
-            sp.AddParameter("@shouldGetAll", pricePlanIds == null || pricePlanIds.Count == 0 ? 1 : 0);
-
-            return BuildPricePlanFromDataTable(sp.Execute());
-        }
-
-        private List<PricePlan> BuildPricePlanFromDataTable(DataTable pricePlanTable)
-        {
-            List<PricePlan> response = new List<PricePlan>();
-            if (pricePlanTable != null && pricePlanTable.Rows != null && pricePlanTable.Rows.Count > 0)
-            {
-                foreach (DataRow row in pricePlanTable.Rows)
-                {
-                    response.Add(BuildPricePlanFromDataRow(row));
-                }
-            }
-            return response;
-        }
-
-        private PricePlan BuildPricePlanFromDataRow(DataRow pricePlaneRow)
-        {
-            if (pricePlaneRow != null)
-            {
-                return new PricePlan()
-                {
-                    IsOfflinePlayBack = ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "OFFLINE_PLAYBACK") == 1,
-                    DiscountId = ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "ext_discount_id"),
-                    IsRenewable = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "is_renew")),
-                    MaxViewsNumber = ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "MAX_VIEWS_NUMBER"),
-                    Id = ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "ID"),
-                    RenewalsNumber = ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "num_of_rec_periods"),
-                    PriceDetailsId = ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "pricing_id"),
-                    Name = ODBCWrapper.Utils.GetSafeStr(pricePlaneRow, "NAME"),
-                    FullLifeCycle = ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "FULL_LIFE_CYCLE_MIN"),
-                    ViewLifeCycle = ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "VIEW_LIFE_CYCLE_MIN"),
-                    WaiverPeriod = ODBCWrapper.Utils.GetIntSafeVal(pricePlaneRow, "WAIVER_PERIOD"),
-                    IsWaiverEnabled = ODBCWrapper.Utils.ExtractBoolean(pricePlaneRow, "WAIVER"),
-                };
-            }
-            return null;
         }
 
         public List<PriceDetailsDTO> GetPriceDetails(int groupId)
@@ -2638,7 +2612,7 @@ namespace DAL
                     priceDetailsMap[id].Prices.Add(price);
                 }
             }
-            
+
             return priceDetailsMap.Values.ToList();
         }
 

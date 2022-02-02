@@ -19,7 +19,7 @@ namespace TVinciShared
         {
             IEnumerable<T>  output = null;
             illegalRequest = false;
-            
+
             if (pageSize < 0 || pageIndex < 0)
             {
                 // illegal parameters
@@ -34,7 +34,7 @@ namespace TVinciShared
                 }
                 else
                 {
-                    // apply paging on results 
+                    // apply paging on results
                     output = original.Skip(pageSize * pageIndex).Take(pageSize);
                 }
             }
@@ -55,10 +55,10 @@ namespace TVinciShared
 
             return keyValues;
         }
-        
+
         public static bool TryAdd<T>(this Dictionary<string, T> current, string key, T value)
             where T : class
-        {   
+        {
             if (!value.Equals(default(T)) && !current.ContainsKey(key))
             {
                 current.Add(key, value);
@@ -100,6 +100,26 @@ namespace TVinciShared
         public static bool IsEmpty<T>(this IEnumerable<T> collection)
         {
             return !collection.Any();
+        }
+
+        public static List<T> GetUpdatedValue<T>(this List<T> value, List<T> otherValue, ref bool needToUpdate)
+        {
+            if (value == null)
+            {
+                return otherValue;
+            }
+
+            if (otherValue != null)
+            {
+                var valueHasSet = new HashSet<T>(value);
+
+                if (!valueHasSet.SetEquals(otherValue))
+                {
+                    needToUpdate = true;
+                }
+            }
+
+            return value;
         }
     }
 }

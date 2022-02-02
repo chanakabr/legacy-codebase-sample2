@@ -1,6 +1,4 @@
-﻿using ApiLogic.Api.Managers;
-using ApiObjects;
-using ApiObjects.Response;
+﻿using ApiObjects;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -8,7 +6,6 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.ClientManagers.Client;
-using WebAPI.Clients;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -107,12 +104,7 @@ namespace WebAPI.Models.API
         internal override KalturaRegionListResponse GetRegions(int groupId, KalturaFilterPager pager, KalturaBaseResponseProfile responseProfile = null)
         {
             RegionFilter wsFilter = AutoMapper.Mapper.Map<RegionFilter>(this);
-
-            Func<GenericListResponse<Region>> getListFunc = () =>
-                             RegionManager.Instance.GetRegions(groupId, wsFilter, pager.getPageIndex(), pager.getPageSize());
-
-            KalturaGenericListResponse<KalturaRegion> response =
-                ClientUtils.GetResponseListFromWS<KalturaRegion, Region>(getListFunc);
+            var response = ClientsManager.ApiClient().GetRegions(groupId, wsFilter, pager.getPageIndex(), pager.getPageSize());
 
             KalturaRegionListResponse result = new KalturaRegionListResponse
             {

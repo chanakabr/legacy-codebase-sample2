@@ -5,9 +5,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 using ApiObjects.Base;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using KalturaRequestContext;
-using KLogMonitor;
+using Phx.Lib.Log;
 using TVinciShared;
 using WebAPI.ClientManagers;
 using WebAPI.Exceptions;
@@ -341,12 +341,14 @@ namespace WebAPI.Managers.Models
             HttpContext.Current.Items[Constants.GROUP_ID] = GroupId;
             HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_GROUP_ID, GroupId);
             HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_KS, this);
+            RequestContextUtilsInstance.Get().SetRegionId(GetPayload().RegionId);
         }
 
         public static void ClearOnRequest()
         {
             HttpContext.Current.Items.Remove(RequestContextConstants.REQUEST_GROUP_ID);
             HttpContext.Current.Items.Remove(RequestContextConstants.REQUEST_KS);
+            RequestContextUtilsInstance.Get().RemoveRegionId();
         }
 
         internal static void SaveOnRequest(KS ks)
@@ -368,6 +370,8 @@ namespace WebAPI.Managers.Models
                 else
                     HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_KS_ORIGINAL_USER_ID, originalUserId);
             }
+
+            RequestContextUtilsInstance.Get().SetRegionId(GetPayload().RegionId);
         }
 
         internal static KS GetFromRequest()

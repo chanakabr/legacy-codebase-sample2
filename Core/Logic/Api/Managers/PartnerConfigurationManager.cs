@@ -5,7 +5,7 @@ using CachingProvider.LayeredCache;
 using Core.Api;
 using CouchbaseManager;
 using DAL;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;

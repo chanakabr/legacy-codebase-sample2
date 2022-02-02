@@ -52,12 +52,15 @@ namespace ApiObjects.Notification
 
         [DataMember]
         public bool IncludeIot { get; set; }
+        
+        [DataMember]
+        public bool IncludeUserInbox { get; set; }
 
         public MessageAnnouncement() { }
 
         public override string ToString()
         {
-            return string.Format("MessageAnnouncement: Name: {0}, Message {1}, StartTime: {2}, TimeZone: {3} Status: {4}, Recipients {5}, Enabled {6}, AnnouncementId: {7}, IncludeMail: {8}, , MailTemplate: {9}, , MailSubject: {10}",
+            return string.Format("MessageAnnouncement: Name: {0}, Message {1}, StartTime: {2}, TimeZone: {3} Status: {4}, Recipients {5}, Enabled {6}, AnnouncementId: {7}, IncludeMail: {8}, , MailTemplate: {9}, , MailSubject: {10}, IncludeUserInbox: {11}",
                 Name,
                 Message,
                 StartTime,
@@ -68,7 +71,8 @@ namespace ApiObjects.Notification
                 AnnouncementId,
                 IncludeMail,
                 MailTemplate,
-                MailTemplate);
+                MailTemplate,
+                IncludeUserInbox);
         }
     }
 }

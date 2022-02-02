@@ -4,10 +4,10 @@ using System.Web;
 //using System.Web.SessionState;
 using System.Configuration;
 using System.Data;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using System.Data.SqlClient;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace TVPApi.ODBCWrapper
 {
@@ -89,7 +89,7 @@ namespace TVPApi.ODBCWrapper
 
                 try
                 {
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = sVirtualTableName, QueryType = KLogEnums.eDBQueryType.UPDATE })
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = sVirtualTableName, QueryType = KLogEnums.eDBQueryType.UPDATE })
                     {
                         DataTable dataTable = new DataTable(sVirtualTableName);
                         dataTable.BeginLoadData();

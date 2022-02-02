@@ -1,12 +1,13 @@
 ﻿using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.SearchObjects;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using GroupsCacheManager.Mappers;
 using Tvinci.Core.DAL;
 
 namespace GroupsCacheManager
@@ -412,21 +413,10 @@ namespace GroupsCacheManager
                     #endregion
 
                     #region Order
-
-                    channel.m_OrderObject = new ApiObjects.SearchObjects.OrderObj();
-                    int orderBy = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_type"]);
-                    // get order by value 
-                    string orderByValue = ODBCWrapper.Utils.GetSafeStr(rowData, "ORDER_BY_VALUE");
-
-                    // initiate orderBy object 
-                    UpdateOrderByObjec(orderBy, ref channel, group, orderByValue);
-
-                    int orderDirection = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_dir"]) - 1;
-                    channel.m_OrderObject.m_eOrderDir =
-                        (ApiObjects.SearchObjects.OrderDir)ApiObjects.SearchObjects.OrderDir.ToObject(typeof(ApiObjects.SearchObjects.OrderDir), orderDirection);
-                    channel.m_OrderObject.m_bIsSlidingWindowField = channel.m_OrderObject.isSlidingWindowFromRestApi = ODBCWrapper.Utils.GetIntSafeVal(rowData["IsSlidingWindow"]) == 1;
-                    channel.m_OrderObject.lu_min_period_id = ODBCWrapper.Utils.GetIntSafeVal(rowData["SlidingWindowPeriod"]);
-
+                    
+                    channel.OrderingParameters = ChannelDataRowMapper.BuildOrderingParameters(rowData);
+                    channel.m_OrderObject = ChannelDataRowMapper.BuildOrderObj(channel.OrderingParameters.First());
+                    
                     #endregion
 
                     #region Is And

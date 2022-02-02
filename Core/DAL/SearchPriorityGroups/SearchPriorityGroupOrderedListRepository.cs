@@ -3,7 +3,7 @@ using System.Threading;
 using ApiObjects.Response;
 using ApiObjects.SearchPriorityGroups;
 using CouchbaseManager;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 

@@ -1,5 +1,5 @@
 ﻿using ApiObjects.BulkUpload;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

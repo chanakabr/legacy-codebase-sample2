@@ -1,12 +1,12 @@
-using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Appconfig.Settings.Base;
+using Phx.Lib.Appconfig.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using ConfigurationManager;
 using System.Text;
-using ConfigurationManager.Types;
 
 namespace Tests.ConfigTest
 {

@@ -1,9 +1,9 @@
 ﻿using ApiObjects;
 using ApiObjects.SearchObjects;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Catalog;
 using ElasticSearchHandler;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Data;

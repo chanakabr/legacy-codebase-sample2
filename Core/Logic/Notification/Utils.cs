@@ -3,7 +3,7 @@ using ApiObjects.Notification;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using DAL;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -14,7 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using Core.Catalog;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using TVinciShared;
 using Core.Catalog.CatalogManagement;
 using System.Net;
@@ -78,7 +78,8 @@ namespace Core.Notification
                 MailTemplate = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_TEMPLATE"),
                 IncludeMail = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_EMAIL") > 0) ? true : false),
                 IncludeSms = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_SMS") > 0) ? true : false),
-                IncludeIot = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_IOT") > 0) ? true : false)
+                IncludeIot = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_IOT") > 0) ? true : false),
+                IncludeUserInbox = ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_USER_INBOX") > 0
             };
 
             return msg;

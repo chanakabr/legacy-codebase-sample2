@@ -2,6 +2,7 @@ namespace KalturaRequestContext
 {
     public static class RequestContextConstants
     {
+        public const string SESSION_ID_KEY = "x-kaltura-session-id";
         public const string REQUEST_ID_KEY = "kmon_req_id";
         public const string REQUEST_METHOD_PARAMETERS = "requestMethodParameters";
         public const string REQUEST_VERSION = "requestVersion";
@@ -16,7 +17,7 @@ namespace KalturaRequestContext
         public const string USER_IP = "USER_IP";
         public const string RESPONSE_FORMAT = "responseFormat";
 
-        // same key as in REST solution KLogMonitor.Constants
+        // same key as in REST solution Phx.Lib.Log.Constants
         // in-case changing this  - you must change there  as well
         public const string REQUEST_GLOBAL_KS = "global_ks";
 

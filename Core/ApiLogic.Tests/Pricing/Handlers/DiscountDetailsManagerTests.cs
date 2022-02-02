@@ -11,10 +11,8 @@ using Core.Pricing;
 using DAL;
 using Moq;
 using NUnit.Framework;
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using Core.GroupManagers;
 
@@ -304,5 +302,4 @@ namespace ApiLogic.Tests.Pricing
             }
         }
     }
-
 }

@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Web;
 using ApiObjects.User;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using KalturaRequestContext;
-using KLogMonitor;
-using KlogMonitorHelper;
+using Phx.Lib.Log;
+
 using Newtonsoft.Json.Linq;
 using TVinciShared;
 using WebAPI.Filters;
@@ -35,7 +35,7 @@ namespace WebAPI
             SetRequestVersion(requestParams);
             SetRequestClientTag(requestParams);
 
-            var loggingContext = new ContextData();
+            var loggingContext = new LogContextData();
             loggingContext.Load();
         }
 

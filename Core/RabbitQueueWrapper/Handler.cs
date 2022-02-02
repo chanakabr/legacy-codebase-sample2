@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using QueueWrapper;
 using ApiObjects;
-using KLogMonitor;
+using Phx.Lib.Log;
 
 namespace RabbitQueueWrapper
 {

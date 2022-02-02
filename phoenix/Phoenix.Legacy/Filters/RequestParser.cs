@@ -11,10 +11,9 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
-using ConfigurationManager;
 using HttpMultipartParser;
 using KalturaRequestContext;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using WebAPI.Exceptions;
@@ -22,6 +21,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Reflection;
+using Phx.Lib.Appconfig;
 
 namespace WebAPI.Filters
 {

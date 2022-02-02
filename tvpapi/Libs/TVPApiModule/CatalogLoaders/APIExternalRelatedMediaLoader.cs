@@ -1,4 +1,4 @@
-﻿using KLogMonitor;
+﻿using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -17,7 +17,7 @@ using TVPApiModule.Objects.Responses;
 using TVPPro.Configuration.Technical;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Helper;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace TVPApiModule.CatalogLoaders
 {

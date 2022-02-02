@@ -14,7 +14,7 @@ namespace WebAPI.Models.Catalog
     /// Kaltura Base Search Asset Filter
     /// </summary>
     [Serializable]
-    abstract public partial class KalturaBaseSearchAssetFilter : KalturaAssetFilter
+    public abstract partial class KalturaBaseSearchAssetFilter : KalturaAssetFilter
     {
         /// <summary>
         /// <![CDATA[
@@ -47,11 +47,7 @@ namespace WebAPI.Models.Catalog
         [XmlArray(ElementName = "groupBy", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        public List<KalturaAssetGroupBy> GroupBy
-        {
-            get;
-            set;
-        }
+        public List<KalturaAssetGroupBy> GroupBy { get; set; }
 
         /// <summary>
         /// order by of grouping
@@ -60,11 +56,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("groupOrderBy")]
         [XmlElement(ElementName = "groupOrderBy", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        public KalturaGroupByOrder? GroupByOrder
-        {
-            get;
-            set;
-        }
+        public KalturaGroupByOrder? GroupByOrder { get; set; }
 
         /// <summary>
         /// Grouping Option, Omit if not specified otherwise
@@ -72,11 +64,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "groupingOptionEqual")]
         [JsonProperty("groupingOptionEqual")]
         [XmlElement(ElementName = "groupingOptionEqual", IsNullable = true)]
-        public KalturaGroupingOption? GroupingOptionEqual
-        {
-            get;
-            set;
-        }
+        public KalturaGroupingOption? GroupingOptionEqual { get; set; }
 
         internal List<string> getGroupByValue()
         {

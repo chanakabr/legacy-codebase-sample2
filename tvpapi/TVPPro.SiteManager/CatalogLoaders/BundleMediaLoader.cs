@@ -7,7 +7,7 @@ using ApiObjects.Catalog;
 using ApiObjects.SearchObjects;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
-using KLogMonitor;
+using Phx.Lib.Log;
 using TVPPro.SiteManager.Manager;
 
 namespace TVPPro.SiteManager.CatalogLoaders

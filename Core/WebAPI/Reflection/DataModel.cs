@@ -1,4 +1,21 @@
 // NOTICE: This is a generated file, to modify it, edit Program.cs in Reflector project
+// disable compiler warning due to generation of empty usages ot unused vars
+// ReSharper disable RedundantUsingDirective
+// ReSharper disable CheckNamespace
+// ReSharper disable NotAccessedVariable
+// ReSharper disable UnusedVariable
+// ReSharper disable RedundantAssignment
+// ReSharper disable PossibleMultipleEnumeration
+// ReSharper disable UnusedParameter.Local
+// ReSharper disable PossibleNullReferenceException
+// ReSharper disable AssignNullToNotNullAttribute
+// ReSharper disable BadChildStatementIndent
+// ReSharper disable StringLiteralTypo
+// ReSharper disable RedundantArgumentDefaultValue
+// ReSharper disable ExpressionIsAlwaysNull
+#pragma warning disable 168
+#pragma warning disable 1522
+#pragma warning disable 612
 using System;
 using System.Net;
 using System.Collections.Generic;
@@ -26,6 +43,7 @@ using WebAPI.App_Start;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.Pricing;
 using WebAPI.Models.Segmentation;
+using WebAPI.Models.Catalog.Ordering;
 using WebAPI.Models.Users;
 using WebAPI.Models.Partner;
 using WebAPI.Models.Upload;
@@ -41,6 +59,7 @@ using WebAPI.Models.ConditionalAccess.FilterActions.Assets;
 using WebAPI.Models.ConditionalAccess.FilterActions.Files;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
+using WebAPI.Models.IngestStatus;
 using WebAPI.Models.Api;
 using WebAPI.Models.Catalog.SearchPriorityGroup;
 
@@ -131,6 +150,8 @@ namespace WebAPI.Reflection
                             return "includeMail";
                         case "IncludeSms":
                             return "includeSms";
+                        case "IncludeUserInbox":
+                            return "includeUserInbox";
                         case "MailSubject":
                             return "mailSubject";
                         case "MailTemplate":
@@ -386,6 +407,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAssetDynamicOrder":
+                    switch(property.Name)
+                    {
+                        case "Name":
+                            return "name";
+                        case "OrderBy":
+                            return "orderBy";
+                    }
+                    break;
+                    
                 case "KalturaAssetEvent":
                     switch(property.Name)
                     {
@@ -467,6 +498,12 @@ namespace WebAPI.Reflection
                     {
                         case "DynamicOrderBy":
                             return "dynamicOrderBy";
+                        case "OrderBy":
+                            return "orderBy";
+                        case "OrderParameters":
+                            return "orderingParameters";
+                        case "ShouldApplyPriorityGroupsEqual":
+                            return "shouldApplyPriorityGroupsEqual";
                         case "TrendingDaysEqual":
                             return "trendingDaysEqual";
                     }
@@ -598,6 +635,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAssetOrder":
+                    switch(property.Name)
+                    {
+                        case "OrderBy":
+                            return "orderBy";
+                    }
+                    break;
+                    
                 case "KalturaAssetOrderSegmentAction":
                     switch(property.Name)
                     {
@@ -711,6 +756,16 @@ namespace WebAPI.Reflection
                     {
                         case "AssetsStatistics":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaAssetStatisticsOrder":
+                    switch(property.Name)
+                    {
+                        case "OrderBy":
+                            return "orderBy";
+                        case "TrendingDaysEqual":
+                            return "trendingDaysEqual";
                     }
                     break;
                     
@@ -1659,6 +1714,8 @@ namespace WebAPI.Reflection
                             return "order";
                         case "OrderBy":
                             return "orderBy";
+                        case "OrderingParameters":
+                            return "orderingParametersEqual";
                         case "SupportSegmentBasedOrdering":
                             return "supportSegmentBasedOrdering";
                         case "SystemName":
@@ -1667,6 +1724,16 @@ namespace WebAPI.Reflection
                             return "updateDate";
                         case "VirtualAssetId":
                             return "virtualAssetId";
+                    }
+                    break;
+                    
+                case "KalturaChannelDynamicOrder":
+                    switch(property.Name)
+                    {
+                        case "Name":
+                            return "name";
+                        case "OrderBy":
+                            return "orderBy";
                     }
                     break;
                     
@@ -1682,6 +1749,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaChannelFieldOrder":
+                    switch(property.Name)
+                    {
+                        case "OrderBy":
+                            return "orderBy";
+                    }
+                    break;
+                    
                 case "KalturaChannelFilter":
                     switch(property.Name)
                     {
@@ -1689,8 +1764,6 @@ namespace WebAPI.Reflection
                             return "excludeWatched";
                         case "IdEqual":
                             return "idEqual";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -1755,6 +1828,16 @@ namespace WebAPI.Reflection
                             return "nameEqual";
                         case "NameStartsWith":
                             return "nameStartsWith";
+                    }
+                    break;
+                    
+                case "KalturaChannelSlidingWindowOrder":
+                    switch(property.Name)
+                    {
+                        case "OrderBy":
+                            return "orderBy";
+                        case "SlidingWindowPeriod":
+                            return "period";
                     }
                     break;
                     
@@ -3501,6 +3584,10 @@ namespace WebAPI.Reflection
                             return "deleteMediaPolicy";
                         case "DowngradePolicy":
                             return "downgradePolicy";
+                        case "DowngradePriorityFamilyIds":
+                            return "downgradePriorityFamilyIds";
+                        case "EnableMultiLcns":
+                            return "enableMultiLcns";
                         case "EnableRegionFiltering":
                             return "enableRegionFiltering";
                         case "FinishedPercentThreshold":
@@ -3732,7 +3819,7 @@ namespace WebAPI.Reflection
                         case "Frequency":
                             return "frequency";
                         case "IsDefaultConcurrentLimit":
-                            return "isDefaultConcurrentLimit ";
+                            return "isDefaultConcurrentLimit";
                         case "IsDefaultDeviceLimit":
                             return "isDefaultDeviceLimit";
                     }
@@ -4076,6 +4163,52 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaIngestByCompoundFilter":
+                    switch(property.Name)
+                    {
+                        case "CreatedDateGreaterThan":
+                            return "createdDateGreaterThan";
+                        case "CreatedDateSmallerThan":
+                            return "createdDateSmallerThan";
+                        case "IngestedByUserIdIn":
+                            return "ingestedByUserIdIn";
+                        case "IngestNameContains":
+                            return "ingestNameContains";
+                        case "IngestStatusIn":
+                            return "ingestStatusIn";
+                    }
+                    break;
+                    
+                case "KalturaIngestByIdsFilter":
+                    switch(property.Name)
+                    {
+                        case "IngestIdIn":
+                            return "ingestIdIn";
+                    }
+                    break;
+                    
+                case "KalturaIngestEpg":
+                    switch(property.Name)
+                    {
+                        case "CompletedDate":
+                            return "completedDate";
+                        case "CreatedDate":
+                            return "createdDate";
+                        case "IngestedByUserId":
+                            return "ingestedByUserId";
+                        case "IngestFilenameExtension":
+                            return "ingestFilenameExtension";
+                        case "IngestId":
+                            return "ingestId";
+                        case "IngestName":
+                            return "ingestName";
+                        case "IngestProfileId":
+                            return "ingestProfileId";
+                        case "Status":
+                            return "status";
+                    }
+                    break;
+                    
                 case "KalturaIngestProfile":
                     switch(property.Name)
                     {
@@ -4107,6 +4240,24 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaIngestStatusEpgConfiguration":
+                    switch(property.Name)
+                    {
+                        case "IsSupported":
+                            return "isSupported";
+                        case "RetainingPeriod":
+                            return "retainingPeriod";
+                    }
+                    break;
+                    
+                case "KalturaIngestStatusPartnerConfiguration":
+                    switch(property.Name)
+                    {
+                        case "Epg":
+                            return "epg";
                     }
                     break;
                     
@@ -6144,6 +6295,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaPriorityGroupListResponse":
+                    switch(property.Name)
+                    {
+                        case "Values":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaProductCode":
                     switch(property.Name)
                     {
@@ -6215,6 +6374,8 @@ namespace WebAPI.Reflection
                             return "epgChannelId";
                         case "EpgId":
                             return "epgId";
+                        case "ExternalOfferIds":
+                            return "externalOfferIds";
                         case "LinearAssetId":
                             return "linearAssetId";
                         case "RelatedMediaId":
@@ -6546,6 +6707,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaRegionalChannelMultiLcns":
+                    switch(property.Name)
+                    {
+                        case "LCNs":
+                            return "lcns";
+                    }
+                    break;
+                    
                 case "KalturaRegionChannelNumber":
                     switch(property.Name)
                     {
@@ -6553,6 +6722,14 @@ namespace WebAPI.Reflection
                             return "channelNumber";
                         case "RegionId":
                             return "regionId";
+                    }
+                    break;
+                    
+                case "KalturaRegionChannelNumberMultiLcns":
+                    switch(property.Name)
+                    {
+                        case "LCNs":
+                            return "lcns";
                     }
                     break;
                     
@@ -10444,6 +10621,24 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "ingeststatus":
+                    switch(action)
+                    {
+                        case "getepglist":
+                            return IngestStatusController.GetEpgList((KalturaIngestByIdsFilter) methodParams[0], (KalturaIngestByCompoundFilter) methodParams[1], (KalturaFilterPager) methodParams[2]);
+                            
+                        case "getpartnerconfiguration":
+                            RolesManager.ValidateActionPermitted("ingestStatus", "getPartnerConfiguration", false);
+                            return IngestStatusController.GetPartnerConfiguration();
+                            
+                        case "updatepartnerconfiguration":
+                            RolesManager.ValidateActionPermitted("ingestStatus", "updatePartnerConfiguration", false);
+                            IngestStatusController.UpdatePartnerConfiguration((KalturaIngestStatusPartnerConfiguration) methodParams[0]);
+                            return null;
+                            
+                    }
+                    break;
+                    
                 case "iot":
                     switch(action)
                     {
@@ -10541,6 +10736,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "get":
+                            RolesManager.ValidateActionPermitted("lineup", "get", false);
                             return LineupController.Get((Nullable<int>) methodParams[0], (Nullable<int>) methodParams[1]);
                             
                         case "sendupdatednotification":
@@ -17786,6 +17982,47 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "ingeststatus":
+                    switch(action)
+                    {
+                        case "getepglist":
+                            ret.Add("idsFilter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaIngestByIdsFilter),
+                            });
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaIngestByCompoundFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "getpartnerconfiguration":
+                            return ret;
+                            
+                        case "updatepartnerconfiguration":
+                            ret.Add("config", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaIngestStatusPartnerConfiguration),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
                 case "iot":
                     switch(action)
                     {
@@ -21085,6 +21322,13 @@ namespace WebAPI.Reflection
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("session", "session", "getOldStandard") {
+                                    RequiresPermission = true,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
+                                },
                             });
                             return ret;
                             

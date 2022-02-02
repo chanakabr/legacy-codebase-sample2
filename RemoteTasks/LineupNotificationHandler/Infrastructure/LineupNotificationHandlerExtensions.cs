@@ -1,0 +1,46 @@
+﻿using ApiLogic.Api.Managers;
+using ApiLogic.Api.Validators;
+using ApiLogic.Catalog.CatalogManagement.Repositories;
+using ApiLogic.EPG;
+using ApiLogic.Notification;
+using CachingProvider.LayeredCache;
+using Core.Catalog.Cache;
+using Core.Catalog.CatalogManagement;
+using Core.Domains;
+using Core.GroupManagers;
+using Core.Notification;
+using DAL;
+using GroupsCacheManager;
+using LineupNotificationHandler.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using NotificationHandlers.Common;
+using Module = Core.Domains.Module;
+
+namespace LineupNotificationHandler.Infrastructure
+{
+    public static class LineupNotificationHandlerExtensions
+    {
+        public static IServiceCollection AddLineupNotificationHandlerDependencies(this IServiceCollection serviceCollection)
+            => serviceCollection
+                .AddScoped<IIotManager, IotManager>()
+                // use overload with delegate to be able to replace implementation (ex: in unit tests)
+                .AddSingleton<IEpgV2PartnerConfigurationManager>(serviceProvider => EpgV2PartnerConfigurationManager.Instance)
+                .AddSingleton<IGeneralPartnerConfigManager, GeneralPartnerConfigManager>()
+                .AddSingleton<IGeneralPartnerConfigRepository, ApiDAL>()
+                .AddSingleton<ILineupNotificationConfiguration, LineupNotificationConfiguration>()
+                .AddSingleton<INotificationDal, NotificationDal>()
+                .AddSingleton<ILayeredCache, LayeredCache>()
+                .AddSingleton<IDomainModule, Module>()
+                .AddSingleton<INotificationCache, NotificationCache>()
+                .AddSingleton<ICatalogCache, CatalogCache>()
+                .AddSingleton<ICatalogManager, CatalogManager>()
+                .AddSingleton<IRegionManager, RegionManager>()
+                .AddSingleton<IRegionValidator, RegionValidator>()
+                .AddSingleton<ILabelDal, LabelDal>()
+                .AddSingleton<ILabelRepository, LabelRepository>()
+                .AddSingleton<IAssetStructMetaRepository, AssetStructMetaRepository>()
+                .AddSingleton<IGroupSettingsManager, GroupSettingsManager>()
+                .AddSingleton<IGroupManager, GroupManager>()
+                .AddSingleton<IIotNotificationService, IotNotificationService>();
+    }
+}

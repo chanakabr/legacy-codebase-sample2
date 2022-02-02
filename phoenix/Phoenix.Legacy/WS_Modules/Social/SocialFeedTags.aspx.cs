@@ -7,7 +7,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using Core.Social;
 using TVinciShared;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace WS_Social
 {

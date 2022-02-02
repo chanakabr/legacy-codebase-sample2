@@ -1,5 +1,5 @@
 ﻿using ApiObjects;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Polly;
 using Polly.Retry;
 using System;
@@ -126,6 +126,35 @@ namespace ApiLogic.IndexManager.Helpers
             }
         }
 
+        public static bool IsSlidingWindowSupported(OrderBy orderBy)
+            => typeof(OrderBy)
+                .GetMember(orderBy.ToString())[0]
+                .GetCustomAttributes(typeof(SlidingWindowSupportedAttribute), false).Length > 0;
+
+        public static bool IsChannelOrderCompatibleWithGroupBy(
+            SearchAggregationGroupBy searchGroupBy,
+            IReadOnlyCollection<AssetOrder> orderingParameters,
+            OrderObj order)
+        {
+            if (searchGroupBy?.groupBy == null || !searchGroupBy.groupBy.Any())
+            {
+                return true;
+            }
+
+            if (orderingParameters?.Count > 0)
+            {
+                return searchGroupBy?.groupBy?.Count == 1
+                    && orderingParameters.Count == 1
+                    && GroupBySearchIsSupportedForOrder(orderingParameters.Single().Field);
+            }
+            if (order != null)
+            {
+                return searchGroupBy?.groupBy?.Count == 1 && GroupBySearchIsSupportedForOrder(order.m_eOrderBy);
+            }
+
+            return false;
+        }
+
         public static bool GroupBySearchIsSupportedForOrder(OrderBy orderBy) => GetStrategy(orderBy) != null;
 
         internal static IGroupBySearch GetStrategy(OrderBy orderBy)
@@ -137,7 +166,7 @@ namespace ApiLogic.IndexManager.Helpers
                 case OrderBy.CREATE_DATE:
                 case OrderBy.START_DATE: return new GroupByWithOrderByNumericField();
                 case OrderBy.NAME:
-                case OrderBy.META: return new GroupByWithOrderByNonNumericField();
+                case OrderBy.META: return GroupByWithOrderByNonNumericField.Instance;
                 default: return null;
             }
         }

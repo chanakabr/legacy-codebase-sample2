@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Web;
 using System.Reflection;
 
@@ -28,7 +28,7 @@ namespace ApiObjects
             get
             {
                 // TODO: Debug and test this is indeed returning reqId
-                string reqId = GetHeaderData(KLogMonitor.Constants.REQUEST_ID_KEY);
+                string reqId = GetHeaderData(Phx.Lib.Log.Constants.REQUEST_ID_KEY);
                 if (reqId != null)
                     return reqId;
                 else

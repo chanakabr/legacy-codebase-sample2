@@ -10,7 +10,7 @@ using Core.Catalog.Response;
 using CouchbaseManager;
 using DAL;
 using Force.DeepCloner;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Newtonsoft.Json;
 using Synchronizer;
 using System;
@@ -23,6 +23,7 @@ using System.Text;
 using System.Threading;
 using System.Xml;
 using ApiLogic.Catalog;
+using ApiObjects.SearchPriorityGroups;
 using Tvinci.Core.DAL;
 using TVinciShared;
 
@@ -61,7 +62,7 @@ namespace Core.Catalog.CatalogManagement
         public const string PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME = "PlaybackEndDateTime";
         public const string CREATE_DATE_TIME_META_SYSTEM_NAME = "CreateDate";
 
-        internal const string CHANNEL_ID_META_SYSTEM_NAME = "ChannelId";
+        internal const string CHANNEL_ID_META_SYSTEM_NAME = "CollectionEntityId";  //BEO-11199
         internal const string MANUAL_ASSET_STRUCT_NAME = "Manual";
         internal const string DYNAMIC_ASSET_STRUCT_NAME = "Dynamic";
         internal const string EXTERNAL_ASSET_STRUCT_NAME = "External";
@@ -2765,26 +2766,30 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static GenericListResponse<Asset> GetOrderedAssets(int groupId, List<BaseObject> assets, bool isAllowedToViewInactiveAssets)
+        public static GenericListResponse<AssetPriority> GetOrderedAssets(
+            int groupId,
+            List<BaseObject> assets,
+            bool isAllowedToViewInactiveAssets,
+            IReadOnlyDictionary<double, SearchPriorityGroup> priorityGroupsMapping = null)
         {
-            GenericListResponse<Asset> result = new GenericListResponse<Asset>();
+            var resultScore = new GenericListResponse<AssetPriority>();
 
             try
             {
                 if (assets != null && assets.Count > 0)
                 {
-                    List<KeyValuePair<eAssetTypes, long>> assetsToRetrieve = new List<KeyValuePair<eAssetTypes, long>>();
-                    HashSet<string> items = new HashSet<string>();
+                    var assetsToRetrieve = new List<KeyValuePair<eAssetTypes, long>>();
+                    var items = new HashSet<string>();
 
-                    Dictionary<string, RecordingSearchResult> recordingsMap = new Dictionary<string, RecordingSearchResult>();
+                    var recordingsMap = new Dictionary<string, RecordingSearchResult>();
 
                     var epgIdToDocumentId = new Dictionary<string, string>();
                     var isEpgV2 = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EPG_INGEST_V2);
 
                     foreach (var item in assets)
                     {
-                        eAssetTypes assetType = item.AssetType;
-                        string assetId = item.AssetId;
+                        var assetType = item.AssetType;
+                        var assetId = item.AssetId;
 
                         if (item.AssetType == eAssetTypes.NPVR)
                         {
@@ -2812,7 +2817,7 @@ namespace Core.Catalog.CatalogManagement
                             }
                         }
 
-                        string key = string.Format("{0}_{1}", assetType.ToString(), assetId);
+                        var key = string.Format("{0}_{1}", assetType.ToString(), assetId);
 
                         if (!items.Contains(key))
                         {
@@ -2823,21 +2828,22 @@ namespace Core.Catalog.CatalogManagement
 
                     int totalAmountOfDistinctAssets = assetsToRetrieve.Count;
 
-                    List<Asset> unOrderedAssets = GetAssets(groupId, assetsToRetrieve, isAllowedToViewInactiveAssets, true, epgIdToDocumentId);
+                    var unOrderedAssets = GetAssets(groupId, assetsToRetrieve, isAllowedToViewInactiveAssets, true, epgIdToDocumentId);
 
                     if (!isAllowedToViewInactiveAssets && (unOrderedAssets == null || unOrderedAssets.Count == 0))
                     {
-                        result.SetStatus(eResponseStatus.OK);
-                        return result;
+                        resultScore.SetStatus(eResponseStatus.OK);
+                        return resultScore;
                     }
 
-                    string keyFormat = "{0}_{1}"; // mapped asset key format = assetType_assetId
-                    Dictionary<string, Asset> mappedAssets = unOrderedAssets.ToDictionary(x => string.Format(keyFormat, x.AssetType.ToString(), x.Id), x => x);
-                    foreach (BaseObject baseAsset in assets)
+                    var keyFormat = "{0}_{1}"; // mapped asset key format = assetType_assetId
+                    var mappedAssets = unOrderedAssets.ToDictionary(x => string.Format(keyFormat, x.AssetType.ToString(), x.Id), x => x);
+                    var priorityGroupGetter = priorityGroupsMapping == null ? (Func<BaseObject, long?>)(_ => null) : GetPriorityGroupId;
+                    foreach (var baseAsset in assets)
                     {
-                        bool isNpvr = baseAsset.AssetType == eAssetTypes.NPVR;
-
-                        Asset asset = null;
+                        var isNpvr = baseAsset.AssetType == eAssetTypes.NPVR;
+                        
+                        AssetPriority assetPriority = null;
                         if (!isNpvr)
                         {
                             var key = string.Format(keyFormat, baseAsset.AssetType.ToString(), baseAsset.AssetId);
@@ -2846,8 +2852,8 @@ namespace Core.Catalog.CatalogManagement
                                 log.DebugFormat("GetOrderedAssets: Asset {0} with Key {1} not found in mapped assets", baseAsset.AssetId, key);
                                 continue;
                             }
-
-                            asset = mappedAssets[key];
+                            
+                            assetPriority = new AssetPriority(mappedAssets[key], priorityGroupGetter(baseAsset));
                         }
                         else if (recordingsMap.ContainsKey(baseAsset.AssetId))
                         {
@@ -2857,42 +2863,43 @@ namespace Core.Catalog.CatalogManagement
                                 log.DebugFormat("GetOrderedAssets: NPVR asset {0} with Key {1} not found in mapped assets", baseAsset.AssetId, key);
                                 continue;
                             }
-
-                            asset = mappedAssets[key];
+                            
+                            assetPriority = new AssetPriority(mappedAssets[key], priorityGroupGetter(baseAsset));
                         }
 
-                        if (asset.IndexStatus == AssetIndexStatus.Deleted)
+                        if (assetPriority.Asset.IndexStatus == AssetIndexStatus.Deleted)
                         {
-                            result.Objects.Add(asset);
+                            resultScore.Objects.Add(assetPriority);
                             continue;
                         }
 
                         if (!isAllowedToViewInactiveAssets
                             || isNpvr
-                            || Math.Abs((baseAsset.m_dUpdateDate - asset.UpdateDate.Value).TotalSeconds) <= 1)
+                            || Math.Abs((baseAsset.m_dUpdateDate - assetPriority.Asset.UpdateDate.Value).TotalSeconds) <= 1)
                         {
                             if (isNpvr)
                             {
-                                RecordingAsset recordingAsset = new RecordingAsset((EpgAsset)asset);
+                                RecordingAsset recordingAsset = new RecordingAsset((EpgAsset)assetPriority?.Asset);
                                 recordingAsset.RecordingId = baseAsset.AssetId;
                                 recordingAsset.RecordingType = recordingsMap[baseAsset.AssetId].RecordingType;
 
-                                result.Objects.Add(recordingAsset);
+                                assetPriority = new AssetPriority(recordingAsset, priorityGroupGetter(baseAsset));
+                                resultScore.Objects.Add(assetPriority);
                             }
                             else
                             {
-                                result.Objects.Add(asset);
+                                resultScore.Objects.Add(assetPriority);
                             }
                         }
                         else
                         {
-                            asset.IndexStatus = AssetIndexStatus.NotUpdated;
-                            result.Objects.Add(asset);
-                            log.DebugFormat("Get NotUpdated Asset {0}, groupId {1}", asset.Id, groupId);
+                            assetPriority.Asset.IndexStatus = AssetIndexStatus.NotUpdated;
+                            resultScore.Objects.Add(assetPriority);
+                            log.DebugFormat("Get NotUpdated Asset {0}, groupId {1}", assetPriority.Asset.Id, groupId);
                         }
                     }
-
-                    result.SetStatus(eResponseStatus.OK);
+                    
+                    resultScore.SetStatus(eResponseStatus.OK);
                 }
             }
             catch (Exception ex)
@@ -2901,7 +2908,22 @@ namespace Core.Catalog.CatalogManagement
                                         assets != null ? string.Join(",", assets.Select(x => string.Format("{0}_{1}", x.AssetType.ToString(), x.AssetId)).ToList()) : string.Empty), ex);
             }
 
-            return result;
+            return resultScore;
+            
+            long? GetPriorityGroupId(BaseObject baseObject)
+            {
+                if (!(baseObject is UnifiedSearchResult searchResult))
+                {
+                    return null;
+                }
+
+                if (!priorityGroupsMapping.TryGetValue(searchResult.Score, out var searchPriorityGroup))
+                {
+                    return null;
+                }
+
+                return searchPriorityGroup.Id;
+            }
         }
 
         /// <summary>

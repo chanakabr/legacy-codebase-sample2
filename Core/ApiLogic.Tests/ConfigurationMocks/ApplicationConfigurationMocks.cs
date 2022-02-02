@@ -1,4 +1,5 @@
-﻿using ConfigurationManager;
+﻿using Phx.Lib.Appconfig;
+using Phx.Lib.Appconfig.Types;
 using System;
 
 namespace ApiLogic.Tests.ConfigurationMocks

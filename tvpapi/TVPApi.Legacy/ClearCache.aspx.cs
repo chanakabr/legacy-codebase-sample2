@@ -7,6 +7,7 @@ using System.Web.UI.WebControls;
 using System.Collections;
 using KLogMonitor;
 using System.Reflection;
+using Phx.Lib.Log;
 
 public partial class ClearCache : System.Web.UI.Page
 {

@@ -198,6 +198,7 @@ namespace ApiObjects.Response
         PendingEntitlement = 3084, // BEO-8661
         CampaignIsAlreadyAppliedForSubscription = 3085,
         RecordingIdsExceededLimit = 3086,
+        ProgramStartOverNotEnabled = 3087,
 
         #endregion
 
@@ -317,11 +318,11 @@ namespace ApiObjects.Response
         StartDateShouldBeLessThanEndDate = 4111,
         LabelAlreadyInUse = 4112,
         LabelDoesNotExist = 4113,
-        PremiumServiceDoesNotExist = 4114,        
+        PremiumServiceDoesNotExist = 4114,
         VideoCodecsDoesNotExist = 4115,
         AudioCodecsDoesNotExist = 4116,
         SearchPriorityGroupDoesNotExist = 4117,
-        
+
         #endregion
 
         #region Api 5000 - 5999
@@ -582,7 +583,7 @@ namespace ApiObjects.Response
         PartnerDoesNotExist = 9040,
         PpvModuleNotExist = 9041,
         UsageModuleExistInPpv = 9042,
-
+        
         #endregion
 
         #region Adapters 10000-10999

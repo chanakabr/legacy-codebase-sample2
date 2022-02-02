@@ -10,7 +10,7 @@ using ApiObjects.Rules;
 using ApiObjects.Segmentation;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Api;
 using Core.Api.Managers;
 using Core.Catalog.Response;
@@ -18,7 +18,7 @@ using Core.Pricing;
 using Core.Users;
 using Core.Users.Cache;
 using DAL;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -164,7 +164,12 @@ namespace Core.ConditionalAccess
                     var tstvSettings = Utils.GetTimeShiftedTvPartnerSettings(groupId);
 
                     response.Status =  Utils.ValidateEpgForCatchUp(tstvSettings, program);
+                    if(response.Status.Code != (int)eResponseStatus.OK)
+                    {
+                        return response;
+                    }
 
+                    response.Status =  Utils.ValidateEpgForStartOver(program);
                     if(response.Status.Code != (int)eResponseStatus.OK)
                     {
                         return response;
@@ -209,6 +214,14 @@ namespace Core.ConditionalAccess
                             assetsToCheck.Add(new SlimAsset(mediaId, eAssetTypes.MEDIA));
                         }
                     }
+                }
+                else if (assetType == eAssetTypes.EPG && mediaId > 0)
+                {
+                    assetsToCheck = new List<SlimAsset>()
+                    {
+                        new SlimAsset(long.Parse(assetId), eAssetTypes.EPG),
+                        new SlimAsset(mediaId, eAssetTypes.MEDIA)
+                    };
                 }
                 else
                 {

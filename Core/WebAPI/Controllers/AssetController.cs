@@ -7,7 +7,7 @@ using ApiObjects.Response;
 using ApiObjects.Rules;
 using AutoMapper;
 using Core.Catalog.CatalogManagement;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +26,8 @@ using WebAPI.Models.General;
 using WebAPI.Models.Upload;
 using WebAPI.Utils;
 using ApiObjects.SearchObjects;
+using WebAPI.ObjectsConvertor.Ordering;
+using SearchAssetsFilter = WebAPI.InternalModels.SearchAssetsFilter;
 
 namespace WebAPI.Controllers
 {
@@ -262,7 +264,7 @@ namespace WebAPI.Controllers
                             KalturaAssetUserRuleListResponse rules = ClientsManager.ApiClient().GetAssetUserRules(groupId, userId, KalturaRuleActionType.FILTER);
                             if (rules != null && rules.Objects != null && rules.Objects.Count > 0)
                             {
-                                var searchAssetsFilter = new ApiLogic.Catalog.SearchAssetsFilter
+                                var searchAssetsFilter = new SearchAssetsFilter
                                 {
                                     GroupId = groupId,
                                     SiteGuid = userID,
@@ -280,10 +282,11 @@ namespace WebAPI.Controllers
                                     IgnoreEndDate = true,
                                     GroupByType = GroupingOption.Omit,
                                     IsPersonalListSearch = false,
-                                    UseFinal = false
+                                    UseFinal = false,
+                                    OrderingParameters = KalturaOrderAdapter.Instance.MapToOrderingList(KalturaAssetOrderBy.RELEVANCY_DESC)
                                 };
 
-                                KalturaAssetListResponse assetListResponse = ClientsManager.CatalogClient().SearchAssets(searchAssetsFilter, KalturaAssetOrderBy.RELEVANCY_DESC);
+                                KalturaAssetListResponse assetListResponse = ClientsManager.CatalogClient().SearchAssets(searchAssetsFilter);
 
                                 if (assetListResponse != null && assetListResponse.TotalCount == 1 && assetListResponse.Objects.Count == 1)
                                 {
@@ -326,7 +329,7 @@ namespace WebAPI.Controllers
 
                     case KalturaAssetReferenceType.epg_external:
                         var epgExRes = ClientsManager.CatalogClient().GetEPGByExternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
-                          0, 1, new List<string> { id }, KalturaAssetOrderBy.START_DATE_DESC);
+                          0, 1, new List<string> { id });
 
                         // if no response - return not found status 
                         if (epgExRes == null || epgExRes.Objects == null || epgExRes.Objects.Count == 0)
@@ -917,6 +920,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AccountCatchUpNotEnabled)]
         [Throws(eResponseStatus.ServiceNotAllowed)]
         [Throws(eResponseStatus.NotAllowed)]
+        [Throws(eResponseStatus.ProgramStartOverNotEnabled)]
         static public KalturaPlaybackContext GetPlaybackContext(string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams, string sourceType = null)
         {
             KalturaPlaybackContext response = null;
@@ -1030,7 +1034,7 @@ namespace WebAPI.Controllers
         [Throws(StatusCode.ArgumentCannotBeEmpty)]
         [Throws(eResponseStatus.SyntaxError)]
         [Throws(eResponseStatus.BadSearchRequest)]
-        static public KalturaAssetCount Count(KalturaSearchAssetFilter filter = null)
+        public static KalturaAssetCount Count(KalturaSearchAssetFilter filter = null)
         {
             KalturaAssetCount response = null;
 
@@ -1049,45 +1053,39 @@ namespace WebAPI.Controllers
                 filter.Validate();
             }
 
-            List<string> groupByValuesList = null;
-
             if (filter.GroupBy == null)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupBy");
             }
-            else
-            {
-                groupByValuesList = filter.GroupBy.Select(group => group.GetValue()).ToList();
 
-                if (groupByValuesList == null || groupByValuesList.Count == 0)
-                {
-                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupBy");
-                }
+            var groupByValuesList = filter.GroupBy.Select(group => group.GetValue()).ToList();
+            if (groupByValuesList == null || groupByValuesList.Count == 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupBy");
             }
 
             try
             {
-                KalturaSearchAssetFilter regularAssetFilter = (KalturaSearchAssetFilter)filter;
                 bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID, true);
-                var isIncluded = filter.GroupingOptionEqual.HasValue && filter.GroupingOptionEqual == KalturaGroupingOption.Include;
 
-                var _filter = new SearchAssetsFilter()
+                var searchAssetFilter = new SearchAssetsFilter()
                 {
                     GroupId = groupId,
                     SiteGuid = userID,
                     DomainId = domainId,
                     Udid = udid,
                     Language = language,
-                    Filter = regularAssetFilter.Ksql,
-                    AssetTypes = regularAssetFilter.getTypeIn(),
-                    EpgChannelIds = regularAssetFilter.getEpgChannelIdIn(),
+                    Filter = filter.Ksql,
+                    AssetTypes = filter.getTypeIn(),
+                    EpgChannelIds = filter.getEpgChannelIdIn(),
                     GroupBy = groupByValuesList,
                     GroupByType = GenericExtensionMethods.ConvertEnumsById<KalturaGroupingOption, GroupingOption>(filter.GroupingOptionEqual, GroupingOption.Omit).Value,
                     IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
-                    TrendingDays = regularAssetFilter.TrendingDaysEqual
+                    GroupByOrder = filter.GroupByOrder,
+                    OrderingParameters = filter.Orderings
                 };
 
-                response = ClientsManager.CatalogClient().GetAssetCount(_filter, regularAssetFilter.OrderBy, filter.GroupByOrder);
+                response = ClientsManager.CatalogClient().GetAssetCount(searchAssetFilter);
             }
             catch (ClientException ex)
             {
@@ -1302,7 +1300,7 @@ namespace WebAPI.Controllers
                 {
                     case KalturaAssetReferenceType.epg_external:
                         KalturaAssetListResponse epgRes = ClientsManager.CatalogClient().GetEPGByExternalIds(groupId, userId.ToString(), (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
-                             0, 1, new List<string> { id.ToString() }, KalturaAssetOrderBy.START_DATE_DESC);
+                             0, 1, new List<string> { id.ToString() });
 
                         // if no response - return not found status 
                         if (epgRes == null || epgRes.Objects == null || epgRes.Objects.Count == 0)

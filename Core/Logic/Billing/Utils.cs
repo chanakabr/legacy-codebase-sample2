@@ -1,6 +1,6 @@
 ﻿using ApiObjects.Response;
 using DAL;
-using KLogMonitor;
+using Phx.Lib.Log;
 using M1BL;
 using System;
 using System.Collections.Generic;
@@ -17,7 +17,7 @@ using APILogic.Api.Managers;
 using ApiObjects;
 using Core.Pricing;
 using Core.Users;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using TVinciShared;
 
 #if NETCOREAPP3_1

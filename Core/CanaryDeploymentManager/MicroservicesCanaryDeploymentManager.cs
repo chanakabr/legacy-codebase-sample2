@@ -6,7 +6,7 @@ using ApiObjects.CanaryDeployment.Microservices;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using CouchbaseManager;
-using KLogMonitor;
+using Phx.Lib.Log;
 using RedisManager;
 
 namespace CanaryDeploymentManager

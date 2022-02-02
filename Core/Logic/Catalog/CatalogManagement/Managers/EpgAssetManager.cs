@@ -6,7 +6,7 @@ using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using Core.GroupManagers;
 using EpgBL;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -56,6 +56,7 @@ namespace Core.Catalog.CatalogManagement
         public const string CRID_META_SYSTEM_NAME = "Crid";
         public const string EXTERNAL_ID_META_SYSTEM_NAME = "ExternalID";
         public const string STATUS_META_SYSTEM_NAME = "Status";
+        public const string EXTERNAL_OFFER_IDS_META_SYSTEM_NAME = "ExternalOfferIds";
         private static readonly int MaxDescriptionSize = 1024;
         private static readonly int MaxNameSize = 255;
 
@@ -77,7 +78,7 @@ namespace Core.Catalog.CatalogManagement
 
         internal static readonly HashSet<string> TopicsInBasicProgramTable = new HashSet<string>()
         {
-            NAME_META_SYSTEM_NAME, DESCRIPTION_META_SYSTEM_NAME, EXTERNAL_ID_META_SYSTEM_NAME, CRID_META_SYSTEM_NAME, START_DATE_META_SYSTEM_NAME, END_DATE_META_SYSTEM_NAME, STATUS_META_SYSTEM_NAME
+            NAME_META_SYSTEM_NAME, DESCRIPTION_META_SYSTEM_NAME, EXTERNAL_ID_META_SYSTEM_NAME, CRID_META_SYSTEM_NAME, START_DATE_META_SYSTEM_NAME, END_DATE_META_SYSTEM_NAME, STATUS_META_SYSTEM_NAME, EXTERNAL_OFFER_IDS_META_SYSTEM_NAME
         };
 
         internal static readonly Dictionary<string, string> BasicMetasSystemNamesToType = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -189,7 +190,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
+                var isIngestV2 = GroupSettingsManager.Instance.DoesGroupUseNewEpgIngest(groupId);
                 if (isIngestV2)
                 {
                     var epgBl = new TvinciEpgBL(groupId);
@@ -212,7 +213,7 @@ namespace Core.Catalog.CatalogManagement
                 var epgTags = GetEpgTags(epgAssetToAdd.Tags, allNames, defaultLanguageCode);
 
                 // insert epgCb to CB in all languages
-                var epgsToIndex = SaveEpgCbToCB(groupId, epgCbToAdd, 
+                var epgsToIndex = SaveEpgCbToCB(groupId, epgCbToAdd,
                     defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags, true);
 
                 var linearChannelSettingsForEpgCb = Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, new List<string>() { epgCbToAdd.ChannelID.ToString() });
@@ -224,7 +225,7 @@ namespace Core.Catalog.CatalogManagement
                 InvalidateEpgs(groupId,
                     epgsToIndex.Select(x => (long)x.EpgID), CatalogManager.Instance.DoesGroupUsesTemplates(groupId),
                     epgsToIndex.Select(item => item.ChannelID.ToString()).Distinct().ToList(), false);
-                
+
                 if (!indexingResult)
                 {
                     log.ErrorFormat("Failed UpsertProgram index for epg ExternalId: {0}, groupId: {1} after AddEpgAsset", epgAssetToAdd.EpgIdentifier, groupId);
@@ -291,7 +292,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // Ingest V2 does not use DB anymore so we will wrap all EpgDAL calls in !isIngestV2
-                var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
+                var isIngestV2 = GroupSettingsManager.Instance.DoesGroupUseNewEpgIngest(groupId);
 
                 // update Epg_channels_schedule table (basic data)
                 epgCBToUpdate = CreateEpgCbFromEpgAsset(epgAssetToUpdate, groupId, epgAssetToUpdate.CreateDate.Value, updateDate);
@@ -359,7 +360,7 @@ namespace Core.Catalog.CatalogManagement
                 UpdateEpgImages(groupId, oldEpgAsset, epgCBToUpdate);
 
                 // update epgCb in CB for all languages
-                var epgsToIndex = SaveEpgCbToCB(groupId, epgCBToUpdate, 
+                var epgsToIndex = SaveEpgCbToCB(groupId, epgCBToUpdate,
                     defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags, false);
 
                 // delete index, if EPG moved to another day
@@ -415,7 +416,7 @@ namespace Core.Catalog.CatalogManagement
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-            var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
+            var isIngestV2 = GroupSettingsManager.Instance.DoesGroupUseNewEpgIngest(groupId);
 
             // Ingest V2 is not using DB anymore so we will skip the DB deletion and move to deleting the index and CB
             if (!isIngestV2)
@@ -474,7 +475,7 @@ namespace Core.Catalog.CatalogManagement
         internal static void SendActionEvent(int groupId, long epgId, eAction action, EPGChannelProgrammeObject epg = null)
         {
             log.DebugFormat("Calling IngestRecording for groupId: {0}, epgId: {1}, action: {2}", groupId, epgId, action);
-            KlogMonitorHelper.ContextData contextData = new KlogMonitorHelper.ContextData();
+            LogContextData contextData = new LogContextData();
             Task.Factory.StartNew(() =>
             {
                 contextData.Load();
@@ -508,7 +509,7 @@ namespace Core.Catalog.CatalogManagement
                         return result;
                     }
 
-                    // get topics to removed             
+                    // get topics to removed
                     var topics = catalogGroupCache.TopicsMapById
                         .Where(x => topicIds.Contains(x.Key) && !CatalogManager.TopicsToIgnore.Contains(x.Value.SystemName.ToLower()))
                         .Select(x => x.Value)
@@ -523,7 +524,7 @@ namespace Core.Catalog.CatalogManagement
                     var programTagIds = tagTopics.Select(x => mappingFields[FieldTypes.Tag][x.SystemName.ToLower()]).ToList();
                     var tagsToRemoveByName = tagTopics.Select(x => x.SystemName.ToLower()).ToList();
 
-                    var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
+                    var isIngestV2 = GroupSettingsManager.Instance.DoesGroupUseNewEpgIngest(groupId);
                     if (!isIngestV2)
                     {
                         var metasAndTagsRemoved = EpgDal.RemoveMetasAndTagsFromProgram(groupId, epgAsset.Id, programMetaIds, programTagIds, userId);
@@ -535,7 +536,7 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
 
-                    // update Epg metas and tags 
+                    // update Epg metas and tags
                     List<EpgCB> epgsToUpdate = RemoveTopicsFromProgramEpgCBs(groupId, epgAsset.Id, metasToRemoveByName, tagsToRemoveByName);
 
                     // invalidate asset
@@ -776,7 +777,7 @@ namespace Core.Catalog.CatalogManagement
         }
 
         /// <summary>
-        /// Create EpgCb From EpgAsset without initializing 
+        /// Create EpgCb From EpgAsset without initializing
         /// PicUrl, ParentGroupID, PicID, BasicData, Statistics, pictures, SearchEndDate, Name, Description, Metas, Tags, Language, DocumentId
         /// </summary>
         /// <param name="epgAsset"></param>
@@ -809,7 +810,8 @@ namespace Core.Catalog.CatalogManagement
                 EnableCDVR = GetEnableData(epgAsset.CdvrEnabled),
                 EnableCatchUp = GetEnableData(epgAsset.CatchUpEnabled),
                 EnableStartOver = GetEnableData(epgAsset.StartOverEnabled),
-                EnableTrickPlay = GetEnableData(epgAsset.TrickPlayEnabled)
+                EnableTrickPlay = GetEnableData(epgAsset.TrickPlayEnabled),
+                ExternalOfferIds = new List<string>(epgAsset.ExternalOfferIds ?? new List<string>())
             };
         }
 
@@ -1602,7 +1604,7 @@ namespace Core.Catalog.CatalogManagement
         private static DataTable GetEpgChannelsScheduleTable()
         {
             DataTable dt = new DataTable();
-            // Add three column objects to the table. 
+            // Add three column objects to the table.
             DataColumn ID = new DataColumn
             {
                 DataType = typeof(long),
@@ -1926,7 +1928,7 @@ namespace Core.Catalog.CatalogManagement
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="groupId"></param>
         /// <param name="epgId"></param>

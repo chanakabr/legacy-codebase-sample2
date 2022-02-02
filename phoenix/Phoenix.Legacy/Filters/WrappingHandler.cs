@@ -9,15 +9,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
-using KLogMonitor;
+using Phx.Lib.Log;
 using WebAPI.Models;
 using WebAPI.Models.General;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using System.Runtime.Serialization;
-using KlogMonitorHelper;
 using Newtonsoft.Json;
-using ConfigurationManager;
 
 namespace WebAPI.Filters
 {
@@ -40,7 +38,7 @@ namespace WebAPI.Filters
             byte[] requestBody = await request.Content.ReadAsByteArrayAsync();
             HttpContext.Current.Items["body"] = requestBody;
 
-            var loggingContext = new ContextData();
+            var loggingContext = new LogContextData();
             loggingContext.Load();
 
             // log request body
@@ -71,7 +69,7 @@ namespace WebAPI.Filters
             }
         }
 
-        private async static Task<HttpResponseMessage> BuildApiResponse(HttpRequestMessage request, HttpResponseMessage response, float executionTime)
+        private static Task<HttpResponseMessage> BuildApiResponse(HttpRequestMessage request, HttpResponseMessage response, float executionTime)
         {
             object content = null;
             string message = "";
@@ -126,7 +124,7 @@ namespace WebAPI.Filters
                 newResponse.Headers.Add(header.Key, header.Value);
             }
 
-            return newResponse;
+            return Task.FromResult(newResponse);
         }
 
         private static void ExtractActionToLog(Uri uri)

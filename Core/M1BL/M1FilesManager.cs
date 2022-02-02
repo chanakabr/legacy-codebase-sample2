@@ -7,7 +7,7 @@ using System.Text;
 using DAL;
 using System.Net;
 using System.Text.RegularExpressions;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 
 namespace M1BL
@@ -136,7 +136,7 @@ namespace M1BL
                 m_nGroupID = nGroupID;
                 m_nHoursOffset = 0;
 
-                string sGMTOffset = TCMClient.Settings.Instance.GetValue<string>(string.Format("GMTOffset_{0}", m_nGroupID.ToString()));
+                string sGMTOffset = Phx.Lib.Appconfig.TCMClient.Settings.Instance.GetValue<string>(string.Format("GMTOffset_{0}", m_nGroupID.ToString()));
                 if (!string.IsNullOrEmpty(sGMTOffset))
                 {
                     m_nHoursOffset = int.Parse(sGMTOffset);

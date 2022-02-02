@@ -1,4 +1,10 @@
-﻿using ApiObjects;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
 using ApiObjects.CouchbaseWrapperObjects;
@@ -6,19 +12,14 @@ using ApiObjects.Epg;
 using ApiObjects.MediaMarks;
 using ApiObjects.PlayCycle;
 using ApiObjects.SearchObjects;
-using ConfigurationManager;
 using CouchbaseManager;
 using DAL;
+using DAL.BulkUpload;
 using DAL.DTO;
-using KLogMonitor;
-using Newtonsoft.Json;
 using ODBCWrapper;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
+using Newtonsoft.Json;
 using static ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData;
 using CategoryItemDTO = DAL.DTO.CategoryItemDTO;
 using LanguageContainerDTO = DAL.DTO.LanguageContainerDTO;
@@ -2088,7 +2089,17 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static void UpdateOrInsertUsersMediaMark(UserMediaMark userMediaMark)
+        public static UserMediaMark GetUserMediaMark(UserMediaMark currentUserMediaMark)
+        {
+            string mmKey = GetMediaMarkKey(currentUserMediaMark);
+            CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
+            var data = cbManager.Get<string>(mmKey);
+            return !String.IsNullOrEmpty(data)
+                ? JsonConvert.DeserializeObject<MediaMarkLog>(data).LastMark
+                : currentUserMediaMark;
+        }
+        
+        public static void UpdateOrInsertUsersMediaMark(UserMediaMark userMediaMark, bool isFirstPlay)
         {
             int limitRetries = RETRY_LIMIT;
             bool success = false;
@@ -2101,22 +2112,22 @@ namespace Tvinci.Core.DAL
                 UpdateOrInsertUsersMediaMarkOrHit(mediaMarksManager, ref limitRetries, _rand, mmKey, ref success, userMediaMark);
             }
 
-            limitRetries = RETRY_LIMIT;
-            success = false;
-
-            while (limitRetries >= 0 && !success)
+            if (isFirstPlay)
             {
-                success = InsertMediaMarkToUserMediaMarks(userMediaMark);
+                limitRetries = RETRY_LIMIT;
+                success = false;
 
-                if (!success)
+                while (limitRetries >= 0 && !success)
                 {
-                    Thread.Sleep(_rand.Next(50));
-                    limitRetries--;
+                    success = InsertMediaMarkToUserMediaMarks(userMediaMark);
+
+                    if (!success)
+                    {
+                        Thread.Sleep(_rand.Next(50));
+                        limitRetries--;
+                    }
                 }
             }
-
-            limitRetries = RETRY_LIMIT;
-            success = false;
         }
 
         private static string GetMediaMarkKey(UserMediaMark userMediaMark)
@@ -2686,23 +2697,6 @@ namespace Tvinci.Core.DAL
                     defaultRegion = ODBCWrapper.Utils.ExtractInteger(groupRow, "default_region");
                 }
             }
-        }
-
-        /// <summary>
-        /// Builds a region object based on a data row
-        /// </summary>
-        /// <param name="regionRow"></param>
-        /// <returns></returns>
-        private static Region BuildRegion(DataRow regionRow)
-        {
-            Region region = new Region();
-
-            region.id = ODBCWrapper.Utils.ExtractInteger(regionRow, "ID");
-            region.name = ODBCWrapper.Utils.ExtractString(regionRow, "NAME");
-            region.externalId = ODBCWrapper.Utils.ExtractString(regionRow, "EXTERNAL_ID");
-            region.groupId = ODBCWrapper.Utils.ExtractInteger(regionRow, "GROUP_ID");
-
-            return (region);
         }
 
         public static DataSet GetMediaByEpgChannelIds(int groupId, List<string> epgChannelIds)
@@ -5627,10 +5621,30 @@ namespace Tvinci.Core.DAL
             return res.ToDictionary(x => x.Id, x => x.MetaData);
         }
 
-        public static DataSet InsertChannel(int groupId, string systemName, string name, string description, int? isActive, int orderBy, int orderByDir, string orderByValue, int? isSlidingWindow,
-                                            int? slidingWindowPeriod, int channelType, string filterQuery, List<int> assetTypes, string groupBy, List<KeyValuePair<string, string>> namesInOtherLanguages,
-                                            List<KeyValuePair<string, string>> descriptionsInOtherLanguages, List<KeyValuePair<long, int>> mediaIdsToOrderNum, long userId,
-                                            bool supportSegmentBasedOrdering, long? assetUserRuleId, bool hasMetadata, List<ManualAsset> manualAssets)
+        public static DataSet InsertChannel(
+            int groupId,
+            string systemName,
+            string name,
+            string description,
+            int? isActive,
+            int orderBy,
+            int orderByDir,
+            string orderByValue,
+            bool isSlidingWindow,
+            int? slidingWindowPeriod,
+            List<AssetOrder> orderingParameters,
+            int channelType,
+            string filterQuery,
+            List<int> assetTypes,
+            string groupBy,
+            List<KeyValuePair<string, string>> namesInOtherLanguages,
+            List<KeyValuePair<string, string>> descriptionsInOtherLanguages,
+            List<KeyValuePair<long, int>> mediaIdsToOrderNum,
+            long userId,
+            bool supportSegmentBasedOrdering,
+            long? assetUserRuleId,
+            bool hasMetadata,
+            List<ManualAsset> manualAssets)
         {
             DataTable manualAssetsDt = SetManualAssetsTable(manualAssets);
 
@@ -5643,7 +5657,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@orderBy", orderBy);
             sp.AddParameter("@orderDirection", orderByDir + 1);
             sp.AddParameter("@orderByValue", orderByValue);
-            sp.AddParameter("@IsSlidingWindow", isSlidingWindow);
+            sp.AddParameter("@IsSlidingWindow", isSlidingWindow ? 1 : 0);
             sp.AddParameter("@SlidingWindowPeriod", slidingWindowPeriod);
             sp.AddParameter("@channelType", channelType);
             sp.AddParameter("@Filter", filterQuery);
@@ -5664,15 +5678,38 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@manualAssetsExist", manualAssets == null ? 0 : 1);
             sp.AddDataTableParameter("@manualAssets", manualAssetsDt);
 
+            var orderingParametersJson = JsonConvert.SerializeObject(orderingParameters, Formatting.None);
+            sp.AddParameter("@orderingParameters", orderingParametersJson);
+
             return sp.ExecuteDataSet();
         }
 
         public static DataSet UpdateChannel(
-            int groupId, int id, string systemName, string name, string description, int? isActive, int? orderBy,
-            int? orderByDir, string orderByValue, int? isSlidingWindow, int? slidingWindowPeriod, string filterQuery, List<int> assetTypes, string groupBy,
-            List<KeyValuePair<string, string>> namesInOtherLanguages, List<KeyValuePair<string, string>> descriptionsInOtherLanguages,
-            List<KeyValuePair<long, int>> mediaIdsToOrderNum, long userId, bool supportSegmentBasedOrdering,
-            long? assetUserRuleId, int assetTypesValuesInd, bool? hasMetadata, List<ManualAsset> manualAssets, int? channelType = null)
+            int groupId, 
+            int id,
+            string systemName, 
+            string name, 
+            string description,
+            int? isActive,
+            int? orderBy,
+            int? orderByDir, 
+            string orderByValue, 
+            bool? isSlidingWindow, 
+            int? slidingWindowPeriod, 
+            List<AssetOrder> orderingParameters,
+            string filterQuery,
+            List<int> assetTypes,
+            string groupBy,
+            List<KeyValuePair<string, string>> namesInOtherLanguages,
+            List<KeyValuePair<string, string>> descriptionsInOtherLanguages,
+            List<KeyValuePair<long, int>> mediaIdsToOrderNum,
+            long userId,
+            bool supportSegmentBasedOrdering,
+            long? assetUserRuleId, 
+            int assetTypesValuesInd,
+            bool? hasMetadata, 
+            List<ManualAsset> manualAssets, 
+            int? channelType = null)
         {
             DataTable manualAssetsDt = SetManualAssetsTable(manualAssets);
             
@@ -5703,6 +5740,11 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@supportSegmentBasedOrdering", supportSegmentBasedOrdering);
             sp.AddParameter("@ChannelType", channelType);
             sp.AddParameter("@AssetRuleId", assetUserRuleId);
+
+            var orderingParametersJson = orderingParameters?.Any() == true
+                ? JsonConvert.SerializeObject(orderingParameters, Formatting.None)
+                : null;
+            sp.AddParameter("@orderingParameters", orderingParametersJson);
 
             if (hasMetadata.HasValue)
             {
@@ -5987,7 +6029,7 @@ namespace Tvinci.Core.DAL
                 statusAfterUpdate = GetBulkStatusByResultsStatus(bulkUpload);
                 log.Debug($"SaveBulkUploadResultsCB > updated resultsToSave.Count:[{resultsToSave.Count}], calculated bulkUpload.Status:[{bulkUpload.Status}]");
 
-            }, compress: true, updateObjectActionIfNotExist: false, limitMaxNumOfInsertTries: MAX_CB_UPDATE_ATTEMPTS_FOR_BULK_UPLOAD);
+            }, compress: true, updateObjectActionIfNotExist: false, limitMaxNumOfInsertTries: MAX_CB_UPDATE_ATTEMPTS_FOR_BULK_UPLOAD, retryStrategy: BulkUploadRetryStrategy.Linear);
 
             status = statusAfterUpdate;
             return isUpdateSuccess;

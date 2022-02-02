@@ -3,13 +3,13 @@ using ApiObjects;
 using ApiObjects.BulkExport;
 using ApiObjects.Catalog;
 using ApiObjects.Epg;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using DAL;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -23,7 +23,7 @@ using TVinciShared;
 using ApiLogic.Api.Managers;
 using ApiObjects.Response;
 using ApiLogic;
-using ConfigurationManager.Types;
+using Phx.Lib.Appconfig.Types;
 using Core.GroupManagers;
 using ApiLogic.Api.Managers.Handlers;
 using MetaType = ApiObjects.MetaType;
@@ -259,7 +259,7 @@ namespace APILogic
             // Save the compressed xml to S3 or FTP
             var catalogConfig = CatalogPartnerConfigManager.Instance.GetCatalogConfig(groupId);
 
-            if (catalogConfig.HasObject() && catalogConfig.Object.UploadExportDatalake.HasValue && catalogConfig.Object.UploadExportDatalake.Value && GroupSettingsManager.IsOpc(groupId))
+            if (catalogConfig.HasObject() && catalogConfig.Object.UploadExportDatalake.HasValue && catalogConfig.Object.UploadExportDatalake.Value)
             {
                 // Create a copy of the file with the prefix and full path requested by datalake
                 var newFile = new OTTFile($"{basePath}/{fileName}", fileName, false);

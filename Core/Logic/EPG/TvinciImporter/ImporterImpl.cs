@@ -4,12 +4,12 @@ using ApiObjects.DRM;
 using ApiObjects.Notification;
 using ApiObjects.Response;
 using ChannelsSchema;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Catalog.Cache;
 using DAL;
 using GroupsCacheManager;
-using KLogMonitor;
-using KlogMonitorHelper;
+using Phx.Lib.Log;
+
 using Newtonsoft.Json;
 using QueueWrapper;
 using System;

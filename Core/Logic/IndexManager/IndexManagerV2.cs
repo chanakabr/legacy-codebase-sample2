@@ -1,20 +1,21 @@
-﻿using ApiObjects;
+using ApiObjects;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
 using Catalog.Response;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Catalog.Cache;
 using Core.Catalog.Response;
 using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 using GroupsCacheManager;
-using KLogMonitor;
-using KlogMonitorHelper;
+using Phx.Lib.Log;
+
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -41,11 +42,15 @@ using ApiObjects.BulkUpload;
 using Polly;
 using ESUtils = ElasticSearch.Common.Utils;
 using ApiLogic.Catalog;
+using ApiLogic.IndexManager;
 using ElasticSearch.Common.Mappers;
 using EpgBL;
 using ApiLogic.IndexManager.Helpers;
 using ApiLogic.IndexManager.QueryBuilders;
 using ApiLogic.IndexManager.Mappings;
+using ApiLogic.IndexManager.Sorting;
+using ApiLogic.IndexManager.Sorting.Stages;
+using ElasticSearch.Utils;
 
 namespace Core.Catalog
 {
@@ -101,11 +106,18 @@ namespace Core.Catalog
         private readonly ICatalogCache _catalogCache;
         private readonly IWatchRuleManager _watchRuleManager;
         private readonly IMappingTypeResolver _mappingTypeResolver;
+        private readonly ISortingService _sortingService;
+        private readonly IStartDateAssociationTagsSortStrategy _startDateAssociationTagsSortStrategy;
+        private readonly IStatisticsSortStrategy _statisticsSortStrategy;
+        private readonly ISortingAdapter _sortingAdapter;
+        private readonly IEsSortingService _esSortingService;
         private readonly int _partnerId;
         private readonly IChannelQueryBuilder _channelQueryBuilder;
-        
+        private readonly INamingHelper _namingHelper;
+        private readonly IGroupSettingsManager _groupSettingsManager;
+
         private static eFieldType[] LanguageSpecificGroupByFieldTypes => new eFieldType[] { eFieldType.LanguageSpecificField, eFieldType.Tag, eFieldType.StringMeta };
-        
+
         /// <summary>
         /// Initialiezs an instance of Index Manager for work with ElasticSearch 2.3. 
         /// Please do not use this ctor, rather use IndexManagerFactory.
@@ -121,6 +133,14 @@ namespace Core.Catalog
         /// <param name="catalogCache"></param>
         /// <param name="watchRuleManager"></param>
         /// <param name="channelQueryBuilder"></param>
+        /// <param name="mappingTypeResolver"></param>
+        /// <param name="namingHelper"></param>
+        /// <param name="groupSettingsManager"></param>
+        /// <param name="sortingService"></param>
+        /// <param name="startDateAssociationTagsSortStrategy"></param>
+        /// <param name="statisticsSortStrategy"></param>
+        /// <param name="sortingAdapter"></param>
+        /// <param name="esSortingService"></param>
         public IndexManagerV2(int partnerId,
             IElasticSearchApi elasticSearchClient,
             IGroupManager groupManager,
@@ -132,7 +152,14 @@ namespace Core.Catalog
             ICatalogCache catalogCache,
             IWatchRuleManager watchRuleManager,
             IChannelQueryBuilder channelQueryBuilder,
-            IMappingTypeResolver mappingTypeResolver)
+            IMappingTypeResolver mappingTypeResolver,
+            INamingHelper namingHelper,
+            IGroupSettingsManager groupSettingsManager,
+            ISortingService sortingService,
+            IStartDateAssociationTagsSortStrategy startDateAssociationTagsSortStrategy,
+            IStatisticsSortStrategy statisticsSortStrategy,
+            ISortingAdapter sortingAdapter,
+            IEsSortingService esSortingService)
         {
             _elasticSearchApi = elasticSearchClient;
             _groupManager = groupManager;
@@ -146,6 +173,13 @@ namespace Core.Catalog
             _watchRuleManager = watchRuleManager;
             _channelQueryBuilder = channelQueryBuilder;
             _mappingTypeResolver = mappingTypeResolver;
+            _sortingService = sortingService;
+            _namingHelper = namingHelper;
+            _groupSettingsManager = groupSettingsManager;
+            _startDateAssociationTagsSortStrategy = startDateAssociationTagsSortStrategy;
+            _statisticsSortStrategy = statisticsSortStrategy;
+            _sortingAdapter = sortingAdapter;
+            _esSortingService = esSortingService;
         }
 
         #region OPC helpers
@@ -214,7 +248,6 @@ namespace Core.Catalog
                 var languages = GetGroupManager().GetLangauges();
                 languagesMap = languages.ToDictionary(x => x.ID, x => x);
             }
-
 
             try
             {
@@ -629,7 +662,7 @@ namespace Core.Catalog
                             epg.Language.ToLower() == language.Code.ToLower() || (language.IsDefault && string.IsNullOrEmpty(epg.Language))).ToList();
 
                         var alias = NamingHelper.GetEpgIndexAlias(_partnerId);
-                        var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(_partnerId);
+                        var isIngestV2 = _groupSettingsManager.DoesGroupUseNewEpgIngest(_partnerId);
                         if (currentLanguageEpgs != null && currentLanguageEpgs.Count > 0)
                         {
                             // Create bulk request object for each program
@@ -639,7 +672,7 @@ namespace Core.Catalog
                                 // in that case we need to use the specific date alias for each epg item to update
                                 if (isIngestV2)
                                 {
-                                    alias = NamingHelper.GetDailyEpgIndexName(_partnerId, epg.StartDate.Date);
+                                    alias = _namingHelper.GetDailyEpgIndexName(_partnerId, epg.StartDate.Date);
                                     //in case alias already created ,no need to check in ES
                                     if (!createdAliases.Contains(alias))
                                     {
@@ -744,7 +777,66 @@ namespace Core.Catalog
             return result;
         }
 
-        public bool DeleteProgram(List<long> assetIds, bool isRecording = false)
+        public bool CompactEpgV2Indices(int futureIndexCompactionStart, int pastIndexCompactionStart)
+        {
+            var retryCount = 3;
+            var globalEpgAlias = NamingHelper.GetEpgIndexAlias(_partnerId);
+            var futureIndexName = NamingHelper.GetEpgFutureIndexName(_partnerId);
+            var pastIndexName = NamingHelper.GetEpgPastIndexName(_partnerId);
+
+            try
+            {
+                var numOfShards = ApplicationConfiguration.Current.EPGIngestV2Configuration.NumOfShardsForCompactedIndex.Value;
+                EnsureEpgIndexExist(futureIndexName, numOfShards);
+                SetNoRefresh(futureIndexName);
+                EnsureEpgIndexExist(pastIndexName, numOfShards);
+                SetNoRefresh(pastIndexName);
+
+                var epgV2Indices = _elasticSearchApi.ListIndicesByAlias(globalEpgAlias)?.Select(i=>i.Name)?.ToList();
+                
+                // Create a dictionary of index date parsed to the actual index name
+                var epgV2IndicesDict = epgV2Indices
+                    .Where(i => !i.Equals(futureIndexName, StringComparison.OrdinalIgnoreCase) && !i.Equals(pastIndexName, StringComparison.OrdinalIgnoreCase))
+                    .ToDictionary(i => DateTime.ParseExact(i.Split('_').Last(), ElasticSearch.Common.Utils.ES_DATEONLY_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal));
+
+                var pastCompactionStartDate = DateTime.UtcNow.Date.AddDays(-pastIndexCompactionStart);
+                var futureCompactionStartDate = DateTime.UtcNow.Date.AddDays(futureIndexCompactionStart);
+                var pastDatesToCompact = epgV2IndicesDict.Where(d => d.Key < pastCompactionStartDate).ToDictionary(k=>k.Key, v=>v.Value);
+                var futureDatesToCompact = epgV2IndicesDict.Where(d => d.Key > futureCompactionStartDate).ToDictionary(k=>k.Key, v=>v.Value);
+                // map to hold target index to list of sources
+                var reindexMap = new Dictionary<string, Dictionary<DateTime, string>>()
+                {
+                    { pastIndexName, pastDatesToCompact },
+                    { futureIndexName, futureDatesToCompact }
+                };
+
+                foreach (var sourceTargetPair in reindexMap)
+                {
+                    var target = sourceTargetPair.Key;
+                    var sources = sourceTargetPair.Value;
+                    foreach (var s in sources)
+                    {
+                        var sourceIndexName = s.Value;
+                        if (!Reindex(sourceIndexName, target, retryCount)) { throw new Exception($"error reindexing source:[{sourceIndexName}], target:[{target}]"); }
+                        if (!DeleteIndex(sourceIndexName)) { throw new Exception($"error deleting source after reindex: [{sourceIndexName}], target:[{target}]"); }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"error while trying to compact indices for partner:[{_partnerId}]", ex);
+                return false;
+            }
+            finally
+            {
+                SetIndexRefreshToDefault(futureIndexName);
+                SetIndexRefreshToDefault(pastIndexName);
+            }
+
+            return true;
+        }
+
+		public bool DeleteProgram(List<long> assetIds, bool isRecording = false)
         {
             bool result = false;
             var groupUsesTemplates = VerifyGroupUsesTemplates();
@@ -791,12 +883,15 @@ namespace Core.Catalog
         }
 
         private void CreateEmptyEpgIndex(string newIndexName, bool shouldBuildWithReplicas = true,
-            bool shouldUseNumOfConfiguredShards = true, string refreshInterval = null)
+            bool shouldUseNumOfConfiguredShards = true, string refreshInterval = null, int? numOfShards = null)
         {
             List<LanguageObj> languages = GetLanguages();
             GetEpgAnalyzers(languages, out var analyzers, out var filters, out var tokenizers);
             int replicas = shouldBuildWithReplicas ? NUM_OF_REPLICAS : 0;
             int shards = shouldUseNumOfConfiguredShards ? NUM_OF_SHARDS : 1;
+            
+            // use sent num of shards or the already computed value
+            shards = numOfShards ?? shards;
             var isIndexCreated = _elasticSearchApi.BuildIndex(newIndexName, shards, replicas, analyzers, filters, tokenizers, MAX_RESULTS, refreshInterval);
             if (!isIndexCreated) { throw new Exception(string.Format("Failed creating index for index:{0}", newIndexName)); }
         }
@@ -815,16 +910,15 @@ namespace Core.Catalog
 
         #region methods required by epg v2
 
-        public string SetupEpgV2Index(DateTime dateOfProgramsToIngest)
+        public string SetupEpgV2Index(string indexNmae)
         {
-            string dailyEpgIndexName = NamingHelper.GetDailyEpgIndexName(_partnerId, dateOfProgramsToIngest);
-            EnsureEpgIndexExist(dailyEpgIndexName);
-            SetNoRefresh(dailyEpgIndexName);
+            EnsureEpgIndexExist(indexNmae);
+            SetNoRefresh(indexNmae);
 
-            return dailyEpgIndexName;
+            return indexNmae;
         }
 
-        private void EnsureEpgIndexExist(string dailyEpgIndexName)
+        private void EnsureEpgIndexExist(string dailyEpgIndexName, int? numOfShards = null)
         {
             // TODO it's possible to create new index with mappings and alias in one request,
             // https://www.elastic.co/guide/en/elasticsearch/reference/2.3/indices-create-index.html#mappings
@@ -834,7 +928,7 @@ namespace Core.Catalog
             // EPGs could be added to the index without mapping (e.g. from asset.add)
             try
             {
-                AddEmptyIndex(dailyEpgIndexName);
+                AddEmptyIndex(dailyEpgIndexName, numOfShards);
                 AddEpgMappings(dailyEpgIndexName);
                 AddAlias(dailyEpgIndexName);
             }
@@ -845,15 +939,14 @@ namespace Core.Catalog
             }
         }
 
-        private void AddEmptyIndex(string dailyEpgIndexName)
+        private void AddEmptyIndex(string dailyEpgIndexName, int? numOfShards = 0)
         {
             IndexManagerCommonHelpers.GetRetryPolicy<Exception>().Execute(() =>
             {
                 var isIndexExist = _elasticSearchApi.IndexExists(dailyEpgIndexName);
                 if (isIndexExist) return;
                 log.Info($"creating new index [{dailyEpgIndexName}]");
-                this.CreateEmptyEpgIndex(dailyEpgIndexName, true,
-                    true, REFRESH_INTERVAL_FOR_EMPTY_INDEX);
+                this.CreateEmptyEpgIndex(dailyEpgIndexName, true, true, REFRESH_INTERVAL_FOR_EMPTY_INDEX, numOfShards: numOfShards);
             });
         }
 
@@ -914,29 +1007,32 @@ namespace Core.Catalog
             });
         }
 
-        public bool ForceRefreshEpgV2Index(DateTime date)
+        private void SetIndexRefreshToDefault(string indexName)
         {
-            var dailyEpgIndexName = NamingHelper.GetDailyEpgIndexName(_partnerId, date);
-            return _elasticSearchApi.ForceRefresh(dailyEpgIndexName);
+            IndexManagerCommonHelpers.GetRetryPolicy<Exception>().Execute(() =>
+            {
+                var isSetRefreshSuccess = _elasticSearchApi.UpdateIndexRefreshInterval(indexName, INDEX_REFRESH_INTERVAL);
+                if (!isSetRefreshSuccess)
+                {
+                    log.Error($"index {indexName} set refresh to -1 failed [{isSetRefreshSuccess}]]");
+                    throw new Exception("Could not set index refresh interval");
+                }
+            });
+        }
+        
+        public bool ForceRefreshEpgV2Index(string indexName)
+        {
+            return _elasticSearchApi.ForceRefresh(indexName);
         }
 
         public bool FinalizeEpgV2Indices(List<DateTime> dates)
         {
-            var indexes = dates.Select(x => NamingHelper.GetDailyEpgIndexName(_partnerId, x));
+            var indexes = dates.Select(x => _namingHelper.GetDailyEpgIndexName(_partnerId, x));
 
             foreach (var indexName in indexes)
             {
                 if (!_elasticSearchApi.IndexExists(indexName)) { continue; }
-
-                IndexManagerCommonHelpers.GetRetryPolicy<Exception>().Execute(() =>
-                {
-                    var isSetRefreshSuccess = _elasticSearchApi.UpdateIndexRefreshInterval(indexName, INDEX_REFRESH_INTERVAL);
-                    if (!isSetRefreshSuccess)
-                    {
-                        log.Error($"index {indexName} set refresh to -1 failed [{isSetRefreshSuccess}]]");
-                        throw new Exception("Could not set index refresh interval");
-                    }
-                });
+                SetIndexRefreshToDefault(indexName);
             }
 
             return true;
@@ -1167,8 +1263,14 @@ namespace Core.Catalog
                             if (search.m_oOrder.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.START_DATE))
                             {
                                 lMediaIds =
-                                    SortAssetsByStartDate(lMediaDocs, search.m_oOrder.m_eOrderDir,
-                                        search.associationTags, search.parentMediaTypes).Select(x => Convert.ToInt32(x)).ToList();
+                                    _startDateAssociationTagsSortStrategy.SortAssetsByStartDate(
+                                            lMediaDocs,
+                                            search.m_oOrder.m_eOrderDir,
+                                            search.associationTags,
+                                            search.parentMediaTypes,
+                                            _partnerId)
+                                        .Select(x => Convert.ToInt32(x))
+                                        .ToList();
                             }
                             else
                             {
@@ -1810,9 +1912,7 @@ namespace Core.Catalog
         /// <param name="unifiedSearchDefinitions"></param>
         /// <returns></returns>
         public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearchDefinitions, ref int totalItems)
-        {
-            return UnifiedSearch(unifiedSearchDefinitions, ref totalItems, out _);
-        }
+            => UnifiedSearch(unifiedSearchDefinitions, ref totalItems, out _);
 
 
         /// <summary>
@@ -1820,36 +1920,23 @@ namespace Core.Catalog
         /// </summary>
         /// <param name="unifiedSearchDefinitions"></param>
         /// <returns></returns>
-        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearchDefinitions, ref int totalItems,
+        public List<UnifiedSearchResult> UnifiedSearch(
+            UnifiedSearchDefinitions unifiedSearchDefinitions,
+            ref int totalItems,
             out List<AggregationsResult> aggregationsResults)
         {
             aggregationsResults = null;
             List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
             totalItems = 0;
 
-            OrderObj order = unifiedSearchDefinitions.order;
-            ApiObjects.SearchObjects.OrderBy orderBy = order.m_eOrderBy;
-            bool isOrderedByStat = false;
-            bool isOrderedByString = false;
-
             ESUnifiedQueryBuilder queryParser = new ESUnifiedQueryBuilder(unifiedSearchDefinitions);
-            bool shouldSortByStartDateOfAssociationTagsAndParentMedia =
-                unifiedSearchDefinitions.order.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.START_DATE) &&
-                unifiedSearchDefinitions.associationTags?.Count > 0 &&
-                unifiedSearchDefinitions.parentMediaTypes?.Count > 0 &&
-                unifiedSearchDefinitions.shouldSearchMedia;
             int pageIndex = 0;
             int pageSize = 0;
-            var distinctGroup = unifiedSearchDefinitions.distinctGroup;
 
-            // If this is orderd by a social-stat - first we will get all asset Ids and only then we will sort and page
-            if ((orderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS &&
-                 orderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER) ||
-                orderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT) ||
-                // Recommendations is also non-sortable
-                orderBy.Equals(ApiObjects.SearchObjects.OrderBy.RECOMMENDATION) ||
-                // If there are virtual assets (series/episode) and the sort is by start date - this is another case of unique sort
-                shouldSortByStartDateOfAssociationTagsAndParentMedia)
+            var esOrderByFields = _sortingAdapter.ResolveOrdering(unifiedSearchDefinitions);
+            // If this is order by a social-stat - first we will get all asset Ids and only then we will sort and page
+            // If there are virtual assets (series/episode) and the sort is by start date - this is another case of unique sort
+            if (_esSortingService.ShouldSortByStatistics(esOrderByFields))
             {
                 pageIndex = unifiedSearchDefinitions.pageIndex;
                 pageSize = unifiedSearchDefinitions.pageSize;
@@ -1867,25 +1954,11 @@ namespace Core.Catalog
                     queryParser.GetAllDocuments = true;
                 }
 
-                if (orderBy.Equals(ApiObjects.SearchObjects.OrderBy.START_DATE))
+                if (_esSortingService.ShouldSortByStartDateOfAssociationTags(esOrderByFields))
                 {
-                    if (!unifiedSearchDefinitions.extraReturnFields.Contains("start_date"))
-                    {
-                        unifiedSearchDefinitions.extraReturnFields.Add("start_date");
-                    }
-
-                    if (!unifiedSearchDefinitions.extraReturnFields.Contains("media_type_id"))
-                    {
-                        unifiedSearchDefinitions.extraReturnFields.Add("media_type_id");
-                    }
+                    unifiedSearchDefinitions.extraReturnFields.Add("start_date");
+                    unifiedSearchDefinitions.extraReturnFields.Add("media_type_id");
                 }
-                else
-                {
-                    // Initial sort will be by ID
-                    unifiedSearchDefinitions.order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID;
-                }
-
-                isOrderedByStat = true;
 
                 // if ordered by stats, we want at least one top hit count
                 if (unifiedSearchDefinitions.topHitsCount < 1)
@@ -1894,10 +1967,8 @@ namespace Core.Catalog
                 }
             }
             // if there is group by
-            else if (distinctGroup != null && !string.IsNullOrEmpty(distinctGroup.Key) && IndexManagerCommonHelpers.OrderByString(orderBy))
+            else if (_esSortingService.IsBucketsReorderingRequired(esOrderByFields, unifiedSearchDefinitions.distinctGroup))
             {
-                isOrderedByString = true;
-
                 pageIndex = unifiedSearchDefinitions.pageIndex;
                 pageSize = unifiedSearchDefinitions.pageSize;
                 queryParser.PageIndex = 0;
@@ -1958,8 +2029,10 @@ namespace Core.Catalog
             SetGroupByValues(unifiedSearchDefinitions);
 
             // WARNING has side effect - updates queryParser.Aggregations
-            string requestBody = queryParser.BuildSearchQueryString(unifiedSearchDefinitions.shouldIgnoreDeviceRuleID,
-                unifiedSearchDefinitions.shouldAddIsActiveTerm, unifiedSearchDefinitions.isGroupingOptionInclude);
+            var requestBody = queryParser.BuildSearchQueryString(
+                unifiedSearchDefinitions.shouldIgnoreDeviceRuleID,
+                unifiedSearchDefinitions.shouldAddIsActiveTerm,
+                unifiedSearchDefinitions.isGroupingOptionInclude);
 
             if (!string.IsNullOrEmpty(requestBody))
             {
@@ -1993,88 +2066,32 @@ namespace Core.Catalog
                             topHitsMapping = MapTopHits(esAggregationResult, unifiedSearchDefinitions);
                         }
 
-                        List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded =
-                            ESUtils.DecodeAssetSearchJsonObject(queryResultString, ref totalItems, unifiedSearchDefinitions.extraReturnFields);
+                        var assetsDocumentsDecoded = ESUtils.DecodeAssetSearchJsonObject(
+                            queryResultString,
+                            ref totalItems,
+                            unifiedSearchDefinitions.extraReturnFields?.ToList());
 
-                        if (assetsDocumentsDecoded != null && assetsDocumentsDecoded.Count > 0)
+                        if (assetsDocumentsDecoded?.Count > 0)
                         {
                             searchResultsList = new List<UnifiedSearchResult>();
                             var idToDocument = new Dictionary<string, ElasticSearchApi.ESAssetDocument>();
-
-                            foreach (ElasticSearchApi.ESAssetDocument doc in assetsDocumentsDecoded)
+                            foreach (var doc in assetsDocumentsDecoded)
                             {
-                                UnifiedSearchResult result = CreateUnifiedSearchResultFromESDocument(unifiedSearchDefinitions, doc);
-
+                                var result = CreateUnifiedSearchResultFromESDocument(unifiedSearchDefinitions, doc);
                                 searchResultsList.Add(result);
-
-                                if (distinctGroup != null && !string.IsNullOrEmpty(distinctGroup.Key))
-                                {
-                                    idToDocument.Add(result.AssetId, doc);
-                                }
+                                idToDocument.Add(result.AssetId, doc);
                             }
 
-                            // If this is orderd by a social-stat - first we will get all asset Ids and only then we will sort and page
-                            if (isOrderedByStat)
+                            var reorderedAssetIds = _sortingService.GetReorderedAssetIds(
+                                searchResultsList,
+                                unifiedSearchDefinitions,
+                                idToDocument);
+
+                            // need to reorder items
+                            if (reorderedAssetIds?.Count > 0)
                             {
-                                #region Ordered by stat
-
-                                List<long> assetIds = searchResultsList.Select(item => long.Parse(item.AssetId)).ToList();
-
-                                List<long> orderedIds = null;
-
-                                // Do special sort only when searching by media
-                                if (shouldSortByStartDateOfAssociationTagsAndParentMedia)
-                                {
-                                    orderedIds = SortAssetsByStartDate(assetsDocumentsDecoded, order.m_eOrderDir,
-                                        unifiedSearchDefinitions.associationTags,
-                                        unifiedSearchDefinitions.parentMediaTypes);
-                                }
-                                // Recommendation - the order is predefined already. We will use the order that is given to us
-                                else if (orderBy == ApiObjects.SearchObjects.OrderBy.RECOMMENDATION)
-                                {
-                                    orderedIds = new List<long>();
-                                    HashSet<long> idsHashset = new HashSet<long>(assetIds);
-
-                                    // Add all ordered ids from definitions first
-                                    foreach (var asset in unifiedSearchDefinitions.specificOrder)
-                                    {
-                                        // If the id exists in search results
-                                        if (idsHashset.Remove(asset.Value))
-                                        {
-                                            // add to ordered list
-                                            orderedIds.Add(asset.Value);
-                                        }
-                                    }
-
-                                    // Add all ids that are left
-                                    foreach (long id in idsHashset)
-                                    {
-                                        orderedIds.Add(id);
-                                    }
-                                }
-                                else
-                                {
-                                    if (unifiedSearchDefinitions.trendingAssetWindow.HasValue)
-                                    {
-                                        //BEO-9415
-                                        orderedIds = SortAssetsByStats(assetIds, orderBy, order.m_eOrderDir,
-                                            unifiedSearchDefinitions.trendingAssetWindow, DateTime.UtcNow);
-                                    }
-                                    else
-                                    {
-                                        orderedIds = SortAssetsByStats(assetIds, orderBy, order.m_eOrderDir);
-                                    }
-                                }
-
-                                if (distinctGroup != null && !string.IsNullOrEmpty(distinctGroup.Key))
-                                {
-                                    ReorderBuckets(esAggregationResult, pageIndex, pageSize, distinctGroup, idToDocument, orderedIds);
-                                }
-
                                 // Page results: check which results should be returned
-
                                 Dictionary<int, UnifiedSearchResult> idToResultDictionary = new Dictionary<int, UnifiedSearchResult>();
-
                                 // Map all results in dictionary
                                 searchResultsList.ForEach(item =>
                                 {
@@ -2091,40 +2108,42 @@ namespace Core.Catalog
                                 });
 
                                 searchResultsList.Clear();
-
-                                bool illegalRequest = false;
-                                assetIds = orderedIds.Page(pageSize, pageIndex, out illegalRequest).ToList();
-
+                                var assetIds = reorderedAssetIds.Page(pageSize, pageIndex, out var illegalRequest).ToArray();
                                 if (!illegalRequest)
                                 {
-                                    UnifiedSearchResult temporaryResult;
-
                                     foreach (int id in assetIds)
                                     {
-                                        if (idToResultDictionary.TryGetValue(id, out temporaryResult))
+                                        if (idToResultDictionary.TryGetValue(id, out var temporaryResult))
                                         {
                                             searchResultsList.Add(temporaryResult);
                                         }
                                     }
                                 }
-
-                                #endregion
                             }
 
-                            if (esAggregationResult != null && isOrderedByString)
+                            if (esAggregationResult != null
+                                && _esSortingService.IsBucketsReorderingRequired(esOrderByFields, unifiedSearchDefinitions.distinctGroup))
                             {
-                                // in this case the assets are already ordered in original search results, so we will simply use it
-                                List<long> orderedIds = searchResultsList.Select(item => long.Parse(item.AssetId)).ToList();
-                                ReorderBuckets(esAggregationResult, pageIndex, pageSize, distinctGroup, idToDocument, orderedIds);
+                                var assetIds = searchResultsList.Select(item => long.Parse(item.AssetId)).ToList();
+                                ReorderBuckets(
+                                    esAggregationResult,
+                                    pageIndex,
+                                    pageSize,
+                                    unifiedSearchDefinitions.distinctGroup,
+                                    idToDocument,
+                                    assetIds);
                             }
                         }
 
                         if (esAggregationResult != null)
                         {
-                            aggregationsResults = new List<AggregationsResult>(); // TODO if we add one element always, why it's an array?
-                            aggregationsResults.Add(ConvertAggregationsResponse(esAggregationResult,
-                                unifiedSearchDefinitions.groupBy.Select(g => g.Key).ToList(),
-                                topHitsMapping));
+                            aggregationsResults = new List<AggregationsResult>
+                            {
+                                ConvertAggregationsResponse(
+                                    esAggregationResult,
+                                    unifiedSearchDefinitions.groupBy.Select(g => g.Key).ToList(),
+                                    topHitsMapping)
+                            }; // TODO if we add one element always, why it's an array?
                         }
 
                         #endregion
@@ -2141,16 +2160,25 @@ namespace Core.Catalog
 
         public AggregationsResult UnifiedSearchForGroupBy(UnifiedSearchDefinitions search)
         {
-            var singleGroupByWithDistinct = search.groupBy?.Count == 1 && search.groupBy.Single().Key == search.distinctGroup.Key;
+            var orderByFields = _sortingAdapter.ResolveOrdering(search);
+            var singleGroupByWithDistinct = search.groupBy?.Count == 1
+                && search.groupBy.Single().Key == search.distinctGroup.Key
+                && orderByFields.Count == 1
+                && orderByFields.Single() is EsOrderByField;
 
             if (!singleGroupByWithDistinct)
             {
-                throw new NotSupportedException($"Method should be used for single group by");
+                throw new NotSupportedException($"Method should be used for single group.");
+            }
+
+            if (orderByFields.Count != 1 || !(orderByFields.Single() is EsOrderByField orderByField))
+            {
+                throw new NotSupportedException($"Method should be used for case with primary sorting set only.");
             }
 
             var groupBySearch =
-                IndexManagerCommonHelpers.GetStrategy(search.order.m_eOrderBy) ??
-                throw new NotSupportedException($"Not supported group by with {search.order.m_eOrderBy} order");
+                IndexManagerCommonHelpers.GetStrategy(orderByField.OrderByField) ??
+                throw new NotSupportedException($"Not supported group by with {orderByField} order");
 
             // save original page and size, will be mutated later :(
             var pageSize = search.pageSize;
@@ -2991,7 +3019,7 @@ namespace Core.Catalog
 
                 try
                 {
-                    ContextData contextData = new ContextData();
+                    LogContextData contextData = new LogContextData();
                     // Create a task for the search and merge of partial aggregations
                     Task task = Task.Run(() =>
                     {
@@ -4247,7 +4275,7 @@ namespace Core.Catalog
                     }
             }
 
-            var orderedList = SortAssetsByStats(assetIds, orderBy, ApiObjects.SearchObjects.OrderDir.DESC, dtStartDate, dtEndDate);
+            var orderedList = _statisticsSortStrategy.SortAssetsByStats(assetIds, orderBy, ApiObjects.SearchObjects.OrderDir.DESC, _partnerId, dtStartDate, dtEndDate);
 
             result = orderedList.Select(id => (int)id).ToList();
 
@@ -4419,7 +4447,7 @@ namespace Core.Catalog
                     }
             }
 
-            var orderedList = this.SortAssetsByStats(assetIds, orderBy, ApiObjects.SearchObjects.OrderDir.DESC, dtStartDate, dtEndDate);
+            var orderedList = _statisticsSortStrategy.SortAssetsByStats(assetIds, orderBy, ApiObjects.SearchObjects.OrderDir.DESC, _partnerId, dtStartDate, dtEndDate);
 
             result = orderedList.Select(id => (int)id).ToList();
 
@@ -5377,14 +5405,14 @@ namespace Core.Catalog
                     }
 
                     var options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
-                    var contextData = new ContextData();
+                    var LogContextData = new LogContextData();
                     ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount;
 
                     var failedBulkRequests = new System.Collections.Concurrent.ConcurrentBag<List<ESBulkRequestObj<int>>>();
                     // Send request to elastic search in a different thread
                     Parallel.ForEach(bulkRequests, options, (bulkRequest, state) =>
                     {
-                        contextData.Load();
+                        LogContextData.Load();
                         List<ESBulkRequestObj<int>> invalidResults;
                         bool bulkResult = _elasticSearchApi.CreateBulkRequests(bulkRequest.Value, out invalidResults);
 
@@ -5650,7 +5678,7 @@ namespace Core.Catalog
 
         private void CleanupChannelsPercolators(List<string> previousChannelIds, HashSet<string> channelsToRemove, HashSet<int> channelIds)
         {
-            ContextData cd = new ContextData();
+            LogContextData cd = new LogContextData();
             string indexName = $"{_partnerId}";
 
             // remove old deleted channels
@@ -5737,7 +5765,7 @@ namespace Core.Catalog
         {
             List<ESBulkRequestObj<string>> bulkList = new List<ESBulkRequestObj<string>>();
             int sizeOfBulk = SIZE_OF_BULK;
-            ContextData cd = new ContextData();
+            LogContextData cd = new LogContextData();
 
             // Default for size of bulk should be 50, if not stated otherwise in TCM
             if (sizeOfBulk == 0)
@@ -6026,7 +6054,7 @@ namespace Core.Catalog
 
         public void InsertTagsToIndex(string newIndexName, List<ApiObjects.SearchObjects.TagValue> allTagValues)
         {
-            ContextData cd = new ContextData();
+            LogContextData cd = new LogContextData();
             int sizeOfBulk = TVinciShared.WS_Utils.GetTcmIntValue("ES_BULK_SIZE");
 
             // Default for size of bulk should be 50, if not stated otherwise in TCM
@@ -6313,7 +6341,7 @@ namespace Core.Catalog
                 }
 
                 ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
-                ContextData contextData = new ContextData();
+                LogContextData contextData = new LogContextData();
                 System.Net.ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount;
                 System.Collections.Concurrent.ConcurrentBag<List<ESBulkRequestObj<ulong>>> failedBulkRequests = new System.Collections.Concurrent.ConcurrentBag<List<ESBulkRequestObj<ulong>>>();
                 // Send request to elastic search in a different thread
@@ -6497,7 +6525,7 @@ namespace Core.Catalog
                 return result;
             }
 
-            bool isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(_partnerId);
+            bool isIngestV2 = _groupSettingsManager.DoesGroupUseNewEpgIngest(_partnerId);
 
             _catalogManager.GetLinearChannelValues(epgObjects, _partnerId, _ => { });
 
@@ -6521,7 +6549,7 @@ namespace Core.Catalog
                         // in that case we need to use the specific date alias for each epg item to update
                         if (!isRecording && isIngestV2)
                         {
-                            alias = NamingHelper.GetDailyEpgIndexName(_partnerId, epg.StartDate.Date);
+                            alias = _namingHelper.GetDailyEpgIndexName(_partnerId, epg.StartDate.Date);
                         }
 
                         epg.PadMetas(metasToPad);
@@ -6653,7 +6681,7 @@ namespace Core.Catalog
 
             // Epg V2 has multiple indices connected to the gloabl alias {groupID}_epg
             // in that case we need to use the specific date alias for each epg item to update
-            bool isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(_partnerId);
+            bool isIngestV2 = _groupSettingsManager.DoesGroupUseNewEpgIngest(_partnerId);
 
             var alias = NamingHelper.GetEpgIndexAlias(_partnerId);
             if (!_elasticSearchApi.IndexExists(alias))
@@ -6678,7 +6706,7 @@ namespace Core.Catalog
                         // in that case we need to use the specific date alias for each epg item to update
                         if (isIngestV2)
                         {
-                            alias = NamingHelper.GetDailyEpgIndexName(_partnerId, epg.StartDate.Date);
+                            alias = _namingHelper.GetDailyEpgIndexName(_partnerId, epg.StartDate.Date);
                         }
 
                         string suffix = null;
@@ -6755,10 +6783,7 @@ namespace Core.Catalog
             return result;
         }
 
-        public void UpsertPrograms(
-            IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName,
-            DateTime dateOfProgramsToIngest,
-            LanguageObj defaultLanguage, IDictionary<string, LanguageObj> languages)
+        public void UpsertPrograms(IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName, LanguageObj defaultLanguage, IDictionary<string, LanguageObj> languages)
         {
             int bulkSize = SIZE_OF_BULK;
             bulkSize = bulkSize == 0 ? SIZE_OF_BULK_DEFAULT_VALUE :
@@ -6799,7 +6824,7 @@ namespace Core.Catalog
                             document = serializedEpg,
                             index = draftIndexName,
                             Operation = eOperation.index,
-                            routing = dateOfProgramsToIngest.Date.ToString("yyyyMMdd") /*program.StartDate.ToUniversalTime().ToString("yyyyMMdd")*/,
+                            routing = program.StartDate.Date.ToString("yyyyMMdd") /*program.StartDate.ToUniversalTime().ToString("yyyyMMdd")*/,
                             type = epgType,
                             ttl = $"{totalMinutes}m"
                         };
@@ -6892,6 +6917,34 @@ namespace Core.Catalog
         #endregion
 
         #region Private Methods
+
+        private bool Reindex(string sourceIndex, string targetIndex, int retryCount = 1)
+        {
+            var policy = IndexManagerCommonHelpers.GetRetryPolicy<Exception>(retryCount);
+            var retryResult = policy.ExecuteAndCapture(()=>
+            {
+                var res = _elasticSearchApi.Reindex(sourceIndex, targetIndex);
+                if (!res)
+                {
+                    throw new Exception($"error while trying to compact indices for partner:[{_partnerId}]");
+                }
+            });
+            return retryResult.Outcome == OutcomeType.Successful;
+        }
+        
+        private bool DeleteIndex(string index, int retryCount = 1)
+        {
+            var policy = IndexManagerCommonHelpers.GetRetryPolicy<Exception>(retryCount);
+            var retryResult = policy.ExecuteAndCapture(()=>
+            {
+                var res = _elasticSearchApi.DeleteIndices(new List<string>{index});
+                if (!res)
+                {
+                    throw new Exception($"error while trying to delete index:[{index}] for partner:[{_partnerId}]");
+                }
+            });
+            return retryResult.Outcome == OutcomeType.Successful;
+        }
 
         private bool GetMetasAndTagsForMapping(
             out Dictionary<string, KeyValuePair<eESFieldType, string>> metas,

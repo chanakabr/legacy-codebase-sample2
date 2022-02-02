@@ -1,5 +1,5 @@
 ﻿using EventManager;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Web;
@@ -9,7 +9,7 @@ using System.Reflection;
 using ApiObjects;
 using System.Threading.Tasks;
 using WebAPI.Models.General;
-using KlogMonitorHelper;
+
 using DAL;
 using TVinciShared;
 using ApiLogic.Api.Managers;
@@ -286,7 +286,7 @@ namespace WebAPI
             else
             {
                 // save context data - for multi threading operations
-                ContextData contextData = new ContextData();
+                LogContextData contextData = new LogContextData();
                 var currentHttpContext = HttpContext.Current;
 
                 Task.Run(() =>

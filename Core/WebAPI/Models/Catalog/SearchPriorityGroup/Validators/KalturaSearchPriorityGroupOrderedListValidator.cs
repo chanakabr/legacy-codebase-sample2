@@ -16,7 +16,7 @@ namespace WebAPI.Models.Catalog.SearchPriorityGroup.Validators
 
             if (ids.Length > MAX_PRIORITY_GROUP_COUNT)
             {
-                throw new BadRequestException(ARGUMENT_MAX_ITEMS_CROSSED, argumentName, priorityGroupIdsArgument);
+                throw new BadRequestException(ARGUMENT_MAX_ITEMS_CROSSED, argumentName, MAX_PRIORITY_GROUP_COUNT);
             }
 
             if (ids.Length != ids.Distinct().Count())

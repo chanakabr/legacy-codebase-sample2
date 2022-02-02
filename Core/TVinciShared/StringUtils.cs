@@ -173,5 +173,15 @@ namespace TVinciShared
 
             return true;
         }
+
+        public static string ConvertToCommaSeparatedString<T>(this List<T> values, string defaultValue = null)
+        {
+            if (values == null)
+            {
+                return defaultValue;
+            }
+
+            return string.Join(",", values);
+        }
     }
 }

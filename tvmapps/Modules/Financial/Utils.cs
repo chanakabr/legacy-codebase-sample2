@@ -7,7 +7,7 @@ using System.Configuration;
 using ICSharpCode.SharpZipLib.Zip;
 using System.IO;
 using System.IO.Compression;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using System.Runtime.Caching;
 
@@ -266,7 +266,7 @@ namespace Financial
                 if (File.Exists(stZipPath))
                     File.Delete(stZipPath);
 
-                ICSharpCode.SharpZipLib.Checksums.Crc32 crc = new ICSharpCode.SharpZipLib.Checksums.Crc32();
+                ICSharpCode.SharpZipLib.Checksum.Crc32 crc = new ICSharpCode.SharpZipLib.Checksum.Crc32();
                 zipOutput = new ZipOutputStream(File.Create(stZipPath));
                 zipOutput.SetLevel(9); // 0 - store only to 9 - means best compression
 

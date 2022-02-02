@@ -11,10 +11,12 @@ using System.Xml.Serialization;
 using System.Data;
 using ApiObjects.SearchObjects;
 using Core.Catalog.Response;
-using KLogMonitor;
+using Phx.Lib.Log;
 using ElasticSearch.Searcher;
 using Catalog.Response;
 using ApiObjects.Response;
+using ApiObjects.SearchPriorityGroups;
+using Core.Catalog.Request.SearchPriority;
 using ElasticSearch.Common;
 
 namespace Core.Catalog.Request
@@ -23,7 +25,7 @@ namespace Core.Catalog.Request
    * return : Return all medias that share the same values Like the mediaID that was send
    * *************************************************************************************/
     [DataContract]
-    public class MediaRelatedRequest : BaseRequest, IRequestImp
+    public class MediaRelatedRequest : BaseRequest, IRequestImp, ISearchPriorityRequest
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -38,23 +40,23 @@ namespace Core.Catalog.Request
 
         [DataMember]
         public OrderObj OrderObj;
+
+        [DataMember]
+        public IReadOnlyCollection<AssetOrder> OrderingParameters;
         
         [DataMember]
         public SearchAggregationGroupBy searchGroupBy;
+        
+        /// <summary>
+        /// Key Value Pair. Key - Score. Value - Corresponding Priority Group.
+        /// </summary>
+        [DataMember]
+        public IReadOnlyDictionary<double, SearchPriorityGroup> PriorityGroupsMappings { get; set; }
 
         public MediaRelatedRequest()
             : base()
         {
             m_nMediaTypes = new List<Int32>();
-        }
-
-        public MediaRelatedRequest(Int32 nMediaID, Int32 nGroupID, Int32 nPageSize, Int32 nPageIndex, string sUserIP, Filter oFilter, string sSignature, string sSignString, List<Int32> nMediaTypes, OrderObj orderObj)
-            : base(nPageSize, nPageIndex, sUserIP, nGroupID, oFilter, sSignature, sSignString)
-        {
-            m_nMediaID = nMediaID;
-            m_nMediaTypes = nMediaTypes;
-            m_nMediaTypes = new List<Int32>();
-            OrderObj = orderObj;
         }
 
         public MediaRelatedRequest(MediaRelatedRequest m)
@@ -64,6 +66,7 @@ namespace Core.Catalog.Request
             m_nMediaTypes = m.m_nMediaTypes;
             m_nMediaTypes = new List<Int32>();
             OrderObj = m.OrderObj;
+            OrderingParameters = m.OrderingParameters;
             searchGroupBy = m.searchGroupBy;
         }
 
@@ -72,7 +75,6 @@ namespace Core.Catalog.Request
             MediaRelatedRequest request = oBaseRequest as MediaRelatedRequest;
             UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
 
-            Filter oFilter = new Filter();
             try
             {
                 //Build  MediaSearchRequest object
@@ -81,7 +83,7 @@ namespace Core.Catalog.Request
 
                 CheckSignature(request);
 
-                if (request.m_dServerTime == default(DateTime) || request.m_dServerTime == DateTime.MinValue)
+                if (request.m_dServerTime == default || request.m_dServerTime == DateTime.MinValue)
                 {
                     request.m_dServerTime = DateTime.UtcNow;
                 }

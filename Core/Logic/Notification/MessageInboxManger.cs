@@ -3,7 +3,7 @@ using ApiObjects.Base;
 using ApiObjects.Notification;
 using ApiObjects.Response;
 using DAL;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +12,7 @@ using TVinciShared;
 using APILogic.ConditionalAccess;
 using ApiObjects.Segmentation;
 using ApiLogic.ConditionalAccess;
+using ApiLogic.Users.Managers;
 
 namespace Core.Notification
 {
@@ -121,6 +122,17 @@ namespace Core.Notification
 
                 SetBatchCampaignsToUser(groupId, userId);
                 
+                var filter = new BatchCampaignFilter()
+                {
+                    StateEqual = CampaignState.ARCHIVE
+                };
+
+                GenericListResponse<Campaign> archiveCampaignsResponse = CampaignManager.Instance.SearchCampaigns(new ContextData(groupId) { UserId = userId }, filter);
+                if (archiveCampaignsResponse.HasObjects())
+                {
+                    NotificationDal.RemoveArchiveCampaignFromInboxMessage(groupId, userId, archiveCampaignsResponse.Objects);
+                }
+
                 var userMessages = NotificationDal.GetUserMessagesView(groupId, userId, false, CreatedAtGreaterThanOrEqual);
                 if (userMessages == null)
                 {
@@ -258,7 +270,6 @@ namespace Core.Notification
 
             var batchCampaignsResponse = ApiLogic.Users.Managers.CampaignManager.Instance.ListBatchCampaigns(contextData, batchFilter);
             List<BatchCampaign> batchCampaigns = batchCampaignsResponse.HasObjects() ? batchCampaignsResponse.Objects : null;
-
             NotificationDal.RemoveOldCampaignsFromInboxMessageMapCB(groupId, userId, utcNow);
 
             //get all existing user’s batch campaigns(all existing user’s campaign messages).
@@ -295,7 +306,7 @@ namespace Core.Notification
                 }
             }
         }
-
+        
         public static void AddCampaignMessage(Campaign campaign, int groupId, long userId, string udid = null)
         {
             AddCampaignMessage(campaign.Id, campaign.CampaignType, campaign.Message, campaign.EndDate, groupId, userId, null, udid);

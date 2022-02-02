@@ -5,10 +5,10 @@ using ApiObjects.Epg;
 using ApiObjects.Notification;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using DAL;
-using KLogMonitor;
-using KlogMonitorHelper;
+using Phx.Lib.Log;
+
 using Newtonsoft.Json;
 using QueueWrapper;
 using System;

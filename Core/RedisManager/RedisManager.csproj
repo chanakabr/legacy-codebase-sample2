@@ -18,8 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj" />
-    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
+    <PackageReference Include="Phx.Lib.Appconfig" Version="1.2.0" />
   </ItemGroup>
 
 </Project>

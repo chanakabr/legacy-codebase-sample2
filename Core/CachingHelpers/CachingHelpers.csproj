@@ -15,11 +15,9 @@
   
   <ItemGroup>
     <ProjectReference Include="..\ApiObjects\ApiObjects.csproj" />
-    <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj" />
     <ProjectReference Include="..\CachingProvider\CachingProvider.csproj" />
     <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj" />
     <ProjectReference Include="..\DAL\DAL.csproj" />
-    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj" />
     <ProjectReference Include="..\TvinciCache\TvinciCache.csproj" />
     <ProjectReference Include="..\TVinciShared\TVinciShared.csproj" />

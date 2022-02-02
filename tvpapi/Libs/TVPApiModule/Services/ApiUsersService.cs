@@ -1,7 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
 using Core.Users;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,7 +52,7 @@ namespace TVPApiModule.Services
             UserResponseObject response = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     response = Core.Users.Module.CheckUserPassword(m_groupID, userName, password, isDoubleLogin);
                 }
@@ -81,7 +81,7 @@ namespace TVPApiModule.Services
                     }
                 }
 
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     UserResponseObject response = Core.Users.Module.SignIn(
                         m_groupID, sUserName, sPassword, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bIsDoubleLogin, keyValueList.ToArray());
@@ -112,7 +112,7 @@ namespace TVPApiModule.Services
             UserResponseObject response = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     response = Core.Users.Module.AddNewUser(m_groupID, userBasicData, userDynamicData, sPassword, sAffiliateCode);
                 }
@@ -129,7 +129,7 @@ namespace TVPApiModule.Services
         {
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     UserResponseObject uro = Core.Users.Module.SignOut(m_groupID, sSiteGuid, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bPreventDoubleLogin);
                 }
@@ -145,7 +145,7 @@ namespace TVPApiModule.Services
             bool bRet = false;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     UserState response = Core.Users.Module.GetUserInstanceState(m_groupID, sSiteGuid, sSessionID, sDeviceID, sIP);
 
@@ -170,7 +170,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var res = Core.Users.Module.RemoveUserFavorit(m_groupID, SiteHelper.GetClientIP(), iFavoriteID.Select(i => (long)i).ToArray());
 
@@ -198,7 +198,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var res = Core.Users.Module.GetUserFavorites(m_groupID, sSiteGuid, iDomainID, string.Empty, sItemType,  FavoriteOrderBy.CreateDateAsc);
                     response = res.Favorites;
@@ -218,7 +218,7 @@ namespace TVPApiModule.Services
             bool bRet = false;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var res = Core.Users.Module.AddUserFavorit(m_groupID, sSiteGuid, iDomainID, sUDID, sMediaType, sMediaID, sExtra);
                     if (res != null && res.Code == (int)eResponseStatus.OK)
@@ -243,7 +243,7 @@ namespace TVPApiModule.Services
         {
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     Core.Users.Module.RemoveUserFavorit(m_groupID, sSiteGuid, mediaID);
 
@@ -261,7 +261,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     UserResponseObject response = Core.Users.Module.SSOSignIn(m_groupID, sUserName, sPassword, nProviderID, sSessionID, sIP, sDeviceID, bIsPreventDoubleLogins);
 
@@ -292,7 +292,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     response = Core.Users.Module.SSOCheckLogin(m_groupID, sUserName, nProviderID);
                 }
@@ -311,7 +311,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     response = Core.Users.Module.SSOCheckLogin(m_groupID, sUserName, nProviderID);
                 }
@@ -330,7 +330,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     response = Core.Users.Module.GetUserData(m_groupID, sSiteGuid, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP());
                 }
@@ -349,7 +349,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var resp = Core.Users.Module.GetUsersData(m_groupID, siteGuids, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP());
 
@@ -373,7 +373,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     response = Core.Users.Module.UpdateUserData(m_groupID, sSiteGuid, userBasicData, userDynamicData);
                 }
@@ -392,7 +392,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var res = Core.Users.Module.ActivateAccount(m_groupID, sUserName, sToken);                                        
                     if(res != null)
@@ -415,7 +415,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var res = Core.Users.Module.ResendActivationMail(m_groupID, sUserName, sNewPassword);
                     if (res != null && res.Code == (int)eResponseStatus.OK)
@@ -436,7 +436,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     response = Core.Users.Module.GetAllUserOfflineAssets(m_groupID, sSiteGuid);
                 }
@@ -455,7 +455,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     response = Core.Users.Module.AddUserOfflineAsset(m_groupID, siteGuid, mediaID.ToString());
                 }
@@ -474,7 +474,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     response = Core.Users.Module.RemoveUserOfflineAsset(m_groupID, siteGuid, mediaID.ToString());
                 }
@@ -493,7 +493,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     response = Core.Users.Module.ClearUserOfflineAssets(m_groupID, siteGuid);
                 }
@@ -510,7 +510,7 @@ namespace TVPApiModule.Services
         {
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     UserResponseObject uro = Core.Users.Module.ForgotPassword(m_groupID, UserName);
                     if (uro.m_RespStatus == ResponseStatus.OK)
@@ -538,7 +538,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var response = Core.Users.Module.GetIPToCountry(m_groupID, sIP);
                     sRet = response.m_sCountryName;
@@ -621,7 +621,7 @@ namespace TVPApiModule.Services
             bool bRet = false;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     bRet = Core.Users.Module.SetUserDynamicData(m_groupID, sSiteGuid, sKey, sValue);
                 }
@@ -640,7 +640,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     response = Core.Users.Module.GetUserDataByCoGuid(m_groupID, coGuid, operatorID);
                 }
@@ -658,7 +658,7 @@ namespace TVPApiModule.Services
             UserResponseObject bRet = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     bRet = Core.Users.Module.ChangeUserPassword(m_groupID, sUN, sOldPass, sPass);
 
@@ -678,7 +678,7 @@ namespace TVPApiModule.Services
             UserResponseObject bRet = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     bRet = Core.Users.Module.GetUserByFacebookID(m_groupID, facebookId);
                 }
@@ -696,7 +696,7 @@ namespace TVPApiModule.Services
             UserResponseObject bRet = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     bRet = Core.Users.Module.GetUserByUsername(m_groupID, userName);
                 }
@@ -715,7 +715,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var users = Core.Users.Module.SearchUsers(m_groupID, sTerms, sFields, bIsExact);
 
@@ -737,7 +737,7 @@ namespace TVPApiModule.Services
         {
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     Core.Users.Module.Logout(m_groupID, sSiteGuid);
                 }
@@ -753,7 +753,7 @@ namespace TVPApiModule.Services
             Core.Users.Country[] bRet = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     bRet = Core.Users.Module.GetCountryList(m_groupID);
                 }
@@ -771,7 +771,7 @@ namespace TVPApiModule.Services
             UserResponseObject bRet = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     bRet = Core.Users.Module.CheckTemporaryToken(m_groupID, sToken);
                 }
@@ -789,7 +789,7 @@ namespace TVPApiModule.Services
             UserType[] bRet = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     bRet = Core.Users.Module.GetGroupUserTypes(m_groupID);
                 }
@@ -807,7 +807,7 @@ namespace TVPApiModule.Services
             UserResponseObject bRet = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var response = Core.Users.Module.RenewUserPassword(m_groupID, sUN, sPass);
                     if( response != null && response.HasObject())
@@ -830,7 +830,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     bRet = Core.Users.Module.SendChangedPinMail(m_groupID, sSiteGuid, ruleID);
                 }
@@ -851,7 +851,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     res = Core.Users.Module.ActivateAccountByDomainMaster(m_groupID, masterUserName, userName, token);
                 }
@@ -871,7 +871,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     res = Core.Users.Module.SendPasswordMail(m_groupID, userName);
                 }
@@ -906,7 +906,7 @@ namespace TVPApiModule.Services
                     siteGuid = siteGuid
                 };
 
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     res = Core.Users.Module.AddItemToList(m_groupID, userItemList);
                 }
@@ -942,7 +942,7 @@ namespace TVPApiModule.Services
 
                 };
 
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     res = Core.Users.Module.RemoveItemFromList(m_groupID, userItemList);
                 }
@@ -978,7 +978,7 @@ namespace TVPApiModule.Services
 
                 };
 
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     res = Core.Users.Module.UpdateItemInList(m_groupID, userItemList);
                 }
@@ -1014,7 +1014,7 @@ namespace TVPApiModule.Services
 
                 };
 
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var response = Core.Users.Module.GetItemFromList(m_groupID, userItemList);
                     if (response != null && response.UserItemLists != null)
@@ -1052,7 +1052,7 @@ namespace TVPApiModule.Services
 
                 };
 
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var result = Core.Users.Module.IsItemExistsInList(m_groupID, userItemList);
 
@@ -1076,7 +1076,7 @@ namespace TVPApiModule.Services
             ResponseStatus bRet = ResponseStatus.OK;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     bRet = Core.Users.Module.SetUserTypeByUserID(m_groupID, sSiteGuid, userTypeID);
                 }
@@ -1094,7 +1094,7 @@ namespace TVPApiModule.Services
             LogInResponseData loginData = new LogInResponseData();
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     UserResponseObject response = Core.Users.Module.SignInWithToken(m_groupID, sToken, sSessionID, sIP, sDeviceID, bPreventDoubleLogins);
 
@@ -1123,7 +1123,7 @@ namespace TVPApiModule.Services
             PinCodeResponse response = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var innerResponse = Core.Users.Module.GenerateLoginPIN(m_groupID, siteGuid, secret);
                     response = new PinCodeResponse(innerResponse);
@@ -1154,7 +1154,7 @@ namespace TVPApiModule.Services
                 }
 
                 string sessionID = "0";
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var innerResponse = Core.Users.Module.LoginWithPIN(m_groupID, PIN, sessionID, SiteHelper.GetClientIP(), deviceID, false, keyValueList, secret);
                     response = new UserResponse(innerResponse);
@@ -1175,7 +1175,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var innerResponse = Core.Users.Module.SetLoginPIN(m_groupID, siteGuid, PIN, secret);
                     response = new PinCodeResponse(innerResponse);
@@ -1197,7 +1197,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var result = Core.Users.Module.ClearLoginPIN(m_groupID, siteGuid, pinCode);
 
@@ -1225,7 +1225,7 @@ namespace TVPApiModule.Services
             {
                 if (!string.IsNullOrEmpty(siteGuid) && int.TryParse(siteGuid, out userid))
                 {
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                     {
                         var result = Core.Users.Module.DeleteUser(m_groupID, userid);
 
@@ -1257,7 +1257,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var result = Core.Users.Module.ChangeUsers(m_groupID, initSiteGuid, siteGuid, udid);
                     clientResponse = new ClientResponseStatus() { Status = new Status(result.Code, result.Message) };
@@ -1288,7 +1288,7 @@ namespace TVPApiModule.Services
                     }
                 }
 
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var res = Core.Users.Module.LogIn(m_groupID, sUserName, sPassword, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bIsDoubleLogin, keyValueList);
                     if(res != null)

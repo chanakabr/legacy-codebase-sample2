@@ -1,5 +1,5 @@
 ﻿using Core.Billing;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Reflection;
 using TVPApi;
@@ -25,7 +25,7 @@ namespace TVPApiModule.Services
             AdyenBillingDetail response = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     response = Core.Billing.Module.GetLastBillingUserInfo(m_groupID, siteGuid, billingMethod);
                 }
@@ -43,7 +43,7 @@ namespace TVPApiModule.Services
             string response = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     response = Core.Billing.Module.GetClientMerchantSig(m_groupID, sParamaters);
                 }
@@ -61,7 +61,7 @@ namespace TVPApiModule.Services
             AdyenBillingDetail lastBillingInfo = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     lastBillingInfo = Core.Billing.Module.GetLastBillingTypeUserInfo(m_groupID, sSiteGuid);
                 }
@@ -79,7 +79,7 @@ namespace TVPApiModule.Services
             TVPApiModule.Objects.Responses.Billing.PaymentGatewayChargeIdResponse response = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var result = Core.Billing.Module.GetHouseholdChargeID(m_groupID, externalIdentifier, householdId);
                     response = new TVPApiModule.Objects.Responses.Billing.PaymentGatewayChargeIdResponse(result);                    
@@ -101,7 +101,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var result = Core.Billing.Module.SetHouseholdChargeID(m_groupID, externalIdentifier, householdId, chargeID);
                     clientResponse = new ClientResponseStatus(result.Code, result.Message);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -36,6 +37,7 @@ namespace SoapAdaptersCommon.GrpcAdapters.Implementation
             response.SendWelcomeEmail = result.SendWelcomeEmail;
             return Task.FromResult(response);
         }
+
         public override Task<SetConfigurationResponse> SetConfiguration(SetConfigurationRequest request, ServerCallContext context)
         {
             var result = _SSOService.SetConfiguration(request.AdapterId, request.PartnerId, request.Configuration, request.Signature);
@@ -195,6 +197,14 @@ namespace SoapAdaptersCommon.GrpcAdapters.Implementation
                 }
             }
 
+            return Task.FromResult(response);
+        }
+
+        public override Task<AdjustRegionIdResponse> AdjustRegionId(AdjustRegionIdRequest request, ServerCallContext context)
+        {
+            var user = MapProtoUserToSoapUser(request.OttUser);
+            var result = _SSOService.AdjustRegionId(request.AdapterId, request.DafaultRegionId, user, request.UserSegments.Value.Select(us => us).ToList(), request.AdapterData);
+            var response = new AdjustRegionIdResponse { RegionId = result.RegionId, AdapterStatusCode = (AdapterStatusCode)result.AdapterStatus, SSOResponseStatus = MapSoapSSOResponseToProtoSSOResponse(result.SSOResponseStatus) };
             return Task.FromResult(response);
         }
 

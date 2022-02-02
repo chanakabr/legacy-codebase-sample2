@@ -5,11 +5,11 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using ApiObjects.SearchObjects;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Catalog;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Tvinci.Data.Loaders;
 using TVPPro.SiteManager.Helper;
 

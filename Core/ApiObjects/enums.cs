@@ -1039,7 +1039,8 @@ namespace ApiObjects
     public enum DowngradePolicy
     {
         LIFO = 0,
-        FIFO = 1
+        FIFO = 1,
+        ACTIVE_DATE = 2
     }
 
     public enum DeleteMediaPolicy

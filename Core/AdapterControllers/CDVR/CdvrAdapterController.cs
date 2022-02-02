@@ -3,7 +3,7 @@
 using ApiObjects;
 using ApiObjects.Response;
 using CachingHelpers;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Synchronizer;
 using System;
 using System.Collections.Generic;
@@ -1048,6 +1048,7 @@ namespace AdapterControllers.CDVR
                 Recordings = new List<ApiObjects.TimeShiftedTv.Recording>()
             };
 
+            long? futureDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddHours(1));
             foreach (var item in externalRecordings)
             {
                 try
@@ -1063,7 +1064,8 @@ namespace AdapterControllers.CDVR
                         Type = (RecordingType)item.Type,
                         UpdateDate = FromUnixTime(item.UpdateDate),
                         ViewableUntilDate = item.ViewableUntilDate,
-                        MetaData = item.MetaData.ToDictionary(x => x.Key, y => y.Value)
+                        MetaData = item.MetaData.ToDictionary(x => x.Key, y => y.Value),
+                        ProtectedUntilDate = item.IsProtected ? futureDate : null //BEO-10901 
                     });
                 }
                 catch { }

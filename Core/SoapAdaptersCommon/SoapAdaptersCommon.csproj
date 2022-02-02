@@ -18,11 +18,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.ServiceModel.Http" Version="4.7.0" />
-    <PackageReference Include="System.ServiceModel.NetTcp" Version="4.7.0" />
-    <PackageReference Include="System.ServiceModel.Primitives" Version="4.7.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
+    <PackageReference Include="System.ServiceModel.Http" Version="4.8.1" />
+    <PackageReference Include="System.ServiceModel.NetTcp" Version="4.8.1" />
+    <PackageReference Include="System.ServiceModel.Primitives" Version="4.8.1" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
@@ -43,9 +41,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\RedisManager\RedisManager.csproj" />
-    
   </ItemGroup>
 
 <!--    Remove tools because we should generate proto files using custom ott-protoc "with null strings fix" -->

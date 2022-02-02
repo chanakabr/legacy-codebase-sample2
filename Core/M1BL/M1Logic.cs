@@ -1,5 +1,5 @@
 ﻿using System;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 
 namespace M1BL

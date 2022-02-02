@@ -2,12 +2,12 @@
 using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.SearchObjects;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using GroupsCacheManager;
-using KLogMonitor;
-using KlogMonitorHelper;
+using Phx.Lib.Log;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,7 +41,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
         public override bool BuildIndex()
         {
-            ContextData cd = new ContextData();
+            LogContextData cd = new LogContextData();
             CatalogGroupCache catalogGroupCache;
             Group group;
             List<LanguageObj> languages;

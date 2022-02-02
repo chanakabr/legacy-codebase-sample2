@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
+    <PackageReference Include="Phx.Lib.Log" Version="1.2.3" />
   </ItemGroup>
 
 </Project>

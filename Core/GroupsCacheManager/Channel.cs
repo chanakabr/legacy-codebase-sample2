@@ -67,6 +67,7 @@ namespace GroupsCacheManager
         public List<ManualMedia> m_lManualMedias { get; set; } // Populated when the channel is manual
         [DataMember]
         public ApiObjects.SearchObjects.OrderObj m_OrderObject { get; set; }
+        public List<AssetOrder> OrderingParameters { get; set; }
 
         /// <summary>
         /// KSQL filter query - for KSQL channels
@@ -138,6 +139,7 @@ namespace GroupsCacheManager
             filterQuery = string.Empty;
             filterTree = null;
             searchGroupBy = null;
+            OrderingParameters = new List<AssetOrder>();
         }
 
         #endregion

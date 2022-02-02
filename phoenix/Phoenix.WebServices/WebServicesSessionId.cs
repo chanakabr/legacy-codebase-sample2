@@ -1,4 +1,4 @@
-﻿using KLogMonitor;
+﻿using Phx.Lib.Log;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Phoenix.Context;
@@ -14,7 +14,8 @@ namespace Phoenix.WebServices
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public const string NEW_SESSION_HEADER_KEY = Constants.SESSION_ID_KEY;
+        // TODO: use the constant from phx.lib.rest for session id key
+        public const string NEW_SESSION_HEADER_KEY = "x-kaltura-session-id";
         public const string SESSION_HEADER_KEY = Constants.REQUEST_ID_KEY;
         private readonly RequestDelegate _Next;
 

@@ -1,5 +1,5 @@
 ﻿using Core.Middleware;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;

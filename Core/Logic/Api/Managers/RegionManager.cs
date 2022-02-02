@@ -7,15 +7,14 @@ using ApiLogic.Api.Validators;
 using ApiObjects;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Api;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using Core.GroupManagers;
-using Core.GroupManagers.Adapters;
 using DAL;
 using GroupsCacheManager;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Utils = ODBCWrapper.Utils;
 
 namespace ApiLogic.Api.Managers
@@ -24,7 +23,7 @@ namespace ApiLogic.Api.Managers
     {
         private static readonly KLogger Log = new KLogger(nameof(RegionManager));
         private static readonly Lazy<RegionManager> RegionManagerLazy = new Lazy<RegionManager>(
-            () => new RegionManager(new RegionValidator(), CatalogManager.Instance, GroupSettingsManagerAdapter.Instance, new GroupManager()),
+            () => new RegionManager(RegionValidator.Instance, CatalogManager.Instance, GroupSettingsManager.Instance, new GroupManager()),
             LazyThreadSafetyMode.PublicationOnly);
         private readonly IRegionValidator _regionValidator;
         private readonly ICatalogManager _catalogManager;
@@ -457,16 +456,19 @@ namespace ApiLogic.Api.Managers
                                     item.linearChannels = new List<KeyValuePair<long, int>>();
                                 }
 
+                                var parentRegion = regionsCache.Regions[item.parentId];
                                 if (filter.ExclusiveLcn)
                                 {
-                                    var parentChannelIds = regionsCache.Regions[item.parentId].linearChannels.Select(x => x.Key);
-                                    item.linearChannels = item.linearChannels.Where(x => !parentChannelIds.Contains(x.Key)).ToList();
+                                    item.linearChannels = item.linearChannels
+                                        .Where(x => !parentRegion.linearChannels.Contains(x))
+                                        .ToList();
                                 }
                                 else
                                 {
-                                    var currentChannelIds = item.linearChannels.Select(x => x.Key);
-                                    var missingChannels = regionsCache.Regions[item.parentId].linearChannels.Where(x => !currentChannelIds.Contains(x.Key));
-                                    item.linearChannels.AddRange(missingChannels);
+                                    var missingLinearChannels = parentRegion.linearChannels
+                                        .Where(x => !item.linearChannels.Contains(x))
+                                        .ToList();
+                                    item.linearChannels.AddRange(missingLinearChannels);
                                 }
                             }
                         }
@@ -479,50 +481,6 @@ namespace ApiLogic.Api.Managers
             }
 
             return result;
-        }
-
-        private static Tuple<List<int>, bool> GetRegionsFromDB(Dictionary<string, object> funcParams)
-        {
-            bool res = false;
-            List<int> result = null;
-
-            try
-            {
-                if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("groupId"))
-                {
-                    int? groupId;
-                    groupId = funcParams["groupId"] as int?;
-                    if (groupId.HasValue)
-                    {
-                        var ds = ApiDAL.Get_Regions(groupId.Value, null);
-
-                        if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-                        {
-                            if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
-                            {
-                                res = true;
-
-                                if (result == null)
-                                {
-                                    result = new List<int>();
-                                }
-
-                                foreach (DataRow dr in ds.Tables[0].Rows)
-                                {
-                                    int id = Utils.GetIntSafeVal(dr, "ID");
-                                    result.Add(id);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error(string.Format("GetRegionsFromDB failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
-            }
-
-            return new Tuple<List<int>, bool>(result, res);
         }
 
         private static Tuple<RegionsCache, bool> GetAllRegionsDB(Dictionary<string, object> funcParams)
@@ -545,7 +503,7 @@ namespace ApiLogic.Api.Managers
                         {
                             foreach (DataRow row in ds.Tables[0].Rows)
                             {
-                                region = new Region()
+                                region = new Region
                                 {
                                     id = Utils.GetIntSafeVal(row, "id"),
                                     name = Utils.GetSafeStr(row, "name"),
@@ -703,7 +661,7 @@ namespace ApiLogic.Api.Managers
 
         private static void UpdateIndex(int groupId, IEnumerable<long> linearChannelIds)
         {
-            foreach (var linearChannelId in linearChannelIds)
+            foreach (var linearChannelId in linearChannelIds.Distinct())
             {
                 UpdateIndex(groupId, linearChannelId);
             }

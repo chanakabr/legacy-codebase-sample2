@@ -357,17 +357,15 @@ namespace Validator.Managers.Scheme
 
         private XmlDocument GetAssemblyXml()
         {
-            string assemblyFilename = validatorAssembly.CodeBase;
-
             const string prefix = "file:///";
-
-            if (assemblyFilename.StartsWith(prefix))
+            if (validatorAssembly.CodeBase.StartsWith(prefix))
             {
                 StreamReader streamReader;
-
                 try
                 {
-                    streamReader = new StreamReader(string.Format("{0}/WebAPI.xml", Path.GetDirectoryName(assemblyFilename.Substring(prefix.Length))));
+                    var directoryName = Path.GetDirectoryName(validatorAssembly.Location);
+                    var location = Path.Combine(directoryName, "WebAPI.xml");
+                    streamReader = new StreamReader(location);
                 }
                 catch (FileNotFoundException exception)
                 {
@@ -386,15 +384,13 @@ namespace Validator.Managers.Scheme
 
         private string GetAssemblyVersion()
         {
-            string assemblyFilename = assembly.CodeBase;
-
             const string prefix = "file:///";
-
-            if (assemblyFilename.StartsWith(prefix))
+            if (assembly.CodeBase.StartsWith(prefix))
             {
                 try
                 {
-                    string location = string.Format("{0}/WebAPI.dll", Path.GetDirectoryName(assemblyFilename.Substring(prefix.Length)));
+                    var directoryName = Path.GetDirectoryName(assembly.Location);
+                    var location = Path.Combine(directoryName, "WebAPI.dll");
                     FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(location);
                     return fileVersionInfo.FileVersion;
                 }

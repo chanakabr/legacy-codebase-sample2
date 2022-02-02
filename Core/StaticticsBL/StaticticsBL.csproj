@@ -13,10 +13,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\ApiObjects\ApiObjects.csproj" />
     <ProjectReference Include="..\DalCB\DalCB.csproj" />
   </ItemGroup>

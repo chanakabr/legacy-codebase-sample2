@@ -16,7 +16,7 @@ using Core.Catalog.Request;
 using Core.Catalog.Response;
 using Core.Notification.Adapters;
 using DAL;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Newtonsoft.Json;
 using QueueWrapper.Queues.QueueObjects;
 using ScheduledTasks;
@@ -24,7 +24,7 @@ using TVinciShared;
 using System.Threading.Tasks;
 using CachingProvider.LayeredCache;
 using APILogic.Notification;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using ApiObjects.EventBus;
 using EventBus.RabbitMQ;
 

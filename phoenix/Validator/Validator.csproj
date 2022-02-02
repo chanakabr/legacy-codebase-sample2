@@ -15,13 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj" />
-    <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj" />
-    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\..\Core\TVinciShared\TVinciShared.csproj" />
     <ProjectReference Include="..\..\Core\WebAPI\WebAPI.csproj" />
   </ItemGroup>

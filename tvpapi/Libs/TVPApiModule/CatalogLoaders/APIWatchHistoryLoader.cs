@@ -12,10 +12,10 @@ using TVPApi;
 using TVPApiModule.Objects.Responses;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Helper;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using ApiObjects;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace TVPApiModule.CatalogLoaders
 {

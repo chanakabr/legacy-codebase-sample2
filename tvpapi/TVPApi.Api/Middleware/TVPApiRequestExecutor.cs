@@ -1,4 +1,4 @@
-﻿using KLogMonitor;
+﻿using Phx.Lib.Log;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
@@ -36,20 +36,20 @@ namespace TVPApi.Web.Middleware
                 if (queryString != null && queryString["m"] != null)
                 {
                     var m = queryString["m"];
-                    context.Items[KLogMonitor.Constants.ACTION] = m;
+                    context.Items[Phx.Lib.Log.Constants.ACTION] = m;
                     KLogger.SetAction(m);
                 }
                 // get user agent
                 var userAgent = context.Request.GetUserAgentString();
 
                 if (userAgent != null)
-                    context.Items[KLogMonitor.Constants.CLIENT_TAG] = userAgent;
+                    context.Items[Phx.Lib.Log.Constants.CLIENT_TAG] = userAgent;
 
                 // get host IP
                 if (context.Connection.RemoteIpAddress != null)
                 {
-                    KLogger.LogContextData[KLogMonitor.Constants.HOST_IP] = context.Connection.RemoteIpAddress;
-                    context.Items[KLogMonitor.Constants.HOST_IP] = context.Connection.RemoteIpAddress;
+                    KLogger.LogContextData[Phx.Lib.Log.Constants.HOST_IP] = context.Connection.RemoteIpAddress;
+                    context.Items[Phx.Lib.Log.Constants.HOST_IP] = context.Connection.RemoteIpAddress;
                 }
 
                 context.Items["ContentRootPath"] = _Host.ContentRootPath;

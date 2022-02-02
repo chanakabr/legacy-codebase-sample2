@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using CachingProvider;
 using TVinciShared;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace TvinciCache
 {

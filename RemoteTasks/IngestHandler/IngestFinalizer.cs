@@ -10,10 +10,11 @@ using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
+using Core.Catalog.CatalogManagement.Services;
 using Core.GroupManagers;
 using ElasticSearch.Common;
 using IngestHandler.Common;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Polly;
 using Polly.Retry;
 using TVinciShared;
@@ -27,23 +28,25 @@ namespace IngestHandler
 
         private BulkUpload _bulkUpload;
         private readonly IIndexManager _indexManager;
+        private readonly IEpgIngestMessaging _epgIngestMessaging;
         private readonly RetryPolicy _ingestRetryPolicy;
         private readonly BulkUploadResultsDictionary _relevantResults;
-        private readonly DateTime _dateOfProgramsToIngest;
+        private readonly string _targetIndexName;
         private readonly string _requestId;
         private readonly BulkUploadIngestJobData _bulkUploadJobData;
         private readonly EpgNotificationManager _notificationManager;
 
 
         public IngestFinalizer(BulkUpload bulkUpload, BulkUploadResultsDictionary relevantResults,
-            DateTime dateOfProgramsToIngest, string requestId, IIndexManager indexManager)
+            string targetIndexName, string requestId, IIndexManager indexManager, IEpgIngestMessaging epgIngestMessaging)
         {
             _indexManager = indexManager;
+            _epgIngestMessaging = epgIngestMessaging;
             _ingestRetryPolicy = GetRetryPolicy<Exception>();
             _bulkUpload = bulkUpload;
             _relevantResults = relevantResults;
             _bulkUploadJobData = bulkUpload.JobData as BulkUploadIngestJobData;
-            _dateOfProgramsToIngest = dateOfProgramsToIngest;
+            _targetIndexName = targetIndexName;
             _requestId = requestId;
             _notificationManager = EpgNotificationManager.Instance();
         }
@@ -55,11 +58,11 @@ namespace IngestHandler
                 _logger.Debug($"Starting IngestFinalizer BulkUploadId:[{_bulkUpload.Id}]");
 
 
-                var isRefreshSuccess = _indexManager.ForceRefreshEpgV2Index(_dateOfProgramsToIngest);
+                var isRefreshSuccess = _indexManager.ForceRefreshEpgV2Index(_targetIndexName);
 
                 if (!isRefreshSuccess)
                 {
-                    _logger.Error($"BulkUploadId [{_bulkUpload.Id}], Date:[{_dateOfProgramsToIngest}] > index refresh failed");
+                    _logger.Error($"BulkUploadId [{_bulkUpload.Id}], targetIndexName:[{_targetIndexName}] > index refresh failed");
                 }
 
                 var newStatus = SetOkayStatusToAllResults();
@@ -70,12 +73,12 @@ namespace IngestHandler
                 // All separated jobs of bulkUpload were completed, we are the last one, we need to switch the alias and commit the changes.
                 if (BulkUpload.IsProcessCompletedByStatus(newStatus))
                 {
-                    _logger.Debug($"BulkUploadId: [{_bulkUpload.Id}] Date:[{_dateOfProgramsToIngest}], Final part of bulk is marked, status is: [{newStatus}], finlizing bulk object");
+                    _logger.Debug($"BulkUploadId: [{_bulkUpload.Id}] targetIndexName:[{_targetIndexName}], Final part of bulk is marked, status is: [{newStatus}], finlizing bulk object");
                     bool finalizeResult = _indexManager.FinalizeEpgV2Indices(_bulkUploadJobData.DatesOfProgramsToIngest.ToList());
 
                     if (!finalizeResult)
                     {
-                        _logger.Error($"BulkUploadId [{_bulkUpload.Id}], Date:[{_dateOfProgramsToIngest}] > index set refresh to -1 failed ]");
+                        _logger.Error($"BulkUploadId [{_bulkUpload.Id}], targetIndexName:[{_targetIndexName}]] > index set refresh to -1 failed ]");
                         throw new Exception("Could not set index refresh interval");
                     }
 
@@ -84,8 +87,9 @@ namespace IngestHandler
                     var operations = CalculateOperations(bulkUploadResultsDictionaries);
                     UpdateRecordings(operations);
 
-                    BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_bulkUpload, newStatus);
-                    _logger.Info($"BulkUploadId: [{_bulkUpload.Id}] Date:[{_dateOfProgramsToIngest}] > Ingest Validation for entire bulk is completed, status:[{newStatus}]");
+                    var result = BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_bulkUpload, newStatus);
+                    if (result.IsOkStatusCode()) TrySendIngestCompleted(newStatus);
+                    _logger.Info($"BulkUploadId: [{_bulkUpload.Id}] targetIndexName:[{_targetIndexName}]] > Ingest Validation for entire bulk is completed, status:[{newStatus}]");
                     if (newStatus == BulkUploadJobStatus.Success)
                     {
                         // DatesOfProgramsToIngest are ordered ascending [min..max]. 
@@ -111,16 +115,17 @@ namespace IngestHandler
                     }
                 }
 
-                _logger.Info($"BulkUploadId: [{_bulkUpload.Id}] Date:[{_dateOfProgramsToIngest}] > Ingest Validation for part of the bulk is completed, status:[{newStatus}]");
+                _logger.Info($"BulkUploadId: [{_bulkUpload.Id}] targetIndexName:[{_targetIndexName}]] > Ingest Validation for part of the bulk is completed, status:[{newStatus}]");
             }
             catch (Exception ex)
             {
                 try
                 {
-                    _logger.Error($"Setting bulk upload results to error status because of an unexpected error, BulkUploadId:[{_bulkUpload.Id}] Date:[{_dateOfProgramsToIngest}]", ex);
+                    _logger.Error($"Setting bulk upload results to error status because of an unexpected error, BulkUploadId:[{_bulkUpload.Id}] targetIndexName:[{_targetIndexName}]", ex);
                     _bulkUpload.Results.ForEach(r => r.Status = BulkUploadResultStatus.Error);
                     _bulkUpload.AddError(eResponseStatus.Error, $"An unexpected error occored during ingest validation, {ex.Message}");
                     var result = BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_bulkUpload, BulkUploadJobStatus.Fatal);
+                    if (result.IsOkStatusCode()) TrySendIngestCompleted(BulkUploadJobStatus.Fatal);
                     _logger.Error($"An Exception occurred in BulkUploadIngestValidationHandler BulkUploadId:[{_bulkUpload.Id}], update result status [{result.Status}].", ex);
                 }
                 catch (Exception innerEx)
@@ -149,7 +154,7 @@ namespace IngestHandler
             bulkUploadResultsOfCurrentDate.ForEach(r => r.Status = BulkUploadResultStatus.Ok);
 
             BulkUploadManager.UpdateBulkUploadResults(bulkUploadResultsOfCurrentDate, out BulkUploadJobStatus newStatus);
-            _logger.Info($"updated result bulkUploadId: [{_bulkUpload.Id}] date:[{_dateOfProgramsToIngest}], countOfUpdates:[{bulkUploadResultsOfCurrentDate.Count}], results updated in CB, calculated status [{newStatus}]");
+            _logger.Info($"updated result bulkUploadId: [{_bulkUpload.Id}] targetIndexName:[{_targetIndexName}], countOfUpdates:[{bulkUploadResultsOfCurrentDate.Count}], results updated in CB, calculated status [{newStatus}]");
             return newStatus;
         }
 
@@ -161,7 +166,7 @@ namespace IngestHandler
                 ? ingestedProgramIds.Concat(affectedProgramIds)
                 : ingestedProgramIds;
 
-            var isOPC = GroupSettingsManager.IsOpc(_bulkUpload.GroupId);
+            var isOPC = GroupSettingsManager.Instance.IsOpc(_bulkUpload.GroupId);
             foreach (var progId in programIdsToInvalidate)
             {
                 string invalidationKey = isOPC
@@ -234,6 +239,15 @@ namespace IngestHandler
             public long[] AddedEpgIds;
             public long[] UpdatedEpgIds;
             public long[] DeletedEpgIds;
+        }
+        
+        private void TrySendIngestCompleted(BulkUploadJobStatus newStatus)
+        {
+            if (!BulkUpload.IsProcessCompletedByStatus(newStatus)) return;
+            
+            var updateDate = DateTime.UtcNow; // TODO looks like _bulUpload.UpdateDate is not updated in CB
+            _epgIngestMessaging.EpgIngestCompleted(_bulkUpload.GroupId, _bulkUpload.UpdaterId,
+                _bulkUpload.Id, newStatus, _bulkUpload.Errors, updateDate);
         }
     }
 }

@@ -19,8 +19,8 @@ namespace Reflector
         public static string GetDataModelCSFilePath()
         {
             var currentLocation = AppDomain.CurrentDomain.BaseDirectory;
-            var solutionDir = Directory.GetParent(currentLocation).Parent.Parent.Parent.Parent;
-            var filePath = Path.Combine(solutionDir.FullName, @"..\Core\WebAPI\Reflection\DataModel.cs");
+            var solutionDir = Directory.GetParent(currentLocation).Parent.Parent.Parent.Parent.Parent;
+            var filePath = Path.Combine(solutionDir.FullName, "Core", "WebAPI", "Reflection", "DataModel.cs");
             return filePath;
         }
 
@@ -32,6 +32,23 @@ namespace Reflector
         protected override void writeHeader()
         {
             file.WriteLine("// NOTICE: This is a generated file, to modify it, edit Program.cs in Reflector project");
+            file.WriteLine("// disable compiler warning due to generation of empty usages ot unused vars");
+            file.WriteLine("// ReSharper disable RedundantUsingDirective");
+            file.WriteLine("// ReSharper disable CheckNamespace");
+            file.WriteLine("// ReSharper disable NotAccessedVariable");
+            file.WriteLine("// ReSharper disable UnusedVariable");
+            file.WriteLine("// ReSharper disable RedundantAssignment");
+            file.WriteLine("// ReSharper disable PossibleMultipleEnumeration");
+            file.WriteLine("// ReSharper disable UnusedParameter.Local");
+            file.WriteLine("// ReSharper disable PossibleNullReferenceException");
+            file.WriteLine("// ReSharper disable AssignNullToNotNullAttribute");
+            file.WriteLine("// ReSharper disable BadChildStatementIndent");
+            file.WriteLine("// ReSharper disable StringLiteralTypo");
+            file.WriteLine("// ReSharper disable RedundantArgumentDefaultValue");
+            file.WriteLine("// ReSharper disable ExpressionIsAlwaysNull");
+            file.WriteLine("#pragma warning disable 168");
+            file.WriteLine("#pragma warning disable 1522");
+            file.WriteLine("#pragma warning disable 612");
             file.WriteLine("using System;");
             file.WriteLine("using System.Net;");
             file.WriteLine("using System.Collections.Generic;");

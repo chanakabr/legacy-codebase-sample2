@@ -11,6 +11,7 @@ namespace ApiObjects
         public int? MainCurrency { get; set; }
         public List<int> SecondaryCurrencies { get; set; }
         public DowngradePolicy? DowngradePolicy { get; set; }
+        public List<int> DowngradePriorityFamilyIds { get; set; }
         public string MailSettings { get; set; }
         public string DateFormat { get; set; }
         public int? HouseholdLimitationModule { get; set; }
@@ -21,6 +22,7 @@ namespace ApiObjects
         public int? FinishedPercentThreshold { get; set; }
         public SuspensionProfileInheritanceType? SuspensionProfileInheritanceType { get; set; }
         public bool? AllowDeviceMobility { get; set; }
+        public bool? EnableMultiLcns { get; set; }
 
         public bool SetUnchangedProperties(GeneralPartnerConfig oldConfig)
         {

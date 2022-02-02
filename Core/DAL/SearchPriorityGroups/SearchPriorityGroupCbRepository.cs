@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using CouchbaseManager;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Microsoft.Extensions.Logging;
 
 namespace DAL.SearchPriorityGroups

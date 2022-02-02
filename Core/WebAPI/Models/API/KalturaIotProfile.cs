@@ -54,12 +54,6 @@ namespace WebAPI.Models.API
             return IotProfileManager.Instance.Add(contextData);
         }
 
-        internal override GenericResponse<IotProfile> Update(ContextData contextData)
-        {
-            var coreObject = AutoMapper.Mapper.Map<IotProfile>(this);
-            return IotProfileManager.Instance.Update(contextData, coreObject);
-        }
-
         internal GenericResponse<IotProfile> Get(ContextData contextData)
         {
             return IotProfileManager.Instance.Get(contextData, contextData.GroupId);

@@ -8,9 +8,9 @@ using System.Security.Cryptography;
 using Newtonsoft.Json;
 using System.Data;
 using System.Linq;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using System.Net.Http;
 
 namespace TVinciShared
@@ -358,7 +358,7 @@ namespace TVinciShared
             string result = string.Empty;
             try
             {
-                result = TCMClient.Settings.Instance.GetValue<string>(sKey);
+                result = Phx.Lib.Appconfig.TCMClient.Settings.Instance.GetValue<string>(sKey);
                 if (string.IsNullOrEmpty(result))
                 {
                     log.Debug($"GetTcmConfigValue - missing key {sKey} or empty result");
@@ -378,7 +378,7 @@ namespace TVinciShared
             try
             {
 
-                result = TCMClient.Settings.Instance.GetValue<bool>(sKey);
+                result = Phx.Lib.Appconfig.TCMClient.Settings.Instance.GetValue<bool>(sKey);
             }
             catch (Exception ex)
             {
@@ -393,7 +393,7 @@ namespace TVinciShared
             int result = 0;
             try
             {
-                result = TCMClient.Settings.Instance.GetValue<int>(sKey);
+                result = Phx.Lib.Appconfig.TCMClient.Settings.Instance.GetValue<int>(sKey);
             }
             catch (Exception ex)
             {
@@ -408,7 +408,7 @@ namespace TVinciShared
             double result = 0;
             try
             {
-                result = TCMClient.Settings.Instance.GetValue<double>(sKey);
+                result = Phx.Lib.Appconfig.TCMClient.Settings.Instance.GetValue<double>(sKey);
             }
             catch (Exception ex)
             {
@@ -423,7 +423,7 @@ namespace TVinciShared
             DateTime result = DateTime.UtcNow;
             try
             {
-                result = TCMClient.Settings.Instance.GetValue<DateTime>(sKey);
+                result = Phx.Lib.Appconfig.TCMClient.Settings.Instance.GetValue<DateTime>(sKey);
                 if (result == null)
                     log.Debug($"GetTcmConfigValue - missing key {sKey} or empty result");
             }
@@ -440,7 +440,7 @@ namespace TVinciShared
             T result = default(T);
             try
             {
-                result = TCMClient.Settings.Instance.GetValue<T>(sKey);
+                result = Phx.Lib.Appconfig.TCMClient.Settings.Instance.GetValue<T>(sKey);
                 if (result == null)
                     log.Debug($"GetTcmConfigValue - missing key {sKey} or empty result");
             }

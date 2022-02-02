@@ -1,6 +1,6 @@
-﻿using ConfigurationManager;
+﻿using Phx.Lib.Appconfig;
 using Core.GroupManagers;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Newtonsoft.Json;
 using RemoteTasksCommon;
 using System;
@@ -30,10 +30,8 @@ namespace ElasticSearchHandler
                 // If the request is for a rebuild:
                 if (request.Action == ApiObjects.eAction.Rebuild)
                 {
-                    // HttpContext.Current.Items[CachingProvider.LayeredCache.LayeredCache.IS_READ_ACTION] = true;
-
                     #region Rebuild
-                    if (request.Type == ApiObjects.eObjectType.EPG && GroupSettingsManager.DoesGroupUseNewEpgIngest(request.GroupID))
+                    if (request.Type == ApiObjects.eObjectType.EPG && GroupSettingsManager.Instance.DoesGroupUseNewEpgIngest(request.GroupID))
                     {
                         throw new Exception("Rebuild index is not required / supported for EPG Ingest V2");
                     }

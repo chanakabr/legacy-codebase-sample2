@@ -100,6 +100,14 @@ namespace WebAPI.Models.Catalog
         [OnlyNewStandard("5.0.0.0")]
         public bool? TrickPlayEnabled { get; set; }
 
+        /// <summary>
+        /// Contains comma separate list of KalturaProgramAssetGroupOffer.externalOfferId values indicating the PAGOs to which the Program Asset is bound.
+        /// </summary>
+        [DataMember(Name = "externalOfferIds")]
+        [JsonProperty(PropertyName = "externalOfferIds")]
+        [XmlElement(ElementName = "externalOfferIds")]
+        public string ExternalOfferIds { get; set; }
+
         internal override void ValidateForInsert()
         {
             base.ValidateForInsert();

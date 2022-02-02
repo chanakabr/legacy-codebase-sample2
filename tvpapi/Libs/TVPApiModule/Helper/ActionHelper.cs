@@ -11,7 +11,7 @@ using TVPPro.SiteManager.DataLoaders;
 using Tvinci.Data.TVMDataLoader.Protocols.SendToFriend;
 using ApiObjects;
 using ApiObjects.Response;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 /// <summary>
 /// Summary description for ActionHelper

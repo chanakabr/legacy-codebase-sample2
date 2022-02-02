@@ -13,8 +13,8 @@ using System.Collections.Concurrent;
 using Core.Catalog.Cache;
 using GroupsCacheManager;
 using Core.Catalog.Response;
-using KLogMonitor;
-using KlogMonitorHelper;
+using Phx.Lib.Log;
+
 using ApiObjects.Catalog;
 
 namespace Core.Catalog.Request
@@ -100,7 +100,7 @@ namespace Core.Catalog.Request
                             }
 
                             // save monitor and logs context data
-                            ContextData contextData = new ContextData();
+                            LogContextData contextData = new LogContextData();
 
                             Task[] channelsSearchObjectTasks = new Task[allChannels.Count];
 

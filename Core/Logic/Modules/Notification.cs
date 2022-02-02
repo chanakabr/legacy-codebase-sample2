@@ -2,18 +2,18 @@
 using ApiObjects.Notification;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
-using KlogMonitorHelper;
+
 using Newtonsoft.Json;
 using QueueWrapper.Queues.QueueObjects;
 using APILogic.Notification;
 using Core.Catalog;
 using ApiObjects.EventBus;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using ApiLogic.Notification.Managers;
 using System.Linq;
 
@@ -497,11 +497,11 @@ namespace Core.Notification
             return response;
         }
 
-        private delegate bool InitiateNotificationActionCaller(int nGroupID, eUserMessageAction userAction, int userId, string udid, string pushToken, ContextData cd = null);
+        private delegate bool InitiateNotificationActionCaller(int nGroupID, eUserMessageAction userAction, int userId, string udid, string pushToken, LogContextData cd = null);
 
         //public static async Task<bool> InitiateNotificationActionAsync(int nGroupID, eUserMessageAction userAction, int userId, string udid, string pushToken)
         //{
-        //    ContextData cd = new ContextData();
+        //    LogContextData cd = new LogContextData();
         //    InitiateNotificationActionCaller caller = InitiateNotificationAction;
         //    return await Task.Run(() => InitiateNotificationAction(nGroupID, userAction, userId, udid, pushToken, cd));
         //}

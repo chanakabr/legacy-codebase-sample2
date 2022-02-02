@@ -13,16 +13,8 @@
     <TargetFrameworks>netcoreapp3.1;net48</TargetFrameworks>
   </PropertyGroup>
   
-  
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-  </ItemGroup>
-  
-  
-  <ItemGroup>
-    <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj" />
     <ProjectReference Include="..\DAL\DAL.csproj" />
-    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj" />
     <ProjectReference Include="..\TVinciShared\TVinciShared.csproj" />
   </ItemGroup>

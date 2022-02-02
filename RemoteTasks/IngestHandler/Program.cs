@@ -2,10 +2,13 @@
 using ApiLogic.Api.Managers;
 using ApiLogic.Catalog.CatalogManagement.Helpers;
 using ApiObjects;
+using Core.Catalog.CatalogManagement.Services;
 using Core.Metrics;
+using EventBus.Kafka;
 using EventBus.RabbitMQ;
 using IngestHandler.Common.Infrastructure;
 using IngestHandler.Domain.IngestProtection;
+using Phx.Lib.Log;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Tvinci.Core.DAL;
@@ -30,6 +33,9 @@ namespace EPGTransformationHandler
                     services.AddSingleton<ICatalogManagerAdapter, CatalogManagerAdapter>();
                     services.AddSingleton(EpgAssetMultilingualMutator.Instance);
                     services.AddSingleton<IRegionManager>(RegionManager.Instance);
+                    services.AddScoped<IEpgIngestMessaging>(provider =>
+                        new EpgIngestMessaging(KafkaPublisher.GetFromTcmConfiguration(),
+                            new KLogger(nameof(EpgIngestMessaging))));
                 })
                 .ConfigureEventBusConsumer(c =>
                 {

@@ -1,6 +1,7 @@
 ﻿using ApiObjects.Base;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using System.Web;
 using System.Xml.Serialization;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
@@ -38,14 +39,27 @@ namespace WebAPI.Models.Catalog
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string FreeText { get; set; }
 
-        internal override KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
+        internal override KalturaAssetListResponse GetAssets(
+            ContextData contextData,
+            KalturaBaseResponseProfile responseProfile,
+            KalturaFilterPager pager)
         {
-            string deviceType = System.Web.HttpContext.Current.Request.GetUserAgentString();
-            int domainId = (int)(contextData.DomainId ?? 0);
+            var deviceType = HttpContext.Current.Request.GetUserAgentString();
+            var domainId = (int)(contextData.DomainId ?? 0);
+            var userId = contextData.UserId.ToString();
 
-            var response = ClientsManager.CatalogClient().GetExternalChannelAssets(contextData.GroupId, this.IdEqual.ToString(), contextData.UserId.ToString(), domainId, contextData.Udid,
-                contextData.Language, pager.getPageIndex(), pager.PageSize, this.OrderBy, deviceType, this.UtcOffsetEqual.ToString(), this.FreeText, this.DynamicOrderBy, this.TrendingDaysEqual);
-            return response;
+            return ClientsManager.CatalogClient().GetExternalChannelAssets(
+                contextData.GroupId,
+                IdEqual.ToString(),
+                userId,
+                domainId,
+                contextData.Udid,
+                contextData.Language,
+                pager.getPageIndex(),
+                pager.PageSize,
+                deviceType,
+                UtcOffsetEqual.ToString(),
+                FreeText);
         }
     }
 }

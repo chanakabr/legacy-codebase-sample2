@@ -6,9 +6,9 @@ using System.Runtime.Caching;
 using System.Threading;
 using System.Security.Principal;
 using System.Security.AccessControl;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using CachingProvider.LayeredCache;
 using Newtonsoft.Json;
 

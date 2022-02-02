@@ -15,7 +15,7 @@ using ApiObjects;
 using ApiObjects.Response;
 using TVPPro.SiteManager.Helper;
 using ApiObjects.Catalog;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace TVPPro.SiteManager.DataLoaders
 {

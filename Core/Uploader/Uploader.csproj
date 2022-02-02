@@ -14,7 +14,6 @@
   
   
   <ItemGroup>
-    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj" />
     <ProjectReference Include="..\ScheduledTasks\ScheduledTasks.csproj" />
   </ItemGroup>

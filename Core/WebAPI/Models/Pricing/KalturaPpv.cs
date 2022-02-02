@@ -203,7 +203,23 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "virtualAssetId", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
         public long? VirtualAssetId { get; set; }
-
+        
+        internal List<int> GetFileTypesIds()
+        {
+            if (FileTypesIds != null && FileTypesIds == "")
+            {
+                return new List<int>();
+            }
+            else if(FileTypesIds == null)
+            {
+                return null;
+            }
+            else
+            {
+                return GetItemsIn<List<int>, int>(FileTypesIds, "KalturaSubscription.FileTypesIds", true);
+            }
+        }
+        
         internal void ValidateForAdd()
         {
             if (string.IsNullOrEmpty(Name))

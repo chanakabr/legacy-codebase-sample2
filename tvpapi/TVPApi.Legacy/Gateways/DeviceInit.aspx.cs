@@ -11,6 +11,7 @@ using System.Web.Script.Serialization;
 using Newtonsoft.Json;
 using System.Reflection;
 using KLogMonitor;
+using Phx.Lib.Log;
 
 public partial class Gateways_DeviceInit : System.Web.UI.Page
 {

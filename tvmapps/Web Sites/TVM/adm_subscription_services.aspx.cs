@@ -111,8 +111,6 @@ public partial class adm_subscription_services : System.Web.UI.Page
         updateQuery = null;
     }
 
-   
-
     protected void UpdateSubscriptionsServicesQuota(Int32 nID, long quota)
     {
         ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("subscriptions_services");
@@ -171,6 +169,8 @@ public partial class adm_subscription_services : System.Web.UI.Page
         {
             InsertSubscriptionsServices(int.Parse(sID), nLogedInGroupID, nSubscriptionID);
         }
+
+        Core.Pricing.PricingCache.Instance.InvalidateSubscription(LoginManager.GetLoginGroupID(), nSubscriptionID);
 
         return "";
     }

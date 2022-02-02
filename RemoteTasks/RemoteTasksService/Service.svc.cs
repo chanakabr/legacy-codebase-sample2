@@ -2,10 +2,10 @@
 using System.ServiceModel.Activation;
 using System.ServiceModel.Web;
 using RemoteTasksCommon;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using Newtonsoft.Json;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace RemoteTasksService
 {
@@ -25,10 +25,10 @@ namespace RemoteTasksService
                 var requestId = string.Empty;
                 if (request != null)
                 {
-                    KlogMonitorHelper.MonitorLogsHelper.UpdateHeaderData(Constants.REQUEST_ID_KEY, Guid.NewGuid().ToString());
+                    MonitorLogsHelper.UpdateHeaderData(Constants.REQUEST_ID_KEY, Guid.NewGuid().ToString());
 
                     // update request ID
-                    if (ExtractRequestID(request.data, ref requestId) && !KlogMonitorHelper.MonitorLogsHelper.UpdateHeaderData(Constants.REQUEST_ID_KEY, requestId))
+                    if (ExtractRequestID(request.data, ref requestId) && !MonitorLogsHelper.UpdateHeaderData(Constants.REQUEST_ID_KEY, requestId))
                     {
                         log.Error($"Error while trying to update request ID. request: {JsonConvert.SerializeObject(request)}, req_id: {requestId}.");
                     }
