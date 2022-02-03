@@ -11,7 +11,6 @@ using ApiObjects.BulkUpload;
 using System.Linq;
 using CachingProvider.LayeredCache;
 using System.Collections.Generic;
-using Tvinci.Core.DAL;
 
 namespace ApiLogic.Api.Managers
 {
@@ -290,6 +289,20 @@ namespace ApiLogic.Api.Managers
             }
 
             return new Tuple<List<long>, bool>(_dynamicListMap, _dynamicListMap != null);
+        }
+
+        public Dictionary<string, object> GetUdidsFromDynamicListById(int groupId, long dynamicListId)
+        {
+            Dictionary<string, object> result = new Dictionary<string, object>();
+            List<string> udids = ApiDAL.GetUdidDynamicList(groupId, dynamicListId);
+
+            if (udids.Any())
+            {
+                var excelColumn = ExcelColumn.GetFullColumnName(UdidDynamicList.UDID_COLUMN, null, null, true);
+                result.Add(excelColumn, udids);
+            }
+
+            return result;
         }
     }
 }

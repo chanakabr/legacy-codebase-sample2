@@ -24,6 +24,7 @@ namespace FeatureFlag
         }
 
         public bool IsEpgNotificationEnabled(int groupId) => _featureFlag.Enabled("epg.notification", GetUser(groupId));
+        public bool IsUdidDynamicListAsExcelEnabled(int groupId) => _featureFlag.Enabled("dynamicList.format", GetUser(groupId));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private KalturaFeatureToggleUser GetUser(int? groupId)
