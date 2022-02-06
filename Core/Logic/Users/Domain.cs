@@ -2571,7 +2571,7 @@ namespace Core.Users
                     int concurrencyMillisecThreshold = ConcurrencyManager.GetConcurrencyMillisecThreshold(this.m_nGroupID);
                     List<DevicePlayData> devicePlayDataList =
                         CatalogDAL.GetDevicePlayDataList(Api.api.Instance.GetDomainDevices((int) domainId, this.m_nGroupID),
-                            new List<ePlayType>() {ePlayType.NPVR, ePlayType.MEDIA},
+                            new List<ePlayType>() {ePlayType.ALL},
                             concurrencyMillisecThreshold, udid);
 
                     if (devicePlayDataList != null)
