@@ -1,5 +1,3 @@
-using Phx.Lib.Appconfig;
-using Newtonsoft.Json;
 using System;
 using Validator.Managers.Scheme;
 
@@ -9,8 +7,8 @@ namespace Validator
     {
         static void Main(string[] args)
         {
-            bool valid = SchemeManager.Validate();
-
+            bool valid = new SchemeValidator(false).Validate();
+            
             // We can no longer validate tcm in new jenkins its an Single Version tcm
             //valid &= ApplicationConfiguration.Validate();
 
