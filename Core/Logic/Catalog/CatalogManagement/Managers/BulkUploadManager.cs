@@ -19,6 +19,7 @@ using System.Linq;
 using System.Reflection;
 using ApiLogic.Api.Managers;
 using ApiLogic.Catalog.CatalogManagement.Helpers;
+using ApiLogic.Catalog.CatalogManagement.Models;
 using ApiObjects.EventBus.EpgIngest;
 using Core.Catalog.CatalogManagement.Services;
 using EventBus.Kafka;
@@ -248,9 +249,17 @@ namespace Core.Catalog.CatalogManagement
                 BulkUploadId = bulkUploadId,
             };
             publisher.Publish(transformationEvent);
+            var parameters = new EpgIngestStartedParameters
+            {
+                GroupId = groupId,
+                UserId = userId,
+                BulkUploadId = bulkUploadId,
+                IngestProfileId = ingestProfileId,
+                IngestFileName = ingestFileName,
+                CreatedDate = createdDate
+            };
 
-            EpgIngestMessaging.Instance.EpgIngestStarted(groupId, userId, bulkUploadId, ingestProfileId, ingestFileName,
-                createdDate);
+            EpgIngestMessaging.Instance.EpgIngestStarted(parameters);
         }
 
         private static GenericResponse<BulkUpload> EnqueueExcelBulkUploadJobUsingCelery(int groupId, long userId, GenericResponse<BulkUpload> response)

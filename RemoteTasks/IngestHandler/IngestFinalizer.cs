@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using ApiLogic.Catalog.CatalogManagement.Models;
 using ApiLogic.Notification.Managers;
 using ApiObjects;
 using ApiObjects.BulkUpload;
@@ -114,6 +115,8 @@ namespace IngestHandler
                         }
                     }
                 }
+
+                SendIngestPartCompletedEvent();
 
                 _logger.Info($"BulkUploadId: [{_bulkUpload.Id}] targetIndexName:[{_targetIndexName}]] > Ingest Validation for part of the bulk is completed, status:[{newStatus}]");
             }
@@ -246,8 +249,36 @@ namespace IngestHandler
             if (!BulkUpload.IsProcessCompletedByStatus(newStatus)) return;
             
             var updateDate = DateTime.UtcNow; // TODO looks like _bulUpload.UpdateDate is not updated in CB
-            _epgIngestMessaging.EpgIngestCompleted(_bulkUpload.GroupId, _bulkUpload.UpdaterId,
-                _bulkUpload.Id, newStatus, _bulkUpload.Errors, updateDate);
+            var parameters = new EpgIngestCompletedParameters
+            {
+                GroupId = _bulkUpload.GroupId,
+                BulkUploadId = _bulkUpload.Id,
+                Status = newStatus,
+                Errors = _bulkUpload.Errors,
+                CompletedDate = updateDate,
+                UserId = _bulkUpload.UpdaterId,
+                Results = _bulkUpload.Results
+            };
+
+            _epgIngestMessaging.EpgIngestCompleted(parameters);
+        }
+
+        private void SendIngestPartCompletedEvent()
+        {
+            var programIngestResults = _relevantResults.Values
+                .SelectMany(x => x.Values)
+                .ToArray();
+            var hasMoreToIngest = !BulkUpload.IsProcessCompletedByStatus(_bulkUpload.Status);
+            var parameters = new EpgIngestPartCompletedParameters
+            {
+                BulkUploadId = _bulkUpload.Id,
+                GroupId = _bulkUpload.GroupId,
+                HasMoreEpgToIngest = hasMoreToIngest,
+                UserId = _bulkUpload.UpdaterId,
+                Results = programIngestResults
+            };
+
+            _epgIngestMessaging.EpgIngestPartCompleted(parameters);
         }
     }
 }
