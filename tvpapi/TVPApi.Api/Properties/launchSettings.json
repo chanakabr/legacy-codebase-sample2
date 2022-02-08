@@ -4,7 +4,8 @@
       "commandName": "Project",
       "applicationUrl": "http://localhost:5000",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "FeatureToggle__LaunchDarkly__SdkKey": "sdk-39ee44c3-d726-4c9a-a561-506e82c1e0c1"
       }
     }
   }

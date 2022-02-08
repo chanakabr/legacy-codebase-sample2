@@ -134,33 +134,6 @@ namespace Tvinci.Core.DAL
             return ds;
         }
 
-
-        /// <summary>
-        /// For a given user and media, returns the last time the user watched the media
-        /// </summary>
-        /// <param name="p_nMedia"></param>
-        /// <param name="siteGuid"></param>
-        /// <returns></returns>
-        public static DateTime? Get_MediaUserLastWatch(int mediaId, string siteGuid)
-        {
-            DateTime? result = null;
-
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
-
-            // get document of media mark
-            object document = cbManager.Get<object>(UtilsDal.GetUserMediaMarkDocKey(siteGuid, mediaId));
-
-            if (document != null)
-            {
-                // Deserialize to known class - for comfortable access
-                MediaMarkLog mediaMarkLog = JsonConvert.DeserializeObject<MediaMarkLog>(document.ToString());
-
-                result = mediaMarkLog.LastMark.CreatedAt;
-            }
-
-            return result;
-        }
-
         public static DataSet Build_MediaRelated(int nGroupID, int nMediaID, int nLanguage, List<int> lSubGroupTree)
         {
             ODBCWrapper.StoredProcedure spBuild_MediaRelated = new ODBCWrapper.StoredProcedure("Build_MediaRelated");
@@ -2099,7 +2072,7 @@ namespace Tvinci.Core.DAL
                 : currentUserMediaMark;
         }
         
-        public static void UpdateOrInsertUsersMediaMark(UserMediaMark userMediaMark, bool isFirstPlay)
+        public static void UpdateOrInsertUsersMediaMark(UserMediaMark userMediaMark, bool isFirstPlay, int groupId)
         {
             int limitRetries = RETRY_LIMIT;
             bool success = false;
@@ -2112,14 +2085,14 @@ namespace Tvinci.Core.DAL
                 UpdateOrInsertUsersMediaMarkOrHit(mediaMarksManager, ref limitRetries, _rand, mmKey, ref success, userMediaMark);
             }
 
-            if (isFirstPlay)
+            if (isFirstPlay || MediaMarksNewModel.Enabled(groupId))
             {
                 limitRetries = RETRY_LIMIT;
                 success = false;
 
                 while (limitRetries >= 0 && !success)
                 {
-                    success = InsertMediaMarkToUserMediaMarks(userMediaMark);
+                    success = InsertMediaMarkToUserMediaMarks(userMediaMark, groupId);
 
                     if (!success)
                     {
@@ -2153,7 +2126,7 @@ namespace Tvinci.Core.DAL
             return mmKey;
         }
 
-        public static bool InsertMediaMarkToUserMediaMarks(UserMediaMark userMediaMark)
+        public static bool InsertMediaMarkToUserMediaMarks(UserMediaMark userMediaMark, int groupId)
         {
             bool success = false;
 
@@ -2163,31 +2136,56 @@ namespace Tvinci.Core.DAL
 
             var mediaMarks = couchbaseManager.Get<UserMediaMarks>(documentKey);
 
+            AssetAndLocation existingAssetLocation = null;
             if (mediaMarks == null)
             {
                 mediaMarks = new UserMediaMarks();
             }
             else
             {
-                var relevantMediaMark = mediaMarks.mediaMarks.FirstOrDefault(m =>
-                                                                        m.AssetType == eAssetTypes.NPVR && !string.IsNullOrEmpty(m.NpvrId) ?
-                                                                        m.NpvrId == userMediaMark.NpvrID :
-                                                                        m.AssetId == userMediaMark.AssetID && m.AssetType == userMediaMark.AssetType); // TODO ask Ira BEO-9356
+                existingAssetLocation = mediaMarks.mediaMarks
+                    .FirstOrDefault(m =>
+                        m.AssetType == eAssetTypes.NPVR && !string.IsNullOrEmpty(m.NpvrId)
+                            ? m.NpvrId == userMediaMark.NpvrID
+                            : m.AssetId == userMediaMark.AssetID && m.AssetType == userMediaMark.AssetType); // TODO ask Ira BEO-9356
 
-                if (relevantMediaMark != null)
+                if (existingAssetLocation != null)
                 {
-                    mediaMarks.mediaMarks.Remove(relevantMediaMark);
+                    mediaMarks.mediaMarks.Remove(existingAssetLocation);
                 }
             }
 
-            mediaMarks.mediaMarks.Add(new AssetAndLocation()
+            var assetLocation = new AssetAndLocation()
             {
                 AssetId = userMediaMark.AssetID,
                 AssetType = userMediaMark.AssetType,
                 CreatedAt = userMediaMark.CreatedAtEpoch,
                 ExpiredAt = userMediaMark.ExpiredAt,
                 NpvrId = userMediaMark.NpvrID
-            });
+            };
+            if (MediaMarksNewModel.Enabled(groupId))
+            {
+                if (existingAssetLocation?.Extra == null)
+                {
+                    assetLocation.Extra = new AssetAndLocationExtra
+                    {
+                        UDID = userMediaMark.UDID,
+                        AssetTypeId = userMediaMark.AssetTypeId,
+                        PlayType = (ePlayType)Enum.Parse(typeof(ePlayType), userMediaMark.playType),
+                        AssetAction = (MediaPlayActions)Enum.Parse(typeof(MediaPlayActions), userMediaMark.AssetAction),
+                        Location = userMediaMark.Location,
+                        FileDuration = userMediaMark.FileDuration,
+                        LocationTagValue = userMediaMark.LocationTagValue
+                    };
+                }
+                else
+                {
+                    assetLocation = existingAssetLocation;
+                    assetLocation.Extra.Location = userMediaMark.Location;
+                    assetLocation.Extra.AssetAction = (MediaPlayActions)Enum.Parse(typeof(MediaPlayActions), userMediaMark.AssetAction);
+                }
+            }
+            mediaMarks.mediaMarks.Add(assetLocation);
 
             // order by create date, only select top [TCM] (let's say 300, it should cater 99% of users)
             TimeSpan ts = DateTime.UtcNow - (new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc));
@@ -2195,9 +2193,7 @@ namespace Tvinci.Core.DAL
             var temporaryMediaMarks = mediaMarks.mediaMarks.Where(x => x.ExpiredAt == 0 || x.ExpiredAt > utcNow).OrderByDescending(mark => mark.CreatedAt);
             mediaMarks.mediaMarks = temporaryMediaMarks.Take(ApplicationConfiguration.Current.MediaMarksListLength.Value).ToList();
 
-            uint expiration = (uint)ApplicationConfiguration.Current.MediaMarksTTL.Value * 60 * 60 * 24;
-
-            success = couchbaseManager.Set(documentKey, mediaMarks, expiration);
+            success = couchbaseManager.Set(documentKey, mediaMarks, UtilsDal.UserMediaMarksTtl);
 
             log.DebugFormat("InsertMediaMarkToUserMediaMarks for user {0} and asset {1}:{2} - success = {3}",
                 userMediaMark.UserID, userMediaMark.AssetType, userMediaMark.AssetID, success);
@@ -2205,7 +2201,7 @@ namespace Tvinci.Core.DAL
             return success;
         }
 
-        public static void UpdateOrInsertUsersNpvrMark(UserMediaMark userNpvrMark, bool isFirstPlay)
+        public static void UpdateOrInsertUsersNpvrMark(UserMediaMark userNpvrMark, bool isFirstPlay, int groupId)
         {
             log.Debug($"UpdateOrInsertUsersNpvrMark");
             string mmKey = UtilsDal.GetUserNpvrMarkDocKey(userNpvrMark.UserID, userNpvrMark.NpvrID.ToString());
@@ -2222,13 +2218,13 @@ namespace Tvinci.Core.DAL
                 shouldUpdateLocation = UpdateOrInsertUsersMediaMarkOrHit(mediaMarkManager, ref limitRetries, r, mmKey, ref hitSuccess, userNpvrMark);
             }
 
-            if (isFirstPlay || shouldUpdateLocation)
+            if (isFirstPlay || shouldUpdateLocation || MediaMarksNewModel.Enabled(groupId))
             {
-                InsertMediaMarkToUserMediaMarks(userNpvrMark);
+                InsertMediaMarkToUserMediaMarks(userNpvrMark, groupId);
             }
         }
 
-        public static void UpdateOrInsertUsersEpgMark(UserMediaMark userEpgMark, bool isFirstPlay)
+        public static void UpdateOrInsertUsersEpgMark(UserMediaMark userEpgMark, bool isFirstPlay, int groupId)
         {
             string mmKey = UtilsDal.GetUserEpgMarkDocKey(userEpgMark.UserID, userEpgMark.AssetID);
             Random r = new Random();
@@ -2236,9 +2232,9 @@ namespace Tvinci.Core.DAL
             var mediaMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             UpdateOrInsertUserEpgMarkOrHit(mediaMarksManager, userEpgMark, mmKey);
 
-            if (isFirstPlay)
+            if (isFirstPlay || MediaMarksNewModel.Enabled(groupId))
             {
-                InsertMediaMarkToUserMediaMarks(userEpgMark);
+                InsertMediaMarkToUserMediaMarks(userEpgMark, groupId);
             }
         }
 
@@ -2465,40 +2461,6 @@ namespace Tvinci.Core.DAL
 
             dmmResponse.devices = usersMediaMark;
             return dmmResponse;
-        }
-
-        public static DomainMediaMark GetDomainLastPosition(int media_id, List<int> usersKey, int domain_id)
-        {
-            // create Keys 
-            List<string> keys = new List<string>();
-            string docKey = string.Empty;
-            foreach (int userId in usersKey)
-            {
-                docKey = UtilsDal.GetUserMediaMarkDocKey(userId.ToString(), media_id);
-                keys.Add(docKey);
-            }
-
-            // get all documents from CB
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
-            IDictionary<string, MediaMarkLog> values = cbManager.GetValues<MediaMarkLog>(keys, true, true);
-
-            if (values == null)
-                return null;
-
-            List<UserMediaMark> userMediaMarks = new List<UserMediaMark>();
-            if (values != null && values.Count > 0)
-            {
-                foreach (KeyValuePair<string, MediaMarkLog> currValue in values)
-                {
-                    if (currValue.Value != null && currValue.Value.LastMark != null)
-                    {
-                        userMediaMarks.Add(currValue.Value.LastMark);
-                    }
-                }
-            }
-
-            DomainMediaMark dmm = new DomainMediaMark() { domainID = domain_id, devices = userMediaMarks };
-            return dmm;
         }
 
         public static bool UpdateOrInsert_EPGDeafultsValues(Dictionary<int, List<string>> dMetasDefaults, Dictionary<int, List<string>> dTagsDefaults, int nEpgChannelID)
@@ -6115,13 +6077,6 @@ namespace Tvinci.Core.DAL
             }
 
             return result;
-        }
-
-        public static string GetWatchHistoryCouchbaseKey(WatchHistory currentResult)
-        {
-            string assetType = ConvertAssetTypeIdToKeyPrefix(currentResult.AssetTypeId);
-
-            return string.Format(MEDIA_MARK_KEY_FORMAT, currentResult.UserID, assetType, currentResult.AssetId);
         }
 
         public static string ConvertAssetTypeIdToKeyPrefix(int typeId)

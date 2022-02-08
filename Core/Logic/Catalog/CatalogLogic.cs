@@ -52,6 +52,7 @@ using TVinciShared;
 using Status = ApiObjects.Response.Status;
 using ApiLogic.IndexManager.QueryBuilders;
 using ApiLogic.IndexManager.Helpers;
+using CouchbaseManager;
 using KalturaRequestContext;
 using System.Threading;
 using ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority;
@@ -3092,7 +3093,8 @@ namespace Core.Catalog
                     CatalogManager.Instance.SetHistoryValues(groupId, userMediaMark);
                 }
                 else
-                {
+                {   // TODO could be removed (after we delete feature-toggle MediaMarkNewModel)
+                    // because fixed in CatalogDal.InsertMediaMarkToUserMediaMarks, see `existingAssetLocation`
                     userMediaMark = CatalogDAL.GetUserMediaMark(userMediaMark);
                     userMediaMark.Location = locationSec;
                     userMediaMark.AssetAction = action.ToString();
@@ -3102,13 +3104,13 @@ namespace Core.Catalog
                 switch (playType)
                 {
                     case ePlayType.MEDIA:
-                        CatalogDAL.UpdateOrInsertUsersMediaMark(userMediaMark, isFirstPlay);
+                        CatalogDAL.UpdateOrInsertUsersMediaMark(userMediaMark, isFirstPlay, groupId);
                         break;
                     case ePlayType.NPVR:
-                        CatalogDAL.UpdateOrInsertUsersNpvrMark(userMediaMark, isFirstPlay);
+                        CatalogDAL.UpdateOrInsertUsersNpvrMark(userMediaMark, isFirstPlay, groupId);
                         break;
                     case ePlayType.EPG:
-                        CatalogDAL.UpdateOrInsertUsersEpgMark(userMediaMark, isFirstPlay);
+                        CatalogDAL.UpdateOrInsertUsersEpgMark(userMediaMark, isFirstPlay, groupId);
                         break;
                     default:
                         break;
@@ -5359,8 +5361,63 @@ namespace Core.Catalog
 
             return response;
         }
+        
+        // copy-paste of GetAssetLastPosition, but receives a list of assets
+        private static AssetBookmarkRequestEqualityComparer assetBookmarkRequestEqualityComparer = new AssetBookmarkRequestEqualityComparer();
+        internal static IEnumerable<AssetBookmarks> GetAssetsLastPosition(
+            int groupId,
+            IReadOnlyCollection<AssetBookmarkRequest> assets,
+            int userID,
+            bool isDefaultUser,
+            List<int> users,
+            List<int> defaultUsers,
+            Dictionary<string, User> usersDictionary)
+        {
+            // Build list of users that we want to get their last position
+            List<int> usersToGetLastPosition = new List<int>(defaultUsers);
+            if (isDefaultUser)
+            {
+                usersToGetLastPosition.AddRange(users);
+            }
+            else
+            {
+                usersToGetLastPosition.Add(userID);
+            }
+            
+            int finishedPercentThreshold =
+                GeneralPartnerConfigManager.Instance.GetGeneralPartnerConfig(groupId)?.FinishedPercentThreshold ??
+                CatalogLogic.FINISHED_PERCENT_THRESHOLD;
 
-        internal static NPVRSeriesResponse GetSeriesRecordings(int groupID, NPVRSeriesRequest request,
+            var assetToBookmarks = new Dictionary<AssetBookmarkRequest, List<Bookmark>>(assetBookmarkRequestEqualityComparer);
+            foreach (var userId in usersToGetLastPosition.Distinct())
+            {
+                var userMediaMarks = GetUserMediaMarks(groupId, userId, numOfDays: 0);
+                var user = usersDictionary[userId.ToString()];
+                var userType = defaultUsers.Contains(userId)
+                    ? eUserType.HOUSEHOLD
+                    : eUserType.PERSONAL;
+                foreach (var mediaMark in userMediaMarks)
+                {
+                    var asset = new AssetBookmarkRequest{ AssetType = mediaMark.AssetType, AssetID = mediaMark.AssetID.ToString() };
+                    if (!assets.Contains(asset, assetBookmarkRequestEqualityComparer)) continue;
+                    
+                    List<Bookmark> bookmarks;
+                    if (!assetToBookmarks.TryGetValue(asset, out bookmarks))
+                    {
+                        bookmarks = new List<Bookmark>();
+                        assetToBookmarks[asset] = bookmarks;
+                    }
+                    bookmarks.Add(new Bookmark(user, userType, mediaMark.Location, mediaMark.IsFinished(finishedPercentThreshold)));
+                }
+            }
+
+            foreach (var kv in assetToBookmarks)
+            {
+                yield return new AssetBookmarks(kv.Key.AssetType, kv.Key.AssetID, kv.Value.OrderBy(x => x.User.m_sSiteGUID));
+            }
+        }
+
+	internal static NPVRSeriesResponse GetSeriesRecordings(int groupID, NPVRSeriesRequest request,
             INPVRProvider npvr)
         {
             NPVRSeriesResponse nPVRSeriesResponse = new NPVRSeriesResponse();
@@ -9422,30 +9479,11 @@ namespace Core.Catalog
 
             try
             {
-                var mediaMarksManager =
-                    new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.MEDIAMARK);
-
-                string documentKey = UtilsDal.GetUserAllAssetMarksDocKey(siteGuid);
-                var allUserAssetMarks = mediaMarksManager.Get<UserMediaMarks>(documentKey);
-
-                if (allUserAssetMarks == null || allUserAssetMarks.mediaMarks == null ||
-                    allUserAssetMarks.mediaMarks.Count == 0)
-                {
-                    return unFilteredresult;
-                }
-
-                // build date filter
-                long minFilterdate = numOfDays > 0
-                    ? DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddDays(-numOfDays))
-                    : 0;
-                var utcNow = DateUtils.GetUtcUnixTimestampNow();
-
-                var dateFilteredResult = allUserAssetMarks.mediaMarks.Where(mark =>
-                    mark.CreatedAt > minFilterdate && (mark.ExpiredAt == 0 || mark.ExpiredAt > utcNow));
-
-                List<string> mediaMarkKeys = CatalogDAL.ConvertUserMediaMarksToKeys(siteGuid, dateFilteredResult);
-                var mediaMarkLogsDictionary = mediaMarksManager.GetValues<MediaMarkLog>(mediaMarkKeys, true, true);
-                var mediaMarkLogs = mediaMarkLogsDictionary.Values;
+                int userId = 0;
+                int.TryParse(siteGuid, out userId);
+                
+                var mediaMarkLogs = GetUserMediaMarks(groupId, userId, numOfDays).ToList();
+                if (mediaMarkLogs.Count == 0) return unFilteredresult;
 
                 int finishedPercent = CatalogLogic.FINISHED_PERCENT_THRESHOLD;
                 var generalPartnerConfig = GeneralPartnerConfigManager.Instance.GetGeneralPartnerConfig(groupId);
@@ -9454,26 +9492,21 @@ namespace Core.Catalog
                     finishedPercent = generalPartnerConfig.FinishedPercentThreshold.Value;
                 }
 
-                int userId = 0;
-                int.TryParse(siteGuid, out userId);
-
                 unFilteredresult = mediaMarkLogs.Select(mediaMarkLog =>
                 {
                     int recordingId = 0;
-                    int.TryParse(mediaMarkLog.LastMark.NpvrID, out recordingId);
+                    int.TryParse(mediaMarkLog.NpvrID, out recordingId);
 
                     return new WatchHistory()
                     {
-                        AssetId = mediaMarkLog.LastMark.AssetID.ToString(),
-                        Duration = mediaMarkLog.LastMark.FileDuration,
-                        AssetTypeId = mediaMarkLog.LastMark.AssetTypeId,
-                        LastWatch = mediaMarkLog.LastMark.CreatedAtEpoch,
-                        Location = mediaMarkLog.LastMark.AssetAction.ToLower().Equals("finish")
-                            ? mediaMarkLog.LastMark.FileDuration
-                            : mediaMarkLog.LastMark.Location,
+                        AssetId = mediaMarkLog.AssetID.ToString(),
+                        Duration = mediaMarkLog.FileDuration,
+                        AssetTypeId = mediaMarkLog.AssetTypeId,
+                        LastWatch = mediaMarkLog.CreatedAtEpoch,
+                        Location = mediaMarkLog.AssetAction.ToLower().Equals("finish") ? mediaMarkLog.FileDuration : mediaMarkLog.Location,
                         RecordingId = recordingId,
                         UserID = userId,
-                        IsFinishedWatching = mediaMarkLog.LastMark.IsFinished(finishedPercent)
+                        IsFinishedWatching = mediaMarkLog.IsFinished(finishedPercent)
                     };
                 }).ToList();
 
@@ -9510,6 +9543,66 @@ namespace Core.Catalog
             }
 
             return unFilteredresult;
+        }
+        
+        private static IEnumerable<UserMediaMark> GetUserMediaMarks(int groupId, int userId, int numOfDays)
+        {
+            var mediaMarksManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.MEDIAMARK);
+            var userAssetMarks = mediaMarksManager.Get<UserMediaMarks>(UtilsDal.GetUserAllAssetMarksDocKey(userId.ToString()));
+            if (userAssetMarks?.mediaMarks == null || userAssetMarks.mediaMarks.Count == 0)
+            {
+                return Enumerable.Empty<UserMediaMark>();
+            }
+
+            // build date filter
+            long minFilterdate = numOfDays > 0 ? DateTime.UtcNow.AddDays(-numOfDays).ToUtcUnixTimestampSeconds() : 0;
+            var utcNow = DateUtils.GetUtcUnixTimestampNow();
+
+            var dateFilteredResult = userAssetMarks.mediaMarks.Where(mark => mark.CreatedAt > minFilterdate && (mark.ExpiredAt == 0 || mark.ExpiredAt > utcNow));
+                
+            return GetAssetMarks(dateFilteredResult, mediaMarksManager, userId, groupId);
+        }
+        
+        // TODO agressive migration
+        private static IEnumerable<UserMediaMark> GetAssetMarks(IEnumerable<AssetAndLocation> mediaMarks, ICouchbaseManager mediaMarksManager, int userId, int groupId)
+        {
+            var oldModelMediaMarks = new List<AssetAndLocation>();
+            var mediaMarksNewModelEnabled = MediaMarksNewModel.Enabled(groupId);
+            foreach (var mediaMark in mediaMarks)
+            {
+                var e = mediaMark.Extra;
+                if (!mediaMarksNewModelEnabled || e == null)
+                {
+                    oldModelMediaMarks.Add(mediaMark);
+                    continue;
+                }
+
+                yield return new UserMediaMark
+                {
+                    UDID = e.UDID,
+                    AssetID = mediaMark.AssetId,
+                    UserID = userId,
+                    Location = e.Location,
+                    CreatedAt = DateTimeOffset.FromUnixTimeSeconds(mediaMark.CreatedAt).UtcDateTime,
+                    NpvrID = mediaMark.NpvrId,
+                    playType = e.PlayType.ToString(),
+                    FileDuration = e.FileDuration,
+                    AssetAction = e.AssetAction.ToString(),
+                    AssetTypeId = e.AssetTypeId,
+                    CreatedAtEpoch = mediaMark.CreatedAt,
+                    MediaConcurrencyRuleIds = null, // never read
+                    AssetType = mediaMark.AssetType,
+                    ExpiredAt = mediaMark.ExpiredAt,
+                    LocationTagValue = e.LocationTagValue
+                };
+            }
+            
+            var mediaMarkKeys = CatalogDAL.ConvertUserMediaMarksToKeys(userId.ToString(), oldModelMediaMarks);
+            var mediaMarkLogsDictionary = mediaMarksManager.GetValues<MediaMarkLog>(mediaMarkKeys, true, true);
+            foreach (var kv in mediaMarkLogsDictionary)
+            {
+                yield return kv.Value.LastMark;
+            }
         }
 
         public static GenericResponse<UserWatchHistory> GetNextEpisode(int groupId, string siteGuid, long assetId)

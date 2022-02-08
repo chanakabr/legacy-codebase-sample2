@@ -1058,77 +1058,8 @@ namespace DAL
             return returnedDataTable;
         }
 
-        public static List<int> GetUserStartedWatchingMedias(string sSiteGuid, int nNumOfItems)
-        {
-            int nSiteGuid = 0;
-            int.TryParse(sSiteGuid, out nSiteGuid);
-
-            var mediaMarkManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
-
-            string documentKey = UtilsDal.GetUserAllAssetMarksDocKey(sSiteGuid);
-            var allUserAssetMarks = mediaMarkManager.Get<UserMediaMarks>(documentKey);
-
-            List<int> resultList = new List<int>();
-
-            if (allUserAssetMarks != null && allUserAssetMarks.mediaMarks != null && allUserAssetMarks.mediaMarks.Count > 0)
-            {
-                List<string> mediaMarkKeys = Tvinci.Core.DAL.CatalogDAL.ConvertUserMediaMarksToKeys(sSiteGuid, allUserAssetMarks.mediaMarks);
-                var mediaMarkLogsDictionary = mediaMarkManager.GetValues<MediaMarkLog>(mediaMarkKeys, true, true);
-
-                if (mediaMarkLogsDictionary != null)
-                {
-                    var mediaMarkLogs = mediaMarkLogsDictionary.Values;
-
-                    List<MediaMarkLog> sortedMediaMarksList =
-                        mediaMarkLogs.OrderByDescending(x => x.LastMark.CreatedAt).ToList();
-
-                    if (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0)
-                    {
-                        List<int> mediaIdsList = sortedMediaMarksList.Select(x => x.LastMark.AssetID).ToList();
-                        DataTable dtMediasMaxDurations = ApiDAL.Get_MediasMaxDuration(mediaIdsList);
-
-                        if (dtMediasMaxDurations != null && dtMediasMaxDurations.Rows.Count > 0)
-                        {
-                            Dictionary<int, int> dictMediasMaxDuration = new Dictionary<int, int>();
-                            foreach (DataRow rowDuration in dtMediasMaxDurations.Rows)
-                            {
-                                int nMediaID = ODBCWrapper.Utils.GetIntSafeVal(rowDuration["media_id"]);
-                                int nMaxDuration = ODBCWrapper.Utils.GetIntSafeVal(rowDuration["max_duration"]);
-                                dictMediasMaxDuration.Add(nMediaID, nMaxDuration);
-                            }
-
-                            int i = 0;
-
-                            foreach (MediaMarkLog mediaMarkLogObject in sortedMediaMarksList)
-                            {
-                                if (dictMediasMaxDuration.ContainsKey(mediaMarkLogObject.LastMark.AssetID))
-                                {
-                                    double dMaxDuration = Math.Round((0.95 * dictMediasMaxDuration[mediaMarkLogObject.LastMark.AssetID]));
-
-                                    // If it started (not 0) and it is before 95%
-                                    if (mediaMarkLogObject.LastMark.Location > 1 && mediaMarkLogObject.LastMark.Location <= dMaxDuration)
-                                    {
-                                        if (i >= nNumOfItems || nNumOfItems == 0)
-                                        {
-                                            break;
-                                        }
-
-                                        resultList.Add(mediaMarkLogObject.LastMark.AssetID);
-                                        i++;
-                                    }
-                                }
-                            }
-
-                        }
-                    }
-                }
-            }
-
-            return resultList;
-        }
-
         // CleanUserHistory - old method
-        public static bool CleanUserHistory(string userId, List<int> lMediaIDs)
+        public static bool CleanUserHistory(string userId, int groupId, List<int> mediaIdsToRemove)
         {
             try
             {
@@ -1137,28 +1068,37 @@ namespace DAL
                 int.TryParse(userId, out nSiteGuid);
 
                 var mediaMarkManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
+                
+                string documentKey = UtilsDal.GetUserAllAssetMarksDocKey(userId);
+                var allUserAssetMarks = new Lazy<UserMediaMarks>(() => mediaMarkManager.Get<UserMediaMarks>(documentKey));
 
-                if (lMediaIDs.Count == 0)
+                if (mediaIdsToRemove.Count == 0 && allUserAssetMarks.Value?.mediaMarks != null) // remove all media
                 {
-                    string documentKey = UtilsDal.GetUserAllAssetMarksDocKey(userId);
-                    var allUserAssetMarks = mediaMarkManager.Get<UserMediaMarks>(documentKey);
+                    mediaIdsToRemove = allUserAssetMarks.Value.mediaMarks.Where(x => x.AssetType == eAssetTypes.MEDIA).Select(x => x.AssetId).ToList();
+                }
 
-                    List<int> resultList = new List<int>();
-
-                    if (allUserAssetMarks != null && allUserAssetMarks.mediaMarks != null && allUserAssetMarks.mediaMarks.Count > 0)
+                if (MediaMarksNewModel.Enabled(groupId))
+                {
+                    var userMarks = allUserAssetMarks.Value;
+                    if (userMarks?.mediaMarks != null && userMarks.mediaMarks.Count > 0)
                     {
-                        lMediaIDs = allUserAssetMarks.mediaMarks.Where(x => x.AssetType == eAssetTypes.MEDIA).Select(x => x.AssetId).ToList();
+                        userMarks.mediaMarks.RemoveAll(m =>
+                            m.AssetType == eAssetTypes.MEDIA && mediaIdsToRemove.Contains(m.AssetId));
+                        if (!mediaMarkManager.Set(documentKey, userMarks, UtilsDal.UserMediaMarksTtl))
+                        {
+                            return false;
+                        }
                     }
                 }
 
                 Random r = new Random();
 
-                foreach (int nMediaID in lMediaIDs)
+                foreach (int mediaId in mediaIdsToRemove)
                 {
-                    string documentKey = UtilsDal.GetUserMediaMarkDocKey(userId, nMediaID);
+                    string userMediaMarkDocKey = UtilsDal.GetUserMediaMarkDocKey(userId, mediaId);
 
                     // Irena - make sure doc type is right
-                    bool markResult = mediaMarkManager.Remove(documentKey);
+                    bool markResult = mediaMarkManager.Remove(userMediaMarkDocKey);
                     Thread.Sleep(r.Next(50));
 
                     if (!markResult)
