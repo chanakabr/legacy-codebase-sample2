@@ -355,3 +355,4 @@ MigrationBackup/
 .sonarqube
 */.sonarqube
 
+phoenix/Validator/separate_kaltura_models.xlsx

@@ -412,11 +412,16 @@ namespace GroupsCacheManager
 
                     #endregion
 
-                    #region Order
-                    
+                    #region Ordering Parameters
+
+                    var orderByInt = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_type"]);
                     channel.OrderingParameters = ChannelDataRowMapper.BuildOrderingParameters(rowData);
-                    channel.m_OrderObject = ChannelDataRowMapper.BuildOrderObj(channel.OrderingParameters.First());
-                    
+
+                    if (group.m_oMetasValuesByGroupId.ContainsKey(channel.m_nGroupID))
+                    {
+                        UpdateOrderingParameters(channel.OrderingParameters, orderByInt, group.m_oMetasValuesByGroupId[channel.m_nGroupID]);
+                    }
+
                     #endregion
 
                     #region Is And
@@ -551,7 +556,7 @@ namespace GroupsCacheManager
 
                     if (group.m_oMetasValuesByGroupId.ContainsKey(channel.m_nGroupID))
                     {
-                        UpdateOrderByObject(ref channel, group.m_oMetasValuesByGroupId[channel.m_nGroupID]);
+                        UpdateOrderingParameters(channel.OrderingParameters, group.m_oMetasValuesByGroupId[channel.m_nGroupID]);
                     }
                 }
                 else
@@ -561,6 +566,8 @@ namespace GroupsCacheManager
 
                 channel.SupportSegmentBasedOrdering = ODBCWrapper.Utils.ExtractBoolean(rowData, "SUPPORT_SEGMENT_BASED_ORDERING");
                 channel.AssetUserRuleId = ODBCWrapper.Utils.GetLongSafeVal(rowData, "ASSET_RULE_ID");
+                
+                channel.m_OrderObject = ChannelDataRowMapper.BuildOrderObj(channel.OrderingParameters.First());
             }
             catch (Exception ex)
             {
@@ -574,73 +581,39 @@ namespace GroupsCacheManager
         #endregion
 
         #region Private Methods
-        private static void UpdateOrderByObjec(int nOrderBy, ref Channel oChannel, Group group, string orderByValue)
-        {
-            if (!string.IsNullOrEmpty(orderByValue))
-            {
-                oChannel.m_OrderObject.m_sOrderValue = orderByValue;
-                oChannel.m_OrderObject.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.META;
-            }
-            else if (nOrderBy >= 1 && nOrderBy <= 30)// all META_STR/META_DOUBLE values
-            {
-                int nMetaEnum = (nOrderBy);
-                string enumName = Enum.GetName(typeof(MetasEnum), nMetaEnum);
-                if (group.m_oMetasValuesByGroupId[oChannel.m_nGroupID].ContainsKey(enumName))
-                {
-                    oChannel.m_OrderObject.m_sOrderValue = group.m_oMetasValuesByGroupId[oChannel.m_nGroupID][enumName];
-                    oChannel.m_OrderObject.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.META;
-                }
-            }
-            else
-            {
-                oChannel.m_OrderObject.m_eOrderBy = (ApiObjects.SearchObjects.OrderBy)ApiObjects.SearchObjects.OrderBy.ToObject(typeof(ApiObjects.SearchObjects.OrderBy), nOrderBy);
-            }
-        }
 
-        private static void UpdateOrderByObject(ref Channel oChannel, Dictionary<string, string> oMetasValues)
+        private static void UpdateOrderingParameters(IEnumerable<AssetOrder> orderingParameters, int orderBy, IReadOnlyDictionary<string, string> metasValues)
         {
-            if (oChannel.m_OrderObject != null)
+            if (metasValues == null)
             {
-                string sMetaValue = string.Empty;
-                if (oChannel.m_OrderObject.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META)
+                return;
+            }
+
+            if (orderingParameters.First() is AssetOrderByMeta assetOrderByMeta)
+            {
+                var metasEnumName = Enum.GetName(typeof(MetasEnum), orderBy);
+                if (metasValues.TryGetValue(metasEnumName, out var metaName))
                 {
-                    oMetasValues.TryGetValue(oChannel.m_OrderObject.m_eOrderBy.ToString(), out sMetaValue);
-                    if (!string.IsNullOrEmpty(sMetaValue))
-                    {
-                        oChannel.m_OrderObject = UpdateOrderByValues(oChannel.m_OrderObject, sMetaValue);
-                    }
+                    assetOrderByMeta.MetaName = metaName;
                 }
             }
         }
 
-        private static void UpdateOrderByObject(ref Channel oChannel, Group group)
+        private static void UpdateOrderingParameters(IEnumerable<AssetOrder> orderingParameters, IReadOnlyDictionary<string, string> metasValues)
         {
-            if (oChannel.m_OrderObject != null)
+            if (metasValues == null)
             {
-                string sMetaValue = string.Empty;
-                //if (oChannel.m_OrderObject.m_eOrderBy >= OrderBy.META1_STR && oChannel.m_OrderObject.m_eOrderBy <= OrderBy.META10_DOUBLE)
-                if (oChannel.m_OrderObject.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META)
+                return;
+            }
+
+            foreach (var assetOrderByMeta in orderingParameters.OfType<AssetOrderByMeta>())
+            {
+                metasValues.TryGetValue(OrderBy.META.ToString(), out var metaName);
+                if (!string.IsNullOrEmpty(metaName))
                 {
-                    if (group.m_oMetasValuesByGroupId != null && group.m_oMetasValuesByGroupId.ContainsKey(oChannel.m_nGroupID))
-                    {
-                        group.m_oMetasValuesByGroupId[oChannel.m_nGroupID].TryGetValue(oChannel.m_OrderObject.m_eOrderBy.ToString(), out sMetaValue);
-                        if (!string.IsNullOrEmpty(sMetaValue))
-                        {
-                            oChannel.m_OrderObject = UpdateOrderByValues(oChannel.m_OrderObject, sMetaValue);
-                        }
-                    }
+                    assetOrderByMeta.MetaName = metaName;
                 }
             }
-        }
-
-        private static OrderObj UpdateOrderByValues(OrderObj orderObj, string sMetaValue)
-        {
-            OrderObj oNewOrderObj = new OrderObj();
-            oNewOrderObj.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.META;
-            oNewOrderObj.m_sOrderValue = sMetaValue;
-            oNewOrderObj.m_eOrderDir = orderObj.m_eOrderDir;
-
-            return oNewOrderObj;
         }
 
         private static void CreateSearchValueObject(ref SearchValue oNewSearchValue, string key, string value, bool isAlreadyExist, string sKeyPrefix)

@@ -90,7 +90,7 @@ namespace Core.Users
                 var domainDevices = Api.api.Instance.GetDomainDevices(devicePlayData.DomainId, groupId);
                 List<DevicePlayData> devicePlayDataList = 
                     CatalogDAL.GetDevicePlayDataList(domainDevices, 
-                                                     new List<ePlayType>() { ePlayType.NPVR, ePlayType.MEDIA },
+                                                     new List<ePlayType>() { ePlayType.ALL },
                                                      GetConcurrencyMillisecThreshold(groupId), devicePlayData.UDID);
 
                 if (devicePlayDataList == null || devicePlayDataList.Count == 0)
@@ -195,13 +195,8 @@ namespace Core.Users
 
             try
             {
-                List<ePlayType> playTypes = new List<ePlayType>() { ePlayType.MEDIA };
-                if (assetType == eAssetTypes.EPG || assetType == eAssetTypes.NPVR)
-                {
-                    playTypes.Add(ePlayType.EPG);
-                    playTypes.Add(ePlayType.NPVR);
-                }
-
+                List<ePlayType> playTypes = new List<ePlayType>() { ePlayType.ALL };
+                
                 List<DevicePlayData> devicePlayDataList =
                     CatalogDAL.GetDevicePlayDataList(Api.api.Instance.GetDomainDevices(devicePlayData.DomainId, groupId), playTypes, GetConcurrencyMillisecThreshold(groupId), devicePlayData.UDID);
 

@@ -41,5 +41,25 @@ namespace Core.Catalog.Request
             return sb.ToString();
         }
     }
+    
+    public sealed class AssetBookmarkRequestEqualityComparer : IEqualityComparer<AssetBookmarkRequest>
+    {
+        public bool Equals(AssetBookmarkRequest x, AssetBookmarkRequest y)
+        {
+            if (ReferenceEquals(x, y)) return true;
+            if (ReferenceEquals(x, null)) return false;
+            if (ReferenceEquals(y, null)) return false;
+            if (x.GetType() != y.GetType()) return false;
+            return x.AssetType == y.AssetType && x.AssetID == y.AssetID;
+        }
+
+        public int GetHashCode(AssetBookmarkRequest obj)
+        {
+            unchecked
+            {
+                return ((int)obj.AssetType * 397) ^ (obj.AssetID != null ? obj.AssetID.GetHashCode() : 0);
+            }
+        }
+    }
 
 }
