@@ -3,6 +3,9 @@
     <TargetFramework>net48</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="OTT.Lib.Metrics" Version="1.2.0" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />
     <ProjectReference Include="..\RemoteTasksCommon\RemoteTasksCommon.csproj" />
   </ItemGroup>

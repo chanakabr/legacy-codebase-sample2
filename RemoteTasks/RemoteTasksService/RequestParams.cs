@@ -1,15 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using Newtonsoft.Json;
 
 namespace RemoteTasksService
 {
     [Serializable]
-    public class RequestID
+    public class RequestParams
     {
         [JsonProperty("req_id")]
         public string RequestId { get; set; }
+
+        [JsonProperty("group_id")]
+        public string GroupId { get; set; }
     }
 }

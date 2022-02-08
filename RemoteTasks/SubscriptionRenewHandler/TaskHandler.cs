@@ -1,16 +1,8 @@
-﻿using ApiObjects.Response;
-using Phx.Lib.Log;
+﻿using Phx.Lib.Log;
 using Newtonsoft.Json;
 using RemoteTasksCommon;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using TVinciShared;
-using System.Net;
-using System.Web;
-using System.ServiceModel;
 using ApiObjects;
 
 namespace SubscriptionRenewHandler
@@ -22,16 +14,15 @@ namespace SubscriptionRenewHandler
         public string HandleTask(string data)
         {
             string result = "failure";
-
+            eSubscriptionRenewRequestType? requestType = eSubscriptionRenewRequestType.Renew;
+            SubscriptionRenewRequest request = null;
             try
             {
                 log.DebugFormat("Renew subscription request. data={0}", data);
 
-                SubscriptionRenewRequest request = JsonConvert.DeserializeObject<SubscriptionRenewRequest>(data);
-
+                request = JsonConvert.DeserializeObject<SubscriptionRenewRequest>(data);
                 bool success = false;
 
-                eSubscriptionRenewRequestType requestType = eSubscriptionRenewRequestType.Renew;
 
                 if (request.Type != null && request.Type.HasValue)
                 {
@@ -76,13 +67,15 @@ namespace SubscriptionRenewHandler
                     case eSubscriptionRenewRequestType.Reminder:
                     case eSubscriptionRenewRequestType.SubscriptionEnds:
                         {
-                            success = Core.ConditionalAccess.Module.SubscriptionEnds(request.GroupID, request.SiteGuid, request.HouseholdId, 
+                            success = Core.ConditionalAccess.Module.SubscriptionEnds(request.GroupID, request.SiteGuid, request.HouseholdId,
                                 request.PurchaseId, request.EndDate, requestType == eSubscriptionRenewRequestType.Reminder);
                             break;
                         }
                     default:
                         break;
                 }
+
+                Metrics.Track(request?.Type, success, request?.GroupID);
 
                 if (!success)
                 {
@@ -98,6 +91,7 @@ namespace SubscriptionRenewHandler
             }
             catch (Exception ex)
             {
+                Metrics.Track(request?.Type, false, request?.GroupID);
                 throw ex;
             }
 
