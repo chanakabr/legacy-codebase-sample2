@@ -75,12 +75,13 @@ namespace WebAPI.Models.General
 
         public ExcelStructure GetExcelStructure(int groupId)
         {
-            var featureEnabled = FeatureFlag.PhoenixFeatureFlagInstance.Get().IsUdidDynamicListAsExcelEnabled(groupId);
+            //Matan: Temp removal
+            //var featureEnabled = FeatureFlag.PhoenixFeatureFlagInstance.Get().IsUdidDynamicListAsExcelEnabled(groupId);
 
-            if (!featureEnabled)
-            {
-                throw new BadRequestException(BadRequestException.FORMAT_NOT_SUPPORTED, "Enable feature: [dynamicList.format]");
-            }
+            //if (!featureEnabled)
+            //{
+            //    throw new BadRequestException(BadRequestException.FORMAT_NOT_SUPPORTED, "Enable feature: [dynamicList.format]");
+            //}
 
             var _objects = GetObjects();
             if (_objects.Count > 1)

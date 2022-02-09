@@ -25,7 +25,7 @@ namespace FeatureFlag
 
         public bool IsEpgNotificationEnabled(int groupId) => _featureFlag.Enabled("epg.notification", GetUser(groupId));
         public bool IsMediaMarksNewModel(int groupId) => _featureFlag.Enabled("mediamarks-play-location-in-user-object", GetUser(groupId)); // BEO-11088
-        public bool IsUdidDynamicListAsExcelEnabled(int groupId) => _featureFlag.Enabled("dynamicList.format", GetUser(groupId));
+        //public bool IsUdidDynamicListAsExcelEnabled(int groupId) => _featureFlag.Enabled("dynamicList.format", GetUser(groupId));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private KalturaFeatureToggleUser GetUser(int? groupId)
