@@ -11,6 +11,8 @@ using ApiObjects.Response;
 using ApiObjects.Base;
 using WebAPI.App_Start;
 using ApiObjects.BulkUpload;
+using System.Linq;
+using System;
 
 namespace WebAPI.Models.General
 {
@@ -33,7 +35,7 @@ namespace WebAPI.Models.General
         [XmlElement(ElementName = "createDate")]
         [SchemeProperty(ReadOnly = true)]
         public long CreateDate { get; set; }
-
+        
         /// <summary>
         /// Update date of the DynamicList
         /// </summary>
@@ -42,7 +44,7 @@ namespace WebAPI.Models.General
         [XmlElement(ElementName = "updateDate")]
         [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
-
+        
         /// <summary>
         /// Name
         /// </summary>
@@ -50,16 +52,14 @@ namespace WebAPI.Models.General
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
         public string Name { get; set; }
-
+        
         internal override ICrudHandler<DynamicList, long> Handler { get { return DynamicListManager.Instance; } }
-
+        
         internal override void SetId(long id)
         {
             this.Id = id;
         }
-
         public KalturaDynamicList() { }
-
         public override void ValidateForAdd()
         {
             if (string.IsNullOrEmpty(this.Name) || string.IsNullOrWhiteSpace(this.Name))
@@ -69,13 +69,53 @@ namespace WebAPI.Models.General
         }
     }
 
-    public partial class KalturaDynamicListListResponse : KalturaListResponse<KalturaDynamicList>
+    public partial class KalturaDynamicListListResponse : KalturaListResponse<KalturaDynamicList>, IKalturaExcelableListResponse
     {
         public KalturaDynamicListListResponse() : base() { }
+
+        public ExcelStructure GetExcelStructure(int groupId)
+        {
+            //Matan: Temp removal
+            //var featureEnabled = FeatureFlag.PhoenixFeatureFlagInstance.Get().IsUdidDynamicListAsExcelEnabled(groupId);
+
+            //if (!featureEnabled)
+            //{
+            //    throw new BadRequestException(BadRequestException.FORMAT_NOT_SUPPORTED, "Enable feature: [dynamicList.format]");
+            //}
+
+            var _objects = GetObjects();
+            if (_objects.Count > 1)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER,
+                                              $"KalturaDynamicList.id: {_objects[0].GetId()}",
+                                              $"KalturaDynamicList.id: {_objects[1].GetId()}");
+            }
+
+            var _item = AutoMapper.Mapper.Map<IExcelStructureManager>(_objects.First());
+            var excelStructure = _item.GetExcelStructure(groupId, _item.GetType());
+            return excelStructure;
+        }
+
+        public List<IKalturaExcelableObject> GetObjects()
+        {
+            if (Objects == null || !Objects.Any())
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "KalturaDynamicListListResponse.objects");
+            }
+
+            return this.Objects.OfType<IKalturaExcelableObject>().ToList();
+        }
     }
 
-    public partial class KalturaUdidDynamicList : KalturaDynamicList
+    public partial class KalturaUdidDynamicList : KalturaDynamicList, IKalturaExcelableObject, IKalturaExcelStructureManager
     {
+        //udid (column name): List<udid>
+        public Dictionary<string, object> GetExcelValues(int groupId)
+        {
+            var columnNameToUdids = DynamicListManager.Instance.GetUdidsFromDynamicListById(groupId, this.Id);
+            return columnNameToUdids;
+        }
+
         internal override GenericResponse<DynamicList> Add(ContextData contextData)
         {
             var coreObject = AutoMapper.Mapper.Map<UdidDynamicList>(this);
@@ -86,6 +126,17 @@ namespace WebAPI.Models.General
         {
             var coreObject = AutoMapper.Mapper.Map<UdidDynamicList>(this);
             return DynamicListManager.Instance.UpdateDynamicList(contextData, coreObject);
+        }
+
+        public long GetId()
+        {
+            return this.Id;
+        }
+
+        public ExcelStructure GetExcelStructure(int groupId)
+        {
+            //unsupported
+            throw new NotImplementedException();
         }
     }
 }

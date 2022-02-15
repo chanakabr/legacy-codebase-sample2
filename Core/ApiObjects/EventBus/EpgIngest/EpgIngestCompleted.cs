@@ -27,6 +27,7 @@ namespace ApiObjects.EventBus.EpgIngest
     {
         SUCCESS,
         PARTIAL_FAILURE,
-        TOTAL_FAILURE
+        TOTAL_FAILURE,
+        WARNING
     }
 }

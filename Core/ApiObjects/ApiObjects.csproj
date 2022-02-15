@@ -58,6 +58,7 @@
     <ProjectReference Include="..\EventBus.Abstraction\EventBus.Abstraction.csproj" />
     <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj" />
     <ProjectReference Include="..\EventManager\EventManager.csproj" />
+    <ProjectReference Include="..\FeatureFlag\FeatureFlag.csproj" />
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj" />
   </ItemGroup>
   

@@ -3,7 +3,8 @@
     "IngestTransformationHandler": {
       "commandName": "Project",
       "environmentVariables": {
-        "CONCURRENT_CONSUMERS": "4"
+        "CONCURRENT_CONSUMERS": "4",
+        "FeatureToggle__LaunchDarkly__SdkKey": "sdk-39ee44c3-d726-4c9a-a561-506e82c1e0c1"
       }
     }
   }

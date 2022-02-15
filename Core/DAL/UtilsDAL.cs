@@ -357,6 +357,8 @@ namespace DAL
         {
             return string.Format("u{0}", userId);
         }
+        
+        public static uint UserMediaMarksTtl => (uint)ApplicationConfiguration.Current.MediaMarksTTL.Value * 60 * 60 * 24;
 
         public static string GetUserMediaMarkDocKey(string siteUserGuid, int mediaId)
         {

@@ -1,25 +1,21 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
-using System.Web;
 using System.Xml;
-using WebAPI.App_Start;
+using TVinciShared;
+using WebAPI;
 using WebAPI.Controllers;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
-using WebAPI.Models.Renderers;
-using Newtonsoft.Json;
-using TVinciShared;
-using WebAPI.Models.API;
-using WebAPI;
-using Microsoft.AspNetCore.Mvc;
-using WebAPI.ModelsValidators;
 using WebAPI.ObjectsConvertor.Extensions;
 
 namespace Validator.Managers.Scheme
@@ -104,16 +100,8 @@ namespace Validator.Managers.Scheme
     internal class Scheme
     {
         private Stream stream;
-        private Assembly assembly;
-        private Assembly validatorAssembly;
-        private XmlDocument assemblyXml;
         private XmlWriter writer;
-
-        private List<Type> enums = new List<Type>();
-        private IEnumerable<Type> types;
-        private IEnumerable<Type> controllers;
-        private IEnumerable<Type> exceptions;
-        private Dictionary<int, ApiException.ExceptionType> errors = new Dictionary<int, ApiException.ExceptionType>();
+        private SchemeValidator _validator;
 
         private static Scheme scheme;
         public static Scheme getInstance()
@@ -127,269 +115,24 @@ namespace Validator.Managers.Scheme
 
         protected Scheme()
         {
-            this.assembly = Assembly.Load("WebAPI");
-            this.validatorAssembly = Assembly.GetExecutingAssembly();
-            this.assemblyXml = GetAssemblyXml();
-
-            Load();
+            _validator = new SchemeValidator(false);
         }
 
         public void RemoveInvalidObjects()
         {
-            controllers = controllers.Where(controller => SchemeManager.Validate(controller, false, assemblyXml));
-            enums = enums.Where(type => SchemeManager.Validate(type, false, assemblyXml)).ToList();
-            types = types.Where(type => SchemeManager.Validate(type, false, assemblyXml)).ToList();
-        }
-
-        private void Load()
-        {
-            controllers = assembly.GetTypes().Where(myType => myType.IsClass && typeof(IKalturaController).IsAssignableFrom(myType));
-            exceptions = assembly.GetTypes().Where(myType => myType.IsClass && (myType.IsSubclassOf(typeof(ApiException)) || myType == typeof(ApiException)));
-
-            foreach (Type exception in exceptions.OrderBy(exception => exception.Name))
-            {
-                loadErrors(exception);
-            }
-
-            LoadType(typeof(KalturaApiExceptionArg));
-            LoadType(typeof(KalturaClientConfiguration));
-            LoadType(typeof(KalturaRequestConfiguration));
-            LoadType(typeof(KalturaResponseType));
-
-            foreach (Type controller in controllers)
-            {
-                var apiExplorerSettings = controller.GetCustomAttribute<ApiExplorerSettingsAttribute>(false);
-                if (apiExplorerSettings != null && apiExplorerSettings.IgnoreApi)
-                    continue;
-
-                var serviceAttribute = controller.GetCustomAttribute<ServiceAttribute>();
-                if (serviceAttribute != null && serviceAttribute.IsInternal)
-                    continue;
-
-                var methods = controller.GetMethods();
-                foreach (var method in methods)
-                {
-                    if (!method.IsPublic || method.DeclaringType.Namespace != "WebAPI.Controllers")
-                        continue;
-
-                    //Read only HTTP POST as we will have duplicates otherwise
-                    var explorerAttr = method.GetCustomAttributes<ApiExplorerSettingsAttribute>(false);
-                    if (explorerAttr.Count() > 0 && explorerAttr.First().IgnoreApi)
-                        continue;
-
-                    foreach (var param in method.GetParameters())
-                    {
-                        LoadType(param.ParameterType);
-                    }
-
-                    if (method.ReturnType != null)
-                    {
-                        LoadType(method.ReturnType);
-                    }
-                };
-
-                if (SchemeManager.IsCrudController(controller, out Dictionary<string, CrudActionAttribute> crudActionAttributes, out Dictionary<string, MethodInfo> crudActions))
-                {
-                    foreach (var crudActionAttribute in crudActionAttributes)
-                    {
-                        foreach (var param in crudActions[crudActionAttribute.Key].GetParameters())
-                        {
-                            LoadType(param.ParameterType);
-                        }
-
-                        if (crudActions[crudActionAttribute.Key].ReturnType != null)
-                        {
-                            LoadType(crudActions[crudActionAttribute.Key].ReturnType);
-                        }
-                    }
-                }
-            }
-
-            var filters = assembly.GetTypes().Where(myType => myType.IsClass && typeof(IKalturaFilter).IsAssignableFrom(myType));
-            foreach (var filter in filters)
-            {
-                var orderByName = filter.Name.Replace("Filter", "OrderBy");
-                var orderBys = assembly.GetTypes().Where(myType => myType.IsEnum && myType.Name == orderByName);
-                foreach (Type orderBy in orderBys)
-                {
-                    if (!enums.Contains(orderBy))
-                        enums.Add(orderBy);
-                }
-            }
-            types = FixTypeDependencies(Field.loadedTypes.Values);
-        }
-
-        private IEnumerable<Type> FixTypeDependencies(IEnumerable<Field> input)
-        {
-            return FixTypeDependencies(input, new List<Type>(), new List<string>());
-        }
-
-        private IEnumerable<Type> FixTypeDependencies(IEnumerable<Field> input, List<Type> output, List<string> added)
-        {
-            foreach (Field field in input)
-            {
-                if (output.Contains(field.type))
-                    continue;       // already added
-
-                if (added.Contains(field.Name))
-                    continue;
-
-                added.Add(field.Name);
-                IEnumerable<Field> dependencies = field.getDependencies();
-                FixTypeDependencies(dependencies, output, added);
-
-                output.Add(field.type);
-            }
-            return output;
-        }
-
-        private void loadErrors(Type exception)
-        {
-            FieldInfo[] fields = exception.GetFields();
-            foreach (FieldInfo field in fields)
-            {
-                if (field.FieldType.IsSubclassOf(typeof(ApiException.ExceptionType)))
-                {
-                    ApiException.ExceptionType type = (ApiException.ExceptionType)field.GetValue(null);
-
-                    if (type.GetType() == typeof(ApiException.ApiExceptionType))
-                    {
-                        ApiException.ApiExceptionType exceptionType = type as ApiException.ApiExceptionType;
-                        if (errors.ContainsKey((int)exceptionType.statusCode))
-                        {
-                            throw new Exception("Error code " + exceptionType.statusCode + " appears twice: ApiException.ApiExceptionType." + exceptionType.name);
-                        }
-                        else
-                        {
-                            errors.Add((int)exceptionType.statusCode, type);
-                        }
-                    }
-                    else if (type.GetType() == typeof(ApiException.ClientExceptionType))
-                    {
-                        ApiException.ClientExceptionType exceptionType = type as ApiException.ClientExceptionType;
-                        errors.Add((int)exceptionType.statusCode, type);
-                    }
-                }
-            }
-        }
-
-        private static bool IsSubclassOfRawGeneric(Type generic, Type toCheck)
-        {
-            while (toCheck != null && toCheck != typeof(object))
-            {
-                var cur = toCheck.IsGenericType ? toCheck.GetGenericTypeDefinition() : toCheck;
-                if (generic.Name.Equals(cur.Name))
-                {
-                    return true;
-                }
-                toCheck = toCheck.BaseType;
-            }
-            return false;
-        }
-
-        private void LoadType(Type type)
-        {
-            if (type.IsEnum && !enums.Contains(type))
-            {
-                enums.Add(type);
-                return;
-            }
-
-            if (Field.loadedTypes.ContainsKey(type.Name))
-            {
-                return;
-            }
-
-            if (type == typeof(KalturaOTTObject))
-            {
-                LoadTypeProperties(type);
-                return;
-            }
-
-            string typeName = SchemeManager.GetTypeName(type);
-            if (typeof(IKalturaOTTObject).IsAssignableFrom(type) && !Field.loadedTypes.ContainsKey(typeName))
-            {
-                Field.loadedTypes.Add(typeName, new Field(type));
-
-                SchemeBaseAttribute schemeBaseAttribute = type.GetCustomAttribute<SchemeBaseAttribute>();
-                if (schemeBaseAttribute != null)
-                {
-                    LoadType(schemeBaseAttribute.BaseType);
-                }
-
-                if (type.IsClass)
-                {
-                    LoadType(type.BaseType);
-
-                    var subClasses = assembly.GetTypes().Where(myType => IsSubclassOfRawGeneric(type, myType));
-                    foreach (Type subClass in subClasses)
-                        LoadType(subClass);
-
-                    LoadTypeProperties(type);
-                    return;
-                }
-                return;
-            }
-
-            if (type.IsArray)
-            {
-                LoadType(type.GetElementType());
-            }
-            else if (type.IsGenericType)
-            {
-                foreach (Type GenericArgument in type.GetGenericArguments())
-                {
-                    LoadType(GenericArgument);
-                }
-            }
-        }
-
-        private void LoadTypeProperties(Type type)
-        {
-            List<PropertyInfo> properties = type.GetProperties().ToList();
-            
-            foreach (var property in properties)
-            {
-                if (property.DeclaringType == type)
-                    LoadType(property.PropertyType);
-            }
-        }
-
-        private XmlDocument GetAssemblyXml()
-        {
-            const string prefix = "file:///";
-            if (validatorAssembly.CodeBase.StartsWith(prefix))
-            {
-                StreamReader streamReader;
-                try
-                {
-                    var directoryName = Path.GetDirectoryName(validatorAssembly.Location);
-                    var location = Path.Combine(directoryName, "WebAPI.xml");
-                    streamReader = new StreamReader(location);
-                }
-                catch (FileNotFoundException exception)
-                {
-                    throw new Exception("XML documentation not present (make sure it is turned on in project properties when building)", exception);
-                }
-
-                XmlDocument xmlDocument = new XmlDocument();
-                xmlDocument.Load(streamReader);
-                return xmlDocument;
-            }
-            else
-            {
-                throw new Exception("Could not ascertain assembly filename", null);
-            }
+            _validator.Holder.Controllers = _validator.Holder.Controllers.Where(controller => _validator.ValidateType(controller, false, out var _));
+            _validator.Holder.Enums = _validator.Holder.Enums.Where(type => _validator.ValidateType(type, false, out var _)).ToList();
+            _validator.Holder.Types = _validator.Holder.Types.Where(type => _validator.ValidateType(type, false, out var _)).ToList();
         }
 
         private string GetAssemblyVersion()
         {
             const string prefix = "file:///";
-            if (assembly.CodeBase.StartsWith(prefix))
+            if (_validator.Holder.Assembly.CodeBase.StartsWith(prefix))
             {
                 try
                 {
-                    var directoryName = Path.GetDirectoryName(assembly.Location);
+                    var directoryName = Path.GetDirectoryName(_validator.Holder.Assembly.Location);
                     var location = Path.Combine(directoryName, "WebAPI.dll");
                     FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(location);
                     return fileVersionInfo.FileVersion;
@@ -405,51 +148,6 @@ namespace Validator.Managers.Scheme
             }
         }
 
-        internal bool validate()
-        {
-            bool valid = true;
-
-            try
-            {
-                foreach (Type enumType in enums.OrderBy(myType => myType.Name))
-                {
-                    if (!SchemeManager.Validate(enumType, false, assemblyXml))
-                        valid = false;
-                }
-
-                foreach (Type type in types)
-                {
-                    //Skip master base class
-                    if (type == typeof(KalturaOTTObject))
-                        continue;
-
-                    if (!SchemeManager.Validate(type, false, assemblyXml))
-                        valid = false;
-                }
-
-                foreach (Type controller in controllers.OrderBy(controller => controller.Name))
-                {
-                    var controllerAttr = controller.GetCustomAttribute<ApiExplorerSettingsAttribute>(false);
-
-                    if (controllerAttr != null && controllerAttr.IgnoreApi)
-                        continue;
-
-                    if (!SchemeManager.Validate(controller, false, assemblyXml))
-                        valid = false;
-                }
-
-                SchemeManager.ValidateErrors(exceptions, false);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(string.Format("Error: there was an exception in Scheme.validate(): {0}", ex.ToString()));
-                valid = false;
-                throw;
-            }
-            
-            return valid;
-        }
-        
         internal void write(Stream stream)
         {
             this.stream = stream;
@@ -470,9 +168,9 @@ namespace Validator.Managers.Scheme
 
             //Printing enums
             writer.WriteStartElement("enums");
-            foreach (Type type in enums.OrderBy(myType => myType.Name))
+            foreach (Type type in _validator.Holder.Enums.OrderBy(myType => myType.Name))
             {
-                if (!SchemeManager.Validate(type, true, assemblyXml))
+                if (!_validator.ValidateType(type, true, out var _))
                     continue;
 
                 writeEnum(type);
@@ -481,9 +179,9 @@ namespace Validator.Managers.Scheme
 
             //Running on classes
             writer.WriteStartElement("classes");
-            foreach (Type type in types)
+            foreach (Type type in _validator.Holder.Types)
             {
-                if (!SchemeManager.Validate(type, true, assemblyXml) || type.Name == "KalturaListResponseT" || type.Name == "KalturaFilterT")
+                if (!_validator.ValidateType(type, true, out var _) || type.Name == "KalturaListResponseT" || type.Name == "KalturaFilterT")
                 {
                     Console.WriteLine($"Info: type {type.Name} is not valid and will not consider as class");
                     continue;
@@ -495,9 +193,9 @@ namespace Validator.Managers.Scheme
 
             //Running on methods
             writer.WriteStartElement("services");
-            foreach (Type controller in controllers.OrderBy(controller => controller.Name))
+            foreach (Type controller in _validator.Holder.Controllers.OrderBy(controller => controller.Name))
             {
-                if (controller.IsAbstract || !SchemeManager.Validate(controller, true, assemblyXml))
+                if (controller.IsAbstract || !_validator.ValidateType(controller, true, out var _))
                     continue;
 
                 var serviceAttribute = controller.GetCustomAttribute<ServiceAttribute>(true);
@@ -510,10 +208,10 @@ namespace Validator.Managers.Scheme
 
 
             // errors
-            if (SchemeManager.ValidateErrors(exceptions, true))
+            if (_validator.ValidateErrors(true))
             {
                 writer.WriteStartElement("errors");
-                foreach (Type exception in exceptions.OrderBy(exception => exception.Name))
+                foreach (Type exception in _validator.Holder.Exceptions.OrderBy(exception => exception.Name))
                 {
                     writeErrors(exception);
                 }
@@ -702,10 +400,10 @@ namespace Validator.Managers.Scheme
             // write throws
             foreach (var apiCode in action.ApiThrows)
             {
-                if (errors.ContainsKey((int)apiCode))
+                if (_validator.Holder.Errors.ContainsKey((int)apiCode))
                 {
                     writer.WriteStartElement("throws");
-                    var exceptionType = errors[(int)apiCode] as ApiException.ApiExceptionType;
+                    var exceptionType = _validator.Holder.Errors[(int)apiCode] as ApiException.ApiExceptionType;
                     writer.WriteAttributeString("name", exceptionType.name);
                     writer.WriteEndElement(); // throws apiCode
                 }
@@ -713,10 +411,10 @@ namespace Validator.Managers.Scheme
 
             foreach (var clientCode in action.ClientThrows)
             {
-                if (errors.ContainsKey((int)clientCode))
+                if (_validator.Holder.Errors.ContainsKey((int)clientCode))
                 {
                     writer.WriteStartElement("throws");
-                    var exceptionType = errors[(int)clientCode] as ApiException.ClientExceptionType;
+                    var exceptionType = _validator.Holder.Errors[(int)clientCode] as ApiException.ClientExceptionType;
                     writer.WriteAttributeString("name", exceptionType.statusCode.ToString());
                     writer.WriteEndElement(); // throws clientCode
                 }
@@ -727,7 +425,8 @@ namespace Validator.Managers.Scheme
         
         internal string getDescription(MethodInfo method, ParameterInfo param)
         {
-            return SchemeManager.GetDescriptionByAssemblyXml(string.Format("//member[starts-with(@name,'M:{0}.{1}')]/param[@name='{2}']", method.ReflectedType.FullName, method.Name, param.Name), assemblyXml);
+            return SchemeManager.GetDescriptionByAssemblyXml(string.Format("//member[starts-with(@name,'M:{0}.{1}')]/param[@name='{2}']", 
+                method.ReflectedType.FullName, method.Name, param.Name), _validator.Holder.AssemblyXml);
         }
         
         private void WriteClass(KalturaClassDetails classDetails)
@@ -926,7 +625,7 @@ namespace Validator.Managers.Scheme
                 if (!method.IsPublic || method.DeclaringType.Namespace != "WebAPI.Controllers")
                     continue;
 
-                if (!SchemeManager.ValidateMethod(method, false, assemblyXml))
+                if (!_validator.ValidateMethod(method, false))
                     continue;
 
                 //Read only HTTP POST as we will have duplicates otherwise
@@ -934,7 +633,7 @@ namespace Validator.Managers.Scheme
                 if (explorerAttr.Count() > 0 && explorerAttr.First().IgnoreApi)
                     continue;
 
-                if (!SchemeManager.ValidateMethod(method, true, assemblyXml, false))
+                if (!_validator.ValidateMethod(method, true, false))
                     continue;
 
                 controllerDetails.Actions.Add(GetActionDetails(method));
@@ -949,7 +648,7 @@ namespace Validator.Managers.Scheme
             {
                 RealName = method.Name,
                 IsGenericMethod = method.IsGenericMethod,
-                Description = SchemeManager.GetMethodDescription(method, assemblyXml),
+                Description = SchemeManager.GetMethodDescription(method, _validator.Holder.AssemblyXml),
                 IsDeprecated = method.GetCustomAttribute<ObsoleteAttribute>() != null,
                 IsSessionRequired = method.GetCustomAttribute<ApiAuthorizeAttribute>() != null,
             };
@@ -1109,7 +808,7 @@ namespace Validator.Managers.Scheme
             return propertiesDetails;
         }
 
-        private static KalturaPropertyDetails GetPropertyDetails(PropertyInfo propertyInfo, string description)
+        private KalturaPropertyDetails GetPropertyDetails(PropertyInfo propertyInfo, string description)
         {
             var propertyDetails = new KalturaPropertyDetails()
             {
@@ -1128,12 +827,13 @@ namespace Validator.Managers.Scheme
 
         private string GetParameterDescription(ParameterInfo param, MethodInfo method)
         {
-            return SchemeManager.GetDescriptionByAssemblyXml(string.Format("//member[starts-with(@name,'M:{0}.{1}')]/param[@name='{2}']", method.ReflectedType.FullName, method.Name, param.Name), assemblyXml);
+            return SchemeManager.GetDescriptionByAssemblyXml(string.Format("//member[starts-with(@name,'M:{0}.{1}')]/param[@name='{2}']", 
+                method.ReflectedType.FullName, method.Name, param.Name), _validator.Holder.AssemblyXml);
         }
 
         private string GetTypeDescription(Type type)
         {
-            return SchemeManager.GetDescriptionByAssemblyXml(string.Format("//member[@name='T:{0}']", type.FullName), assemblyXml);
+            return SchemeManager.GetDescriptionByAssemblyXml(string.Format("//member[@name='T:{0}']", type.FullName), _validator.Holder.AssemblyXml);
         }
 
         internal string GetPropertyDescription(PropertyInfo property)
@@ -1144,11 +844,11 @@ namespace Validator.Managers.Scheme
                 {
                     Regex regex = new Regex(@"^[^\[]+");
                     string name = regex.Match(property.ReflectedType.FullName).Value;
-                    return SchemeManager.GetDescriptionByAssemblyXml(string.Format("//member[@name='P:{0}.{1}']", name, property.Name), assemblyXml);
+                    return SchemeManager.GetDescriptionByAssemblyXml(string.Format("//member[@name='P:{0}.{1}']", name, property.Name), _validator.Holder.AssemblyXml);
                 }
                 else
                 {
-                    return SchemeManager.GetDescriptionByAssemblyXml(string.Format("//member[@name='P:{0}.{1}']", property.ReflectedType, property.Name), assemblyXml);
+                    return SchemeManager.GetDescriptionByAssemblyXml(string.Format("//member[@name='P:{0}.{1}']", property.ReflectedType, property.Name), _validator.Holder.AssemblyXml);
                 }
             }
             catch (Exception ex)

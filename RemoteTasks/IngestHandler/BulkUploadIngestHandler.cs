@@ -1,31 +1,30 @@
-﻿using ApiLogic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
+using ApiLogic;
 using ApiLogic.Api.Managers;
+using ApiLogic.Catalog.CatalogManagement.Helpers;
+using ApiLogic.Catalog.CatalogManagement.Models;
+using ApiLogic.IndexManager.Helpers;
 using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Epg;
 using ApiObjects.EventBus;
 using ApiObjects.Response;
+using Core.Catalog;
 using Core.Catalog.CatalogManagement;
+using Core.Catalog.CatalogManagement.Services;
 using Core.GroupManagers;
 using CouchbaseManager;
 using EpgBL;
 using EventBus.Abstraction;
 using IngestHandler.Common;
-using Phx.Lib.Log;
-using Polly;
-using Polly.Retry;
-using Synchronizer;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using ApiLogic.Catalog.CatalogManagement.Helpers;
-using ApiLogic.IndexManager.Helpers;
-using Core.Catalog;
-using Core.Catalog.CatalogManagement.Services;
 using IngestHandler.Common.Infrastructure;
 using IngestHandler.Domain.IngestProtection;
+using Phx.Lib.Log;
+using Synchronizer;
 using Tvinci.Core.DAL;
 using TVinciShared;
 
@@ -121,6 +120,7 @@ namespace IngestHandler
                         }
                     }
                     BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_bulkUpload, BulkUploadJobStatus.Failed);
+                    SendIngestPartCompleted(serviceEvent);
                     _logger.Debug($"{nameof(BulkUploadIngestHandler)} requestId:[{_eventData.RequestId}], BulkUploadId:[{_eventData.BulkUploadId}], update result status [{BulkUploadJobStatus.Failed}].");
                     return;
                 }
@@ -163,6 +163,7 @@ namespace IngestHandler
                     _bulkUpload.AddError(eResponseStatus.Error, $"An unexpected error occured during ingest, {ex.Message}");
                     var result = BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_bulkUpload, BulkUploadJobStatus.Fatal);
                     if (result.IsOkStatusCode()) TrySendIngestCompleted(BulkUploadJobStatus.Fatal);
+                    SendIngestPartCompleted(serviceEvent);
                     _logger.Error($"An Exception occurred in BulkUploadIngestValidationHandler requestId:[{_eventData.RequestId}], BulkUploadId:[{_eventData.BulkUploadId}], update result status [{result.Status}].", ex);
                 }
                 catch (Exception innerEx)
@@ -173,6 +174,30 @@ namespace IngestHandler
 
                 throw;
             }
+        }
+
+        private void SendIngestPartCompleted(BulkUploadIngestEvent serviceEvent)
+        {
+            var programs = serviceEvent.CrudOperations.ItemsToAdd
+                .Concat(serviceEvent.CrudOperations.ItemsToUpdate)
+                .Concat(serviceEvent.CrudOperations.ItemsToDelete)
+                .Concat(serviceEvent.CrudOperations.AffectedItems)
+                .ToList();
+            var programIngestResults = _bulkUpload.ConstructResultsDictionary(programs)
+                .Values
+                .SelectMany(x => x.Values)
+                .ToArray();
+            var hasMoreToIngest = !BulkUpload.IsProcessCompletedByStatus(_bulkUpload.Status);
+            var parameters = new EpgIngestPartCompletedParameters
+            {
+                BulkUploadId = _bulkUpload.Id,
+                GroupId = _bulkUpload.GroupId,
+                HasMoreEpgToIngest = hasMoreToIngest,
+                UserId = _bulkUpload.UpdaterId,
+                Results = programIngestResults
+            };
+
+            _epgIngestMessaging.EpgIngestPartCompleted(parameters);
         }
 
         private void SetResultsWithObjectId(CRUDOperations<EpgProgramBulkUploadObject> crudOperations)
@@ -484,8 +509,18 @@ namespace IngestHandler
             if (!BulkUpload.IsProcessCompletedByStatus(newStatus)) return;
 
             var updateDate = DateTime.UtcNow; // TODO looks like _bulUpload.UpdateDate is not updated in CB
-            _epgIngestMessaging.EpgIngestCompleted(_bulkUpload.GroupId, _bulkUpload.UpdaterId,
-                _bulkUpload.Id, newStatus, _bulkUpload.Errors, updateDate);
+            var parameters = new EpgIngestCompletedParameters
+            {
+                GroupId = _bulkUpload.GroupId,
+                BulkUploadId = _bulkUpload.Id,
+                Status = newStatus,
+                Errors = _bulkUpload.Errors,
+                CompletedDate = updateDate,
+                UserId = _bulkUpload.UpdaterId,
+                Results = _bulkUpload.Results
+            };
+
+            _epgIngestMessaging.EpgIngestCompleted(parameters);
         }
     }
 }

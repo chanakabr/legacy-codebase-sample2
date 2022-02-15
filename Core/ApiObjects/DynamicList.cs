@@ -57,12 +57,6 @@ namespace ApiObjects
             this.Type = DynamicListType.UDID;
         }
 
-        public Dictionary<string, object> GetExcelValues(int groupId)
-        {
-            // need to implement only if there is a requset from product to return values in excel (format=31)
-            throw new NotImplementedException();
-        }
-
         public void SetExcelValues(int groupId, Dictionary<string, object> columnNamesToValues, Dictionary<string, ExcelColumn> columns, IExcelStructureManager structureManager)
         {
             UdidDynamicList udidDynamicList = structureManager as UdidDynamicList;
@@ -88,16 +82,21 @@ namespace ApiObjects
             var mandatoryPropertyAndValueMap = new Dictionary<string, object>();
             var systemNameToExcelAttribute = ExcelManager.GetSystemNameToProperyData(objectType);
 
-            if (systemNameToExcelAttribute.ContainsKey(UdidDynamicList.UDID_COLUMN))
+            if (systemNameToExcelAttribute.ContainsKey(UDID_COLUMN))
             {
                 var excelColumn = ExcelManager.GetExcelColumnByAttribute(systemNameToExcelAttribute[UdidDynamicList.UDID_COLUMN], UdidDynamicList.UDID_COLUMN);
                 var mediaAssetTypeColumnName = excelColumn.ToString();
                 excelColumns.Add(mediaAssetTypeColumnName, excelColumn);
             }
 
-
             var excelStructure = new ExcelStructure(excelColumns, null, null, mandatoryPropertyAndValueMap);
             return excelStructure;
+        }
+
+        public Dictionary<string, object> GetExcelValues(int groupId)
+        {
+            //BEO-11082: Implemented in the DynamicListManager
+            throw new NotImplementedException();
         }
     }
 }

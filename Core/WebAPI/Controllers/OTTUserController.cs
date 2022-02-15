@@ -935,7 +935,17 @@ namespace WebAPI.Controllers
                 }
                 else if (!string.IsNullOrEmpty(filter.EmailEqual))
                 {
-                    response = ClientsManager.UsersClient().GetUsersByEmail(groupId, filter.EmailEqual);
+                    if (isPartnerRequest)
+                    {
+                        response = ClientsManager.UsersClient().GetUsersByEmail(groupId, filter.EmailEqual);
+                    }
+                    else // for master get only if user in HH
+                    {
+                        var householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId);
+                        response = GetUsersData(groupId, householdUserIds);
+                        response.Users = response.Users.Where(u => u.Email.ToLower() == filter.EmailEqual.ToLower()).ToList();
+                        response.TotalCount = response.Users.Count;
+                    }
                 }
                 else if (!string.IsNullOrEmpty(filter.IdIn))
                 {

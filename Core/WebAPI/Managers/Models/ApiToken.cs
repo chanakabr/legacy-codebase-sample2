@@ -83,7 +83,14 @@ namespace WebAPI.Managers.Models
                 accessExpiration = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddSeconds(groupConfig.KSExpirationSeconds));
             }
 
-            AccessTokenExpiration = accessExpiration >= RefreshTokenExpiration ? RefreshTokenExpiration : accessExpiration;
+            AccessTokenExpiration = accessExpiration;
+
+            if (groupConfig.IsRefreshTokenEnabled)
+            {
+                AccessTokenExpiration = accessExpiration >= RefreshTokenExpiration
+                    ? RefreshTokenExpiration
+                    : accessExpiration;
+            }
 
             KsObject = new KS(isAdmin ? groupConfig.AdminSecret : groupConfig.UserSecret,
                               groupId.ToString(),
@@ -135,7 +142,14 @@ namespace WebAPI.Managers.Models
                 accessExpiration = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddSeconds(groupConfig.KSExpirationSeconds));
             }
 
-            AccessTokenExpiration = accessExpiration >= RefreshTokenExpiration ? RefreshTokenExpiration : accessExpiration;
+            AccessTokenExpiration = accessExpiration;
+
+            if (groupConfig.IsRefreshTokenEnabled)
+            {
+                AccessTokenExpiration = accessExpiration >= RefreshTokenExpiration
+                    ? RefreshTokenExpiration
+                    : accessExpiration;
+            }
 
             KsObject = new KS(token.IsAdmin ? groupConfig.AdminSecret : groupConfig.UserSecret,
                               token.GroupID.ToString(),

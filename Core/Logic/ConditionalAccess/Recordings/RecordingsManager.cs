@@ -1102,7 +1102,7 @@ namespace Core.Recordings
             var epgDoc = epgBL.GetEpgCB((ulong)epgId);
 
             var recordingDoc = RecordingsDAL.GetRecordingByProgramId_CB(epgId);
-            if (epgDoc.StartDate.Date != recordingDoc.StartDate.Date)
+            if (recordingDoc != null && epgDoc.StartDate.Date != recordingDoc.StartDate.Date)
             {
                 Catalog.Module.UpdateRecordingsIndex(new List<long> { recordingId }, groupId, eAction.Delete);
             }

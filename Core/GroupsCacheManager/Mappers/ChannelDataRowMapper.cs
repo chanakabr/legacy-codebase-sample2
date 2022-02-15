@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using ApiObjects.Catalog;
 using ApiObjects.SearchObjects;
 using Newtonsoft.Json;
 using Phx.Lib.Log;
@@ -30,10 +31,15 @@ namespace GroupsCacheManager.Mappers
 
         private static AssetOrder BuildBaseChannelOrder(DataRow dr)
         {
-            var orderByInt = ODBCWrapper.Utils.GetIntSafeVal(dr["order_by_type"]);
             var orderDirInt = ODBCWrapper.Utils.GetIntSafeVal(dr["order_by_dir"]) - 1;
-            var orderBy = (OrderBy)Enum.ToObject(typeof(OrderBy), orderByInt);
             var orderDir = (OrderDir)Enum.ToObject(typeof(OrderDir), orderDirInt);
+
+            var orderByValue = ODBCWrapper.Utils.GetSafeStr(dr, "ORDER_BY_VALUE");
+
+            var orderByInt = ODBCWrapper.Utils.GetIntSafeVal(dr["order_by_type"]);
+            var orderBy = string.IsNullOrEmpty(orderByValue)
+                ? (OrderBy)Enum.ToObject(typeof(OrderBy), orderByInt)
+                : OrderBy.META;
 
             AssetOrder channelOrder;
             switch (orderBy)
@@ -46,7 +52,6 @@ namespace GroupsCacheManager.Mappers
                     channelOrder = new AssetOrder { Field = orderBy, Direction = orderDir };
                     break;
                 case OrderBy.META:
-                    var orderByValue = ODBCWrapper.Utils.GetSafeStr(dr, "ORDER_BY_VALUE");
                     channelOrder = new AssetOrderByMeta { Field = orderBy, Direction = orderDir, MetaName = orderByValue };
                     break;
                 case OrderBy.LIKE_COUNTER:
@@ -57,8 +62,17 @@ namespace GroupsCacheManager.Mappers
                     channelOrder = new AssetSlidingWindowOrder { Field = orderBy, Direction = orderDir, SlidingWindowPeriod = slidingWindowPeriod };
                     break;
                 default:
-                    channelOrder = new AssetOrder { Field = OrderBy.CREATE_DATE, Direction = OrderDir.DESC };
-                    Log.Warn($"{nameof(AssetOrder)} can not be determined: {nameof(orderBy)}={orderBy}. The default channel order has been created.");
+                    if (orderByInt >= (int)MetasEnum.META1_STR && orderByInt <= (int)MetasEnum.META10_DOUBLE)
+                    {
+                        // TVM account. MetaName will be updated by ChannelRepository.
+                        channelOrder = new AssetOrderByMeta { Field = OrderBy.META, Direction = orderDir };
+                    }
+                    else
+                    {
+                        Log.Warn($"{nameof(AssetOrder)} can not be determined: {nameof(orderBy)}={orderBy}. The default channel order has been created.");
+                        channelOrder = new AssetOrder { Field = OrderBy.CREATE_DATE, Direction = OrderDir.DESC };
+                    }
+
                     break;
             }
 

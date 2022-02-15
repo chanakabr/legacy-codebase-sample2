@@ -197,6 +197,7 @@ namespace WebAPI
             else if (HttpContext.Current.Items[RequestContextConstants.REQUEST_GLOBAL_USER_ID] != null)
             {
                 HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_USER_ID, HttpContext.Current.Items[RequestContextConstants.REQUEST_GLOBAL_USER_ID]);
+                HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_IMPERSONATE, true);
             }
             else
             {
