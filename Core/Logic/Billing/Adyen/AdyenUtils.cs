@@ -1,8 +1,8 @@
 ﻿using APILogic.AdyenRecAPI;
 using ApiObjects;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using DAL;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Data;
 using System.Linq;

@@ -20,8 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Polly" Version="7.0.3" />
+    <PackageReference Include="Phx.Lib.Appconfig" Version="1.2.0" />
+    <PackageReference Include="Polly" Version="7.2.2" />
     <PackageReference Include="RabbitMQ.Client" Version="5.1.0" />
   </ItemGroup>
 
@@ -39,9 +39,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj" />
-    <ProjectReference Include="..\TCMClient\TCMClient.csproj" />
-    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\ApiObjects\ApiObjects.csproj" />
     <ProjectReference Include="..\EventBus.Abstraction\EventBus.Abstraction.csproj" />
   </ItemGroup>

@@ -7,7 +7,7 @@ using System.Web.UI.WebControls;
 using TVinciShared;
 using System.IO;
 using Uploader;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 
 public partial class AjaxPicResize : System.Web.UI.Page

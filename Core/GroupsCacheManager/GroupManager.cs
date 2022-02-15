@@ -1,9 +1,10 @@
 ﻿using ApiObjects;
 using DAL;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
 using Tvinci.Core.DAL;
 
 namespace GroupsCacheManager
@@ -11,7 +12,13 @@ namespace GroupsCacheManager
     public class GroupManager :IGroupManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private IGroupsCache cache;
+        private readonly IGroupsCache cache;
+
+        private static readonly Lazy<IGroupManager> LazyInstance = new Lazy<IGroupManager>(
+            () => new GroupManager(),
+            LazyThreadSafetyMode.PublicationOnly);
+
+        public static IGroupManager Instance => LazyInstance.Value;
 
         public GroupManager(IGroupsCache groupsCache = null)
         {

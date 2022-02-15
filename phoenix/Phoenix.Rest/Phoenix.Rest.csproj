@@ -39,20 +39,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj" />
     <ProjectReference Include="..\..\Core\Core.Metrics.Web\Core.Metrics.Web.csproj" />
     <ProjectReference Include="..\..\Core\Core.Metrics\Core.Metrics.csproj" />
     <ProjectReference Include="..\..\Core\Core.Middleware\Core.Middleware.csproj" />
     <ProjectReference Include="..\..\Core\HealthCheck\HealthCheck.csproj" />
-    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\..\Core\LogReloader\LogReloader.csproj" />
-    <ProjectReference Include="..\..\Core\StaticHttpContextForNetCore\StaticHttpContextForNetCore.csproj" />
     <ProjectReference Include="..\..\Core\WebAPI\WebAPI.csproj" />
   </ItemGroup>
 

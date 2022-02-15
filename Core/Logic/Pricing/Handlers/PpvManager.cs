@@ -14,7 +14,7 @@ using Core.Api;
 using Core.Catalog.CatalogManagement;
 using Core.Pricing;
 using DAL;
-using KLogMonitor;
+using Phx.Lib.Log;
 
 namespace ApiLogic.Pricing.Handlers
 {
@@ -79,7 +79,27 @@ namespace ApiLogic.Pricing.Handlers
                     UserId = contextData.UserId.Value
                 };
             }
-            Boolean shouldUpdate = ppvModuleToUpdate.ShouldUpdate(oldPpvModule);
+
+            bool shouldUpdateFileTypes = false;
+            if (ppvModuleToUpdate.ShouldUpdateFileTypes(oldPpvModule)) 
+            {
+                shouldUpdateFileTypes = true;
+            }
+            else
+            {
+                ppvModuleToUpdate.RelatedFileTypes = oldPpvModule.m_relatedFileTypes;
+            }
+            
+            bool shouldUpdateDescription = false;
+            if (ppvModuleToUpdate.ShouldUpdateDescription(oldPpvModule))
+            {
+                shouldUpdateDescription = true;
+            }
+            else
+            {
+                ppvModuleToUpdate.Description = oldPpvModule.m_sDescription;
+            }
+            bool shouldUpdate = ppvModuleToUpdate.ShouldUpdate(oldPpvModule);
 
             if (ppvModuleToUpdate.SubscriptionOnly.HasValue && !ppvModuleToUpdate.SubscriptionOnly.Value)
             {
@@ -91,7 +111,7 @@ namespace ApiLogic.Pricing.Handlers
             }
             ppvModuleToUpdate.Id = id;
             
-            if (shouldUpdate)
+            if (shouldUpdate || shouldUpdateFileTypes || shouldUpdateDescription)
             {
                 // Due to atomic action update virtual asset before ppv update
                 if (virtualAssetInfo != null)
@@ -112,9 +132,24 @@ namespace ApiLogic.Pricing.Handlers
                     }
                     ppvModuleToUpdate.VirtualAssetId = virtualAssetInfoResponse.AssetId;
                 }
-                
-                int updatedRow = _repository.UpdatePPV(contextData.GroupId, contextData.UserId.Value, id,
-                    convertToDto(ppvModuleToUpdate));
+
+                PpvDTO ppvDto = convertToDto(ppvModuleToUpdate);
+                int updatedRow = 0;
+                if (shouldUpdate)
+                {
+                    updatedRow += _repository.UpdatePPV(contextData.GroupId, contextData.UserId.Value, id, 
+                        ppvDto);
+                }
+                if (shouldUpdateFileTypes)
+                {
+                    updatedRow += _repository.UpdatePPVFileTypes(contextData.GroupId, id, 
+                        ppvDto.FileTypesIds);
+                }
+                if (shouldUpdateDescription)
+                {
+                    updatedRow += _repository.UpdatePPVDescriptions(contextData.GroupId, contextData.UserId.Value, id, 
+                        ppvDto.Descriptions);
+                }
 
                 if (updatedRow > 0)
                 {

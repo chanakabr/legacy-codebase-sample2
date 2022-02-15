@@ -66,14 +66,14 @@ namespace Ingest.Clients.ClientManager
             if (!clients.TryGetValue(clientType, out client) && client == null)
             {
                 string serviceTcmConfigurationKey = string.Format("WebServices.{0}", clientType);
-                string serviceUrl = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", serviceTcmConfigurationKey, "URL"));
+                string serviceUrl = Phx.Lib.Appconfig.TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", serviceTcmConfigurationKey, "URL"));
 
                 client = ClientFactory.GetService(serviceUrl, clientType);
 
                 if (clientType == ClientType.Catalog)
                 {
-                    ((CatalogClient)client).SignatureKey = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", serviceTcmConfigurationKey, "SignatureKey"));
-                    ((CatalogClient)client).CacheDuration = TCMClient.Settings.Instance.GetValue<int>(string.Format("{0}.{1}", serviceTcmConfigurationKey, "CacheDurationSeconds"));
+                    ((CatalogClient)client).SignatureKey = Phx.Lib.Appconfig.TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", serviceTcmConfigurationKey, "SignatureKey"));
+                    ((CatalogClient)client).CacheDuration = Phx.Lib.Appconfig.TCMClient.Settings.Instance.GetValue<int>(string.Format("{0}.{1}", serviceTcmConfigurationKey, "CacheDurationSeconds"));
                 }
                 
                 clients.TryAdd(clientType, client);

@@ -1,4 +1,4 @@
-﻿using ConfigurationManager;
+﻿using Phx.Lib.Appconfig;
 using System;
 
 public partial class AjaxSubRenewable : System.Web.UI.Page

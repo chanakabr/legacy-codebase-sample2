@@ -2,12 +2,12 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using System.Net;
 using System.Net.Http;
 using Newtonsoft.Json.Linq;
 using log4net.Repository.Hierarchy;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 
 namespace HealthCheck

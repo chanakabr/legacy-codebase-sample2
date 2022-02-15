@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using System.Web;
 using CachingProvider.LayeredCache;
 using KalturaRequestContext;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Newtonsoft.Json.Linq;
 using TVinciShared;
 using WebAPI.Exceptions;

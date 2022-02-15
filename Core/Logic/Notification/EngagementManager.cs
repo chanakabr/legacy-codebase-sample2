@@ -1,15 +1,16 @@
-﻿using ApiLogic.Notification.Managers;
+﻿using ApiLogic.Notification;
+using ApiLogic.Notification.Managers;
 using APILogic.AmazonSnsAdapter;
 using APILogic.Notification.Adapters;
 using ApiObjects;
 using ApiObjects.Notification;
 using ApiObjects.QueueObjects;
 using ApiObjects.Response;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Notification.Adapters;
 using Core.Pricing;
 using DAL;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Newtonsoft.Json;
 using QueueWrapper.Queues.QueueObjects;
 using System;
@@ -1112,7 +1113,7 @@ namespace Core.Notification
             {
                 if (IsToIot(partnerId, pushMessage, device))
                 {
-                    PublishToIot(partnerId, pushMessage, NotificationDal.Instance.GetRegisteredDevice(partnerId.ToString(), device.Udid));
+                    PublishToIot(partnerId, pushMessage, IotManager.Instance.GetRegisteredDevice(partnerId, device.Udid));
                 }
                 else if (IsToSns(pushMessage, device))
                 {
@@ -1196,7 +1197,7 @@ namespace Core.Notification
 
         private static bool IsToIot(int groupId, PushMessage pushMessage, UserDevice device)
         {
-            var iotDevice = NotificationDal.Instance.GetRegisteredDevice(groupId.ToString(), device.Udid);
+            var iotDevice = IotManager.Instance.GetRegisteredDevice(groupId, device.Udid);
             return iotDevice != null ||
                 (pushMessage.PushChannels == null || pushMessage.PushChannels.Contains(PushChannel.Iot))
                 && device.PushChannel == PushChannel.Iot;
@@ -1223,7 +1224,7 @@ namespace Core.Notification
                 return status;
             }
 
-            var device = NotificationDal.Instance.GetRegisteredDevice(partnerId.ToString(), pushMessage.Udid);
+            var device = IotManager.Instance.GetRegisteredDevice(partnerId, pushMessage.Udid);
             if (device != null)
             {
                 status = PublishToIot(partnerId, pushMessage, device);

@@ -61,7 +61,7 @@ namespace CDNTokenizers
             string value = null;
             try
             {
-                value = TCMClient.Settings.Instance.GetValue<string>(key);
+                value = Phx.Lib.Appconfig.TCMClient.Settings.Instance.GetValue<string>(key);
             }
             catch
             {

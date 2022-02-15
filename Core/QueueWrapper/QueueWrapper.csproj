@@ -15,10 +15,7 @@
   
   
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="RabbitMQ.Client" Version="5.1.0" />
-    
-    
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <PackageReference Include="System.Threading.AccessControl" Version="4.5.0" />
@@ -27,9 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ApiObjects\ApiObjects.csproj" />
-    <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj" />
     <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj" />
-    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
   </ItemGroup>
   
    <!-- This is a workaround that will allow TVM website project to build, if you read this an 

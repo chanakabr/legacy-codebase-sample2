@@ -1,4 +1,4 @@
-﻿using KLogMonitor;
+﻿using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Web;
 using CachingProvider.LayeredCache;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using System.Linq;
 
 namespace ODBCWrapper
@@ -322,7 +322,7 @@ namespace ODBCWrapper
 
             if (sConn == "")
             {
-                log.CriticalFormat("Empty connection string. could not run query. m_sProcedureName: {0}", procedureNameWithDbVersionPrefix != null ? procedureNameWithDbVersionPrefix.ToString() : string.Empty);
+                log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", procedureNameWithDbVersionPrefix != null ? procedureNameWithDbVersionPrefix.ToString() : string.Empty);
                 return null;
             }
 
@@ -335,7 +335,7 @@ namespace ODBCWrapper
                     command.Connection = con;
 
                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { 
+                    using (KMonitor km = new KMonitor(Phx.Lib.Log.Events.eEvent.EVENT_DATABASE, null, null, null, null) { 
                         Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (isRoutedToPrimary).ToString() })
                     {
                         using (SqlDataReader reader = command.ExecuteReader())
@@ -353,7 +353,7 @@ namespace ODBCWrapper
                 catch (Exception ex)
                 {
                     string sMes = "While running : '" + procedureNameWithDbVersionPrefix + "'\r\n Exception occurred: " + ex.Message;
-                    log.Critical(sMes, ex);
+                    log.ErrorFormat(sMes, ex);
                     if (HttpContext.Current != null && HttpContext.Current.Items != null)
                     {
                         HttpContext.Current.Items[Utils.DATABASE_ERROR_DURING_SESSION] = true;
@@ -400,7 +400,7 @@ namespace ODBCWrapper
                 try
                 {
                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() })
+                    using (KMonitor km = new KMonitor(Phx.Lib.Log.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() })
                     {
                         con.Open();
                         SetLockTimeOut(con);
@@ -483,7 +483,7 @@ namespace ODBCWrapper
                 try
                 {
                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() })
+                    using (KMonitor km = new KMonitor(Phx.Lib.Log.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() })
                     {
                         con.Open();
                         SetLockTimeOut(con);
@@ -544,7 +544,7 @@ namespace ODBCWrapper
                 try
                 {
                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() })
+                    using (KMonitor km = new KMonitor(Phx.Lib.Log.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() })
                     {
                         con.Open();
                         SetLockTimeOut(con);
@@ -598,7 +598,7 @@ namespace ODBCWrapper
                 try
                 {
                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() })
+                    using (KMonitor km = new KMonitor(Phx.Lib.Log.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() })
                     {
                         con.Open();
                         SetLockTimeOut(con);
@@ -665,7 +665,7 @@ namespace ODBCWrapper
                 try
                 {
                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() })
+                    using (KMonitor km = new KMonitor(Phx.Lib.Log.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() })
                     {
                         con.Open();
                         SetLockTimeOut(con);
@@ -736,7 +736,7 @@ namespace ODBCWrapper
                 try
                 {
                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() })
+                    using (KMonitor km = new KMonitor(Phx.Lib.Log.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() })
                     {
                         con.Open();
                         SetLockTimeOut(con);

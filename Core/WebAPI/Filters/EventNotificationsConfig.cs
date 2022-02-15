@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 using EventManager;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.IO;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Microsoft.Extensions.Hosting;
+using Phx.Lib.Appconfig.Types;
 
 namespace WebAPI.Filters
 {

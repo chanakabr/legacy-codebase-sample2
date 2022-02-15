@@ -1,5 +1,5 @@
-﻿using ConfigurationManager;
-using KLogMonitor;
+﻿using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
@@ -16,6 +16,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Phx.Lib.Appconfig.Types;
 
 namespace HealthCheck
 {

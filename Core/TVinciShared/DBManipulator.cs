@@ -1,7 +1,7 @@
 using ApiObjects;
 using ApiObjects.EventBus;
-using ConfigurationManager;
-using KLogMonitor;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
 using QueueWrapper;
 using System;
 using System.Collections.Generic;
@@ -580,7 +580,7 @@ namespace TVinciShared
                     selectQuery = null;
                     updateQuery.Finish();
                     updateQuery = null;
-                    HttpContext.Current.Session.Set("error_msg", "* дръерйн щдеSendе айрн зечййн ае омайн");
+                    HttpContext.Current.Session.Set("error_msg", "* пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅSendпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ");
                     return;
                 }
                 if (sType == "multi")
@@ -603,7 +603,7 @@ namespace TVinciShared
             }
             else
             {
-                HttpContext.Current.Session.Set("error_msg", "* дръерйн щдеSendе айрн зечййн ае омайн");
+                HttpContext.Current.Session.Set("error_msg", "* пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅSendпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ");
             }
             updateQuery.Finish();
             updateQuery = null;
@@ -1885,7 +1885,7 @@ namespace TVinciShared
                     selectQuery = null;
                     insertQuery.Finish();
                     insertQuery = null;
-                    HttpContext.Current.Session.Set("error_msg", "* дръерйн щдеSendе айрн зечййн ае омайн");
+                    HttpContext.Current.Session.Set("error_msg", "* пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅSendпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ");
                     return 0;
                 }
                 if (sType == "multi")
@@ -1901,7 +1901,7 @@ namespace TVinciShared
                 if (bNew == true)
                     insertQuery.Execute();
                 else
-                    HttpContext.Current.Session.Set("error_msg", "* дръерйн щдеSendе одеейн лфймеъ мшщеод чййоъ");
+                    HttpContext.Current.Session.Set("error_msg", "* пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅSendпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ");
             }
             insertQuery.Finish();
             insertQuery = null;
@@ -1927,7 +1927,7 @@ namespace TVinciShared
             }
             else
             {
-                HttpContext.Current.Session.Set("error_msg", "* дръерйн щдеSendе айрн зечййн ае омайн");
+                HttpContext.Current.Session.Set("error_msg", "* пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅSendпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ");
             }
 
             selectQuery.Finish();
@@ -1987,7 +1987,7 @@ namespace TVinciShared
             System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.GetForm();
             if (coll["table_name"] == null)
             {
-                HttpContext.Current.Session.Set("error_msg", "зсшд ибмд мтйглеп");
+                HttpContext.Current.Session.Set("error_msg", "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
                 EndOfAction();
             }
             if (coll["id"] != null)

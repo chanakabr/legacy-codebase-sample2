@@ -1,4 +1,4 @@
-﻿using ConfigurationManager;
+﻿using Phx.Lib.Appconfig;
 using System;
 
 public partial class AjaxManipGift : System.Web.UI.Page

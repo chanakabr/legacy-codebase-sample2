@@ -16,11 +16,12 @@ namespace Core.Catalog
     {
         #region added from IndexManager
         bool UpsertMedia(long assetId);
-        string SetupEpgV2Index(DateTime dateOfProgramsToIngest);
+        string SetupEpgV2Index(string indexNmae);
 
-        bool ForceRefreshEpgV2Index(DateTime date);
+        bool ForceRefreshEpgV2Index(string indexName);
         bool FinalizeEpgV2Indices(List<DateTime> date);
-        // ............................................................................
+
+        bool CompactEpgV2Indices(int futureIndexCompactionStart, int pastIndexCompactionStart);
 
         bool DeleteProgram(List<long> assetIds, bool isRecording = false);
         bool UpsertProgram(List<EpgCB> epgObjects, Dictionary<string, LinearChannelSettings> linearChannelSettings);
@@ -34,9 +35,7 @@ namespace Core.Catalog
 
         #region added from the epg ingest v2
 
-        void UpsertPrograms(IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName,
-            DateTime dateOfProgramsToIngest,
-            LanguageObj defaultLanguage, IDictionary<string, LanguageObj> languages);
+        void UpsertPrograms(IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName, LanguageObj defaultLanguage, IDictionary<string, LanguageObj> languages);
         void DeletePrograms(IList<EpgProgramBulkUploadObject> programsToDelete, string epgIndexName,
             IDictionary<string, LanguageObj> languages);
         // ................................................................................................

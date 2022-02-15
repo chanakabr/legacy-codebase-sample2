@@ -1,5 +1,5 @@
 ﻿using ApiObjects.Response;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -94,11 +94,11 @@ namespace WebAPI.Controllers
             }
 
             Dictionary<string, string> priviliges = null;
-            var tmp = HttpContext.Current.Items[KLogMonitor.Constants.PRIVILIGES];
+            var tmp = HttpContext.Current.Items[Phx.Lib.Log.Constants.PRIVILIGES];
             if (tmp != null)
             {
                 priviliges = (Dictionary<string, string>)tmp;
-                HttpContext.Current.Items.Remove(KLogMonitor.Constants.PRIVILIGES);
+                HttpContext.Current.Items.Remove(Phx.Lib.Log.Constants.PRIVILIGES);
             }
 
             return new KalturaLoginResponse()
@@ -170,11 +170,11 @@ namespace WebAPI.Controllers
             }
 
             Dictionary<string, string> priviliges = null;
-            var tmp = HttpContext.Current.Items[KLogMonitor.Constants.PRIVILIGES];
+            var tmp = HttpContext.Current.Items[Phx.Lib.Log.Constants.PRIVILIGES];
             if (tmp != null)
             {
                 priviliges = (Dictionary<string, string>)tmp;
-                HttpContext.Current.Items.Remove(KLogMonitor.Constants.PRIVILIGES);
+                HttpContext.Current.Items.Remove(Phx.Lib.Log.Constants.PRIVILIGES);
             }
 
             return new KalturaLoginResponse()

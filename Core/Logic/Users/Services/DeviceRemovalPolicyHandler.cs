@@ -1,5 +1,5 @@
 ﻿using ApiObjects;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Users;
 using CouchbaseManager;
 using DAL;
@@ -11,7 +11,7 @@ using ApiLogic.Api.Managers;
 using AuthenticationGrpcClientWrapper;
 using MoreLinq;
 using Grpc;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using ApiObjects.CanaryDeployment;
 using ApiObjects.CanaryDeployment.Microservices;

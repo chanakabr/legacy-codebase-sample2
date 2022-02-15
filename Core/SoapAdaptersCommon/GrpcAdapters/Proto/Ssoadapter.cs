@@ -89,57 +89,68 @@ namespace SoapAdaptersCommon.GrpcAdapters {
             "U09SZXNwb25zZVN0YXR1cxI1CgtBZGFwdGVyRGF0YRgDIAMoCzIgLkludm9r",
             "ZVJlc3BvbnNlLkFkYXB0ZXJEYXRhRW50cnkSDAoEQ29kZRgEIAEoCRIPCgdN",
             "ZXNzYWdlGAUgASgJGjIKEEFkYXB0ZXJEYXRhRW50cnkSCwoDa2V5GAEgASgJ",
-            "Eg0KBXZhbHVlGAIgASgJOgI4ASKnBAoEVXNlchItCgxDdXN0b21QYXJhbXMY",
-            "ASADKAsyFy5Vc2VyLkN1c3RvbVBhcmFtc0VudHJ5EigKEUlzSG91c2Vob2xk",
-            "TWFzdGVyGAIgASgLMg0uTnVsbGFibGVCb29sEisKC0R5bmFtaWNEYXRhGAMg",
-            "AygLMhYuVXNlci5EeW5hbWljRGF0YUVudHJ5EhsKCFVzZXJUeXBlGAQgASgL",
-            "MgkuVXNlclR5cGUSEgoKRXh0ZXJuYWxJZBgFIAEoCRINCgVQaG9uZRgGIAEo",
-            "CRILCgNaaXAYByABKAkSIQoJQ291bnRyeUlkGAggASgLMg4uTnVsbGFibGVJ",
-            "bnQzMhIMCgRDaXR5GAkgASgJEg8KB0FkZHJlc3MYCiABKAkSDQoFRW1haWwY",
-            "CyABKAkSIwoLSG91c2Vob2xkSUQYDCABKAsyDi5OdWxsYWJsZUludDMyEhAK",
-            "CExhc3ROYW1lGA0gASgJEhEKCUZpcnN0TmFtZRgOIAEoCRIQCghVc2VybmFt",
-            "ZRgPIAEoCRIKCgJJZBgQIAEoBRIXCg9TdXNwZW5zaW9uU3RhdGUYESABKAUS",
-            "EQoJVXNlclN0YXRlGBIgASgFGjMKEUN1c3RvbVBhcmFtc0VudHJ5EgsKA2tl",
-            "eRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEaMgoQRHluYW1pY0RhdGFFbnRy",
-            "eRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIisKCFVzZXJUeXBl",
-            "EgoKAklkGAEgASgFEhMKC0Rlc2NyaXB0aW9uGAIgASgJIpQGChFTU09SZXNw",
-            "b25zZVN0YXR1cxI8CgpTdGF0dXNDb2RlGAEgASgOMiguU1NPUmVzcG9uc2VT",
-            "dGF0dXMuU1NPVXNlclJlc3BvbnNlU3RhdHVzEhQKDEV4dGVybmFsQ29kZRgC",
-            "IAEoBRIXCg9FeHRlcm5hbE1lc3NhZ2UYAyABKAkikQUKFVNTT1VzZXJSZXNw",
-            "b25zZVN0YXR1cxIGCgJPSxAAEg4KClVzZXJFeGlzdHMQARIUChBVc2VyRG9l",
-            "c05vdEV4aXN0EAISGwoXV3JvbmdQYXNzd29yZE9yVXNlck5hbWUQAxISCg5J",
-            "bnNpZGVMb2NrVGltZRAEEhUKEU5vdEltcGxlbWVudGVkWWV0EAUSFAoQVXNl",
-            "ck5vdEFjdGl2YXRlZBAGEhcKE1VzZXJBbHJlYWR5TG9nZ2VkSW4QBxITCg9V",
-            "c2VyRG91YmxlTG9nSW4QCBIUChBTZXNzaW9uTG9nZ2VkT3V0EAkSFwoTRGV2",
-            "aWNlTm90UmVnaXN0ZXJlZBAKEhYKEkVycm9yT25TZW5kaW5nTWFpbBALEhoK",
-            "FlVzZXJFbWFpbEFscmVhZHlFeGlzdHMQDBIbChdFcnJvck9uVXBkYXRpbmdV",
-            "c2VyVHlwZRANEhQKEFVzZXJUeXBlTm90RXhpc3QQDhIZChVVc2VyTm90TWFz",
-            "dGVyQXBwcm92ZWQQDxITCg9FcnJvck9uSW5pdFVzZXIQEBITCg9FcnJvck9u",
-            "U2F2ZVVzZXIQERIUChBVc2VyTm90SW5kRG9tYWluEBISEQoNVG9rZW5Ob3RG",
-            "b3VuZBATEh0KGVVzZXJBbHJlYWR5TWFzdGVyQXBwcm92ZWQQFBIUChBVc2Vy",
-            "V2l0aE5vRG9tYWluEBUSEwoPTG9naW5TZXJ2ZXJEb3duEBYSEQoNVXNlclN1",
-            "c3BlbmRlZBAXEhkKFVVzZXJDcmVhdGVkV2l0aE5vUm9sZRAYEhsKF0V4dGVy",
-            "bmFsSWRBbHJlYWR5RXhpc3RzEBkSEQoNRXh0ZXJuYWxFcnJvchAaEhIKDUlu",
-            "dGVybmFsRXJyb3IQ5wciHQoMTnVsbGFibGVCb29sEg0KBVZhbHVlGAEgASgI",
-            "Ih4KDU51bGxhYmxlSW50MzISDQoFVmFsdWUYASABKAUqVwoRQWRhcHRlclN0",
-            "YXR1c0NvZGUSBgoCT0sQABIJCgVFcnJvchABEhUKEVNpZ25hdHVyZU1pc21h",
-            "dGNoEAISGAoUTm9Db25maWd1cmF0aW9uRm91bmQQAyqBAQoKU1NPTWV0aG9k",
-            "cxINCglQcmVTaWduSW4QABIOCgpQb3N0U2lnbkluEAESEgoOUHJlR2V0VXNl",
-            "ckRhdGEQAhITCg9Qb3N0R2V0VXNlckRhdGEQAxIOCgpQcmVTaWduT3V0EAQS",
-            "DwoLUG9zdFNpZ25PdXQQBRIKCgZJbnZva2UQBjKKBAoOU1NPQWRhcHRlckdS",
-            "UEMSRwoQU2V0Q29uZmlndXJhdGlvbhIYLlNldENvbmZpZ3VyYXRpb25SZXF1",
-            "ZXN0GhkuU2V0Q29uZmlndXJhdGlvblJlc3BvbnNlEkcKEEdldENvbmZpZ3Vy",
-            "YXRpb24SGC5HZXRDb25maWd1cmF0aW9uUmVxdWVzdBoZLkdldENvbmZpZ3Vy",
-            "YXRpb25SZXNwb25zZRIyCglQcmVTaWduSW4SES5QcmVTaWduSW5SZXF1ZXN0",
-            "GhIuUHJlU2lnbkluUmVzcG9uc2USLwoKUG9zdFNpZ25JbhISLlBvc3RTaWdu",
-            "SW5SZXF1ZXN0Gg0uVXNlclJlc3BvbnNlEi8KClByZVNpZ25PdXQSEi5QcmVT",
-            "aWduT3V0UmVxdWVzdBoNLlVzZXJSZXNwb25zZRIxCgtQb3N0U2lnbk91dBIT",
-            "LlBvc3RTaWduT3V0UmVxdWVzdBoNLlVzZXJSZXNwb25zZRI3Cg5QcmVHZXRV",
-            "c2VyRGF0YRIWLlByZUdldFVzZXJEYXRhUmVxdWVzdBoNLlVzZXJSZXNwb25z",
-            "ZRI5Cg9Qb3N0R2V0VXNlckRhdGESFy5Qb3N0R2V0VXNlckRhdGFSZXF1ZXN0",
-            "Gg0uVXNlclJlc3BvbnNlEikKBkludm9rZRIOLkludm9rZVJlcXVlc3QaDy5J",
-            "bnZva2VSZXNwb25zZUIiqgIfU29hcEFkYXB0ZXJzQ29tbW9uLkdycGNBZGFw",
-            "dGVyc2IGcHJvdG8z"));
+            "Eg0KBXZhbHVlGAIgASgJOgI4ASLxAQoVQWRqdXN0UmVnaW9uSWRSZXF1ZXN0",
+            "EhEKCUFkYXB0ZXJJZBgBIAEoBRIXCg9EYWZhdWx0UmVnaW9uSWQYAiABKAUS",
+            "FgoHT3R0VXNlchgDIAEoCzIFLlVzZXISIgoMVXNlclNlZ21lbnRzGAQgASgL",
+            "MgwuTGlzdE9mSW50NjQSPAoLQWRhcHRlckRhdGEYBSADKAsyJy5BZGp1c3RS",
+            "ZWdpb25JZFJlcXVlc3QuQWRhcHRlckRhdGFFbnRyeRoyChBBZGFwdGVyRGF0",
+            "YUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiiAEKFkFk",
+            "anVzdFJlZ2lvbklkUmVzcG9uc2USLQoRQWRhcHRlclN0YXR1c0NvZGUYASAB",
+            "KA4yEi5BZGFwdGVyU3RhdHVzQ29kZRIQCghSZWdpb25JZBgCIAEoBRItChFT",
+            "U09SZXNwb25zZVN0YXR1cxgDIAEoCzISLlNTT1Jlc3BvbnNlU3RhdHVzIhwK",
+            "C0xpc3RPZkludDY0Eg0KBXZhbHVlGAEgAygDIqcECgRVc2VyEi0KDEN1c3Rv",
+            "bVBhcmFtcxgBIAMoCzIXLlVzZXIuQ3VzdG9tUGFyYW1zRW50cnkSKAoRSXNI",
+            "b3VzZWhvbGRNYXN0ZXIYAiABKAsyDS5OdWxsYWJsZUJvb2wSKwoLRHluYW1p",
+            "Y0RhdGEYAyADKAsyFi5Vc2VyLkR5bmFtaWNEYXRhRW50cnkSGwoIVXNlclR5",
+            "cGUYBCABKAsyCS5Vc2VyVHlwZRISCgpFeHRlcm5hbElkGAUgASgJEg0KBVBo",
+            "b25lGAYgASgJEgsKA1ppcBgHIAEoCRIhCglDb3VudHJ5SWQYCCABKAsyDi5O",
+            "dWxsYWJsZUludDMyEgwKBENpdHkYCSABKAkSDwoHQWRkcmVzcxgKIAEoCRIN",
+            "CgVFbWFpbBgLIAEoCRIjCgtIb3VzZWhvbGRJRBgMIAEoCzIOLk51bGxhYmxl",
+            "SW50MzISEAoITGFzdE5hbWUYDSABKAkSEQoJRmlyc3ROYW1lGA4gASgJEhAK",
+            "CFVzZXJuYW1lGA8gASgJEgoKAklkGBAgASgFEhcKD1N1c3BlbnNpb25TdGF0",
+            "ZRgRIAEoBRIRCglVc2VyU3RhdGUYEiABKAUaMwoRQ3VzdG9tUGFyYW1zRW50",
+            "cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ARoyChBEeW5hbWlj",
+            "RGF0YUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiKwoI",
+            "VXNlclR5cGUSCgoCSWQYASABKAUSEwoLRGVzY3JpcHRpb24YAiABKAkilAYK",
+            "EVNTT1Jlc3BvbnNlU3RhdHVzEjwKClN0YXR1c0NvZGUYASABKA4yKC5TU09S",
+            "ZXNwb25zZVN0YXR1cy5TU09Vc2VyUmVzcG9uc2VTdGF0dXMSFAoMRXh0ZXJu",
+            "YWxDb2RlGAIgASgFEhcKD0V4dGVybmFsTWVzc2FnZRgDIAEoCSKRBQoVU1NP",
+            "VXNlclJlc3BvbnNlU3RhdHVzEgYKAk9LEAASDgoKVXNlckV4aXN0cxABEhQK",
+            "EFVzZXJEb2VzTm90RXhpc3QQAhIbChdXcm9uZ1Bhc3N3b3JkT3JVc2VyTmFt",
+            "ZRADEhIKDkluc2lkZUxvY2tUaW1lEAQSFQoRTm90SW1wbGVtZW50ZWRZZXQQ",
+            "BRIUChBVc2VyTm90QWN0aXZhdGVkEAYSFwoTVXNlckFscmVhZHlMb2dnZWRJ",
+            "bhAHEhMKD1VzZXJEb3VibGVMb2dJbhAIEhQKEFNlc3Npb25Mb2dnZWRPdXQQ",
+            "CRIXChNEZXZpY2VOb3RSZWdpc3RlcmVkEAoSFgoSRXJyb3JPblNlbmRpbmdN",
+            "YWlsEAsSGgoWVXNlckVtYWlsQWxyZWFkeUV4aXN0cxAMEhsKF0Vycm9yT25V",
+            "cGRhdGluZ1VzZXJUeXBlEA0SFAoQVXNlclR5cGVOb3RFeGlzdBAOEhkKFVVz",
+            "ZXJOb3RNYXN0ZXJBcHByb3ZlZBAPEhMKD0Vycm9yT25Jbml0VXNlchAQEhMK",
+            "D0Vycm9yT25TYXZlVXNlchAREhQKEFVzZXJOb3RJbmREb21haW4QEhIRCg1U",
+            "b2tlbk5vdEZvdW5kEBMSHQoZVXNlckFscmVhZHlNYXN0ZXJBcHByb3ZlZBAU",
+            "EhQKEFVzZXJXaXRoTm9Eb21haW4QFRITCg9Mb2dpblNlcnZlckRvd24QFhIR",
+            "Cg1Vc2VyU3VzcGVuZGVkEBcSGQoVVXNlckNyZWF0ZWRXaXRoTm9Sb2xlEBgS",
+            "GwoXRXh0ZXJuYWxJZEFscmVhZHlFeGlzdHMQGRIRCg1FeHRlcm5hbEVycm9y",
+            "EBoSEgoNSW50ZXJuYWxFcnJvchDnByIdCgxOdWxsYWJsZUJvb2wSDQoFVmFs",
+            "dWUYASABKAgiHgoNTnVsbGFibGVJbnQzMhINCgVWYWx1ZRgBIAEoBSpXChFB",
+            "ZGFwdGVyU3RhdHVzQ29kZRIGCgJPSxAAEgkKBUVycm9yEAESFQoRU2lnbmF0",
+            "dXJlTWlzbWF0Y2gQAhIYChROb0NvbmZpZ3VyYXRpb25Gb3VuZBADKpUBCgpT",
+            "U09NZXRob2RzEg0KCVByZVNpZ25JbhAAEg4KClBvc3RTaWduSW4QARISCg5Q",
+            "cmVHZXRVc2VyRGF0YRACEhMKD1Bvc3RHZXRVc2VyRGF0YRADEg4KClByZVNp",
+            "Z25PdXQQBBIPCgtQb3N0U2lnbk91dBAFEgoKBkludm9rZRAGEhIKDkFkanVz",
+            "dFJlZ2lvbklkEAcyzQQKDlNTT0FkYXB0ZXJHUlBDEkcKEFNldENvbmZpZ3Vy",
+            "YXRpb24SGC5TZXRDb25maWd1cmF0aW9uUmVxdWVzdBoZLlNldENvbmZpZ3Vy",
+            "YXRpb25SZXNwb25zZRJHChBHZXRDb25maWd1cmF0aW9uEhguR2V0Q29uZmln",
+            "dXJhdGlvblJlcXVlc3QaGS5HZXRDb25maWd1cmF0aW9uUmVzcG9uc2USMgoJ",
+            "UHJlU2lnbkluEhEuUHJlU2lnbkluUmVxdWVzdBoSLlByZVNpZ25JblJlc3Bv",
+            "bnNlEi8KClBvc3RTaWduSW4SEi5Qb3N0U2lnbkluUmVxdWVzdBoNLlVzZXJS",
+            "ZXNwb25zZRIvCgpQcmVTaWduT3V0EhIuUHJlU2lnbk91dFJlcXVlc3QaDS5V",
+            "c2VyUmVzcG9uc2USMQoLUG9zdFNpZ25PdXQSEy5Qb3N0U2lnbk91dFJlcXVl",
+            "c3QaDS5Vc2VyUmVzcG9uc2USNwoOUHJlR2V0VXNlckRhdGESFi5QcmVHZXRV",
+            "c2VyRGF0YVJlcXVlc3QaDS5Vc2VyUmVzcG9uc2USOQoPUG9zdEdldFVzZXJE",
+            "YXRhEhcuUG9zdEdldFVzZXJEYXRhUmVxdWVzdBoNLlVzZXJSZXNwb25zZRIp",
+            "CgZJbnZva2USDi5JbnZva2VSZXF1ZXN0Gg8uSW52b2tlUmVzcG9uc2USQQoO",
+            "QWRqdXN0UmVnaW9uSWQSFi5BZGp1c3RSZWdpb25JZFJlcXVlc3QaFy5BZGp1",
+            "c3RSZWdpb25JZFJlc3BvbnNlQiKqAh9Tb2FwQWRhcHRlcnNDb21tb24uR3Jw",
+            "Y0FkYXB0ZXJzYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::SoapAdaptersCommon.GrpcAdapters.AdapterStatusCode), typeof(global::SoapAdaptersCommon.GrpcAdapters.SSOMethods), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -158,6 +169,9 @@ namespace SoapAdaptersCommon.GrpcAdapters {
             new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.PreGetUserDataRequest), global::SoapAdaptersCommon.GrpcAdapters.PreGetUserDataRequest.Parser, new[]{ "AdapterId", "UserId", "IpAddress", "CustomParams", "Signature" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, }),
             new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.InvokeRequest), global::SoapAdaptersCommon.GrpcAdapters.InvokeRequest.Parser, new[]{ "AdapterId", "Intent", "AdapterData" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, }),
             new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.InvokeResponse), global::SoapAdaptersCommon.GrpcAdapters.InvokeResponse.Parser, new[]{ "AdapterStatus", "SSOResponseStatus", "AdapterData", "Code", "Message" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, }),
+            new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdRequest), global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdRequest.Parser, new[]{ "AdapterId", "DafaultRegionId", "OttUser", "UserSegments", "AdapterData" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, }),
+            new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdResponse), global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdResponse.Parser, new[]{ "AdapterStatusCode", "RegionId", "SSOResponseStatus" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.ListOfInt64), global::SoapAdaptersCommon.GrpcAdapters.ListOfInt64.Parser, new[]{ "Value" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.User), global::SoapAdaptersCommon.GrpcAdapters.User.Parser, new[]{ "CustomParams", "IsHouseholdMaster", "DynamicData", "UserType", "ExternalId", "Phone", "Zip", "CountryId", "City", "Address", "Email", "HouseholdID", "LastName", "FirstName", "Username", "Id", "SuspensionState", "UserState" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, null, }),
             new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.UserType), global::SoapAdaptersCommon.GrpcAdapters.UserType.Parser, new[]{ "Id", "Description" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.SSOResponseStatus), global::SoapAdaptersCommon.GrpcAdapters.SSOResponseStatus.Parser, new[]{ "StatusCode", "ExternalCode", "ExternalMessage" }, null, new[]{ typeof(global::SoapAdaptersCommon.GrpcAdapters.SSOResponseStatus.Types.SSOUserResponseStatus) }, null, null),
@@ -184,6 +198,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
     [pbr::OriginalName("PreSignOut")] PreSignOut = 4,
     [pbr::OriginalName("PostSignOut")] PostSignOut = 5,
     [pbr::OriginalName("Invoke")] Invoke = 6,
+    [pbr::OriginalName("AdjustRegionId")] AdjustRegionId = 7,
   }
 
   #endregion
@@ -4563,6 +4578,745 @@ namespace SoapAdaptersCommon.GrpcAdapters {
 
   }
 
+  public sealed partial class AdjustRegionIdRequest : pb::IMessage<AdjustRegionIdRequest>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<AdjustRegionIdRequest> _parser = new pb::MessageParser<AdjustRegionIdRequest>(() => new AdjustRegionIdRequest());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<AdjustRegionIdRequest> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[15]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public AdjustRegionIdRequest() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public AdjustRegionIdRequest(AdjustRegionIdRequest other) : this() {
+      adapterId_ = other.adapterId_;
+      dafaultRegionId_ = other.dafaultRegionId_;
+      ottUser_ = other.ottUser_ != null ? other.ottUser_.Clone() : null;
+      userSegments_ = other.userSegments_ != null ? other.userSegments_.Clone() : null;
+      adapterData_ = other.adapterData_.Clone();
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public AdjustRegionIdRequest Clone() {
+      return new AdjustRegionIdRequest(this);
+    }
+
+    /// <summary>Field number for the "AdapterId" field.</summary>
+    public const int AdapterIdFieldNumber = 1;
+    private int adapterId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int AdapterId {
+      get { return adapterId_; }
+      set {
+        adapterId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "DafaultRegionId" field.</summary>
+    public const int DafaultRegionIdFieldNumber = 2;
+    private int dafaultRegionId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int DafaultRegionId {
+      get { return dafaultRegionId_; }
+      set {
+        dafaultRegionId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "OttUser" field.</summary>
+    public const int OttUserFieldNumber = 3;
+    private global::SoapAdaptersCommon.GrpcAdapters.User ottUser_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::SoapAdaptersCommon.GrpcAdapters.User OttUser {
+      get { return ottUser_; }
+      set {
+        ottUser_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "UserSegments" field.</summary>
+    public const int UserSegmentsFieldNumber = 4;
+    private global::SoapAdaptersCommon.GrpcAdapters.ListOfInt64 userSegments_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::SoapAdaptersCommon.GrpcAdapters.ListOfInt64 UserSegments {
+      get { return userSegments_; }
+      set {
+        userSegments_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "AdapterData" field.</summary>
+    public const int AdapterDataFieldNumber = 5;
+    private static readonly pbc::MapField<string, string>.Codec _map_adapterData_codec
+        = new pbc::MapField<string, string>.Codec(pb::FieldCodec.ForString(10, ""), pb::FieldCodec.ForString(18, ""), 42);
+    private readonly pbc::MapField<string, string> adapterData_ = new pbc::MapField<string, string>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::MapField<string, string> AdapterData {
+      get { return adapterData_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as AdjustRegionIdRequest);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(AdjustRegionIdRequest other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (AdapterId != other.AdapterId) return false;
+      if (DafaultRegionId != other.DafaultRegionId) return false;
+      if (!object.Equals(OttUser, other.OttUser)) return false;
+      if (!object.Equals(UserSegments, other.UserSegments)) return false;
+      if (!AdapterData.Equals(other.AdapterData)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (AdapterId != 0) hash ^= AdapterId.GetHashCode();
+      if (DafaultRegionId != 0) hash ^= DafaultRegionId.GetHashCode();
+      if (ottUser_ != null) hash ^= OttUser.GetHashCode();
+      if (userSegments_ != null) hash ^= UserSegments.GetHashCode();
+      hash ^= AdapterData.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (AdapterId != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(AdapterId);
+      }
+      if (DafaultRegionId != 0) {
+        output.WriteRawTag(16);
+        output.WriteInt32(DafaultRegionId);
+      }
+      if (ottUser_ != null) {
+        output.WriteRawTag(26);
+        output.WriteMessage(OttUser);
+      }
+      if (userSegments_ != null) {
+        output.WriteRawTag(34);
+        output.WriteMessage(UserSegments);
+      }
+      adapterData_.WriteTo(output, _map_adapterData_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (AdapterId != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(AdapterId);
+      }
+      if (DafaultRegionId != 0) {
+        output.WriteRawTag(16);
+        output.WriteInt32(DafaultRegionId);
+      }
+      if (ottUser_ != null) {
+        output.WriteRawTag(26);
+        output.WriteMessage(OttUser);
+      }
+      if (userSegments_ != null) {
+        output.WriteRawTag(34);
+        output.WriteMessage(UserSegments);
+      }
+      adapterData_.WriteTo(ref output, _map_adapterData_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (AdapterId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(AdapterId);
+      }
+      if (DafaultRegionId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(DafaultRegionId);
+      }
+      if (ottUser_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(OttUser);
+      }
+      if (userSegments_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(UserSegments);
+      }
+      size += adapterData_.CalculateSize(_map_adapterData_codec);
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(AdjustRegionIdRequest other) {
+      if (other == null) {
+        return;
+      }
+      if (other.AdapterId != 0) {
+        AdapterId = other.AdapterId;
+      }
+      if (other.DafaultRegionId != 0) {
+        DafaultRegionId = other.DafaultRegionId;
+      }
+      if (other.ottUser_ != null) {
+        if (ottUser_ == null) {
+          OttUser = new global::SoapAdaptersCommon.GrpcAdapters.User();
+        }
+        OttUser.MergeFrom(other.OttUser);
+      }
+      if (other.userSegments_ != null) {
+        if (userSegments_ == null) {
+          UserSegments = new global::SoapAdaptersCommon.GrpcAdapters.ListOfInt64();
+        }
+        UserSegments.MergeFrom(other.UserSegments);
+      }
+      adapterData_.Add(other.adapterData_);
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            AdapterId = input.ReadInt32();
+            break;
+          }
+          case 16: {
+            DafaultRegionId = input.ReadInt32();
+            break;
+          }
+          case 26: {
+            if (ottUser_ == null) {
+              OttUser = new global::SoapAdaptersCommon.GrpcAdapters.User();
+            }
+            input.ReadMessage(OttUser);
+            break;
+          }
+          case 34: {
+            if (userSegments_ == null) {
+              UserSegments = new global::SoapAdaptersCommon.GrpcAdapters.ListOfInt64();
+            }
+            input.ReadMessage(UserSegments);
+            break;
+          }
+          case 42: {
+            adapterData_.AddEntriesFrom(input, _map_adapterData_codec);
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            AdapterId = input.ReadInt32();
+            break;
+          }
+          case 16: {
+            DafaultRegionId = input.ReadInt32();
+            break;
+          }
+          case 26: {
+            if (ottUser_ == null) {
+              OttUser = new global::SoapAdaptersCommon.GrpcAdapters.User();
+            }
+            input.ReadMessage(OttUser);
+            break;
+          }
+          case 34: {
+            if (userSegments_ == null) {
+              UserSegments = new global::SoapAdaptersCommon.GrpcAdapters.ListOfInt64();
+            }
+            input.ReadMessage(UserSegments);
+            break;
+          }
+          case 42: {
+            adapterData_.AddEntriesFrom(ref input, _map_adapterData_codec);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  public sealed partial class AdjustRegionIdResponse : pb::IMessage<AdjustRegionIdResponse>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<AdjustRegionIdResponse> _parser = new pb::MessageParser<AdjustRegionIdResponse>(() => new AdjustRegionIdResponse());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<AdjustRegionIdResponse> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[16]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public AdjustRegionIdResponse() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public AdjustRegionIdResponse(AdjustRegionIdResponse other) : this() {
+      adapterStatusCode_ = other.adapterStatusCode_;
+      regionId_ = other.regionId_;
+      sSOResponseStatus_ = other.sSOResponseStatus_ != null ? other.sSOResponseStatus_.Clone() : null;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public AdjustRegionIdResponse Clone() {
+      return new AdjustRegionIdResponse(this);
+    }
+
+    /// <summary>Field number for the "AdapterStatusCode" field.</summary>
+    public const int AdapterStatusCodeFieldNumber = 1;
+    private global::SoapAdaptersCommon.GrpcAdapters.AdapterStatusCode adapterStatusCode_ = global::SoapAdaptersCommon.GrpcAdapters.AdapterStatusCode.Ok;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::SoapAdaptersCommon.GrpcAdapters.AdapterStatusCode AdapterStatusCode {
+      get { return adapterStatusCode_; }
+      set {
+        adapterStatusCode_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "RegionId" field.</summary>
+    public const int RegionIdFieldNumber = 2;
+    private int regionId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int RegionId {
+      get { return regionId_; }
+      set {
+        regionId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "SSOResponseStatus" field.</summary>
+    public const int SSOResponseStatusFieldNumber = 3;
+    private global::SoapAdaptersCommon.GrpcAdapters.SSOResponseStatus sSOResponseStatus_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::SoapAdaptersCommon.GrpcAdapters.SSOResponseStatus SSOResponseStatus {
+      get { return sSOResponseStatus_; }
+      set {
+        sSOResponseStatus_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as AdjustRegionIdResponse);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(AdjustRegionIdResponse other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (AdapterStatusCode != other.AdapterStatusCode) return false;
+      if (RegionId != other.RegionId) return false;
+      if (!object.Equals(SSOResponseStatus, other.SSOResponseStatus)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (AdapterStatusCode != global::SoapAdaptersCommon.GrpcAdapters.AdapterStatusCode.Ok) hash ^= AdapterStatusCode.GetHashCode();
+      if (RegionId != 0) hash ^= RegionId.GetHashCode();
+      if (sSOResponseStatus_ != null) hash ^= SSOResponseStatus.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (AdapterStatusCode != global::SoapAdaptersCommon.GrpcAdapters.AdapterStatusCode.Ok) {
+        output.WriteRawTag(8);
+        output.WriteEnum((int) AdapterStatusCode);
+      }
+      if (RegionId != 0) {
+        output.WriteRawTag(16);
+        output.WriteInt32(RegionId);
+      }
+      if (sSOResponseStatus_ != null) {
+        output.WriteRawTag(26);
+        output.WriteMessage(SSOResponseStatus);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (AdapterStatusCode != global::SoapAdaptersCommon.GrpcAdapters.AdapterStatusCode.Ok) {
+        output.WriteRawTag(8);
+        output.WriteEnum((int) AdapterStatusCode);
+      }
+      if (RegionId != 0) {
+        output.WriteRawTag(16);
+        output.WriteInt32(RegionId);
+      }
+      if (sSOResponseStatus_ != null) {
+        output.WriteRawTag(26);
+        output.WriteMessage(SSOResponseStatus);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (AdapterStatusCode != global::SoapAdaptersCommon.GrpcAdapters.AdapterStatusCode.Ok) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) AdapterStatusCode);
+      }
+      if (RegionId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(RegionId);
+      }
+      if (sSOResponseStatus_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(SSOResponseStatus);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(AdjustRegionIdResponse other) {
+      if (other == null) {
+        return;
+      }
+      if (other.AdapterStatusCode != global::SoapAdaptersCommon.GrpcAdapters.AdapterStatusCode.Ok) {
+        AdapterStatusCode = other.AdapterStatusCode;
+      }
+      if (other.RegionId != 0) {
+        RegionId = other.RegionId;
+      }
+      if (other.sSOResponseStatus_ != null) {
+        if (sSOResponseStatus_ == null) {
+          SSOResponseStatus = new global::SoapAdaptersCommon.GrpcAdapters.SSOResponseStatus();
+        }
+        SSOResponseStatus.MergeFrom(other.SSOResponseStatus);
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            AdapterStatusCode = (global::SoapAdaptersCommon.GrpcAdapters.AdapterStatusCode) input.ReadEnum();
+            break;
+          }
+          case 16: {
+            RegionId = input.ReadInt32();
+            break;
+          }
+          case 26: {
+            if (sSOResponseStatus_ == null) {
+              SSOResponseStatus = new global::SoapAdaptersCommon.GrpcAdapters.SSOResponseStatus();
+            }
+            input.ReadMessage(SSOResponseStatus);
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            AdapterStatusCode = (global::SoapAdaptersCommon.GrpcAdapters.AdapterStatusCode) input.ReadEnum();
+            break;
+          }
+          case 16: {
+            RegionId = input.ReadInt32();
+            break;
+          }
+          case 26: {
+            if (sSOResponseStatus_ == null) {
+              SSOResponseStatus = new global::SoapAdaptersCommon.GrpcAdapters.SSOResponseStatus();
+            }
+            input.ReadMessage(SSOResponseStatus);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  public sealed partial class ListOfInt64 : pb::IMessage<ListOfInt64>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<ListOfInt64> _parser = new pb::MessageParser<ListOfInt64>(() => new ListOfInt64());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<ListOfInt64> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[17]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ListOfInt64() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ListOfInt64(ListOfInt64 other) : this() {
+      value_ = other.value_.Clone();
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ListOfInt64 Clone() {
+      return new ListOfInt64(this);
+    }
+
+    /// <summary>Field number for the "value" field.</summary>
+    public const int ValueFieldNumber = 1;
+    private static readonly pb::FieldCodec<long> _repeated_value_codec
+        = pb::FieldCodec.ForInt64(10);
+    private readonly pbc::RepeatedField<long> value_ = new pbc::RepeatedField<long>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::RepeatedField<long> Value {
+      get { return value_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as ListOfInt64);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(ListOfInt64 other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if(!value_.Equals(other.value_)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      hash ^= value_.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      value_.WriteTo(output, _repeated_value_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      value_.WriteTo(ref output, _repeated_value_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      size += value_.CalculateSize(_repeated_value_codec);
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(ListOfInt64 other) {
+      if (other == null) {
+        return;
+      }
+      value_.Add(other.value_);
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10:
+          case 8: {
+            value_.AddEntriesFrom(input, _repeated_value_codec);
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10:
+          case 8: {
+            value_.AddEntriesFrom(ref input, _repeated_value_codec);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
   public sealed partial class User : pb::IMessage<User>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -4575,7 +5329,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[15]; }
+      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[18]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5373,7 +6127,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[16]; }
+      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[19]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5581,7 +6335,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[17]; }
+      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[20]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5863,7 +6617,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[18]; }
+      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[21]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6035,7 +6789,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[19]; }
+      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[22]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

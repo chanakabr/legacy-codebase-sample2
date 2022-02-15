@@ -1,17 +1,4 @@
-﻿using ApiObjects;
-using ApiObjects.Notification;
-using ApiObjects.Response;
-using ApiObjects.SearchObjects;
-using Core.Notification;
-using KLogMonitor;
-using KlogMonitorHelper;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Reflection;
-using System.ServiceModel;
-using System.ServiceModel.Activation;
-using System.Web;
+﻿using System.ServiceModel.Activation;
 
 namespace WS_Notification
 {

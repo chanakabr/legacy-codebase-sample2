@@ -4,10 +4,10 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using ImageResizer;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Newtonsoft.Json;
 using RemoteTasksCommon;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace ImageResizeHandler
 {

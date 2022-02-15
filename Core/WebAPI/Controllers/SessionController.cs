@@ -71,6 +71,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [OldStandardArgument("session", "ks_to_parse")]
         [Obsolete]
+        [SchemeArgument("session", RequiresPermission = true)]
         static public KalturaSessionInfo GetOldStandard(string session = null)
         {
             KS ks, ksFromRequest = KS.GetFromRequest();
@@ -174,7 +175,7 @@ namespace WebAPI.Controllers
             // could be validation here, but it should be used by Auth MS only...
             
             var groupId = KS.GetFromRequest().GroupId;
-            var region = regionId ?? Core.Catalog.CatalogLogic.GetRegionIdOfDomain(groupId, (int)householdId, userId);
+            var region = regionId ?? KSUtils.ExtractKSPayload(KS.GetFromRequest()).RegionId;
             var userSegments = Core.Api.Module.GetUserAndHouseholdSegmentIds(groupId, userId, householdId);
             var userRoles = ClientsManager.UsersClient().GetUserRoleIds(groupId, userId);
             var sessionCharacteristics = Mapper.Map<Dictionary<string, List<string>>>(sessionCharacteristicParams) 

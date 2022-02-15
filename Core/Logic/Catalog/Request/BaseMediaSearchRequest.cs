@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 using System.Data;
 using ApiObjects.SearchObjects;
 using Core.Catalog.Response;
-using KLogMonitor;
+using Phx.Lib.Log;
 
 namespace Core.Catalog.Request
 {

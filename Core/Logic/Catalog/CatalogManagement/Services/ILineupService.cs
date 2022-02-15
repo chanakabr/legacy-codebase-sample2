@@ -1,7 +1,7 @@
-using ApiLogic.Catalog;
 using ApiObjects.Response;
+using Core.Catalog;
 
-namespace Core.Catalog.CatalogManagement
+namespace ApiLogic.Catalog.CatalogManagement.Services
 {
     public interface ILineupService
     {

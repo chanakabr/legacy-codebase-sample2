@@ -3,7 +3,7 @@ using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using ApiObjects.TimeShiftedTv;
 using Core.Catalog.Response;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,10 +24,13 @@ namespace Core.Catalog.Request
         public List<long> channelIds;
 
         [DataMember]
-        public ApiObjects.ScheduledRecordingAssetType scheduledRecordingAssetType;
+        public ScheduledRecordingAssetType scheduledRecordingAssetType;
 
         [DataMember]
-        public ApiObjects.SearchObjects.OrderObj orderBy;
+        public OrderObj orderBy;
+
+        [DataMember]
+        public IReadOnlyCollection<AssetOrder> orderingParameters;
 
         [DataMember]
         public DateTime? startDate;
@@ -358,6 +361,7 @@ namespace Core.Catalog.Request
                 ExtendedSearchRequest searchRequest = new ExtendedSearchRequest(m_nPageSize, m_nPageIndex, m_nGroupID, m_sSignature, m_sSignString, orderBy,
                                                                         new List<int>() { 0 }, ksql.ToString(), string.Empty)
                 {
+                    orderingParameters = orderingParameters,
                     excludedCrids = cridsToExclude,
                     ExtraReturnFields = new List<string> { "epg_channel_id", seriesIdMetaOrTag, seasonNumberMetaOrTag },
                     searchGroupBy = new SearchAggregationGroupBy()

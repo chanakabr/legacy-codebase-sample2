@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 using CouchbaseManager;
-using KLogMonitor;
-using KlogMonitorHelper;
-using ConfigurationManager;
+using Phx.Lib.Log;
+
+using Phx.Lib.Appconfig;
 using System.Threading;
 using System.Reflection;
 using Newtonsoft.Json;

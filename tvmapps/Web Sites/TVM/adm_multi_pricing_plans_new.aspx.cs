@@ -1,5 +1,6 @@
-﻿using ConfigurationManager;
-using KLogMonitor;
+﻿using CachingProvider.LayeredCache;
+﻿using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -283,6 +284,8 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
                             //ImporterImpl.UpdateRecordInLucene(LoginManager.GetLoginGroupID(), idToUpdateInLucene);
                         }
                     }
+
+                    InvalidateSubscription(nSuscriptionID);
                 }
 
                 return;
@@ -385,8 +388,6 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("subscription_id", subID);
         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("COUPON_GROUP_ID", "=", newID);
         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupID);
-
-
 
         DateTime? dStartDate = string.IsNullOrEmpty(startDate) ? null : (DateTime?)(DateTime.ParseExact(startDate, "dd/MM/yyyy", CultureInfo.InvariantCulture));
         DateTime? dEndDate = string.IsNullOrEmpty(endDate) ? null : (DateTime?)(DateTime.ParseExact(endDate, "dd/MM/yyyy", CultureInfo.InvariantCulture));
@@ -809,6 +810,7 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         
         return "";
     }
+
     //protected bool UpdateCouponGroupIDDates(string nID, string sStartDate, string sEndDate)
     //{
     //    bool res = false;
@@ -1001,7 +1003,7 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         selectQuery += " from coupons_groups cg (nolock)  left join subscriptions_coupons_groups scg(nolock)  on	scg.coupon_group_id = cg.id  and ";
         selectQuery +=  ODBCWrapper.Parameter.NEW_PARAM("scg.subscription_id", "=", subID);
         selectQuery += " and	scg.is_active = 1 and scg.status = 1  where  ";
-         selectQuery +=  ODBCWrapper.Parameter.NEW_PARAM("cg.group_id", "=", nLogedInGroupID);
+        selectQuery +=  ODBCWrapper.Parameter.NEW_PARAM("cg.group_id", "=", nLogedInGroupID);
         DataTable dt = selectQuery.Execute("query", true);      
 
         if (dt != null && dt.Rows != null)
@@ -1563,6 +1565,12 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
             dt.Rows.Add((int)r, r);
         }
         return dt;
+    }
+
+    private void InvalidateSubscription(int subscriptionId)
+    {
+        Core.Pricing.PricingCache.Instance.InvalidateSubscription(LoginManager.GetLoginGroupID(), subscriptionId);
+        log.Debug($"InvalidateSubscription {subscriptionId}");
     }
     
 }

@@ -1,4 +1,4 @@
-﻿using KLogMonitor;
+﻿using Phx.Lib.Log;
 using Newtonsoft.Json;
 using RemoteTasksCommon;
 using System;
@@ -11,7 +11,7 @@ using System.Web;
 using System.ServiceModel;
 using QueueWrapper;
 using ApiObjects;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using CachingProvider.LayeredCache;
 
 namespace SetupTaskHandler

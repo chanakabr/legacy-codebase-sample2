@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using ApiObjects;
 
 namespace ElasticSearch.Common.Mappers
@@ -14,7 +15,7 @@ namespace ElasticSearch.Common.Mappers
         {
             return Map(epg, doesGroupUsesTemplates, false);
         }
-        
+
         private static EpgEs Map(EpgCB epg, bool doesGroupUsesTemplates, bool withRouting)
         {
             var epgEs = new EpgEs();
@@ -41,6 +42,8 @@ namespace ElasticSearch.Common.Mappers
             epgEs.Metas = epg.Metas;
             epgEs.Tags = epg.Tags;
             epgEs.Regions = epg.regions?.ToArray();
+            epgEs.ExternalOfferIds = (epg.ExternalOfferIds ?? new List<string>()).ToArray();
+
             if (epg.LinearMediaId > 0)
             {
                 epgEs.LinearMediaId = epg.LinearMediaId;
@@ -50,7 +53,7 @@ namespace ElasticSearch.Common.Mappers
             {
                 epgEs.DateRouting = epg.StartDate.ToUniversalTime();
             }
-            
+
             return epgEs;
         }
     }

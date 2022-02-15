@@ -1,8 +1,8 @@
 ﻿#if NETFRAMEWORK
 using System.ServiceModel.Dispatcher;
 using System.ServiceModel.Channels;
-using KLogMonitor;
-using KlogMonitorHelper;
+using Phx.Lib.Log;
+
 using System.Reflection;
 
 namespace ServiceExtensions
@@ -16,7 +16,7 @@ namespace ServiceExtensions
           System.ServiceModel.InstanceContext instanceContext)
         {
             // initialize monitor and logs parameters
-            MonitorLogsHelper.InitMonitorLogsDataWCF(request);
+            MonitorLogsHelper.InitMonitorLogsDataWcf(request);
             return null;
         }
 

@@ -1,4 +1,4 @@
-﻿using ConfigurationManager;
+﻿using Phx.Lib.Appconfig;
 using QueueWrapper.Enums;
 using System;
 using System.Collections.Generic;

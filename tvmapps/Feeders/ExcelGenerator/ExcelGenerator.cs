@@ -7,7 +7,7 @@ using System.Xml;
 using System.Collections;
 using TVinciShared;
 using System.Threading;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 
 namespace ExcelGenerator
@@ -667,6 +667,9 @@ namespace ExcelGenerator
 
             string sEPG = ODBCWrapper.Utils.GetStrSafeVal(selectMediasQuery, "epg_identifier", mediaRowIndex);
             mediaRow[GetHeaderName(CellType.BASIC, (int)hBasics["epg_identifier"], 0, string.Empty)] = sEPG;
+
+            string entryId = ODBCWrapper.Utils.GetStrSafeVal(selectMediasQuery, "entry_id", mediaRowIndex);
+            mediaRow[GetHeaderName(CellType.BASIC, (int)hBasics["entry_id"], 0, string.Empty)] = entryId;
 
             foreach (int nIndex in meta_double)
             {

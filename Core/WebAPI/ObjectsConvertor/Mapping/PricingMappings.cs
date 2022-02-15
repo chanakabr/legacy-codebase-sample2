@@ -520,10 +520,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.m_bFirstDeviceLimitation, opt => opt.MapFrom(src => src.FirstDeviceLimitation));
             
             cfg.CreateMap<KalturaPpv, PpvModuleInternal>()
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Descriptions))
                 .ForMember(dest => dest.CouponsGroupId, opt => opt.MapFrom(src => src.CouponsGroupId))
                 .ForMember(dest => dest.DiscountId, opt => opt.MapFrom(src => src.DiscountId))
-                .ForMember(dest => dest.RelatedFileTypes, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.FileTypesIds) ? src.GetItemsIn<List<long>, long>(src.FileTypesIds, "KalturaSubscription.FileTypesIds", true) : null))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.SubscriptionOnly, opt => opt.MapFrom(src => src.IsSubscriptionOnly))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
@@ -532,8 +530,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UsageModuleId, opt => opt.MapFrom(src => src.UsageModuleId))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                 .ForMember(dest => dest.AdsPolicy, opt => opt.MapFrom(src => src.AdsPolicy))
-                .ForMember(dest => dest.FirstDeviceLimitation, opt => opt.MapFrom(src => src.FirstDeviceLimitation));
-            
+                .ForMember(dest => dest.FirstDeviceLimitation, opt => opt.MapFrom(src => src.FirstDeviceLimitation))
+                .AfterMap((src, dest) =>  dest.RelatedFileTypes = src.GetFileTypesIds())       
+                .AfterMap((src, dest) =>  dest.Description = GetDescriptions(src.Descriptions));
+
             cfg.CreateMap<PpvModuleInternal,KalturaPpv>()
                 .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.CouponsGroupId, opt => opt.MapFrom(src => src.CouponsGroupId))
@@ -843,7 +843,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
             return res;
         }
-
+        
+        private static LanguageContainer[] GetDescriptions(List<KalturaTranslationToken> descriptions)
+        {
+            if (descriptions != null)
+            {
+                return AutoMapper.Mapper.Map<List<KalturaTranslationToken>, LanguageContainer[]>(descriptions);
+            }
+            return null;
+        }
+        
         private static long? GetCouponsGroupId(CouponsGroup couponsGroup)
         {
             if (couponsGroup != null && long.TryParse(couponsGroup.m_sGroupCode, out long couponGroupIdLong))

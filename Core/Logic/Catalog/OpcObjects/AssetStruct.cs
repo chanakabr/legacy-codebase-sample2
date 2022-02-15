@@ -297,6 +297,13 @@ namespace Core.Catalog
                     excelColumns.TryAdd(excelColumn.ToString(), excelColumn);
                 }
 
+                // ENTRY_ID
+                if (systemNameToExcelAttribute.ContainsKey(AssetManager.ENTRY_ID_META_SYSTEM_NAME))
+                {
+                    var excelColumn = ExcelManager.GetExcelColumnByAttribute(systemNameToExcelAttribute[AssetManager.ENTRY_ID_META_SYSTEM_NAME], AssetManager.ENTRY_ID_META_SYSTEM_NAME);
+                    excelColumns.TryAdd(excelColumn.ToString(), excelColumn);
+                }
+
                 // METAS AND TAGS
                 if (systemNameToExcelAttribute.ContainsKey(Asset.METAS) && systemNameToExcelAttribute.ContainsKey(Asset.TAGS))
                 {

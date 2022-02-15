@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Timers;
 using System.Threading;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 
 

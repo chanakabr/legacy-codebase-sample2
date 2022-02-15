@@ -1,4 +1,4 @@
-﻿using ConfigurationManager;
+﻿using Phx.Lib.Appconfig;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using QueueWrapper;
 using System;

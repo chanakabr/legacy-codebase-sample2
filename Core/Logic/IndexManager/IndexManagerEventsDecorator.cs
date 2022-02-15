@@ -86,6 +86,12 @@ namespace ApiLogic.Catalog.IndexManager
         }
 
         //CUD
+        public bool CompactEpgV2Indices(int futureIndexCompactionStart, int pastIndexCompactionStart)
+        {
+            return Execute<bool>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG);
+        }
+
+        //CUD
         public bool DeleteProgram(List<long> assetIds, bool isRecording = false)
         {
             return Execute<bool>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, assetIds, isRecording);
@@ -117,11 +123,9 @@ namespace ApiLogic.Catalog.IndexManager
         }
 
         //CUD
-        public void UpsertPrograms(IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName, DateTime dateOfProgramsToIngest,
-            LanguageObj defaultLanguage, IDictionary<string, LanguageObj> languages)
+        public void UpsertPrograms(IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName, LanguageObj defaultLanguage, IDictionary<string, LanguageObj> languages)
         {
-            Execute(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG,
-                calculatedPrograms, draftIndexName, dateOfProgramsToIngest, defaultLanguage, languages);
+            Execute(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, calculatedPrograms, draftIndexName, defaultLanguage, languages);
         }
 
         //CUD
@@ -305,10 +309,9 @@ namespace ApiLogic.Catalog.IndexManager
         }
 
         //CUD
-        public string SetupEpgV2Index(DateTime dateOfProgramsToIngest)
+        public string SetupEpgV2Index(string indexName)
         {
-            return Execute<string>(MethodBase.GetCurrentMethod(),
-                IndexManagerMigrationEventKeys.EPG, dateOfProgramsToIngest);
+            return Execute<string>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, indexName);
         }
 
         //CUD
@@ -324,9 +327,9 @@ namespace ApiLogic.Catalog.IndexManager
 
 
         //CUD
-        public bool ForceRefreshEpgV2Index(DateTime date)
+        public bool ForceRefreshEpgV2Index(string indexName)
         {
-            return Execute<bool>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, date);
+            return Execute<bool>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, indexName);
         }
 
         //CUD

@@ -7,10 +7,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ApiObjects.EventBus;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using Synchronizer;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using System.Runtime.Serialization;
 
 namespace Core.Catalog

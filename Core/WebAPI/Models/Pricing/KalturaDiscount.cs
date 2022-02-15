@@ -24,4 +24,5 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "percentage", IsNullable = true)]
         public int Percentage { get; set; }
     }
+    
 }

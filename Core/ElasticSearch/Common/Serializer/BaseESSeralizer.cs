@@ -288,10 +288,10 @@ namespace ElasticSearch.Common
 
         }
 
-        public virtual string CreateMediaMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap, 
+        public virtual string CreateMediaMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap,
                                                  List<string> groupTags,
                                                  HashSet<string> metasToPad,
-                                                 MappingAnalyzers specificLanguageAnalyzers, 
+                                                 MappingAnalyzers specificLanguageAnalyzers,
                                                  MappingAnalyzers defaultLanguageAnalyzers)
         {
             string normalIndexAnalyzer = specificLanguageAnalyzers.normalIndexAnalyzer;
@@ -1007,7 +1007,7 @@ namespace ElasticSearch.Common
         public virtual string SerializeEpgObject(EpgEs epg, string suffix = null)
         {
             var sRecord = new StringBuilder();
-            
+
             sRecord.Append("{ ");
             SerializeEPGBody(epg, sRecord, suffix);
             sRecord.Append(" }");
@@ -1018,11 +1018,11 @@ namespace ElasticSearch.Common
         public virtual string SerializeEpgObject(EpgCB oEpg, string suffix = null, bool doesGroupUsesTemplates = false)
         {
             StringBuilder sRecord = new StringBuilder();
-            
+
             sRecord.Append("{ ");
             SerializeEPGBody(EpgMapper.MapEpg(oEpg, doesGroupUsesTemplates), sRecord, suffix);
             sRecord.Append(" }");
-            
+
             return sRecord.ToString();
         }
 
@@ -1166,7 +1166,7 @@ namespace ElasticSearch.Common
 
             #endregion
         }
-        
+
         private void SerializeEPGBody(EpgEs epg, StringBuilder sRecord, string suffix = null)
         {
             void AddIfNotNullWithQuotes<T>(string key, T value) where T : class
@@ -1176,7 +1176,7 @@ namespace ElasticSearch.Common
                     sRecord.Append($"\"{key}\": \"{value}\",");
                 }
             }
-            
+
             void AddIfNotNull<T>(string key, T value)
             {
                 if (value != null)
@@ -1184,9 +1184,9 @@ namespace ElasticSearch.Common
                     sRecord.Append($"\"{key}\": {value},");
                 }
             }
-            
+
             epg.CacheDate = DateTime.UtcNow;
-            
+
             AddIfNotNull("epg_id", epg.EpgID);
             AddIfNotNull("group_id", epg.GroupId);
             AddIfNotNull("epg_channel_id", epg.ChannelId);
@@ -1212,6 +1212,7 @@ namespace ElasticSearch.Common
             AddIfNotNull("metas", GenerateMetasRepresentation(epg, suffix));
             AddIfNotNull("tags", GenerateTagsRepresentation(epg, suffix));
             AddIfNotNull("regions", GenerateRegions(epg));
+            AddIfNotNull("external_offer_ids", GenerateExternalOfferIds(epg));
 
             sRecord.Remove(sRecord.Length - 1, 1);
         }
@@ -1222,7 +1223,7 @@ namespace ElasticSearch.Common
             {
                 return null;
             }
-            
+
             if (epg.Regions.Length > 0)
             {
                 var regions = string.Join(",", epg.Regions.Select(x => x.ToString()));
@@ -1238,7 +1239,7 @@ namespace ElasticSearch.Common
             {
                 return null;
             }
-            
+
             var metas = string.Empty;
             if (epg.Metas.Keys.Count > 0)
             {
@@ -1271,7 +1272,7 @@ namespace ElasticSearch.Common
                     metas = metaNameValues.Aggregate((current, next) => current + "," + next);
                 }
             }
-            
+
             return $"{{ {metas} }}";
         }
 
@@ -1281,7 +1282,7 @@ namespace ElasticSearch.Common
             {
                 return null;
             }
-            
+
             var tags = string.Empty;
             if (epg.Tags.Keys.Count > 0)
             {
@@ -1313,8 +1314,25 @@ namespace ElasticSearch.Common
                     tags = tagNameValues.Aggregate((current, next) => current + "," + next);
                 }
             }
-            
+
             return $"{{ {tags} }}";
+        }
+
+        private string GenerateExternalOfferIds(EpgEs epg)
+        {
+            if (epg.ExternalOfferIds == null)
+            {
+                return "[]";
+            }
+
+            var escapedIds = epg.ExternalOfferIds
+                .Where(s => !string.IsNullOrEmpty(s))
+                .Select(s => Utils.ReplaceDocumentReservedCharacters(s, false))
+                .Select(s => $"\"{s}\"");
+
+            var externalOfferIds = string.Join(", ", escapedIds);
+
+            return $"[ {externalOfferIds} ]";
         }
 
         public virtual string SerializeRecordingObject(EpgCB oEpg, long recordingId, string suffix = null, bool doesGroupUsesTemplates = false)

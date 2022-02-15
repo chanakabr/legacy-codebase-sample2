@@ -5,10 +5,10 @@ using ApiObjects.CDNAdapter;
 using ApiObjects.MediaMarks;
 using ApiObjects.Roles;
 using ApiObjects.Rules;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using CouchbaseManager;
 using DAL.Api;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Newtonsoft.Json;
 using ODBCWrapper;
 using System;
@@ -70,7 +70,7 @@ namespace DAL
 
         public static ApiDAL Instance { get { return lazy.Value; } }
 
-        private ApiDAL()
+        public ApiDAL()
         {
         }
 
@@ -5499,6 +5499,11 @@ namespace DAL
             }
             if (partnerConfig.DowngradePolicy.HasValue)
                 sp.AddParameter("@downgradePolicy", partnerConfig.DowngradePolicy.Value);
+            if (partnerConfig?.DowngradePriorityFamilyIds != null)
+            {
+                sp.AddParameter("@downgradePriorityFamilyIds",
+                    string.Join(",", partnerConfig.DowngradePriorityFamilyIds));
+            }
             sp.AddParameter("@mailSettings", partnerConfig.MailSettings);
             sp.AddParameter("@dateFormat", partnerConfig.DateFormat);
             if (partnerConfig.HouseholdLimitationModule.HasValue)
@@ -5544,6 +5549,11 @@ namespace DAL
             if (partnerConfig.AllowDeviceMobility.HasValue)
             {
                 sp.AddParameter("@allowDeviceMobility", partnerConfig.AllowDeviceMobility.Value ? 1 : 0);
+            }
+
+            if (partnerConfig.EnableMultiLcns.HasValue)
+            {
+                sp.AddParameter("@enableMultiLCNs", partnerConfig.EnableMultiLcns.Value ? 1 : 0);
             }
 
             return sp.ExecuteReturnValue<int>() > 0;

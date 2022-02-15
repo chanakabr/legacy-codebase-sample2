@@ -12,6 +12,7 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using ApiObjects.SearchObjects;
 using TVinciShared;
+using WebAPI.InternalModels;
 
 namespace WebAPI.Models.Catalog
 {
@@ -87,11 +88,10 @@ namespace WebAPI.Models.Catalog
         {
             var userId = contextData.UserId.ToString();
             int domainId = (int)(contextData.DomainId ?? 0);
-            bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(contextData.GroupId, userId, true);
-            
+            var isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(contextData.GroupId, userId, true);
             var ksqlFilter = FilterAsset.Instance.UpdateKsql(Ksql, contextData.GroupId, contextData.SessionCharacteristicKey);
 
-            var searchAssetFilter = new ApiLogic.Catalog.SearchAssetsFilter
+            var searchAssetFilter = new SearchAssetsFilter
             {
                 GroupId = contextData.GroupId,
                 SiteGuid = userId,
@@ -111,11 +111,13 @@ namespace WebAPI.Models.Catalog
                                 (GroupingOptionEqual, GroupingOption.Omit).Value,
                 IsPersonalListSearch = false,
                 UseFinal = false,
-                TrendingDays = TrendingDaysEqual
+                ShouldApplyPriorityGroups = ShouldApplyPriorityGroupsEqual.GetValueOrDefault(),
+                ResponseProfile = responseProfile,
+                OrderingParameters = Orderings,
+                GroupByOrder = GroupByOrder
             };
             
-            var response = ClientsManager.CatalogClient().SearchAssets(searchAssetFilter, OrderBy, DynamicOrderBy, responseProfile, GroupByOrder);
-
+            var response = ClientsManager.CatalogClient().SearchAssets(searchAssetFilter);
             if (pager.PageIndex.HasValue && pager.PageSize.HasValue && searchAssetFilter.GroupByType == GroupingOption.Include)
             {
                 response.Objects = response.Objects.Skip(pager.PageIndex.Value * pager.PageSize.Value)?.Take(pager.PageSize.Value).ToList();

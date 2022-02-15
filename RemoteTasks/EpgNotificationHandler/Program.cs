@@ -2,12 +2,13 @@
 using ApiLogic.Api.Managers;
 using ApiLogic.Api.Validators;
 using ApiLogic.Catalog.CatalogManagement.Repositories;
+using ApiLogic.EPG;
 using ApiLogic.Notification;
 using CachingProvider.LayeredCache;
+using Core.Catalog.Cache;
 using Core.Catalog.CatalogManagement;
 using Core.Domains;
 using Core.GroupManagers;
-using Core.GroupManagers.Adapters;
 using Core.Notification;
 using DAL;
 using EpgNotificationHandler.Configuration;
@@ -33,18 +34,22 @@ namespace EpgNotificationHandler
                 {
                     services
                         .AddScoped<IIotManager, IotManager>()
+                        .AddSingleton<IEpgV2PartnerConfigurationManager>(EpgV2PartnerConfigurationManager.Instance)
+                        .AddSingleton<IGeneralPartnerConfigManager, GeneralPartnerConfigManager>()
+                        .AddSingleton<IGeneralPartnerConfigRepository, ApiDAL>()
                         .AddSingleton<IEpgNotificationConfiguration, EpgNotificationConfiguration>()
                         .AddSingleton<INotificationDal, NotificationDal>()
                         .AddSingleton<ILayeredCache, LayeredCache>()
                         .AddSingleton<IDomainModule, Module>()
                         .AddSingleton<INotificationCache, NotificationCache>()
+                        .AddSingleton<ICatalogCache, CatalogCache>()
                         .AddSingleton<ICatalogManager, CatalogManager>()
                         .AddSingleton<IRegionManager, RegionManager>()
                         .AddSingleton<IRegionValidator, RegionValidator>()
                         .AddSingleton<ILabelDal, LabelDal>()
                         .AddSingleton<ILabelRepository, LabelRepository>()
                         .AddSingleton<IAssetStructMetaRepository, AssetStructMetaRepository>()
-                        .AddSingleton<IGroupSettingsManager, GroupSettingsManagerAdapter>()
+                        .AddSingleton<IGroupSettingsManager, GroupSettingsManager>()
                         .AddSingleton<IGroupManager, GroupManager>()
                         .AddSingleton<IIotNotificationService, IotNotificationService>();
                 });

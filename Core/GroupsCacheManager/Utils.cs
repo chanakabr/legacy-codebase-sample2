@@ -6,8 +6,8 @@ using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
-using KLogMonitor;
-using ConfigurationManager;
+using Phx.Lib.Log;
+using Phx.Lib.Appconfig;
 
 namespace GroupsCacheManager
 {

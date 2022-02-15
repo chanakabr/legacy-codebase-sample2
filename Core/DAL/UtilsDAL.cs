@@ -1,7 +1,7 @@
 ﻿using ApiObjects;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using CouchbaseManager;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Newtonsoft.Json;
 using ODBCWrapper;
 using System;
@@ -25,15 +25,16 @@ namespace DAL
         #region Generic Methods
 
         public static bool SaveObjectWithVersionCheckInCB<T>(uint ttl, eCouchbaseBucket couchbaseBucket, string key, Action<T> updateObjectAction, bool updateObjectActionIfNotExist = false,
-                                                            bool compress = false, int limitMaxNumOfInsertTries = -1) where T : new()
+                                                            bool compress = false, int limitMaxNumOfInsertTries = -1, Func<int, TimeSpan> retryStrategy = null) where T : new()
         {
             var internalCouchBaseManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
             var cbManager = compress ? (ICouchbaseManager) new CompressionCouchbaseManager(internalCouchBaseManager) : internalCouchBaseManager;
             var numOfTries = 0;
-            int maxNumOfInsertTries = limitMaxNumOfInsertTries > -1 ? limitMaxNumOfInsertTries : ApplicationConfiguration.Current.CbMaxInsertTries.Value;
+            int maxNumOfInsertTries = Math.Max(limitMaxNumOfInsertTries, ApplicationConfiguration.Current.CbMaxInsertTries.Value);
             ulong version;
             eResultStatus getResult = eResultStatus.ERROR;
             var r = new Random();
+            var currentRetryStrategy = retryStrategy ?? (_ => TimeSpan.FromMilliseconds(r.Next(50)));
 
             try
             {
@@ -68,7 +69,7 @@ namespace DAL
                     numOfTries++;
                     log.WarnFormat("while SaveObjectWithVersionCheckInCB. key:{0}, number of tries:{1}/{2}.",
                         key, numOfTries, maxNumOfInsertTries);
-                    Thread.Sleep(r.Next(50));
+                    Thread.Sleep(currentRetryStrategy(numOfTries));
                 }
 
                 if (getResult != eResultStatus.SUCCESS)

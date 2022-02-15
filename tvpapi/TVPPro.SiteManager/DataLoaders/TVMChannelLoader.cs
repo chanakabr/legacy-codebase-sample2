@@ -19,10 +19,10 @@ using Tvinci.Data.Loaders;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Manager;
 using TVPPro.SiteManager.Services;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using Tvinci.Data.TVMDataLoader.Protocols.VastProtocol;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace TVPPro.SiteManager.DataLoaders
 {

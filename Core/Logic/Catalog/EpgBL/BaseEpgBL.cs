@@ -1,6 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.SearchObjects;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using DAL;
 using System;
 using System.Collections.Concurrent;

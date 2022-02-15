@@ -1,6 +1,6 @@
 ﻿using ApiObjects;
 using Core.Users;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Configuration;
 using System.Reflection;
@@ -17,7 +17,7 @@ using Country = Core.Users.Country;
 using InitializationObject = TVPApi.InitializationObject;
 using TVinciShared;
 using TVPApiModule.Objects.CRM;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace TVPApiServices

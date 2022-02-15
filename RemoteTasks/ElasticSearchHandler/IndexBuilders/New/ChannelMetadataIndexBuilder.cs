@@ -7,10 +7,10 @@ using ApiObjects.SearchObjects;
 using GroupsCacheManager;
 using System.Data;
 using System.Threading.Tasks;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using ApiObjects.Response;
-using KlogMonitorHelper;
+
 using Core.Catalog.CatalogManagement;
 using Newtonsoft.Json.Linq;
 using Core.Catalog;
@@ -30,7 +30,7 @@ namespace ElasticSearchHandler.IndexBuilders
         public override bool BuildIndex()
         {
             bool result = false;
-            ContextData cd = new ContextData();
+            LogContextData cd = new LogContextData();
 
             bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
             // Check if group supports Templates

@@ -17,6 +17,8 @@ service SSOAdapterGRPC {
 	rpc PostGetUserData(PostGetUserDataRequest) returns (UserResponse);
 
 	rpc Invoke(InvokeRequest) returns (InvokeResponse);
+
+	rpc AdjustRegionId(AdjustRegionIdRequest) returns (AdjustRegionIdResponse);
 }
 
 message SetConfigurationRequest{
@@ -139,6 +141,23 @@ message InvokeResponse{
 }
 
 
+message AdjustRegionIdRequest{
+	int32 AdapterId=1;
+	int32 DafaultRegionId=2;
+	User OttUser=3;
+	ListOfInt64 UserSegments=4;
+	map<string, string> AdapterData=5;
+}
+
+message AdjustRegionIdResponse{
+	AdapterStatusCode AdapterStatusCode=1;
+	int32 RegionId=2;
+	SSOResponseStatus SSOResponseStatus=3;
+}
+
+message ListOfInt64{
+    repeated int64 value = 1;
+}
 
 
 
@@ -162,6 +181,7 @@ message User{
 	int32 SuspensionState=17;
 	int32 UserState=18;
 }
+
 
 message UserType{
 	int32 Id=1;
@@ -230,4 +250,5 @@ enum AdapterStatusCode {
 	 PreSignOut = 4;
 	 PostSignOut = 5;
 	 Invoke = 6;
+	 AdjustRegionId = 7;
  }

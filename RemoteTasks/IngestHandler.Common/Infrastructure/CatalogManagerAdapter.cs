@@ -2,7 +2,7 @@
 using System.Reflection;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
-using KLogMonitor;
+using Phx.Lib.Log;
 
 namespace IngestHandler.Common.Infrastructure
 {

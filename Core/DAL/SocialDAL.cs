@@ -1,5 +1,5 @@
 ﻿using ApiObjects.MediaMarks;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using CouchbaseManager;
 using Newtonsoft.Json;
 using System;

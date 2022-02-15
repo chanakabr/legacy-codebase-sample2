@@ -4,11 +4,11 @@ using System.Data.SqlClient;
 using System.Web;
 using System.Configuration;
 using System.Text.RegularExpressions;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using CachingProvider.LayeredCache;
 
 namespace ODBCWrapper
@@ -16,7 +16,7 @@ namespace ODBCWrapper
     public class Connection
     {
         private static readonly KLogger _Log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly List<string> _DBSlaves = (!string.IsNullOrEmpty(TCMClient.Settings.Instance.GetValue<string>("DB_Slaves_IPs"))) ? TCMClient.Settings.Instance.GetValue<string>("DB_Slaves_List").Split(':').ToList<string>() : null;
+        private static readonly List<string> _DBSlaves = (!string.IsNullOrEmpty(Phx.Lib.Appconfig.TCMClient.Settings.Instance.GetValue<string>("DB_Slaves_IPs"))) ? Phx.Lib.Appconfig.TCMClient.Settings.Instance.GetValue<string>("DB_Slaves_List").Split(':').ToList<string>() : null;
 
         private const string DB_NAME_CONNECTION_STRING_TEMPLATE = "{dbname}";
 
@@ -121,7 +121,7 @@ namespace ODBCWrapper
                                     command.Connection = con;
 
                                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = shouldRouteToPrimary.ToString() })
+                                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = shouldRouteToPrimary.ToString() })
                                     {
                                         int res = command.ExecuteNonQuery();
                                     }

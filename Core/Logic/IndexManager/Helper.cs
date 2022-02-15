@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
 using System.Text;
-using KLogMonitor;
+using Phx.Lib.Log;
 
 namespace Core.Catalog.Searchers
 {

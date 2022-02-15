@@ -1,8 +1,7 @@
 ﻿using ApiLogic.Users.Managers;
 using ApiObjects.Response;
 using AutoFixture;
-using ConfigurationManager;
-using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
+using Phx.Lib.Appconfig;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using Core.GroupManagers;
@@ -19,6 +18,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Phx.Lib.Appconfig.Types;
+using Phx.Lib.Appconfig.Settings.Base;
 
 namespace ApiLogic.Tests.GroupManagers
 {

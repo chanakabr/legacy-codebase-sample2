@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
-using KLogMonitor;
+using Phx.Lib.Log;
 
 namespace QueueWrapper
 {

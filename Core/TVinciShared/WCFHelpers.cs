@@ -1,10 +1,10 @@
-﻿using ConfigurationManager;
-using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
-using ConfigurationManager.Types;
-using KLogMonitor;
+﻿using Phx.Lib.Appconfig;
+using Phx.Lib.Appconfig.Types;
+using Phx.Lib.Log;
 using System;
 using System.Reflection;
 using System.ServiceModel;
+using Phx.Lib.Appconfig.Settings.Base;
 
 namespace TVinciShared
 {

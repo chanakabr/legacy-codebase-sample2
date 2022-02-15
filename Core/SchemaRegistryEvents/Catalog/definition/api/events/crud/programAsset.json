@@ -1,0 +1,12 @@
+{
+  "$id": "http://ott.service.phoenix/api/events/crud/programAsset",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ProgramAsset",
+  "type": "object",
+  "description": "An event used to reflect a crud operation in a program asset",
+  "allOf": [
+    {
+      "$ref": "ott-schema-registry/events/crud/programAsset"
+    }
+  ]
+}

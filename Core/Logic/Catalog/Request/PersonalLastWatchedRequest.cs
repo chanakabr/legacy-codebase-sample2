@@ -9,7 +9,7 @@ using Tvinci.Core.DAL;
 using ApiObjects.SearchObjects;
 using Core.Catalog.Cache;
 using Core.Catalog.Response;
-using KLogMonitor;
+using Phx.Lib.Log;
 
 namespace Core.Catalog.Request
 {

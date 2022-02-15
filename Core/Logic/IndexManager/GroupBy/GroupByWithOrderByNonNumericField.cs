@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using ApiLogic.IndexManager.QueryBuilders;
+using ApiLogic.IndexManager.Sorting;
 using ApiObjects.SearchObjects;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using ElasticSearch.Common;
 using ElasticSearch.Searcher;
-using OrderDir = ApiObjects.SearchObjects.OrderDir;
 using TVinciShared;
-using ApiLogic.IndexManager.QueryBuilders;
+using OrderDir = ApiObjects.SearchObjects.OrderDir;
 
 namespace ApiLogic.Catalog.IndexManager.GroupBy
 {
@@ -25,6 +27,19 @@ namespace ApiLogic.Catalog.IndexManager.GroupBy
     /// </summary>
     internal class GroupByWithOrderByNonNumericField : IGroupBySearch
     {
+        private static readonly Lazy<IGroupBySearch> LazyInstance = new Lazy<IGroupBySearch>(
+            () => new GroupByWithOrderByNonNumericField(SortingAdapter.Instance),
+            LazyThreadSafetyMode.PublicationOnly);
+
+        public static IGroupBySearch Instance => LazyInstance.Value;
+
+        private readonly ISortingAdapter _sortingAdapter;
+
+        public GroupByWithOrderByNonNumericField(ISortingAdapter sortingAdapter)
+        {
+            _sortingAdapter = sortingAdapter ?? throw new ArgumentNullException(nameof(sortingAdapter));
+        }
+
         public void SetQueryPaging(UnifiedSearchDefinitions unifiedSearchDefinitions, ESUnifiedQueryBuilder queryBuilder)
         {
             queryBuilder.PageIndex = 0;
@@ -37,20 +52,24 @@ namespace ApiLogic.Catalog.IndexManager.GroupBy
 
         public ESAggregationsResult HandleQueryResponse(UnifiedSearchDefinitions search, int pageSize, int fromIndex, ESUnifiedQueryBuilder queryBuilder, string responseBody)
         {
-            var metaSortField = ESUnifiedQueryBuilder.GetMetaSortField(search.order);
-            var extraFields = metaSortField == null ? null : new List<string> { metaSortField };
+            var esOrderByFields = _sortingAdapter.ResolveOrdering(search);
+            var esOrderByField = esOrderByFields.Single(); // if group by is set, then only primary sorting can be set.
+            var extraFields = esOrderByField is EsOrderByMetaField orderByMetaField
+                ? new List<string> { orderByMetaField.EsField }
+                : null;
+
             var elasticAggregation = ESAggregationsResult.FullParse(responseBody, queryBuilder.Aggregations, extraFields);
             if (elasticAggregation.Aggregations == null) throw new Exception("Unable to parse Elasticsearch response");
 
             var groupBy = search.groupBy.Single(); // key - original field name; value - field name how it's stored in ES
             var buckets = elasticAggregation.Aggregations[groupBy.Key].buckets;
 
-            var orderByField = search.order.m_eOrderBy == OrderBy.NAME
-                ? new Func<ElasticSearchApi.ESAssetDocument, string>(_ => _.name)
-                : new Func<ElasticSearchApi.ESAssetDocument, string>(_ => _.extraReturnFields?.GetValueOrDefault(metaSortField));
+            var orderByField = extraFields != null
+                ? new Func<ElasticSearchApi.ESAssetDocument, string>(_ => _.extraReturnFields?.GetValueOrDefault(extraFields.Single()))
+                : new Func<ElasticSearchApi.ESAssetDocument, string>(_ => _.name);
 
-            buckets.Sort(CompareByStringField(orderByField, search.order.m_eOrderDir));
-            
+            buckets.Sort(CompareByStringField(orderByField, esOrderByField.OrderByDirection));
+
             var from = Math.Min(fromIndex, buckets.Count);
             var count = Math.Min(pageSize, buckets.Count - from);
             elasticAggregation.Aggregations[groupBy.Key].buckets = buckets.GetRange(from, count);

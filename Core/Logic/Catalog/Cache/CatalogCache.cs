@@ -1,9 +1,9 @@
 ﻿using ApiObjects;
 using ApiObjects.Catalog;
 using CachingProvider;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using DAL;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -17,6 +17,7 @@ namespace Core.Catalog.Cache
     public interface ICatalogCache
     {
         Dictionary<string, LinearChannelSettings> GetLinearChannelSettings(int groupID, List<string> keys);
+        int GetParentGroup(int groupId);
     }
 
     public class CatalogCache : ICatalogCache
@@ -67,7 +68,7 @@ namespace Core.Catalog.Cache
             this.CacheService = SingleInMemoryCache.GetInstance(InMemoryCacheType.General, expirationInSeconds);
         }
 
-        private CatalogCache()
+        public CatalogCache()
         {
             dCacheTT = GetDefaultCacheTimeInSeconds();
             InitializeCachingService(GetCacheName(), dCacheTT);

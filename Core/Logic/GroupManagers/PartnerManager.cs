@@ -2,12 +2,12 @@
 using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using DAL;
 using ElasticSearch.Common;
-using KLogMonitor;
+using Phx.Lib.Log;
 using QueueWrapper;
 using QueueWrapper.Enums;
 using QueueWrapper.Queues;
@@ -151,36 +151,49 @@ namespace Core.GroupManagers
 
             if (!_partnerDal.IsPartnerExists(id))
             {
-                Log.Error($"Error while Delete Partner BasicData. updaterId: {updaterId}.");
                 result.Set(eResponseStatus.PartnerDoesNotExist, $"Partner {id} does not exist");
                 return result;
             }
 
             IterateRabbitQueues(id, RoutingKeyQueueAction.Unbind);
 
+            // cant delete first admin user that was created because partner-accounts-setup ms does not hold first admin user details (just the app token)
+
+            var failedToDeletedBasicData = false;
             if (!_caPartnerRepository.DeletePartnerBasicDataDb(id, updaterId))
             {
+                failedToDeletedBasicData = true;
                 Log.Error($"Error while delete partner ConditionalAccess basicData. id: {id}, updaterId: {updaterId}.");
             }
 
             if (!_billingPartnerRepository.DeletePartnerBasicDataDb(id, updaterId))
             {
+                failedToDeletedBasicData = true;
                 Log.Error($"Error while delete partner billing basicData. id: {id}, updaterId: {updaterId}.");
             }
 
             if (!_pricingPartnerRepository.DeletePartnerBasicDataDb(id, updaterId))
             {
+                failedToDeletedBasicData = true;
                 Log.Error($"Error while delete partner pricing basicData. id: {id}, updaterId: {updaterId}.");
             }
 
             if (!_partnerDal.DeletePartnerBasicDataDb(id, updaterId))
             {
+                failedToDeletedBasicData = true;
                 Log.Error($"Error while delete partner tivinci basicData. id: {id}, updaterId: {updaterId}.");
             }
 
             if (!_userPartnerRepository.DeletePartnerDb(id, updaterId))
             {
+                failedToDeletedBasicData = true;
                 Log.Error($"Error while delete partner users basicData. id: {id}, updaterId: {updaterId}.");
+            }
+
+            if (failedToDeletedBasicData)
+            {
+                result.Set(eResponseStatus.Error, "Failed to delete partner basic data");
+                return result;
             }
 
             if (!_partnerDal.DeletePartner(id, updaterId))

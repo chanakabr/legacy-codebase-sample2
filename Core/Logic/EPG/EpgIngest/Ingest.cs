@@ -3,10 +3,10 @@ using ApiObjects.Catalog;
 using ApiObjects.Epg;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using EpgBL;
-using KLogMonitor;
-using KlogMonitorHelper;
+using Phx.Lib.Log;
+
 using System;
 using System.Collections.Generic;
 using System.Data;

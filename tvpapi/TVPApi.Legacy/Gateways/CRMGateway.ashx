@@ -13,7 +13,7 @@ using System.Text;
 
 public class CRMGateway : IHttpHandler
 {
-    private static readonly KLogMonitor.KLogger logger = new KLogMonitor.KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+    private static readonly Phx.Lib.Log.KLogger logger = new Phx.Lib.Log.KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
     public void ProcessRequest(HttpContext context)
     {

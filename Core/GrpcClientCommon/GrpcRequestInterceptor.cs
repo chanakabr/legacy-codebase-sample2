@@ -1,6 +1,6 @@
 ﻿using Grpc.Core;
 using Grpc.Core.Interceptors;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Reflection;
 using Polly;
@@ -87,7 +87,11 @@ namespace GrpcClientCommon
                 Table = context.Method.Name,
                 Database = context.Host
             };
-            context.Options.Headers.Add(Constants.SESSION_ID_KEY, requestId);
+
+            // TODO: Chage to PHX Liob Rest RequestContextConstants.SESSION_ID_KEY since this value moved from Klogger and
+            // removed from phx.lib lof
+            //context.Options.Headers.Add(Constants.SESSION_ID_KEY, requestId);
+            context.Options.Headers.Add("x-kaltura-session-id", requestId);
         }
 
         public void Dispose()

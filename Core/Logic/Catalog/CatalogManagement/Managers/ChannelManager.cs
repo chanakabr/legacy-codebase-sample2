@@ -8,13 +8,14 @@ using Core.Api;
 using Core.Api.Managers;
 using Core.Catalog.Response;
 using GroupsCacheManager;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using GroupsCacheManager.Mappers;
 using Tvinci.Core.DAL;
 using static ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData;
 
@@ -197,19 +198,8 @@ namespace Core.Catalog.CatalogManagement
 
             #region Order
 
-            channel.m_OrderObject = new ApiObjects.SearchObjects.OrderObj();
-            int orderBy = ODBCWrapper.Utils.GetIntSafeVal(dr["order_by_type"]);
-            // get order by value 
-            string orderByValue = ODBCWrapper.Utils.GetSafeStr(dr, "ORDER_BY_VALUE");
-
-            // initiate orderBy object 
-            UpdateOrderByObject(orderBy, ref channel, orderByValue);
-
-            int orderDirection = ODBCWrapper.Utils.GetIntSafeVal(dr["order_by_dir"]) - 1;
-            channel.m_OrderObject.m_eOrderDir =
-                (ApiObjects.SearchObjects.OrderDir)ApiObjects.SearchObjects.OrderDir.ToObject(typeof(ApiObjects.SearchObjects.OrderDir), orderDirection);
-            channel.m_OrderObject.m_bIsSlidingWindowField = channel.m_OrderObject.isSlidingWindowFromRestApi = ODBCWrapper.Utils.GetIntSafeVal(dr["IsSlidingWindow"]) == 1;
-            channel.m_OrderObject.lu_min_period_id = ODBCWrapper.Utils.GetIntSafeVal(dr["SlidingWindowPeriod"]);
+            channel.OrderingParameters = ChannelDataRowMapper.BuildOrderingParameters(dr);
+            channel.m_OrderObject = ChannelDataRowMapper.BuildOrderObj(channel.OrderingParameters.First());
 
             #endregion
 
@@ -316,15 +306,6 @@ namespace Core.Catalog.CatalogManagement
             channel.AssetUserRuleId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ASSET_RULE_ID");
 
             return channel;
-        }
-
-        private static void UpdateOrderByObject(int nOrderBy, ref Channel oChannel, string orderByValue)
-        {
-            oChannel.m_OrderObject.m_eOrderBy = (ApiObjects.SearchObjects.OrderBy)ApiObjects.SearchObjects.OrderBy.ToObject(typeof(ApiObjects.SearchObjects.OrderBy), nOrderBy);
-            if (!string.IsNullOrEmpty(orderByValue))
-            {
-                oChannel.m_OrderObject.m_sOrderValue = orderByValue;
-            }
         }
 
         private static List<Channel> GetChannels(int groupId, List<int> channelIds, bool isAllowedToViewInactiveAssets)
@@ -903,11 +884,14 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
 
-                    if (channelToAdd.m_OrderObject.m_eOrderBy == OrderBy.META && !string.IsNullOrEmpty(channelToAdd.m_OrderObject.m_sOrderValue)
-                        && !CatalogManager.Instance.CheckMetaExsits(groupId, channelToAdd.m_OrderObject.m_sOrderValue))
+                    foreach (var orderByMeta in channelToAdd.OrderingParameters.OfType<AssetOrderByMeta>())
                     {
-                        response.SetStatus(eResponseStatus.ChannelMetaOrderByIsInvalid, eResponseStatus.ChannelMetaOrderByIsInvalid.ToString());
-                        return response;
+                        if (!string.IsNullOrEmpty(orderByMeta.MetaName)
+                            && !CatalogManager.Instance.CheckMetaExists(groupId, orderByMeta.MetaName))
+                        {
+                            response.SetStatus(eResponseStatus.ChannelMetaOrderByIsInvalid);
+                            return response;
+                        }
                     }
                 }
 
@@ -930,9 +914,6 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 string groupBy = channelToAdd.searchGroupBy != null && channelToAdd.searchGroupBy.groupBy != null && channelToAdd.searchGroupBy.groupBy.Count == 1 ? channelToAdd.searchGroupBy.groupBy.First() : null;
-                int? isSlidingWindow = channelToAdd.m_OrderObject.m_bIsSlidingWindowField ? 1 : 0;
-                int? slidingWindowPeriod = channelToAdd.m_OrderObject.lu_min_period_id;
-
 
                 long assetUserRuleId = AssetUserRuleManager.GetAssetUserRule(groupId, userId, true);
                 if (channelToAdd.AssetUserRuleId.HasValue && channelToAdd.AssetUserRuleId.Value > 0)
@@ -954,11 +935,34 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                DataSet ds = CatalogDAL.InsertChannel(
-                    groupId, channelToAdd.SystemName, channelToAdd.m_sName, channelToAdd.m_sDescription, channelToAdd.m_nIsActive, (int)channelToAdd.m_OrderObject.m_eOrderBy,
-                    (int)channelToAdd.m_OrderObject.m_eOrderDir, channelToAdd.m_OrderObject.m_sOrderValue, isSlidingWindow, slidingWindowPeriod, channelToAdd.m_nChannelTypeID,
-                    channelToAdd.filterQuery, channelToAdd.m_nMediaType, groupBy, languageCodeToName, languageCodeToDescription,
-                    mediaIdsToOrderNum, userId, channelToAdd.SupportSegmentBasedOrdering, channelToAdd.AssetUserRuleId, channelToAdd.MetaData != null, channelToAdd.ManualAssets);
+                var assetOrder = channelToAdd.OrderingParameters.First();
+                var assetOrderByMeta = assetOrder as AssetOrderByMeta;
+                var assetSlidingWindowOrder = assetOrder as AssetSlidingWindowOrder;
+
+                var ds = CatalogDAL.InsertChannel(
+                    groupId,
+                    channelToAdd.SystemName,
+                    channelToAdd.m_sName,
+                    channelToAdd.m_sDescription,
+                    channelToAdd.m_nIsActive,
+                    (int)assetOrder.Field,
+                    (int)assetOrder.Direction,
+                    assetOrderByMeta?.MetaName,
+                    assetSlidingWindowOrder != null,
+                    assetSlidingWindowOrder?.SlidingWindowPeriod,
+                    channelToAdd.OrderingParameters,
+                    channelToAdd.m_nChannelTypeID,
+                    channelToAdd.filterQuery,
+                    channelToAdd.m_nMediaType,
+                    groupBy,
+                    languageCodeToName,
+                    languageCodeToDescription,
+                    mediaIdsToOrderNum,
+                    userId,
+                    channelToAdd.SupportSegmentBasedOrdering,
+                    channelToAdd.AssetUserRuleId,
+                    channelToAdd.MetaData != null,
+                    channelToAdd.ManualAssets);
 
                 if (ds != null && ds.Tables.Count > 4 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
                 {
@@ -1139,11 +1143,14 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
 
-                    if (channelToUpdate.m_OrderObject != null && channelToUpdate.m_OrderObject.m_eOrderBy == OrderBy.META && !string.IsNullOrEmpty(channelToUpdate.m_OrderObject.m_sOrderValue)
-                        && !CatalogManager.Instance.CheckMetaExsits(groupId, channelToUpdate.m_OrderObject.m_sOrderValue))
+                    foreach (var orderByMeta in channelToUpdate.OrderingParameters?.OfType<AssetOrderByMeta>())
                     {
-                        response.SetStatus(eResponseStatus.ChannelMetaOrderByIsInvalid, eResponseStatus.ChannelMetaOrderByIsInvalid.ToString());
-                        return response;
+                        if (!string.IsNullOrEmpty(orderByMeta.MetaName)
+                            && !CatalogManager.Instance.CheckMetaExists(groupId, orderByMeta.MetaName))
+                        {
+                            response.SetStatus(eResponseStatus.ChannelMetaOrderByIsInvalid);
+                            return response;
+                        }
                     }
                 }
 
@@ -1165,20 +1172,11 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                string groupBy = channelToUpdate.searchGroupBy != null && channelToUpdate.searchGroupBy.groupBy != null && channelToUpdate.searchGroupBy.groupBy.Count == 1 ? channelToUpdate.searchGroupBy.groupBy.First() : null;
-                int? orderByType = null;
-                int? orderByDir = null;
-                string orderByValue = null;
-                int? isSlidingWindow = null;
-                int? slidingWindowPeriod = null;
-                if (channelToUpdate.m_OrderObject != null)
-                {
-                    orderByType = (int)channelToUpdate.m_OrderObject.m_eOrderBy;
-                    orderByDir = (int)channelToUpdate.m_OrderObject.m_eOrderDir;
-                    orderByValue = channelToUpdate.m_OrderObject.m_sOrderValue;
-                    isSlidingWindow = channelToUpdate.m_OrderObject.m_bIsSlidingWindowField ? 1 : 0;
-                    slidingWindowPeriod = channelToUpdate.m_OrderObject.lu_min_period_id;
-                }
+                var groupBy = channelToUpdate.searchGroupBy?.groupBy != null && channelToUpdate.searchGroupBy.groupBy.Count == 1 ? channelToUpdate.searchGroupBy.groupBy.First() : null;
+
+                var assetOrder = channelToUpdate.OrderingParameters.FirstOrDefault();
+                var assetOrderByMeta = assetOrder as AssetOrderByMeta;
+                var assetSlidingWindowOrder = assetOrder as AssetSlidingWindowOrder;
 
                 int? updatedChannelType = null;
                 if (isForMigration)
@@ -1192,10 +1190,32 @@ namespace Core.Catalog.CatalogManagement
                     hasMetadata = channelToUpdate.MetaData.Any();
                 }
 
-                DataSet ds = CatalogDAL.UpdateChannel(groupId, channelId, channelToUpdate.SystemName, channelToUpdate.m_sName, channelToUpdate.m_sDescription, channelToUpdate.m_nIsActive, orderByType,
-                                                        orderByDir, orderByValue, isSlidingWindow, slidingWindowPeriod, channelToUpdate.filterQuery, channelToUpdate.m_nMediaType, groupBy, languageCodeToName, languageCodeToDescription,
-                                                        mediaIdsToOrderNum, userId, channelToUpdate.SupportSegmentBasedOrdering,
-                                                        channelToUpdate.AssetUserRuleId, assetTypesValuesInd, hasMetadata, channelToUpdate.ManualAssets, updatedChannelType);
+                DataSet ds = CatalogDAL.UpdateChannel(
+                    groupId,
+                    channelId,
+                    channelToUpdate.SystemName,
+                    channelToUpdate.m_sName,
+                    channelToUpdate.m_sDescription,
+                    channelToUpdate.m_nIsActive,
+                    (int?)assetOrder?.Field,
+                    (int?)assetOrder?.Direction,
+                    assetOrderByMeta?.MetaName,
+                    assetSlidingWindowOrder != null,
+                    assetSlidingWindowOrder?.SlidingWindowPeriod,
+                    channelToUpdate.OrderingParameters,
+                    channelToUpdate.filterQuery,
+                    channelToUpdate.m_nMediaType,
+                    groupBy,
+                    languageCodeToName,
+                    languageCodeToDescription,
+                    mediaIdsToOrderNum,
+                    userId,
+                    channelToUpdate.SupportSegmentBasedOrdering,
+                    channelToUpdate.AssetUserRuleId,
+                    assetTypesValuesInd,
+                    hasMetadata,
+                    channelToUpdate.ManualAssets,
+                    updatedChannelType);
 
                 if (ds != null && ds.Tables.Count > 4 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
                 {

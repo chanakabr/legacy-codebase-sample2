@@ -45,6 +45,7 @@ namespace WebAPI.Models.Catalog
             this.LinearAssetId = asset.LinearAssetId;
             this.Id = asset.Id;
             this.ExternalId = asset.ExternalId;
+            this.ExternalOfferIds = asset.ExternalOfferIds;
         }
 
         /// <summary>

@@ -4,13 +4,13 @@ using ApiObjects;
 using ApiObjects.Notification;
 using ApiObjects.QueueObjects;
 using ApiObjects.Response;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Catalog;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using Core.Notification.Adapters;
 using DAL;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Newtonsoft.Json;
 using QueueWrapper;
 using QueueWrapper.Queues.QueueObjects;
@@ -189,7 +189,7 @@ namespace Core.Notification
             DateTime announcementStartTime = DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime);
 
             DataRow row = DAL.NotificationDal.Update_MessageAnnouncement(announcementId, groupId, (int)announcement.Recipients, announcement.Name, announcement.Message, announcement.Enabled, announcementStartTime, announcement.Timezone, 0, null,
-                announcement.ImageUrl, announcement.IncludeMail, announcement.MailTemplate, announcement.MailSubject, announcement.IncludeIot, announcement.IncludeSms);
+                announcement.ImageUrl, announcement.IncludeMail, announcement.MailTemplate, announcement.MailSubject, announcement.IncludeIot, announcement.IncludeSms, announcement.IncludeUserInbox);
             announcement = Utils.GetMessageAnnouncementFromDataRow(row);
 
             // add a new message to queue when new time updated
@@ -457,7 +457,7 @@ namespace Core.Notification
                 DateTime announcementStartTime = DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime);
                 DataRow row = DAL.NotificationDal.Insert_MessageAnnouncement(groupId, (int)announcement.Recipients, announcement.Name, announcement.Message,
                     announcement.Enabled, announcementStartTime, announcement.Timezone, 0, announcement.MessageReference, null,
-                    announcement.ImageUrl, announcement.IncludeMail, announcement.MailTemplate, announcement.MailSubject, announcement.IncludeSms, announcement.IncludeIot, announcement.AnnouncementId);
+                    announcement.ImageUrl, announcement.IncludeMail, announcement.MailTemplate, announcement.MailSubject, announcement.IncludeSms, announcement.IncludeIot, announcement.AnnouncementId, announcement.IncludeUserInbox);
                 return Core.Notification.Utils.GetMessageAnnouncementFromDataRow(row);
             }
             catch (Exception ex)
@@ -661,8 +661,7 @@ namespace Core.Notification
             }
 
             // validate recipient type is legal
-            eAnnouncementRecipientsType recipients;
-            if (!Enum.TryParse<eAnnouncementRecipientsType>(ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "recipients"), out recipients))
+            if (!Enum.TryParse(ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "recipients"), out eAnnouncementRecipientsType recipients))
             {
                 DAL.NotificationDal.Update_MessageAnnouncementActiveStatus(groupId, messageId, 0);
                 log.ErrorFormat("invalid recipients type for announcement {0}", messageId);
@@ -679,6 +678,7 @@ namespace Core.Notification
             bool includeIot = ODBCWrapper.Utils.GetIntSafeVal(messageAnnouncementDataRow, "INCLUDE_IOT") == 1;
             string mailTemplate = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "MAIL_TEMPLATE");
             string mailSubject = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "MAIL_SUBJECT");
+            bool includeUserInbox = ODBCWrapper.Utils.GetIntSafeVal(messageAnnouncementDataRow, "INCLUDE_USER_INBOX") == 1;
 
             // in case system announcement - the image URL is taken from the message announcement and not from template
             string imageUrl = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "image_url");
@@ -705,7 +705,7 @@ namespace Core.Notification
                         }
 
                         // send inbox messages
-                        if (NotificationSettings.IsPartnerInboxEnabled(groupId))
+                        if (includeUserInbox && NotificationSettings.IsPartnerInboxEnabled(groupId))
                         {
                             InboxMessage inboxMessage = new InboxMessage()
                             {
@@ -797,7 +797,7 @@ namespace Core.Notification
                         }
 
                         // send inbox messages
-                        if (NotificationSettings.IsPartnerInboxEnabled(groupId))
+                        if (includeUserInbox && NotificationSettings.IsPartnerInboxEnabled(groupId))
                         {
                             InboxMessage inboxMessage = new InboxMessage()
                             {
@@ -867,7 +867,8 @@ namespace Core.Notification
                             queueNames.Add(singleQueueName);
 
                         // send inbox messages
-                        if (NotificationSettings.IsPartnerInboxEnabled(groupId))
+                        //BEO-11019
+                        if (includeUserInbox && NotificationSettings.IsPartnerInboxEnabled(groupId))
                         {
                             List<int> followingUserIds = NotificationDal.GetUsersFollowNotificationView(groupId, announcementId);
                             if (followingUserIds != null)
@@ -887,6 +888,7 @@ namespace Core.Notification
                                     };
 
                                     int TtlDays = NotificationSettings.GetInboxMessageTTLDays(groupId);
+                                    
                                     if (!NotificationDal.SetUserInboxMessage(groupId, inboxMessage, TtlDays))
                                     {
                                         log.ErrorFormat("Error while setting user follow series inbox message. GID: {0}, InboxMessage: {1}",
@@ -939,7 +941,6 @@ namespace Core.Notification
             //send IOT message
             if (NotificationSettings.IsPartnerIotNotificationEnabled(groupId) && includeIot)
             {
-                //TODO - Matan, Support IOT with type other
                 PublishIotSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements,
                     ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), url, sound, category, imageUrl);
             }

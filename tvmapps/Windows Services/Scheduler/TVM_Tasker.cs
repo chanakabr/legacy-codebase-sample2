@@ -8,7 +8,7 @@ using System.Reflection;
 using System.ServiceProcess;
 using System.Text;
 using System.Threading;
-using KLogMonitor;
+using Phx.Lib.Log;
 
 namespace Scheduler
 {
@@ -26,7 +26,7 @@ namespace Scheduler
         {
             try
             {
-                TCMClient.Settings.Instance.Init();
+                Phx.Lib.Appconfig.TCMClient.Settings.Instance.Init();
             }
             catch (Exception ex)
             {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using ApiLogic.Notification;
-using KLogMonitor;
+using Phx.Lib.Log;
 
 namespace NotificationHandlers.Common
 {

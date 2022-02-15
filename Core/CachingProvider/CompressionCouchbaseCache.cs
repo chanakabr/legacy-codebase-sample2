@@ -2,7 +2,7 @@
 using System.Reflection;
 using CachingProvider.LayeredCache;
 using CouchbaseManager;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Newtonsoft.Json;
 
 namespace CachingProvider

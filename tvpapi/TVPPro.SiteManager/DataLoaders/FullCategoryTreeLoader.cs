@@ -8,7 +8,7 @@ using Tvinci.Data.TVMDataLoader.Protocols.CategoriesTree;
 using Tvinci.Data.TVMDataLoader.Protocols.MH_CategoriesTree;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace TVPPro.SiteManager.DataLoaders
 {

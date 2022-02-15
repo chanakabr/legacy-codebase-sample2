@@ -10,7 +10,7 @@ using TVPPro.SiteManager.DataEntities;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.Manager;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace TVPApiModule.DataLoaders
 {

@@ -6,7 +6,7 @@ using System.Threading;
 using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.SearchPriorityGroups;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Microsoft.Extensions.Logging;
 
 namespace DAL.SearchPriorityGroups

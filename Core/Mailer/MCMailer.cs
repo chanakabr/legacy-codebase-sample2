@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using ApiObjects;
 using System.Configuration;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using Newtonsoft.Json;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace Mailer
 {

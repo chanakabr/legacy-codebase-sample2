@@ -6,7 +6,7 @@ using System.Data;
 using System.Threading;
 using System.Collections.Generic;
 using CouchbaseManager;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 
 namespace DAL

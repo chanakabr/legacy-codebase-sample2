@@ -3,7 +3,7 @@ using ApiObjects.Catalog;
 using ApiObjects.Epg;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

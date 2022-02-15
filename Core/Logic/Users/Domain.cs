@@ -7,15 +7,16 @@ using ApiObjects.MediaMarks;
 using ApiObjects.Response;
 using ApiObjects.Segmentation;
 using CachingProvider.LayeredCache;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Users.Cache;
 using DAL;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Newtonsoft.Json;
 using NPVR;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Serialization;
@@ -1749,6 +1750,7 @@ namespace Core.Users
                 int nDeviceFamilyID = 0;
                 string sPin = string.Empty;
                 DateTime dtActivationDate = Utils.FICTIVE_DATE;
+                DateTime dtUpdateDate = Utils.FICTIVE_DATE;
                 DeviceState eState = DeviceState.UnKnown;
                 int nDeviceID = 0;
                 string externalId = string.Empty;
@@ -1771,6 +1773,7 @@ namespace Core.Users
                     bool bIsActiveInDomainsDevices = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["IS_ACTIVE_IN_DD"]) == 1;
                     eState = !bIsActiveInDevices ? DeviceState.Pending : bIsActiveInDomainsDevices ? DeviceState.Activated : DeviceState.UnActivated;
                     dtActivationDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[i]["last_activation_date"]);
+                    dtUpdateDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[i]["update_date"]);
                     nDeviceID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["device_id"]);
                     externalId = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "external_id");
                     dynamicData = DeviceDal.DeserializeDynamicData(ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["dynamic_data"]));
@@ -1784,7 +1787,7 @@ namespace Core.Users
                     }
 
                     Device device = new Device(sUDID, nDeviceBrandID, m_nGroupID, sDeviceName, m_nDomainID, nDeviceID, nDeviceFamilyID, string.Empty, sPin,
-                        dtActivationDate, eState);
+                        dtActivationDate, eState, dtUpdateDate);
 
                     if (!string.IsNullOrEmpty(externalId))
                         device.ExternalId = externalId;
@@ -2598,122 +2601,164 @@ namespace Core.Users
             this.m_deviceFamilies = dc;
         }
 
-        internal bool CompareDLM(LimitationsManager oLimitationsManager, ref ChangeDLMObj oChangeDLMObj)
+        internal bool CompareDLM(LimitationsManager oLimitationsManager, ref ChangeDLMObj dlmObjectToChange)
         {
             try
             {
                 if (oLimitationsManager != null) // initialize all fields 
                 {
                     #region Devices
+                    DeviceContainer oldDeviceFamilyContainer = new DeviceContainer();
+                    List<Device> devicesToRemove = new List<Device>();
+                    GenericListResponse<GeneralPartnerConfig> PartnerConfigResponse = GeneralPartnerConfigManager.Instance.GetGeneralPartnerConfiguration(GroupId);
+                    if (!PartnerConfigResponse.HasObjects() || !PartnerConfigResponse.IsOkStatusCode())
+                    {
+                        dlmObjectToChange.resp = PartnerConfigResponse.Status;
+                        return false;
+                    }
 
-                    List<string> devicesChange = new List<string>();
-                    DeviceContainer currentDC = new DeviceContainer();
+                    GeneralPartnerConfig generalPartnerConfig = PartnerConfigResponse.Objects[0];
+                    // Get group downgrade policy for desc/Asc/ACTIVE_DATE
+                    DowngradePolicy downgradePolicy = (DowngradePolicy)generalPartnerConfig.DowngradePolicy;
+                    
+                    foreach (KeyValuePair<int, DeviceContainer> currentItem in DeviceFamiliesMapping) // all keys not exists in new DLM - Delete
+                    {
+                        oldDeviceFamilyContainer = DeviceFamiliesMapping[currentItem.Value.m_deviceFamilyID];
+                        List<Device> devices = oldDeviceFamilyContainer.DeviceInstances;
+                        if (!oLimitationsManager.lDeviceFamilyLimitations.Exists(x =>
+                            x.deviceFamily == currentItem.Value.m_deviceFamilyID))
+                        {
+                            if (devices.Count > 0)
+                            {
+                                devicesToRemove.AddRange(devices);
+                                var devicesUDID = devices.Select(d => d.m_deviceUDID).ToList();
+                                foreach (var deviceUDID in devicesUDID)
+                                {
+                                    oldDeviceFamilyContainer.RemoveDeviceInstance(deviceUDID);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            foreach (var device in devices)
+                            {
+                                device.LastActivityTime = DeviceRemovalPolicyHandler.Instance.GetUdidLastActivity(this.m_nGroupID, device.m_deviceUDID, 0);
 
+                            }
+                        }
+                    }
+                    
                     foreach (DeviceFamilyLimitations item in oLimitationsManager.lDeviceFamilyLimitations)
                     {
-                        devicesChange = new List<string>();
                         if (DeviceFamiliesMapping.ContainsKey(item.deviceFamily))
                         {
-                            currentDC = DeviceFamiliesMapping[item.deviceFamily];
-                            if (currentDC != null && currentDC.m_oLimitationsManager != null)
+                            oldDeviceFamilyContainer = DeviceFamiliesMapping[item.deviceFamily];
+                            if (oldDeviceFamilyContainer != null && oldDeviceFamilyContainer.m_oLimitationsManager != null)
                             {
                                 // quantity of the new dlm is less than the current dlm only if new dlm is <> 0 (0 = unlimited)
-                                if (currentDC.m_oLimitationsManager.Quantity > item.quantity && item.quantity != 0) // need to delete the laset devices
+                                if (oldDeviceFamilyContainer.m_oLimitationsManager.Quantity > item.quantity && item.quantity != 0) // need to delete the laset devices
                                 {
-                                    // get from DB the last update date domains_devices table  change status to is_active = 0  update the update _date
-                                    List<int> lDevicesID = currentDC.DeviceInstances.Select(x => int.Parse(x.m_id)).ToList<int>();
-                                    // only if there is a gap between current devices to needed quantity
-                                    if (lDevicesID != null && lDevicesID.Count > 0 && lDevicesID.Count > item.quantity)
+                                    List<Device> devices = oldDeviceFamilyContainer.DeviceInstances;
+                                    if (devices != null && devices.Count > 0 && devices.Count > item.quantity)
                                     {
-                                        int nDeviceToDelete = lDevicesID.Count - item.quantity;
-
-                                        // Get group downgrade policy for desc/Asc
-                                        var downgradePolicy = ApiDAL.GetGroupDowngradePolicy(this.GroupId);
-                                        devicesChange = DomainDal.SetDevicesDomainStatus(nDeviceToDelete, 0, this.m_nDomainID, lDevicesID, (DowngradePolicy) downgradePolicy);
-                                        if (devicesChange != null && devicesChange.Count > 0)
+                                        devices = getOrderByDowngradePolicyDevices(devices, downgradePolicy);
+                                        int amountToDelete = devices.Count - item.quantity;
+                                        var devicesToDelete = devices.Take(amountToDelete);
+                                        devicesToRemove.AddRange(devicesToDelete);
+                                        
+                                        var devicesUDID = devicesToDelete.Select(d => d.m_deviceUDID).ToList();
+                                        foreach (var deviceUDID in devicesUDID)
                                         {
-                                            oChangeDLMObj.devices.AddRange(devicesChange);
-
-                                            //remove device notification
-                                            foreach (string deviceId in devicesChange)
+                                            oldDeviceFamilyContainer.RemoveDeviceInstance(deviceUDID);
+                                        }
+                                    }
+                                }
+                                
+                                // If the device family become unlimited dont remove the actual devices but delete them from the counter 
+                                if (item.quantity == 0 && !oldDeviceFamilyContainer.IsUnlimitedQuantity())
+                                {
+                                    m_totalNumOfDevices -= oldDeviceFamilyContainer.DeviceInstances.Count;
+                                }
+                            }
+                        }
+                    }
+                    
+                    // compare the total quntity of this domain 
+                    if (this.m_oLimitationsManager.Quantity > oLimitationsManager.Quantity && oLimitationsManager.Quantity != 0 && (m_totalNumOfDevices - devicesToRemove.Count) > oLimitationsManager.Quantity)
+                    {
+                        int countToDelete = m_totalNumOfDevices - devicesToRemove.Count - oLimitationsManager.Quantity;
+                        var priority = generalPartnerConfig.DowngradePriorityFamilyIds;
+                        var deviceFamilyLimitations = oLimitationsManager.lDeviceFamilyLimitations.Where(x => x.quantity != 0).ToList();
+                        if (priority != null && priority.Count > 0)
+                        {
+                            for (int i = 0; i < priority.Count && countToDelete > 0; i++)
+                            {
+                                if (deviceFamilyLimitations.Exists(x =>
+                                    x.deviceFamily == priority[i]))
+                                {
+                                    oldDeviceFamilyContainer = DeviceFamiliesMapping[priority[i]];
+                                    if (oldDeviceFamilyContainer != null && oldDeviceFamilyContainer.m_oLimitationsManager != null)
+                                    {
+                                        List<Device> devices = oldDeviceFamilyContainer.DeviceInstances;
+                                        if (devices.Count > 0)
+                                        {
+                                            if (countToDelete > devices.Count)
                                             {
-                                                Device device = currentDC.DeviceInstances.FirstOrDefault(x => x.m_id == deviceId);
-                                                if (device != null && !string.IsNullOrEmpty(device.m_deviceUDID))
-                                                    Utils.AddInitiateNotificationActionToQueue(this.GroupId, eUserMessageAction.DeleteDevice, 0, device.m_deviceUDID);
+                                                countToDelete -= devices.Count;
+                                                devicesToRemove.AddRange(devices);
+                                               var devicesUDID = devices.Select(d => d.m_deviceUDID).ToList();
+                                               foreach (var deviceUDID in devicesUDID)
+                                               {
+                                                   oldDeviceFamilyContainer.RemoveDeviceInstance(deviceUDID);
+                                               }
+                                            } else
+                                            {
+                                                devices = getOrderByDowngradePolicyDevices(devices, downgradePolicy);
+                                                var devicesToDelete = devices.Take(countToDelete);
+                                                devicesToRemove.AddRange(devicesToDelete);
+                                                var devicesUDID = devicesToDelete.Select(d => d.m_deviceUDID).ToList();
+                                                foreach (var deviceUDID in devicesUDID)
+                                                {
+                                                    oldDeviceFamilyContainer.RemoveDeviceInstance(deviceUDID);
+                                                }
+
+                                                countToDelete = 0;
                                             }
                                         }
                                     }
                                 }
                             }
                         }
+                        if(countToDelete > 0)
+                        {
+                            List<Device> allDevices = new List<Device>();
+                            foreach (var deviceFamilyLimitation in deviceFamilyLimitations)
+                            {
+                                if (DeviceFamiliesMapping.ContainsKey(deviceFamilyLimitation.deviceFamily))
+                                {
+                                    allDevices.AddRange((DeviceFamiliesMapping[deviceFamilyLimitation.deviceFamily].DeviceInstances));
+                                }
+                            }
+
+                            allDevices = getOrderByDowngradePolicyDevices(allDevices, downgradePolicy);
+                            devicesToRemove.AddRange(allDevices.Take(countToDelete));
+                        }
                     }
 
-                    foreach (KeyValuePair<int, DeviceContainer> currentItem in DeviceFamiliesMapping) // all keys not exsits in new DLM - Delete
+                    if (devicesToRemove.Count > 0)
                     {
-                        devicesChange = new List<string>();
-                        bool bNeedToDelete = true;
-                        // get from DB the last update date domains_devices table  change status to is_active = 0 + status 2 
-                        foreach (DeviceFamilyLimitations item in oLimitationsManager.lDeviceFamilyLimitations)
+                        var devicesIdsToRemove = devicesToRemove.Select(x => int.Parse(x.m_id)).ToList();
+                        if (DomainDal.SetDevicesDomainUnActive(this.m_nDomainID, devicesIdsToRemove) == 0)
                         {
-                            if (item.deviceFamily == currentItem.Value.m_deviceFamilyID)
-                            {
-                                bNeedToDelete = false;
-                            }
+                            dlmObjectToChange.resp = new ApiObjects.Response.Status((int) eResponseStatus.Error, string.Empty);
+                            return false;
                         }
-
-                        if (bNeedToDelete) // family device id not exsits in new DLM - delete all devices
+                        foreach (Device device in devicesToRemove)
                         {
-                            List<int> lDevicesID = currentItem.Value.DeviceInstances.Select(x => int.Parse(x.m_id)).ToList<int>();
-                            int nDeviceToDelete = lDevicesID.Count();
-                            if (nDeviceToDelete > 0)
-                            {
-                                devicesChange = DomainDal.SetDevicesDomainStatus(nDeviceToDelete, 0, this.m_nDomainID, lDevicesID, DowngradePolicy.FIFO);
-                                oChangeDLMObj.devices.AddRange(devicesChange);
-                                //remove device notification
-                                foreach (string deviceId in devicesChange)
-                                {
-                                    Device device = null;
-                                    device = currentDC.DeviceInstances.FirstOrDefault(x => x.m_id == deviceId);
-                                    if (device != null && !string.IsNullOrEmpty(device.m_deviceUDID))
-                                        Utils.AddInitiateNotificationActionToQueue(this.GroupId, eUserMessageAction.DeleteDevice, 0, device.m_deviceUDID);
-                                }
-                            }
+                            if (device != null && !string.IsNullOrEmpty(device.m_deviceUDID))
+                                Utils.AddInitiateNotificationActionToQueue(this.GroupId, eUserMessageAction.DeleteDevice, 0, device.m_deviceUDID);
                         }
                     }
-
-                    // compare the total quntity of this domain 
-                    if (this.m_oLimitationsManager != null && this.m_oLimitationsManager.Quantity > oLimitationsManager.Quantity && oLimitationsManager.Quantity != 0)
-                    {
-                        devicesChange = new List<string>();
-
-                        List<int> lDevicesID = new List<int>();
-                        // from all families that are not 0 delete all last devices by activation date
-                        foreach (DeviceFamilyLimitations item in oLimitationsManager.lDeviceFamilyLimitations)
-                        {
-                            if (item.quantity == 0) // create list of all devices that can't be deleted!!!!!
-                            {
-                                if (DeviceFamiliesMapping.ContainsKey(item.deviceFamily))
-                                {
-                                    List<Device> lDevices = DeviceFamiliesMapping[item.deviceFamily].DeviceInstances;
-                                    lDevicesID.AddRange(lDevices.Select(x => int.Parse(x.m_id)));
-                                }
-                            }
-                        }
-
-                        if (lDevicesID.Count > 0)
-                        {
-                            int nDeviceToDelete = lDevicesID.Count - oLimitationsManager.Quantity;
-                            if (nDeviceToDelete > 0)
-                            {
-                                devicesChange = DomainDal.SetDevicesDomainStatusNotInList(nDeviceToDelete, 0, this.m_nDomainID, lDevicesID);
-                                if (devicesChange != null && devicesChange.Count > 0)
-                                {
-                                    oChangeDLMObj.devices.AddRange(devicesChange);
-                                }
-                            }
-                        }
-                    }
-
                     #endregion
 
                     #region Users limit
@@ -2728,7 +2773,7 @@ namespace Core.Users
                             users = DomainDal.SetUsersStatus(this.m_UsersIDs, nUserToDelete, 3, 0, this.m_nDomainID);
                             if (users != null && users.Count > 0)
                             {
-                                oChangeDLMObj.users.AddRange(users);
+                                dlmObjectToChange.users.AddRange(users);
                             }
                         }
                     }
@@ -2739,15 +2784,39 @@ namespace Core.Users
                 // change dlmid in domain table 
                 bool bChangeDoamin = DomainDal.ChangeDomainDLM(this.m_nDomainID, oLimitationsManager.domianLimitID);
 
-                oChangeDLMObj.resp = new ApiObjects.Response.Status((int) eResponseStatus.OK, string.Empty);
+                dlmObjectToChange.resp = new ApiObjects.Response.Status((int) eResponseStatus.OK, string.Empty);
                 return true;
             }
             catch (Exception ex)
             {
                 log.Error("", ex);
-                oChangeDLMObj.resp = new ApiObjects.Response.Status((int) eResponseStatus.Error, string.Empty);
+                dlmObjectToChange.resp = new ApiObjects.Response.Status((int) eResponseStatus.Error, string.Empty);
                 return false;
             }
+        }
+
+        private List<Device> getOrderByDowngradePolicyDevices(List<Device> devices, DowngradePolicy downgradePolicy)
+        {
+            switch(downgradePolicy)
+            {
+                case DowngradePolicy.FIFO:
+                {
+                    devices = devices.OrderBy(x => x.m_updateDate).ToList();
+                    break;
+                }
+                case DowngradePolicy.LIFO:
+                {
+                    devices = devices.OrderByDescending(x => x.m_updateDate).ToList();
+                    break;
+                }
+                case DowngradePolicy.ACTIVE_DATE:
+                {
+                    devices = devices.OrderBy(x => x.LastActivityTime).ToList();
+                    break;
+                }
+            }
+
+            return devices;
         }
 
         protected override bool DoInsert()

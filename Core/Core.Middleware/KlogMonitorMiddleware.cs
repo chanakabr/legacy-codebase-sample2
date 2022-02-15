@@ -3,13 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
-using KLogMonitor;
+using Phx.Lib.Log;
 
 namespace Core.Middleware
 {
     public static class KlogMonitorMiddleware
     {
-        public const string SESSION_HEADER_KEY = KLogMonitor.Constants.REQUEST_ID_KEY;
+        public const string SESSION_HEADER_KEY = Phx.Lib.Log.Constants.REQUEST_ID_KEY;
 
         public static IApplicationBuilder UseKlogerMonitor(this IApplicationBuilder app)
         {

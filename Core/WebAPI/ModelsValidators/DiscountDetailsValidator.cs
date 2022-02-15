@@ -23,13 +23,22 @@ namespace WebAPI.ModelsValidators
             if (model.MultiCurrencyDiscount.Count.Equals(0))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "multiCurrencyDiscount");
 
-            if (!Enum.IsDefined(typeof(WhenAlgoType), model.WhenAlgoType))
-                throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "WhenAlgoType", model.WhenAlgoType);
+            if (model.WhenAlgoType != 0)
+            {
+                if (!Enum.IsDefined(typeof(WhenAlgoType), model.WhenAlgoType))
+                    throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "WhenAlgoType", model.WhenAlgoType);
+            } 
+            else
+            {
+                model.WhenAlgoType = (int) ApiObjects.Pricing.WhenAlgoType.N_FIRST_TIMES;
+            }
+
+            
 
             model.ValidateMultiCurrencyDiscount();
         }
 
-        public static void ValidateForUpdate(this KalturaDiscountDetails model)
+       public static void ValidateForUpdate(this KalturaDiscountDetails model)
         {
             if(model.MultiCurrencyDiscount != null)
             {

@@ -1,6 +1,6 @@
 ﻿using ApiObjects.BulkUpload;
 using ApiObjects.Response;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +14,7 @@ namespace ApiLogic
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public const string XML_TV_DATE_FORMAT = "yyyyMMddHHmmss";
+        private const string ExternalOfferIdsTagName = "Offers";
 
         public static Dictionary<string, List<string>> ParseTags(
             this programme prog,
@@ -29,7 +30,7 @@ namespace ApiLogic
             {
                 var tagValue = GetMetaByLanguage(tag.TagValues,
                     tv => tv.lang,
-                    tv => tv.Value, 
+                    tv => tv.Value,
                     langCode,
                     defaultLangCode,
                     out var tagParsingStatus,
@@ -104,7 +105,7 @@ namespace ApiLogic
 
             return result;
         }
-        
+
         private static List<string> GetMetaByLanguage<T>(
             this IEnumerable<T> metaValues,
             Func<T, string> langRetriever,
@@ -175,6 +176,39 @@ namespace ApiLogic
             {
                 return 0;
             }
+        }
+
+        public static List<string> ParseExternalOfferIds(
+            this programme prog,
+            string langCode,
+            string defaultLangCode,
+            BulkUploadProgramAssetResult response)
+        {
+            var results = new List<string>();
+
+            if (prog?.tags == null)
+            {
+                return results;
+            }
+
+            foreach (var tags in prog.tags.Where(t => t.TagType == ExternalOfferIdsTagName))
+            {
+                var tagValues = GetMetaByLanguage(tags.TagValues,
+                    tv => tv.lang,
+                    tv => tv.Value,
+                    langCode,
+                    defaultLangCode,
+                    out var tagParsingStatus,
+                    true);
+                if (tagParsingStatus != eResponseStatus.OK)
+                {
+                    response.AddError(tagParsingStatus, $"Error parsing tags:[{ExternalOfferIdsTagName}] for programExternalID:[{prog.external_id}], lang:[{langCode}], defaultLang:[{defaultLangCode}]");
+                }
+
+                results.AddRange(tagValues);
+            }
+
+            return results.Distinct().ToList();
         }
     }
 }

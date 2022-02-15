@@ -3,11 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using Newtonsoft.Json;
 using System.Web;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using System.Runtime.Caching;
 using CachingProvider.LayeredCache.Helper;
 using EventBus.Kafka;
@@ -704,6 +704,12 @@ namespace CachingProvider.LayeredCache
 
         public bool ShouldGoToCache(string layeredCacheConfigName, int groupId)
         {
+            if (layeredCacheConfigName == LayeredCacheConfigNames.UNIFIED_SEARCH_WITH_PERSONAL_DATA && isPartnerRequest())
+            {
+                log.Debug($"BEO-10994 skipCache for partner name={layeredCacheConfigName}");
+                return false;
+            }
+
             List<LayeredCacheConfig> layeredCacheConfig = null;
 
             return ShouldGoToCache(layeredCacheConfigName, groupId, ref layeredCacheConfig);
@@ -795,7 +801,9 @@ namespace CachingProvider.LayeredCache
                 long maxExternalInvalidationDate = 0;
                 bool hasMaxInvalidationDate = false;
 
-                if (ShouldGoToCache(layeredCacheConfigName, groupId, ref layeredCacheConfig))
+                bool shouldGoToCache = ShouldGoToCache(layeredCacheConfigName, groupId, ref layeredCacheConfig);
+
+                if (shouldGoToCache)
                 {
                     long maxInValidationDate = 0;
 
@@ -887,7 +895,7 @@ namespace CachingProvider.LayeredCache
                 long maxExternalInvalidationDate = 0;
                 bool hasMaxInvalidationDates = false;
 
-                var shouldGoToCache = ShouldGoToCache(layeredCacheConfigName, groupId, ref layeredCacheConfig);
+                bool shouldGoToCache = ShouldGoToCache(layeredCacheConfigName, groupId, ref layeredCacheConfig);
 
                 if (shouldGoToCache)
                 {
@@ -1799,14 +1807,10 @@ namespace CachingProvider.LayeredCache
                         && !layeredCacheGroupConfig.DisableLayeredCache && !layeredCacheGroupConfig.LayeredCacheInvalidationKeySettingsToExclude.Contains(layeredCacheConfigName);
 
                 //BEO-7703 - No cache for operator+ 
-                if (res && HttpContext.Current != null && HttpContext.Current.Items != null && HttpContext.Current.Items.ContainsKey(REQUEST_TAGS))
+                if (res && isPartnerRequest())
                 {
-                    var tags = (HashSet<string>)HttpContext.Current.Items[REQUEST_TAGS];
-                    if (tags != null && tags.Contains(REQUEST_TAGS_PARTNER_ROLE))
-                    {
-                        layeredCacheConfig = layeredCacheConfig.Where(x => x.Type == LayeredCacheType.CbCache || x.Type == LayeredCacheType.CbMemCache || x.Type == LayeredCacheType.Redis).ToList();
-                        res = layeredCacheConfig != null && layeredCacheConfig.Count > 0;
-                    }
+                    layeredCacheConfig = layeredCacheConfig.Where(x => x.Type == LayeredCacheType.CbCache || x.Type == LayeredCacheType.CbMemCache || x.Type == LayeredCacheType.Redis).ToList();
+                    res = layeredCacheConfig != null && layeredCacheConfig.Count > 0;
                 }
             }
 

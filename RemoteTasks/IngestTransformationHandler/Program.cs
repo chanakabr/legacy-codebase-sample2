@@ -1,11 +1,14 @@
 ﻿using System.Threading.Tasks;
 using ApiLogic.IndexManager.Mappings;
 using ApiObjects;
+using Core.Catalog.CatalogManagement.Services;
 using Core.Metrics;
+using EventBus.Kafka;
 using EventBus.RabbitMQ;
 using IngestHandler.Common.Infrastructure;
 using IngestTransformationHandler.Managers;
 using IngestTransformationHandler.Repositories;
+using Phx.Lib.Log;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TvinciCache;
@@ -28,6 +31,10 @@ namespace EPGTransformationHandler
                     s.AddScoped<IEpgCRUDOperationsManager, EpgCRUDOperationsManager>();
                     s.AddScoped<IMappingTypeResolver, MappingTypeResolver>();
                     s.AddSingleton<ICatalogManagerAdapter, CatalogManagerAdapter>();
+                    s.AddSingleton<IndexCompactionManager, IndexCompactionManager>();
+                    s.AddScoped<IEpgIngestMessaging>(provider =>
+                        new EpgIngestMessaging(KafkaPublisher.GetFromTcmConfiguration(),
+                            new KLogger(nameof(EpgIngestMessaging))));
                 })
                 .ConfigureEventBusConsumer(c =>
                 {

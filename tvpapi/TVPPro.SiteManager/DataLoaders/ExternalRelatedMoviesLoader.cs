@@ -13,7 +13,7 @@ using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Manager;
 using System.Collections.Generic;
 using TVPPro.SiteManager.Services;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using Core.Catalog;
 using ApiObjects.SearchObjects;
@@ -21,7 +21,7 @@ using Core.Catalog.Request;
 using Core.Catalog.Response;
 using ApiObjects.Response;
 using SearchRelated = ApiObjects.SearchObjects.SearchRelated;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace TVPPro.SiteManager.DataLoaders
 {

@@ -8,7 +8,7 @@ using TVPApi.ODBCWrapper;
 using System.Data;
 using System.Reflection;
 using Tvinci.Performance;
-using KLogMonitor;
+using Phx.Lib.Log;
 
 namespace Tvinci.Data.DataLoader.PredefinedAdapters
 {

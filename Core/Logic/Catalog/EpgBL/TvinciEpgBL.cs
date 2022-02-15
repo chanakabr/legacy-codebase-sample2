@@ -1,10 +1,10 @@
 ﻿using ApiObjects;
 using ApiObjects.Epg;
 using ApiObjects.SearchObjects;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using DalCB;
-using KLogMonitor;
-using KlogMonitorHelper;
+using Phx.Lib.Log;
+
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
@@ -587,7 +587,7 @@ namespace EpgBL
             if (lChannelIDs != null && lChannelIDs.Count > 0)
             {
                 // save monitor and logs context data
-                ContextData contextData = new ContextData();
+                LogContextData contextData = new LogContextData();
 
                 Task<List<EpgCB>>[] tChannelTasks = new Task<List<EpgCB>>[lChannelIDs.Count];
                 for (int i = 0; i < lChannelIDs.Count; i++)
@@ -671,7 +671,7 @@ namespace EpgBL
             if (lChannelIDs != null && lChannelIDs.Count > 0)
             {
                 // save monitor and logs context data
-                ContextData contextData = new ContextData();
+                LogContextData contextData = new LogContextData();
 
                 Task[] tasks = new Task[lChannelIDs.Count];
 
@@ -731,7 +731,7 @@ namespace EpgBL
             if (lChannelIDs != null && lChannelIDs.Count > 0)
             {
                 // save monitor and logs context data
-                ContextData contextData = new ContextData();
+                LogContextData contextData = new LogContextData();
 
                 //Start MultiThread Call
                 Task[] tasks = new Task[lChannelIDs.Count];

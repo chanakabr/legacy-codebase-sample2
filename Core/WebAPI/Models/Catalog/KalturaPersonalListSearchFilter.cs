@@ -1,12 +1,12 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using ApiLogic.Api.Managers.Rule;
+using ApiObjects.Base;
+using Newtonsoft.Json;
+using WebAPI.ClientManagers.Client;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
-using ApiObjects.Base;
-using WebAPI.ClientManagers.Client;
 
 namespace WebAPI.Models.Catalog
 {
@@ -22,20 +22,31 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "partnerListTypeIn", IsNullable = true)]
         public string PartnerListTypeIn { get; set; }
 
-        internal HashSet<int> GetPartnerListTypeIn()
-        {
-            return this.GetItemsIn<HashSet<int>, int>(PartnerListTypeIn, "KalturaPersonalListSearchFilter.PartnerListTypeIn", false, true);
-        }
+        private HashSet<int> GetPartnerListTypeIn()
+            => GetItemsIn<HashSet<int>, int>(PartnerListTypeIn, "KalturaPersonalListSearchFilter.PartnerListTypeIn", false, true);
 
-        internal override KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
+        internal override KalturaAssetListResponse GetAssets(
+            ContextData contextData,
+            KalturaBaseResponseProfile responseProfile,
+            KalturaFilterPager pager)
         {
-            int domainId = (int)(contextData.DomainId ?? 0);
+            var domainId = (int)(contextData.DomainId ?? 0);
             var ksqlFilter = FilterAsset.Instance.UpdateKsql(Ksql, contextData.GroupId, contextData.SessionCharacteristicKey);
 
-            var response = ClientsManager.CatalogClient().GetPersonalListAssets(contextData.GroupId, contextData.UserId.ToString(), domainId, contextData.Udid, contextData.Language, ksqlFilter, 
-                this.OrderBy, this.DynamicOrderBy, this.getGroupByValue(), pager.getPageIndex(), pager.getPageSize(), this.GetPartnerListTypeIn(), responseProfile, this.TrendingDaysEqual);
-
-            return response;
+            return ClientsManager.CatalogClient().GetPersonalListAssets(
+                contextData.GroupId,
+                contextData.UserId.ToString(),
+                domainId,
+                contextData.Udid,
+                contextData.Language,
+                ksqlFilter, 
+                Orderings,
+                getGroupByValue(),
+                pager.getPageIndex(),
+                pager.getPageSize(),
+                GetPartnerListTypeIn(),
+                responseProfile,
+                ShouldApplyPriorityGroupsEqual ?? false);
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Text;
 using System.Net;
 using System.IO;
 using System.Threading;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 
 namespace Uploader

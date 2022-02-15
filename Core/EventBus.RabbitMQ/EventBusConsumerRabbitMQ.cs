@@ -10,9 +10,9 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using EventBus.Abstraction;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
@@ -337,9 +337,9 @@ namespace EventBus.RabbitMQ
             var eventData = (ServiceEvent) serviceEvent;
             _Logger.Debug($"ProcessEvent > eventType:[{eventData.GetType().Name}] groupId:[{eventData.GroupId}] requestId:[{eventData.RequestId}] userId:[{eventData.UserId}]");
 
-            KLogger.LogContextData[KLogMonitor.Constants.USER_ID] = eventData.UserId;
-            KLogger.LogContextData[KLogMonitor.Constants.GROUP_ID] = eventData.GroupId;
-            KLogger.LogContextData[KLogMonitor.Constants.REQUEST_ID_KEY] = eventData.RequestId;
+            KLogger.LogContextData[Phx.Lib.Log.Constants.USER_ID] = eventData.UserId;
+            KLogger.LogContextData[Phx.Lib.Log.Constants.GROUP_ID] = eventData.GroupId;
+            KLogger.LogContextData[Phx.Lib.Log.Constants.REQUEST_ID_KEY] = eventData.RequestId;
             return eventData;
         }
 

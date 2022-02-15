@@ -14,9 +14,9 @@ using TVPPro.SiteManager.CatalogLoaders;
 using System.Collections.Generic;
 using TVPPro.SiteManager.Manager;
 using TVPPro.SiteManager.Services;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace TVPPro.SiteManager.DataLoaders
 {

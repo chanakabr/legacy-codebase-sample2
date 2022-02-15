@@ -18,9 +18,12 @@ using CachingProvider.LayeredCache;
 namespace ApiLogic.Tests.Pricing.Handlers
 {
     [TestFixture]
+    [Ignore("Temporarily ignored because of random fails. Described in https://github.com/kaltura/ott-backend/pull/1113")]
     class UsageModuleManagerTests
     {
         [TestCaseSource(nameof(DeleteCases))]
+        [Ignore("ignored due to https://kaltura.atlassian.net/browse/BEO-11237")]
+        // This test cannot run and will required changes for decoupling UsageModuleManager form PPVManager
         public void CheckDelete(DeleteTestCase deleteTestCase)
         {
             Fixture fixture = new Fixture();

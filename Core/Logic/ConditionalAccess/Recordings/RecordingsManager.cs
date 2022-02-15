@@ -3,7 +3,7 @@ using ApiObjects.Response;
 using ApiObjects.TimeShiftedTv;
 using DAL;
 using EpgBL;
-using KLogMonitor;
+using Phx.Lib.Log;
 using QueueWrapper;
 using System;
 using System.Collections.Generic;
@@ -14,10 +14,10 @@ using System.Threading.Tasks;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using Synchronizer;
-using KlogMonitorHelper;
+
 using ApiObjects.QueueObjects;
 using Core.ConditionalAccess;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using CachingProvider.LayeredCache;
 
 namespace Core.Recordings
@@ -1068,7 +1068,7 @@ namespace Core.Recordings
                 Recording copyRecording = new Recording(recording);
 
                 // Async - call adapter. Main flow is done
-                ContextData contextData = new ContextData();
+                LogContextData contextData = new LogContextData();
                 Task async = Task.Run(() =>
                 {
                     contextData.Load();

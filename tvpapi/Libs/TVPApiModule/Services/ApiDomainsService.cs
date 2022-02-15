@@ -1,5 +1,5 @@
 ﻿using Core.Users;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Reflection;
 using TVPApi;
@@ -58,7 +58,7 @@ namespace TVPApiModule.Services
             DomainResponseObject domain = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var res = Core.Domains.Module.AddUserToDomain(m_groupID, domainID, AddedUserGuid, masterSiteGuid, false);
                     if (res != null && res.DomainResponse != null)
@@ -81,7 +81,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var res = Core.Domains.Module.RemoveUserFromDomain(m_groupID, iDomainID, userGuidToRemove);
                     if (res != null && res.DomainResponse != null)
@@ -106,7 +106,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var res = Core.Domains.Module.AddDeviceToDomain(m_groupID, iDomainID, sUDID, sDeviceName, iDeviceBrandID);
                     if (res != null && res.DomainResponse != null)
@@ -129,7 +129,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     passed = Core.Domains.Module.SetDomainRestriction(m_groupID, iDomainID, nRestriction);
                 }
@@ -148,7 +148,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var res  = Core.Domains.Module.SubmitAddDeviceToDomainRequest(m_groupID, domainId, userId, sUDID, deviceName, brandId);
                     if (res != null && res.DomainResponse != null)
@@ -171,7 +171,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var res = Core.Domains.Module.ConfirmDeviceByDomainMaster(m_groupID, masterUn, udid, token);
                     if (res != null)
@@ -194,7 +194,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     network = Core.Domains.Module.AddHomeNetworkToDomain(m_groupID, domainId, networkId, networkName, networkDesc);
                 }
@@ -213,7 +213,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var res = Core.Domains.Module.SetDomainHomeNetwork(m_groupID, domainId, networkId, networkName, networkDesc, isActive);
 
@@ -297,7 +297,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var res = Core.Domains.Module.RemoveDomainHomeNetwork(m_groupID, domainId, networkId);
                     network = ConvertStatusToNetworkResponseObject(res);
@@ -318,7 +318,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var res = Core.Domains.Module.GetDomainHomeNetworks(m_groupID, domainId);
                     if (res != null && res.HomeNetworks != null)
@@ -339,7 +339,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var res = Core.Domains.Module.RemoveDeviceFromDomain(m_groupID, iDomainID, sUDID);
                     if (res != null && res.DomainResponse != null)
@@ -362,7 +362,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var res = Core.Domains.Module.ChangeDeviceDomainStatus(m_groupID, iDomainID, sUDID, bActive);
                     if (res != null && res.DomainResponse != null)
@@ -385,7 +385,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var response = Core.Domains.Module.GetDomainInfo(m_groupID, iDomainID);
                     if (response != null && response.Domain != null)
@@ -408,7 +408,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var response = Core.Domains.Module.SetDomainInfo(m_groupID, iDomainID, sDomainName, sDomainDescription, null);
 
@@ -432,7 +432,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var list = Core.Domains.Module.GetDeviceDomains(m_groupID, udid);
 
@@ -456,7 +456,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var response = Core.Domains.Module.GetPINForDevice(m_groupID, udid, devBrandID);
                     if (response != null)
@@ -476,7 +476,7 @@ namespace TVPApiModule.Services
             DeviceResponseObject device = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var deviceRes = Core.Domains.Module.RegisterDeviceToDomainWithPIN(m_groupID, pin, domainID, string.Empty);
                     if (deviceRes != null)
@@ -499,7 +499,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var res = Core.Domains.Module.ResetDomain(m_groupID, domainID);
 
@@ -522,7 +522,7 @@ namespace TVPApiModule.Services
             bool response = false;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var result = Core.Domains.Module.SetDeviceInfo(m_groupID, udid, deviceName);
                     if (result != null && result.Code == 0)
@@ -548,7 +548,7 @@ namespace TVPApiModule.Services
             DomainResponseObject response = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var res = Core.Domains.Module.AddDomain(m_groupID, domainName, domainDesc, masterGuid, null);
 
@@ -571,7 +571,7 @@ namespace TVPApiModule.Services
             DomainResponseObject response = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var res = Core.Domains.Module.AddDomainWithCoGuid(m_groupID, domainName, domainDesc, masterGuid, CoGuid, null);
 
@@ -608,7 +608,7 @@ namespace TVPApiModule.Services
             DomainResponseObject response = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var res = Core.Domains.Module.GetDomainByCoGuid(m_groupID, coGuid);
 
@@ -630,7 +630,7 @@ namespace TVPApiModule.Services
             int domainID = 0;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     domainID = Core.Domains.Module.GetDomainIDByCoGuid(m_groupID, coGuid);
                 }
@@ -647,7 +647,7 @@ namespace TVPApiModule.Services
             DomainResponseObject res = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var response = Core.Domains.Module.SubmitAddUserToDomainRequest(m_groupID, userID, masterUsername);
 
@@ -670,7 +670,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     response = Core.Domains.Module.RemoveDomain(m_groupID, domainID, false);
                 }
@@ -689,7 +689,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     response = Core.Domains.Module.GetDomainIDsByOperatorCoGuid(m_groupID, operatorCoGuid);
                 }
@@ -709,7 +709,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     deviceInfo = Core.Domains.Module.Instance.GetDeviceInfo(m_groupID, sId, bIsUDID);
                 }
@@ -728,7 +728,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var res = Core.Domains.Module.ChangeDomainMaster(m_groupID, domainID, currentMasterID, newMasterID);
 
@@ -752,7 +752,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var res = Core.Domains.Module.ResetDomainFrequency(m_groupID, domainID, frequencyType);
 
@@ -776,7 +776,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var result = Core.Domains.Module.SuspendDomain(m_groupID, domainId);
                     clientResponse = new ClientResponseStatus(result.Code, result.Message);
@@ -797,7 +797,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var result = Core.Domains.Module.ResumeDomain(m_groupID, domainId);
                     clientResponse = new ClientResponseStatus(result.Code, result.Message);
@@ -818,7 +818,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var result = Core.Domains.Module.Instance.GetDLM(m_groupID, dlmID);
                     response = new DomainLimitationModuleResponse();
@@ -842,7 +842,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var result = Core.Domains.Module.SetDomainRegion(m_groupID, domainId, extRegionId, lookupKey);
                     clientResponse = new ClientResponseStatus(result.Code, result.Message);
@@ -863,7 +863,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var res = Core.Domains.Module.GetDomainByUser(m_groupID, siteGuid);
                     if (res != null && res.Domain != null)

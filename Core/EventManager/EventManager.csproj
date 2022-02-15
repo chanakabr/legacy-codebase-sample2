@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
+    <PackageReference Include="Phx.Lib.Log" Version="1.2.3" />
   </ItemGroup>
 
    <!-- This is a workaround that will allow TVM website project to build, if you read this an 

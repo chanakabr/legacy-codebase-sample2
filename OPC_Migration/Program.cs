@@ -1,12 +1,13 @@
 ﻿using ApiObjects.Catalog;
 using Core.Catalog;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Diagnostics;
 using ApiObjects;
+using Phx.Lib.Appconfig;
 
 namespace OPC_Migration
 {
@@ -269,7 +270,7 @@ namespace OPC_Migration
             var defaultLogDir = $@"/var/log/opc-migration";
             KLogger.InitLogger("log4net.config", KLogEnums.AppType.WS, defaultLogDir);
 
-            ConfigurationManager.ApplicationConfiguration.Init();
+            ApplicationConfiguration.Init();
             CachingProvider.LayeredCache.LayeredCache.Instance.DisableInMemoryCache();
         }
 

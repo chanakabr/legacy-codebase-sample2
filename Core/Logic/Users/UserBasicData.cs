@@ -4,7 +4,7 @@ using ApiObjects;
 using ApiObjects.Response;
 using AuthenticationGrpcClientWrapper;
 using CachingProvider.LayeredCache;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using DAL;
 using System;
 using System.Collections.Generic;
@@ -285,6 +285,7 @@ namespace Core.Users
 
             var userDataEncryptor = UserDataEncryptor.Instance();
             var encryptionType = userDataEncryptor.GetUsernameEncryptionType(groupId);
+            m_sUserName = userDataEncryptor.CorrectUsernameCase(encryptionType, m_sUserName);
             var encryptedUsername = userDataEncryptor.EncryptUsername(groupId, encryptionType, m_sUserName);
 
             bool saved = UsersDal.SaveBasicData(groupId, nUserID,

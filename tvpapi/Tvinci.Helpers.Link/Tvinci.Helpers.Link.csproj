@@ -18,7 +18,6 @@
     <Content Include="Configuration\Helper.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\Tvinci.Configuration\Tvinci.Configuration.csproj" />
     <ProjectReference Include="..\Tvinci.Helpers\Tvinci.Helpers.csproj" />
     <ProjectReference Include="..\TVPPro.Configuration\TVPPro.Configuration.csproj" />

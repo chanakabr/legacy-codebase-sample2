@@ -11,7 +11,7 @@ using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Xml.Linq;
 using System.Xml;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 
 public partial class xti_listener : System.Web.UI.Page

@@ -46,7 +46,7 @@ namespace WebAPI.Tests.Models.Pricing
             yield return new TestCaseData(KalturaDiscountDetailsVersion, StatusCode.ArgumentCannotBeEmpty).SetName("ValidateForAddWithoutMultiCurrencyDiscount");
 
             KalturaDiscountDetailsVersion = fixture.Create<KalturaDiscountDetails>();
-            KalturaDiscountDetailsVersion.WhenAlgoType = 0;
+            KalturaDiscountDetailsVersion.WhenAlgoType = 3;
             yield return new TestCaseData(KalturaDiscountDetailsVersion, StatusCode.EnumValueNotSupported).SetName("ValidateForAddWitIncorrectEnum");
 
             KalturaDiscountDetailsVersion = fixture.Create<KalturaDiscountDetails>();

@@ -1,4 +1,4 @@
-﻿using KLogMonitor;
+﻿using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -34,12 +34,14 @@ public partial class adm_subscription_product_codes : System.Web.UI.Page
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, true);
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
-                int subscriptionId = 0;
-                string xml = GetPageData(out subscriptionId);
+                string xml = GetPageData(out int subscriptionId);
                 bool result = false;
                 if (!string.IsNullOrEmpty(xml))
                 {
                     result = SetSubscriptionProducts(xml, subscriptionId);
+                    
+                    Core.Pricing.PricingCache.Instance.InvalidateSubscription(LoginManager.GetLoginGroupID(), subscriptionId);
+                    log.Debug($"InvalidateSubscription {subscriptionId}");
                 }
 
                 if (result)

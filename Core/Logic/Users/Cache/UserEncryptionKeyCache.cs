@@ -1,6 +1,6 @@
 ﻿using ApiObjects;
 using CachingProvider;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using System;
 using System.Collections.Generic;
 using System.Threading;

@@ -21,7 +21,6 @@
     <None Include="Configuration\MultiClientData.xsd" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\Tvinci.Configuration\Tvinci.Configuration.csproj" />
     <ProjectReference Include="..\Tvinci.Helpers.Link\Tvinci.Helpers.Link.csproj" />
     <ProjectReference Include="..\Tvinci.Helpers\Tvinci.Helpers.csproj" />

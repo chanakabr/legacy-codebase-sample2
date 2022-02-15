@@ -1,4 +1,14 @@
 // NOTICE: This is a generated file, to modify it, edit Program.cs in Reflector project
+// disable compiler warning due to generation of empty usages ot unused vars
+// ReSharper disable CheckNamespace
+// ReSharper disable NotAccessedVariable
+// ReSharper disable UnusedVariable
+// ReSharper disable RedundantAssignment
+// ReSharper disable PossibleMultipleEnumeration
+// ReSharper disable UnusedParameter.Local
+// ReSharper disable PossibleNullReferenceException
+// ReSharper disable AssignNullToNotNullAttribute
+// ReSharper disable BadChildStatementIndent
 using Newtonsoft.Json.Linq;
 using System;
 using System.Web;
@@ -22,6 +32,7 @@ using WebAPI.Models.Notification;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.Pricing;
 using WebAPI.Models.Segmentation;
+using WebAPI.Models.Catalog.Ordering;
 using WebAPI.Models.Users;
 using WebAPI.Models.Partner;
 using WebAPI.Models.Upload;
@@ -37,6 +48,7 @@ using WebAPI.Models.ConditionalAccess.FilterActions.Assets;
 using WebAPI.Models.ConditionalAccess.FilterActions.Files;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
+using WebAPI.Models.IngestStatus;
 using WebAPI.Models.Api;
 using WebAPI.Models.Catalog.SearchPriorityGroup;
 
@@ -144,6 +156,9 @@ namespace WebAPI.Reflection
                 case "KalturaAssetCountListResponse":
                     return new KalturaAssetCountListResponse(parameters, true);
                     
+                case "KalturaAssetDynamicOrder":
+                    return new KalturaAssetDynamicOrder(parameters, true);
+                    
                 case "KalturaAssetEvent":
                     return new KalturaAssetEvent(parameters, true);
                     
@@ -210,6 +225,9 @@ namespace WebAPI.Reflection
                 case "KalturaAssetMetaOrTagGroupBy":
                     return new KalturaAssetMetaOrTagGroupBy(parameters, true);
                     
+                case "KalturaAssetOrder":
+                    return new KalturaAssetOrder(parameters, true);
+                    
                 case "KalturaAssetOrderSegmentAction":
                     return new KalturaAssetOrderSegmentAction(parameters, true);
                     
@@ -251,6 +269,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaAssetStatisticsListResponse":
                     return new KalturaAssetStatisticsListResponse(parameters, true);
+                    
+                case "KalturaAssetStatisticsOrder":
+                    return new KalturaAssetStatisticsOrder(parameters, true);
                     
                 case "KalturaAssetStatisticsQuery":
                     return new KalturaAssetStatisticsQuery(parameters, true);
@@ -297,11 +318,17 @@ namespace WebAPI.Reflection
                 case "KalturaBaseAssetInfo":
                     return new KalturaBaseAssetInfo(parameters, true);
                     
+                case "KalturaBaseAssetOrder":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
                 case "KalturaBaseAssetStructFilter":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaBaseChannel":
                     return new KalturaBaseChannel(parameters, true);
+                    
+                case "KalturaBaseChannelOrder":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaBaseOTTUser":
                     return new KalturaBaseOTTUser(parameters, true);
@@ -549,11 +576,17 @@ namespace WebAPI.Reflection
                 case "KalturaChannel":
                     return new KalturaChannel(parameters, true);
                     
+                case "KalturaChannelDynamicOrder":
+                    return new KalturaChannelDynamicOrder(parameters, true);
+                    
                 case "KalturaChannelEnrichmentHolder":
                     return new KalturaChannelEnrichmentHolder(parameters, true);
                     
                 case "KalturaChannelExternalFilter":
                     return new KalturaChannelExternalFilter(parameters, true);
+                    
+                case "KalturaChannelFieldOrder":
+                    return new KalturaChannelFieldOrder(parameters, true);
                     
                 case "KalturaChannelFilter":
                     return new KalturaChannelFilter(parameters, true);
@@ -575,6 +608,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaChannelsFilter":
                     return new KalturaChannelsFilter(parameters, true);
+                    
+                case "KalturaChannelSlidingWindowOrder":
+                    return new KalturaChannelSlidingWindowOrder(parameters, true);
                     
                 case "KalturaClientConfiguration":
                     return new KalturaClientConfiguration(parameters, true);
@@ -1290,11 +1326,29 @@ namespace WebAPI.Reflection
                 case "KalturaInboxMessageTypeHolder":
                     return new KalturaInboxMessageTypeHolder(parameters, true);
                     
+                case "KalturaIngestByCompoundFilter":
+                    return new KalturaIngestByCompoundFilter(parameters, true);
+                    
+                case "KalturaIngestByIdsFilter":
+                    return new KalturaIngestByIdsFilter(parameters, true);
+                    
+                case "KalturaIngestEpg":
+                    return new KalturaIngestEpg(parameters, true);
+                    
                 case "KalturaIngestProfile":
                     return new KalturaIngestProfile(parameters, true);
                     
                 case "KalturaIngestProfileListResponse":
                     return new KalturaIngestProfileListResponse(parameters, true);
+                    
+                case "KalturaIngestStatusEpgConfiguration":
+                    return new KalturaIngestStatusEpgConfiguration(parameters, true);
+                    
+                case "KalturaIngestStatusEpgListResponse":
+                    return new KalturaIngestStatusEpgListResponse(parameters, true);
+                    
+                case "KalturaIngestStatusPartnerConfiguration":
+                    return new KalturaIngestStatusPartnerConfiguration(parameters, true);
                     
                 case "KalturaIntegerValue":
                     return new KalturaIntegerValue(parameters, true);
@@ -1812,6 +1866,12 @@ namespace WebAPI.Reflection
                 case "KalturaPricesFilter":
                     return new KalturaPricesFilter(parameters, true);
                     
+                case "KalturaPriorityGroupFilter":
+                    return new KalturaPriorityGroupFilter(parameters, true);
+                    
+                case "KalturaPriorityGroupListResponse":
+                    return new KalturaPriorityGroupListResponse(parameters, true);
+                    
                 case "KalturaProductCode":
                     return new KalturaProductCode(parameters, true);
                     
@@ -1911,8 +1971,14 @@ namespace WebAPI.Reflection
                 case "KalturaRegionalChannel":
                     return new KalturaRegionalChannel(parameters, true);
                     
+                case "KalturaRegionalChannelMultiLcns":
+                    return new KalturaRegionalChannelMultiLcns(parameters, true);
+                    
                 case "KalturaRegionChannelNumber":
                     return new KalturaRegionChannelNumber(parameters, true);
+                    
+                case "KalturaRegionChannelNumberMultiLcns":
+                    return new KalturaRegionChannelNumberMultiLcns(parameters, true);
                     
                 case "KalturaRegionFilter":
                     return new KalturaRegionFilter(parameters, true);
@@ -2558,10 +2624,7 @@ namespace WebAPI.Models.ConditionalAccess
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
@@ -2685,34 +2748,22 @@ namespace WebAPI.Models.ConditionalAccess
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("viewLifeCycle") && parameters["viewLifeCycle"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ViewLifeCycleSchemaProperty.Validate("viewLifeCycle", parameters["viewLifeCycle"]);
-                    }
+                    ViewLifeCycleSchemaProperty.Validate("viewLifeCycle", parameters["viewLifeCycle"]);
                     ViewLifeCycle = (String) Convert.ChangeType(parameters["viewLifeCycle"], typeof(String));
                 }
                 if (parameters.ContainsKey("fullLifeCycle") && parameters["fullLifeCycle"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FullLifeCycleSchemaProperty.Validate("fullLifeCycle", parameters["fullLifeCycle"]);
-                    }
+                    FullLifeCycleSchemaProperty.Validate("fullLifeCycle", parameters["fullLifeCycle"]);
                     FullLifeCycle = (String) Convert.ChangeType(parameters["fullLifeCycle"], typeof(String));
                 }
                 if (parameters.ContainsKey("isOfflinePlayBack") && parameters["isOfflinePlayBack"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsOfflinePlayBackSchemaProperty.Validate("isOfflinePlayBack", parameters["isOfflinePlayBack"]);
-                    }
+                    IsOfflinePlayBackSchemaProperty.Validate("isOfflinePlayBack", parameters["isOfflinePlayBack"]);
                     IsOfflinePlayBack = (Boolean) Convert.ChangeType(parameters["isOfflinePlayBack"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("isLivePlayBack") && parameters["isLivePlayBack"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsLivePlayBackSchemaProperty.Validate("isLivePlayBack", parameters["isLivePlayBack"]);
-                    }
+                    IsLivePlayBackSchemaProperty.Validate("isLivePlayBack", parameters["isLivePlayBack"]);
                     IsLivePlayBack = (Boolean) Convert.ChangeType(parameters["isLivePlayBack"], typeof(Boolean));
                 }
             }
@@ -2784,10 +2835,7 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("assetLifeCycleRuleTransitionType") && parameters["assetLifeCycleRuleTransitionType"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AssetLifeCycleRuleTransitionTypeSchemaProperty.Validate("assetLifeCycleRuleTransitionType", parameters["assetLifeCycleRuleTransitionType"]);
-                    }
+                    AssetLifeCycleRuleTransitionTypeSchemaProperty.Validate("assetLifeCycleRuleTransitionType", parameters["assetLifeCycleRuleTransitionType"]);
                     if(string.IsNullOrEmpty(parameters["assetLifeCycleRuleTransitionType"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "assetLifeCycleRuleTransitionType");
@@ -3075,58 +3123,37 @@ namespace WebAPI.Models.ConditionalAccess
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("recieptCode") && parameters["recieptCode"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        recieptCodeSchemaProperty.Validate("recieptCode", parameters["recieptCode"]);
-                    }
+                    recieptCodeSchemaProperty.Validate("recieptCode", parameters["recieptCode"]);
                     recieptCode = (String) Convert.ChangeType(parameters["recieptCode"], typeof(String));
                 }
                 if (parameters.ContainsKey("reciept_code") && parameters["reciept_code"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        recieptCodeSchemaProperty.Validate("reciept_code", parameters["reciept_code"]);
-                    }
+                    recieptCodeSchemaProperty.Validate("reciept_code", parameters["reciept_code"]);
                     recieptCode = (String) Convert.ChangeType(parameters["reciept_code"], typeof(String));
                 }
                 if (parameters.ContainsKey("purchasedItemName") && parameters["purchasedItemName"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        purchasedItemNameSchemaProperty.Validate("purchasedItemName", parameters["purchasedItemName"]);
-                    }
+                    purchasedItemNameSchemaProperty.Validate("purchasedItemName", parameters["purchasedItemName"]);
                     purchasedItemName = (String) Convert.ChangeType(parameters["purchasedItemName"], typeof(String));
                 }
                 if (parameters.ContainsKey("purchased_item_name") && parameters["purchased_item_name"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        purchasedItemNameSchemaProperty.Validate("purchased_item_name", parameters["purchased_item_name"]);
-                    }
+                    purchasedItemNameSchemaProperty.Validate("purchased_item_name", parameters["purchased_item_name"]);
                     purchasedItemName = (String) Convert.ChangeType(parameters["purchased_item_name"], typeof(String));
                 }
                 if (parameters.ContainsKey("purchasedItemCode") && parameters["purchasedItemCode"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        purchasedItemCodeSchemaProperty.Validate("purchasedItemCode", parameters["purchasedItemCode"]);
-                    }
+                    purchasedItemCodeSchemaProperty.Validate("purchasedItemCode", parameters["purchasedItemCode"]);
                     purchasedItemCode = (String) Convert.ChangeType(parameters["purchasedItemCode"], typeof(String));
                 }
                 if (parameters.ContainsKey("purchased_item_code") && parameters["purchased_item_code"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        purchasedItemCodeSchemaProperty.Validate("purchased_item_code", parameters["purchased_item_code"]);
-                    }
+                    purchasedItemCodeSchemaProperty.Validate("purchased_item_code", parameters["purchased_item_code"]);
                     purchasedItemCode = (String) Convert.ChangeType(parameters["purchased_item_code"], typeof(String));
                 }
                 if (parameters.ContainsKey("itemType") && parameters["itemType"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        itemTypeSchemaProperty.Validate("itemType", parameters["itemType"]);
-                    }
+                    itemTypeSchemaProperty.Validate("itemType", parameters["itemType"]);
                     if(string.IsNullOrEmpty(parameters["itemType"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "itemType");
@@ -3141,10 +3168,7 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("item_type") && parameters["item_type"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        itemTypeSchemaProperty.Validate("item_type", parameters["item_type"]);
-                    }
+                    itemTypeSchemaProperty.Validate("item_type", parameters["item_type"]);
                     if(string.IsNullOrEmpty(parameters["item_type"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "item_type");
@@ -3159,10 +3183,7 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("billingAction") && parameters["billingAction"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        billingActionSchemaProperty.Validate("billingAction", parameters["billingAction"]);
-                    }
+                    billingActionSchemaProperty.Validate("billingAction", parameters["billingAction"]);
                     if(string.IsNullOrEmpty(parameters["billingAction"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "billingAction");
@@ -3177,10 +3198,7 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("billing_action") && parameters["billing_action"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        billingActionSchemaProperty.Validate("billing_action", parameters["billing_action"]);
-                    }
+                    billingActionSchemaProperty.Validate("billing_action", parameters["billing_action"]);
                     if(string.IsNullOrEmpty(parameters["billing_action"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "billing_action");
@@ -3195,10 +3213,7 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("price") && parameters["price"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        priceSchemaProperty.Validate("price", parameters["price"]);
-                    }
+                    priceSchemaProperty.Validate("price", parameters["price"]);
                     if (parameters["price"] is JObject)
                     {
                         price = (KalturaPrice) Deserializer.deserialize(typeof(KalturaPrice), ((JObject) parameters["price"]).ToObject<Dictionary<string, object>>());
@@ -3210,58 +3225,37 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("actionDate") && parameters["actionDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        actionDateSchemaProperty.Validate("actionDate", parameters["actionDate"]);
-                    }
+                    actionDateSchemaProperty.Validate("actionDate", parameters["actionDate"]);
                     actionDate = (Int64) Convert.ChangeType(parameters["actionDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("action_date") && parameters["action_date"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        actionDateSchemaProperty.Validate("action_date", parameters["action_date"]);
-                    }
+                    actionDateSchemaProperty.Validate("action_date", parameters["action_date"]);
                     actionDate = (Int64) Convert.ChangeType(parameters["action_date"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        startDateSchemaProperty.Validate("startDate", parameters["startDate"]);
-                    }
+                    startDateSchemaProperty.Validate("startDate", parameters["startDate"]);
                     startDate = (Int64) Convert.ChangeType(parameters["startDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("start_date") && parameters["start_date"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        startDateSchemaProperty.Validate("start_date", parameters["start_date"]);
-                    }
+                    startDateSchemaProperty.Validate("start_date", parameters["start_date"]);
                     startDate = (Int64) Convert.ChangeType(parameters["start_date"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        endDateSchemaProperty.Validate("endDate", parameters["endDate"]);
-                    }
+                    endDateSchemaProperty.Validate("endDate", parameters["endDate"]);
                     endDate = (Int64) Convert.ChangeType(parameters["endDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("end_date") && parameters["end_date"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        endDateSchemaProperty.Validate("end_date", parameters["end_date"]);
-                    }
+                    endDateSchemaProperty.Validate("end_date", parameters["end_date"]);
                     endDate = (Int64) Convert.ChangeType(parameters["end_date"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("paymentMethod") && parameters["paymentMethod"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        paymentMethodSchemaProperty.Validate("paymentMethod", parameters["paymentMethod"]);
-                    }
+                    paymentMethodSchemaProperty.Validate("paymentMethod", parameters["paymentMethod"]);
                     if(string.IsNullOrEmpty(parameters["paymentMethod"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "paymentMethod");
@@ -3276,10 +3270,7 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("payment_method") && parameters["payment_method"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        paymentMethodSchemaProperty.Validate("payment_method", parameters["payment_method"]);
-                    }
+                    paymentMethodSchemaProperty.Validate("payment_method", parameters["payment_method"]);
                     if(string.IsNullOrEmpty(parameters["payment_method"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "payment_method");
@@ -3294,82 +3285,52 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("paymentMethodExtraDetails") && parameters["paymentMethodExtraDetails"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        paymentMethodExtraDetailsSchemaProperty.Validate("paymentMethodExtraDetails", parameters["paymentMethodExtraDetails"]);
-                    }
+                    paymentMethodExtraDetailsSchemaProperty.Validate("paymentMethodExtraDetails", parameters["paymentMethodExtraDetails"]);
                     paymentMethodExtraDetails = (String) Convert.ChangeType(parameters["paymentMethodExtraDetails"], typeof(String));
                 }
                 if (parameters.ContainsKey("payment_method_extra_details") && parameters["payment_method_extra_details"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        paymentMethodExtraDetailsSchemaProperty.Validate("payment_method_extra_details", parameters["payment_method_extra_details"]);
-                    }
+                    paymentMethodExtraDetailsSchemaProperty.Validate("payment_method_extra_details", parameters["payment_method_extra_details"]);
                     paymentMethodExtraDetails = (String) Convert.ChangeType(parameters["payment_method_extra_details"], typeof(String));
                 }
                 if (parameters.ContainsKey("isRecurring") && parameters["isRecurring"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        isRecurringSchemaProperty.Validate("isRecurring", parameters["isRecurring"]);
-                    }
+                    isRecurringSchemaProperty.Validate("isRecurring", parameters["isRecurring"]);
                     isRecurring = (Boolean) Convert.ChangeType(parameters["isRecurring"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("is_recurring") && parameters["is_recurring"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        isRecurringSchemaProperty.Validate("is_recurring", parameters["is_recurring"]);
-                    }
+                    isRecurringSchemaProperty.Validate("is_recurring", parameters["is_recurring"]);
                     isRecurring = (Boolean) Convert.ChangeType(parameters["is_recurring"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("billingProviderRef") && parameters["billingProviderRef"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        billingProviderRefSchemaProperty.Validate("billingProviderRef", parameters["billingProviderRef"]);
-                    }
+                    billingProviderRefSchemaProperty.Validate("billingProviderRef", parameters["billingProviderRef"]);
                     billingProviderRef = (Int32) Convert.ChangeType(parameters["billingProviderRef"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("billing_provider_ref") && parameters["billing_provider_ref"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        billingProviderRefSchemaProperty.Validate("billing_provider_ref", parameters["billing_provider_ref"]);
-                    }
+                    billingProviderRefSchemaProperty.Validate("billing_provider_ref", parameters["billing_provider_ref"]);
                     billingProviderRef = (Int32) Convert.ChangeType(parameters["billing_provider_ref"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("purchaseId") && parameters["purchaseId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        purchaseIDSchemaProperty.Validate("purchaseId", parameters["purchaseId"]);
-                    }
+                    purchaseIDSchemaProperty.Validate("purchaseId", parameters["purchaseId"]);
                     purchaseID = (Int32) Convert.ChangeType(parameters["purchaseId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("purchase_id") && parameters["purchase_id"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        purchaseIDSchemaProperty.Validate("purchase_id", parameters["purchase_id"]);
-                    }
+                    purchaseIDSchemaProperty.Validate("purchase_id", parameters["purchase_id"]);
                     purchaseID = (Int32) Convert.ChangeType(parameters["purchase_id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("remarks") && parameters["remarks"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        remarksSchemaProperty.Validate("remarks", parameters["remarks"]);
-                    }
+                    remarksSchemaProperty.Validate("remarks", parameters["remarks"]);
                     remarks = (String) Convert.ChangeType(parameters["remarks"], typeof(String));
                 }
                 if (parameters.ContainsKey("billingPriceType") && parameters["billingPriceType"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        billingPriceTypeSchemaProperty.Validate("billingPriceType", parameters["billingPriceType"]);
-                    }
+                    billingPriceTypeSchemaProperty.Validate("billingPriceType", parameters["billingPriceType"]);
                     if(string.IsNullOrEmpty(parameters["billingPriceType"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "billingPriceType");
@@ -3384,10 +3345,7 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("externalTransactionId") && parameters["externalTransactionId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ExternalTransactionIdSchemaProperty.Validate("externalTransactionId", parameters["externalTransactionId"]);
-                    }
+                    ExternalTransactionIdSchemaProperty.Validate("externalTransactionId", parameters["externalTransactionId"]);
                     ExternalTransactionId = (String) Convert.ChangeType(parameters["externalTransactionId"], typeof(String));
                 }
             }
@@ -3507,10 +3465,7 @@ namespace WebAPI.Models.ConditionalAccess
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -3550,18 +3505,12 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("sharedSecret") && parameters["sharedSecret"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SharedSecretSchemaProperty.Validate("sharedSecret", parameters["sharedSecret"]);
-                    }
+                    SharedSecretSchemaProperty.Validate("sharedSecret", parameters["sharedSecret"]);
                     SharedSecret = (String) Convert.ChangeType(parameters["sharedSecret"], typeof(String));
                 }
                 if (parameters.ContainsKey("shared_secret") && parameters["shared_secret"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        SharedSecretSchemaProperty.Validate("shared_secret", parameters["shared_secret"]);
-                    }
+                    SharedSecretSchemaProperty.Validate("shared_secret", parameters["shared_secret"]);
                     SharedSecret = (String) Convert.ChangeType(parameters["shared_secret"], typeof(String));
                 }
                 if (parameters.ContainsKey("dynamicLinksSupport") && parameters["dynamicLinksSupport"] != null)
@@ -3705,18 +3654,12 @@ namespace WebAPI.Models.ConditionalAccess
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("subscriptionId") && parameters["subscriptionId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SubscriptionIdSchemaProperty.Validate("subscriptionId", parameters["subscriptionId"]);
-                    }
+                    SubscriptionIdSchemaProperty.Validate("subscriptionId", parameters["subscriptionId"]);
                     SubscriptionId = (Int64) Convert.ChangeType(parameters["subscriptionId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("compensationType") && parameters["compensationType"] != null)
@@ -3735,26 +3678,17 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("amount") && parameters["amount"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AmountSchemaProperty.Validate("amount", parameters["amount"]);
-                    }
+                    AmountSchemaProperty.Validate("amount", parameters["amount"]);
                     Amount = (Double) Convert.ChangeType(parameters["amount"], typeof(Double));
                 }
                 if (parameters.ContainsKey("totalRenewalIterations") && parameters["totalRenewalIterations"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TotalRenewalIterationsSchemaProperty.Validate("totalRenewalIterations", parameters["totalRenewalIterations"]);
-                    }
+                    TotalRenewalIterationsSchemaProperty.Validate("totalRenewalIterations", parameters["totalRenewalIterations"]);
                     TotalRenewalIterations = (Int32) Convert.ChangeType(parameters["totalRenewalIterations"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("appliedRenewalIterations") && parameters["appliedRenewalIterations"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AppliedRenewalIterationsSchemaProperty.Validate("appliedRenewalIterations", parameters["appliedRenewalIterations"]);
-                    }
+                    AppliedRenewalIterationsSchemaProperty.Validate("appliedRenewalIterations", parameters["appliedRenewalIterations"]);
                     AppliedRenewalIterations = (Int32) Convert.ChangeType(parameters["appliedRenewalIterations"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("purchaseId") && parameters["purchaseId"] != null)
@@ -3804,18 +3738,12 @@ namespace WebAPI.Models.ConditionalAccess
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("couponCode") && parameters["couponCode"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CouponCodeSchemaProperty.Validate("couponCode", parameters["couponCode"]);
-                    }
+                    CouponCodeSchemaProperty.Validate("couponCode", parameters["couponCode"]);
                     CouponCode = (String) Convert.ChangeType(parameters["couponCode"], typeof(String));
                 }
                 if (parameters.ContainsKey("endlessCoupon") && parameters["endlessCoupon"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EndlessCouponSchemaProperty.Validate("endlessCoupon", parameters["endlessCoupon"]);
-                    }
+                    EndlessCouponSchemaProperty.Validate("endlessCoupon", parameters["endlessCoupon"]);
                     EndlessCoupon = (Boolean) Convert.ChangeType(parameters["endlessCoupon"], typeof(Boolean));
                 }
             }
@@ -4166,18 +4094,12 @@ namespace WebAPI.Models.ConditionalAccess
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TypeSchemaProperty.Validate("type", parameters["type"]);
-                    }
+                    TypeSchemaProperty.Validate("type", parameters["type"]);
                     if(string.IsNullOrEmpty(parameters["type"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "type");
@@ -4192,130 +4114,82 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("entitlementId") && parameters["entitlementId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EntitlementIdSchemaProperty.Validate("entitlementId", parameters["entitlementId"]);
-                    }
+                    EntitlementIdSchemaProperty.Validate("entitlementId", parameters["entitlementId"]);
                     EntitlementId = (String) Convert.ChangeType(parameters["entitlementId"], typeof(String));
                 }
                 if (parameters.ContainsKey("entitlement_id") && parameters["entitlement_id"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        EntitlementIdSchemaProperty.Validate("entitlement_id", parameters["entitlement_id"]);
-                    }
+                    EntitlementIdSchemaProperty.Validate("entitlement_id", parameters["entitlement_id"]);
                     EntitlementId = (String) Convert.ChangeType(parameters["entitlement_id"], typeof(String));
                 }
                 if (parameters.ContainsKey("productId") && parameters["productId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ProductIdSchemaProperty.Validate("productId", parameters["productId"]);
-                    }
+                    ProductIdSchemaProperty.Validate("productId", parameters["productId"]);
                     ProductId = (String) Convert.ChangeType(parameters["productId"], typeof(String));
                 }
                 if (parameters.ContainsKey("currentUses") && parameters["currentUses"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CurrentUsesSchemaProperty.Validate("currentUses", parameters["currentUses"]);
-                    }
+                    CurrentUsesSchemaProperty.Validate("currentUses", parameters["currentUses"]);
                     CurrentUses = (Int32) Convert.ChangeType(parameters["currentUses"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("current_uses") && parameters["current_uses"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        CurrentUsesSchemaProperty.Validate("current_uses", parameters["current_uses"]);
-                    }
+                    CurrentUsesSchemaProperty.Validate("current_uses", parameters["current_uses"]);
                     CurrentUses = (Int32) Convert.ChangeType(parameters["current_uses"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EndDateSchemaProperty.Validate("endDate", parameters["endDate"]);
-                    }
+                    EndDateSchemaProperty.Validate("endDate", parameters["endDate"]);
                     EndDate = (Int64) Convert.ChangeType(parameters["endDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("end_date") && parameters["end_date"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        EndDateSchemaProperty.Validate("end_date", parameters["end_date"]);
-                    }
+                    EndDateSchemaProperty.Validate("end_date", parameters["end_date"]);
                     EndDate = (Int64) Convert.ChangeType(parameters["end_date"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("currentDate") && parameters["currentDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CurrentDateSchemaProperty.Validate("currentDate", parameters["currentDate"]);
-                    }
+                    CurrentDateSchemaProperty.Validate("currentDate", parameters["currentDate"]);
                     CurrentDate = (Int64) Convert.ChangeType(parameters["currentDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("current_date") && parameters["current_date"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        CurrentDateSchemaProperty.Validate("current_date", parameters["current_date"]);
-                    }
+                    CurrentDateSchemaProperty.Validate("current_date", parameters["current_date"]);
                     CurrentDate = (Int64) Convert.ChangeType(parameters["current_date"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("lastViewDate") && parameters["lastViewDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        LastViewDateSchemaProperty.Validate("lastViewDate", parameters["lastViewDate"]);
-                    }
+                    LastViewDateSchemaProperty.Validate("lastViewDate", parameters["lastViewDate"]);
                     LastViewDate = (Int64) Convert.ChangeType(parameters["lastViewDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("last_view_date") && parameters["last_view_date"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        LastViewDateSchemaProperty.Validate("last_view_date", parameters["last_view_date"]);
-                    }
+                    LastViewDateSchemaProperty.Validate("last_view_date", parameters["last_view_date"]);
                     LastViewDate = (Int64) Convert.ChangeType(parameters["last_view_date"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("purchaseDate") && parameters["purchaseDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PurchaseDateSchemaProperty.Validate("purchaseDate", parameters["purchaseDate"]);
-                    }
+                    PurchaseDateSchemaProperty.Validate("purchaseDate", parameters["purchaseDate"]);
                     PurchaseDate = (Int64) Convert.ChangeType(parameters["purchaseDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("purchase_date") && parameters["purchase_date"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        PurchaseDateSchemaProperty.Validate("purchase_date", parameters["purchase_date"]);
-                    }
+                    PurchaseDateSchemaProperty.Validate("purchase_date", parameters["purchase_date"]);
                     PurchaseDate = (Int64) Convert.ChangeType(parameters["purchase_date"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("purchaseId") && parameters["purchaseId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PurchaseIdSchemaProperty.Validate("purchaseId", parameters["purchaseId"]);
-                    }
+                    PurchaseIdSchemaProperty.Validate("purchaseId", parameters["purchaseId"]);
                     PurchaseId = (Int32) Convert.ChangeType(parameters["purchaseId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("purchase_id") && parameters["purchase_id"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        PurchaseIdSchemaProperty.Validate("purchase_id", parameters["purchase_id"]);
-                    }
+                    PurchaseIdSchemaProperty.Validate("purchase_id", parameters["purchase_id"]);
                     PurchaseId = (Int32) Convert.ChangeType(parameters["purchase_id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("paymentMethod") && parameters["paymentMethod"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PaymentMethodSchemaProperty.Validate("paymentMethod", parameters["paymentMethod"]);
-                    }
+                    PaymentMethodSchemaProperty.Validate("paymentMethod", parameters["paymentMethod"]);
                     if(string.IsNullOrEmpty(parameters["paymentMethod"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "paymentMethod");
@@ -4330,10 +4204,7 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("payment_method") && parameters["payment_method"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        PaymentMethodSchemaProperty.Validate("payment_method", parameters["payment_method"]);
-                    }
+                    PaymentMethodSchemaProperty.Validate("payment_method", parameters["payment_method"]);
                     if(string.IsNullOrEmpty(parameters["payment_method"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "payment_method");
@@ -4348,178 +4219,112 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("deviceUdid") && parameters["deviceUdid"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DeviceUDIDSchemaProperty.Validate("deviceUdid", parameters["deviceUdid"]);
-                    }
+                    DeviceUDIDSchemaProperty.Validate("deviceUdid", parameters["deviceUdid"]);
                     DeviceUDID = (String) Convert.ChangeType(parameters["deviceUdid"], typeof(String));
                 }
                 if (parameters.ContainsKey("device_udid") && parameters["device_udid"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        DeviceUDIDSchemaProperty.Validate("device_udid", parameters["device_udid"]);
-                    }
+                    DeviceUDIDSchemaProperty.Validate("device_udid", parameters["device_udid"]);
                     DeviceUDID = (String) Convert.ChangeType(parameters["device_udid"], typeof(String));
                 }
                 if (parameters.ContainsKey("deviceName") && parameters["deviceName"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DeviceNameSchemaProperty.Validate("deviceName", parameters["deviceName"]);
-                    }
+                    DeviceNameSchemaProperty.Validate("deviceName", parameters["deviceName"]);
                     DeviceName = (String) Convert.ChangeType(parameters["deviceName"], typeof(String));
                 }
                 if (parameters.ContainsKey("device_name") && parameters["device_name"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        DeviceNameSchemaProperty.Validate("device_name", parameters["device_name"]);
-                    }
+                    DeviceNameSchemaProperty.Validate("device_name", parameters["device_name"]);
                     DeviceName = (String) Convert.ChangeType(parameters["device_name"], typeof(String));
                 }
                 if (parameters.ContainsKey("isCancelationWindowEnabled") && parameters["isCancelationWindowEnabled"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsCancelationWindowEnabledSchemaProperty.Validate("isCancelationWindowEnabled", parameters["isCancelationWindowEnabled"]);
-                    }
+                    IsCancelationWindowEnabledSchemaProperty.Validate("isCancelationWindowEnabled", parameters["isCancelationWindowEnabled"]);
                     IsCancelationWindowEnabled = (Boolean) Convert.ChangeType(parameters["isCancelationWindowEnabled"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("is_cancelation_window_enabled") && parameters["is_cancelation_window_enabled"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsCancelationWindowEnabledSchemaProperty.Validate("is_cancelation_window_enabled", parameters["is_cancelation_window_enabled"]);
-                    }
+                    IsCancelationWindowEnabledSchemaProperty.Validate("is_cancelation_window_enabled", parameters["is_cancelation_window_enabled"]);
                     IsCancelationWindowEnabled = (Boolean) Convert.ChangeType(parameters["is_cancelation_window_enabled"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("maxUses") && parameters["maxUses"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MaxUsesSchemaProperty.Validate("maxUses", parameters["maxUses"]);
-                    }
+                    MaxUsesSchemaProperty.Validate("maxUses", parameters["maxUses"]);
                     MaxUses = (Int32) Convert.ChangeType(parameters["maxUses"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("max_uses") && parameters["max_uses"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        MaxUsesSchemaProperty.Validate("max_uses", parameters["max_uses"]);
-                    }
+                    MaxUsesSchemaProperty.Validate("max_uses", parameters["max_uses"]);
                     MaxUses = (Int32) Convert.ChangeType(parameters["max_uses"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("nextRenewalDate") && parameters["nextRenewalDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NextRenewalDateSchemaProperty.Validate("nextRenewalDate", parameters["nextRenewalDate"]);
-                    }
+                    NextRenewalDateSchemaProperty.Validate("nextRenewalDate", parameters["nextRenewalDate"]);
                     NextRenewalDate = (Int64) Convert.ChangeType(parameters["nextRenewalDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("next_renewal_date") && parameters["next_renewal_date"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        NextRenewalDateSchemaProperty.Validate("next_renewal_date", parameters["next_renewal_date"]);
-                    }
+                    NextRenewalDateSchemaProperty.Validate("next_renewal_date", parameters["next_renewal_date"]);
                     NextRenewalDate = (Int64) Convert.ChangeType(parameters["next_renewal_date"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("isRenewableForPurchase") && parameters["isRenewableForPurchase"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsRenewableForPurchaseSchemaProperty.Validate("isRenewableForPurchase", parameters["isRenewableForPurchase"]);
-                    }
+                    IsRenewableForPurchaseSchemaProperty.Validate("isRenewableForPurchase", parameters["isRenewableForPurchase"]);
                     IsRenewableForPurchase = (Boolean) Convert.ChangeType(parameters["isRenewableForPurchase"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("is_renewable_for_purchase") && parameters["is_renewable_for_purchase"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsRenewableForPurchaseSchemaProperty.Validate("is_renewable_for_purchase", parameters["is_renewable_for_purchase"]);
-                    }
+                    IsRenewableForPurchaseSchemaProperty.Validate("is_renewable_for_purchase", parameters["is_renewable_for_purchase"]);
                     IsRenewableForPurchase = (Boolean) Convert.ChangeType(parameters["is_renewable_for_purchase"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("isRenewable") && parameters["isRenewable"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsRenewableSchemaProperty.Validate("isRenewable", parameters["isRenewable"]);
-                    }
+                    IsRenewableSchemaProperty.Validate("isRenewable", parameters["isRenewable"]);
                     IsRenewable = (Boolean) Convert.ChangeType(parameters["isRenewable"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("is_renewable") && parameters["is_renewable"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsRenewableSchemaProperty.Validate("is_renewable", parameters["is_renewable"]);
-                    }
+                    IsRenewableSchemaProperty.Validate("is_renewable", parameters["is_renewable"]);
                     IsRenewable = (Boolean) Convert.ChangeType(parameters["is_renewable"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("mediaFileId") && parameters["mediaFileId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MediaFileIdSchemaProperty.Validate("mediaFileId", parameters["mediaFileId"]);
-                    }
+                    MediaFileIdSchemaProperty.Validate("mediaFileId", parameters["mediaFileId"]);
                     MediaFileId = (Int32) Convert.ChangeType(parameters["mediaFileId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("media_file_id") && parameters["media_file_id"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        MediaFileIdSchemaProperty.Validate("media_file_id", parameters["media_file_id"]);
-                    }
+                    MediaFileIdSchemaProperty.Validate("media_file_id", parameters["media_file_id"]);
                     MediaFileId = (Int32) Convert.ChangeType(parameters["media_file_id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("mediaId") && parameters["mediaId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MediaIdSchemaProperty.Validate("mediaId", parameters["mediaId"]);
-                    }
+                    MediaIdSchemaProperty.Validate("mediaId", parameters["mediaId"]);
                     MediaId = (Int32) Convert.ChangeType(parameters["mediaId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("media_id") && parameters["media_id"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        MediaIdSchemaProperty.Validate("media_id", parameters["media_id"]);
-                    }
+                    MediaIdSchemaProperty.Validate("media_id", parameters["media_id"]);
                     MediaId = (Int32) Convert.ChangeType(parameters["media_id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("isInGracePeriod") && parameters["isInGracePeriod"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsInGracePeriodSchemaProperty.Validate("isInGracePeriod", parameters["isInGracePeriod"]);
-                    }
+                    IsInGracePeriodSchemaProperty.Validate("isInGracePeriod", parameters["isInGracePeriod"]);
                     IsInGracePeriod = (Boolean) Convert.ChangeType(parameters["isInGracePeriod"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("is_in_grace_period") && parameters["is_in_grace_period"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsInGracePeriodSchemaProperty.Validate("is_in_grace_period", parameters["is_in_grace_period"]);
-                    }
+                    IsInGracePeriodSchemaProperty.Validate("is_in_grace_period", parameters["is_in_grace_period"]);
                     IsInGracePeriod = (Boolean) Convert.ChangeType(parameters["is_in_grace_period"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("userId") && parameters["userId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserIdSchemaProperty.Validate("userId", parameters["userId"]);
-                    }
+                    UserIdSchemaProperty.Validate("userId", parameters["userId"]);
                     UserId = (String) Convert.ChangeType(parameters["userId"], typeof(String));
                 }
                 if (parameters.ContainsKey("householdId") && parameters["householdId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        HouseholdIdSchemaProperty.Validate("householdId", parameters["householdId"]);
-                    }
+                    HouseholdIdSchemaProperty.Validate("householdId", parameters["householdId"]);
                     HouseholdId = (Int64) Convert.ChangeType(parameters["householdId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("isPending") && parameters["isPending"] != null)
@@ -4599,18 +4404,12 @@ namespace WebAPI.Models.ConditionalAccess
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TypeSchemaProperty.Validate("type", parameters["type"]);
-                    }
+                    TypeSchemaProperty.Validate("type", parameters["type"]);
                     if(string.IsNullOrEmpty(parameters["type"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "type");
@@ -4625,26 +4424,17 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("productId") && parameters["productId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ProductIdSchemaProperty.Validate("productId", parameters["productId"]);
-                    }
+                    ProductIdSchemaProperty.Validate("productId", parameters["productId"]);
                     ProductId = (String) Convert.ChangeType(parameters["productId"], typeof(String));
                 }
                 if (parameters.ContainsKey("userId") && parameters["userId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserIdSchemaProperty.Validate("userId", parameters["userId"]);
-                    }
+                    UserIdSchemaProperty.Validate("userId", parameters["userId"]);
                     UserId = (String) Convert.ChangeType(parameters["userId"], typeof(String));
                 }
                 if (parameters.ContainsKey("householdId") && parameters["householdId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        HouseholdIdSchemaProperty.Validate("householdId", parameters["householdId"]);
-                    }
+                    HouseholdIdSchemaProperty.Validate("householdId", parameters["householdId"]);
                     HouseholdId = (Int64) Convert.ChangeType(parameters["householdId"], typeof(Int64));
                 }
             }
@@ -4696,26 +4486,17 @@ namespace WebAPI.Models.ConditionalAccess
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("amount") && parameters["amount"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AmountSchemaProperty.Validate("amount", parameters["amount"]);
-                    }
+                    AmountSchemaProperty.Validate("amount", parameters["amount"]);
                     Amount = (Double) Convert.ChangeType(parameters["amount"], typeof(Double));
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StartDateSchemaProperty.Validate("startDate", parameters["startDate"]);
-                    }
+                    StartDateSchemaProperty.Validate("startDate", parameters["startDate"]);
                     StartDate = (Int64) Convert.ChangeType(parameters["startDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EndDateSchemaProperty.Validate("endDate", parameters["endDate"]);
-                    }
+                    EndDateSchemaProperty.Validate("endDate", parameters["endDate"]);
                     EndDate = (Int64) Convert.ChangeType(parameters["endDate"], typeof(Int64));
                 }
             }
@@ -4743,10 +4524,7 @@ namespace WebAPI.Models.ConditionalAccess
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
             }
@@ -4877,10 +4655,7 @@ namespace WebAPI.Models.ConditionalAccess
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("fullPrice") && parameters["fullPrice"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FullPriceSchemaProperty.Validate("fullPrice", parameters["fullPrice"]);
-                    }
+                    FullPriceSchemaProperty.Validate("fullPrice", parameters["fullPrice"]);
                     if (parameters["fullPrice"] is JObject)
                     {
                         FullPrice = (KalturaPrice) Deserializer.deserialize(typeof(KalturaPrice), ((JObject) parameters["fullPrice"]).ToObject<Dictionary<string, object>>());
@@ -4892,10 +4667,7 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("discountDetails") && parameters["discountDetails"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DiscountDetailsSchemaProperty.Validate("discountDetails", parameters["discountDetails"]);
-                    }
+                    DiscountDetailsSchemaProperty.Validate("discountDetails", parameters["discountDetails"]);
                     if (parameters["discountDetails"] is JArray)
                     {
                         DiscountDetails = buildList<KalturaEntitlementDiscountDetails>(typeof(KalturaEntitlementDiscountDetails), (JArray) parameters["discountDetails"]);
@@ -5081,18 +4853,12 @@ namespace WebAPI.Models.ConditionalAccess
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("externalId") && parameters["externalId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ExternalIdSchemaProperty.Validate("externalId", parameters["externalId"]);
-                    }
+                    ExternalIdSchemaProperty.Validate("externalId", parameters["externalId"]);
                     ExternalId = (String) Convert.ChangeType(parameters["externalId"], typeof(String));
                 }
                 if (parameters.ContainsKey("metaData") && parameters["metaData"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MetaDataSchemaProperty.Validate("metaData", parameters["metaData"]);
-                    }
+                    MetaDataSchemaProperty.Validate("metaData", parameters["metaData"]);
                     if (parameters["metaData"] is JObject)
                     {
                         MetaData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["metaData"]).ToObject<Dictionary<string, object>>());
@@ -5100,10 +4866,7 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("expiryDate") && parameters["expiryDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ExpiryDateSchemaProperty.Validate("expiryDate", parameters["expiryDate"]);
-                    }
+                    ExpiryDateSchemaProperty.Validate("expiryDate", parameters["expiryDate"]);
                     ExpiryDate = (Int64) Convert.ChangeType(parameters["expiryDate"], typeof(Int64));
                 }
             }
@@ -5232,26 +4995,17 @@ namespace WebAPI.Models.ConditionalAccess
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("householdId") && parameters["householdId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        HouseholdIdSchemaProperty.Validate("householdId", parameters["householdId"]);
-                    }
+                    HouseholdIdSchemaProperty.Validate("householdId", parameters["householdId"]);
                     HouseholdId = (Int64) Convert.ChangeType(parameters["householdId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("totalQuota") && parameters["totalQuota"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TotalQuotaSchemaProperty.Validate("totalQuota", parameters["totalQuota"]);
-                    }
+                    TotalQuotaSchemaProperty.Validate("totalQuota", parameters["totalQuota"]);
                     TotalQuota = (Int32) Convert.ChangeType(parameters["totalQuota"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("availableQuota") && parameters["availableQuota"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AvailableQuotaSchemaProperty.Validate("availableQuota", parameters["availableQuota"]);
-                    }
+                    AvailableQuotaSchemaProperty.Validate("availableQuota", parameters["availableQuota"]);
                     AvailableQuota = (Int32) Convert.ChangeType(parameters["availableQuota"], typeof(Int32));
                 }
             }
@@ -5393,10 +5147,7 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NameSchemaProperty.Validate("name", parameters["name"]);
-                    }
+                    NameSchemaProperty.Validate("name", parameters["name"]);
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("isApplied") && parameters["isApplied"] != null)
@@ -5521,10 +5272,7 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("assetFileIds") && parameters["assetFileIds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AssetFileIdsSchemaProperty.Validate("assetFileIds", parameters["assetFileIds"]);
-                    }
+                    AssetFileIdsSchemaProperty.Validate("assetFileIds", parameters["assetFileIds"]);
                     AssetFileIds = (String) Convert.ChangeType(parameters["assetFileIds"], typeof(String));
                 }
                 if (parameters.ContainsKey("adapterData") && parameters["adapterData"] != null)
@@ -5646,18 +5394,12 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("businessModuleId") && parameters["businessModuleId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        BusinessModuleIdSchemaProperty.Validate("businessModuleId", parameters["businessModuleId"]);
-                    }
+                    BusinessModuleIdSchemaProperty.Validate("businessModuleId", parameters["businessModuleId"]);
                     BusinessModuleId = (Int32) Convert.ChangeType(parameters["businessModuleId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("businessModuleType") && parameters["businessModuleType"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        BusinessModuleTypeSchemaProperty.Validate("businessModuleType", parameters["businessModuleType"]);
-                    }
+                    BusinessModuleTypeSchemaProperty.Validate("businessModuleType", parameters["businessModuleType"]);
                     if(string.IsNullOrEmpty(parameters["businessModuleType"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "businessModuleType");
@@ -5713,34 +5455,22 @@ namespace WebAPI.Models.ConditionalAccess
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("mediaFileId") && parameters["mediaFileId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MediaFileIdSchemaProperty.Validate("mediaFileId", parameters["mediaFileId"]);
-                    }
+                    MediaFileIdSchemaProperty.Validate("mediaFileId", parameters["mediaFileId"]);
                     MediaFileId = (Int32) Convert.ChangeType(parameters["mediaFileId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("media_file_id") && parameters["media_file_id"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        MediaFileIdSchemaProperty.Validate("media_file_id", parameters["media_file_id"]);
-                    }
+                    MediaFileIdSchemaProperty.Validate("media_file_id", parameters["media_file_id"]);
                     MediaFileId = (Int32) Convert.ChangeType(parameters["media_file_id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("mediaId") && parameters["mediaId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MediaIdSchemaProperty.Validate("mediaId", parameters["mediaId"]);
-                    }
+                    MediaIdSchemaProperty.Validate("mediaId", parameters["mediaId"]);
                     MediaId = (Int32) Convert.ChangeType(parameters["mediaId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("media_id") && parameters["media_id"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        MediaIdSchemaProperty.Validate("media_id", parameters["media_id"]);
-                    }
+                    MediaIdSchemaProperty.Validate("media_id", parameters["media_id"]);
                     MediaId = (Int32) Convert.ChangeType(parameters["media_id"], typeof(Int32));
                 }
             }
@@ -5768,10 +5498,7 @@ namespace WebAPI.Models.ConditionalAccess
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -5913,18 +5640,12 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("price") && parameters["price"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PriceSchemaProperty.Validate("price", parameters["price"]);
-                    }
+                    PriceSchemaProperty.Validate("price", parameters["price"]);
                     Price = (Double) Convert.ChangeType(parameters["price"], typeof(Double));
                 }
                 if (parameters.ContainsKey("paymentMethodId") && parameters["paymentMethodId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PaymentMethodIdSchemaProperty.Validate("paymentMethodId", parameters["paymentMethodId"]);
-                    }
+                    PaymentMethodIdSchemaProperty.Validate("paymentMethodId", parameters["paymentMethodId"]);
                     PaymentMethodId = (Int32) Convert.ChangeType(parameters["paymentMethodId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("paymentGatewayId") && parameters["paymentGatewayId"] != null)
@@ -5973,10 +5694,7 @@ namespace WebAPI.Models.ConditionalAccess
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("productId") && parameters["productId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ProductIdSchemaProperty.Validate("productId", parameters["productId"]);
-                    }
+                    ProductIdSchemaProperty.Validate("productId", parameters["productId"]);
                     ProductId = (Int32) Convert.ChangeType(parameters["productId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("contentId") && parameters["contentId"] != null)
@@ -5999,10 +5717,7 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("adapterData") && parameters["adapterData"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AdapterDataSchemaProperty.Validate("adapterData", parameters["adapterData"]);
-                    }
+                    AdapterDataSchemaProperty.Validate("adapterData", parameters["adapterData"]);
                     AdapterData = (String) Convert.ChangeType(parameters["adapterData"], typeof(String));
                 }
             }
@@ -6103,18 +5818,12 @@ namespace WebAPI.Models.ConditionalAccess
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StatusSchemaProperty.Validate("status", parameters["status"]);
-                    }
+                    StatusSchemaProperty.Validate("status", parameters["status"]);
                     if(string.IsNullOrEmpty(parameters["status"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "status");
@@ -6129,18 +5838,12 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("assetId") && parameters["assetId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AssetIdSchemaProperty.Validate("assetId", parameters["assetId"]);
-                    }
+                    AssetIdSchemaProperty.Validate("assetId", parameters["assetId"]);
                     AssetId = (Int64) Convert.ChangeType(parameters["assetId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TypeSchemaProperty.Validate("type", parameters["type"]);
-                    }
+                    TypeSchemaProperty.Validate("type", parameters["type"]);
                     if(string.IsNullOrEmpty(parameters["type"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "type");
@@ -6163,18 +5866,12 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
-                    }
+                    UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
             }
@@ -6292,18 +5989,12 @@ namespace WebAPI.Models.ConditionalAccess
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("statusIn") && parameters["statusIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StatusInSchemaProperty.Validate("statusIn", parameters["statusIn"]);
-                    }
+                    StatusInSchemaProperty.Validate("statusIn", parameters["statusIn"]);
                     StatusIn = (String) Convert.ChangeType(parameters["statusIn"], typeof(String));
                 }
                 if (parameters.ContainsKey("filterExpression") && parameters["filterExpression"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FilterExpressionSchemaProperty.Validate("filterExpression", parameters["filterExpression"]);
-                    }
+                    FilterExpressionSchemaProperty.Validate("filterExpression", parameters["filterExpression"]);
                     FilterExpression = (String) Convert.ChangeType(parameters["filterExpression"], typeof(String));
                 }
                 if (parameters.ContainsKey("externalRecordingIdIn") && parameters["externalRecordingIdIn"] != null)
@@ -6312,10 +6003,7 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("kSql") && parameters["kSql"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        KsqlSchemaProperty.Validate("kSql", parameters["kSql"]);
-                    }
+                    KsqlSchemaProperty.Validate("kSql", parameters["kSql"]);
                     Ksql = (String) Convert.ChangeType(parameters["kSql"], typeof(String));
                 }
             }
@@ -6363,10 +6051,7 @@ namespace WebAPI.Models.ConditionalAccess
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TypeSchemaProperty.Validate("type", parameters["type"]);
-                    }
+                    TypeSchemaProperty.Validate("type", parameters["type"]);
                     if(string.IsNullOrEmpty(parameters["type"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "type");
@@ -6444,10 +6129,7 @@ namespace WebAPI.Models.ConditionalAccess
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("epgId") && parameters["epgId"] != null)
@@ -6482,26 +6164,17 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
-                    }
+                    UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("excludedSeasons") && parameters["excludedSeasons"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ExcludedSeasonsSchemaProperty.Validate("excludedSeasons", parameters["excludedSeasons"]);
-                    }
+                    ExcludedSeasonsSchemaProperty.Validate("excludedSeasons", parameters["excludedSeasons"]);
                     if (parameters["excludedSeasons"] is JArray)
                     {
                         ExcludedSeasons = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["excludedSeasons"]);
@@ -6599,26 +6272,17 @@ namespace WebAPI.Models.ConditionalAccess
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("minSeasonNumber") && parameters["minSeasonNumber"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MinSeasonNumberSchemaProperty.Validate("minSeasonNumber", parameters["minSeasonNumber"]);
-                    }
+                    MinSeasonNumberSchemaProperty.Validate("minSeasonNumber", parameters["minSeasonNumber"]);
                     MinSeasonNumber = (Int32) Convert.ChangeType(parameters["minSeasonNumber"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("minEpisodeNumber") && parameters["minEpisodeNumber"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MinEpisodeNumberSchemaProperty.Validate("minEpisodeNumber", parameters["minEpisodeNumber"]);
-                    }
+                    MinEpisodeNumberSchemaProperty.Validate("minEpisodeNumber", parameters["minEpisodeNumber"]);
                     MinEpisodeNumber = (Int32) Convert.ChangeType(parameters["minEpisodeNumber"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("chronologicalRecordStartTime") && parameters["chronologicalRecordStartTime"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ChronologicalRecordStartTimeSchemaProperty.Validate("chronologicalRecordStartTime", parameters["chronologicalRecordStartTime"]);
-                    }
+                    ChronologicalRecordStartTimeSchemaProperty.Validate("chronologicalRecordStartTime", parameters["chronologicalRecordStartTime"]);
                     if(string.IsNullOrEmpty(parameters["chronologicalRecordStartTime"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "chronologicalRecordStartTime");
@@ -6772,114 +6436,72 @@ namespace WebAPI.Models.ConditionalAccess
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("nextRenewalDate") && parameters["nextRenewalDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NextRenewalDateSchemaProperty.Validate("nextRenewalDate", parameters["nextRenewalDate"]);
-                    }
+                    NextRenewalDateSchemaProperty.Validate("nextRenewalDate", parameters["nextRenewalDate"]);
                     NextRenewalDate = (Int64) Convert.ChangeType(parameters["nextRenewalDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("next_renewal_date") && parameters["next_renewal_date"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        NextRenewalDateSchemaProperty.Validate("next_renewal_date", parameters["next_renewal_date"]);
-                    }
+                    NextRenewalDateSchemaProperty.Validate("next_renewal_date", parameters["next_renewal_date"]);
                     NextRenewalDate = (Int64) Convert.ChangeType(parameters["next_renewal_date"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("isRenewableForPurchase") && parameters["isRenewableForPurchase"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsRenewableForPurchaseSchemaProperty.Validate("isRenewableForPurchase", parameters["isRenewableForPurchase"]);
-                    }
+                    IsRenewableForPurchaseSchemaProperty.Validate("isRenewableForPurchase", parameters["isRenewableForPurchase"]);
                     IsRenewableForPurchase = (Boolean) Convert.ChangeType(parameters["isRenewableForPurchase"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("is_renewable_for_purchase") && parameters["is_renewable_for_purchase"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsRenewableForPurchaseSchemaProperty.Validate("is_renewable_for_purchase", parameters["is_renewable_for_purchase"]);
-                    }
+                    IsRenewableForPurchaseSchemaProperty.Validate("is_renewable_for_purchase", parameters["is_renewable_for_purchase"]);
                     IsRenewableForPurchase = (Boolean) Convert.ChangeType(parameters["is_renewable_for_purchase"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("isRenewable") && parameters["isRenewable"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsRenewableSchemaProperty.Validate("isRenewable", parameters["isRenewable"]);
-                    }
+                    IsRenewableSchemaProperty.Validate("isRenewable", parameters["isRenewable"]);
                     IsRenewable = (Boolean) Convert.ChangeType(parameters["isRenewable"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("is_renewable") && parameters["is_renewable"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsRenewableSchemaProperty.Validate("is_renewable", parameters["is_renewable"]);
-                    }
+                    IsRenewableSchemaProperty.Validate("is_renewable", parameters["is_renewable"]);
                     IsRenewable = (Boolean) Convert.ChangeType(parameters["is_renewable"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("isInGracePeriod") && parameters["isInGracePeriod"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsInGracePeriodSchemaProperty.Validate("isInGracePeriod", parameters["isInGracePeriod"]);
-                    }
+                    IsInGracePeriodSchemaProperty.Validate("isInGracePeriod", parameters["isInGracePeriod"]);
                     IsInGracePeriod = (Boolean) Convert.ChangeType(parameters["isInGracePeriod"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("is_in_grace_period") && parameters["is_in_grace_period"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsInGracePeriodSchemaProperty.Validate("is_in_grace_period", parameters["is_in_grace_period"]);
-                    }
+                    IsInGracePeriodSchemaProperty.Validate("is_in_grace_period", parameters["is_in_grace_period"]);
                     IsInGracePeriod = (Boolean) Convert.ChangeType(parameters["is_in_grace_period"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("paymentGatewayId") && parameters["paymentGatewayId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PaymentGatewayIdSchemaProperty.Validate("paymentGatewayId", parameters["paymentGatewayId"]);
-                    }
+                    PaymentGatewayIdSchemaProperty.Validate("paymentGatewayId", parameters["paymentGatewayId"]);
                     PaymentGatewayId = (Int32) Convert.ChangeType(parameters["paymentGatewayId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("paymentMethodId") && parameters["paymentMethodId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PaymentMethodIdSchemaProperty.Validate("paymentMethodId", parameters["paymentMethodId"]);
-                    }
+                    PaymentMethodIdSchemaProperty.Validate("paymentMethodId", parameters["paymentMethodId"]);
                     PaymentMethodId = (Int32) Convert.ChangeType(parameters["paymentMethodId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("scheduledSubscriptionId") && parameters["scheduledSubscriptionId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ScheduledSubscriptionIdSchemaProperty.Validate("scheduledSubscriptionId", parameters["scheduledSubscriptionId"]);
-                    }
+                    ScheduledSubscriptionIdSchemaProperty.Validate("scheduledSubscriptionId", parameters["scheduledSubscriptionId"]);
                     ScheduledSubscriptionId = (Int64) Convert.ChangeType(parameters["scheduledSubscriptionId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("unifiedPaymentId") && parameters["unifiedPaymentId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UnifiedPaymentIdSchemaProperty.Validate("unifiedPaymentId", parameters["unifiedPaymentId"]);
-                    }
+                    UnifiedPaymentIdSchemaProperty.Validate("unifiedPaymentId", parameters["unifiedPaymentId"]);
                     UnifiedPaymentId = (Int64) Convert.ChangeType(parameters["unifiedPaymentId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("isSuspended") && parameters["isSuspended"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsSuspendedSchemaProperty.Validate("isSuspended", parameters["isSuspended"]);
-                    }
+                    IsSuspendedSchemaProperty.Validate("isSuspended", parameters["isSuspended"]);
                     IsSuspended = (Boolean) Convert.ChangeType(parameters["isSuspended"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("priceDetails") && parameters["priceDetails"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PriceDetailsSchemaProperty.Validate("priceDetails", parameters["priceDetails"]);
-                    }
+                    PriceDetailsSchemaProperty.Validate("priceDetails", parameters["priceDetails"]);
                     if (parameters["priceDetails"] is JObject)
                     {
                         PriceDetails = (KalturaEntitlementPriceDetails) Deserializer.deserialize(typeof(KalturaEntitlementPriceDetails), ((JObject) parameters["priceDetails"]).ToObject<Dictionary<string, object>>());
@@ -7190,34 +6812,22 @@ namespace WebAPI.Models.ConditionalAccess
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("userId") && parameters["userId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserIDSchemaProperty.Validate("userId", parameters["userId"]);
-                    }
+                    UserIDSchemaProperty.Validate("userId", parameters["userId"]);
                     UserID = (String) Convert.ChangeType(parameters["userId"], typeof(String));
                 }
                 if (parameters.ContainsKey("user_id") && parameters["user_id"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserIDSchemaProperty.Validate("user_id", parameters["user_id"]);
-                    }
+                    UserIDSchemaProperty.Validate("user_id", parameters["user_id"]);
                     UserID = (String) Convert.ChangeType(parameters["user_id"], typeof(String));
                 }
                 if (parameters.ContainsKey("userFullName") && parameters["userFullName"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserFullNameSchemaProperty.Validate("userFullName", parameters["userFullName"]);
-                    }
+                    UserFullNameSchemaProperty.Validate("userFullName", parameters["userFullName"]);
                     UserFullName = (String) Convert.ChangeType(parameters["userFullName"], typeof(String));
                 }
                 if (parameters.ContainsKey("user_full_name") && parameters["user_full_name"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserFullNameSchemaProperty.Validate("user_full_name", parameters["user_full_name"]);
-                    }
+                    UserFullNameSchemaProperty.Validate("user_full_name", parameters["user_full_name"]);
                     UserFullName = (String) Convert.ChangeType(parameters["user_full_name"], typeof(String));
                 }
             }
@@ -7286,10 +6896,7 @@ namespace WebAPI.Models.Social
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("network") && parameters["network"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NetworkSchemaProperty.Validate("network", parameters["network"]);
-                    }
+                    NetworkSchemaProperty.Validate("network", parameters["network"]);
                     if(string.IsNullOrEmpty(parameters["network"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "network");
@@ -7304,10 +6911,7 @@ namespace WebAPI.Models.Social
                 }
                 if (parameters.ContainsKey("actionPrivacy") && parameters["actionPrivacy"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ActionPrivacySchemaProperty.Validate("actionPrivacy", parameters["actionPrivacy"]);
-                    }
+                    ActionPrivacySchemaProperty.Validate("actionPrivacy", parameters["actionPrivacy"]);
                     if(string.IsNullOrEmpty(parameters["actionPrivacy"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "actionPrivacy");
@@ -7322,10 +6926,7 @@ namespace WebAPI.Models.Social
                 }
                 if (parameters.ContainsKey("privacy") && parameters["privacy"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PrivacySchemaProperty.Validate("privacy", parameters["privacy"]);
-                    }
+                    PrivacySchemaProperty.Validate("privacy", parameters["privacy"]);
                     if(string.IsNullOrEmpty(parameters["privacy"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "privacy");
@@ -7340,10 +6941,7 @@ namespace WebAPI.Models.Social
                 }
                 if (parameters.ContainsKey("action") && parameters["action"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ActionSchemaProperty.Validate("action", parameters["action"]);
-                    }
+                    ActionSchemaProperty.Validate("action", parameters["action"]);
                     Action = (String) Convert.ChangeType(parameters["action"], typeof(String));
                 }
             }
@@ -7462,10 +7060,7 @@ namespace WebAPI.Models.Social
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IDSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IDSchemaProperty.Validate("id", parameters["id"]);
                     ID = (String) Convert.ChangeType(parameters["id"], typeof(String));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -7490,10 +7085,7 @@ namespace WebAPI.Models.Social
                 }
                 if (parameters.ContainsKey("userId") && parameters["userId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserIdSchemaProperty.Validate("userId", parameters["userId"]);
-                    }
+                    UserIdSchemaProperty.Validate("userId", parameters["userId"]);
                     UserId = (String) Convert.ChangeType(parameters["userId"], typeof(String));
                 }
                 if (parameters.ContainsKey("birthday") && parameters["birthday"] != null)
@@ -7502,10 +7094,7 @@ namespace WebAPI.Models.Social
                 }
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StatusSchemaProperty.Validate("status", parameters["status"]);
-                    }
+                    StatusSchemaProperty.Validate("status", parameters["status"]);
                     Status = (String) Convert.ChangeType(parameters["status"], typeof(String));
                 }
                 if (parameters.ContainsKey("pictureUrl") && parameters["pictureUrl"] != null)
@@ -7549,10 +7138,7 @@ namespace WebAPI.Models.Social
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (String) Convert.ChangeType(parameters["id"], typeof(String));
                 }
                 if (parameters.ContainsKey("actionType") && parameters["actionType"] != null)
@@ -7593,10 +7179,7 @@ namespace WebAPI.Models.Social
                 }
                 if (parameters.ContainsKey("url") && parameters["url"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UrlSchemaProperty.Validate("url", parameters["url"]);
-                    }
+                    UrlSchemaProperty.Validate("url", parameters["url"]);
                     Url = (String) Convert.ChangeType(parameters["url"], typeof(String));
                 }
             }
@@ -8112,18 +7695,12 @@ namespace WebAPI.Models.General
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("result") && parameters["result"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ResultSchemaProperty.Validate("result", parameters["result"]);
-                    }
+                    ResultSchemaProperty.Validate("result", parameters["result"]);
                     if (parameters["result"] is JObject)
                     {
                         Result = (KalturaMessage) Deserializer.deserialize(typeof(KalturaMessage), ((JObject) parameters["result"]).ToObject<Dictionary<string, object>>());
@@ -8346,10 +7923,7 @@ namespace WebAPI.Models.General
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (String) Convert.ChangeType(parameters["id"], typeof(String));
                 }
                 if (parameters.ContainsKey("expiry") && parameters["expiry"] != null)
@@ -8358,10 +7932,7 @@ namespace WebAPI.Models.General
                 }
                 if (parameters.ContainsKey("partnerId") && parameters["partnerId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PartnerIdSchemaProperty.Validate("partnerId", parameters["partnerId"]);
-                    }
+                    PartnerIdSchemaProperty.Validate("partnerId", parameters["partnerId"]);
                     PartnerId = (Int32) Convert.ChangeType(parameters["partnerId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("sessionDuration") && parameters["sessionDuration"] != null)
@@ -8384,18 +7955,12 @@ namespace WebAPI.Models.General
                 }
                 if (parameters.ContainsKey("sessionPrivileges") && parameters["sessionPrivileges"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SessionPrivilegesSchemaProperty.Validate("sessionPrivileges", parameters["sessionPrivileges"]);
-                    }
+                    SessionPrivilegesSchemaProperty.Validate("sessionPrivileges", parameters["sessionPrivileges"]);
                     SessionPrivileges = (String) Convert.ChangeType(parameters["sessionPrivileges"], typeof(String));
                 }
                 if (parameters.ContainsKey("sessionType") && parameters["sessionType"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SessionTypeSchemaProperty.Validate("sessionType", parameters["sessionType"]);
-                    }
+                    SessionTypeSchemaProperty.Validate("sessionType", parameters["sessionType"]);
                     if(string.IsNullOrEmpty(parameters["sessionType"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "sessionType");
@@ -8410,10 +7975,7 @@ namespace WebAPI.Models.General
                 }
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StatusSchemaProperty.Validate("status", parameters["status"]);
-                    }
+                    StatusSchemaProperty.Validate("status", parameters["status"]);
                     if(string.IsNullOrEmpty(parameters["status"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "status");
@@ -8428,34 +7990,22 @@ namespace WebAPI.Models.General
                 }
                 if (parameters.ContainsKey("token") && parameters["token"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TokenSchemaProperty.Validate("token", parameters["token"]);
-                    }
+                    TokenSchemaProperty.Validate("token", parameters["token"]);
                     Token = (String) Convert.ChangeType(parameters["token"], typeof(String));
                 }
                 if (parameters.ContainsKey("sessionUserId") && parameters["sessionUserId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SessionUserIdSchemaProperty.Validate("sessionUserId", parameters["sessionUserId"]);
-                    }
+                    SessionUserIdSchemaProperty.Validate("sessionUserId", parameters["sessionUserId"]);
                     SessionUserId = (String) Convert.ChangeType(parameters["sessionUserId"], typeof(String));
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
-                    }
+                    UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
             }
@@ -8600,18 +8150,12 @@ namespace WebAPI.Models.General
                 }
                 if (parameters.ContainsKey("value") && parameters["value"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ValueSchemaProperty.Validate("value", parameters["value"]);
-                    }
+                    ValueSchemaProperty.Validate("value", parameters["value"]);
                     Value = (Int32) Convert.ChangeType(parameters["value"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("code") && parameters["code"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CodeSchemaProperty.Validate("code", parameters["code"]);
-                    }
+                    CodeSchemaProperty.Validate("code", parameters["code"]);
                     Code = (Int64) Convert.ChangeType(parameters["code"], typeof(Int64));
                 }
             }
@@ -8683,26 +8227,17 @@ namespace WebAPI.Models.General
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
-                    }
+                    UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -8740,10 +8275,7 @@ namespace WebAPI.Models.General
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
-                    }
+                    IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
                     IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
                 }
             }
@@ -8790,18 +8322,12 @@ namespace WebAPI.Models.General
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idEqual") && parameters["idEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdEqualSchemaProperty.Validate("idEqual", parameters["idEqual"]);
-                    }
+                    IdEqualSchemaProperty.Validate("idEqual", parameters["idEqual"]);
                     IdEqual = (Int64) Convert.ChangeType(parameters["idEqual"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("valueEqual") && parameters["valueEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ValueEqualSchemaProperty.Validate("valueEqual", parameters["valueEqual"]);
-                    }
+                    ValueEqualSchemaProperty.Validate("valueEqual", parameters["valueEqual"]);
                     ValueEqual = (String) Convert.ChangeType(parameters["valueEqual"], typeof(String));
                 }
             }
@@ -8869,10 +8395,7 @@ namespace WebAPI.Models.General
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("group") && parameters["group"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        GroupSchemaProperty.Validate("group", parameters["group"]);
-                    }
+                    GroupSchemaProperty.Validate("group", parameters["group"]);
                     Group = (String) Convert.ChangeType(parameters["group"], typeof(String));
                 }
             }
@@ -9220,50 +8743,32 @@ namespace WebAPI.Models.General
                 }
                 if (parameters.ContainsKey("userIp") && parameters["userIp"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserIpSchemaProperty.Validate("userIp", parameters["userIp"]);
-                    }
+                    UserIpSchemaProperty.Validate("userIp", parameters["userIp"]);
                     UserIp = (String) Convert.ChangeType(parameters["userIp"], typeof(String));
                 }
                 if (parameters.ContainsKey("sequenceId") && parameters["sequenceId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SequenceIdSchemaProperty.Validate("sequenceId", parameters["sequenceId"]);
-                    }
+                    SequenceIdSchemaProperty.Validate("sequenceId", parameters["sequenceId"]);
                     SequenceId = (String) Convert.ChangeType(parameters["sequenceId"], typeof(String));
                 }
                 if (parameters.ContainsKey("Id") && parameters["Id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("Id", parameters["Id"]);
-                    }
+                    IdSchemaProperty.Validate("Id", parameters["Id"]);
                     Id = (String) Convert.ChangeType(parameters["Id"], typeof(String));
                 }
                 if (parameters.ContainsKey("userId") && parameters["userId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserIdSchemaProperty.Validate("userId", parameters["userId"]);
-                    }
+                    UserIdSchemaProperty.Validate("userId", parameters["userId"]);
                     UserId = (Int64) Convert.ChangeType(parameters["userId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("udid") && parameters["udid"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UdidSchemaProperty.Validate("udid", parameters["udid"]);
-                    }
+                    UdidSchemaProperty.Validate("udid", parameters["udid"]);
                     Udid = (String) Convert.ChangeType(parameters["udid"], typeof(String));
                 }
                 if (parameters.ContainsKey("context") && parameters["context"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ContextSchemaProperty.Validate("context", parameters["context"]);
-                    }
+                    ContextSchemaProperty.Validate("context", parameters["context"]);
                     if (parameters["context"] is JObject)
                     {
                         Context = (KalturaEventContext) Deserializer.deserialize(typeof(KalturaEventContext), ((JObject) parameters["context"]).ToObject<Dictionary<string, object>>());
@@ -9275,10 +8780,7 @@ namespace WebAPI.Models.General
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
             }
@@ -9312,6 +8814,32 @@ namespace WebAPI.Models.General
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaPriorityGroupFilter
+    {
+        public KalturaPriorityGroupFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaPriorityGroupListResponse
+    {
+        public KalturaPriorityGroupListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Values = buildList<KalturaLongValue>(typeof(KalturaLongValue), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Values = buildList(typeof(KalturaLongValue), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -9568,10 +9096,7 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("conditions") && parameters["conditions"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ConditionsSchemaProperty.Validate("conditions", parameters["conditions"]);
-                    }
+                    ConditionsSchemaProperty.Validate("conditions", parameters["conditions"]);
                     if (parameters["conditions"] is JArray)
                     {
                         Conditions = buildList<KalturaCondition>(typeof(KalturaCondition), (JArray) parameters["conditions"]);
@@ -9583,10 +9108,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("actions") && parameters["actions"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ActionsSchemaProperty.Validate("actions", parameters["actions"]);
-                    }
+                    ActionsSchemaProperty.Validate("actions", parameters["actions"]);
                     if (parameters["actions"] is JArray)
                     {
                         Actions = buildList<KalturaAssetRuleAction>(typeof(KalturaAssetRuleAction), (JArray) parameters["actions"]);
@@ -9598,10 +9120,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StatusSchemaProperty.Validate("status", parameters["status"]);
-                    }
+                    StatusSchemaProperty.Validate("status", parameters["status"]);
                     if(string.IsNullOrEmpty(parameters["status"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "status");
@@ -9685,10 +9204,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("assetRuleIdEqual") && parameters["assetRuleIdEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AssetRuleIdEqualSchemaProperty.Validate("assetRuleIdEqual", parameters["assetRuleIdEqual"]);
-                    }
+                    AssetRuleIdEqualSchemaProperty.Validate("assetRuleIdEqual", parameters["assetRuleIdEqual"]);
                     AssetRuleIdEqual = (Int64) Convert.ChangeType(parameters["assetRuleIdEqual"], typeof(Int64));
                 }
             }
@@ -9836,10 +9352,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("populationConditions") && parameters["populationConditions"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PopulationConditionsSchemaProperty.Validate("populationConditions", parameters["populationConditions"]);
-                    }
+                    PopulationConditionsSchemaProperty.Validate("populationConditions", parameters["populationConditions"]);
                     if (parameters["populationConditions"] is JArray)
                     {
                         PopulationConditions = buildList<KalturaCondition>(typeof(KalturaCondition), (JArray) parameters["populationConditions"]);
@@ -9941,18 +9454,12 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
-                    }
+                    UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
             }
@@ -10167,42 +9674,27 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
-                    }
+                    UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StartDateSchemaProperty.Validate("startDate", parameters["startDate"]);
-                    }
+                    StartDateSchemaProperty.Validate("startDate", parameters["startDate"]);
                     StartDate = (Int64) Convert.ChangeType(parameters["startDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EndDateSchemaProperty.Validate("endDate", parameters["endDate"]);
-                    }
+                    EndDateSchemaProperty.Validate("endDate", parameters["endDate"]);
                     EndDate = (Int64) Convert.ChangeType(parameters["endDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -10211,10 +9703,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("systemName") && parameters["systemName"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SystemNameSchemaProperty.Validate("systemName", parameters["systemName"]);
-                    }
+                    SystemNameSchemaProperty.Validate("systemName", parameters["systemName"]);
                     SystemName = (String) Convert.ChangeType(parameters["systemName"], typeof(String));
                 }
                 if (parameters.ContainsKey("description__null") && parameters["description__null"] != null)
@@ -10223,18 +9712,12 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("description") && parameters["description"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DescriptionSchemaProperty.Validate("description", parameters["description"]);
-                    }
+                    DescriptionSchemaProperty.Validate("description", parameters["description"]);
                     Description = (String) Convert.ChangeType(parameters["description"], typeof(String));
                 }
                 if (parameters.ContainsKey("state") && parameters["state"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StateSchemaProperty.Validate("state", parameters["state"]);
-                    }
+                    StateSchemaProperty.Validate("state", parameters["state"]);
                     if(string.IsNullOrEmpty(parameters["state"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "state");
@@ -10253,10 +9736,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("promotion") && parameters["promotion"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PromotionSchemaProperty.Validate("promotion", parameters["promotion"]);
-                    }
+                    PromotionSchemaProperty.Validate("promotion", parameters["promotion"]);
                     if (parameters["promotion"] is JObject)
                     {
                         Promotion = (KalturaPromotion) Deserializer.deserialize(typeof(KalturaPromotion), ((JObject) parameters["promotion"]).ToObject<Dictionary<string, object>>());
@@ -10268,10 +9748,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("message") && parameters["message"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MessageSchemaProperty.Validate("message", parameters["message"]);
-                    }
+                    MessageSchemaProperty.Validate("message", parameters["message"]);
                     Message = (String) Convert.ChangeType(parameters["message"], typeof(String));
                 }
                 if (parameters.ContainsKey("collectionIdIn__null") && parameters["collectionIdIn__null"] != null)
@@ -10280,10 +9757,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("collectionIdIn") && parameters["collectionIdIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CollectionIdInSchemaProperty.Validate("collectionIdIn", parameters["collectionIdIn"]);
-                    }
+                    CollectionIdInSchemaProperty.Validate("collectionIdIn", parameters["collectionIdIn"]);
                     CollectionIdIn = (String) Convert.ChangeType(parameters["collectionIdIn"], typeof(String));
                 }
             }
@@ -10397,10 +9871,7 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -10432,10 +9903,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("sharedSecret") && parameters["sharedSecret"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SharedSecretSchemaProperty.Validate("sharedSecret", parameters["sharedSecret"]);
-                    }
+                    SharedSecretSchemaProperty.Validate("sharedSecret", parameters["sharedSecret"]);
                     SharedSecret = (String) Convert.ChangeType(parameters["sharedSecret"], typeof(String));
                 }
             }
@@ -10497,18 +9965,12 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("defaultAdapterId") && parameters["defaultAdapterId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DefaultAdapterIdSchemaProperty.Validate("defaultAdapterId", parameters["defaultAdapterId"]);
-                    }
+                    DefaultAdapterIdSchemaProperty.Validate("defaultAdapterId", parameters["defaultAdapterId"]);
                     DefaultAdapterId = (Int32) Convert.ChangeType(parameters["defaultAdapterId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("defaultRecordingAdapterId") && parameters["defaultRecordingAdapterId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DefaultRecordingAdapterIdSchemaProperty.Validate("defaultRecordingAdapterId", parameters["defaultRecordingAdapterId"]);
-                    }
+                    DefaultRecordingAdapterIdSchemaProperty.Validate("defaultRecordingAdapterId", parameters["defaultRecordingAdapterId"]);
                     DefaultRecordingAdapterId = (Int32) Convert.ChangeType(parameters["defaultRecordingAdapterId"], typeof(Int32));
                 }
             }
@@ -10701,10 +10163,7 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TypeSchemaProperty.Validate("type", parameters["type"]);
-                    }
+                    TypeSchemaProperty.Validate("type", parameters["type"]);
                     if(string.IsNullOrEmpty(parameters["type"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "type");
@@ -10747,10 +10206,7 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("countries") && parameters["countries"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CountriesSchemaProperty.Validate("countries", parameters["countries"]);
-                    }
+                    CountriesSchemaProperty.Validate("countries", parameters["countries"]);
                     Countries = (String) Convert.ChangeType(parameters["countries"], typeof(String));
                 }
             }
@@ -10929,10 +10385,7 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
-                    }
+                    IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
                     IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
                 }
             }
@@ -10994,18 +10447,12 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("key") && parameters["key"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        KeySchemaProperty.Validate("key", parameters["key"]);
-                    }
+                    KeySchemaProperty.Validate("key", parameters["key"]);
                     Key = (String) Convert.ChangeType(parameters["key"], typeof(String));
                 }
                 if (parameters.ContainsKey("value") && parameters["value"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ValueSchemaProperty.Validate("value", parameters["value"]);
-                    }
+                    ValueSchemaProperty.Validate("value", parameters["value"]);
                     Value = (String) Convert.ChangeType(parameters["value"], typeof(String));
                 }
             }
@@ -11034,10 +10481,7 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
-                    }
+                    IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
                     IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
                 }
             }
@@ -11086,10 +10530,7 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
-                    }
+                    IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
                     IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
                 }
             }
@@ -11166,10 +10607,7 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -11178,10 +10616,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("isActive") && parameters["isActive"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsActiveSchemaProperty.Validate("isActive", parameters["isActive"]);
-                    }
+                    IsActiveSchemaProperty.Validate("isActive", parameters["isActive"]);
                     IsActive = (Boolean) Convert.ChangeType(parameters["isActive"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("adapterUrl") && parameters["adapterUrl"] != null)
@@ -11190,10 +10625,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("settings") && parameters["settings"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SettingsSchemaProperty.Validate("settings", parameters["settings"]);
-                    }
+                    SettingsSchemaProperty.Validate("settings", parameters["settings"]);
                     Settings = (String) Convert.ChangeType(parameters["settings"], typeof(String));
                 }
                 if (parameters.ContainsKey("systemName") && parameters["systemName"] != null)
@@ -11202,10 +10634,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("sharedSecret") && parameters["sharedSecret"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SharedSecretSchemaProperty.Validate("sharedSecret", parameters["sharedSecret"]);
-                    }
+                    SharedSecretSchemaProperty.Validate("sharedSecret", parameters["sharedSecret"]);
                     SharedSecret = (String) Convert.ChangeType(parameters["sharedSecret"], typeof(String));
                 }
             }
@@ -11266,18 +10695,12 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("key") && parameters["key"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        KeySchemaProperty.Validate("key", parameters["key"]);
-                    }
+                    KeySchemaProperty.Validate("key", parameters["key"]);
                     Key = (String) Convert.ChangeType(parameters["key"], typeof(String));
                 }
                 if (parameters.ContainsKey("values") && parameters["values"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ValuesSchemaProperty.Validate("values", parameters["values"]);
-                    }
+                    ValuesSchemaProperty.Validate("values", parameters["values"]);
                     Values = (String) Convert.ChangeType(parameters["values"], typeof(String));
                 }
             }
@@ -11334,10 +10757,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("objectId") && parameters["objectId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ObjectIdSchemaProperty.Validate("objectId", parameters["objectId"]);
-                    }
+                    ObjectIdSchemaProperty.Validate("objectId", parameters["objectId"]);
                     ObjectId = (Int64) Convert.ChangeType(parameters["objectId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("eventObjectType") && parameters["eventObjectType"] != null)
@@ -11368,18 +10788,12 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
-                    }
+                    UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
             }
@@ -11412,10 +10826,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("objectIdEqual") && parameters["objectIdEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ObjectIdEqualSchemaProperty.Validate("objectIdEqual", parameters["objectIdEqual"]);
-                    }
+                    ObjectIdEqualSchemaProperty.Validate("objectIdEqual", parameters["objectIdEqual"]);
                     ObjectIdEqual = (Int64) Convert.ChangeType(parameters["objectIdEqual"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("eventObjectTypeEqual") && parameters["eventObjectTypeEqual"] != null)
@@ -11506,10 +10917,7 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("alias") && parameters["alias"] != null)
@@ -11692,10 +11100,7 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -11747,10 +11152,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("assetUserRuleId") && parameters["assetUserRuleId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AssetUserRuleIdSchemaProperty.Validate("assetUserRuleId", parameters["assetUserRuleId"]);
-                    }
+                    AssetUserRuleIdSchemaProperty.Validate("assetUserRuleId", parameters["assetUserRuleId"]);
                     AssetUserRuleId = (Int64) Convert.ChangeType(parameters["assetUserRuleId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("metaData") && parameters["metaData"] != null)
@@ -11951,10 +11353,7 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -11975,10 +11374,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("transformationAdapterSettings") && parameters["transformationAdapterSettings"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SettingsSchemaProperty.Validate("transformationAdapterSettings", parameters["transformationAdapterSettings"]);
-                    }
+                    SettingsSchemaProperty.Validate("transformationAdapterSettings", parameters["transformationAdapterSettings"]);
                     if (parameters["transformationAdapterSettings"] is JObject)
                     {
                         Settings = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["transformationAdapterSettings"]).ToObject<Dictionary<string, object>>());
@@ -12538,10 +11934,7 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (String) Convert.ChangeType(parameters["id"], typeof(String));
                 }
                 if (parameters.ContainsKey("multilingualName") && parameters["multilingualName"] != null)
@@ -12557,10 +11950,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("systemName") && parameters["systemName"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SystemNameSchemaProperty.Validate("systemName", parameters["systemName"]);
-                    }
+                    SystemNameSchemaProperty.Validate("systemName", parameters["systemName"]);
                     SystemName = (String) Convert.ChangeType(parameters["systemName"], typeof(String));
                 }
                 if (parameters.ContainsKey("fieldName") && parameters["fieldName"] != null)
@@ -12593,10 +11983,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("dataType") && parameters["dataType"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DataTypeSchemaProperty.Validate("dataType", parameters["dataType"]);
-                    }
+                    DataTypeSchemaProperty.Validate("dataType", parameters["dataType"]);
                     if(string.IsNullOrEmpty(parameters["dataType"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "dataType");
@@ -12611,26 +11998,17 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("multipleValue") && parameters["multipleValue"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MultipleValueSchemaProperty.Validate("multipleValue", parameters["multipleValue"]);
-                    }
+                    MultipleValueSchemaProperty.Validate("multipleValue", parameters["multipleValue"]);
                     MultipleValue = (Boolean) Convert.ChangeType(parameters["multipleValue"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("isProtected") && parameters["isProtected"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsProtectedSchemaProperty.Validate("isProtected", parameters["isProtected"]);
-                    }
+                    IsProtectedSchemaProperty.Validate("isProtected", parameters["isProtected"]);
                     IsProtected = (Boolean) Convert.ChangeType(parameters["isProtected"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("helpText") && parameters["helpText"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        HelpTextSchemaProperty.Validate("helpText", parameters["helpText"]);
-                    }
+                    HelpTextSchemaProperty.Validate("helpText", parameters["helpText"]);
                     HelpText = (String) Convert.ChangeType(parameters["helpText"], typeof(String));
                 }
                 if (parameters.ContainsKey("assetType") && parameters["assetType"] != null)
@@ -12649,18 +12027,12 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("features") && parameters["features"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FeaturesSchemaProperty.Validate("features", parameters["features"]);
-                    }
+                    FeaturesSchemaProperty.Validate("features", parameters["features"]);
                     Features = (String) Convert.ChangeType(parameters["features"], typeof(String));
                 }
                 if (parameters.ContainsKey("parentId") && parameters["parentId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ParentIdSchemaProperty.Validate("parentId", parameters["parentId"]);
-                    }
+                    ParentIdSchemaProperty.Validate("parentId", parameters["parentId"]);
                     ParentId = (String) Convert.ChangeType(parameters["parentId"], typeof(String));
                 }
                 if (parameters.ContainsKey("partnerId") && parameters["partnerId"] != null)
@@ -12669,26 +12041,17 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
-                    }
+                    UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("dynamicData") && parameters["dynamicData"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DynamicDataSchemaProperty.Validate("dynamicData", parameters["dynamicData"]);
-                    }
+                    DynamicDataSchemaProperty.Validate("dynamicData", parameters["dynamicData"]);
                     if (parameters["dynamicData"] is JObject)
                     {
                         DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
@@ -12733,18 +12096,12 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
-                    }
+                    IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
                     IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
                 }
                 if (parameters.ContainsKey("assetStructIdEqual") && parameters["assetStructIdEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AssetStructIdEqualSchemaProperty.Validate("assetStructIdEqual", parameters["assetStructIdEqual"]);
-                    }
+                    AssetStructIdEqualSchemaProperty.Validate("assetStructIdEqual", parameters["assetStructIdEqual"]);
                     AssetStructIdEqual = (Int64) Convert.ChangeType(parameters["assetStructIdEqual"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("fieldNameEqual") && parameters["fieldNameEqual"] != null)
@@ -12890,10 +12247,7 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("conditions") && parameters["conditions"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ConditionsSchemaProperty.Validate("conditions", parameters["conditions"]);
-                    }
+                    ConditionsSchemaProperty.Validate("conditions", parameters["conditions"]);
                     if (parameters["conditions"] is JArray)
                     {
                         Conditions = buildList<KalturaCondition>(typeof(KalturaCondition), (JArray) parameters["conditions"]);
@@ -12928,10 +12282,7 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -13001,18 +12352,12 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("sharedSecret") && parameters["sharedSecret"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SharedSecretSchemaProperty.Validate("sharedSecret", parameters["sharedSecret"]);
-                    }
+                    SharedSecretSchemaProperty.Validate("sharedSecret", parameters["sharedSecret"]);
                     SharedSecret = (String) Convert.ChangeType(parameters["sharedSecret"], typeof(String));
                 }
                 if (parameters.ContainsKey("shared_secret") && parameters["shared_secret"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        SharedSecretSchemaProperty.Validate("shared_secret", parameters["shared_secret"]);
-                    }
+                    SharedSecretSchemaProperty.Validate("shared_secret", parameters["shared_secret"]);
                     SharedSecret = (String) Convert.ChangeType(parameters["shared_secret"], typeof(String));
                 }
             }
@@ -13228,90 +12573,57 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        idSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    idSchemaProperty.Validate("id", parameters["id"]);
                     id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        nameSchemaProperty.Validate("name", parameters["name"]);
-                    }
+                    nameSchemaProperty.Validate("name", parameters["name"]);
                     name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("description") && parameters["description"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        descriptionSchemaProperty.Validate("description", parameters["description"]);
-                    }
+                    descriptionSchemaProperty.Validate("description", parameters["description"]);
                     description = (String) Convert.ChangeType(parameters["description"], typeof(String));
                 }
                 if (parameters.ContainsKey("order") && parameters["order"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        orderSchemaProperty.Validate("order", parameters["order"]);
-                    }
+                    orderSchemaProperty.Validate("order", parameters["order"]);
                     order = (Int32) Convert.ChangeType(parameters["order"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("mediaTag") && parameters["mediaTag"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        mediaTagTypeIdSchemaProperty.Validate("mediaTag", parameters["mediaTag"]);
-                    }
+                    mediaTagTypeIdSchemaProperty.Validate("mediaTag", parameters["mediaTag"]);
                     mediaTagTypeId = (Int32) Convert.ChangeType(parameters["mediaTag"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("media_tag") && parameters["media_tag"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        mediaTagTypeIdSchemaProperty.Validate("media_tag", parameters["media_tag"]);
-                    }
+                    mediaTagTypeIdSchemaProperty.Validate("media_tag", parameters["media_tag"]);
                     mediaTagTypeId = (Int32) Convert.ChangeType(parameters["media_tag"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("epgTag") && parameters["epgTag"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        epgTagTypeIdSchemaProperty.Validate("epgTag", parameters["epgTag"]);
-                    }
+                    epgTagTypeIdSchemaProperty.Validate("epgTag", parameters["epgTag"]);
                     epgTagTypeId = (Int32) Convert.ChangeType(parameters["epgTag"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("epg_tag") && parameters["epg_tag"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        epgTagTypeIdSchemaProperty.Validate("epg_tag", parameters["epg_tag"]);
-                    }
+                    epgTagTypeIdSchemaProperty.Validate("epg_tag", parameters["epg_tag"]);
                     epgTagTypeId = (Int32) Convert.ChangeType(parameters["epg_tag"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("blockAnonymousAccess") && parameters["blockAnonymousAccess"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        blockAnonymousAccessSchemaProperty.Validate("blockAnonymousAccess", parameters["blockAnonymousAccess"]);
-                    }
+                    blockAnonymousAccessSchemaProperty.Validate("blockAnonymousAccess", parameters["blockAnonymousAccess"]);
                     blockAnonymousAccess = (Boolean) Convert.ChangeType(parameters["blockAnonymousAccess"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("block_anonymous_access") && parameters["block_anonymous_access"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        blockAnonymousAccessSchemaProperty.Validate("block_anonymous_access", parameters["block_anonymous_access"]);
-                    }
+                    blockAnonymousAccessSchemaProperty.Validate("block_anonymous_access", parameters["block_anonymous_access"]);
                     blockAnonymousAccess = (Boolean) Convert.ChangeType(parameters["block_anonymous_access"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("ruleType") && parameters["ruleType"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ruleTypeSchemaProperty.Validate("ruleType", parameters["ruleType"]);
-                    }
+                    ruleTypeSchemaProperty.Validate("ruleType", parameters["ruleType"]);
                     if(string.IsNullOrEmpty(parameters["ruleType"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ruleType");
@@ -13326,10 +12638,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("rule_type") && parameters["rule_type"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        ruleTypeSchemaProperty.Validate("rule_type", parameters["rule_type"]);
-                    }
+                    ruleTypeSchemaProperty.Validate("rule_type", parameters["rule_type"]);
                     if(string.IsNullOrEmpty(parameters["rule_type"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "rule_type");
@@ -13344,10 +12653,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("mediaTagValues") && parameters["mediaTagValues"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        mediaTagValuesSchemaProperty.Validate("mediaTagValues", parameters["mediaTagValues"]);
-                    }
+                    mediaTagValuesSchemaProperty.Validate("mediaTagValues", parameters["mediaTagValues"]);
                     if (parameters["mediaTagValues"] is JArray)
                     {
                         mediaTagValues = buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["mediaTagValues"]);
@@ -13359,10 +12665,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("media_tag_values") && parameters["media_tag_values"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        mediaTagValuesSchemaProperty.Validate("media_tag_values", parameters["media_tag_values"]);
-                    }
+                    mediaTagValuesSchemaProperty.Validate("media_tag_values", parameters["media_tag_values"]);
                     if (parameters["media_tag_values"] is JArray)
                     {
                         mediaTagValues = buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["media_tag_values"]);
@@ -13374,10 +12677,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("epgTagValues") && parameters["epgTagValues"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        epgTagValuesSchemaProperty.Validate("epgTagValues", parameters["epgTagValues"]);
-                    }
+                    epgTagValuesSchemaProperty.Validate("epgTagValues", parameters["epgTagValues"]);
                     if (parameters["epgTagValues"] is JArray)
                     {
                         epgTagValues = buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["epgTagValues"]);
@@ -13389,10 +12689,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("epg_tag_values") && parameters["epg_tag_values"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        epgTagValuesSchemaProperty.Validate("epg_tag_values", parameters["epg_tag_values"]);
-                    }
+                    epgTagValuesSchemaProperty.Validate("epg_tag_values", parameters["epg_tag_values"]);
                     if (parameters["epg_tag_values"] is JArray)
                     {
                         epgTagValues = buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["epg_tag_values"]);
@@ -13404,26 +12701,17 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("isDefault") && parameters["isDefault"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        isDefaultSchemaProperty.Validate("isDefault", parameters["isDefault"]);
-                    }
+                    isDefaultSchemaProperty.Validate("isDefault", parameters["isDefault"]);
                     isDefault = (Boolean) Convert.ChangeType(parameters["isDefault"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("is_default") && parameters["is_default"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        isDefaultSchemaProperty.Validate("is_default", parameters["is_default"]);
-                    }
+                    isDefaultSchemaProperty.Validate("is_default", parameters["is_default"]);
                     isDefault = (Boolean) Convert.ChangeType(parameters["is_default"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("origin") && parameters["origin"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        OriginSchemaProperty.Validate("origin", parameters["origin"]);
-                    }
+                    OriginSchemaProperty.Validate("origin", parameters["origin"]);
                     if(string.IsNullOrEmpty(parameters["origin"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "origin");
@@ -13438,26 +12726,17 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("isActive") && parameters["isActive"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsActiveSchemaProperty.Validate("isActive", parameters["isActive"]);
-                    }
+                    IsActiveSchemaProperty.Validate("isActive", parameters["isActive"]);
                     IsActive = (Boolean) Convert.ChangeType(parameters["isActive"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
-                    }
+                    UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
             }
@@ -13540,10 +12819,7 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -13556,10 +12832,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("dependsOnPermissionNames") && parameters["dependsOnPermissionNames"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DependsOnPermissionNamesSchemaProperty.Validate("dependsOnPermissionNames", parameters["dependsOnPermissionNames"]);
-                    }
+                    DependsOnPermissionNamesSchemaProperty.Validate("dependsOnPermissionNames", parameters["dependsOnPermissionNames"]);
                     DependsOnPermissionNames = (String) Convert.ChangeType(parameters["dependsOnPermissionNames"], typeof(String));
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
@@ -13622,10 +12895,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("roleIdIn") && parameters["roleIdIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        RoleIDInSchemaProperty.Validate("roleIdIn", parameters["roleIdIn"]);
-                    }
+                    RoleIDInSchemaProperty.Validate("roleIdIn", parameters["roleIdIn"]);
                     RoleIDIn = (Int64) Convert.ChangeType(parameters["roleIdIn"], typeof(Int64));
                 }
             }
@@ -13653,10 +12923,7 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -13878,10 +13145,7 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -13906,10 +13170,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("sharedSecret") && parameters["sharedSecret"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SharedSecretSchemaProperty.Validate("sharedSecret", parameters["sharedSecret"]);
-                    }
+                    SharedSecretSchemaProperty.Validate("sharedSecret", parameters["sharedSecret"]);
                     SharedSecret = (String) Convert.ChangeType(parameters["sharedSecret"], typeof(String));
                 }
             }
@@ -13971,10 +13232,7 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("discountModuleId") && parameters["discountModuleId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DiscountModuleIdSchemaProperty.Validate("discountModuleId", parameters["discountModuleId"]);
-                    }
+                    DiscountModuleIdSchemaProperty.Validate("discountModuleId", parameters["discountModuleId"]);
                     DiscountModuleId = (Int64) Convert.ChangeType(parameters["discountModuleId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("conditions") && parameters["conditions"] != null)
@@ -14091,10 +13349,7 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -14141,18 +13396,12 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("sharedSecret") && parameters["sharedSecret"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SharedSecretSchemaProperty.Validate("sharedSecret", parameters["sharedSecret"]);
-                    }
+                    SharedSecretSchemaProperty.Validate("sharedSecret", parameters["sharedSecret"]);
                     SharedSecret = (String) Convert.ChangeType(parameters["sharedSecret"], typeof(String));
                 }
                 if (parameters.ContainsKey("shared_secret") && parameters["shared_secret"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        SharedSecretSchemaProperty.Validate("shared_secret", parameters["shared_secret"]);
-                    }
+                    SharedSecretSchemaProperty.Validate("shared_secret", parameters["shared_secret"]);
                     SharedSecret = (String) Convert.ChangeType(parameters["shared_secret"], typeof(String));
                 }
             }
@@ -14241,26 +13490,17 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NameSchemaProperty.Validate("name", parameters["name"]);
-                    }
+                    NameSchemaProperty.Validate("name", parameters["name"]);
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("externalId") && parameters["externalId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ExternalIdSchemaProperty.Validate("externalId", parameters["externalId"]);
-                    }
+                    ExternalIdSchemaProperty.Validate("externalId", parameters["externalId"]);
                     ExternalId = (String) Convert.ChangeType(parameters["externalId"], typeof(String));
                 }
                 if (parameters.ContainsKey("isDefault") && parameters["isDefault"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsDefaultSchemaProperty.Validate("isDefault", parameters["isDefault"]);
-                    }
+                    IsDefaultSchemaProperty.Validate("isDefault", parameters["isDefault"]);
                     IsDefault = (Boolean) Convert.ChangeType(parameters["isDefault"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("linearChannels") && parameters["linearChannels"] != null)
@@ -14276,10 +13516,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("parentId") && parameters["parentId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ParentIdSchemaProperty.Validate("parentId", parameters["parentId"]);
-                    }
+                    ParentIdSchemaProperty.Validate("parentId", parameters["parentId"]);
                     ParentId = (Int64) Convert.ChangeType(parameters["parentId"], typeof(Int64));
                 }
             }
@@ -14302,6 +13539,19 @@ namespace WebAPI.Models.API
             }
         }
     }
+    public partial class KalturaRegionalChannelMultiLcns
+    {
+        public KalturaRegionalChannelMultiLcns(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("lcns") && parameters["lcns"] != null)
+                {
+                    LCNs = (String) Convert.ChangeType(parameters["lcns"], typeof(String));
+                }
+            }
+        }
+    }
     public partial class KalturaRegionChannelNumber
     {
         public KalturaRegionChannelNumber(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
@@ -14315,6 +13565,19 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("channelNumber") && parameters["channelNumber"] != null)
                 {
                     ChannelNumber = (Int32) Convert.ChangeType(parameters["channelNumber"], typeof(Int32));
+                }
+            }
+        }
+    }
+    public partial class KalturaRegionChannelNumberMultiLcns
+    {
+        public KalturaRegionChannelNumberMultiLcns(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("lcns") && parameters["lcns"] != null)
+                {
+                    LCNs = (String) Convert.ChangeType(parameters["lcns"], typeof(String));
                 }
             }
         }
@@ -14443,10 +13706,7 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -14459,10 +13719,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("description") && parameters["description"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DescriptionSchemaProperty.Validate("description", parameters["description"]);
-                    }
+                    DescriptionSchemaProperty.Validate("description", parameters["description"]);
                     Description = (String) Convert.ChangeType(parameters["description"], typeof(String));
                 }
                 if (parameters.ContainsKey("label") && parameters["label"] != null)
@@ -14601,66 +13858,42 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (String) Convert.ChangeType(parameters["id"], typeof(String));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NameSchemaProperty.Validate("name", parameters["name"]);
-                    }
+                    NameSchemaProperty.Validate("name", parameters["name"]);
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("filter") && parameters["filter"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FilterSchemaProperty.Validate("filter", parameters["filter"]);
-                    }
+                    FilterSchemaProperty.Validate("filter", parameters["filter"]);
                     Filter = (String) Convert.ChangeType(parameters["filter"], typeof(String));
                 }
                 if (parameters.ContainsKey("language") && parameters["language"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        LanguageSchemaProperty.Validate("language", parameters["language"]);
-                    }
+                    LanguageSchemaProperty.Validate("language", parameters["language"]);
                     Language = (String) Convert.ChangeType(parameters["language"], typeof(String));
                 }
                 if (parameters.ContainsKey("createdAt") && parameters["createdAt"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreatedAtSchemaProperty.Validate("createdAt", parameters["createdAt"]);
-                    }
+                    CreatedAtSchemaProperty.Validate("createdAt", parameters["createdAt"]);
                     CreatedAt = (Int64) Convert.ChangeType(parameters["createdAt"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("service") && parameters["service"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ServiceSchemaProperty.Validate("service", parameters["service"]);
-                    }
+                    ServiceSchemaProperty.Validate("service", parameters["service"]);
                     Service = (String) Convert.ChangeType(parameters["service"], typeof(String));
                 }
                 if (parameters.ContainsKey("action") && parameters["action"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ActionSchemaProperty.Validate("action", parameters["action"]);
-                    }
+                    ActionSchemaProperty.Validate("action", parameters["action"]);
                     Action = (String) Convert.ChangeType(parameters["action"], typeof(String));
                 }
                 if (parameters.ContainsKey("deviceId") && parameters["deviceId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DeviceIdSchemaProperty.Validate("deviceId", parameters["deviceId"]);
-                    }
+                    DeviceIdSchemaProperty.Validate("deviceId", parameters["deviceId"]);
                     DeviceId = (String) Convert.ChangeType(parameters["deviceId"], typeof(String));
                 }
             }
@@ -14715,10 +13948,7 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("segmentsIds") && parameters["segmentsIds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SegmentsIdsSchemaProperty.Validate("segmentsIds", parameters["segmentsIds"]);
-                    }
+                    SegmentsIdsSchemaProperty.Validate("segmentsIds", parameters["segmentsIds"]);
                     SegmentsIds = (String) Convert.ChangeType(parameters["segmentsIds"], typeof(String));
                 }
             }
@@ -14747,10 +13977,7 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
-                    }
+                    IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
                     IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
                 }
             }
@@ -14926,50 +14153,32 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("paddingBeforeProgramStarts") && parameters["paddingBeforeProgramStarts"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PaddingBeforeProgramStartsSchemaProperty.Validate("paddingBeforeProgramStarts", parameters["paddingBeforeProgramStarts"]);
-                    }
+                    PaddingBeforeProgramStartsSchemaProperty.Validate("paddingBeforeProgramStarts", parameters["paddingBeforeProgramStarts"]);
                     PaddingBeforeProgramStarts = (Int64) Convert.ChangeType(parameters["paddingBeforeProgramStarts"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("paddingAfterProgramEnds") && parameters["paddingAfterProgramEnds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PaddingAfterProgramEndsSchemaProperty.Validate("paddingAfterProgramEnds", parameters["paddingAfterProgramEnds"]);
-                    }
+                    PaddingAfterProgramEndsSchemaProperty.Validate("paddingAfterProgramEnds", parameters["paddingAfterProgramEnds"]);
                     PaddingAfterProgramEnds = (Int64) Convert.ChangeType(parameters["paddingAfterProgramEnds"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("protectionPeriod") && parameters["protectionPeriod"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ProtectionPeriodSchemaProperty.Validate("protectionPeriod", parameters["protectionPeriod"]);
-                    }
+                    ProtectionPeriodSchemaProperty.Validate("protectionPeriod", parameters["protectionPeriod"]);
                     ProtectionPeriod = (Int32) Convert.ChangeType(parameters["protectionPeriod"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("protectionQuotaPercentage") && parameters["protectionQuotaPercentage"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ProtectionQuotaPercentageSchemaProperty.Validate("protectionQuotaPercentage", parameters["protectionQuotaPercentage"]);
-                    }
+                    ProtectionQuotaPercentageSchemaProperty.Validate("protectionQuotaPercentage", parameters["protectionQuotaPercentage"]);
                     ProtectionQuotaPercentage = (Int32) Convert.ChangeType(parameters["protectionQuotaPercentage"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("recordingLifetimePeriod") && parameters["recordingLifetimePeriod"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        RecordingLifetimePeriodSchemaProperty.Validate("recordingLifetimePeriod", parameters["recordingLifetimePeriod"]);
-                    }
+                    RecordingLifetimePeriodSchemaProperty.Validate("recordingLifetimePeriod", parameters["recordingLifetimePeriod"]);
                     RecordingLifetimePeriod = (Int32) Convert.ChangeType(parameters["recordingLifetimePeriod"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("cleanupNoticePeriod") && parameters["cleanupNoticePeriod"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CleanupNoticePeriodSchemaProperty.Validate("cleanupNoticePeriod", parameters["cleanupNoticePeriod"]);
-                    }
+                    CleanupNoticePeriodSchemaProperty.Validate("cleanupNoticePeriod", parameters["cleanupNoticePeriod"]);
                     CleanupNoticePeriod = (Int32) Convert.ChangeType(parameters["cleanupNoticePeriod"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("seriesRecordingEnabled") && parameters["seriesRecordingEnabled"] != null)
@@ -15014,10 +14223,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("recoveryGracePeriod") && parameters["recoveryGracePeriod"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        RecoveryGracePeriodSchemaProperty.Validate("recoveryGracePeriod", parameters["recoveryGracePeriod"]);
-                    }
+                    RecoveryGracePeriodSchemaProperty.Validate("recoveryGracePeriod", parameters["recoveryGracePeriod"]);
                     RecoveryGracePeriod = (Int32) Convert.ChangeType(parameters["recoveryGracePeriod"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("privateCopyEnabled") && parameters["privateCopyEnabled"] != null)
@@ -15081,10 +14287,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("triggerConditions") && parameters["triggerConditions"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TriggerConditionsSchemaProperty.Validate("triggerConditions", parameters["triggerConditions"]);
-                    }
+                    TriggerConditionsSchemaProperty.Validate("triggerConditions", parameters["triggerConditions"]);
                     if (parameters["triggerConditions"] is JArray)
                     {
                         TriggerConditions = buildList<KalturaCondition>(typeof(KalturaCondition), (JArray) parameters["triggerConditions"]);
@@ -15183,18 +14386,12 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("ruleType") && parameters["ruleType"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        RuleTypeSchemaProperty.Validate("ruleType", parameters["ruleType"]);
-                    }
+                    RuleTypeSchemaProperty.Validate("ruleType", parameters["ruleType"]);
                     if(string.IsNullOrEmpty(parameters["ruleType"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ruleType");
@@ -15280,10 +14477,7 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
             }
@@ -15311,10 +14505,7 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("ruleType") && parameters["ruleType"] != null)
@@ -15413,10 +14604,7 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -15444,10 +14632,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TypeSchemaProperty.Validate("type", parameters["type"]);
-                    }
+                    TypeSchemaProperty.Validate("type", parameters["type"]);
                     if(string.IsNullOrEmpty(parameters["type"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "type");
@@ -15500,10 +14685,7 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
-                    }
+                    IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
                     IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
                 }
             }
@@ -15608,10 +14790,7 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
             }
@@ -15740,6 +14919,18 @@ namespace WebAPI.Models.Notifications
             MinItems = -1,
             MaxItems = -1,
         };
+        private static RuntimeSchemePropertyAttribute IncludeUserInboxSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAnnouncement")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
         public KalturaAnnouncement(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
@@ -15772,10 +14963,7 @@ namespace WebAPI.Models.Notifications
                 }
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StatusSchemaProperty.Validate("status", parameters["status"]);
-                    }
+                    StatusSchemaProperty.Validate("status", parameters["status"]);
                     if(string.IsNullOrEmpty(parameters["status"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "status");
@@ -15804,10 +14992,7 @@ namespace WebAPI.Models.Notifications
                 }
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("imageUrl") && parameters["imageUrl"] != null)
@@ -15833,6 +15018,11 @@ namespace WebAPI.Models.Notifications
                 if (parameters.ContainsKey("includeIot") && parameters["includeIot"] != null)
                 {
                     IncludeIot = (Boolean) Convert.ChangeType(parameters["includeIot"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("includeUserInbox") && parameters["includeUserInbox"] != null)
+                {
+                    IncludeUserInboxSchemaProperty.Validate("includeUserInbox", parameters["includeUserInbox"]);
+                    IncludeUserInbox = (Boolean) Convert.ChangeType(parameters["includeUserInbox"], typeof(Boolean));
                 }
             }
         }
@@ -15920,18 +15110,12 @@ namespace WebAPI.Models.Notifications
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NameSchemaProperty.Validate("name", parameters["name"]);
-                    }
+                    NameSchemaProperty.Validate("name", parameters["name"]);
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
@@ -15986,10 +15170,7 @@ namespace WebAPI.Models.Notifications
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("seriesId") && parameters["seriesId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SeriesIdSchemaProperty.Validate("seriesId", parameters["seriesId"]);
-                    }
+                    SeriesIdSchemaProperty.Validate("seriesId", parameters["seriesId"]);
                     SeriesId = (String) Convert.ChangeType(parameters["seriesId"], typeof(String));
                 }
                 if (parameters.ContainsKey("seasonNumber") && parameters["seasonNumber"] != null)
@@ -15998,10 +15179,7 @@ namespace WebAPI.Models.Notifications
                 }
                 if (parameters.ContainsKey("epgChannelId") && parameters["epgChannelId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EpgChannelIdSchemaProperty.Validate("epgChannelId", parameters["epgChannelId"]);
-                    }
+                    EpgChannelIdSchemaProperty.Validate("epgChannelId", parameters["epgChannelId"]);
                     EpgChannelId = (Int64) Convert.ChangeType(parameters["epgChannelId"], typeof(Int64));
                 }
             }
@@ -16042,10 +15220,7 @@ namespace WebAPI.Models.Notifications
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("subscriptionId") && parameters["subscriptionId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SubscriptionIdSchemaProperty.Validate("subscriptionId", parameters["subscriptionId"]);
-                    }
+                    SubscriptionIdSchemaProperty.Validate("subscriptionId", parameters["subscriptionId"]);
                     SubscriptionId = (Int64) Convert.ChangeType(parameters["subscriptionId"], typeof(Int64));
                 }
             }
@@ -16112,18 +15287,12 @@ namespace WebAPI.Models.Notifications
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NameSchemaProperty.Validate("name", parameters["name"]);
-                    }
+                    NameSchemaProperty.Validate("name", parameters["name"]);
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("description") && parameters["description"] != null)
@@ -16231,10 +15400,7 @@ namespace WebAPI.Models.Notifications
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("message") && parameters["message"] != null)
@@ -16247,10 +15413,7 @@ namespace WebAPI.Models.Notifications
                 }
                 if (parameters.ContainsKey("topicNotificationId") && parameters["topicNotificationId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TopicNotificationIdSchemaProperty.Validate("topicNotificationId", parameters["topicNotificationId"]);
-                    }
+                    TopicNotificationIdSchemaProperty.Validate("topicNotificationId", parameters["topicNotificationId"]);
                     TopicNotificationId = (Int64) Convert.ChangeType(parameters["topicNotificationId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("trigger") && parameters["trigger"] != null)
@@ -16277,10 +15440,7 @@ namespace WebAPI.Models.Notifications
                 }
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StatusSchemaProperty.Validate("status", parameters["status"]);
-                    }
+                    StatusSchemaProperty.Validate("status", parameters["status"]);
                     if(string.IsNullOrEmpty(parameters["status"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "status");
@@ -16430,34 +15590,22 @@ namespace WebAPI.Models.Notification
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("userId") && parameters["userId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserIdSchemaProperty.Validate("userId", parameters["userId"]);
-                    }
+                    UserIdSchemaProperty.Validate("userId", parameters["userId"]);
                     UserId = (Int64) Convert.ChangeType(parameters["userId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("assetId") && parameters["assetId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AssetIdSchemaProperty.Validate("assetId", parameters["assetId"]);
-                    }
+                    AssetIdSchemaProperty.Validate("assetId", parameters["assetId"]);
                     AssetId = (Int64) Convert.ChangeType(parameters["assetId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TypeSchemaProperty.Validate("type", parameters["type"]);
-                    }
+                    TypeSchemaProperty.Validate("type", parameters["type"]);
                     Type = (Int32) Convert.ChangeType(parameters["type"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("externalId") && parameters["externalId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ExternalIdSchemaProperty.Validate("externalId", parameters["externalId"]);
-                    }
+                    ExternalIdSchemaProperty.Validate("externalId", parameters["externalId"]);
                     ExternalId = (String) Convert.ChangeType(parameters["externalId"], typeof(String));
                 }
             }
@@ -16557,42 +15705,27 @@ namespace WebAPI.Models.Notification
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("userId") && parameters["userId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserIdSchemaProperty.Validate("userId", parameters["userId"]);
-                    }
+                    UserIdSchemaProperty.Validate("userId", parameters["userId"]);
                     UserId = (Int64) Convert.ChangeType(parameters["userId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("householdId") && parameters["householdId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        HouseholdIdSchemaProperty.Validate("householdId", parameters["householdId"]);
-                    }
+                    HouseholdIdSchemaProperty.Validate("householdId", parameters["householdId"]);
                     HouseholdId = (Int64) Convert.ChangeType(parameters["householdId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("assetId") && parameters["assetId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AssetIdSchemaProperty.Validate("assetId", parameters["assetId"]);
-                    }
+                    AssetIdSchemaProperty.Validate("assetId", parameters["assetId"]);
                     AssetId = (Int64) Convert.ChangeType(parameters["assetId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("fileId") && parameters["fileId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FileIdSchemaProperty.Validate("fileId", parameters["fileId"]);
-                    }
+                    FileIdSchemaProperty.Validate("fileId", parameters["fileId"]);
                     FileId = (Int64) Convert.ChangeType(parameters["fileId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("position") && parameters["position"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PositionSchemaProperty.Validate("position", parameters["position"]);
-                    }
+                    PositionSchemaProperty.Validate("position", parameters["position"]);
                     Position = (Int32) Convert.ChangeType(parameters["position"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("action") && parameters["action"] != null)
@@ -16625,10 +15758,7 @@ namespace WebAPI.Models.Notification
                 }
                 if (parameters.ContainsKey("productId") && parameters["productId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ProductIdSchemaProperty.Validate("productId", parameters["productId"]);
-                    }
+                    ProductIdSchemaProperty.Validate("productId", parameters["productId"]);
                     ProductId = (Int32) Convert.ChangeType(parameters["productId"], typeof(Int32));
                 }
             }
@@ -16753,18 +15883,12 @@ namespace WebAPI.Models.Notification
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("totalNumberOfRecipients") && parameters["totalNumberOfRecipients"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TotalNumberOfRecipientsSchemaProperty.Validate("totalNumberOfRecipients", parameters["totalNumberOfRecipients"]);
-                    }
+                    TotalNumberOfRecipientsSchemaProperty.Validate("totalNumberOfRecipients", parameters["totalNumberOfRecipients"]);
                     TotalNumberOfRecipients = (Int32) Convert.ChangeType(parameters["totalNumberOfRecipients"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
@@ -16849,10 +15973,7 @@ namespace WebAPI.Models.Notification
                 }
                 if (parameters.ContainsKey("sharedSecret") && parameters["sharedSecret"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SharedSecretSchemaProperty.Validate("sharedSecret", parameters["sharedSecret"]);
-                    }
+                    SharedSecretSchemaProperty.Validate("sharedSecret", parameters["sharedSecret"]);
                     SharedSecret = (String) Convert.ChangeType(parameters["sharedSecret"], typeof(String));
                 }
             }
@@ -16880,10 +16001,7 @@ namespace WebAPI.Models.Notification
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -17000,18 +16118,12 @@ namespace WebAPI.Models.Notification
                 }
                 if (parameters.ContainsKey("backwardTimeRange") && parameters["backwardTimeRange"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        BackwardTimeRangeSchemaProperty.Validate("backwardTimeRange", parameters["backwardTimeRange"]);
-                    }
+                    BackwardTimeRangeSchemaProperty.Validate("backwardTimeRange", parameters["backwardTimeRange"]);
                     BackwardTimeRange = (Int32) Convert.ChangeType(parameters["backwardTimeRange"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("forwardTimeRange") && parameters["forwardTimeRange"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ForwardTimeRangeSchemaProperty.Validate("forwardTimeRange", parameters["forwardTimeRange"]);
-                    }
+                    ForwardTimeRangeSchemaProperty.Validate("forwardTimeRange", parameters["forwardTimeRange"]);
                     ForwardTimeRange = (Int32) Convert.ChangeType(parameters["forwardTimeRange"], typeof(Int32));
                 }
             }
@@ -17039,18 +16151,12 @@ namespace WebAPI.Models.Notification
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("assetId") && parameters["assetId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AssetIdSchemaProperty.Validate("assetId", parameters["assetId"]);
-                    }
+                    AssetIdSchemaProperty.Validate("assetId", parameters["assetId"]);
                     AssetId = (Int64) Convert.ChangeType(parameters["assetId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("asset_id") && parameters["asset_id"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        AssetIdSchemaProperty.Validate("asset_id", parameters["asset_id"]);
-                    }
+                    AssetIdSchemaProperty.Validate("asset_id", parameters["asset_id"]);
                     AssetId = (Int64) Convert.ChangeType(parameters["asset_id"], typeof(Int64));
                 }
             }
@@ -17126,58 +16232,37 @@ namespace WebAPI.Models.Notification
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("announcementId") && parameters["announcementId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AnnouncementIdSchemaProperty.Validate("announcementId", parameters["announcementId"]);
-                    }
+                    AnnouncementIdSchemaProperty.Validate("announcementId", parameters["announcementId"]);
                     AnnouncementId = (Int64) Convert.ChangeType(parameters["announcementId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("announcement_id") && parameters["announcement_id"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        AnnouncementIdSchemaProperty.Validate("announcement_id", parameters["announcement_id"]);
-                    }
+                    AnnouncementIdSchemaProperty.Validate("announcement_id", parameters["announcement_id"]);
                     AnnouncementId = (Int64) Convert.ChangeType(parameters["announcement_id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StatusSchemaProperty.Validate("status", parameters["status"]);
-                    }
+                    StatusSchemaProperty.Validate("status", parameters["status"]);
                     Status = (Int32) Convert.ChangeType(parameters["status"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("title") && parameters["title"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TitleSchemaProperty.Validate("title", parameters["title"]);
-                    }
+                    TitleSchemaProperty.Validate("title", parameters["title"]);
                     Title = (String) Convert.ChangeType(parameters["title"], typeof(String));
                 }
                 if (parameters.ContainsKey("timestamp") && parameters["timestamp"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TimestampSchemaProperty.Validate("timestamp", parameters["timestamp"]);
-                    }
+                    TimestampSchemaProperty.Validate("timestamp", parameters["timestamp"]);
                     Timestamp = (Int64) Convert.ChangeType(parameters["timestamp"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("followPhrase") && parameters["followPhrase"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FollowPhraseSchemaProperty.Validate("followPhrase", parameters["followPhrase"]);
-                    }
+                    FollowPhraseSchemaProperty.Validate("followPhrase", parameters["followPhrase"]);
                     FollowPhrase = (String) Convert.ChangeType(parameters["followPhrase"], typeof(String));
                 }
                 if (parameters.ContainsKey("follow_phrase") && parameters["follow_phrase"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        FollowPhraseSchemaProperty.Validate("follow_phrase", parameters["follow_phrase"]);
-                    }
+                    FollowPhraseSchemaProperty.Validate("follow_phrase", parameters["follow_phrase"]);
                     FollowPhrase = (String) Convert.ChangeType(parameters["follow_phrase"], typeof(String));
                 }
             }
@@ -17225,10 +16310,7 @@ namespace WebAPI.Models.Notification
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("assetId") && parameters["assetId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AssetIdSchemaProperty.Validate("assetId", parameters["assetId"]);
-                    }
+                    AssetIdSchemaProperty.Validate("assetId", parameters["assetId"]);
                     AssetId = (Int32) Convert.ChangeType(parameters["assetId"], typeof(Int32));
                 }
             }
@@ -17318,10 +16400,7 @@ namespace WebAPI.Models.Notification
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (String) Convert.ChangeType(parameters["id"], typeof(String));
                 }
                 if (parameters.ContainsKey("message") && parameters["message"] != null)
@@ -17330,10 +16409,7 @@ namespace WebAPI.Models.Notification
                 }
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StatusSchemaProperty.Validate("status", parameters["status"]);
-                    }
+                    StatusSchemaProperty.Validate("status", parameters["status"]);
                     if(string.IsNullOrEmpty(parameters["status"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "status");
@@ -17362,10 +16438,7 @@ namespace WebAPI.Models.Notification
                 }
                 if (parameters.ContainsKey("createdAt") && parameters["createdAt"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreatedAtSchemaProperty.Validate("createdAt", parameters["createdAt"]);
-                    }
+                    CreatedAtSchemaProperty.Validate("createdAt", parameters["createdAt"]);
                     CreatedAt = (Int64) Convert.ChangeType(parameters["createdAt"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("url") && parameters["url"] != null)
@@ -17374,10 +16447,7 @@ namespace WebAPI.Models.Notification
                 }
                 if (parameters.ContainsKey("campaignId") && parameters["campaignId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CampaignIdSchemaProperty.Validate("campaignId", parameters["campaignId"]);
-                    }
+                    CampaignIdSchemaProperty.Validate("campaignId", parameters["campaignId"]);
                     CampaignId = (Int64) Convert.ChangeType(parameters["campaignId"], typeof(Int64));
                 }
             }
@@ -17697,34 +16767,22 @@ namespace WebAPI.Models.Notification
                 }
                 if (parameters.ContainsKey("pushStartHour") && parameters["pushStartHour"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PushStartHourSchemaProperty.Validate("pushStartHour", parameters["pushStartHour"]);
-                    }
+                    PushStartHourSchemaProperty.Validate("pushStartHour", parameters["pushStartHour"]);
                     PushStartHour = (Int32) Convert.ChangeType(parameters["pushStartHour"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("push_start_hour") && parameters["push_start_hour"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        PushStartHourSchemaProperty.Validate("push_start_hour", parameters["push_start_hour"]);
-                    }
+                    PushStartHourSchemaProperty.Validate("push_start_hour", parameters["push_start_hour"]);
                     PushStartHour = (Int32) Convert.ChangeType(parameters["push_start_hour"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("pushEndHour") && parameters["pushEndHour"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PushEndHourSchemaProperty.Validate("pushEndHour", parameters["pushEndHour"]);
-                    }
+                    PushEndHourSchemaProperty.Validate("pushEndHour", parameters["pushEndHour"]);
                     PushEndHour = (Int32) Convert.ChangeType(parameters["pushEndHour"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("push_end_hour") && parameters["push_end_hour"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        PushEndHourSchemaProperty.Validate("push_end_hour", parameters["push_end_hour"]);
-                    }
+                    PushEndHourSchemaProperty.Validate("push_end_hour", parameters["push_end_hour"]);
                     PushEndHour = (Int32) Convert.ChangeType(parameters["push_end_hour"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("inboxEnabled") && parameters["inboxEnabled"] != null)
@@ -17733,10 +16791,7 @@ namespace WebAPI.Models.Notification
                 }
                 if (parameters.ContainsKey("messageTTLDays") && parameters["messageTTLDays"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MessageTTLDaysSchemaProperty.Validate("messageTTLDays", parameters["messageTTLDays"]);
-                    }
+                    MessageTTLDaysSchemaProperty.Validate("messageTTLDays", parameters["messageTTLDays"]);
                     MessageTTLDays = (Int32) Convert.ChangeType(parameters["messageTTLDays"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("automaticIssueFollowNotification") && parameters["automaticIssueFollowNotification"] != null)
@@ -17753,10 +16808,7 @@ namespace WebAPI.Models.Notification
                 }
                 if (parameters.ContainsKey("reminderOffsetSec") && parameters["reminderOffsetSec"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ReminderOffsetSchemaProperty.Validate("reminderOffsetSec", parameters["reminderOffsetSec"]);
-                    }
+                    ReminderOffsetSchemaProperty.Validate("reminderOffsetSec", parameters["reminderOffsetSec"]);
                     ReminderOffset = (Int32) Convert.ChangeType(parameters["reminderOffsetSec"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("pushAdapterUrl") && parameters["pushAdapterUrl"] != null)
@@ -17937,10 +16989,7 @@ namespace WebAPI.Models.Notification
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("liveAssetId") && parameters["liveAssetId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        LiveAssetIdSchemaProperty.Validate("liveAssetId", parameters["liveAssetId"]);
-                    }
+                    LiveAssetIdSchemaProperty.Validate("liveAssetId", parameters["liveAssetId"]);
                     LiveAssetId = (Int32) Convert.ChangeType(parameters["liveAssetId"], typeof(Int32));
                 }
             }
@@ -17981,10 +17030,7 @@ namespace WebAPI.Models.Notification
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("message") && parameters["message"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MessageSchemaProperty.Validate("message", parameters["message"]);
-                    }
+                    MessageSchemaProperty.Validate("message", parameters["message"]);
                     Message = (String) Convert.ChangeType(parameters["message"], typeof(String));
                 }
                 if (parameters.ContainsKey("sound") && parameters["sound"] != null)
@@ -18005,10 +17051,7 @@ namespace WebAPI.Models.Notification
                 }
                 if (parameters.ContainsKey("pushChannels") && parameters["pushChannels"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PushChannelsSchemaProperty.Validate("pushChannels", parameters["pushChannels"]);
-                    }
+                    PushChannelsSchemaProperty.Validate("pushChannels", parameters["pushChannels"]);
                     PushChannels = (String) Convert.ChangeType(parameters["pushChannels"], typeof(String));
                 }
             }
@@ -18152,26 +17195,17 @@ namespace WebAPI.Models.Notification
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("adapterUrl") && parameters["adapterUrl"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AdapterUrlSchemaProperty.Validate("adapterUrl", parameters["adapterUrl"]);
-                    }
+                    AdapterUrlSchemaProperty.Validate("adapterUrl", parameters["adapterUrl"]);
                     AdapterUrl = (String) Convert.ChangeType(parameters["adapterUrl"], typeof(String));
                 }
                 if (parameters.ContainsKey("sharedSecret") && parameters["sharedSecret"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SharedSecretSchemaProperty.Validate("sharedSecret", parameters["sharedSecret"]);
-                    }
+                    SharedSecretSchemaProperty.Validate("sharedSecret", parameters["sharedSecret"]);
                     SharedSecret = (String) Convert.ChangeType(parameters["sharedSecret"], typeof(String));
                 }
                 if (parameters.ContainsKey("isActive") && parameters["isActive"] != null)
@@ -18244,10 +17278,7 @@ namespace WebAPI.Models.Notification
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (String) Convert.ChangeType(parameters["id"], typeof(String));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -18383,34 +17414,22 @@ namespace WebAPI.Models.Notification
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("userId") && parameters["userId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserIdSchemaProperty.Validate("userId", parameters["userId"]);
-                    }
+                    UserIdSchemaProperty.Validate("userId", parameters["userId"]);
                     UserId = (Int64) Convert.ChangeType(parameters["userId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("campaignId") && parameters["campaignId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CampaignIdSchemaProperty.Validate("campaignId", parameters["campaignId"]);
-                    }
+                    CampaignIdSchemaProperty.Validate("campaignId", parameters["campaignId"]);
                     CampaignId = (Int64) Convert.ChangeType(parameters["campaignId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("udid") && parameters["udid"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UdidSchemaProperty.Validate("udid", parameters["udid"]);
-                    }
+                    UdidSchemaProperty.Validate("udid", parameters["udid"]);
                     Udid = (String) Convert.ChangeType(parameters["udid"], typeof(String));
                 }
                 if (parameters.ContainsKey("householdId") && parameters["householdId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        HouseholdIdSchemaProperty.Validate("householdId", parameters["householdId"]);
-                    }
+                    HouseholdIdSchemaProperty.Validate("householdId", parameters["householdId"]);
                     HouseholdId = (Int64) Convert.ChangeType(parameters["householdId"], typeof(Int64));
                 }
             }
@@ -18574,18 +17593,12 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TypeSchemaProperty.Validate("type", parameters["type"]);
-                    }
+                    TypeSchemaProperty.Validate("type", parameters["type"]);
                     Type = (Int32) Convert.ChangeType(parameters["type"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("multilingualName") && parameters["multilingualName"] != null)
@@ -18612,10 +17625,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("images") && parameters["images"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ImagesSchemaProperty.Validate("images", parameters["images"]);
-                    }
+                    ImagesSchemaProperty.Validate("images", parameters["images"]);
                     if (parameters["images"] is JArray)
                     {
                         Images = buildList<KalturaMediaImage>(typeof(KalturaMediaImage), (JArray) parameters["images"]);
@@ -18627,10 +17637,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("mediaFiles") && parameters["mediaFiles"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MediaFilesSchemaProperty.Validate("mediaFiles", parameters["mediaFiles"]);
-                    }
+                    MediaFilesSchemaProperty.Validate("mediaFiles", parameters["mediaFiles"]);
                     if (parameters["mediaFiles"] is JArray)
                     {
                         MediaFiles = buildList<KalturaMediaFile>(typeof(KalturaMediaFile), (JArray) parameters["mediaFiles"]);
@@ -18653,10 +17660,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("metas") && parameters["metas"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MetasSchemaProperty.Validate("metas", parameters["metas"]);
-                    }
+                    MetasSchemaProperty.Validate("metas", parameters["metas"]);
                     if (parameters["metas"] is JObject)
                     {
                         Metas = buildDictionary<KalturaValue>(typeof(KalturaValue), ((JObject) parameters["metas"]).ToObject<Dictionary<string, object>>());
@@ -18664,10 +17668,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("tags") && parameters["tags"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TagsSchemaProperty.Validate("tags", parameters["tags"]);
-                    }
+                    TagsSchemaProperty.Validate("tags", parameters["tags"]);
                     if (parameters["tags"] is JObject)
                     {
                         Tags = buildDictionary<KalturaMultilingualStringValueArray>(typeof(KalturaMultilingualStringValueArray), ((JObject) parameters["tags"]).ToObject<Dictionary<string, object>>());
@@ -18675,10 +17676,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("relatedEntities") && parameters["relatedEntities"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        RelatedEntitiesSchemaProperty.Validate("relatedEntities", parameters["relatedEntities"]);
-                    }
+                    RelatedEntitiesSchemaProperty.Validate("relatedEntities", parameters["relatedEntities"]);
                     if (parameters["relatedEntities"] is JObject)
                     {
                         RelatedEntities = buildDictionary<KalturaRelatedEntityArray>(typeof(KalturaRelatedEntityArray), ((JObject) parameters["relatedEntities"]).ToObject<Dictionary<string, object>>());
@@ -18686,34 +17684,22 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StartDateSchemaProperty.Validate("startDate", parameters["startDate"]);
-                    }
+                    StartDateSchemaProperty.Validate("startDate", parameters["startDate"]);
                     StartDate = (Int64) Convert.ChangeType(parameters["startDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EndDateSchemaProperty.Validate("endDate", parameters["endDate"]);
-                    }
+                    EndDateSchemaProperty.Validate("endDate", parameters["endDate"]);
                     EndDate = (Int64) Convert.ChangeType(parameters["endDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
-                    }
+                    UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("enableCdvr") && parameters["enableCdvr"] != null)
@@ -18738,10 +17724,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("indexStatus") && parameters["indexStatus"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IndexStatusSchemaProperty.Validate("indexStatus", parameters["indexStatus"]);
-                    }
+                    IndexStatusSchemaProperty.Validate("indexStatus", parameters["indexStatus"]);
                     if(string.IsNullOrEmpty(parameters["indexStatus"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "indexStatus");
@@ -18866,10 +17849,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("assetId") && parameters["assetId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AssetIdSchemaProperty.Validate("assetId", parameters["assetId"]);
-                    }
+                    AssetIdSchemaProperty.Validate("assetId", parameters["assetId"]);
                     AssetId = (Int32) Convert.ChangeType(parameters["assetId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("assetType") && parameters["assetType"] != null)
@@ -18916,10 +17896,7 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("assetIdEqual") && parameters["assetIdEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AssetIdEqualSchemaProperty.Validate("assetIdEqual", parameters["assetIdEqual"]);
-                    }
+                    AssetIdEqualSchemaProperty.Validate("assetIdEqual", parameters["assetIdEqual"]);
                     AssetIdEqual = (Int32) Convert.ChangeType(parameters["assetIdEqual"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("assetTypeEqual") && parameters["assetTypeEqual"] != null)
@@ -19011,6 +17988,33 @@ namespace WebAPI.Models.Catalog
             }
         }
     }
+    public partial class KalturaAssetDynamicOrder
+    {
+        public KalturaAssetDynamicOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("name") && parameters["name"] != null)
+                {
+                    Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
+                }
+                if (parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["orderBy"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "orderBy");
+                    }
+
+                    OrderBy = (KalturaMetaTagOrderBy) Enum.Parse(typeof(KalturaMetaTagOrderBy), parameters["orderBy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaMetaTagOrderBy), OrderBy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", OrderBy, typeof(KalturaMetaTagOrderBy)));
+                    }
+                }
+            }
+        }
+    }
     public partial class KalturaAssetFieldGroupBy
     {
         public KalturaAssetFieldGroupBy(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
@@ -19063,12 +18067,38 @@ namespace WebAPI.Models.Catalog
             MinItems = -1,
             MaxItems = -1,
         };
+        private static RuntimeSchemePropertyAttribute ShouldApplyPriorityGroupsEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
         public KalturaAssetFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
                 Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["orderBy"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "orderBy");
+                    }
+
+                    OrderBy = (KalturaAssetOrderBy) Enum.Parse(typeof(KalturaAssetOrderBy), parameters["orderBy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetOrderBy), OrderBy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", OrderBy, typeof(KalturaAssetOrderBy)));
+                    }
+                }
                 if (parameters.ContainsKey("dynamicOrderBy") && parameters["dynamicOrderBy"] != null)
                 {
                     if (parameters["dynamicOrderBy"] is JObject)
@@ -19080,13 +18110,26 @@ namespace WebAPI.Models.Catalog
                         DynamicOrderBy = (KalturaDynamicOrderBy) Deserializer.deserialize(typeof(KalturaDynamicOrderBy), (Dictionary<string, object>) parameters["dynamicOrderBy"]);
                     }
                 }
+                if (parameters.ContainsKey("orderingParameters") && parameters["orderingParameters"] != null)
+                {
+                    if (parameters["orderingParameters"] is JArray)
+                    {
+                        OrderParameters = buildList<KalturaBaseAssetOrder>(typeof(KalturaBaseAssetOrder), (JArray) parameters["orderingParameters"]);
+                    }
+                    else if (parameters["orderingParameters"] is IList)
+                    {
+                        OrderParameters = buildList(typeof(KalturaBaseAssetOrder), parameters["orderingParameters"] as object[]);
+                    }
+                }
                 if (parameters.ContainsKey("trendingDaysEqual") && parameters["trendingDaysEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TrendingDaysEqualSchemaProperty.Validate("trendingDaysEqual", parameters["trendingDaysEqual"]);
-                    }
+                    TrendingDaysEqualSchemaProperty.Validate("trendingDaysEqual", parameters["trendingDaysEqual"]);
                     TrendingDaysEqual = (Int32) Convert.ChangeType(parameters["trendingDaysEqual"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("shouldApplyPriorityGroupsEqual") && parameters["shouldApplyPriorityGroupsEqual"] != null)
+                {
+                    ShouldApplyPriorityGroupsEqualSchemaProperty.Validate("shouldApplyPriorityGroupsEqual", parameters["shouldApplyPriorityGroupsEqual"]);
+                    ShouldApplyPriorityGroupsEqual = (Boolean) Convert.ChangeType(parameters["shouldApplyPriorityGroupsEqual"], typeof(Boolean));
                 }
             }
         }
@@ -19179,18 +18222,12 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("assetId") && parameters["assetId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AssetIdSchemaProperty.Validate("assetId", parameters["assetId"]);
-                    }
+                    AssetIdSchemaProperty.Validate("assetId", parameters["assetId"]);
                     AssetId = (Int64) Convert.ChangeType(parameters["assetId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("assetType") && parameters["assetType"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AssetTypeSchemaProperty.Validate("assetType", parameters["assetType"]);
-                    }
+                    AssetTypeSchemaProperty.Validate("assetType", parameters["assetType"]);
                     if(string.IsNullOrEmpty(parameters["assetType"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "assetType");
@@ -19205,34 +18242,22 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("position") && parameters["position"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PositionSchemaProperty.Validate("position", parameters["position"]);
-                    }
+                    PositionSchemaProperty.Validate("position", parameters["position"]);
                     Position = (Int32) Convert.ChangeType(parameters["position"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("duration") && parameters["duration"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DurationSchemaProperty.Validate("duration", parameters["duration"]);
-                    }
+                    DurationSchemaProperty.Validate("duration", parameters["duration"]);
                     Duration = (Int32) Convert.ChangeType(parameters["duration"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("watchedDate") && parameters["watchedDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        LastWatchedSchemaProperty.Validate("watchedDate", parameters["watchedDate"]);
-                    }
+                    LastWatchedSchemaProperty.Validate("watchedDate", parameters["watchedDate"]);
                     LastWatched = (Int64) Convert.ChangeType(parameters["watchedDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("finishedWatching") && parameters["finishedWatching"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsFinishedWatchingSchemaProperty.Validate("finishedWatching", parameters["finishedWatching"]);
-                    }
+                    IsFinishedWatchingSchemaProperty.Validate("finishedWatching", parameters["finishedWatching"]);
                     IsFinishedWatching = (Boolean) Convert.ChangeType(parameters["finishedWatching"], typeof(Boolean));
                 }
             }
@@ -19551,6 +18576,29 @@ namespace WebAPI.Models.Catalog
             }
         }
     }
+    public partial class KalturaAssetOrder
+    {
+        public KalturaAssetOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["orderBy"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "orderBy");
+                    }
+
+                    OrderBy = (KalturaAssetOrderByType) Enum.Parse(typeof(KalturaAssetOrderByType), parameters["orderBy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetOrderByType), OrderBy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", OrderBy, typeof(KalturaAssetOrderByType)));
+                    }
+                }
+            }
+        }
+    }
     public partial class KalturaAssetsBookmarksResponse
     {
         public KalturaAssetsBookmarksResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
@@ -19704,6 +18752,50 @@ namespace WebAPI.Models.Catalog
                     else if (parameters["objects"] is IList)
                     {
                         AssetsStatistics = buildList(typeof(KalturaAssetStatistics), parameters["objects"] as object[]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaAssetStatisticsOrder
+    {
+        private static RuntimeSchemePropertyAttribute TrendingDaysEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStatisticsOrder")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MaxInteger = 366,
+            MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaAssetStatisticsOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("trendingDaysEqual") && parameters["trendingDaysEqual"] != null)
+                {
+                    TrendingDaysEqualSchemaProperty.Validate("trendingDaysEqual", parameters["trendingDaysEqual"]);
+                    TrendingDaysEqual = (Int32) Convert.ChangeType(parameters["trendingDaysEqual"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["orderBy"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "orderBy");
+                    }
+
+                    OrderBy = (KalturaAssetOrderByStatistics) Enum.Parse(typeof(KalturaAssetOrderByStatistics), parameters["orderBy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetOrderByStatistics), OrderBy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", OrderBy, typeof(KalturaAssetOrderByStatistics)));
                     }
                 }
             }
@@ -19863,10 +18955,7 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("multilingualName") && parameters["multilingualName"] != null)
@@ -19886,10 +18975,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("isProtected") && parameters["isProtected"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsProtectedSchemaProperty.Validate("isProtected", parameters["isProtected"]);
-                    }
+                    IsProtectedSchemaProperty.Validate("isProtected", parameters["isProtected"]);
                     IsProtected = (Boolean) Convert.ChangeType(parameters["isProtected"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("metaIds") && parameters["metaIds"] != null)
@@ -19898,18 +18984,12 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
-                    }
+                    UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("features") && parameters["features"] != null)
@@ -19918,42 +18998,27 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("pluralName") && parameters["pluralName"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PluralNameSchemaProperty.Validate("pluralName", parameters["pluralName"]);
-                    }
+                    PluralNameSchemaProperty.Validate("pluralName", parameters["pluralName"]);
                     PluralName = (String) Convert.ChangeType(parameters["pluralName"], typeof(String));
                 }
                 if (parameters.ContainsKey("parentId") && parameters["parentId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ParentIdSchemaProperty.Validate("parentId", parameters["parentId"]);
-                    }
+                    ParentIdSchemaProperty.Validate("parentId", parameters["parentId"]);
                     ParentId = (Int64) Convert.ChangeType(parameters["parentId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("connectingMetaId") && parameters["connectingMetaId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ConnectingMetaIdSchemaProperty.Validate("connectingMetaId", parameters["connectingMetaId"]);
-                    }
+                    ConnectingMetaIdSchemaProperty.Validate("connectingMetaId", parameters["connectingMetaId"]);
                     ConnectingMetaId = (Int64) Convert.ChangeType(parameters["connectingMetaId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("connectedParentMetaId") && parameters["connectedParentMetaId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ConnectedParentMetaIdSchemaProperty.Validate("connectedParentMetaId", parameters["connectedParentMetaId"]);
-                    }
+                    ConnectedParentMetaIdSchemaProperty.Validate("connectedParentMetaId", parameters["connectedParentMetaId"]);
                     ConnectedParentMetaId = (Int64) Convert.ChangeType(parameters["connectedParentMetaId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("dynamicData") && parameters["dynamicData"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DynamicDataSchemaProperty.Validate("dynamicData", parameters["dynamicData"]);
-                    }
+                    DynamicDataSchemaProperty.Validate("dynamicData", parameters["dynamicData"]);
                     if (parameters["dynamicData"] is JObject)
                     {
                         DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
@@ -19998,18 +19063,12 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
-                    }
+                    IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
                     IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
                 }
                 if (parameters.ContainsKey("metaIdEqual") && parameters["metaIdEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MetaIdEqualSchemaProperty.Validate("metaIdEqual", parameters["metaIdEqual"]);
-                    }
+                    MetaIdEqualSchemaProperty.Validate("metaIdEqual", parameters["metaIdEqual"]);
                     MetaIdEqual = (Int64) Convert.ChangeType(parameters["metaIdEqual"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("isProtectedEqual") && parameters["isProtectedEqual"] != null)
@@ -20196,90 +19255,57 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("assetStructId") && parameters["assetStructId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AssetStructIdSchemaProperty.Validate("assetStructId", parameters["assetStructId"]);
-                    }
+                    AssetStructIdSchemaProperty.Validate("assetStructId", parameters["assetStructId"]);
                     AssetStructId = (Int64) Convert.ChangeType(parameters["assetStructId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("metaId") && parameters["metaId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MetaIdSchemaProperty.Validate("metaId", parameters["metaId"]);
-                    }
+                    MetaIdSchemaProperty.Validate("metaId", parameters["metaId"]);
                     MetaId = (Int64) Convert.ChangeType(parameters["metaId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("ingestReferencePath") && parameters["ingestReferencePath"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IngestReferencePathSchemaProperty.Validate("ingestReferencePath", parameters["ingestReferencePath"]);
-                    }
+                    IngestReferencePathSchemaProperty.Validate("ingestReferencePath", parameters["ingestReferencePath"]);
                     IngestReferencePath = (String) Convert.ChangeType(parameters["ingestReferencePath"], typeof(String));
                 }
                 if (parameters.ContainsKey("protectFromIngest") && parameters["protectFromIngest"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ProtectFromIngestSchemaProperty.Validate("protectFromIngest", parameters["protectFromIngest"]);
-                    }
+                    ProtectFromIngestSchemaProperty.Validate("protectFromIngest", parameters["protectFromIngest"]);
                     ProtectFromIngest = (Boolean) Convert.ChangeType(parameters["protectFromIngest"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("defaultIngestValue") && parameters["defaultIngestValue"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DefaultIngestValueSchemaProperty.Validate("defaultIngestValue", parameters["defaultIngestValue"]);
-                    }
+                    DefaultIngestValueSchemaProperty.Validate("defaultIngestValue", parameters["defaultIngestValue"]);
                     DefaultIngestValue = (String) Convert.ChangeType(parameters["defaultIngestValue"], typeof(String));
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
-                    }
+                    UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("isInherited") && parameters["isInherited"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsInheritedSchemaProperty.Validate("isInherited", parameters["isInherited"]);
-                    }
+                    IsInheritedSchemaProperty.Validate("isInherited", parameters["isInherited"]);
                     IsInherited = (Boolean) Convert.ChangeType(parameters["isInherited"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("isLocationTag") && parameters["isLocationTag"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsLocationTagSchemaProperty.Validate("isLocationTag", parameters["isLocationTag"]);
-                    }
+                    IsLocationTagSchemaProperty.Validate("isLocationTag", parameters["isLocationTag"]);
                     IsLocationTag = (Boolean) Convert.ChangeType(parameters["isLocationTag"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("suppressedOrder") && parameters["suppressedOrder"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SuppressedOrderSchemaProperty.Validate("suppressedOrder", parameters["suppressedOrder"]);
-                    }
+                    SuppressedOrderSchemaProperty.Validate("suppressedOrder", parameters["suppressedOrder"]);
                     SuppressedOrder = (Int32) Convert.ChangeType(parameters["suppressedOrder"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("aliasName") && parameters["aliasName"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AliasNameSchemaProperty.Validate("aliasName", parameters["aliasName"]);
-                    }
+                    AliasNameSchemaProperty.Validate("aliasName", parameters["aliasName"]);
                     AliasName = (String) Convert.ChangeType(parameters["aliasName"], typeof(String));
                 }
             }
@@ -20321,18 +19347,12 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("assetStructIdEqual") && parameters["assetStructIdEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AssetStructIdEqualSchemaProperty.Validate("assetStructIdEqual", parameters["assetStructIdEqual"]);
-                    }
+                    AssetStructIdEqualSchemaProperty.Validate("assetStructIdEqual", parameters["assetStructIdEqual"]);
                     AssetStructIdEqual = (Int64) Convert.ChangeType(parameters["assetStructIdEqual"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("metaIdEqual") && parameters["metaIdEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MetaIdEqualSchemaProperty.Validate("metaIdEqual", parameters["metaIdEqual"]);
-                    }
+                    MetaIdEqualSchemaProperty.Validate("metaIdEqual", parameters["metaIdEqual"]);
                     MetaIdEqual = (Int64) Convert.ChangeType(parameters["metaIdEqual"], typeof(Int64));
                 }
             }
@@ -20380,10 +19400,7 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
@@ -20445,6 +19462,12 @@ namespace WebAPI.Models.Catalog
             }
         }
     }
+    public partial class KalturaBaseAssetOrder
+    {
+        public KalturaBaseAssetOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+        }
+    }
     public partial class KalturaBaseAssetStructFilter
     {
         public KalturaBaseAssetStructFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
@@ -20473,10 +19496,7 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
             }
@@ -20603,26 +19623,17 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("userId") && parameters["userId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserIdSchemaProperty.Validate("userId", parameters["userId"]);
-                    }
+                    UserIdSchemaProperty.Validate("userId", parameters["userId"]);
                     UserId = (String) Convert.ChangeType(parameters["userId"], typeof(String));
                 }
                 if (parameters.ContainsKey("position") && parameters["position"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PositionSchemaProperty.Validate("position", parameters["position"]);
-                    }
+                    PositionSchemaProperty.Validate("position", parameters["position"]);
                     Position = (Int32) Convert.ChangeType(parameters["position"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("positionOwner") && parameters["positionOwner"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PositionOwnerSchemaProperty.Validate("positionOwner", parameters["positionOwner"]);
-                    }
+                    PositionOwnerSchemaProperty.Validate("positionOwner", parameters["positionOwner"]);
                     if(string.IsNullOrEmpty(parameters["positionOwner"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "positionOwner");
@@ -20637,10 +19648,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("finishedWatching") && parameters["finishedWatching"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsFinishedWatchingSchemaProperty.Validate("finishedWatching", parameters["finishedWatching"]);
-                    }
+                    IsFinishedWatchingSchemaProperty.Validate("finishedWatching", parameters["finishedWatching"]);
                     IsFinishedWatching = (Boolean) Convert.ChangeType(parameters["finishedWatching"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("playerData") && parameters["playerData"] != null)
@@ -20785,10 +19793,7 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idEqual") && parameters["idEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdEqualSchemaProperty.Validate("idEqual", parameters["idEqual"]);
-                    }
+                    IdEqualSchemaProperty.Validate("idEqual", parameters["idEqual"]);
                     IdEqual = (Int32) Convert.ChangeType(parameters["idEqual"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("typeIn") && parameters["typeIn"] != null)
@@ -21051,10 +20056,7 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("multilingualName") && parameters["multilingualName"] != null)
@@ -21070,10 +20072,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("parentId") && parameters["parentId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ParentIdSchemaProperty.Validate("parentId", parameters["parentId"]);
-                    }
+                    ParentIdSchemaProperty.Validate("parentId", parameters["parentId"]);
                     ParentId = (Int64) Convert.ChangeType(parameters["parentId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("childrenIds") && parameters["childrenIds"] != null)
@@ -21086,10 +20085,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("unifiedChannels") && parameters["unifiedChannels"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UnifiedChannelsSchemaProperty.Validate("unifiedChannels", parameters["unifiedChannels"]);
-                    }
+                    UnifiedChannelsSchemaProperty.Validate("unifiedChannels", parameters["unifiedChannels"]);
                     if (parameters["unifiedChannels"] is JArray)
                     {
                         UnifiedChannels = buildList<KalturaUnifiedChannel>(typeof(KalturaUnifiedChannel), (JArray) parameters["unifiedChannels"]);
@@ -21105,10 +20101,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("dynamicData") && parameters["dynamicData"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DynamicDataSchemaProperty.Validate("dynamicData", parameters["dynamicData"]);
-                    }
+                    DynamicDataSchemaProperty.Validate("dynamicData", parameters["dynamicData"]);
                     if (parameters["dynamicData"] is JObject)
                     {
                         DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
@@ -21120,10 +20113,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
-                    }
+                    UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("isActive__null") && parameters["isActive__null"] != null)
@@ -21132,10 +20122,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("isActive") && parameters["isActive"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsActiveSchemaProperty.Validate("isActive", parameters["isActive"]);
-                    }
+                    IsActiveSchemaProperty.Validate("isActive", parameters["isActive"]);
                     IsActive = (Boolean) Convert.ChangeType(parameters["isActive"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("startDateInSeconds__null") && parameters["startDateInSeconds__null"] != null)
@@ -21144,10 +20131,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("startDateInSeconds") && parameters["startDateInSeconds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StartDateInSecondsSchemaProperty.Validate("startDateInSeconds", parameters["startDateInSeconds"]);
-                    }
+                    StartDateInSecondsSchemaProperty.Validate("startDateInSeconds", parameters["startDateInSeconds"]);
                     StartDateInSeconds = (Int64) Convert.ChangeType(parameters["startDateInSeconds"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("endDateInSeconds__null") && parameters["endDateInSeconds__null"] != null)
@@ -21156,34 +20140,22 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("endDateInSeconds") && parameters["endDateInSeconds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EndDateInSecondsSchemaProperty.Validate("endDateInSeconds", parameters["endDateInSeconds"]);
-                    }
+                    EndDateInSecondsSchemaProperty.Validate("endDateInSeconds", parameters["endDateInSeconds"]);
                     EndDateInSeconds = (Int64) Convert.ChangeType(parameters["endDateInSeconds"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TypeSchemaProperty.Validate("type", parameters["type"]);
-                    }
+                    TypeSchemaProperty.Validate("type", parameters["type"]);
                     Type = (String) Convert.ChangeType(parameters["type"], typeof(String));
                 }
                 if (parameters.ContainsKey("versionId") && parameters["versionId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        VersionIdSchemaProperty.Validate("versionId", parameters["versionId"]);
-                    }
+                    VersionIdSchemaProperty.Validate("versionId", parameters["versionId"]);
                     VersionId = (Int64) Convert.ChangeType(parameters["versionId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("virtualAssetId") && parameters["virtualAssetId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        VirtualAssetIdSchemaProperty.Validate("virtualAssetId", parameters["virtualAssetId"]);
-                    }
+                    VirtualAssetIdSchemaProperty.Validate("virtualAssetId", parameters["virtualAssetId"]);
                     VirtualAssetId = (Int64) Convert.ChangeType(parameters["virtualAssetId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("referenceId__null") && parameters["referenceId__null"] != null)
@@ -21192,10 +20164,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("referenceId") && parameters["referenceId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ReferenceIdSchemaProperty.Validate("referenceId", parameters["referenceId"]);
-                    }
+                    ReferenceIdSchemaProperty.Validate("referenceId", parameters["referenceId"]);
                     ReferenceId = (String) Convert.ChangeType(parameters["referenceId"], typeof(String));
                 }
             }
@@ -21224,10 +20193,7 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
             }
@@ -21437,10 +20403,7 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("multilingualName") && parameters["multilingualName"] != null)
@@ -21456,10 +20419,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("children") && parameters["children"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ChildrenSchemaProperty.Validate("children", parameters["children"]);
-                    }
+                    ChildrenSchemaProperty.Validate("children", parameters["children"]);
                     if (parameters["children"] is JArray)
                     {
                         Children = buildList<KalturaCategoryTree>(typeof(KalturaCategoryTree), (JArray) parameters["children"]);
@@ -21471,10 +20431,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("unifiedChannels") && parameters["unifiedChannels"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UnifiedChannelsSchemaProperty.Validate("unifiedChannels", parameters["unifiedChannels"]);
-                    }
+                    UnifiedChannelsSchemaProperty.Validate("unifiedChannels", parameters["unifiedChannels"]);
                     if (parameters["unifiedChannels"] is JArray)
                     {
                         UnifiedChannels = buildList<KalturaUnifiedChannelInfo>(typeof(KalturaUnifiedChannelInfo), (JArray) parameters["unifiedChannels"]);
@@ -21486,10 +20443,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("dynamicData") && parameters["dynamicData"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DynamicDataSchemaProperty.Validate("dynamicData", parameters["dynamicData"]);
-                    }
+                    DynamicDataSchemaProperty.Validate("dynamicData", parameters["dynamicData"]);
                     if (parameters["dynamicData"] is JObject)
                     {
                         DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
@@ -21508,58 +20462,37 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("isActive") && parameters["isActive"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsActiveSchemaProperty.Validate("isActive", parameters["isActive"]);
-                    }
+                    IsActiveSchemaProperty.Validate("isActive", parameters["isActive"]);
                     IsActive = (Boolean) Convert.ChangeType(parameters["isActive"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("startDateInSeconds") && parameters["startDateInSeconds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StartDateInSecondsSchemaProperty.Validate("startDateInSeconds", parameters["startDateInSeconds"]);
-                    }
+                    StartDateInSecondsSchemaProperty.Validate("startDateInSeconds", parameters["startDateInSeconds"]);
                     StartDateInSeconds = (Int64) Convert.ChangeType(parameters["startDateInSeconds"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("endDateInSeconds") && parameters["endDateInSeconds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EndDateInSecondsSchemaProperty.Validate("endDateInSeconds", parameters["endDateInSeconds"]);
-                    }
+                    EndDateInSecondsSchemaProperty.Validate("endDateInSeconds", parameters["endDateInSeconds"]);
                     EndDateInSeconds = (Int64) Convert.ChangeType(parameters["endDateInSeconds"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TypeSchemaProperty.Validate("type", parameters["type"]);
-                    }
+                    TypeSchemaProperty.Validate("type", parameters["type"]);
                     Type = (String) Convert.ChangeType(parameters["type"], typeof(String));
                 }
                 if (parameters.ContainsKey("versionId") && parameters["versionId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        VersionIdSchemaProperty.Validate("versionId", parameters["versionId"]);
-                    }
+                    VersionIdSchemaProperty.Validate("versionId", parameters["versionId"]);
                     VersionId = (Int64) Convert.ChangeType(parameters["versionId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("virtualAssetId") && parameters["virtualAssetId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        VirtualAssetIdSchemaProperty.Validate("virtualAssetId", parameters["virtualAssetId"]);
-                    }
+                    VirtualAssetIdSchemaProperty.Validate("virtualAssetId", parameters["virtualAssetId"]);
                     VirtualAssetId = (Int64) Convert.ChangeType(parameters["virtualAssetId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("referenceId") && parameters["referenceId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ReferenceIdSchemaProperty.Validate("referenceId", parameters["referenceId"]);
-                    }
+                    ReferenceIdSchemaProperty.Validate("referenceId", parameters["referenceId"]);
                     ReferenceId = (String) Convert.ChangeType(parameters["referenceId"], typeof(String));
                 }
             }
@@ -21708,34 +20641,22 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NameSchemaProperty.Validate("name", parameters["name"]);
-                    }
+                    NameSchemaProperty.Validate("name", parameters["name"]);
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("treeId") && parameters["treeId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TreeIdSchemaProperty.Validate("treeId", parameters["treeId"]);
-                    }
+                    TreeIdSchemaProperty.Validate("treeId", parameters["treeId"]);
                     TreeId = (Int64) Convert.ChangeType(parameters["treeId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("state") && parameters["state"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StateSchemaProperty.Validate("state", parameters["state"]);
-                    }
+                    StateSchemaProperty.Validate("state", parameters["state"]);
                     if(string.IsNullOrEmpty(parameters["state"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "state");
@@ -21750,58 +20671,37 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("baseVersionId") && parameters["baseVersionId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        BaseVersionIdSchemaProperty.Validate("baseVersionId", parameters["baseVersionId"]);
-                    }
+                    BaseVersionIdSchemaProperty.Validate("baseVersionId", parameters["baseVersionId"]);
                     BaseVersionId = (Int64) Convert.ChangeType(parameters["baseVersionId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("categoryRootId") && parameters["categoryRootId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CategoryRootIdSchemaProperty.Validate("categoryRootId", parameters["categoryRootId"]);
-                    }
+                    CategoryRootIdSchemaProperty.Validate("categoryRootId", parameters["categoryRootId"]);
                     CategoryRootId = (Int64) Convert.ChangeType(parameters["categoryRootId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("defaultDate") && parameters["defaultDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DefaultDateSchemaProperty.Validate("defaultDate", parameters["defaultDate"]);
-                    }
+                    DefaultDateSchemaProperty.Validate("defaultDate", parameters["defaultDate"]);
                     DefaultDate = (Int64) Convert.ChangeType(parameters["defaultDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("updaterId") && parameters["updaterId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UpdaterIdSchemaProperty.Validate("updaterId", parameters["updaterId"]);
-                    }
+                    UpdaterIdSchemaProperty.Validate("updaterId", parameters["updaterId"]);
                     UpdaterId = (Int64) Convert.ChangeType(parameters["updaterId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("comment") && parameters["comment"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CommentSchemaProperty.Validate("comment", parameters["comment"]);
-                    }
+                    CommentSchemaProperty.Validate("comment", parameters["comment"]);
                     Comment = (String) Convert.ChangeType(parameters["comment"], typeof(String));
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
-                    }
+                    UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
             }
@@ -21836,10 +20736,7 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("treeIdEqual") && parameters["treeIdEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TreeIdEqualSchemaProperty.Validate("treeIdEqual", parameters["treeIdEqual"]);
-                    }
+                    TreeIdEqualSchemaProperty.Validate("treeIdEqual", parameters["treeIdEqual"]);
                     TreeIdEqual = (Int64) Convert.ChangeType(parameters["treeIdEqual"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("stateEqual") && parameters["stateEqual"] != null)
@@ -22009,10 +20906,7 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("multilingualName") && parameters["multilingualName"] != null)
@@ -22059,10 +20953,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("images") && parameters["images"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ImagesSchemaProperty.Validate("images", parameters["images"]);
-                    }
+                    ImagesSchemaProperty.Validate("images", parameters["images"]);
                     if (parameters["images"] is JArray)
                     {
                         Images = buildList<KalturaMediaImage>(typeof(KalturaMediaImage), (JArray) parameters["images"]);
@@ -22119,10 +21010,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("isActive") && parameters["isActive"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsActiveSchemaProperty.Validate("isActive", parameters["isActive"]);
-                    }
+                    IsActiveSchemaProperty.Validate("isActive", parameters["isActive"]);
                     IsActive = (Boolean) Convert.ChangeType(parameters["isActive"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("order") && parameters["order"] != null)
@@ -22156,10 +21044,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        OrderBySchemaProperty.Validate("orderBy", parameters["orderBy"]);
-                    }
+                    OrderBySchemaProperty.Validate("orderBy", parameters["orderBy"]);
                     if (parameters["orderBy"] is JObject)
                     {
                         OrderBy = (KalturaChannelOrder) Deserializer.deserialize(typeof(KalturaChannelOrder), ((JObject) parameters["orderBy"]).ToObject<Dictionary<string, object>>());
@@ -22169,28 +21054,30 @@ namespace WebAPI.Models.Catalog
                         OrderBy = (KalturaChannelOrder) Deserializer.deserialize(typeof(KalturaChannelOrder), (Dictionary<string, object>) parameters["orderBy"]);
                     }
                 }
+                if (parameters.ContainsKey("orderingParametersEqual") && parameters["orderingParametersEqual"] != null)
+                {
+                    if (parameters["orderingParametersEqual"] is JArray)
+                    {
+                        OrderingParameters = buildList<KalturaBaseChannelOrder>(typeof(KalturaBaseChannelOrder), (JArray) parameters["orderingParametersEqual"]);
+                    }
+                    else if (parameters["orderingParametersEqual"] is IList)
+                    {
+                        OrderingParameters = buildList(typeof(KalturaBaseChannelOrder), parameters["orderingParametersEqual"] as object[]);
+                    }
+                }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
-                    }
+                    UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("supportSegmentBasedOrdering") && parameters["supportSegmentBasedOrdering"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SupportSegmentBasedOrderingSchemaProperty.Validate("supportSegmentBasedOrdering", parameters["supportSegmentBasedOrdering"]);
-                    }
+                    SupportSegmentBasedOrderingSchemaProperty.Validate("supportSegmentBasedOrdering", parameters["supportSegmentBasedOrdering"]);
                     SupportSegmentBasedOrdering = (Boolean) Convert.ChangeType(parameters["supportSegmentBasedOrdering"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("assetUserRuleId__null") && parameters["assetUserRuleId__null"] != null)
@@ -22199,10 +21086,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("assetUserRuleId") && parameters["assetUserRuleId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AssetUserRuleIdSchemaProperty.Validate("assetUserRuleId", parameters["assetUserRuleId"]);
-                    }
+                    AssetUserRuleIdSchemaProperty.Validate("assetUserRuleId", parameters["assetUserRuleId"]);
                     AssetUserRuleId = (Int64) Convert.ChangeType(parameters["assetUserRuleId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("metaData__null") && parameters["metaData__null"] != null)
@@ -22211,10 +21095,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("metaData") && parameters["metaData"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MetaDataSchemaProperty.Validate("metaData", parameters["metaData"]);
-                    }
+                    MetaDataSchemaProperty.Validate("metaData", parameters["metaData"]);
                     if (parameters["metaData"] is JObject)
                     {
                         MetaData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["metaData"]).ToObject<Dictionary<string, object>>());
@@ -22222,10 +21103,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("virtualAssetId") && parameters["virtualAssetId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        VirtualAssetIdSchemaProperty.Validate("virtualAssetId", parameters["virtualAssetId"]);
-                    }
+                    VirtualAssetIdSchemaProperty.Validate("virtualAssetId", parameters["virtualAssetId"]);
                     VirtualAssetId = (Int64) Convert.ChangeType(parameters["virtualAssetId"], typeof(Int64));
                 }
             }
@@ -22268,18 +21146,12 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idEqual") && parameters["idEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdEqualSchemaProperty.Validate("idEqual", parameters["idEqual"]);
-                    }
+                    IdEqualSchemaProperty.Validate("idEqual", parameters["idEqual"]);
                     IdEqual = (Int32) Convert.ChangeType(parameters["idEqual"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("utcOffsetEqual") && parameters["utcOffsetEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UtcOffsetEqualSchemaProperty.Validate("utcOffsetEqual", parameters["utcOffsetEqual"]);
-                    }
+                    UtcOffsetEqualSchemaProperty.Validate("utcOffsetEqual", parameters["utcOffsetEqual"]);
                     UtcOffsetEqual = (Single) Convert.ChangeType(parameters["utcOffsetEqual"], typeof(Single));
                 }
                 if (parameters.ContainsKey("freeText") && parameters["freeText"] != null)
@@ -22312,29 +21184,12 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idEqual") && parameters["idEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdEqualSchemaProperty.Validate("idEqual", parameters["idEqual"]);
-                    }
+                    IdEqualSchemaProperty.Validate("idEqual", parameters["idEqual"]);
                     IdEqual = (Int32) Convert.ChangeType(parameters["idEqual"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("excludeWatched") && parameters["excludeWatched"] != null)
                 {
                     ExcludeWatched = (Boolean) Convert.ChangeType(parameters["excludeWatched"], typeof(Boolean));
-                }
-                if (parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
-                {
-                    if(string.IsNullOrEmpty(parameters["orderBy"].ToString()))
-                    {
-                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "orderBy");
-                    }
-
-                    OrderBy = (KalturaAssetOrderBy) Enum.Parse(typeof(KalturaAssetOrderBy), parameters["orderBy"].ToString(), true);
-
-                    if (!Enum.IsDefined(typeof(KalturaAssetOrderBy), OrderBy))
-                    {
-                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", OrderBy, typeof(KalturaAssetOrderBy)));
-                    }
                 }
             }
         }
@@ -22406,10 +21261,7 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("dynamicOrderBy") && parameters["dynamicOrderBy"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DynamicOrderBySchemaProperty.Validate("dynamicOrderBy", parameters["dynamicOrderBy"]);
-                    }
+                    DynamicOrderBySchemaProperty.Validate("dynamicOrderBy", parameters["dynamicOrderBy"]);
                     if (parameters["dynamicOrderBy"] is JObject)
                     {
                         DynamicOrderBy = (KalturaDynamicOrderBy) Deserializer.deserialize(typeof(KalturaDynamicOrderBy), ((JObject) parameters["dynamicOrderBy"]).ToObject<Dictionary<string, object>>());
@@ -22421,10 +21273,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        orderBySchemaProperty.Validate("orderBy", parameters["orderBy"]);
-                    }
+                    orderBySchemaProperty.Validate("orderBy", parameters["orderBy"]);
                     if(string.IsNullOrEmpty(parameters["orderBy"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "orderBy");
@@ -22439,10 +21288,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("period") && parameters["period"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SlidingWindowPeriodSchemaProperty.Validate("period", parameters["period"]);
-                    }
+                    SlidingWindowPeriodSchemaProperty.Validate("period", parameters["period"]);
                     SlidingWindowPeriod = (Int32) Convert.ChangeType(parameters["period"], typeof(Int32));
                 }
             }
@@ -22517,18 +21363,12 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idEqual") && parameters["idEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdEqualSchemaProperty.Validate("idEqual", parameters["idEqual"]);
-                    }
+                    IdEqualSchemaProperty.Validate("idEqual", parameters["idEqual"]);
                     IdEqual = (Int32) Convert.ChangeType(parameters["idEqual"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("mediaIdEqual") && parameters["mediaIdEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MediaIdEqualSchemaProperty.Validate("mediaIdEqual", parameters["mediaIdEqual"]);
-                    }
+                    MediaIdEqualSchemaProperty.Validate("mediaIdEqual", parameters["mediaIdEqual"]);
                     MediaIdEqual = (Int64) Convert.ChangeType(parameters["mediaIdEqual"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("nameEqual") && parameters["nameEqual"] != null)
@@ -22615,10 +21455,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("kSql") && parameters["kSql"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        KsqlSchemaProperty.Validate("kSql", parameters["kSql"]);
-                    }
+                    KsqlSchemaProperty.Validate("kSql", parameters["kSql"]);
                     Ksql = (String) Convert.ChangeType(parameters["kSql"], typeof(String));
                 }
                 if (parameters.ContainsKey("assetTypes__null") && parameters["assetTypes__null"] != null)
@@ -22627,10 +21464,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("assetTypes") && parameters["assetTypes"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AssetTypesSchemaProperty.Validate("assetTypes", parameters["assetTypes"]);
-                    }
+                    AssetTypesSchemaProperty.Validate("assetTypes", parameters["assetTypes"]);
                     if (parameters["assetTypes"] is JArray)
                     {
                         AssetTypes = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["assetTypes"]);
@@ -22646,10 +21480,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("groupBy") && parameters["groupBy"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        GroupBySchemaProperty.Validate("groupBy", parameters["groupBy"]);
-                    }
+                    GroupBySchemaProperty.Validate("groupBy", parameters["groupBy"]);
                     if (parameters["groupBy"] is JObject)
                     {
                         GroupBy = (KalturaAssetGroupBy) Deserializer.deserialize(typeof(KalturaAssetGroupBy), ((JObject) parameters["groupBy"]).ToObject<Dictionary<string, object>>());
@@ -22696,18 +21527,12 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NameSchemaProperty.Validate("name", parameters["name"]);
-                    }
+                    NameSchemaProperty.Validate("name", parameters["name"]);
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        OrderBySchemaProperty.Validate("orderBy", parameters["orderBy"]);
-                    }
+                    OrderBySchemaProperty.Validate("orderBy", parameters["orderBy"]);
                     if(string.IsNullOrEmpty(parameters["orderBy"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "orderBy");
@@ -22932,26 +21757,17 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("version") && parameters["version"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        VersionSchemaProperty.Validate("version", parameters["version"]);
-                    }
+                    VersionSchemaProperty.Validate("version", parameters["version"]);
                     Version = (String) Convert.ChangeType(parameters["version"], typeof(String));
                 }
                 if (parameters.ContainsKey("imageTypeId") && parameters["imageTypeId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ImageTypeIdSchemaProperty.Validate("imageTypeId", parameters["imageTypeId"]);
-                    }
+                    ImageTypeIdSchemaProperty.Validate("imageTypeId", parameters["imageTypeId"]);
                     ImageTypeId = (Int64) Convert.ChangeType(parameters["imageTypeId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("imageTypeName") && parameters["imageTypeName"] != null)
@@ -22960,10 +21776,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("imageObjectId") && parameters["imageObjectId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ImageObjectIdSchemaProperty.Validate("imageObjectId", parameters["imageObjectId"]);
-                    }
+                    ImageObjectIdSchemaProperty.Validate("imageObjectId", parameters["imageObjectId"]);
                     ImageObjectId = (Int64) Convert.ChangeType(parameters["imageObjectId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("imageObjectType") && parameters["imageObjectType"] != null)
@@ -22982,10 +21795,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StatusSchemaProperty.Validate("status", parameters["status"]);
-                    }
+                    StatusSchemaProperty.Validate("status", parameters["status"]);
                     if(string.IsNullOrEmpty(parameters["status"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "status");
@@ -23000,26 +21810,17 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("url") && parameters["url"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UrlSchemaProperty.Validate("url", parameters["url"]);
-                    }
+                    UrlSchemaProperty.Validate("url", parameters["url"]);
                     Url = (String) Convert.ChangeType(parameters["url"], typeof(String));
                 }
                 if (parameters.ContainsKey("contentId") && parameters["contentId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ContentIdSchemaProperty.Validate("contentId", parameters["contentId"]);
-                    }
+                    ContentIdSchemaProperty.Validate("contentId", parameters["contentId"]);
                     ContentId = (String) Convert.ChangeType(parameters["contentId"], typeof(String));
                 }
                 if (parameters.ContainsKey("isDefault") && parameters["isDefault"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsDefaultSchemaProperty.Validate("isDefault", parameters["isDefault"]);
-                    }
+                    IsDefaultSchemaProperty.Validate("isDefault", parameters["isDefault"]);
                     IsDefault = (Boolean) Convert.ChangeType(parameters["isDefault"], typeof(Boolean));
                 }
             }
@@ -23048,10 +21849,7 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
-                    }
+                    IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
                     IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
                 }
                 if (parameters.ContainsKey("imageObjectIdEqual") && parameters["imageObjectIdEqual"] != null)
@@ -23187,58 +21985,37 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("id") && parameters["id"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NameSchemaProperty.Validate("name", parameters["name"]);
-                    }
+                    NameSchemaProperty.Validate("name", parameters["name"]);
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("systemName") && parameters["systemName"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SystemNameSchemaProperty.Validate("systemName", parameters["systemName"]);
-                    }
+                    SystemNameSchemaProperty.Validate("systemName", parameters["systemName"]);
                     SystemName = (String) Convert.ChangeType(parameters["systemName"], typeof(String));
                 }
                 if (parameters.ContainsKey("ratioId") && parameters["ratioId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        RatioIdSchemaProperty.Validate("ratioId", parameters["ratioId"]);
-                    }
+                    RatioIdSchemaProperty.Validate("ratioId", parameters["ratioId"]);
                     RatioId = (Int64) Convert.ChangeType(parameters["ratioId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("helpText") && parameters["helpText"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        HelpTextSchemaProperty.Validate("helpText", parameters["helpText"]);
-                    }
+                    HelpTextSchemaProperty.Validate("helpText", parameters["helpText"]);
                     HelpText = (String) Convert.ChangeType(parameters["helpText"], typeof(String));
                 }
                 if (parameters.ContainsKey("defaultImageId") && parameters["defaultImageId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DefaultImageIdSchemaProperty.Validate("defaultImageId", parameters["defaultImageId"]);
-                    }
+                    DefaultImageIdSchemaProperty.Validate("defaultImageId", parameters["defaultImageId"]);
                     DefaultImageId = (Int64) Convert.ChangeType(parameters["defaultImageId"], typeof(Int64));
                 }
             }
@@ -23280,18 +22057,12 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
-                    }
+                    IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
                     IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
                 }
                 if (parameters.ContainsKey("ratioIdIn") && parameters["ratioIdIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        RatioIdInSchemaProperty.Validate("ratioIdIn", parameters["ratioIdIn"]);
-                    }
+                    RatioIdInSchemaProperty.Validate("ratioIdIn", parameters["ratioIdIn"]);
                     RatioIdIn = (String) Convert.ChangeType(parameters["ratioIdIn"], typeof(String));
                 }
             }
@@ -23351,10 +22122,7 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("value") && parameters["value"] != null)
@@ -23363,10 +22131,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("entityAttribute") && parameters["entityAttribute"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EntityAttributeSchemaProperty.Validate("entityAttribute", parameters["entityAttribute"]);
-                    }
+                    EntityAttributeSchemaProperty.Validate("entityAttribute", parameters["entityAttribute"]);
                     if(string.IsNullOrEmpty(parameters["entityAttribute"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "entityAttribute");
@@ -23564,10 +22329,7 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("lcn") && parameters["lcn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        LinearChannelNumberSchemaProperty.Validate("lcn", parameters["lcn"]);
-                    }
+                    LinearChannelNumberSchemaProperty.Validate("lcn", parameters["lcn"]);
                     LinearChannelNumber = (Int32) Convert.ChangeType(parameters["lcn"], typeof(Int32));
                 }
             }
@@ -23783,10 +22545,7 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("enableCdvrState") && parameters["enableCdvrState"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EnableCdvrStateSchemaProperty.Validate("enableCdvrState", parameters["enableCdvrState"]);
-                    }
+                    EnableCdvrStateSchemaProperty.Validate("enableCdvrState", parameters["enableCdvrState"]);
                     if(string.IsNullOrEmpty(parameters["enableCdvrState"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "enableCdvrState");
@@ -23801,10 +22560,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("enableCatchUpState") && parameters["enableCatchUpState"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EnableCatchUpStateSchemaProperty.Validate("enableCatchUpState", parameters["enableCatchUpState"]);
-                    }
+                    EnableCatchUpStateSchemaProperty.Validate("enableCatchUpState", parameters["enableCatchUpState"]);
                     if(string.IsNullOrEmpty(parameters["enableCatchUpState"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "enableCatchUpState");
@@ -23819,10 +22575,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("enableStartOverState") && parameters["enableStartOverState"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EnableStartOverStateSchemaProperty.Validate("enableStartOverState", parameters["enableStartOverState"]);
-                    }
+                    EnableStartOverStateSchemaProperty.Validate("enableStartOverState", parameters["enableStartOverState"]);
                     if(string.IsNullOrEmpty(parameters["enableStartOverState"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "enableStartOverState");
@@ -23837,26 +22590,17 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("bufferCatchUpSetting") && parameters["bufferCatchUpSetting"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        BufferCatchUpSchemaProperty.Validate("bufferCatchUpSetting", parameters["bufferCatchUpSetting"]);
-                    }
+                    BufferCatchUpSchemaProperty.Validate("bufferCatchUpSetting", parameters["bufferCatchUpSetting"]);
                     BufferCatchUp = (Int64) Convert.ChangeType(parameters["bufferCatchUpSetting"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("bufferTrickPlaySetting") && parameters["bufferTrickPlaySetting"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        BufferTrickPlaySchemaProperty.Validate("bufferTrickPlaySetting", parameters["bufferTrickPlaySetting"]);
-                    }
+                    BufferTrickPlaySchemaProperty.Validate("bufferTrickPlaySetting", parameters["bufferTrickPlaySetting"]);
                     BufferTrickPlay = (Int64) Convert.ChangeType(parameters["bufferTrickPlaySetting"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("enableRecordingPlaybackNonEntitledChannelState") && parameters["enableRecordingPlaybackNonEntitledChannelState"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EnableRecordingPlaybackNonEntitledChannelStateSchemaProperty.Validate("enableRecordingPlaybackNonEntitledChannelState", parameters["enableRecordingPlaybackNonEntitledChannelState"]);
-                    }
+                    EnableRecordingPlaybackNonEntitledChannelStateSchemaProperty.Validate("enableRecordingPlaybackNonEntitledChannelState", parameters["enableRecordingPlaybackNonEntitledChannelState"]);
                     if(string.IsNullOrEmpty(parameters["enableRecordingPlaybackNonEntitledChannelState"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "enableRecordingPlaybackNonEntitledChannelState");
@@ -23871,10 +22615,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("enableTrickPlayState") && parameters["enableTrickPlayState"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EnableTrickPlayStateSchemaProperty.Validate("enableTrickPlayState", parameters["enableTrickPlayState"]);
-                    }
+                    EnableTrickPlayStateSchemaProperty.Validate("enableTrickPlayState", parameters["enableTrickPlayState"]);
                     if(string.IsNullOrEmpty(parameters["enableTrickPlayState"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "enableTrickPlayState");
@@ -23889,74 +22630,47 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("externalEpgIngestId") && parameters["externalEpgIngestId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ExternalEpgIngestIdSchemaProperty.Validate("externalEpgIngestId", parameters["externalEpgIngestId"]);
-                    }
+                    ExternalEpgIngestIdSchemaProperty.Validate("externalEpgIngestId", parameters["externalEpgIngestId"]);
                     ExternalEpgIngestId = (String) Convert.ChangeType(parameters["externalEpgIngestId"], typeof(String));
                 }
                 if (parameters.ContainsKey("externalCdvrId") && parameters["externalCdvrId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ExternalCdvrIdSchemaProperty.Validate("externalCdvrId", parameters["externalCdvrId"]);
-                    }
+                    ExternalCdvrIdSchemaProperty.Validate("externalCdvrId", parameters["externalCdvrId"]);
                     ExternalCdvrId = (String) Convert.ChangeType(parameters["externalCdvrId"], typeof(String));
                 }
                 if (parameters.ContainsKey("enableCdvr") && parameters["enableCdvr"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CdvrEnabledSchemaProperty.Validate("enableCdvr", parameters["enableCdvr"]);
-                    }
+                    CdvrEnabledSchemaProperty.Validate("enableCdvr", parameters["enableCdvr"]);
                     CdvrEnabled = (Boolean) Convert.ChangeType(parameters["enableCdvr"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("enableCatchUp") && parameters["enableCatchUp"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CatchUpEnabledSchemaProperty.Validate("enableCatchUp", parameters["enableCatchUp"]);
-                    }
+                    CatchUpEnabledSchemaProperty.Validate("enableCatchUp", parameters["enableCatchUp"]);
                     CatchUpEnabled = (Boolean) Convert.ChangeType(parameters["enableCatchUp"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("enableStartOver") && parameters["enableStartOver"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StartOverEnabledSchemaProperty.Validate("enableStartOver", parameters["enableStartOver"]);
-                    }
+                    StartOverEnabledSchemaProperty.Validate("enableStartOver", parameters["enableStartOver"]);
                     StartOverEnabled = (Boolean) Convert.ChangeType(parameters["enableStartOver"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("catchUpBuffer") && parameters["catchUpBuffer"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SummedCatchUpBufferSchemaProperty.Validate("catchUpBuffer", parameters["catchUpBuffer"]);
-                    }
+                    SummedCatchUpBufferSchemaProperty.Validate("catchUpBuffer", parameters["catchUpBuffer"]);
                     SummedCatchUpBuffer = (Int64) Convert.ChangeType(parameters["catchUpBuffer"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("trickPlayBuffer") && parameters["trickPlayBuffer"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SummedTrickPlayBufferSchemaProperty.Validate("trickPlayBuffer", parameters["trickPlayBuffer"]);
-                    }
+                    SummedTrickPlayBufferSchemaProperty.Validate("trickPlayBuffer", parameters["trickPlayBuffer"]);
                     SummedTrickPlayBuffer = (Int64) Convert.ChangeType(parameters["trickPlayBuffer"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("enableRecordingPlaybackNonEntitledChannel") && parameters["enableRecordingPlaybackNonEntitledChannel"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        RecordingPlaybackNonEntitledChannelEnabledSchemaProperty.Validate("enableRecordingPlaybackNonEntitledChannel", parameters["enableRecordingPlaybackNonEntitledChannel"]);
-                    }
+                    RecordingPlaybackNonEntitledChannelEnabledSchemaProperty.Validate("enableRecordingPlaybackNonEntitledChannel", parameters["enableRecordingPlaybackNonEntitledChannel"]);
                     RecordingPlaybackNonEntitledChannelEnabled = (Boolean) Convert.ChangeType(parameters["enableRecordingPlaybackNonEntitledChannel"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("enableTrickPlay") && parameters["enableTrickPlay"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TrickPlayEnabledSchemaProperty.Validate("enableTrickPlay", parameters["enableTrickPlay"]);
-                    }
+                    TrickPlayEnabledSchemaProperty.Validate("enableTrickPlay", parameters["enableTrickPlay"]);
                     TrickPlayEnabled = (Boolean) Convert.ChangeType(parameters["enableTrickPlay"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("channelType") && parameters["channelType"] != null)
@@ -24002,10 +22716,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("assets") && parameters["assets"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AssetsSchemaProperty.Validate("assets", parameters["assets"]);
-                    }
+                    AssetsSchemaProperty.Validate("assets", parameters["assets"]);
                     if (parameters["assets"] is JArray)
                     {
                         Assets = buildList<KalturaManualCollectionAsset>(typeof(KalturaManualCollectionAsset), (JArray) parameters["assets"]);
@@ -24175,18 +22886,12 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("enableRecordingPlaybackNonEntitledChannel") && parameters["enableRecordingPlaybackNonEntitledChannel"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EnableRecordingPlaybackNonEntitledChannelSchemaProperty.Validate("enableRecordingPlaybackNonEntitledChannel", parameters["enableRecordingPlaybackNonEntitledChannel"]);
-                    }
+                    EnableRecordingPlaybackNonEntitledChannelSchemaProperty.Validate("enableRecordingPlaybackNonEntitledChannel", parameters["enableRecordingPlaybackNonEntitledChannel"]);
                     EnableRecordingPlaybackNonEntitledChannel = (Boolean) Convert.ChangeType(parameters["enableRecordingPlaybackNonEntitledChannel"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("typeDescription") && parameters["typeDescription"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TypeDescriptionSchemaProperty.Validate("typeDescription", parameters["typeDescription"]);
-                    }
+                    TypeDescriptionSchemaProperty.Validate("typeDescription", parameters["typeDescription"]);
                     TypeDescription = (String) Convert.ChangeType(parameters["typeDescription"], typeof(String));
                 }
                 if (parameters.ContainsKey("entryId") && parameters["entryId"] != null)
@@ -24195,58 +22900,37 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("deviceRuleId") && parameters["deviceRuleId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DeviceRuleIdSchemaProperty.Validate("deviceRuleId", parameters["deviceRuleId"]);
-                    }
+                    DeviceRuleIdSchemaProperty.Validate("deviceRuleId", parameters["deviceRuleId"]);
                     DeviceRuleId = (Int32) Convert.ChangeType(parameters["deviceRuleId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("deviceRule") && parameters["deviceRule"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DeviceRuleSchemaProperty.Validate("deviceRule", parameters["deviceRule"]);
-                    }
+                    DeviceRuleSchemaProperty.Validate("deviceRule", parameters["deviceRule"]);
                     DeviceRule = (String) Convert.ChangeType(parameters["deviceRule"], typeof(String));
                 }
                 if (parameters.ContainsKey("geoBlockRuleId") && parameters["geoBlockRuleId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        GeoBlockRuleIdSchemaProperty.Validate("geoBlockRuleId", parameters["geoBlockRuleId"]);
-                    }
+                    GeoBlockRuleIdSchemaProperty.Validate("geoBlockRuleId", parameters["geoBlockRuleId"]);
                     GeoBlockRuleId = (Int32) Convert.ChangeType(parameters["geoBlockRuleId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("geoBlockRule") && parameters["geoBlockRule"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        GeoBlockRuleSchemaProperty.Validate("geoBlockRule", parameters["geoBlockRule"]);
-                    }
+                    GeoBlockRuleSchemaProperty.Validate("geoBlockRule", parameters["geoBlockRule"]);
                     GeoBlockRule = (String) Convert.ChangeType(parameters["geoBlockRule"], typeof(String));
                 }
                 if (parameters.ContainsKey("watchPermissionRule") && parameters["watchPermissionRule"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        WatchPermissionRuleSchemaProperty.Validate("watchPermissionRule", parameters["watchPermissionRule"]);
-                    }
+                    WatchPermissionRuleSchemaProperty.Validate("watchPermissionRule", parameters["watchPermissionRule"]);
                     WatchPermissionRule = (String) Convert.ChangeType(parameters["watchPermissionRule"], typeof(String));
                 }
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StatusSchemaProperty.Validate("status", parameters["status"]);
-                    }
+                    StatusSchemaProperty.Validate("status", parameters["status"]);
                     Status = (Boolean) Convert.ChangeType(parameters["status"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("inheritancePolicy") && parameters["inheritancePolicy"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        InheritancePolicySchemaProperty.Validate("inheritancePolicy", parameters["inheritancePolicy"]);
-                    }
+                    InheritancePolicySchemaProperty.Validate("inheritancePolicy", parameters["inheritancePolicy"]);
                     if(string.IsNullOrEmpty(parameters["inheritancePolicy"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "inheritancePolicy");
@@ -24317,18 +23001,12 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TypeSchemaProperty.Validate("type", parameters["type"]);
-                    }
+                    TypeSchemaProperty.Validate("type", parameters["type"]);
                     Type = (String) Convert.ChangeType(parameters["type"], typeof(String));
                 }
                 if (parameters.ContainsKey("typeId") && parameters["typeId"] != null)
@@ -24444,10 +23122,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("cdnAdapaterProfileId") && parameters["cdnAdapaterProfileId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CdnAdapaterProfileIdSchemaProperty.Validate("cdnAdapaterProfileId", parameters["cdnAdapaterProfileId"]);
-                    }
+                    CdnAdapaterProfileIdSchemaProperty.Validate("cdnAdapaterProfileId", parameters["cdnAdapaterProfileId"]);
                     CdnAdapaterProfileId = (Int64) Convert.ChangeType(parameters["cdnAdapaterProfileId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
@@ -24672,66 +23347,42 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NameSchemaProperty.Validate("name", parameters["name"]);
-                    }
+                    NameSchemaProperty.Validate("name", parameters["name"]);
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("description") && parameters["description"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DescriptionSchemaProperty.Validate("description", parameters["description"]);
-                    }
+                    DescriptionSchemaProperty.Validate("description", parameters["description"]);
                     Description = (String) Convert.ChangeType(parameters["description"], typeof(String));
                 }
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StatusSchemaProperty.Validate("status", parameters["status"]);
-                    }
+                    StatusSchemaProperty.Validate("status", parameters["status"]);
                     Status = (Boolean) Convert.ChangeType(parameters["status"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
-                    }
+                    UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("isTrailer") && parameters["isTrailer"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsTrailerSchemaProperty.Validate("isTrailer", parameters["isTrailer"]);
-                    }
+                    IsTrailerSchemaProperty.Validate("isTrailer", parameters["isTrailer"]);
                     IsTrailer = (Boolean) Convert.ChangeType(parameters["isTrailer"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("streamerType") && parameters["streamerType"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StreamerTypeSchemaProperty.Validate("streamerType", parameters["streamerType"]);
-                    }
+                    StreamerTypeSchemaProperty.Validate("streamerType", parameters["streamerType"]);
                     if(string.IsNullOrEmpty(parameters["streamerType"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "streamerType");
@@ -24746,18 +23397,12 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("drmProfileId") && parameters["drmProfileId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DrmProfileIdSchemaProperty.Validate("drmProfileId", parameters["drmProfileId"]);
-                    }
+                    DrmProfileIdSchemaProperty.Validate("drmProfileId", parameters["drmProfileId"]);
                     DrmProfileId = (Int32) Convert.ChangeType(parameters["drmProfileId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("quality") && parameters["quality"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        QualitySchemaProperty.Validate("quality", parameters["quality"]);
-                    }
+                    QualitySchemaProperty.Validate("quality", parameters["quality"]);
                     if(string.IsNullOrEmpty(parameters["quality"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "quality");
@@ -24772,18 +23417,12 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("videoCodecs") && parameters["videoCodecs"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        VideoCodecsSchemaProperty.Validate("videoCodecs", parameters["videoCodecs"]);
-                    }
+                    VideoCodecsSchemaProperty.Validate("videoCodecs", parameters["videoCodecs"]);
                     VideoCodecs = (String) Convert.ChangeType(parameters["videoCodecs"], typeof(String));
                 }
                 if (parameters.ContainsKey("audioCodecs") && parameters["audioCodecs"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AudioCodecsSchemaProperty.Validate("audioCodecs", parameters["audioCodecs"]);
-                    }
+                    AudioCodecsSchemaProperty.Validate("audioCodecs", parameters["audioCodecs"]);
                     AudioCodecs = (String) Convert.ChangeType(parameters["audioCodecs"], typeof(String));
                 }
             }
@@ -24851,10 +23490,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (String) Convert.ChangeType(parameters["id"], typeof(String));
                 }
                 if (parameters.ContainsKey("isDefault") && parameters["isDefault"] != null)
@@ -24898,10 +23534,7 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -25158,10 +23791,7 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("partnerListTypeIn") && parameters["partnerListTypeIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PartnerListTypeInSchemaProperty.Validate("partnerListTypeIn", parameters["partnerListTypeIn"]);
-                    }
+                    PartnerListTypeInSchemaProperty.Validate("partnerListTypeIn", parameters["partnerListTypeIn"]);
                     PartnerListTypeIn = (String) Convert.ChangeType(parameters["partnerListTypeIn"], typeof(String));
                 }
             }
@@ -25256,18 +23886,12 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("epgChannelId") && parameters["epgChannelId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EpgChannelIdSchemaProperty.Validate("epgChannelId", parameters["epgChannelId"]);
-                    }
+                    EpgChannelIdSchemaProperty.Validate("epgChannelId", parameters["epgChannelId"]);
                     EpgChannelId = (Int64) Convert.ChangeType(parameters["epgChannelId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("epgId") && parameters["epgId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EpgIdSchemaProperty.Validate("epgId", parameters["epgId"]);
-                    }
+                    EpgIdSchemaProperty.Validate("epgId", parameters["epgId"]);
                     EpgId = (String) Convert.ChangeType(parameters["epgId"], typeof(String));
                 }
                 if (parameters.ContainsKey("relatedMediaId") && parameters["relatedMediaId"] != null)
@@ -25280,10 +23904,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("linearAssetId") && parameters["linearAssetId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        LinearAssetIdSchemaProperty.Validate("linearAssetId", parameters["linearAssetId"]);
-                    }
+                    LinearAssetIdSchemaProperty.Validate("linearAssetId", parameters["linearAssetId"]);
                     LinearAssetId = (Int64) Convert.ChangeType(parameters["linearAssetId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("enableCdvr") && parameters["enableCdvr"] != null)
@@ -25301,6 +23922,10 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("enableTrickPlay") && parameters["enableTrickPlay"] != null)
                 {
                     TrickPlayEnabled = (Boolean) Convert.ChangeType(parameters["enableTrickPlay"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("externalOfferIds") && parameters["externalOfferIds"] != null)
+                {
+                    ExternalOfferIds = (String) Convert.ChangeType(parameters["externalOfferIds"], typeof(String));
                 }
             }
         }
@@ -25379,42 +24004,27 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NameSchemaProperty.Validate("name", parameters["name"]);
-                    }
+                    NameSchemaProperty.Validate("name", parameters["name"]);
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("height") && parameters["height"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        HeightSchemaProperty.Validate("height", parameters["height"]);
-                    }
+                    HeightSchemaProperty.Validate("height", parameters["height"]);
                     Height = (Int32) Convert.ChangeType(parameters["height"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("width") && parameters["width"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        WidthSchemaProperty.Validate("width", parameters["width"]);
-                    }
+                    WidthSchemaProperty.Validate("width", parameters["width"]);
                     Width = (Int32) Convert.ChangeType(parameters["width"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("precisionPrecentage") && parameters["precisionPrecentage"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PrecisionPrecentageSchemaProperty.Validate("precisionPrecentage", parameters["precisionPrecentage"]);
-                    }
+                    PrecisionPrecentageSchemaProperty.Validate("precisionPrecentage", parameters["precisionPrecentage"]);
                     PrecisionPrecentage = (Int32) Convert.ChangeType(parameters["precisionPrecentage"], typeof(Int32));
                 }
             }
@@ -25541,10 +24151,7 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idEqual") && parameters["idEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdEqualSchemaProperty.Validate("idEqual", parameters["idEqual"]);
-                    }
+                    IdEqualSchemaProperty.Validate("idEqual", parameters["idEqual"]);
                     IdEqual = (Int32) Convert.ChangeType(parameters["idEqual"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("typeIn") && parameters["typeIn"] != null)
@@ -25585,10 +24192,7 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idEqual") && parameters["idEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdEqualSchemaProperty.Validate("idEqual", parameters["idEqual"]);
-                    }
+                    IdEqualSchemaProperty.Validate("idEqual", parameters["idEqual"]);
                     IdEqual = (Int32) Convert.ChangeType(parameters["idEqual"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("typeIn") && parameters["typeIn"] != null)
@@ -25651,10 +24255,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("channelsIn") && parameters["channelsIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ChannelsInSchemaProperty.Validate("channelsIn", parameters["channelsIn"]);
-                    }
+                    ChannelsInSchemaProperty.Validate("channelsIn", parameters["channelsIn"]);
                     ChannelsIn = (String) Convert.ChangeType(parameters["channelsIn"], typeof(String));
                 }
                 if (parameters.ContainsKey("startDateGreaterThanOrNull") && parameters["startDateGreaterThanOrNull"] != null)
@@ -25667,10 +24268,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("seriesIdsIn") && parameters["seriesIdsIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SeriesIdsInSchemaProperty.Validate("seriesIdsIn", parameters["seriesIdsIn"]);
-                    }
+                    SeriesIdsInSchemaProperty.Validate("seriesIdsIn", parameters["seriesIdsIn"]);
                     SeriesIdsIn = (String) Convert.ChangeType(parameters["seriesIdsIn"], typeof(String));
                 }
             }
@@ -25761,18 +24359,12 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (String) Convert.ChangeType(parameters["id"], typeof(String));
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TypeSchemaProperty.Validate("type", parameters["type"]);
-                    }
+                    TypeSchemaProperty.Validate("type", parameters["type"]);
                     if(string.IsNullOrEmpty(parameters["type"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "type");
@@ -25854,10 +24446,7 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("asset") && parameters["asset"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AssetSchemaProperty.Validate("asset", parameters["asset"]);
-                    }
+                    AssetSchemaProperty.Validate("asset", parameters["asset"]);
                     if (parameters["asset"] is JObject)
                     {
                         Asset = (KalturaSlimAsset) Deserializer.deserialize(typeof(KalturaSlimAsset), ((JObject) parameters["asset"]).ToObject<Dictionary<string, object>>());
@@ -25869,18 +24458,12 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("userId") && parameters["userId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserIdSchemaProperty.Validate("userId", parameters["userId"]);
-                    }
+                    UserIdSchemaProperty.Validate("userId", parameters["userId"]);
                     UserId = (String) Convert.ChangeType(parameters["userId"], typeof(String));
                 }
                 if (parameters.ContainsKey("udid") && parameters["udid"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UdidSchemaProperty.Validate("udid", parameters["udid"]);
-                    }
+                    UdidSchemaProperty.Validate("udid", parameters["udid"]);
                     Udid = (String) Convert.ChangeType(parameters["udid"], typeof(String));
                 }
             }
@@ -25964,18 +24547,12 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TagTypeIdSchemaProperty.Validate("type", parameters["type"]);
-                    }
+                    TagTypeIdSchemaProperty.Validate("type", parameters["type"]);
                     TagTypeId = (Int32) Convert.ChangeType(parameters["type"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("multilingualTag") && parameters["multilingualTag"] != null)
@@ -26023,10 +24600,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("typeEqual") && parameters["typeEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TypeEqualSchemaProperty.Validate("typeEqual", parameters["typeEqual"]);
-                    }
+                    TypeEqualSchemaProperty.Validate("typeEqual", parameters["typeEqual"]);
                     TypeEqual = (Int32) Convert.ChangeType(parameters["typeEqual"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("languageEqual") && parameters["languageEqual"] != null)
@@ -26083,10 +24657,7 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
@@ -26148,10 +24719,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("startDateInSeconds") && parameters["startDateInSeconds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StartDateInSecondsSchemaProperty.Validate("startDateInSeconds", parameters["startDateInSeconds"]);
-                    }
+                    StartDateInSecondsSchemaProperty.Validate("startDateInSeconds", parameters["startDateInSeconds"]);
                     StartDateInSeconds = (Int64) Convert.ChangeType(parameters["startDateInSeconds"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("endDateInSeconds__null") && parameters["endDateInSeconds__null"] != null)
@@ -26160,10 +24728,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("endDateInSeconds") && parameters["endDateInSeconds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EndDateInSecondsSchemaProperty.Validate("endDateInSeconds", parameters["endDateInSeconds"]);
-                    }
+                    EndDateInSecondsSchemaProperty.Validate("endDateInSeconds", parameters["endDateInSeconds"]);
                     EndDateInSeconds = (Int64) Convert.ChangeType(parameters["endDateInSeconds"], typeof(Int64));
                 }
             }
@@ -26311,10 +24876,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StartDateSchemaProperty.Validate("startDate", parameters["startDate"]);
-                    }
+                    StartDateSchemaProperty.Validate("startDate", parameters["startDate"]);
                     StartDate = (Int64) Convert.ChangeType(parameters["startDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("endDate__null") && parameters["endDate__null"] != null)
@@ -26323,10 +24885,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EndDateSchemaProperty.Validate("endDate", parameters["endDate"]);
-                    }
+                    EndDateSchemaProperty.Validate("endDate", parameters["endDate"]);
                     EndDate = (Int64) Convert.ChangeType(parameters["endDate"], typeof(Int64));
                 }
             }
@@ -26368,18 +24927,12 @@ namespace WebAPI.Models.Pricing
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("assetIdEqual") && parameters["assetIdEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AssetIdEqualSchemaProperty.Validate("assetIdEqual", parameters["assetIdEqual"]);
-                    }
+                    AssetIdEqualSchemaProperty.Validate("assetIdEqual", parameters["assetIdEqual"]);
                     AssetIdEqual = (Int64) Convert.ChangeType(parameters["assetIdEqual"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("assetFileIdEqual") && parameters["assetFileIdEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AssetFileIdEqualSchemaProperty.Validate("assetFileIdEqual", parameters["assetFileIdEqual"]);
-                    }
+                    AssetFileIdEqualSchemaProperty.Validate("assetFileIdEqual", parameters["assetFileIdEqual"]);
                     AssetFileIdEqual = (Int64) Convert.ChangeType(parameters["assetFileIdEqual"], typeof(Int64));
                 }
             }
@@ -26692,10 +25245,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("channels") && parameters["channels"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ChannelsSchemaProperty.Validate("channels", parameters["channels"]);
-                    }
+                    ChannelsSchemaProperty.Validate("channels", parameters["channels"]);
                     if (parameters["channels"] is JArray)
                     {
                         Channels = buildList<KalturaBaseChannel>(typeof(KalturaBaseChannel), (JArray) parameters["channels"]);
@@ -26711,10 +25261,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("channelsIds") && parameters["channelsIds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ChannelsIdsSchemaProperty.Validate("channelsIds", parameters["channelsIds"]);
-                    }
+                    ChannelsIdsSchemaProperty.Validate("channelsIds", parameters["channelsIds"]);
                     ChannelsIds = (String) Convert.ChangeType(parameters["channelsIds"], typeof(String));
                 }
                 if (parameters.ContainsKey("startDate__null") && parameters["startDate__null"] != null)
@@ -26723,10 +25270,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StartDateSchemaProperty.Validate("startDate", parameters["startDate"]);
-                    }
+                    StartDateSchemaProperty.Validate("startDate", parameters["startDate"]);
                     StartDate = (Int64) Convert.ChangeType(parameters["startDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("endDate__null") && parameters["endDate__null"] != null)
@@ -26735,10 +25279,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EndDateSchemaProperty.Validate("endDate", parameters["endDate"]);
-                    }
+                    EndDateSchemaProperty.Validate("endDate", parameters["endDate"]);
                     EndDate = (Int64) Convert.ChangeType(parameters["endDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("discountModule__null") && parameters["discountModule__null"] != null)
@@ -26747,10 +25288,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("discountModule") && parameters["discountModule"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DiscountModuleSchemaProperty.Validate("discountModule", parameters["discountModule"]);
-                    }
+                    DiscountModuleSchemaProperty.Validate("discountModule", parameters["discountModule"]);
                     if (parameters["discountModule"] is JObject)
                     {
                         DiscountModule = (KalturaDiscountModule) Deserializer.deserialize(typeof(KalturaDiscountModule), ((JObject) parameters["discountModule"]).ToObject<Dictionary<string, object>>());
@@ -26762,10 +25300,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("discount_module") && parameters["discount_module"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        DiscountModuleSchemaProperty.Validate("discount_module", parameters["discount_module"]);
-                    }
+                    DiscountModuleSchemaProperty.Validate("discount_module", parameters["discount_module"]);
                     if (parameters["discount_module"] is JObject)
                     {
                         DiscountModule = (KalturaDiscountModule) Deserializer.deserialize(typeof(KalturaDiscountModule), ((JObject) parameters["discount_module"]).ToObject<Dictionary<string, object>>());
@@ -26781,10 +25316,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("discountModuleId") && parameters["discountModuleId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DiscountModuleIdSchemaProperty.Validate("discountModuleId", parameters["discountModuleId"]);
-                    }
+                    DiscountModuleIdSchemaProperty.Validate("discountModuleId", parameters["discountModuleId"]);
                     DiscountModuleId = (Int64) Convert.ChangeType(parameters["discountModuleId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("multilingualName__null") && parameters["multilingualName__null"] != null)
@@ -26793,10 +25325,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("multilingualName") && parameters["multilingualName"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NameSchemaProperty.Validate("multilingualName", parameters["multilingualName"]);
-                    }
+                    NameSchemaProperty.Validate("multilingualName", parameters["multilingualName"]);
                     if (parameters["multilingualName"] is JArray)
                     {
                         Name = MultilengualStringFactory.Create((JArray) parameters["multilingualName"]);
@@ -26812,10 +25341,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("multilingualDescription") && parameters["multilingualDescription"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DescriptionSchemaProperty.Validate("multilingualDescription", parameters["multilingualDescription"]);
-                    }
+                    DescriptionSchemaProperty.Validate("multilingualDescription", parameters["multilingualDescription"]);
                     if (parameters["multilingualDescription"] is JArray)
                     {
                         Description = MultilengualStringFactory.Create((JArray) parameters["multilingualDescription"]);
@@ -26831,10 +25357,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("usageModule") && parameters["usageModule"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UsageModuleSchemaProperty.Validate("usageModule", parameters["usageModule"]);
-                    }
+                    UsageModuleSchemaProperty.Validate("usageModule", parameters["usageModule"]);
                     if (parameters["usageModule"] is JObject)
                     {
                         UsageModule = (KalturaUsageModule) Deserializer.deserialize(typeof(KalturaUsageModule), ((JObject) parameters["usageModule"]).ToObject<Dictionary<string, object>>());
@@ -26850,10 +25373,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("usageModuleId") && parameters["usageModuleId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UsageModuleIdSchemaProperty.Validate("usageModuleId", parameters["usageModuleId"]);
-                    }
+                    UsageModuleIdSchemaProperty.Validate("usageModuleId", parameters["usageModuleId"]);
                     UsageModuleId = (Int64) Convert.ChangeType(parameters["usageModuleId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("couponsGroups__null") && parameters["couponsGroups__null"] != null)
@@ -26862,10 +25382,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("couponsGroups") && parameters["couponsGroups"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CouponGroupsSchemaProperty.Validate("couponsGroups", parameters["couponsGroups"]);
-                    }
+                    CouponGroupsSchemaProperty.Validate("couponsGroups", parameters["couponsGroups"]);
                     if (parameters["couponsGroups"] is JArray)
                     {
                         CouponGroups = buildList<KalturaCouponsGroup>(typeof(KalturaCouponsGroup), (JArray) parameters["couponsGroups"]);
@@ -26881,10 +25398,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("collectionCouponGroup") && parameters["collectionCouponGroup"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CollectionCouponGroupSchemaProperty.Validate("collectionCouponGroup", parameters["collectionCouponGroup"]);
-                    }
+                    CollectionCouponGroupSchemaProperty.Validate("collectionCouponGroup", parameters["collectionCouponGroup"]);
                     if (parameters["collectionCouponGroup"] is JArray)
                     {
                         CollectionCouponGroup = buildList<KalturaCollectionCouponGroup>(typeof(KalturaCollectionCouponGroup), (JArray) parameters["collectionCouponGroup"]);
@@ -26900,10 +25414,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("externalId") && parameters["externalId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ExternalIdSchemaProperty.Validate("externalId", parameters["externalId"]);
-                    }
+                    ExternalIdSchemaProperty.Validate("externalId", parameters["externalId"]);
                     ExternalId = (String) Convert.ChangeType(parameters["externalId"], typeof(String));
                 }
                 if (parameters.ContainsKey("productCodes__null") && parameters["productCodes__null"] != null)
@@ -26912,10 +25423,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("productCodes") && parameters["productCodes"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ProductCodesSchemaProperty.Validate("productCodes", parameters["productCodes"]);
-                    }
+                    ProductCodesSchemaProperty.Validate("productCodes", parameters["productCodes"]);
                     if (parameters["productCodes"] is JArray)
                     {
                         ProductCodes = buildList<KalturaProductCode>(typeof(KalturaProductCode), (JArray) parameters["productCodes"]);
@@ -26927,42 +25435,27 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("priceDetailsId") && parameters["priceDetailsId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PriceDetailsIdSchemaProperty.Validate("priceDetailsId", parameters["priceDetailsId"]);
-                    }
+                    PriceDetailsIdSchemaProperty.Validate("priceDetailsId", parameters["priceDetailsId"]);
                     PriceDetailsId = (Int64) Convert.ChangeType(parameters["priceDetailsId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("isActive") && parameters["isActive"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsActiveSchemaProperty.Validate("isActive", parameters["isActive"]);
-                    }
+                    IsActiveSchemaProperty.Validate("isActive", parameters["isActive"]);
                     IsActive = (Boolean) Convert.ChangeType(parameters["isActive"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
-                    }
+                    UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("virtualAssetId") && parameters["virtualAssetId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        VirtualAssetIdSchemaProperty.Validate("virtualAssetId", parameters["virtualAssetId"]);
-                    }
+                    VirtualAssetIdSchemaProperty.Validate("virtualAssetId", parameters["virtualAssetId"]);
                     VirtualAssetId = (Int64) Convert.ChangeType(parameters["virtualAssetId"], typeof(Int64));
                 }
             }
@@ -27015,26 +25508,17 @@ namespace WebAPI.Models.Pricing
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CouponGroupIdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    CouponGroupIdSchemaProperty.Validate("id", parameters["id"]);
                     CouponGroupId = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StartDateSchemaProperty.Validate("startDate", parameters["startDate"]);
-                    }
+                    StartDateSchemaProperty.Validate("startDate", parameters["startDate"]);
                     StartDate = (Int64) Convert.ChangeType(parameters["startDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EndDateSchemaProperty.Validate("endDate", parameters["endDate"]);
-                    }
+                    EndDateSchemaProperty.Validate("endDate", parameters["endDate"]);
                     EndDate = (Int64) Convert.ChangeType(parameters["endDate"], typeof(Int64));
                 }
             }
@@ -27087,10 +25571,7 @@ namespace WebAPI.Models.Pricing
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("collectionIdIn") && parameters["collectionIdIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CollectionIdInSchemaProperty.Validate("collectionIdIn", parameters["collectionIdIn"]);
-                    }
+                    CollectionIdInSchemaProperty.Validate("collectionIdIn", parameters["collectionIdIn"]);
                     CollectionIdIn = (String) Convert.ChangeType(parameters["collectionIdIn"], typeof(String));
                 }
                 if (parameters.ContainsKey("mediaFileIdEqual") && parameters["mediaFileIdEqual"] != null)
@@ -27099,18 +25580,12 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("couponGroupIdEqual") && parameters["couponGroupIdEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CouponGroupIdEqualSchemaProperty.Validate("couponGroupIdEqual", parameters["couponGroupIdEqual"]);
-                    }
+                    CouponGroupIdEqualSchemaProperty.Validate("couponGroupIdEqual", parameters["couponGroupIdEqual"]);
                     CouponGroupIdEqual = (Int32) Convert.ChangeType(parameters["couponGroupIdEqual"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("alsoInactive") && parameters["alsoInactive"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AlsoInactiveSchemaProperty.Validate("alsoInactive", parameters["alsoInactive"]);
-                    }
+                    AlsoInactiveSchemaProperty.Validate("alsoInactive", parameters["alsoInactive"]);
                     AlsoInactive = (Boolean) Convert.ChangeType(parameters["alsoInactive"], typeof(Boolean));
                 }
             }
@@ -27212,10 +25687,7 @@ namespace WebAPI.Models.Pricing
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("couponsGroup") && parameters["couponsGroup"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CouponsGroupSchemaProperty.Validate("couponsGroup", parameters["couponsGroup"]);
-                    }
+                    CouponsGroupSchemaProperty.Validate("couponsGroup", parameters["couponsGroup"]);
                     if (parameters["couponsGroup"] is JObject)
                     {
                         CouponsGroup = (KalturaCouponsGroup) Deserializer.deserialize(typeof(KalturaCouponsGroup), ((JObject) parameters["couponsGroup"]).ToObject<Dictionary<string, object>>());
@@ -27227,10 +25699,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("coupons_group") && parameters["coupons_group"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        CouponsGroupSchemaProperty.Validate("coupons_group", parameters["coupons_group"]);
-                    }
+                    CouponsGroupSchemaProperty.Validate("coupons_group", parameters["coupons_group"]);
                     if (parameters["coupons_group"] is JObject)
                     {
                         CouponsGroup = (KalturaCouponsGroup) Deserializer.deserialize(typeof(KalturaCouponsGroup), ((JObject) parameters["coupons_group"]).ToObject<Dictionary<string, object>>());
@@ -27242,10 +25711,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StatusSchemaProperty.Validate("status", parameters["status"]);
-                    }
+                    StatusSchemaProperty.Validate("status", parameters["status"]);
                     if(string.IsNullOrEmpty(parameters["status"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "status");
@@ -27260,26 +25726,17 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("totalUses") && parameters["totalUses"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TotalUsesSchemaProperty.Validate("totalUses", parameters["totalUses"]);
-                    }
+                    TotalUsesSchemaProperty.Validate("totalUses", parameters["totalUses"]);
                     TotalUses = (Int32) Convert.ChangeType(parameters["totalUses"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("leftUses") && parameters["leftUses"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        LeftUsesSchemaProperty.Validate("leftUses", parameters["leftUses"]);
-                    }
+                    LeftUsesSchemaProperty.Validate("leftUses", parameters["leftUses"]);
                     LeftUses = (Int32) Convert.ChangeType(parameters["leftUses"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("couponCode") && parameters["couponCode"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CouponCodeSchemaProperty.Validate("couponCode", parameters["couponCode"]);
-                    }
+                    CouponCodeSchemaProperty.Validate("couponCode", parameters["couponCode"]);
                     CouponCode = (String) Convert.ChangeType(parameters["couponCode"], typeof(String));
                 }
             }
@@ -27433,10 +25890,7 @@ namespace WebAPI.Models.Pricing
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (String) Convert.ChangeType(parameters["id"], typeof(String));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -27456,74 +25910,47 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StartDateSchemaProperty.Validate("startDate", parameters["startDate"]);
-                    }
+                    StartDateSchemaProperty.Validate("startDate", parameters["startDate"]);
                     StartDate = (Int64) Convert.ChangeType(parameters["startDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("start_date") && parameters["start_date"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        StartDateSchemaProperty.Validate("start_date", parameters["start_date"]);
-                    }
+                    StartDateSchemaProperty.Validate("start_date", parameters["start_date"]);
                     StartDate = (Int64) Convert.ChangeType(parameters["start_date"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EndDateSchemaProperty.Validate("endDate", parameters["endDate"]);
-                    }
+                    EndDateSchemaProperty.Validate("endDate", parameters["endDate"]);
                     EndDate = (Int64) Convert.ChangeType(parameters["endDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("end_date") && parameters["end_date"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        EndDateSchemaProperty.Validate("end_date", parameters["end_date"]);
-                    }
+                    EndDateSchemaProperty.Validate("end_date", parameters["end_date"]);
                     EndDate = (Int64) Convert.ChangeType(parameters["end_date"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("maxUsesNumber") && parameters["maxUsesNumber"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MaxUsesNumberSchemaProperty.Validate("maxUsesNumber", parameters["maxUsesNumber"]);
-                    }
+                    MaxUsesNumberSchemaProperty.Validate("maxUsesNumber", parameters["maxUsesNumber"]);
                     MaxUsesNumber = (Int32) Convert.ChangeType(parameters["maxUsesNumber"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("max_uses_number") && parameters["max_uses_number"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        MaxUsesNumberSchemaProperty.Validate("max_uses_number", parameters["max_uses_number"]);
-                    }
+                    MaxUsesNumberSchemaProperty.Validate("max_uses_number", parameters["max_uses_number"]);
                     MaxUsesNumber = (Int32) Convert.ChangeType(parameters["max_uses_number"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("maxUsesNumberOnRenewableSub") && parameters["maxUsesNumberOnRenewableSub"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MaxUsesNumberOnRenewableSubSchemaProperty.Validate("maxUsesNumberOnRenewableSub", parameters["maxUsesNumberOnRenewableSub"]);
-                    }
+                    MaxUsesNumberOnRenewableSubSchemaProperty.Validate("maxUsesNumberOnRenewableSub", parameters["maxUsesNumberOnRenewableSub"]);
                     MaxUsesNumberOnRenewableSub = (Int32) Convert.ChangeType(parameters["maxUsesNumberOnRenewableSub"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("max_uses_number_on_renewable_sub") && parameters["max_uses_number_on_renewable_sub"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        MaxUsesNumberOnRenewableSubSchemaProperty.Validate("max_uses_number_on_renewable_sub", parameters["max_uses_number_on_renewable_sub"]);
-                    }
+                    MaxUsesNumberOnRenewableSubSchemaProperty.Validate("max_uses_number_on_renewable_sub", parameters["max_uses_number_on_renewable_sub"]);
                     MaxUsesNumberOnRenewableSub = (Int32) Convert.ChangeType(parameters["max_uses_number_on_renewable_sub"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("couponGroupType") && parameters["couponGroupType"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CouponGroupTypeSchemaProperty.Validate("couponGroupType", parameters["couponGroupType"]);
-                    }
+                    CouponGroupTypeSchemaProperty.Validate("couponGroupType", parameters["couponGroupType"]);
                     if(string.IsNullOrEmpty(parameters["couponGroupType"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "couponGroupType");
@@ -27538,26 +25965,17 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("maxHouseholdUses") && parameters["maxHouseholdUses"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MaxHouseholdUsesSchemaProperty.Validate("maxHouseholdUses", parameters["maxHouseholdUses"]);
-                    }
+                    MaxHouseholdUsesSchemaProperty.Validate("maxHouseholdUses", parameters["maxHouseholdUses"]);
                     MaxHouseholdUses = (Int32) Convert.ChangeType(parameters["maxHouseholdUses"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("discountCode") && parameters["discountCode"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DiscountCodeSchemaProperty.Validate("discountCode", parameters["discountCode"]);
-                    }
+                    DiscountCodeSchemaProperty.Validate("discountCode", parameters["discountCode"]);
                     DiscountCode = (Int64) Convert.ChangeType(parameters["discountCode"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("discountId") && parameters["discountId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DiscountIdSchemaProperty.Validate("discountId", parameters["discountId"]);
-                    }
+                    DiscountIdSchemaProperty.Validate("discountId", parameters["discountId"]);
                     DiscountId = (Int64) Convert.ChangeType(parameters["discountId"], typeof(Int64));
                 }
             }
@@ -27694,26 +26112,17 @@ namespace WebAPI.Models.Pricing
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        nameSchemaProperty.Validate("name", parameters["name"]);
-                    }
+                    nameSchemaProperty.Validate("name", parameters["name"]);
                     name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("multiCurrencyDiscount") && parameters["multiCurrencyDiscount"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MultiCurrencyDiscountSchemaProperty.Validate("multiCurrencyDiscount", parameters["multiCurrencyDiscount"]);
-                    }
+                    MultiCurrencyDiscountSchemaProperty.Validate("multiCurrencyDiscount", parameters["multiCurrencyDiscount"]);
                     if (parameters["multiCurrencyDiscount"] is JArray)
                     {
                         MultiCurrencyDiscount = buildList<KalturaDiscount>(typeof(KalturaDiscount), (JArray) parameters["multiCurrencyDiscount"]);
@@ -27725,34 +26134,22 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StartDateSchemaProperty.Validate("startDate", parameters["startDate"]);
-                    }
+                    StartDateSchemaProperty.Validate("startDate", parameters["startDate"]);
                     StartDate = (Int64) Convert.ChangeType(parameters["startDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EndtDateSchemaProperty.Validate("endDate", parameters["endDate"]);
-                    }
+                    EndtDateSchemaProperty.Validate("endDate", parameters["endDate"]);
                     EndtDate = (Int64) Convert.ChangeType(parameters["endDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("whenAlgoTimes") && parameters["whenAlgoTimes"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        WhenAlgoTimesSchemaProperty.Validate("whenAlgoTimes", parameters["whenAlgoTimes"]);
-                    }
+                    WhenAlgoTimesSchemaProperty.Validate("whenAlgoTimes", parameters["whenAlgoTimes"]);
                     WhenAlgoTimes = (Int32) Convert.ChangeType(parameters["whenAlgoTimes"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("whenAlgoType") && parameters["whenAlgoType"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        WhenAlgoTypeSchemaProperty.Validate("whenAlgoType", parameters["whenAlgoType"]);
-                    }
+                    WhenAlgoTypeSchemaProperty.Validate("whenAlgoType", parameters["whenAlgoType"]);
                     WhenAlgoType = (Int32) Convert.ChangeType(parameters["whenAlgoType"], typeof(Int32));
                 }
             }
@@ -27781,10 +26178,7 @@ namespace WebAPI.Models.Pricing
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
-                    }
+                    IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
                     IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
                 }
             }
@@ -27868,50 +26262,32 @@ namespace WebAPI.Models.Pricing
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("percent") && parameters["percent"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PercentSchemaProperty.Validate("percent", parameters["percent"]);
-                    }
+                    PercentSchemaProperty.Validate("percent", parameters["percent"]);
                     Percent = (Double) Convert.ChangeType(parameters["percent"], typeof(Double));
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StartDateSchemaProperty.Validate("startDate", parameters["startDate"]);
-                    }
+                    StartDateSchemaProperty.Validate("startDate", parameters["startDate"]);
                     StartDate = (Int64) Convert.ChangeType(parameters["startDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("start_date") && parameters["start_date"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        StartDateSchemaProperty.Validate("start_date", parameters["start_date"]);
-                    }
+                    StartDateSchemaProperty.Validate("start_date", parameters["start_date"]);
                     StartDate = (Int64) Convert.ChangeType(parameters["start_date"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EndDateSchemaProperty.Validate("endDate", parameters["endDate"]);
-                    }
+                    EndDateSchemaProperty.Validate("endDate", parameters["endDate"]);
                     EndDate = (Int64) Convert.ChangeType(parameters["endDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("end_date") && parameters["end_date"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        EndDateSchemaProperty.Validate("end_date", parameters["end_date"]);
-                    }
+                    EndDateSchemaProperty.Validate("end_date", parameters["end_date"]);
                     EndDate = (Int64) Convert.ChangeType(parameters["end_date"], typeof(Int64));
                 }
             }
@@ -28224,10 +26600,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("price") && parameters["price"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PriceSchemaProperty.Validate("price", parameters["price"]);
-                    }
+                    PriceSchemaProperty.Validate("price", parameters["price"]);
                     if (parameters["price"] is JObject)
                     {
                         Price = (KalturaPriceDetails) Deserializer.deserialize(typeof(KalturaPriceDetails), ((JObject) parameters["price"]).ToObject<Dictionary<string, object>>());
@@ -28239,18 +26612,12 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("priceDetailsId") && parameters["priceDetailsId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PriceDetailsIdSchemaProperty.Validate("priceDetailsId", parameters["priceDetailsId"]);
-                    }
+                    PriceDetailsIdSchemaProperty.Validate("priceDetailsId", parameters["priceDetailsId"]);
                     PriceDetailsId = (Int32) Convert.ChangeType(parameters["priceDetailsId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("fileTypes") && parameters["fileTypes"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FileTypesSchemaProperty.Validate("fileTypes", parameters["fileTypes"]);
-                    }
+                    FileTypesSchemaProperty.Validate("fileTypes", parameters["fileTypes"]);
                     if (parameters["fileTypes"] is JArray)
                     {
                         FileTypes = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["fileTypes"]);
@@ -28262,18 +26629,12 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("fileTypesIds") && parameters["fileTypesIds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FileTypesIdsSchemaProperty.Validate("fileTypesIds", parameters["fileTypesIds"]);
-                    }
+                    FileTypesIdsSchemaProperty.Validate("fileTypesIds", parameters["fileTypesIds"]);
                     FileTypesIds = (String) Convert.ChangeType(parameters["fileTypesIds"], typeof(String));
                 }
                 if (parameters.ContainsKey("discountModule") && parameters["discountModule"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DiscountModuleSchemaProperty.Validate("discountModule", parameters["discountModule"]);
-                    }
+                    DiscountModuleSchemaProperty.Validate("discountModule", parameters["discountModule"]);
                     if (parameters["discountModule"] is JObject)
                     {
                         DiscountModule = (KalturaDiscountModule) Deserializer.deserialize(typeof(KalturaDiscountModule), ((JObject) parameters["discountModule"]).ToObject<Dictionary<string, object>>());
@@ -28285,18 +26646,12 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("discountId") && parameters["discountId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DiscountIdSchemaProperty.Validate("discountId", parameters["discountId"]);
-                    }
+                    DiscountIdSchemaProperty.Validate("discountId", parameters["discountId"]);
                     DiscountId = (Int64) Convert.ChangeType(parameters["discountId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("couponsGroup") && parameters["couponsGroup"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CouponsGroupSchemaProperty.Validate("couponsGroup", parameters["couponsGroup"]);
-                    }
+                    CouponsGroupSchemaProperty.Validate("couponsGroup", parameters["couponsGroup"]);
                     if (parameters["couponsGroup"] is JObject)
                     {
                         CouponsGroup = (KalturaCouponsGroup) Deserializer.deserialize(typeof(KalturaCouponsGroup), ((JObject) parameters["couponsGroup"]).ToObject<Dictionary<string, object>>());
@@ -28308,18 +26663,12 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("couponsGroupId") && parameters["couponsGroupId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CouponsGroupIdSchemaProperty.Validate("couponsGroupId", parameters["couponsGroupId"]);
-                    }
+                    CouponsGroupIdSchemaProperty.Validate("couponsGroupId", parameters["couponsGroupId"]);
                     CouponsGroupId = (Int64) Convert.ChangeType(parameters["couponsGroupId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("descriptions") && parameters["descriptions"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DescriptionsSchemaProperty.Validate("descriptions", parameters["descriptions"]);
-                    }
+                    DescriptionsSchemaProperty.Validate("descriptions", parameters["descriptions"]);
                     if (parameters["descriptions"] is JArray)
                     {
                         Descriptions = buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["descriptions"]);
@@ -28331,34 +26680,22 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("productCode") && parameters["productCode"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ProductCodeSchemaProperty.Validate("productCode", parameters["productCode"]);
-                    }
+                    ProductCodeSchemaProperty.Validate("productCode", parameters["productCode"]);
                     ProductCode = (String) Convert.ChangeType(parameters["productCode"], typeof(String));
                 }
                 if (parameters.ContainsKey("isSubscriptionOnly") && parameters["isSubscriptionOnly"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsSubscriptionOnlySchemaProperty.Validate("isSubscriptionOnly", parameters["isSubscriptionOnly"]);
-                    }
+                    IsSubscriptionOnlySchemaProperty.Validate("isSubscriptionOnly", parameters["isSubscriptionOnly"]);
                     IsSubscriptionOnly = (Boolean) Convert.ChangeType(parameters["isSubscriptionOnly"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("firstDeviceLimitation") && parameters["firstDeviceLimitation"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FirstDeviceLimitationSchemaProperty.Validate("firstDeviceLimitation", parameters["firstDeviceLimitation"]);
-                    }
+                    FirstDeviceLimitationSchemaProperty.Validate("firstDeviceLimitation", parameters["firstDeviceLimitation"]);
                     FirstDeviceLimitation = (Boolean) Convert.ChangeType(parameters["firstDeviceLimitation"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("usageModule") && parameters["usageModule"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UsageModuleSchemaProperty.Validate("usageModule", parameters["usageModule"]);
-                    }
+                    UsageModuleSchemaProperty.Validate("usageModule", parameters["usageModule"]);
                     if (parameters["usageModule"] is JObject)
                     {
                         UsageModule = (KalturaUsageModule) Deserializer.deserialize(typeof(KalturaUsageModule), ((JObject) parameters["usageModule"]).ToObject<Dictionary<string, object>>());
@@ -28370,18 +26707,12 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("usageModuleId") && parameters["usageModuleId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UsageModuleIdSchemaProperty.Validate("usageModuleId", parameters["usageModuleId"]);
-                    }
+                    UsageModuleIdSchemaProperty.Validate("usageModuleId", parameters["usageModuleId"]);
                     UsageModuleId = (Int64) Convert.ChangeType(parameters["usageModuleId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("adsPolicy") && parameters["adsPolicy"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AdsPolicySchemaProperty.Validate("adsPolicy", parameters["adsPolicy"]);
-                    }
+                    AdsPolicySchemaProperty.Validate("adsPolicy", parameters["adsPolicy"]);
                     if(string.IsNullOrEmpty(parameters["adsPolicy"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "adsPolicy");
@@ -28396,34 +26727,22 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("isActive") && parameters["isActive"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsActiveSchemaProperty.Validate("isActive", parameters["isActive"]);
-                    }
+                    IsActiveSchemaProperty.Validate("isActive", parameters["isActive"]);
                     IsActive = (Boolean) Convert.ChangeType(parameters["isActive"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
-                    }
+                    UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("virtualAssetId") && parameters["virtualAssetId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        VirtualAssetIdSchemaProperty.Validate("virtualAssetId", parameters["virtualAssetId"]);
-                    }
+                    VirtualAssetIdSchemaProperty.Validate("virtualAssetId", parameters["virtualAssetId"]);
                     VirtualAssetId = (Int64) Convert.ChangeType(parameters["virtualAssetId"], typeof(Int64));
                 }
             }
@@ -28459,10 +26778,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("alsoInactive") && parameters["alsoInactive"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AlsoInactiveSchemaProperty.Validate("alsoInactive", parameters["alsoInactive"]);
-                    }
+                    AlsoInactiveSchemaProperty.Validate("alsoInactive", parameters["alsoInactive"]);
                     AlsoInactive = (Boolean) Convert.ChangeType(parameters["alsoInactive"], typeof(Boolean));
                 }
             }
@@ -28855,50 +27171,32 @@ namespace WebAPI.Models.Pricing
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NameSchemaProperty.Validate("name", parameters["name"]);
-                    }
+                    NameSchemaProperty.Validate("name", parameters["name"]);
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("lifeCycle") && parameters["lifeCycle"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        LifeCycleSchemaProperty.Validate("lifeCycle", parameters["lifeCycle"]);
-                    }
+                    LifeCycleSchemaProperty.Validate("lifeCycle", parameters["lifeCycle"]);
                     LifeCycle = (Int32) Convert.ChangeType(parameters["lifeCycle"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("life_cycle") && parameters["life_cycle"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        LifeCycleSchemaProperty.Validate("life_cycle", parameters["life_cycle"]);
-                    }
+                    LifeCycleSchemaProperty.Validate("life_cycle", parameters["life_cycle"]);
                     LifeCycle = (Int32) Convert.ChangeType(parameters["life_cycle"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("nonRenewablePeriod") && parameters["nonRenewablePeriod"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NonRenewablePeriodSchemaProperty.Validate("nonRenewablePeriod", parameters["nonRenewablePeriod"]);
-                    }
+                    NonRenewablePeriodSchemaProperty.Validate("nonRenewablePeriod", parameters["nonRenewablePeriod"]);
                     NonRenewablePeriod = (Int32) Convert.ChangeType(parameters["nonRenewablePeriod"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("non_renewable_period") && parameters["non_renewable_period"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        NonRenewablePeriodSchemaProperty.Validate("non_renewable_period", parameters["non_renewable_period"]);
-                    }
+                    NonRenewablePeriodSchemaProperty.Validate("non_renewable_period", parameters["non_renewable_period"]);
                     NonRenewablePeriod = (Int32) Convert.ChangeType(parameters["non_renewable_period"], typeof(Int32));
                 }
             }
@@ -28927,10 +27225,7 @@ namespace WebAPI.Models.Pricing
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
-                    }
+                    IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
                     IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
                 }
             }
@@ -28990,10 +27285,7 @@ namespace WebAPI.Models.Pricing
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("amount") && parameters["amount"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AmountSchemaProperty.Validate("amount", parameters["amount"]);
-                    }
+                    AmountSchemaProperty.Validate("amount", parameters["amount"]);
                     Amount = (Double) Convert.ChangeType(parameters["amount"], typeof(Double));
                 }
                 if (parameters.ContainsKey("currency") && parameters["currency"] != null)
@@ -29010,10 +27302,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("countryId") && parameters["countryId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CountryIdSchemaProperty.Validate("countryId", parameters["countryId"]);
-                    }
+                    CountryIdSchemaProperty.Validate("countryId", parameters["countryId"]);
                     CountryId = (Int64) Convert.ChangeType(parameters["countryId"], typeof(Int64));
                 }
             }
@@ -29077,26 +27366,17 @@ namespace WebAPI.Models.Pricing
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NameSchemaProperty.Validate("name", parameters["name"]);
-                    }
+                    NameSchemaProperty.Validate("name", parameters["name"]);
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("price") && parameters["price"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PriceSchemaProperty.Validate("price", parameters["price"]);
-                    }
+                    PriceSchemaProperty.Validate("price", parameters["price"]);
                     if (parameters["price"] is JObject)
                     {
                         Price = (KalturaPrice) Deserializer.deserialize(typeof(KalturaPrice), ((JObject) parameters["price"]).ToObject<Dictionary<string, object>>());
@@ -29108,10 +27388,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("multiCurrencyPrice") && parameters["multiCurrencyPrice"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MultiCurrencyPriceSchemaProperty.Validate("multiCurrencyPrice", parameters["multiCurrencyPrice"]);
-                    }
+                    MultiCurrencyPriceSchemaProperty.Validate("multiCurrencyPrice", parameters["multiCurrencyPrice"]);
                     if (parameters["multiCurrencyPrice"] is JArray)
                     {
                         MultiCurrencyPrice = buildList<KalturaPrice>(typeof(KalturaPrice), (JArray) parameters["multiCurrencyPrice"]);
@@ -29158,10 +27435,7 @@ namespace WebAPI.Models.Pricing
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
-                    }
+                    IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
                     IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
                 }
             }
@@ -29260,74 +27534,47 @@ namespace WebAPI.Models.Pricing
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("isRenewable") && parameters["isRenewable"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsRenewableSchemaProperty.Validate("isRenewable", parameters["isRenewable"]);
-                    }
+                    IsRenewableSchemaProperty.Validate("isRenewable", parameters["isRenewable"]);
                     IsRenewable = (Boolean) Convert.ChangeType(parameters["isRenewable"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("is_renewable") && parameters["is_renewable"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsRenewableSchemaProperty.Validate("is_renewable", parameters["is_renewable"]);
-                    }
+                    IsRenewableSchemaProperty.Validate("is_renewable", parameters["is_renewable"]);
                     IsRenewable = (Boolean) Convert.ChangeType(parameters["is_renewable"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("renewalsNumber") && parameters["renewalsNumber"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        RenewalsNumberSchemaProperty.Validate("renewalsNumber", parameters["renewalsNumber"]);
-                    }
+                    RenewalsNumberSchemaProperty.Validate("renewalsNumber", parameters["renewalsNumber"]);
                     RenewalsNumber = (Int32) Convert.ChangeType(parameters["renewalsNumber"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("renewals_number") && parameters["renewals_number"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        RenewalsNumberSchemaProperty.Validate("renewals_number", parameters["renewals_number"]);
-                    }
+                    RenewalsNumberSchemaProperty.Validate("renewals_number", parameters["renewals_number"]);
                     RenewalsNumber = (Int32) Convert.ChangeType(parameters["renewals_number"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("priceId") && parameters["priceId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PriceIdSchemaProperty.Validate("priceId", parameters["priceId"]);
-                    }
+                    PriceIdSchemaProperty.Validate("priceId", parameters["priceId"]);
                     PriceId = (Int32) Convert.ChangeType(parameters["priceId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("price_id") && parameters["price_id"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        PriceIdSchemaProperty.Validate("price_id", parameters["price_id"]);
-                    }
+                    PriceIdSchemaProperty.Validate("price_id", parameters["price_id"]);
                     PriceId = (Int32) Convert.ChangeType(parameters["price_id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("discountId") && parameters["discountId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DiscountIdSchemaProperty.Validate("discountId", parameters["discountId"]);
-                    }
+                    DiscountIdSchemaProperty.Validate("discountId", parameters["discountId"]);
                     DiscountId = (Int64) Convert.ChangeType(parameters["discountId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("discount_id") && parameters["discount_id"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        DiscountIdSchemaProperty.Validate("discount_id", parameters["discount_id"]);
-                    }
+                    DiscountIdSchemaProperty.Validate("discount_id", parameters["discount_id"]);
                     DiscountId = (Int64) Convert.ChangeType(parameters["discount_id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("priceDetailsId") && parameters["priceDetailsId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PriceDetailsIdSchemaProperty.Validate("priceDetailsId", parameters["priceDetailsId"]);
-                    }
+                    PriceDetailsIdSchemaProperty.Validate("priceDetailsId", parameters["priceDetailsId"]);
                     PriceDetailsId = (Int64) Convert.ChangeType(parameters["priceDetailsId"], typeof(Int64));
                 }
             }
@@ -29356,10 +27603,7 @@ namespace WebAPI.Models.Pricing
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
-                    }
+                    IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
                     IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
                 }
             }
@@ -29419,18 +27663,12 @@ namespace WebAPI.Models.Pricing
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("inappProvider") && parameters["inappProvider"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        InappProviderSchemaProperty.Validate("inappProvider", parameters["inappProvider"]);
-                    }
+                    InappProviderSchemaProperty.Validate("inappProvider", parameters["inappProvider"]);
                     InappProvider = (String) Convert.ChangeType(parameters["inappProvider"], typeof(String));
                 }
                 if (parameters.ContainsKey("code") && parameters["code"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CodeSchemaProperty.Validate("code", parameters["code"]);
-                    }
+                    CodeSchemaProperty.Validate("code", parameters["code"]);
                     Code = (String) Convert.ChangeType(parameters["code"], typeof(String));
                 }
             }
@@ -29517,10 +27755,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("fullPrice") && parameters["fullPrice"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FullPriceSchemaProperty.Validate("fullPrice", parameters["fullPrice"]);
-                    }
+                    FullPriceSchemaProperty.Validate("fullPrice", parameters["fullPrice"]);
                     if (parameters["fullPrice"] is JObject)
                     {
                         FullPrice = (KalturaPrice) Deserializer.deserialize(typeof(KalturaPrice), ((JObject) parameters["fullPrice"]).ToObject<Dictionary<string, object>>());
@@ -29546,10 +27781,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("promotionInfo") && parameters["promotionInfo"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PromotionInfoSchemaProperty.Validate("promotionInfo", parameters["promotionInfo"]);
-                    }
+                    PromotionInfoSchemaProperty.Validate("promotionInfo", parameters["promotionInfo"]);
                     if (parameters["promotionInfo"] is JObject)
                     {
                         PromotionInfo = (KalturaPromotionInfo) Deserializer.deserialize(typeof(KalturaPromotionInfo), ((JObject) parameters["promotionInfo"]).ToObject<Dictionary<string, object>>());
@@ -30058,10 +28290,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("channels") && parameters["channels"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ChannelsSchemaProperty.Validate("channels", parameters["channels"]);
-                    }
+                    ChannelsSchemaProperty.Validate("channels", parameters["channels"]);
                     if (parameters["channels"] is JArray)
                     {
                         Channels = buildList<KalturaBaseChannel>(typeof(KalturaBaseChannel), (JArray) parameters["channels"]);
@@ -30077,10 +28306,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("channelsIds") && parameters["channelsIds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ChannelsIdsSchemaProperty.Validate("channelsIds", parameters["channelsIds"]);
-                    }
+                    ChannelsIdsSchemaProperty.Validate("channelsIds", parameters["channelsIds"]);
                     ChannelsIds = (String) Convert.ChangeType(parameters["channelsIds"], typeof(String));
                 }
                 if (parameters.ContainsKey("startDate__null") && parameters["startDate__null"] != null)
@@ -30089,18 +28315,12 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StartDateSchemaProperty.Validate("startDate", parameters["startDate"]);
-                    }
+                    StartDateSchemaProperty.Validate("startDate", parameters["startDate"]);
                     StartDate = (Int64) Convert.ChangeType(parameters["startDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("start_date") && parameters["start_date"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        StartDateSchemaProperty.Validate("start_date", parameters["start_date"]);
-                    }
+                    StartDateSchemaProperty.Validate("start_date", parameters["start_date"]);
                     StartDate = (Int64) Convert.ChangeType(parameters["start_date"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("endDate__null") && parameters["endDate__null"] != null)
@@ -30109,18 +28329,12 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EndDateSchemaProperty.Validate("endDate", parameters["endDate"]);
-                    }
+                    EndDateSchemaProperty.Validate("endDate", parameters["endDate"]);
                     EndDate = (Int64) Convert.ChangeType(parameters["endDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("end_date") && parameters["end_date"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        EndDateSchemaProperty.Validate("end_date", parameters["end_date"]);
-                    }
+                    EndDateSchemaProperty.Validate("end_date", parameters["end_date"]);
                     EndDate = (Int64) Convert.ChangeType(parameters["end_date"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("fileTypes__null") && parameters["fileTypes__null"] != null)
@@ -30129,10 +28343,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("fileTypes") && parameters["fileTypes"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FileTypesSchemaProperty.Validate("fileTypes", parameters["fileTypes"]);
-                    }
+                    FileTypesSchemaProperty.Validate("fileTypes", parameters["fileTypes"]);
                     if (parameters["fileTypes"] is JArray)
                     {
                         FileTypes = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["fileTypes"]);
@@ -30144,10 +28355,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("file_types") && parameters["file_types"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        FileTypesSchemaProperty.Validate("file_types", parameters["file_types"]);
-                    }
+                    FileTypesSchemaProperty.Validate("file_types", parameters["file_types"]);
                     if (parameters["file_types"] is JArray)
                     {
                         FileTypes = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["file_types"]);
@@ -30163,10 +28371,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("fileTypesIds") && parameters["fileTypesIds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FileTypesIdsSchemaProperty.Validate("fileTypesIds", parameters["fileTypesIds"]);
-                    }
+                    FileTypesIdsSchemaProperty.Validate("fileTypesIds", parameters["fileTypesIds"]);
                     FileTypesIds = (String) Convert.ChangeType(parameters["fileTypesIds"], typeof(String));
                 }
                 if (parameters.ContainsKey("isRenewable__null") && parameters["isRenewable__null"] != null)
@@ -30175,18 +28380,12 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("isRenewable") && parameters["isRenewable"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsRenewableSchemaProperty.Validate("isRenewable", parameters["isRenewable"]);
-                    }
+                    IsRenewableSchemaProperty.Validate("isRenewable", parameters["isRenewable"]);
                     IsRenewable = (Boolean) Convert.ChangeType(parameters["isRenewable"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("is_renewable") && parameters["is_renewable"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsRenewableSchemaProperty.Validate("is_renewable", parameters["is_renewable"]);
-                    }
+                    IsRenewableSchemaProperty.Validate("is_renewable", parameters["is_renewable"]);
                     IsRenewable = (Boolean) Convert.ChangeType(parameters["is_renewable"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("renewalsNumber__null") && parameters["renewalsNumber__null"] != null)
@@ -30195,18 +28394,12 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("renewalsNumber") && parameters["renewalsNumber"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        RenewalsNumberSchemaProperty.Validate("renewalsNumber", parameters["renewalsNumber"]);
-                    }
+                    RenewalsNumberSchemaProperty.Validate("renewalsNumber", parameters["renewalsNumber"]);
                     RenewalsNumber = (Int32) Convert.ChangeType(parameters["renewalsNumber"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("renewals_number") && parameters["renewals_number"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        RenewalsNumberSchemaProperty.Validate("renewals_number", parameters["renewals_number"]);
-                    }
+                    RenewalsNumberSchemaProperty.Validate("renewals_number", parameters["renewals_number"]);
                     RenewalsNumber = (Int32) Convert.ChangeType(parameters["renewals_number"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("isInfiniteRenewal__null") && parameters["isInfiniteRenewal__null"] != null)
@@ -30215,18 +28408,12 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("isInfiniteRenewal") && parameters["isInfiniteRenewal"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsInfiniteRenewalSchemaProperty.Validate("isInfiniteRenewal", parameters["isInfiniteRenewal"]);
-                    }
+                    IsInfiniteRenewalSchemaProperty.Validate("isInfiniteRenewal", parameters["isInfiniteRenewal"]);
                     IsInfiniteRenewal = (Boolean) Convert.ChangeType(parameters["isInfiniteRenewal"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("is_infinite_renewal") && parameters["is_infinite_renewal"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsInfiniteRenewalSchemaProperty.Validate("is_infinite_renewal", parameters["is_infinite_renewal"]);
-                    }
+                    IsInfiniteRenewalSchemaProperty.Validate("is_infinite_renewal", parameters["is_infinite_renewal"]);
                     IsInfiniteRenewal = (Boolean) Convert.ChangeType(parameters["is_infinite_renewal"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("price__null") && parameters["price__null"] != null)
@@ -30235,10 +28422,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("price") && parameters["price"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PriceSchemaProperty.Validate("price", parameters["price"]);
-                    }
+                    PriceSchemaProperty.Validate("price", parameters["price"]);
                     if (parameters["price"] is JObject)
                     {
                         Price = (KalturaPriceDetails) Deserializer.deserialize(typeof(KalturaPriceDetails), ((JObject) parameters["price"]).ToObject<Dictionary<string, object>>());
@@ -30254,10 +28438,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("discountModule") && parameters["discountModule"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DiscountModuleSchemaProperty.Validate("discountModule", parameters["discountModule"]);
-                    }
+                    DiscountModuleSchemaProperty.Validate("discountModule", parameters["discountModule"]);
                     if (parameters["discountModule"] is JObject)
                     {
                         DiscountModule = (KalturaDiscountModule) Deserializer.deserialize(typeof(KalturaDiscountModule), ((JObject) parameters["discountModule"]).ToObject<Dictionary<string, object>>());
@@ -30269,10 +28450,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("discount_module") && parameters["discount_module"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        DiscountModuleSchemaProperty.Validate("discount_module", parameters["discount_module"]);
-                    }
+                    DiscountModuleSchemaProperty.Validate("discount_module", parameters["discount_module"]);
                     if (parameters["discount_module"] is JObject)
                     {
                         DiscountModule = (KalturaDiscountModule) Deserializer.deserialize(typeof(KalturaDiscountModule), ((JObject) parameters["discount_module"]).ToObject<Dictionary<string, object>>());
@@ -30288,10 +28466,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("internalDiscountModuleId") && parameters["internalDiscountModuleId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        InternalDiscountModuleIdSchemaProperty.Validate("internalDiscountModuleId", parameters["internalDiscountModuleId"]);
-                    }
+                    InternalDiscountModuleIdSchemaProperty.Validate("internalDiscountModuleId", parameters["internalDiscountModuleId"]);
                     InternalDiscountModuleId = (Int64) Convert.ChangeType(parameters["internalDiscountModuleId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("couponsGroup") && parameters["couponsGroup"] != null)
@@ -30344,10 +28519,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("multilingualDescription") && parameters["multilingualDescription"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DescriptionSchemaProperty.Validate("multilingualDescription", parameters["multilingualDescription"]);
-                    }
+                    DescriptionSchemaProperty.Validate("multilingualDescription", parameters["multilingualDescription"]);
                     if (parameters["multilingualDescription"] is JArray)
                     {
                         Description = MultilengualStringFactory.Create((JArray) parameters["multilingualDescription"]);
@@ -30374,18 +28546,12 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("mediaId") && parameters["mediaId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MediaIdSchemaProperty.Validate("mediaId", parameters["mediaId"]);
-                    }
+                    MediaIdSchemaProperty.Validate("mediaId", parameters["mediaId"]);
                     MediaId = (Int32) Convert.ChangeType(parameters["mediaId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("media_id") && parameters["media_id"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        MediaIdSchemaProperty.Validate("media_id", parameters["media_id"]);
-                    }
+                    MediaIdSchemaProperty.Validate("media_id", parameters["media_id"]);
                     MediaId = (Int32) Convert.ChangeType(parameters["media_id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("prorityInOrder__null") && parameters["prorityInOrder__null"] != null)
@@ -30394,18 +28560,12 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("prorityInOrder") && parameters["prorityInOrder"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ProrityInOrderSchemaProperty.Validate("prorityInOrder", parameters["prorityInOrder"]);
-                    }
+                    ProrityInOrderSchemaProperty.Validate("prorityInOrder", parameters["prorityInOrder"]);
                     ProrityInOrder = (Int64) Convert.ChangeType(parameters["prorityInOrder"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("prority_in_order") && parameters["prority_in_order"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        ProrityInOrderSchemaProperty.Validate("prority_in_order", parameters["prority_in_order"]);
-                    }
+                    ProrityInOrderSchemaProperty.Validate("prority_in_order", parameters["prority_in_order"]);
                     ProrityInOrder = (Int64) Convert.ChangeType(parameters["prority_in_order"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("productCode") && parameters["productCode"] != null)
@@ -30444,10 +28604,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("pricePlanIds") && parameters["pricePlanIds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PricePlanIdsSchemaProperty.Validate("pricePlanIds", parameters["pricePlanIds"]);
-                    }
+                    PricePlanIdsSchemaProperty.Validate("pricePlanIds", parameters["pricePlanIds"]);
                     PricePlanIds = (String) Convert.ChangeType(parameters["pricePlanIds"], typeof(String));
                 }
                 if (parameters.ContainsKey("previewModule__null") && parameters["previewModule__null"] != null)
@@ -30456,10 +28613,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("previewModule") && parameters["previewModule"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PreviewModuleSchemaProperty.Validate("previewModule", parameters["previewModule"]);
-                    }
+                    PreviewModuleSchemaProperty.Validate("previewModule", parameters["previewModule"]);
                     if (parameters["previewModule"] is JObject)
                     {
                         PreviewModule = (KalturaPreviewModule) Deserializer.deserialize(typeof(KalturaPreviewModule), ((JObject) parameters["previewModule"]).ToObject<Dictionary<string, object>>());
@@ -30471,10 +28625,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("preview_module") && parameters["preview_module"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        PreviewModuleSchemaProperty.Validate("preview_module", parameters["preview_module"]);
-                    }
+                    PreviewModuleSchemaProperty.Validate("preview_module", parameters["preview_module"]);
                     if (parameters["preview_module"] is JObject)
                     {
                         PreviewModule = (KalturaPreviewModule) Deserializer.deserialize(typeof(KalturaPreviewModule), ((JObject) parameters["preview_module"]).ToObject<Dictionary<string, object>>());
@@ -30490,10 +28641,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("previewModuleId") && parameters["previewModuleId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PreviewModuleIdSchemaProperty.Validate("previewModuleId", parameters["previewModuleId"]);
-                    }
+                    PreviewModuleIdSchemaProperty.Validate("previewModuleId", parameters["previewModuleId"]);
                     PreviewModuleId = (Int64) Convert.ChangeType(parameters["previewModuleId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("householdLimitationsId__null") && parameters["householdLimitationsId__null"] != null)
@@ -30502,18 +28650,12 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("householdLimitationsId") && parameters["householdLimitationsId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        HouseholdLimitationsIdSchemaProperty.Validate("householdLimitationsId", parameters["householdLimitationsId"]);
-                    }
+                    HouseholdLimitationsIdSchemaProperty.Validate("householdLimitationsId", parameters["householdLimitationsId"]);
                     HouseholdLimitationsId = (Int32) Convert.ChangeType(parameters["householdLimitationsId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("household_limitations_id") && parameters["household_limitations_id"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        HouseholdLimitationsIdSchemaProperty.Validate("household_limitations_id", parameters["household_limitations_id"]);
-                    }
+                    HouseholdLimitationsIdSchemaProperty.Validate("household_limitations_id", parameters["household_limitations_id"]);
                     HouseholdLimitationsId = (Int32) Convert.ChangeType(parameters["household_limitations_id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("gracePeriodMinutes__null") && parameters["gracePeriodMinutes__null"] != null)
@@ -30522,18 +28664,12 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("gracePeriodMinutes") && parameters["gracePeriodMinutes"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        GracePeriodMinutesSchemaProperty.Validate("gracePeriodMinutes", parameters["gracePeriodMinutes"]);
-                    }
+                    GracePeriodMinutesSchemaProperty.Validate("gracePeriodMinutes", parameters["gracePeriodMinutes"]);
                     GracePeriodMinutes = (Int32) Convert.ChangeType(parameters["gracePeriodMinutes"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("grace_period_minutes") && parameters["grace_period_minutes"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        GracePeriodMinutesSchemaProperty.Validate("grace_period_minutes", parameters["grace_period_minutes"]);
-                    }
+                    GracePeriodMinutesSchemaProperty.Validate("grace_period_minutes", parameters["grace_period_minutes"]);
                     GracePeriodMinutes = (Int32) Convert.ChangeType(parameters["grace_period_minutes"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("premiumServices__null") && parameters["premiumServices__null"] != null)
@@ -30542,10 +28678,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("premiumServices") && parameters["premiumServices"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PremiumServicesSchemaProperty.Validate("premiumServices", parameters["premiumServices"]);
-                    }
+                    PremiumServicesSchemaProperty.Validate("premiumServices", parameters["premiumServices"]);
                     if (parameters["premiumServices"] is JArray)
                     {
                         PremiumServices = buildList<KalturaPremiumService>(typeof(KalturaPremiumService), (JArray) parameters["premiumServices"]);
@@ -30557,10 +28690,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("premium_services") && parameters["premium_services"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        PremiumServicesSchemaProperty.Validate("premium_services", parameters["premium_services"]);
-                    }
+                    PremiumServicesSchemaProperty.Validate("premium_services", parameters["premium_services"]);
                     if (parameters["premium_services"] is JArray)
                     {
                         PremiumServices = buildList<KalturaPremiumService>(typeof(KalturaPremiumService), (JArray) parameters["premium_services"]);
@@ -30576,18 +28706,12 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("maxViewsNumber") && parameters["maxViewsNumber"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MaxViewsNumberSchemaProperty.Validate("maxViewsNumber", parameters["maxViewsNumber"]);
-                    }
+                    MaxViewsNumberSchemaProperty.Validate("maxViewsNumber", parameters["maxViewsNumber"]);
                     MaxViewsNumber = (Int32) Convert.ChangeType(parameters["maxViewsNumber"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("max_views_number") && parameters["max_views_number"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        MaxViewsNumberSchemaProperty.Validate("max_views_number", parameters["max_views_number"]);
-                    }
+                    MaxViewsNumberSchemaProperty.Validate("max_views_number", parameters["max_views_number"]);
                     MaxViewsNumber = (Int32) Convert.ChangeType(parameters["max_views_number"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("viewLifeCycle__null") && parameters["viewLifeCycle__null"] != null)
@@ -30596,18 +28720,12 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("viewLifeCycle") && parameters["viewLifeCycle"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ViewLifeCycleSchemaProperty.Validate("viewLifeCycle", parameters["viewLifeCycle"]);
-                    }
+                    ViewLifeCycleSchemaProperty.Validate("viewLifeCycle", parameters["viewLifeCycle"]);
                     ViewLifeCycle = (Int32) Convert.ChangeType(parameters["viewLifeCycle"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("view_life_cycle") && parameters["view_life_cycle"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        ViewLifeCycleSchemaProperty.Validate("view_life_cycle", parameters["view_life_cycle"]);
-                    }
+                    ViewLifeCycleSchemaProperty.Validate("view_life_cycle", parameters["view_life_cycle"]);
                     ViewLifeCycle = (Int32) Convert.ChangeType(parameters["view_life_cycle"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("waiverPeriod__null") && parameters["waiverPeriod__null"] != null)
@@ -30616,18 +28734,12 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("waiverPeriod") && parameters["waiverPeriod"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        WaiverPeriodSchemaProperty.Validate("waiverPeriod", parameters["waiverPeriod"]);
-                    }
+                    WaiverPeriodSchemaProperty.Validate("waiverPeriod", parameters["waiverPeriod"]);
                     WaiverPeriod = (Int32) Convert.ChangeType(parameters["waiverPeriod"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("waiver_period") && parameters["waiver_period"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        WaiverPeriodSchemaProperty.Validate("waiver_period", parameters["waiver_period"]);
-                    }
+                    WaiverPeriodSchemaProperty.Validate("waiver_period", parameters["waiver_period"]);
                     WaiverPeriod = (Int32) Convert.ChangeType(parameters["waiver_period"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("isWaiverEnabled__null") && parameters["isWaiverEnabled__null"] != null)
@@ -30636,18 +28748,12 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("isWaiverEnabled") && parameters["isWaiverEnabled"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsWaiverEnabledSchemaProperty.Validate("isWaiverEnabled", parameters["isWaiverEnabled"]);
-                    }
+                    IsWaiverEnabledSchemaProperty.Validate("isWaiverEnabled", parameters["isWaiverEnabled"]);
                     IsWaiverEnabled = (Boolean) Convert.ChangeType(parameters["isWaiverEnabled"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("is_waiver_enabled") && parameters["is_waiver_enabled"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsWaiverEnabledSchemaProperty.Validate("is_waiver_enabled", parameters["is_waiver_enabled"]);
-                    }
+                    IsWaiverEnabledSchemaProperty.Validate("is_waiver_enabled", parameters["is_waiver_enabled"]);
                     IsWaiverEnabled = (Boolean) Convert.ChangeType(parameters["is_waiver_enabled"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("userTypes__null") && parameters["userTypes__null"] != null)
@@ -30656,10 +28762,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("userTypes") && parameters["userTypes"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserTypesSchemaProperty.Validate("userTypes", parameters["userTypes"]);
-                    }
+                    UserTypesSchemaProperty.Validate("userTypes", parameters["userTypes"]);
                     if (parameters["userTypes"] is JArray)
                     {
                         UserTypes = buildList<KalturaOTTUserType>(typeof(KalturaOTTUserType), (JArray) parameters["userTypes"]);
@@ -30671,10 +28774,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("user_types") && parameters["user_types"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserTypesSchemaProperty.Validate("user_types", parameters["user_types"]);
-                    }
+                    UserTypesSchemaProperty.Validate("user_types", parameters["user_types"]);
                     if (parameters["user_types"] is JArray)
                     {
                         UserTypes = buildList<KalturaOTTUserType>(typeof(KalturaOTTUserType), (JArray) parameters["user_types"]);
@@ -30690,10 +28790,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("couponsGroups") && parameters["couponsGroups"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CouponGroupsSchemaProperty.Validate("couponsGroups", parameters["couponsGroups"]);
-                    }
+                    CouponGroupsSchemaProperty.Validate("couponsGroups", parameters["couponsGroups"]);
                     if (parameters["couponsGroups"] is JArray)
                     {
                         CouponGroups = buildList<KalturaCouponsGroup>(typeof(KalturaCouponsGroup), (JArray) parameters["couponsGroups"]);
@@ -30709,10 +28806,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("subscriptionCouponGroup") && parameters["subscriptionCouponGroup"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SubscriptionCouponGroupSchemaProperty.Validate("subscriptionCouponGroup", parameters["subscriptionCouponGroup"]);
-                    }
+                    SubscriptionCouponGroupSchemaProperty.Validate("subscriptionCouponGroup", parameters["subscriptionCouponGroup"]);
                     if (parameters["subscriptionCouponGroup"] is JArray)
                     {
                         SubscriptionCouponGroup = buildList<KalturaSubscriptionCouponGroup>(typeof(KalturaSubscriptionCouponGroup), (JArray) parameters["subscriptionCouponGroup"]);
@@ -30728,10 +28822,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("productCodes") && parameters["productCodes"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ProductCodesSchemaProperty.Validate("productCodes", parameters["productCodes"]);
-                    }
+                    ProductCodesSchemaProperty.Validate("productCodes", parameters["productCodes"]);
                     if (parameters["productCodes"] is JArray)
                     {
                         ProductCodes = buildList<KalturaProductCode>(typeof(KalturaProductCode), (JArray) parameters["productCodes"]);
@@ -30769,10 +28860,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("preSaleDate") && parameters["preSaleDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PreSaleDateSchemaProperty.Validate("preSaleDate", parameters["preSaleDate"]);
-                    }
+                    PreSaleDateSchemaProperty.Validate("preSaleDate", parameters["preSaleDate"]);
                     PreSaleDate = (Int64) Convert.ChangeType(parameters["preSaleDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("adsPolicy") && parameters["adsPolicy"] != null)
@@ -30799,18 +28887,12 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
-                    }
+                    UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
             }
@@ -30863,26 +28945,17 @@ namespace WebAPI.Models.Pricing
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CouponGroupIdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    CouponGroupIdSchemaProperty.Validate("id", parameters["id"]);
                     CouponGroupId = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StartDateSchemaProperty.Validate("startDate", parameters["startDate"]);
-                    }
+                    StartDateSchemaProperty.Validate("startDate", parameters["startDate"]);
                     StartDate = (Int64) Convert.ChangeType(parameters["startDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EndDateSchemaProperty.Validate("endDate", parameters["endDate"]);
-                    }
+                    EndDateSchemaProperty.Validate("endDate", parameters["endDate"]);
                     EndDate = (Int64) Convert.ChangeType(parameters["endDate"], typeof(Int64));
                 }
             }
@@ -30924,10 +28997,7 @@ namespace WebAPI.Models.Pricing
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("baseSubscriptionIdIn") && parameters["baseSubscriptionIdIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        BaseSubscriptionIdInSchemaProperty.Validate("baseSubscriptionIdIn", parameters["baseSubscriptionIdIn"]);
-                    }
+                    BaseSubscriptionIdInSchemaProperty.Validate("baseSubscriptionIdIn", parameters["baseSubscriptionIdIn"]);
                     BaseSubscriptionIdIn = (String) Convert.ChangeType(parameters["baseSubscriptionIdIn"], typeof(String));
                 }
             }
@@ -30968,10 +29038,7 @@ namespace WebAPI.Models.Pricing
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("subscriptionIdIn") && parameters["subscriptionIdIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SubscriptionIdInSchemaProperty.Validate("subscriptionIdIn", parameters["subscriptionIdIn"]);
-                    }
+                    SubscriptionIdInSchemaProperty.Validate("subscriptionIdIn", parameters["subscriptionIdIn"]);
                     SubscriptionIdIn = (String) Convert.ChangeType(parameters["subscriptionIdIn"], typeof(String));
                 }
                 if (parameters.ContainsKey("mediaFileIdEqual") && parameters["mediaFileIdEqual"] != null)
@@ -31004,10 +29071,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("alsoInactive") && parameters["alsoInactive"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AlsoInactiveSchemaProperty.Validate("alsoInactive", parameters["alsoInactive"]);
-                    }
+                    AlsoInactiveSchemaProperty.Validate("alsoInactive", parameters["alsoInactive"]);
                     AlsoInactive = (Boolean) Convert.ChangeType(parameters["alsoInactive"], typeof(Boolean));
                 }
             }
@@ -31121,10 +29185,7 @@ namespace WebAPI.Models.Pricing
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -31133,10 +29194,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TypeSchemaProperty.Validate("type", parameters["type"]);
-                    }
+                    TypeSchemaProperty.Validate("type", parameters["type"]);
                     if(string.IsNullOrEmpty(parameters["type"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "type");
@@ -31332,82 +29390,52 @@ namespace WebAPI.Models.Pricing
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NameSchemaProperty.Validate("name", parameters["name"]);
-                    }
+                    NameSchemaProperty.Validate("name", parameters["name"]);
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("maxViewsNumber") && parameters["maxViewsNumber"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MaxViewsNumberSchemaProperty.Validate("maxViewsNumber", parameters["maxViewsNumber"]);
-                    }
+                    MaxViewsNumberSchemaProperty.Validate("maxViewsNumber", parameters["maxViewsNumber"]);
                     MaxViewsNumber = (Int32) Convert.ChangeType(parameters["maxViewsNumber"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("max_views_number") && parameters["max_views_number"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        MaxViewsNumberSchemaProperty.Validate("max_views_number", parameters["max_views_number"]);
-                    }
+                    MaxViewsNumberSchemaProperty.Validate("max_views_number", parameters["max_views_number"]);
                     MaxViewsNumber = (Int32) Convert.ChangeType(parameters["max_views_number"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("viewLifeCycle") && parameters["viewLifeCycle"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ViewLifeCycleSchemaProperty.Validate("viewLifeCycle", parameters["viewLifeCycle"]);
-                    }
+                    ViewLifeCycleSchemaProperty.Validate("viewLifeCycle", parameters["viewLifeCycle"]);
                     ViewLifeCycle = (Int32) Convert.ChangeType(parameters["viewLifeCycle"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("view_life_cycle") && parameters["view_life_cycle"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        ViewLifeCycleSchemaProperty.Validate("view_life_cycle", parameters["view_life_cycle"]);
-                    }
+                    ViewLifeCycleSchemaProperty.Validate("view_life_cycle", parameters["view_life_cycle"]);
                     ViewLifeCycle = (Int32) Convert.ChangeType(parameters["view_life_cycle"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("fullLifeCycle") && parameters["fullLifeCycle"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FullLifeCycleSchemaProperty.Validate("fullLifeCycle", parameters["fullLifeCycle"]);
-                    }
+                    FullLifeCycleSchemaProperty.Validate("fullLifeCycle", parameters["fullLifeCycle"]);
                     FullLifeCycle = (Int32) Convert.ChangeType(parameters["fullLifeCycle"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("full_life_cycle") && parameters["full_life_cycle"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        FullLifeCycleSchemaProperty.Validate("full_life_cycle", parameters["full_life_cycle"]);
-                    }
+                    FullLifeCycleSchemaProperty.Validate("full_life_cycle", parameters["full_life_cycle"]);
                     FullLifeCycle = (Int32) Convert.ChangeType(parameters["full_life_cycle"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("couponId") && parameters["couponId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CouponIdSchemaProperty.Validate("couponId", parameters["couponId"]);
-                    }
+                    CouponIdSchemaProperty.Validate("couponId", parameters["couponId"]);
                     CouponId = (Int32) Convert.ChangeType(parameters["couponId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("coupon_id") && parameters["coupon_id"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        CouponIdSchemaProperty.Validate("coupon_id", parameters["coupon_id"]);
-                    }
+                    CouponIdSchemaProperty.Validate("coupon_id", parameters["coupon_id"]);
                     CouponId = (Int32) Convert.ChangeType(parameters["coupon_id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("waiverPeriod") && parameters["waiverPeriod"] != null)
@@ -31460,10 +29488,7 @@ namespace WebAPI.Models.Pricing
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idEqual") && parameters["idEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdEqualSchemaProperty.Validate("idEqual", parameters["idEqual"]);
-                    }
+                    IdEqualSchemaProperty.Validate("idEqual", parameters["idEqual"]);
                     IdEqual = (Int32) Convert.ChangeType(parameters["idEqual"], typeof(Int32));
                 }
             }
@@ -31605,10 +29630,7 @@ namespace WebAPI.Models.Segmentation
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("action") && parameters["action"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ActionSchemaProperty.Validate("action", parameters["action"]);
-                    }
+                    ActionSchemaProperty.Validate("action", parameters["action"]);
                     if(string.IsNullOrEmpty(parameters["action"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "action");
@@ -31623,18 +29645,12 @@ namespace WebAPI.Models.Segmentation
                 }
                 if (parameters.ContainsKey("length") && parameters["length"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        LengthSchemaProperty.Validate("length", parameters["length"]);
-                    }
+                    LengthSchemaProperty.Validate("length", parameters["length"]);
                     Length = (Int32) Convert.ChangeType(parameters["length"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("lengthType") && parameters["lengthType"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        LengthTypeSchemaProperty.Validate("lengthType", parameters["lengthType"]);
-                    }
+                    LengthTypeSchemaProperty.Validate("lengthType", parameters["lengthType"]);
                     if(string.IsNullOrEmpty(parameters["lengthType"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "lengthType");
@@ -31649,10 +29665,7 @@ namespace WebAPI.Models.Segmentation
                 }
                 if (parameters.ContainsKey("multiplier") && parameters["multiplier"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MultiplierSchemaProperty.Validate("multiplier", parameters["multiplier"]);
-                    }
+                    MultiplierSchemaProperty.Validate("multiplier", parameters["multiplier"]);
                     Multiplier = (Int32) Convert.ChangeType(parameters["multiplier"], typeof(Int32));
                 }
             }
@@ -31740,42 +29753,27 @@ namespace WebAPI.Models.Segmentation
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("minScore") && parameters["minScore"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MinScoreSchemaProperty.Validate("minScore", parameters["minScore"]);
-                    }
+                    MinScoreSchemaProperty.Validate("minScore", parameters["minScore"]);
                     MinScore = (Int32) Convert.ChangeType(parameters["minScore"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("maxScore") && parameters["maxScore"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MaxScoreSchemaProperty.Validate("maxScore", parameters["maxScore"]);
-                    }
+                    MaxScoreSchemaProperty.Validate("maxScore", parameters["maxScore"]);
                     MaxScore = (Int32) Convert.ChangeType(parameters["maxScore"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("days") && parameters["days"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DaysSchemaProperty.Validate("days", parameters["days"]);
-                    }
+                    DaysSchemaProperty.Validate("days", parameters["days"]);
                     Days = (Int32) Convert.ChangeType(parameters["days"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("field") && parameters["field"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FieldSchemaProperty.Validate("field", parameters["field"]);
-                    }
+                    FieldSchemaProperty.Validate("field", parameters["field"]);
                     Field = (String) Convert.ChangeType(parameters["field"], typeof(String));
                 }
                 if (parameters.ContainsKey("values") && parameters["values"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ValuesSchemaProperty.Validate("values", parameters["values"]);
-                    }
+                    ValuesSchemaProperty.Validate("values", parameters["values"]);
                     if (parameters["values"] is JArray)
                     {
                         Values = buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["values"]);
@@ -31787,10 +29785,7 @@ namespace WebAPI.Models.Segmentation
                 }
                 if (parameters.ContainsKey("actions") && parameters["actions"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ActionsSchemaProperty.Validate("actions", parameters["actions"]);
-                    }
+                    ActionsSchemaProperty.Validate("actions", parameters["actions"]);
                     if (parameters["actions"] is JArray)
                     {
                         Actions = buildList<KalturaContentActionCondition>(typeof(KalturaContentActionCondition), (JArray) parameters["actions"]);
@@ -31825,10 +29820,7 @@ namespace WebAPI.Models.Segmentation
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("field") && parameters["field"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FieldSchemaProperty.Validate("field", parameters["field"]);
-                    }
+                    FieldSchemaProperty.Validate("field", parameters["field"]);
                     Field = (String) Convert.ChangeType(parameters["field"], typeof(String));
                 }
             }
@@ -31857,10 +29849,7 @@ namespace WebAPI.Models.Segmentation
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("segmentId") && parameters["segmentId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SegmentIdSchemaProperty.Validate("segmentId", parameters["segmentId"]);
-                    }
+                    SegmentIdSchemaProperty.Validate("segmentId", parameters["segmentId"]);
                     SegmentId = (Int64) Convert.ChangeType(parameters["segmentId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("householdId") && parameters["householdId"] != null)
@@ -31984,34 +29973,22 @@ namespace WebAPI.Models.Segmentation
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("minValue") && parameters["minValue"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MinValueSchemaProperty.Validate("minValue", parameters["minValue"]);
-                    }
+                    MinValueSchemaProperty.Validate("minValue", parameters["minValue"]);
                     MinValue = (Int32) Convert.ChangeType(parameters["minValue"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("maxValue") && parameters["maxValue"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MaxValueSchemaProperty.Validate("maxValue", parameters["maxValue"]);
-                    }
+                    MaxValueSchemaProperty.Validate("maxValue", parameters["maxValue"]);
                     MaxValue = (Int32) Convert.ChangeType(parameters["maxValue"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("days") && parameters["days"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DaysSchemaProperty.Validate("days", parameters["days"]);
-                    }
+                    DaysSchemaProperty.Validate("days", parameters["days"]);
                     Days = (Int32) Convert.ChangeType(parameters["days"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TypeSchemaProperty.Validate("type", parameters["type"]);
-                    }
+                    TypeSchemaProperty.Validate("type", parameters["type"]);
                     if(string.IsNullOrEmpty(parameters["type"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "type");
@@ -32026,10 +30003,7 @@ namespace WebAPI.Models.Segmentation
                 }
                 if (parameters.ContainsKey("operator") && parameters["operator"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        OperatorSchemaProperty.Validate("operator", parameters["operator"]);
-                    }
+                    OperatorSchemaProperty.Validate("operator", parameters["operator"]);
                     if(string.IsNullOrEmpty(parameters["operator"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "operator");
@@ -32044,10 +30018,7 @@ namespace WebAPI.Models.Segmentation
                 }
                 if (parameters.ContainsKey("businessModuleIdIn") && parameters["businessModuleIdIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        BusinessModuleIdInSchemaProperty.Validate("businessModuleIdIn", parameters["businessModuleIdIn"]);
-                    }
+                    BusinessModuleIdInSchemaProperty.Validate("businessModuleIdIn", parameters["businessModuleIdIn"]);
                     BusinessModuleIdIn = (String) Convert.ChangeType(parameters["businessModuleIdIn"], typeof(String));
                 }
             }
@@ -32099,10 +30070,7 @@ namespace WebAPI.Models.Segmentation
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TypeSchemaProperty.Validate("type", parameters["type"]);
-                    }
+                    TypeSchemaProperty.Validate("type", parameters["type"]);
                     if(string.IsNullOrEmpty(parameters["type"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "type");
@@ -32117,10 +30085,7 @@ namespace WebAPI.Models.Segmentation
                 }
                 if (parameters.ContainsKey("operator") && parameters["operator"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        OperatorSchemaProperty.Validate("operator", parameters["operator"]);
-                    }
+                    OperatorSchemaProperty.Validate("operator", parameters["operator"]);
                     if(string.IsNullOrEmpty(parameters["operator"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "operator");
@@ -32135,10 +30100,7 @@ namespace WebAPI.Models.Segmentation
                 }
                 if (parameters.ContainsKey("days") && parameters["days"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DaysSchemaProperty.Validate("days", parameters["days"]);
-                    }
+                    DaysSchemaProperty.Validate("days", parameters["days"]);
                     Days = (Int32) Convert.ChangeType(parameters["days"], typeof(Int32));
                 }
             }
@@ -32166,10 +30128,7 @@ namespace WebAPI.Models.Segmentation
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("nameFormat") && parameters["nameFormat"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NameFormatSchemaProperty.Validate("nameFormat", parameters["nameFormat"]);
-                    }
+                    NameFormatSchemaProperty.Validate("nameFormat", parameters["nameFormat"]);
                     NameFormat = (String) Convert.ChangeType(parameters["nameFormat"], typeof(String));
                 }
             }
@@ -32239,10 +30198,7 @@ namespace WebAPI.Models.Segmentation
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -32288,18 +30244,12 @@ namespace WebAPI.Models.Segmentation
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("version") && parameters["version"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        VersionSchemaProperty.Validate("version", parameters["version"]);
-                    }
+                    VersionSchemaProperty.Validate("version", parameters["version"]);
                     Version = (Int64) Convert.ChangeType(parameters["version"], typeof(Int64));
                 }
             }
@@ -32344,10 +30294,7 @@ namespace WebAPI.Models.Segmentation
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("objects") && parameters["objects"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SegmentationTypesSchemaProperty.Validate("objects", parameters["objects"]);
-                    }
+                    SegmentationTypesSchemaProperty.Validate("objects", parameters["objects"]);
                     if (parameters["objects"] is JArray)
                     {
                         SegmentationTypes = buildList<KalturaSegmentationType>(typeof(KalturaSegmentationType), (JArray) parameters["objects"]);
@@ -32484,66 +30431,42 @@ namespace WebAPI.Models.Segmentation
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("systematicName") && parameters["systematicName"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SystematicNameSchemaProperty.Validate("systematicName", parameters["systematicName"]);
-                    }
+                    SystematicNameSchemaProperty.Validate("systematicName", parameters["systematicName"]);
                     SystematicName = (String) Convert.ChangeType(parameters["systematicName"], typeof(String));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NameSchemaProperty.Validate("name", parameters["name"]);
-                    }
+                    NameSchemaProperty.Validate("name", parameters["name"]);
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("gte") && parameters["gte"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        GreaterThanOrEqualsSchemaProperty.Validate("gte", parameters["gte"]);
-                    }
+                    GreaterThanOrEqualsSchemaProperty.Validate("gte", parameters["gte"]);
                     GreaterThanOrEquals = (Double) Convert.ChangeType(parameters["gte"], typeof(Double));
                 }
                 if (parameters.ContainsKey("gt") && parameters["gt"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        GreaterThanSchemaProperty.Validate("gt", parameters["gt"]);
-                    }
+                    GreaterThanSchemaProperty.Validate("gt", parameters["gt"]);
                     GreaterThan = (Double) Convert.ChangeType(parameters["gt"], typeof(Double));
                 }
                 if (parameters.ContainsKey("lte") && parameters["lte"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        LessThanOrEqualsSchemaProperty.Validate("lte", parameters["lte"]);
-                    }
+                    LessThanOrEqualsSchemaProperty.Validate("lte", parameters["lte"]);
                     LessThanOrEquals = (Double) Convert.ChangeType(parameters["lte"], typeof(Double));
                 }
                 if (parameters.ContainsKey("lt") && parameters["lt"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        LessThanSchemaProperty.Validate("lt", parameters["lt"]);
-                    }
+                    LessThanSchemaProperty.Validate("lt", parameters["lt"]);
                     LessThan = (Double) Convert.ChangeType(parameters["lt"], typeof(Double));
                 }
                 if (parameters.ContainsKey("equals") && parameters["equals"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EqualsSchemaProperty.Validate("equals", parameters["equals"]);
-                    }
+                    EqualsSchemaProperty.Validate("equals", parameters["equals"]);
                     Equals = (Double) Convert.ChangeType(parameters["equals"], typeof(Double));
                 }
             }
@@ -32583,10 +30506,7 @@ namespace WebAPI.Models.Segmentation
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("source") && parameters["source"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SourceSchemaProperty.Validate("source", parameters["source"]);
-                    }
+                    SourceSchemaProperty.Validate("source", parameters["source"]);
                     if (parameters["source"] is JObject)
                     {
                         Source = (KalturaSegmentSource) Deserializer.deserialize(typeof(KalturaSegmentSource), ((JObject) parameters["source"]).ToObject<Dictionary<string, object>>());
@@ -32598,10 +30518,7 @@ namespace WebAPI.Models.Segmentation
                 }
                 if (parameters.ContainsKey("ranges") && parameters["ranges"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        RangesSchemaProperty.Validate("ranges", parameters["ranges"]);
-                    }
+                    RangesSchemaProperty.Validate("ranges", parameters["ranges"]);
                     if (parameters["ranges"] is JArray)
                     {
                         Ranges = buildList<KalturaSegmentRange>(typeof(KalturaSegmentRange), (JArray) parameters["ranges"]);
@@ -32678,34 +30595,22 @@ namespace WebAPI.Models.Segmentation
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("systematicName") && parameters["systematicName"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SystematicNameSchemaProperty.Validate("systematicName", parameters["systematicName"]);
-                    }
+                    SystematicNameSchemaProperty.Validate("systematicName", parameters["systematicName"]);
                     SystematicName = (String) Convert.ChangeType(parameters["systematicName"], typeof(String));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NameSchemaProperty.Validate("name", parameters["name"]);
-                    }
+                    NameSchemaProperty.Validate("name", parameters["name"]);
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("value") && parameters["value"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ValueSchemaProperty.Validate("value", parameters["value"]);
-                    }
+                    ValueSchemaProperty.Validate("value", parameters["value"]);
                     Value = (String) Convert.ChangeType(parameters["value"], typeof(String));
                 }
             }
@@ -32758,10 +30663,7 @@ namespace WebAPI.Models.Segmentation
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("source") && parameters["source"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SourceSchemaProperty.Validate("source", parameters["source"]);
-                    }
+                    SourceSchemaProperty.Validate("source", parameters["source"]);
                     if (parameters["source"] is JObject)
                     {
                         Source = (KalturaSegmentSource) Deserializer.deserialize(typeof(KalturaSegmentSource), ((JObject) parameters["source"]).ToObject<Dictionary<string, object>>());
@@ -32773,10 +30675,7 @@ namespace WebAPI.Models.Segmentation
                 }
                 if (parameters.ContainsKey("values") && parameters["values"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ValuesSchemaProperty.Validate("values", parameters["values"]);
-                    }
+                    ValuesSchemaProperty.Validate("values", parameters["values"]);
                     if (parameters["values"] is JArray)
                     {
                         Values = buildList<KalturaSegmentValue>(typeof(KalturaSegmentValue), (JArray) parameters["values"]);
@@ -32823,18 +30722,12 @@ namespace WebAPI.Models.Segmentation
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("affectedUsers") && parameters["affectedUsers"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AffectedUsersSchemaProperty.Validate("affectedUsers", parameters["affectedUsers"]);
-                    }
+                    AffectedUsersSchemaProperty.Validate("affectedUsers", parameters["affectedUsers"]);
                     AffectedUsers = (Int32) Convert.ChangeType(parameters["affectedUsers"], typeof(Int32));
                 }
             }
@@ -32874,18 +30767,12 @@ namespace WebAPI.Models.Segmentation
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("field") && parameters["field"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FieldSchemaProperty.Validate("field", parameters["field"]);
-                    }
+                    FieldSchemaProperty.Validate("field", parameters["field"]);
                     Field = (String) Convert.ChangeType(parameters["field"], typeof(String));
                 }
                 if (parameters.ContainsKey("value") && parameters["value"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ValueSchemaProperty.Validate("value", parameters["value"]);
-                    }
+                    ValueSchemaProperty.Validate("value", parameters["value"]);
                     Value = (String) Convert.ChangeType(parameters["value"], typeof(String));
                 }
             }
@@ -32913,10 +30800,7 @@ namespace WebAPI.Models.Segmentation
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("field") && parameters["field"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FieldSchemaProperty.Validate("field", parameters["field"]);
-                    }
+                    FieldSchemaProperty.Validate("field", parameters["field"]);
                     Field = (String) Convert.ChangeType(parameters["field"], typeof(String));
                 }
             }
@@ -32956,18 +30840,12 @@ namespace WebAPI.Models.Segmentation
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("segmentId") && parameters["segmentId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SegmentIdSchemaProperty.Validate("segmentId", parameters["segmentId"]);
-                    }
+                    SegmentIdSchemaProperty.Validate("segmentId", parameters["segmentId"]);
                     SegmentId = (Int64) Convert.ChangeType(parameters["segmentId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("userId") && parameters["userId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserIdSchemaProperty.Validate("userId", parameters["userId"]);
-                    }
+                    UserIdSchemaProperty.Validate("userId", parameters["userId"]);
                     UserId = (String) Convert.ChangeType(parameters["userId"], typeof(String));
                 }
             }
@@ -32995,10 +30873,7 @@ namespace WebAPI.Models.Segmentation
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("userIdEqual") && parameters["userIdEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserIdEqualSchemaProperty.Validate("userIdEqual", parameters["userIdEqual"]);
-                    }
+                    UserIdEqualSchemaProperty.Validate("userIdEqual", parameters["userIdEqual"]);
                     UserIdEqual = (String) Convert.ChangeType(parameters["userIdEqual"], typeof(String));
                 }
                 if (parameters.ContainsKey("kSql") && parameters["kSql"] != null)
@@ -33030,10 +30905,7 @@ namespace WebAPI.Models.Segmentation
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("objects") && parameters["objects"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SegmentsSchemaProperty.Validate("objects", parameters["objects"]);
-                    }
+                    SegmentsSchemaProperty.Validate("objects", parameters["objects"]);
                     if (parameters["objects"] is JArray)
                     {
                         Segments = buildList<KalturaUserSegment>(typeof(KalturaUserSegment), (JArray) parameters["objects"]);
@@ -33041,6 +30913,109 @@ namespace WebAPI.Models.Segmentation
                     else if (parameters["objects"] is IList)
                     {
                         Segments = buildList(typeof(KalturaUserSegment), parameters["objects"] as object[]);
+                    }
+                }
+            }
+        }
+    }
+}
+
+namespace WebAPI.Models.Catalog.Ordering
+{
+    public partial class KalturaBaseChannelOrder
+    {
+        public KalturaBaseChannelOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaChannelDynamicOrder
+    {
+        public KalturaChannelDynamicOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("name") && parameters["name"] != null)
+                {
+                    Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
+                }
+                if (parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["orderBy"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "orderBy");
+                    }
+
+                    OrderBy = (KalturaMetaTagOrderBy) Enum.Parse(typeof(KalturaMetaTagOrderBy), parameters["orderBy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaMetaTagOrderBy), OrderBy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", OrderBy, typeof(KalturaMetaTagOrderBy)));
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaChannelFieldOrder
+    {
+        public KalturaChannelFieldOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["orderBy"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "orderBy");
+                    }
+
+                    OrderBy = (KalturaChannelFieldOrderByType) Enum.Parse(typeof(KalturaChannelFieldOrderByType), parameters["orderBy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaChannelFieldOrderByType), OrderBy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", OrderBy, typeof(KalturaChannelFieldOrderByType)));
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaChannelSlidingWindowOrder
+    {
+        private static RuntimeSchemePropertyAttribute SlidingWindowPeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannelSlidingWindowOrder")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaChannelSlidingWindowOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("period") && parameters["period"] != null)
+                {
+                    SlidingWindowPeriodSchemaProperty.Validate("period", parameters["period"]);
+                    SlidingWindowPeriod = (Int32) Convert.ChangeType(parameters["period"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["orderBy"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "orderBy");
+                    }
+
+                    OrderBy = (KalturaChannelSlidingWindowOrderByType) Enum.Parse(typeof(KalturaChannelSlidingWindowOrderByType), parameters["orderBy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaChannelSlidingWindowOrderByType), OrderBy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", OrderBy, typeof(KalturaChannelSlidingWindowOrderByType)));
                     }
                 }
             }
@@ -33108,50 +31083,32 @@ namespace WebAPI.Models.Users
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (String) Convert.ChangeType(parameters["id"], typeof(String));
                 }
                 if (parameters.ContainsKey("username") && parameters["username"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UsernameSchemaProperty.Validate("username", parameters["username"]);
-                    }
+                    UsernameSchemaProperty.Validate("username", parameters["username"]);
                     Username = (String) Convert.ChangeType(parameters["username"], typeof(String));
                 }
                 if (parameters.ContainsKey("firstName") && parameters["firstName"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FirstNameSchemaProperty.Validate("firstName", parameters["firstName"]);
-                    }
+                    FirstNameSchemaProperty.Validate("firstName", parameters["firstName"]);
                     FirstName = (String) Convert.ChangeType(parameters["firstName"], typeof(String));
                 }
                 if (parameters.ContainsKey("first_name") && parameters["first_name"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        FirstNameSchemaProperty.Validate("first_name", parameters["first_name"]);
-                    }
+                    FirstNameSchemaProperty.Validate("first_name", parameters["first_name"]);
                     FirstName = (String) Convert.ChangeType(parameters["first_name"], typeof(String));
                 }
                 if (parameters.ContainsKey("lastName") && parameters["lastName"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        LastNameSchemaProperty.Validate("lastName", parameters["lastName"]);
-                    }
+                    LastNameSchemaProperty.Validate("lastName", parameters["lastName"]);
                     LastName = (String) Convert.ChangeType(parameters["lastName"], typeof(String));
                 }
                 if (parameters.ContainsKey("last_name") && parameters["last_name"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        LastNameSchemaProperty.Validate("last_name", parameters["last_name"]);
-                    }
+                    LastNameSchemaProperty.Validate("last_name", parameters["last_name"]);
                     LastName = (String) Convert.ChangeType(parameters["last_name"], typeof(String));
                 }
             }
@@ -33179,10 +31136,7 @@ namespace WebAPI.Models.Users
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -33273,10 +31227,7 @@ namespace WebAPI.Models.Users
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("name__null") && parameters["name__null"] != null)
@@ -33285,10 +31236,7 @@ namespace WebAPI.Models.Users
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NameSchemaProperty.Validate("name", parameters["name"]);
-                    }
+                    NameSchemaProperty.Validate("name", parameters["name"]);
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
@@ -33320,10 +31268,7 @@ namespace WebAPI.Models.Users
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
-                    }
+                    IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
                     IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
                 }
             }
@@ -33404,10 +31349,7 @@ namespace WebAPI.Models.Users
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
             }
@@ -33704,18 +31646,12 @@ namespace WebAPI.Models.Users
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("householdId") && parameters["householdId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        HouseholdIDSchemaProperty.Validate("householdId", parameters["householdId"]);
-                    }
+                    HouseholdIDSchemaProperty.Validate("householdId", parameters["householdId"]);
                     HouseholdID = (Int32) Convert.ChangeType(parameters["householdId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("household_id") && parameters["household_id"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        HouseholdIDSchemaProperty.Validate("household_id", parameters["household_id"]);
-                    }
+                    HouseholdIDSchemaProperty.Validate("household_id", parameters["household_id"]);
                     HouseholdID = (Int32) Convert.ChangeType(parameters["household_id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("email") && parameters["email"] != null)
@@ -33771,18 +31707,12 @@ namespace WebAPI.Models.Users
                 }
                 if (parameters.ContainsKey("affiliateCode") && parameters["affiliateCode"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AffiliateCodeSchemaProperty.Validate("affiliateCode", parameters["affiliateCode"]);
-                    }
+                    AffiliateCodeSchemaProperty.Validate("affiliateCode", parameters["affiliateCode"]);
                     AffiliateCode = (String) Convert.ChangeType(parameters["affiliateCode"], typeof(String));
                 }
                 if (parameters.ContainsKey("affiliate_code") && parameters["affiliate_code"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        AffiliateCodeSchemaProperty.Validate("affiliate_code", parameters["affiliate_code"]);
-                    }
+                    AffiliateCodeSchemaProperty.Validate("affiliate_code", parameters["affiliate_code"]);
                     AffiliateCode = (String) Convert.ChangeType(parameters["affiliate_code"], typeof(String));
                 }
                 if (parameters.ContainsKey("facebookToken") && parameters["facebookToken"] != null)
@@ -33795,18 +31725,12 @@ namespace WebAPI.Models.Users
                 }
                 if (parameters.ContainsKey("externalId") && parameters["externalId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ExternalIdSchemaProperty.Validate("externalId", parameters["externalId"]);
-                    }
+                    ExternalIdSchemaProperty.Validate("externalId", parameters["externalId"]);
                     ExternalId = (String) Convert.ChangeType(parameters["externalId"], typeof(String));
                 }
                 if (parameters.ContainsKey("external_id") && parameters["external_id"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        ExternalIdSchemaProperty.Validate("external_id", parameters["external_id"]);
-                    }
+                    ExternalIdSchemaProperty.Validate("external_id", parameters["external_id"]);
                     ExternalId = (String) Convert.ChangeType(parameters["external_id"], typeof(String));
                 }
                 if (parameters.ContainsKey("userType") && parameters["userType"] != null)
@@ -33847,26 +31771,17 @@ namespace WebAPI.Models.Users
                 }
                 if (parameters.ContainsKey("isHouseholdMaster") && parameters["isHouseholdMaster"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsHouseholdMasterSchemaProperty.Validate("isHouseholdMaster", parameters["isHouseholdMaster"]);
-                    }
+                    IsHouseholdMasterSchemaProperty.Validate("isHouseholdMaster", parameters["isHouseholdMaster"]);
                     IsHouseholdMaster = (Boolean) Convert.ChangeType(parameters["isHouseholdMaster"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("is_household_master") && parameters["is_household_master"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsHouseholdMasterSchemaProperty.Validate("is_household_master", parameters["is_household_master"]);
-                    }
+                    IsHouseholdMasterSchemaProperty.Validate("is_household_master", parameters["is_household_master"]);
                     IsHouseholdMaster = (Boolean) Convert.ChangeType(parameters["is_household_master"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("suspentionState") && parameters["suspentionState"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SuspentionStateSchemaProperty.Validate("suspentionState", parameters["suspentionState"]);
-                    }
+                    SuspentionStateSchemaProperty.Validate("suspentionState", parameters["suspentionState"]);
                     if(string.IsNullOrEmpty(parameters["suspentionState"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "suspentionState");
@@ -33881,10 +31796,7 @@ namespace WebAPI.Models.Users
                 }
                 if (parameters.ContainsKey("suspention_state") && parameters["suspention_state"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        SuspentionStateSchemaProperty.Validate("suspention_state", parameters["suspention_state"]);
-                    }
+                    SuspentionStateSchemaProperty.Validate("suspention_state", parameters["suspention_state"]);
                     if(string.IsNullOrEmpty(parameters["suspention_state"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "suspention_state");
@@ -33899,10 +31811,7 @@ namespace WebAPI.Models.Users
                 }
                 if (parameters.ContainsKey("suspensionState") && parameters["suspensionState"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SuspensionStateSchemaProperty.Validate("suspensionState", parameters["suspensionState"]);
-                    }
+                    SuspensionStateSchemaProperty.Validate("suspensionState", parameters["suspensionState"]);
                     if(string.IsNullOrEmpty(parameters["suspensionState"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "suspensionState");
@@ -33917,10 +31826,7 @@ namespace WebAPI.Models.Users
                 }
                 if (parameters.ContainsKey("userState") && parameters["userState"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserStateSchemaProperty.Validate("userState", parameters["userState"]);
-                    }
+                    UserStateSchemaProperty.Validate("userState", parameters["userState"]);
                     if(string.IsNullOrEmpty(parameters["userState"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "userState");
@@ -33935,10 +31841,7 @@ namespace WebAPI.Models.Users
                 }
                 if (parameters.ContainsKey("user_state") && parameters["user_state"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserStateSchemaProperty.Validate("user_state", parameters["user_state"]);
-                    }
+                    UserStateSchemaProperty.Validate("user_state", parameters["user_state"]);
                     if(string.IsNullOrEmpty(parameters["user_state"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "user_state");
@@ -33953,42 +31856,27 @@ namespace WebAPI.Models.Users
                 }
                 if (parameters.ContainsKey("roleIds") && parameters["roleIds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        RoleIdsSchemaProperty.Validate("roleIds", parameters["roleIds"]);
-                    }
+                    RoleIdsSchemaProperty.Validate("roleIds", parameters["roleIds"]);
                     RoleIds = (String) Convert.ChangeType(parameters["roleIds"], typeof(String));
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
-                    }
+                    UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("lastLoginDate") && parameters["lastLoginDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        LastLoginDateSchemaProperty.Validate("lastLoginDate", parameters["lastLoginDate"]);
-                    }
+                    LastLoginDateSchemaProperty.Validate("lastLoginDate", parameters["lastLoginDate"]);
                     LastLoginDate = (Int64) Convert.ChangeType(parameters["lastLoginDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("failedLoginCount") && parameters["failedLoginCount"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FailedLoginCountSchemaProperty.Validate("failedLoginCount", parameters["failedLoginCount"]);
-                    }
+                    FailedLoginCountSchemaProperty.Validate("failedLoginCount", parameters["failedLoginCount"]);
                     FailedLoginCount = (Int32) Convert.ChangeType(parameters["failedLoginCount"], typeof(Int32));
                 }
             }
@@ -34016,10 +31904,7 @@ namespace WebAPI.Models.Users
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("userId") && parameters["userId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserIdSchemaProperty.Validate("userId", parameters["userId"]);
-                    }
+                    UserIdSchemaProperty.Validate("userId", parameters["userId"]);
                     UserId = (String) Convert.ChangeType(parameters["userId"], typeof(String));
                 }
                 if (parameters.ContainsKey("key") && parameters["key"] != null)
@@ -34062,10 +31947,7 @@ namespace WebAPI.Models.Users
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("userId") && parameters["userId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserIdSchemaProperty.Validate("userId", parameters["userId"]);
-                    }
+                    UserIdSchemaProperty.Validate("userId", parameters["userId"]);
                     UserId = (String) Convert.ChangeType(parameters["userId"], typeof(String));
                 }
                 if (parameters.ContainsKey("dynamicData") && parameters["dynamicData"] != null)
@@ -34149,42 +32031,27 @@ namespace WebAPI.Models.Users
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("usernameEqual") && parameters["usernameEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UsernameEqualSchemaProperty.Validate("usernameEqual", parameters["usernameEqual"]);
-                    }
+                    UsernameEqualSchemaProperty.Validate("usernameEqual", parameters["usernameEqual"]);
                     UsernameEqual = (String) Convert.ChangeType(parameters["usernameEqual"], typeof(String));
                 }
                 if (parameters.ContainsKey("externalIdEqual") && parameters["externalIdEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ExternalIdEqualSchemaProperty.Validate("externalIdEqual", parameters["externalIdEqual"]);
-                    }
+                    ExternalIdEqualSchemaProperty.Validate("externalIdEqual", parameters["externalIdEqual"]);
                     ExternalIdEqual = (String) Convert.ChangeType(parameters["externalIdEqual"], typeof(String));
                 }
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
-                    }
+                    IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
                     IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
                 }
                 if (parameters.ContainsKey("roleIdsIn") && parameters["roleIdsIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        RoleIdsInSchemaProperty.Validate("roleIdsIn", parameters["roleIdsIn"]);
-                    }
+                    RoleIdsInSchemaProperty.Validate("roleIdsIn", parameters["roleIdsIn"]);
                     RoleIdsIn = (String) Convert.ChangeType(parameters["roleIdsIn"], typeof(String));
                 }
                 if (parameters.ContainsKey("emailEqual") && parameters["emailEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EmailEqualSchemaProperty.Validate("emailEqual", parameters["emailEqual"]);
-                    }
+                    EmailEqualSchemaProperty.Validate("emailEqual", parameters["emailEqual"]);
                     EmailEqual = (String) Convert.ChangeType(parameters["emailEqual"], typeof(String));
                 }
             }
@@ -34232,10 +32099,7 @@ namespace WebAPI.Models.Users
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("description") && parameters["description"] != null)
@@ -34279,18 +32143,12 @@ namespace WebAPI.Models.Users
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NameSchemaProperty.Validate("name", parameters["name"]);
-                    }
+                    NameSchemaProperty.Validate("name", parameters["name"]);
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
@@ -34327,10 +32185,7 @@ namespace WebAPI.Models.Users
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
-                    }
+                    IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
                     IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
                 }
             }
@@ -34390,18 +32245,12 @@ namespace WebAPI.Models.Users
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("adminUsername") && parameters["adminUsername"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AdminUsernameSchemaProperty.Validate("adminUsername", parameters["adminUsername"]);
-                    }
+                    AdminUsernameSchemaProperty.Validate("adminUsername", parameters["adminUsername"]);
                     AdminUsername = (String) Convert.ChangeType(parameters["adminUsername"], typeof(String));
                 }
                 if (parameters.ContainsKey("adminPassword") && parameters["adminPassword"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AdminPasswordSchemaProperty.Validate("adminPassword", parameters["adminPassword"]);
-                    }
+                    AdminPasswordSchemaProperty.Validate("adminPassword", parameters["adminPassword"]);
                     AdminPassword = (String) Convert.ChangeType(parameters["adminPassword"], typeof(String));
                 }
                 if (parameters.ContainsKey("basePartnerConfiguration") && parameters["basePartnerConfiguration"] != null)
@@ -34465,26 +32314,17 @@ namespace WebAPI.Models.Users
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NameSchemaProperty.Validate("name", parameters["name"]);
-                    }
+                    NameSchemaProperty.Validate("name", parameters["name"]);
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("userRoleIds") && parameters["userRoleIds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserRoleIdsSchemaProperty.Validate("userRoleIds", parameters["userRoleIds"]);
-                    }
+                    UserRoleIdsSchemaProperty.Validate("userRoleIds", parameters["userRoleIds"]);
                     UserRoleIds = (String) Convert.ChangeType(parameters["userRoleIds"], typeof(String));
                 }
                 if (parameters.ContainsKey("historyCount") && parameters["historyCount"] != null)
@@ -34536,10 +32376,7 @@ namespace WebAPI.Models.Users
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("userRoleIdIn") && parameters["userRoleIdIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserRoleIdInSchemaProperty.Validate("userRoleIdIn", parameters["userRoleIdIn"]);
-                    }
+                    UserRoleIdInSchemaProperty.Validate("userRoleIdIn", parameters["userRoleIdIn"]);
                     UserRoleIdIn = (String) Convert.ChangeType(parameters["userRoleIdIn"], typeof(String));
                 }
             }
@@ -34603,10 +32440,7 @@ namespace WebAPI.Models.Users
                 }
                 if (parameters.ContainsKey("privileges") && parameters["privileges"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        privilegesSchemaProperty.Validate("privileges", parameters["privileges"]);
-                    }
+                    privilegesSchemaProperty.Validate("privileges", parameters["privileges"]);
                     privileges = (String) Convert.ChangeType(parameters["privileges"], typeof(String));
                 }
                 if (parameters.ContainsKey("udid") && parameters["udid"] != null)
@@ -34690,42 +32524,27 @@ namespace WebAPI.Models.Users
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (String) Convert.ChangeType(parameters["id"], typeof(String));
                 }
                 if (parameters.ContainsKey("regionId") && parameters["regionId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        RegionIdSchemaProperty.Validate("regionId", parameters["regionId"]);
-                    }
+                    RegionIdSchemaProperty.Validate("regionId", parameters["regionId"]);
                     RegionId = (Int32) Convert.ChangeType(parameters["regionId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("userSegmentsIds") && parameters["userSegmentsIds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserSegmentsIdsSchemaProperty.Validate("userSegmentsIds", parameters["userSegmentsIds"]);
-                    }
+                    UserSegmentsIdsSchemaProperty.Validate("userSegmentsIds", parameters["userSegmentsIds"]);
                     UserSegmentsIds = (String) Convert.ChangeType(parameters["userSegmentsIds"], typeof(String));
                 }
                 if (parameters.ContainsKey("userRolesIds") && parameters["userRolesIds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserRolesIdsSchemaProperty.Validate("userRolesIds", parameters["userRolesIds"]);
-                    }
+                    UserRolesIdsSchemaProperty.Validate("userRolesIds", parameters["userRolesIds"]);
                     UserRolesIds = (String) Convert.ChangeType(parameters["userRolesIds"], typeof(String));
                 }
                 if (parameters.ContainsKey("userSessionProfilesIds") && parameters["userSessionProfilesIds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserSessionProfilesIdsSchemaProperty.Validate("userSessionProfilesIds", parameters["userSessionProfilesIds"]);
-                    }
+                    UserSessionProfilesIdsSchemaProperty.Validate("userSessionProfilesIds", parameters["userSessionProfilesIds"]);
                     UserSessionProfilesIds = (String) Convert.ChangeType(parameters["userSessionProfilesIds"], typeof(String));
                 }
             }
@@ -34759,10 +32578,7 @@ namespace WebAPI.Models.Users
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -35018,18 +32834,12 @@ namespace WebAPI.Models.Users
                 }
                 if (parameters.ContainsKey("userId") && parameters["userId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserIdSchemaProperty.Validate("userId", parameters["userId"]);
-                    }
+                    UserIdSchemaProperty.Validate("userId", parameters["userId"]);
                     UserId = (String) Convert.ChangeType(parameters["userId"], typeof(String));
                 }
                 if (parameters.ContainsKey("user_id") && parameters["user_id"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserIdSchemaProperty.Validate("user_id", parameters["user_id"]);
-                    }
+                    UserIdSchemaProperty.Validate("user_id", parameters["user_id"]);
                     UserId = (String) Convert.ChangeType(parameters["user_id"], typeof(String));
                 }
                 if (parameters.ContainsKey("listType") && parameters["listType"] != null)
@@ -35085,10 +32895,7 @@ namespace WebAPI.Models.Users
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (String) Convert.ChangeType(parameters["id"], typeof(String));
                 }
                 if (parameters.ContainsKey("topic") && parameters["topic"] != null)
@@ -35191,18 +32998,12 @@ namespace WebAPI.Models.Users
                 }
                 if (parameters.ContainsKey("userId") && parameters["userId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserIdSchemaProperty.Validate("userId", parameters["userId"]);
-                    }
+                    UserIdSchemaProperty.Validate("userId", parameters["userId"]);
                     UserId = (String) Convert.ChangeType(parameters["userId"], typeof(String));
                 }
                 if (parameters.ContainsKey("user_id") && parameters["user_id"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserIdSchemaProperty.Validate("user_id", parameters["user_id"]);
-                    }
+                    UserIdSchemaProperty.Validate("user_id", parameters["user_id"]);
                     UserId = (String) Convert.ChangeType(parameters["user_id"], typeof(String));
                 }
             }
@@ -35300,42 +33101,27 @@ namespace WebAPI.Models.Partner
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("ksExpirationSeconds") && parameters["ksExpirationSeconds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        KsExpirationSecondsSchemaProperty.Validate("ksExpirationSeconds", parameters["ksExpirationSeconds"]);
-                    }
+                    KsExpirationSecondsSchemaProperty.Validate("ksExpirationSeconds", parameters["ksExpirationSeconds"]);
                     KsExpirationSeconds = (Int64) Convert.ChangeType(parameters["ksExpirationSeconds"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("appTokenSessionMaxDurationSeconds") && parameters["appTokenSessionMaxDurationSeconds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AppTokenSessionMaxDurationSecondsSchemaProperty.Validate("appTokenSessionMaxDurationSeconds", parameters["appTokenSessionMaxDurationSeconds"]);
-                    }
+                    AppTokenSessionMaxDurationSecondsSchemaProperty.Validate("appTokenSessionMaxDurationSeconds", parameters["appTokenSessionMaxDurationSeconds"]);
                     AppTokenSessionMaxDurationSeconds = (Int32) Convert.ChangeType(parameters["appTokenSessionMaxDurationSeconds"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("anonymousKSExpirationSeconds") && parameters["anonymousKSExpirationSeconds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AnonymousKSExpirationSecondsSchemaProperty.Validate("anonymousKSExpirationSeconds", parameters["anonymousKSExpirationSeconds"]);
-                    }
+                    AnonymousKSExpirationSecondsSchemaProperty.Validate("anonymousKSExpirationSeconds", parameters["anonymousKSExpirationSeconds"]);
                     AnonymousKSExpirationSeconds = (Int64) Convert.ChangeType(parameters["anonymousKSExpirationSeconds"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("refreshExpirationForPinLoginSeconds") && parameters["refreshExpirationForPinLoginSeconds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        RefreshExpirationForPinLoginSecondsSchemaProperty.Validate("refreshExpirationForPinLoginSeconds", parameters["refreshExpirationForPinLoginSeconds"]);
-                    }
+                    RefreshExpirationForPinLoginSecondsSchemaProperty.Validate("refreshExpirationForPinLoginSeconds", parameters["refreshExpirationForPinLoginSeconds"]);
                     RefreshExpirationForPinLoginSeconds = (Int64) Convert.ChangeType(parameters["refreshExpirationForPinLoginSeconds"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("appTokenMaxExpirySeconds") && parameters["appTokenMaxExpirySeconds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AppTokenMaxExpirySecondsSchemaProperty.Validate("appTokenMaxExpirySeconds", parameters["appTokenMaxExpirySeconds"]);
-                    }
+                    AppTokenMaxExpirySecondsSchemaProperty.Validate("appTokenMaxExpirySeconds", parameters["appTokenMaxExpirySeconds"]);
                     AppTokenMaxExpirySeconds = (Int32) Convert.ChangeType(parameters["appTokenMaxExpirySeconds"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("autoRefreshAppToken") && parameters["autoRefreshAppToken"] != null)
@@ -35344,10 +33130,7 @@ namespace WebAPI.Models.Partner
                 }
                 if (parameters.ContainsKey("uploadTokenExpirySeconds") && parameters["uploadTokenExpirySeconds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UploadTokenExpirySecondsSchemaProperty.Validate("uploadTokenExpirySeconds", parameters["uploadTokenExpirySeconds"]);
-                    }
+                    UploadTokenExpirySecondsSchemaProperty.Validate("uploadTokenExpirySeconds", parameters["uploadTokenExpirySeconds"]);
                     UploadTokenExpirySeconds = (Int32) Convert.ChangeType(parameters["uploadTokenExpirySeconds"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("apptokenUserValidationDisabled") && parameters["apptokenUserValidationDisabled"] != null)
@@ -35445,10 +33228,7 @@ namespace WebAPI.Models.Partner
                 }
                 if (parameters.ContainsKey("threshold") && parameters["threshold"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ThresholdSchemaProperty.Validate("threshold", parameters["threshold"]);
-                    }
+                    ThresholdSchemaProperty.Validate("threshold", parameters["threshold"]);
                     Threshold = (Int32) Convert.ChangeType(parameters["threshold"], typeof(Int32));
                 }
             }
@@ -35512,18 +33292,12 @@ namespace WebAPI.Models.Partner
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("singleMultilingualMode") && parameters["singleMultilingualMode"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SingleMultilingualModeSchemaProperty.Validate("singleMultilingualMode", parameters["singleMultilingualMode"]);
-                    }
+                    SingleMultilingualModeSchemaProperty.Validate("singleMultilingualMode", parameters["singleMultilingualMode"]);
                     SingleMultilingualMode = (Boolean) Convert.ChangeType(parameters["singleMultilingualMode"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("categoryManagement") && parameters["categoryManagement"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CategoryManagementSchemaProperty.Validate("categoryManagement", parameters["categoryManagement"]);
-                    }
+                    CategoryManagementSchemaProperty.Validate("categoryManagement", parameters["categoryManagement"]);
                     if (parameters["categoryManagement"] is JObject)
                     {
                         CategoryManagement = (KalturaCategoryManagement) Deserializer.deserialize(typeof(KalturaCategoryManagement), ((JObject) parameters["categoryManagement"]).ToObject<Dictionary<string, object>>());
@@ -35535,18 +33309,12 @@ namespace WebAPI.Models.Partner
                 }
                 if (parameters.ContainsKey("epgMultilingualFallbackSupport") && parameters["epgMultilingualFallbackSupport"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EpgMultilingualFallbackSupportSchemaProperty.Validate("epgMultilingualFallbackSupport", parameters["epgMultilingualFallbackSupport"]);
-                    }
+                    EpgMultilingualFallbackSupportSchemaProperty.Validate("epgMultilingualFallbackSupport", parameters["epgMultilingualFallbackSupport"]);
                     EpgMultilingualFallbackSupport = (Boolean) Convert.ChangeType(parameters["epgMultilingualFallbackSupport"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("uploadExportDatalake") && parameters["uploadExportDatalake"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UploadExportDatalakeSchemaProperty.Validate("uploadExportDatalake", parameters["uploadExportDatalake"]);
-                    }
+                    UploadExportDatalakeSchemaProperty.Validate("uploadExportDatalake", parameters["uploadExportDatalake"]);
                     UploadExportDatalake = (Boolean) Convert.ChangeType(parameters["uploadExportDatalake"], typeof(Boolean));
                 }
             }
@@ -35586,18 +33354,12 @@ namespace WebAPI.Models.Partner
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("defaultTreeId") && parameters["defaultTreeId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DefaultCategoryTreeIdSchemaProperty.Validate("defaultTreeId", parameters["defaultTreeId"]);
-                    }
+                    DefaultCategoryTreeIdSchemaProperty.Validate("defaultTreeId", parameters["defaultTreeId"]);
                     DefaultCategoryTreeId = (Int64) Convert.ChangeType(parameters["defaultTreeId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("deviceFamilyToCategoryTree") && parameters["deviceFamilyToCategoryTree"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DeviceFamilyToCategoryTreeSchemaProperty.Validate("deviceFamilyToCategoryTree", parameters["deviceFamilyToCategoryTree"]);
-                    }
+                    DeviceFamilyToCategoryTreeSchemaProperty.Validate("deviceFamilyToCategoryTree", parameters["deviceFamilyToCategoryTree"]);
                     if (parameters["deviceFamilyToCategoryTree"] is JObject)
                     {
                         DeviceFamilyToCategoryTree = buildDictionary<KalturaLongValue>(typeof(KalturaLongValue), ((JObject) parameters["deviceFamilyToCategoryTree"]).ToObject<Dictionary<string, object>>());
@@ -35639,10 +33401,7 @@ namespace WebAPI.Models.Partner
                 }
                 if (parameters.ContainsKey("keepSubscriptionAddOns") && parameters["keepSubscriptionAddOns"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        KeepSubscriptionAddOnsSchemaProperty.Validate("keepSubscriptionAddOns", parameters["keepSubscriptionAddOns"]);
-                    }
+                    KeepSubscriptionAddOnsSchemaProperty.Validate("keepSubscriptionAddOns", parameters["keepSubscriptionAddOns"]);
                     KeepSubscriptionAddOns = (Boolean) Convert.ChangeType(parameters["keepSubscriptionAddOns"], typeof(Boolean));
                 }
             }
@@ -35690,10 +33449,7 @@ namespace WebAPI.Models.Partner
                 }
                 if (parameters.ContainsKey("concurrencyThresholdInSeconds") && parameters["concurrencyThresholdInSeconds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ConcurrencyThresholdInSecondsSchemaProperty.Validate("concurrencyThresholdInSeconds", parameters["concurrencyThresholdInSeconds"]);
-                    }
+                    ConcurrencyThresholdInSecondsSchemaProperty.Validate("concurrencyThresholdInSeconds", parameters["concurrencyThresholdInSeconds"]);
                     ConcurrencyThresholdInSeconds = (Int64) Convert.ChangeType(parameters["concurrencyThresholdInSeconds"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("revokeOnDeviceDelete") && parameters["revokeOnDeviceDelete"] != null)
@@ -35725,10 +33481,7 @@ namespace WebAPI.Models.Partner
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("metaSystemNameInsteadOfAliasList") && parameters["metaSystemNameInsteadOfAliasList"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MetaSystemNameInsteadOfAliasListSchemaProperty.Validate("metaSystemNameInsteadOfAliasList", parameters["metaSystemNameInsteadOfAliasList"]);
-                    }
+                    MetaSystemNameInsteadOfAliasListSchemaProperty.Validate("metaSystemNameInsteadOfAliasList", parameters["metaSystemNameInsteadOfAliasList"]);
                     MetaSystemNameInsteadOfAliasList = (String) Convert.ChangeType(parameters["metaSystemNameInsteadOfAliasList"], typeof(String));
                 }
             }
@@ -35824,42 +33577,27 @@ namespace WebAPI.Models.Partner
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("defaultMoviesParentalRuleId") && parameters["defaultMoviesParentalRuleId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DefaultMoviesParentalRuleIdSchemaProperty.Validate("defaultMoviesParentalRuleId", parameters["defaultMoviesParentalRuleId"]);
-                    }
+                    DefaultMoviesParentalRuleIdSchemaProperty.Validate("defaultMoviesParentalRuleId", parameters["defaultMoviesParentalRuleId"]);
                     DefaultMoviesParentalRuleId = (Int64) Convert.ChangeType(parameters["defaultMoviesParentalRuleId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("defaultTvSeriesParentalRuleId") && parameters["defaultTvSeriesParentalRuleId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DefaultTvSeriesParentalRuleIdSchemaProperty.Validate("defaultTvSeriesParentalRuleId", parameters["defaultTvSeriesParentalRuleId"]);
-                    }
+                    DefaultTvSeriesParentalRuleIdSchemaProperty.Validate("defaultTvSeriesParentalRuleId", parameters["defaultTvSeriesParentalRuleId"]);
                     DefaultTvSeriesParentalRuleId = (Int64) Convert.ChangeType(parameters["defaultTvSeriesParentalRuleId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("defaultParentalPin") && parameters["defaultParentalPin"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DefaultParentalPinSchemaProperty.Validate("defaultParentalPin", parameters["defaultParentalPin"]);
-                    }
+                    DefaultParentalPinSchemaProperty.Validate("defaultParentalPin", parameters["defaultParentalPin"]);
                     DefaultParentalPin = (String) Convert.ChangeType(parameters["defaultParentalPin"], typeof(String));
                 }
                 if (parameters.ContainsKey("defaultPurchasePin") && parameters["defaultPurchasePin"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DefaultPurchasePinSchemaProperty.Validate("defaultPurchasePin", parameters["defaultPurchasePin"]);
-                    }
+                    DefaultPurchasePinSchemaProperty.Validate("defaultPurchasePin", parameters["defaultPurchasePin"]);
                     DefaultPurchasePin = (String) Convert.ChangeType(parameters["defaultPurchasePin"], typeof(String));
                 }
                 if (parameters.ContainsKey("defaultPurchaseSettings") && parameters["defaultPurchaseSettings"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DefaultPurchaseSettingsSchemaProperty.Validate("defaultPurchaseSettings", parameters["defaultPurchaseSettings"]);
-                    }
+                    DefaultPurchaseSettingsSchemaProperty.Validate("defaultPurchaseSettings", parameters["defaultPurchaseSettings"]);
                     DefaultPurchaseSettings = (Int64) Convert.ChangeType(parameters["defaultPurchaseSettings"], typeof(Int64));
                 }
             }
@@ -35914,26 +33652,17 @@ namespace WebAPI.Models.Partner
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("mediaAdapterId") && parameters["mediaAdapterId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MediaAdapterIdSchemaProperty.Validate("mediaAdapterId", parameters["mediaAdapterId"]);
-                    }
+                    MediaAdapterIdSchemaProperty.Validate("mediaAdapterId", parameters["mediaAdapterId"]);
                     MediaAdapterId = (Int64) Convert.ChangeType(parameters["mediaAdapterId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("epgAdapterId") && parameters["epgAdapterId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EpgAdapterIdSchemaProperty.Validate("epgAdapterId", parameters["epgAdapterId"]);
-                    }
+                    EpgAdapterIdSchemaProperty.Validate("epgAdapterId", parameters["epgAdapterId"]);
                     EpgAdapterId = (Int64) Convert.ChangeType(parameters["epgAdapterId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("recordingAdapterId") && parameters["recordingAdapterId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        RecordingAdapterIdSchemaProperty.Validate("recordingAdapterId", parameters["recordingAdapterId"]);
-                    }
+                    RecordingAdapterIdSchemaProperty.Validate("recordingAdapterId", parameters["recordingAdapterId"]);
                     RecordingAdapterId = (Int64) Convert.ChangeType(parameters["recordingAdapterId"], typeof(Int64));
                 }
             }
@@ -36098,6 +33827,18 @@ namespace WebAPI.Models.Partner
             MinItems = -1,
             MaxItems = -1,
         };
+        private static RuntimeSchemePropertyAttribute EnableMultiLcnsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGeneralPartnerConfig")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
         public KalturaGeneralPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
@@ -36110,10 +33851,7 @@ namespace WebAPI.Models.Partner
                 }
                 if (parameters.ContainsKey("mainLanguage") && parameters["mainLanguage"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MainLanguageSchemaProperty.Validate("mainLanguage", parameters["mainLanguage"]);
-                    }
+                    MainLanguageSchemaProperty.Validate("mainLanguage", parameters["mainLanguage"]);
                     MainLanguage = (Int32) Convert.ChangeType(parameters["mainLanguage"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("secondaryLanguages") && parameters["secondaryLanguages"] != null)
@@ -36122,10 +33860,7 @@ namespace WebAPI.Models.Partner
                 }
                 if (parameters.ContainsKey("deleteMediaPolicy") && parameters["deleteMediaPolicy"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DeleteMediaPolicySchemaProperty.Validate("deleteMediaPolicy", parameters["deleteMediaPolicy"]);
-                    }
+                    DeleteMediaPolicySchemaProperty.Validate("deleteMediaPolicy", parameters["deleteMediaPolicy"]);
                     if(string.IsNullOrEmpty(parameters["deleteMediaPolicy"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "deleteMediaPolicy");
@@ -36140,10 +33875,7 @@ namespace WebAPI.Models.Partner
                 }
                 if (parameters.ContainsKey("mainCurrency") && parameters["mainCurrency"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MainCurrencySchemaProperty.Validate("mainCurrency", parameters["mainCurrency"]);
-                    }
+                    MainCurrencySchemaProperty.Validate("mainCurrency", parameters["mainCurrency"]);
                     MainCurrency = (Int32) Convert.ChangeType(parameters["mainCurrency"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("secondaryCurrencies") && parameters["secondaryCurrencies"] != null)
@@ -36152,10 +33884,7 @@ namespace WebAPI.Models.Partner
                 }
                 if (parameters.ContainsKey("downgradePolicy") && parameters["downgradePolicy"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DowngradePolicySchemaProperty.Validate("downgradePolicy", parameters["downgradePolicy"]);
-                    }
+                    DowngradePolicySchemaProperty.Validate("downgradePolicy", parameters["downgradePolicy"]);
                     if(string.IsNullOrEmpty(parameters["downgradePolicy"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "downgradePolicy");
@@ -36168,6 +33897,10 @@ namespace WebAPI.Models.Partner
                         throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", DowngradePolicy, typeof(KalturaDowngradePolicy)));
                     }
                 }
+                if (parameters.ContainsKey("downgradePriorityFamilyIds") && parameters["downgradePriorityFamilyIds"] != null)
+                {
+                    DowngradePriorityFamilyIds = (String) Convert.ChangeType(parameters["downgradePriorityFamilyIds"], typeof(String));
+                }
                 if (parameters.ContainsKey("mailSettings") && parameters["mailSettings"] != null)
                 {
                     MailSettings = (String) Convert.ChangeType(parameters["mailSettings"], typeof(String));
@@ -36178,34 +33911,22 @@ namespace WebAPI.Models.Partner
                 }
                 if (parameters.ContainsKey("householdLimitationModule") && parameters["householdLimitationModule"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        HouseholdLimitationModuleSchemaProperty.Validate("householdLimitationModule", parameters["householdLimitationModule"]);
-                    }
+                    HouseholdLimitationModuleSchemaProperty.Validate("householdLimitationModule", parameters["householdLimitationModule"]);
                     HouseholdLimitationModule = (Int32) Convert.ChangeType(parameters["householdLimitationModule"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("enableRegionFiltering") && parameters["enableRegionFiltering"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        EnableRegionFilteringSchemaProperty.Validate("enableRegionFiltering", parameters["enableRegionFiltering"]);
-                    }
+                    EnableRegionFilteringSchemaProperty.Validate("enableRegionFiltering", parameters["enableRegionFiltering"]);
                     EnableRegionFiltering = (Boolean) Convert.ChangeType(parameters["enableRegionFiltering"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("defaultRegion") && parameters["defaultRegion"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DefaultRegionSchemaProperty.Validate("defaultRegion", parameters["defaultRegion"]);
-                    }
+                    DefaultRegionSchemaProperty.Validate("defaultRegion", parameters["defaultRegion"]);
                     DefaultRegion = (Int32) Convert.ChangeType(parameters["defaultRegion"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("rollingDeviceData") && parameters["rollingDeviceData"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        RollingDeviceRemovalDataSchemaProperty.Validate("rollingDeviceData", parameters["rollingDeviceData"]);
-                    }
+                    RollingDeviceRemovalDataSchemaProperty.Validate("rollingDeviceData", parameters["rollingDeviceData"]);
                     if (parameters["rollingDeviceData"] is JObject)
                     {
                         RollingDeviceRemovalData = (KalturaRollingDeviceRemovalData) Deserializer.deserialize(typeof(KalturaRollingDeviceRemovalData), ((JObject) parameters["rollingDeviceData"]).ToObject<Dictionary<string, object>>());
@@ -36221,18 +33942,12 @@ namespace WebAPI.Models.Partner
                 }
                 if (parameters.ContainsKey("finishedPercentThreshold") && parameters["finishedPercentThreshold"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FinishedPercentThresholdSchemaProperty.Validate("finishedPercentThreshold", parameters["finishedPercentThreshold"]);
-                    }
+                    FinishedPercentThresholdSchemaProperty.Validate("finishedPercentThreshold", parameters["finishedPercentThreshold"]);
                     FinishedPercentThreshold = (Int32) Convert.ChangeType(parameters["finishedPercentThreshold"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("suspensionProfileInheritanceType") && parameters["suspensionProfileInheritanceType"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SuspensionProfileInheritanceTypeSchemaProperty.Validate("suspensionProfileInheritanceType", parameters["suspensionProfileInheritanceType"]);
-                    }
+                    SuspensionProfileInheritanceTypeSchemaProperty.Validate("suspensionProfileInheritanceType", parameters["suspensionProfileInheritanceType"]);
                     if(string.IsNullOrEmpty(parameters["suspensionProfileInheritanceType"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "suspensionProfileInheritanceType");
@@ -36247,11 +33962,13 @@ namespace WebAPI.Models.Partner
                 }
                 if (parameters.ContainsKey("allowDeviceMobility") && parameters["allowDeviceMobility"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AllowDeviceMobilitySchemaProperty.Validate("allowDeviceMobility", parameters["allowDeviceMobility"]);
-                    }
+                    AllowDeviceMobilitySchemaProperty.Validate("allowDeviceMobility", parameters["allowDeviceMobility"]);
                     AllowDeviceMobility = (Boolean) Convert.ChangeType(parameters["allowDeviceMobility"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("enableMultiLcns") && parameters["enableMultiLcns"] != null)
+                {
+                    EnableMultiLcnsSchemaProperty.Validate("enableMultiLcns", parameters["enableMultiLcns"]);
+                    EnableMultiLcns = (Boolean) Convert.ChangeType(parameters["enableMultiLcns"], typeof(Boolean));
                 }
             }
         }
@@ -36504,18 +34221,12 @@ namespace WebAPI.Models.Partner
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (String) Convert.ChangeType(parameters["id"], typeof(String));
                 }
                 if (parameters.ContainsKey("label") && parameters["label"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        LabelSchemaProperty.Validate("label", parameters["label"]);
-                    }
+                    LabelSchemaProperty.Validate("label", parameters["label"]);
                     Label = (String) Convert.ChangeType(parameters["label"], typeof(String));
                 }
                 if (parameters.ContainsKey("isDefault") && parameters["isDefault"] != null)
@@ -36547,10 +34258,7 @@ namespace WebAPI.Models.Partner
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("rollingDeviceRemovalPolicy") && parameters["rollingDeviceRemovalPolicy"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        RollingDeviceRemovalPolicySchemaProperty.Validate("rollingDeviceRemovalPolicy", parameters["rollingDeviceRemovalPolicy"]);
-                    }
+                    RollingDeviceRemovalPolicySchemaProperty.Validate("rollingDeviceRemovalPolicy", parameters["rollingDeviceRemovalPolicy"]);
                     if(string.IsNullOrEmpty(parameters["rollingDeviceRemovalPolicy"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "rollingDeviceRemovalPolicy");
@@ -36628,10 +34336,7 @@ namespace WebAPI.Models.Partner
                 }
                 if (parameters.ContainsKey("paymentGatewayId") && parameters["paymentGatewayId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PaymentGatewayIdSchemaProperty.Validate("paymentGatewayId", parameters["paymentGatewayId"]);
-                    }
+                    PaymentGatewayIdSchemaProperty.Validate("paymentGatewayId", parameters["paymentGatewayId"]);
                     PaymentGatewayId = (Int32) Convert.ChangeType(parameters["paymentGatewayId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("ignorePartialBilling") && parameters["ignorePartialBilling"] != null)
@@ -36775,26 +34480,17 @@ namespace WebAPI.Models.Upload
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("fileName") && parameters["fileName"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FileNameSchemaProperty.Validate("fileName", parameters["fileName"]);
-                    }
+                    FileNameSchemaProperty.Validate("fileName", parameters["fileName"]);
                     FileName = (String) Convert.ChangeType(parameters["fileName"], typeof(String));
                 }
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StatusSchemaProperty.Validate("status", parameters["status"]);
-                    }
+                    StatusSchemaProperty.Validate("status", parameters["status"]);
                     if(string.IsNullOrEmpty(parameters["status"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "status");
@@ -36809,10 +34505,7 @@ namespace WebAPI.Models.Upload
                 }
                 if (parameters.ContainsKey("action") && parameters["action"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ActionSchemaProperty.Validate("action", parameters["action"]);
-                    }
+                    ActionSchemaProperty.Validate("action", parameters["action"]);
                     if(string.IsNullOrEmpty(parameters["action"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "action");
@@ -36827,42 +34520,27 @@ namespace WebAPI.Models.Upload
                 }
                 if (parameters.ContainsKey("numOfObjects") && parameters["numOfObjects"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NumOfObjectsSchemaProperty.Validate("numOfObjects", parameters["numOfObjects"]);
-                    }
+                    NumOfObjectsSchemaProperty.Validate("numOfObjects", parameters["numOfObjects"]);
                     NumOfObjects = (Int32) Convert.ChangeType(parameters["numOfObjects"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
-                    }
+                    UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("uploadedByUserId") && parameters["uploadedByUserId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UploadedByUserIdSchemaProperty.Validate("uploadedByUserId", parameters["uploadedByUserId"]);
-                    }
+                    UploadedByUserIdSchemaProperty.Validate("uploadedByUserId", parameters["uploadedByUserId"]);
                     UploadedByUserId = (Int64) Convert.ChangeType(parameters["uploadedByUserId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("results") && parameters["results"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ResultsSchemaProperty.Validate("results", parameters["results"]);
-                    }
+                    ResultsSchemaProperty.Validate("results", parameters["results"]);
                     if (parameters["results"] is JArray)
                     {
                         Results = buildList<KalturaBulkUploadResult>(typeof(KalturaBulkUploadResult), (JArray) parameters["results"]);
@@ -36874,10 +34552,7 @@ namespace WebAPI.Models.Upload
                 }
                 if (parameters.ContainsKey("errors") && parameters["errors"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ErrorsSchemaProperty.Validate("errors", parameters["errors"]);
-                    }
+                    ErrorsSchemaProperty.Validate("errors", parameters["errors"]);
                     if (parameters["errors"] is JArray)
                     {
                         Errors = buildList<KalturaMessage>(typeof(KalturaMessage), (JArray) parameters["errors"]);
@@ -36913,10 +34588,7 @@ namespace WebAPI.Models.Upload
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("typeId") && parameters["typeId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TypeIdSchemaProperty.Validate("typeId", parameters["typeId"]);
-                    }
+                    TypeIdSchemaProperty.Validate("typeId", parameters["typeId"]);
                     TypeId = (Int64) Convert.ChangeType(parameters["typeId"], typeof(Int64));
                 }
             }
@@ -36956,18 +34628,12 @@ namespace WebAPI.Models.Upload
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TypeSchemaProperty.Validate("type", parameters["type"]);
-                    }
+                    TypeSchemaProperty.Validate("type", parameters["type"]);
                     Type = (Int32) Convert.ChangeType(parameters["type"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("externalId") && parameters["externalId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ExternalIdSchemaProperty.Validate("externalId", parameters["externalId"]);
-                    }
+                    ExternalIdSchemaProperty.Validate("externalId", parameters["externalId"]);
                     ExternalId = (String) Convert.ChangeType(parameters["externalId"], typeof(String));
                 }
             }
@@ -36996,10 +34662,7 @@ namespace WebAPI.Models.Upload
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("dynamicListId") && parameters["dynamicListId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DynamicListIdSchemaProperty.Validate("dynamicListId", parameters["dynamicListId"]);
-                    }
+                    DynamicListIdSchemaProperty.Validate("dynamicListId", parameters["dynamicListId"]);
                     DynamicListId = (Int64) Convert.ChangeType(parameters["dynamicListId"], typeof(Int64));
                 }
             }
@@ -37052,10 +34715,7 @@ namespace WebAPI.Models.Upload
                 }
                 if (parameters.ContainsKey("statusIn") && parameters["statusIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StatusInSchemaProperty.Validate("statusIn", parameters["statusIn"]);
-                    }
+                    StatusInSchemaProperty.Validate("statusIn", parameters["statusIn"]);
                     StatusIn = (String) Convert.ChangeType(parameters["statusIn"], typeof(String));
                 }
             }
@@ -37084,10 +34744,7 @@ namespace WebAPI.Models.Upload
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("ingestProfileId") && parameters["ingestProfileId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IngestProfileIdSchemaProperty.Validate("ingestProfileId", parameters["ingestProfileId"]);
-                    }
+                    IngestProfileIdSchemaProperty.Validate("ingestProfileId", parameters["ingestProfileId"]);
                     IngestProfileId = (Int32) Convert.ChangeType(parameters["ingestProfileId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("disableEpgNotification") && parameters["disableEpgNotification"] != null)
@@ -37205,26 +34862,17 @@ namespace WebAPI.Models.Upload
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("programId") && parameters["programId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ProgramIdSchemaProperty.Validate("programId", parameters["programId"]);
-                    }
+                    ProgramIdSchemaProperty.Validate("programId", parameters["programId"]);
                     ProgramId = (Int32) Convert.ChangeType(parameters["programId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("programExternalId") && parameters["programExternalId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ProgramExternalIdSchemaProperty.Validate("programExternalId", parameters["programExternalId"]);
-                    }
+                    ProgramExternalIdSchemaProperty.Validate("programExternalId", parameters["programExternalId"]);
                     ProgramExternalId = (String) Convert.ChangeType(parameters["programExternalId"], typeof(String));
                 }
                 if (parameters.ContainsKey("liveAssetId") && parameters["liveAssetId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        LiveAssetIdSchemaProperty.Validate("liveAssetId", parameters["liveAssetId"]);
-                    }
+                    LiveAssetIdSchemaProperty.Validate("liveAssetId", parameters["liveAssetId"]);
                     LiveAssetId = (Int32) Convert.ChangeType(parameters["liveAssetId"], typeof(Int32));
                 }
             }
@@ -37312,34 +34960,22 @@ namespace WebAPI.Models.Upload
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("objectId") && parameters["objectId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ObjectIdSchemaProperty.Validate("objectId", parameters["objectId"]);
-                    }
+                    ObjectIdSchemaProperty.Validate("objectId", parameters["objectId"]);
                     ObjectId = (Int64) Convert.ChangeType(parameters["objectId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("index") && parameters["index"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IndexSchemaProperty.Validate("index", parameters["index"]);
-                    }
+                    IndexSchemaProperty.Validate("index", parameters["index"]);
                     Index = (Int32) Convert.ChangeType(parameters["index"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("bulkUploadId") && parameters["bulkUploadId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        BulkUploadIdSchemaProperty.Validate("bulkUploadId", parameters["bulkUploadId"]);
-                    }
+                    BulkUploadIdSchemaProperty.Validate("bulkUploadId", parameters["bulkUploadId"]);
                     BulkUploadId = (Int64) Convert.ChangeType(parameters["bulkUploadId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StatusSchemaProperty.Validate("status", parameters["status"]);
-                    }
+                    StatusSchemaProperty.Validate("status", parameters["status"]);
                     if(string.IsNullOrEmpty(parameters["status"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "status");
@@ -37354,10 +34990,7 @@ namespace WebAPI.Models.Upload
                 }
                 if (parameters.ContainsKey("errors") && parameters["errors"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ErrorsSchemaProperty.Validate("errors", parameters["errors"]);
-                    }
+                    ErrorsSchemaProperty.Validate("errors", parameters["errors"]);
                     if (parameters["errors"] is JArray)
                     {
                         Errors = buildList<KalturaMessage>(typeof(KalturaMessage), (JArray) parameters["errors"]);
@@ -37369,10 +35002,7 @@ namespace WebAPI.Models.Upload
                 }
                 if (parameters.ContainsKey("warnings") && parameters["warnings"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        WarningsSchemaProperty.Validate("warnings", parameters["warnings"]);
-                    }
+                    WarningsSchemaProperty.Validate("warnings", parameters["warnings"]);
                     if (parameters["warnings"] is JArray)
                     {
                         Warnings = buildList<KalturaMessage>(typeof(KalturaMessage), (JArray) parameters["warnings"]);
@@ -37413,10 +35043,7 @@ namespace WebAPI.Models.Upload
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("udid") && parameters["udid"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UdidSchemaProperty.Validate("udid", parameters["udid"]);
-                    }
+                    UdidSchemaProperty.Validate("udid", parameters["udid"]);
                     Udid = (String) Convert.ChangeType(parameters["udid"], typeof(String));
                 }
             }
@@ -37492,18 +35119,12 @@ namespace WebAPI.Models.Upload
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (String) Convert.ChangeType(parameters["id"], typeof(String));
                 }
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StatusSchemaProperty.Validate("status", parameters["status"]);
-                    }
+                    StatusSchemaProperty.Validate("status", parameters["status"]);
                     if(string.IsNullOrEmpty(parameters["status"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "status");
@@ -37518,26 +35139,17 @@ namespace WebAPI.Models.Upload
                 }
                 if (parameters.ContainsKey("fileSize") && parameters["fileSize"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FileSizeSchemaProperty.Validate("fileSize", parameters["fileSize"]);
-                    }
+                    FileSizeSchemaProperty.Validate("fileSize", parameters["fileSize"]);
                     FileSize = (Single) Convert.ChangeType(parameters["fileSize"], typeof(Single));
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
-                    }
+                    UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
             }
@@ -37761,10 +35373,7 @@ namespace WebAPI.Models.DMS
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (String) Convert.ChangeType(parameters["id"], typeof(String));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -37773,26 +35382,17 @@ namespace WebAPI.Models.DMS
                 }
                 if (parameters.ContainsKey("partnerId") && parameters["partnerId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PartnerIdSchemaProperty.Validate("partnerId", parameters["partnerId"]);
-                    }
+                    PartnerIdSchemaProperty.Validate("partnerId", parameters["partnerId"]);
                     PartnerId = (Int32) Convert.ChangeType(parameters["partnerId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("isDefault") && parameters["isDefault"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsDefaultSchemaProperty.Validate("isDefault", parameters["isDefault"]);
-                    }
+                    IsDefaultSchemaProperty.Validate("isDefault", parameters["isDefault"]);
                     IsDefault = (Boolean) Convert.ChangeType(parameters["isDefault"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("tags") && parameters["tags"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TagsSchemaProperty.Validate("tags", parameters["tags"]);
-                    }
+                    TagsSchemaProperty.Validate("tags", parameters["tags"]);
                     if (parameters["tags"] is JArray)
                     {
                         Tags = buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["tags"]);
@@ -37804,18 +35404,12 @@ namespace WebAPI.Models.DMS
                 }
                 if (parameters.ContainsKey("numberOfDevices") && parameters["numberOfDevices"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NumberOfDevicesSchemaProperty.Validate("numberOfDevices", parameters["numberOfDevices"]);
-                    }
+                    NumberOfDevicesSchemaProperty.Validate("numberOfDevices", parameters["numberOfDevices"]);
                     NumberOfDevices = (Int64) Convert.ChangeType(parameters["numberOfDevices"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("configurationIdentifiers") && parameters["configurationIdentifiers"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ConfigurationIdentifiersSchemaProperty.Validate("configurationIdentifiers", parameters["configurationIdentifiers"]);
-                    }
+                    ConfigurationIdentifiersSchemaProperty.Validate("configurationIdentifiers", parameters["configurationIdentifiers"]);
                     if (parameters["configurationIdentifiers"] is JArray)
                     {
                         ConfigurationIdentifiers = buildList<KalturaConfigurationIdentifier>(typeof(KalturaConfigurationIdentifier), (JArray) parameters["configurationIdentifiers"]);
@@ -37854,10 +35448,7 @@ namespace WebAPI.Models.DMS
                 }
                 if (parameters.ContainsKey("partnerId") && parameters["partnerId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PartnerIdSchemaProperty.Validate("partnerId", parameters["partnerId"]);
-                    }
+                    PartnerIdSchemaProperty.Validate("partnerId", parameters["partnerId"]);
                     PartnerId = (Int32) Convert.ChangeType(parameters["partnerId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("udid") && parameters["udid"] != null)
@@ -37946,10 +35537,7 @@ namespace WebAPI.Models.DMS
                 }
                 if (parameters.ContainsKey("partnerId") && parameters["partnerId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PartnerIdSchemaProperty.Validate("partnerId", parameters["partnerId"]);
-                    }
+                    PartnerIdSchemaProperty.Validate("partnerId", parameters["partnerId"]);
                     PartnerId = (Int32) Convert.ChangeType(parameters["partnerId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("tag") && parameters["tag"] != null)
@@ -38043,18 +35631,12 @@ namespace WebAPI.Models.DMS
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (String) Convert.ChangeType(parameters["id"], typeof(String));
                 }
                 if (parameters.ContainsKey("partnerId") && parameters["partnerId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PartnerIdSchemaProperty.Validate("partnerId", parameters["partnerId"]);
-                    }
+                    PartnerIdSchemaProperty.Validate("partnerId", parameters["partnerId"]);
                     PartnerId = (Int32) Convert.ChangeType(parameters["partnerId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("configurationGroupId") && parameters["configurationGroupId"] != null)
@@ -38275,10 +35857,7 @@ namespace WebAPI.Models.Domains
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -38287,10 +35866,7 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("deviceFamilyid") && parameters["deviceFamilyid"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DeviceFamilyIdSchemaProperty.Validate("deviceFamilyid", parameters["deviceFamilyid"]);
-                    }
+                    DeviceFamilyIdSchemaProperty.Validate("deviceFamilyid", parameters["deviceFamilyid"]);
                     DeviceFamilyId = (Int64) Convert.ChangeType(parameters["deviceFamilyid"], typeof(Int64));
                 }
             }
@@ -38350,18 +35926,12 @@ namespace WebAPI.Models.Domains
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NameSchemaProperty.Validate("name", parameters["name"]);
-                    }
+                    NameSchemaProperty.Validate("name", parameters["name"]);
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("deviceLimit") && parameters["deviceLimit"] != null)
@@ -38441,18 +36011,12 @@ namespace WebAPI.Models.Domains
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("externalId") && parameters["externalId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ExternalIdSchemaProperty.Validate("externalId", parameters["externalId"]);
-                    }
+                    ExternalIdSchemaProperty.Validate("externalId", parameters["externalId"]);
                     ExternalId = (String) Convert.ChangeType(parameters["externalId"], typeof(String));
                 }
                 if (parameters.ContainsKey("external_id") && parameters["external_id"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        ExternalIdSchemaProperty.Validate("external_id", parameters["external_id"]);
-                    }
+                    ExternalIdSchemaProperty.Validate("external_id", parameters["external_id"]);
                     ExternalId = (String) Convert.ChangeType(parameters["external_id"], typeof(String));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -38684,10 +36248,7 @@ namespace WebAPI.Models.Domains
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -38700,82 +36261,52 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("externalId") && parameters["externalId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ExternalIdSchemaProperty.Validate("externalId", parameters["externalId"]);
-                    }
+                    ExternalIdSchemaProperty.Validate("externalId", parameters["externalId"]);
                     ExternalId = (String) Convert.ChangeType(parameters["externalId"], typeof(String));
                 }
                 if (parameters.ContainsKey("external_id") && parameters["external_id"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        ExternalIdSchemaProperty.Validate("external_id", parameters["external_id"]);
-                    }
+                    ExternalIdSchemaProperty.Validate("external_id", parameters["external_id"]);
                     ExternalId = (String) Convert.ChangeType(parameters["external_id"], typeof(String));
                 }
                 if (parameters.ContainsKey("householdLimitationsId") && parameters["householdLimitationsId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        HouseholdLimitationsIdSchemaProperty.Validate("householdLimitationsId", parameters["householdLimitationsId"]);
-                    }
+                    HouseholdLimitationsIdSchemaProperty.Validate("householdLimitationsId", parameters["householdLimitationsId"]);
                     HouseholdLimitationsId = (Int32) Convert.ChangeType(parameters["householdLimitationsId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("household_limitations_id") && parameters["household_limitations_id"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        HouseholdLimitationsIdSchemaProperty.Validate("household_limitations_id", parameters["household_limitations_id"]);
-                    }
+                    HouseholdLimitationsIdSchemaProperty.Validate("household_limitations_id", parameters["household_limitations_id"]);
                     HouseholdLimitationsId = (Int32) Convert.ChangeType(parameters["household_limitations_id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("devicesLimit") && parameters["devicesLimit"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DevicesLimitSchemaProperty.Validate("devicesLimit", parameters["devicesLimit"]);
-                    }
+                    DevicesLimitSchemaProperty.Validate("devicesLimit", parameters["devicesLimit"]);
                     DevicesLimit = (Int32) Convert.ChangeType(parameters["devicesLimit"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("devices_limit") && parameters["devices_limit"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        DevicesLimitSchemaProperty.Validate("devices_limit", parameters["devices_limit"]);
-                    }
+                    DevicesLimitSchemaProperty.Validate("devices_limit", parameters["devices_limit"]);
                     DevicesLimit = (Int32) Convert.ChangeType(parameters["devices_limit"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("usersLimit") && parameters["usersLimit"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UsersLimitSchemaProperty.Validate("usersLimit", parameters["usersLimit"]);
-                    }
+                    UsersLimitSchemaProperty.Validate("usersLimit", parameters["usersLimit"]);
                     UsersLimit = (Int32) Convert.ChangeType(parameters["usersLimit"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("users_limit") && parameters["users_limit"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        UsersLimitSchemaProperty.Validate("users_limit", parameters["users_limit"]);
-                    }
+                    UsersLimitSchemaProperty.Validate("users_limit", parameters["users_limit"]);
                     UsersLimit = (Int32) Convert.ChangeType(parameters["users_limit"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("concurrentLimit") && parameters["concurrentLimit"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ConcurrentLimitSchemaProperty.Validate("concurrentLimit", parameters["concurrentLimit"]);
-                    }
+                    ConcurrentLimitSchemaProperty.Validate("concurrentLimit", parameters["concurrentLimit"]);
                     ConcurrentLimit = (Int32) Convert.ChangeType(parameters["concurrentLimit"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("concurrent_limit") && parameters["concurrent_limit"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        ConcurrentLimitSchemaProperty.Validate("concurrent_limit", parameters["concurrent_limit"]);
-                    }
+                    ConcurrentLimitSchemaProperty.Validate("concurrent_limit", parameters["concurrent_limit"]);
                     ConcurrentLimit = (Int32) Convert.ChangeType(parameters["concurrent_limit"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("users") && parameters["users"] != null)
@@ -38857,26 +36388,17 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("regionId") && parameters["regionId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        RegionIdSchemaProperty.Validate("regionId", parameters["regionId"]);
-                    }
+                    RegionIdSchemaProperty.Validate("regionId", parameters["regionId"]);
                     RegionId = (Int32) Convert.ChangeType(parameters["regionId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("region_id") && parameters["region_id"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        RegionIdSchemaProperty.Validate("region_id", parameters["region_id"]);
-                    }
+                    RegionIdSchemaProperty.Validate("region_id", parameters["region_id"]);
                     RegionId = (Int32) Convert.ChangeType(parameters["region_id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("state") && parameters["state"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StateSchemaProperty.Validate("state", parameters["state"]);
-                    }
+                    StateSchemaProperty.Validate("state", parameters["state"]);
                     if(string.IsNullOrEmpty(parameters["state"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "state");
@@ -38891,58 +36413,37 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("isFrequencyEnabled") && parameters["isFrequencyEnabled"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsFrequencyEnabledSchemaProperty.Validate("isFrequencyEnabled", parameters["isFrequencyEnabled"]);
-                    }
+                    IsFrequencyEnabledSchemaProperty.Validate("isFrequencyEnabled", parameters["isFrequencyEnabled"]);
                     IsFrequencyEnabled = (Boolean) Convert.ChangeType(parameters["isFrequencyEnabled"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("is_frequency_enabled") && parameters["is_frequency_enabled"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsFrequencyEnabledSchemaProperty.Validate("is_frequency_enabled", parameters["is_frequency_enabled"]);
-                    }
+                    IsFrequencyEnabledSchemaProperty.Validate("is_frequency_enabled", parameters["is_frequency_enabled"]);
                     IsFrequencyEnabled = (Boolean) Convert.ChangeType(parameters["is_frequency_enabled"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("frequencyNextDeviceAction") && parameters["frequencyNextDeviceAction"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FrequencyNextDeviceActionSchemaProperty.Validate("frequencyNextDeviceAction", parameters["frequencyNextDeviceAction"]);
-                    }
+                    FrequencyNextDeviceActionSchemaProperty.Validate("frequencyNextDeviceAction", parameters["frequencyNextDeviceAction"]);
                     FrequencyNextDeviceAction = (Int64) Convert.ChangeType(parameters["frequencyNextDeviceAction"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("frequency_next_device_action") && parameters["frequency_next_device_action"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        FrequencyNextDeviceActionSchemaProperty.Validate("frequency_next_device_action", parameters["frequency_next_device_action"]);
-                    }
+                    FrequencyNextDeviceActionSchemaProperty.Validate("frequency_next_device_action", parameters["frequency_next_device_action"]);
                     FrequencyNextDeviceAction = (Int64) Convert.ChangeType(parameters["frequency_next_device_action"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("frequencyNextUserAction") && parameters["frequencyNextUserAction"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FrequencyNextUserActionSchemaProperty.Validate("frequencyNextUserAction", parameters["frequencyNextUserAction"]);
-                    }
+                    FrequencyNextUserActionSchemaProperty.Validate("frequencyNextUserAction", parameters["frequencyNextUserAction"]);
                     FrequencyNextUserAction = (Int64) Convert.ChangeType(parameters["frequencyNextUserAction"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("frequency_next_user_action") && parameters["frequency_next_user_action"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        FrequencyNextUserActionSchemaProperty.Validate("frequency_next_user_action", parameters["frequency_next_user_action"]);
-                    }
+                    FrequencyNextUserActionSchemaProperty.Validate("frequency_next_user_action", parameters["frequency_next_user_action"]);
                     FrequencyNextUserAction = (Int64) Convert.ChangeType(parameters["frequency_next_user_action"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("restriction") && parameters["restriction"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        RestrictionSchemaProperty.Validate("restriction", parameters["restriction"]);
-                    }
+                    RestrictionSchemaProperty.Validate("restriction", parameters["restriction"]);
                     if(string.IsNullOrEmpty(parameters["restriction"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "restriction");
@@ -38979,26 +36480,17 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("roleId") && parameters["roleId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        RoleIdSchemaProperty.Validate("roleId", parameters["roleId"]);
-                    }
+                    RoleIdSchemaProperty.Validate("roleId", parameters["roleId"]);
                     RoleId = (Int32) Convert.ChangeType(parameters["roleId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
-                    }
+                    UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
             }
@@ -39076,18 +36568,12 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("businessModuleIdEqual") && parameters["businessModuleIdEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        BusinessModuleIdEqualSchemaProperty.Validate("businessModuleIdEqual", parameters["businessModuleIdEqual"]);
-                    }
+                    BusinessModuleIdEqualSchemaProperty.Validate("businessModuleIdEqual", parameters["businessModuleIdEqual"]);
                     BusinessModuleIdEqual = (Int64) Convert.ChangeType(parameters["businessModuleIdEqual"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("couponCode") && parameters["couponCode"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CouponCodeSchemaProperty.Validate("couponCode", parameters["couponCode"]);
-                    }
+                    CouponCodeSchemaProperty.Validate("couponCode", parameters["couponCode"]);
                     CouponCode = (String) Convert.ChangeType(parameters["couponCode"], typeof(String));
                 }
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
@@ -39279,18 +36765,12 @@ namespace WebAPI.Models.Domains
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("householdId") && parameters["householdId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        HouseholdIdSchemaProperty.Validate("householdId", parameters["householdId"]);
-                    }
+                    HouseholdIdSchemaProperty.Validate("householdId", parameters["householdId"]);
                     HouseholdId = (Int32) Convert.ChangeType(parameters["householdId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("udid") && parameters["udid"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UdidSchemaProperty.Validate("udid", parameters["udid"]);
-                    }
+                    UdidSchemaProperty.Validate("udid", parameters["udid"]);
                     Udid = (String) Convert.ChangeType(parameters["udid"], typeof(String));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -39319,10 +36799,7 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("state") && parameters["state"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StateSchemaProperty.Validate("state", parameters["state"]);
-                    }
+                    StateSchemaProperty.Validate("state", parameters["state"]);
                     if(string.IsNullOrEmpty(parameters["state"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "state");
@@ -39337,10 +36814,7 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StatusSchemaProperty.Validate("status", parameters["status"]);
-                    }
+                    StatusSchemaProperty.Validate("status", parameters["status"]);
                     if(string.IsNullOrEmpty(parameters["status"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "status");
@@ -39355,18 +36829,12 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("deviceFamilyId") && parameters["deviceFamilyId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DeviceFamilyIdSchemaProperty.Validate("deviceFamilyId", parameters["deviceFamilyId"]);
-                    }
+                    DeviceFamilyIdSchemaProperty.Validate("deviceFamilyId", parameters["deviceFamilyId"]);
                     DeviceFamilyId = (Int64) Convert.ChangeType(parameters["deviceFamilyId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("drm") && parameters["drm"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DrmSchemaProperty.Validate("drm", parameters["drm"]);
-                    }
+                    DrmSchemaProperty.Validate("drm", parameters["drm"]);
                     if (parameters["drm"] is JObject)
                     {
                         Drm = (KalturaCustomDrmPlaybackPluginData) Deserializer.deserialize(typeof(KalturaCustomDrmPlaybackPluginData), ((JObject) parameters["drm"]).ToObject<Dictionary<string, object>>());
@@ -39382,10 +36850,7 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("externalId") && parameters["externalId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ExternalIdSchemaProperty.Validate("externalId", parameters["externalId"]);
-                    }
+                    ExternalIdSchemaProperty.Validate("externalId", parameters["externalId"]);
                     ExternalId = (String) Convert.ChangeType(parameters["externalId"], typeof(String));
                 }
                 if (parameters.ContainsKey("macAddress__null") && parameters["macAddress__null"] != null)
@@ -39394,10 +36859,7 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("macAddress") && parameters["macAddress"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        MacAddressSchemaProperty.Validate("macAddress", parameters["macAddress"]);
-                    }
+                    MacAddressSchemaProperty.Validate("macAddress", parameters["macAddress"]);
                     MacAddress = (String) Convert.ChangeType(parameters["macAddress"], typeof(String));
                 }
                 if (parameters.ContainsKey("dynamicData__null") && parameters["dynamicData__null"] != null)
@@ -39406,10 +36868,7 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("dynamicData") && parameters["dynamicData"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DynamicDataSchemaProperty.Validate("dynamicData", parameters["dynamicData"]);
-                    }
+                    DynamicDataSchemaProperty.Validate("dynamicData", parameters["dynamicData"]);
                     if (parameters["dynamicData"] is JObject)
                     {
                         DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
@@ -39421,10 +36880,7 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("model") && parameters["model"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ModelSchemaProperty.Validate("model", parameters["model"]);
-                    }
+                    ModelSchemaProperty.Validate("model", parameters["model"]);
                     Model = (String) Convert.ChangeType(parameters["model"], typeof(String));
                 }
                 if (parameters.ContainsKey("manufacturer__null") && parameters["manufacturer__null"] != null)
@@ -39433,10 +36889,7 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("manufacturer") && parameters["manufacturer"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ManufacturerSchemaProperty.Validate("manufacturer", parameters["manufacturer"]);
-                    }
+                    ManufacturerSchemaProperty.Validate("manufacturer", parameters["manufacturer"]);
                     Manufacturer = (String) Convert.ChangeType(parameters["manufacturer"], typeof(String));
                 }
                 if (parameters.ContainsKey("manufacturerId__null") && parameters["manufacturerId__null"] != null)
@@ -39445,10 +36898,7 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("manufacturerId") && parameters["manufacturerId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ManufacturerIdSchemaProperty.Validate("manufacturerId", parameters["manufacturerId"]);
-                    }
+                    ManufacturerIdSchemaProperty.Validate("manufacturerId", parameters["manufacturerId"]);
                     ManufacturerId = (Int64) Convert.ChangeType(parameters["manufacturerId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("lastActivityTime__null") && parameters["lastActivityTime__null"] != null)
@@ -39457,10 +36907,7 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("lastActivityTime") && parameters["lastActivityTime"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        LastActivityTimeSchemaProperty.Validate("lastActivityTime", parameters["lastActivityTime"]);
-                    }
+                    LastActivityTimeSchemaProperty.Validate("lastActivityTime", parameters["lastActivityTime"]);
                     LastActivityTime = (Int64) Convert.ChangeType(parameters["lastActivityTime"], typeof(Int64));
                 }
             }
@@ -39536,59 +36983,38 @@ namespace WebAPI.Models.Domains
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("frequency") && parameters["frequency"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FrequencySchemaProperty.Validate("frequency", parameters["frequency"]);
-                    }
+                    FrequencySchemaProperty.Validate("frequency", parameters["frequency"]);
                     Frequency = (Int32) Convert.ChangeType(parameters["frequency"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("deviceLimit") && parameters["deviceLimit"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DeviceLimitSchemaProperty.Validate("deviceLimit", parameters["deviceLimit"]);
-                    }
+                    DeviceLimitSchemaProperty.Validate("deviceLimit", parameters["deviceLimit"]);
                     DeviceLimit = (Int32) Convert.ChangeType(parameters["deviceLimit"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("device_limit") && parameters["device_limit"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        DeviceLimitSchemaProperty.Validate("device_limit", parameters["device_limit"]);
-                    }
+                    DeviceLimitSchemaProperty.Validate("device_limit", parameters["device_limit"]);
                     DeviceLimit = (Int32) Convert.ChangeType(parameters["device_limit"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("concurrentLimit") && parameters["concurrentLimit"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ConcurrentLimitSchemaProperty.Validate("concurrentLimit", parameters["concurrentLimit"]);
-                    }
+                    ConcurrentLimitSchemaProperty.Validate("concurrentLimit", parameters["concurrentLimit"]);
                     ConcurrentLimit = (Int32) Convert.ChangeType(parameters["concurrentLimit"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("concurrent_limit") && parameters["concurrent_limit"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        ConcurrentLimitSchemaProperty.Validate("concurrent_limit", parameters["concurrent_limit"]);
-                    }
+                    ConcurrentLimitSchemaProperty.Validate("concurrent_limit", parameters["concurrent_limit"]);
                     ConcurrentLimit = (Int32) Convert.ChangeType(parameters["concurrent_limit"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("isDefaultDeviceLimit") && parameters["isDefaultDeviceLimit"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsDefaultDeviceLimitSchemaProperty.Validate("isDefaultDeviceLimit", parameters["isDefaultDeviceLimit"]);
-                    }
+                    IsDefaultDeviceLimitSchemaProperty.Validate("isDefaultDeviceLimit", parameters["isDefaultDeviceLimit"]);
                     IsDefaultDeviceLimit = (Boolean) Convert.ChangeType(parameters["isDefaultDeviceLimit"], typeof(Boolean));
                 }
-                if (parameters.ContainsKey("isDefaultConcurrentLimit ") && parameters["isDefaultConcurrentLimit "] != null)
+                if (parameters.ContainsKey("isDefaultConcurrentLimit") && parameters["isDefaultConcurrentLimit"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsDefaultConcurrentLimitSchemaProperty.Validate("isDefaultConcurrentLimit ", parameters["isDefaultConcurrentLimit "]);
-                    }
-                    IsDefaultConcurrentLimit = (Boolean) Convert.ChangeType(parameters["isDefaultConcurrentLimit "], typeof(Boolean));
+                    IsDefaultConcurrentLimitSchemaProperty.Validate("isDefaultConcurrentLimit", parameters["isDefaultConcurrentLimit"]);
+                    IsDefaultConcurrentLimit = (Boolean) Convert.ChangeType(parameters["isDefaultConcurrentLimit"], typeof(Boolean));
                 }
             }
         }
@@ -39615,10 +37041,7 @@ namespace WebAPI.Models.Domains
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("householdIdEqual") && parameters["householdIdEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        HouseholdIdEqualSchemaProperty.Validate("householdIdEqual", parameters["householdIdEqual"]);
-                    }
+                    HouseholdIdEqualSchemaProperty.Validate("householdIdEqual", parameters["householdIdEqual"]);
                     HouseholdIdEqual = (Int32) Convert.ChangeType(parameters["householdIdEqual"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("deviceFamilyIdIn") && parameters["deviceFamilyIdIn"] != null)
@@ -39819,10 +37242,7 @@ namespace WebAPI.Models.Domains
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -39831,138 +37251,87 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("concurrentLimit") && parameters["concurrentLimit"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ConcurrentLimitSchemaProperty.Validate("concurrentLimit", parameters["concurrentLimit"]);
-                    }
+                    ConcurrentLimitSchemaProperty.Validate("concurrentLimit", parameters["concurrentLimit"]);
                     ConcurrentLimit = (Int32) Convert.ChangeType(parameters["concurrentLimit"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("concurrent_limit") && parameters["concurrent_limit"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        ConcurrentLimitSchemaProperty.Validate("concurrent_limit", parameters["concurrent_limit"]);
-                    }
+                    ConcurrentLimitSchemaProperty.Validate("concurrent_limit", parameters["concurrent_limit"]);
                     ConcurrentLimit = (Int32) Convert.ChangeType(parameters["concurrent_limit"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("deviceLimit") && parameters["deviceLimit"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DeviceLimitSchemaProperty.Validate("deviceLimit", parameters["deviceLimit"]);
-                    }
+                    DeviceLimitSchemaProperty.Validate("deviceLimit", parameters["deviceLimit"]);
                     DeviceLimit = (Int32) Convert.ChangeType(parameters["deviceLimit"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("device_limit") && parameters["device_limit"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        DeviceLimitSchemaProperty.Validate("device_limit", parameters["device_limit"]);
-                    }
+                    DeviceLimitSchemaProperty.Validate("device_limit", parameters["device_limit"]);
                     DeviceLimit = (Int32) Convert.ChangeType(parameters["device_limit"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("deviceFrequency") && parameters["deviceFrequency"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DeviceFrequencySchemaProperty.Validate("deviceFrequency", parameters["deviceFrequency"]);
-                    }
+                    DeviceFrequencySchemaProperty.Validate("deviceFrequency", parameters["deviceFrequency"]);
                     DeviceFrequency = (Int32) Convert.ChangeType(parameters["deviceFrequency"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("device_frequency") && parameters["device_frequency"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        DeviceFrequencySchemaProperty.Validate("device_frequency", parameters["device_frequency"]);
-                    }
+                    DeviceFrequencySchemaProperty.Validate("device_frequency", parameters["device_frequency"]);
                     DeviceFrequency = (Int32) Convert.ChangeType(parameters["device_frequency"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("deviceFrequencyDescription") && parameters["deviceFrequencyDescription"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DeviceFrequencyDescriptionSchemaProperty.Validate("deviceFrequencyDescription", parameters["deviceFrequencyDescription"]);
-                    }
+                    DeviceFrequencyDescriptionSchemaProperty.Validate("deviceFrequencyDescription", parameters["deviceFrequencyDescription"]);
                     DeviceFrequencyDescription = (String) Convert.ChangeType(parameters["deviceFrequencyDescription"], typeof(String));
                 }
                 if (parameters.ContainsKey("device_frequency_description") && parameters["device_frequency_description"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        DeviceFrequencyDescriptionSchemaProperty.Validate("device_frequency_description", parameters["device_frequency_description"]);
-                    }
+                    DeviceFrequencyDescriptionSchemaProperty.Validate("device_frequency_description", parameters["device_frequency_description"]);
                     DeviceFrequencyDescription = (String) Convert.ChangeType(parameters["device_frequency_description"], typeof(String));
                 }
                 if (parameters.ContainsKey("userFrequency") && parameters["userFrequency"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserFrequencySchemaProperty.Validate("userFrequency", parameters["userFrequency"]);
-                    }
+                    UserFrequencySchemaProperty.Validate("userFrequency", parameters["userFrequency"]);
                     UserFrequency = (Int32) Convert.ChangeType(parameters["userFrequency"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("user_frequency") && parameters["user_frequency"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserFrequencySchemaProperty.Validate("user_frequency", parameters["user_frequency"]);
-                    }
+                    UserFrequencySchemaProperty.Validate("user_frequency", parameters["user_frequency"]);
                     UserFrequency = (Int32) Convert.ChangeType(parameters["user_frequency"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("userFrequencyDescription") && parameters["userFrequencyDescription"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserFrequencyDescriptionSchemaProperty.Validate("userFrequencyDescription", parameters["userFrequencyDescription"]);
-                    }
+                    UserFrequencyDescriptionSchemaProperty.Validate("userFrequencyDescription", parameters["userFrequencyDescription"]);
                     UserFrequencyDescription = (String) Convert.ChangeType(parameters["userFrequencyDescription"], typeof(String));
                 }
                 if (parameters.ContainsKey("user_frequency_description") && parameters["user_frequency_description"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserFrequencyDescriptionSchemaProperty.Validate("user_frequency_description", parameters["user_frequency_description"]);
-                    }
+                    UserFrequencyDescriptionSchemaProperty.Validate("user_frequency_description", parameters["user_frequency_description"]);
                     UserFrequencyDescription = (String) Convert.ChangeType(parameters["user_frequency_description"], typeof(String));
                 }
                 if (parameters.ContainsKey("npvrQuotaInSeconds") && parameters["npvrQuotaInSeconds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NpvrQuotaInSecondsSchemaProperty.Validate("npvrQuotaInSeconds", parameters["npvrQuotaInSeconds"]);
-                    }
+                    NpvrQuotaInSecondsSchemaProperty.Validate("npvrQuotaInSeconds", parameters["npvrQuotaInSeconds"]);
                     NpvrQuotaInSeconds = (Int32) Convert.ChangeType(parameters["npvrQuotaInSeconds"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("npvr_quota_in_seconds") && parameters["npvr_quota_in_seconds"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        NpvrQuotaInSecondsSchemaProperty.Validate("npvr_quota_in_seconds", parameters["npvr_quota_in_seconds"]);
-                    }
+                    NpvrQuotaInSecondsSchemaProperty.Validate("npvr_quota_in_seconds", parameters["npvr_quota_in_seconds"]);
                     NpvrQuotaInSeconds = (Int32) Convert.ChangeType(parameters["npvr_quota_in_seconds"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("usersLimit") && parameters["usersLimit"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UsersLimitSchemaProperty.Validate("usersLimit", parameters["usersLimit"]);
-                    }
+                    UsersLimitSchemaProperty.Validate("usersLimit", parameters["usersLimit"]);
                     UsersLimit = (Int32) Convert.ChangeType(parameters["usersLimit"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("users_limit") && parameters["users_limit"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        UsersLimitSchemaProperty.Validate("users_limit", parameters["users_limit"]);
-                    }
+                    UsersLimitSchemaProperty.Validate("users_limit", parameters["users_limit"]);
                     UsersLimit = (Int32) Convert.ChangeType(parameters["users_limit"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("deviceFamiliesLimitations") && parameters["deviceFamiliesLimitations"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DeviceFamiliesLimitationsSchemaProperty.Validate("deviceFamiliesLimitations", parameters["deviceFamiliesLimitations"]);
-                    }
+                    DeviceFamiliesLimitationsSchemaProperty.Validate("deviceFamiliesLimitations", parameters["deviceFamiliesLimitations"]);
                     if (parameters["deviceFamiliesLimitations"] is JArray)
                     {
                         DeviceFamiliesLimitations = buildList<KalturaHouseholdDeviceFamilyLimitations>(typeof(KalturaHouseholdDeviceFamilyLimitations), (JArray) parameters["deviceFamiliesLimitations"]);
@@ -39974,10 +37343,7 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("device_families_limitations") && parameters["device_families_limitations"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        DeviceFamiliesLimitationsSchemaProperty.Validate("device_families_limitations", parameters["device_families_limitations"]);
-                    }
+                    DeviceFamiliesLimitationsSchemaProperty.Validate("device_families_limitations", parameters["device_families_limitations"]);
                     if (parameters["device_families_limitations"] is JArray)
                     {
                         DeviceFamiliesLimitations = buildList<KalturaHouseholdDeviceFamilyLimitations>(typeof(KalturaHouseholdDeviceFamilyLimitations), (JArray) parameters["device_families_limitations"]);
@@ -39989,34 +37355,22 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("description") && parameters["description"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DescriptionSchemaProperty.Validate("description", parameters["description"]);
-                    }
+                    DescriptionSchemaProperty.Validate("description", parameters["description"]);
                     Description = (String) Convert.ChangeType(parameters["description"], typeof(String));
                 }
                 if (parameters.ContainsKey("description") && parameters["description"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        DescriptionSchemaProperty.Validate("description", parameters["description"]);
-                    }
+                    DescriptionSchemaProperty.Validate("description", parameters["description"]);
                     Description = (String) Convert.ChangeType(parameters["description"], typeof(String));
                 }
                 if (parameters.ContainsKey("associatedDeviceFamiliesIdsIn") && parameters["associatedDeviceFamiliesIdsIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AssociatedDeviceFamiliesIdsInSchemaProperty.Validate("associatedDeviceFamiliesIdsIn", parameters["associatedDeviceFamiliesIdsIn"]);
-                    }
+                    AssociatedDeviceFamiliesIdsInSchemaProperty.Validate("associatedDeviceFamiliesIdsIn", parameters["associatedDeviceFamiliesIdsIn"]);
                     AssociatedDeviceFamiliesIdsIn = (String) Convert.ChangeType(parameters["associatedDeviceFamiliesIdsIn"], typeof(String));
                 }
                 if (parameters.ContainsKey("associatedDeviceFamiliesIdsIn") && parameters["associatedDeviceFamiliesIdsIn"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        AssociatedDeviceFamiliesIdsInSchemaProperty.Validate("associatedDeviceFamiliesIdsIn", parameters["associatedDeviceFamiliesIdsIn"]);
-                    }
+                    AssociatedDeviceFamiliesIdsInSchemaProperty.Validate("associatedDeviceFamiliesIdsIn", parameters["associatedDeviceFamiliesIdsIn"]);
                     AssociatedDeviceFamiliesIdsIn = (String) Convert.ChangeType(parameters["associatedDeviceFamiliesIdsIn"], typeof(String));
                 }
             }
@@ -40118,18 +37472,12 @@ namespace WebAPI.Models.Domains
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("householdId") && parameters["householdId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        HouseholdIdSchemaProperty.Validate("householdId", parameters["householdId"]);
-                    }
+                    HouseholdIdSchemaProperty.Validate("householdId", parameters["householdId"]);
                     HouseholdId = (Int32) Convert.ChangeType(parameters["householdId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("userId") && parameters["userId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserIdSchemaProperty.Validate("userId", parameters["userId"]);
-                    }
+                    UserIdSchemaProperty.Validate("userId", parameters["userId"]);
                     UserId = (String) Convert.ChangeType(parameters["userId"], typeof(String));
                 }
                 if (parameters.ContainsKey("isMaster") && parameters["isMaster"] != null)
@@ -40138,18 +37486,12 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("householdMasterUsername") && parameters["householdMasterUsername"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        HouseholdMasterUsernameSchemaProperty.Validate("householdMasterUsername", parameters["householdMasterUsername"]);
-                    }
+                    HouseholdMasterUsernameSchemaProperty.Validate("householdMasterUsername", parameters["householdMasterUsername"]);
                     HouseholdMasterUsername = (String) Convert.ChangeType(parameters["householdMasterUsername"], typeof(String));
                 }
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StatusSchemaProperty.Validate("status", parameters["status"]);
-                    }
+                    StatusSchemaProperty.Validate("status", parameters["status"]);
                     if(string.IsNullOrEmpty(parameters["status"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "status");
@@ -40164,10 +37506,7 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("isDefault") && parameters["isDefault"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsDefaultSchemaProperty.Validate("isDefault", parameters["isDefault"]);
-                    }
+                    IsDefaultSchemaProperty.Validate("isDefault", parameters["isDefault"]);
                     IsDefault = (Boolean) Convert.ChangeType(parameters["isDefault"], typeof(Boolean));
                 }
             }
@@ -40195,10 +37534,7 @@ namespace WebAPI.Models.Domains
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("householdIdEqual") && parameters["householdIdEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        HouseholdIdEqualSchemaProperty.Validate("householdIdEqual", parameters["householdIdEqual"]);
-                    }
+                    HouseholdIdEqualSchemaProperty.Validate("householdIdEqual", parameters["householdIdEqual"]);
                     HouseholdIdEqual = (Int32) Convert.ChangeType(parameters["householdIdEqual"], typeof(Int32));
                 }
             }
@@ -40363,18 +37699,12 @@ namespace WebAPI.Models
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("numberOfSlots") && parameters["numberOfSlots"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NumberOfSlotsSchemaProperty.Validate("numberOfSlots", parameters["numberOfSlots"]);
-                    }
+                    NumberOfSlotsSchemaProperty.Validate("numberOfSlots", parameters["numberOfSlots"]);
                     NumberOfSlots = (Int32) Convert.ChangeType(parameters["numberOfSlots"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("firstSlotOffset") && parameters["firstSlotOffset"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FirstSlotOffsetSchemaProperty.Validate("firstSlotOffset", parameters["firstSlotOffset"]);
-                    }
+                    FirstSlotOffsetSchemaProperty.Validate("firstSlotOffset", parameters["firstSlotOffset"]);
                     FirstSlotOffset = (Int32) Convert.ChangeType(parameters["firstSlotOffset"], typeof(Int32));
                 }
             }
@@ -40406,10 +37736,7 @@ namespace WebAPI.Models.Users.UserSessionProfile
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("expressions") && parameters["expressions"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ExpressionsSchemaProperty.Validate("expressions", parameters["expressions"]);
-                    }
+                    ExpressionsSchemaProperty.Validate("expressions", parameters["expressions"]);
                     if (parameters["expressions"] is JArray)
                     {
                         Expressions = buildList<KalturaUserSessionProfileExpression>(typeof(KalturaUserSessionProfileExpression), (JArray) parameters["expressions"]);
@@ -40464,10 +37791,7 @@ namespace WebAPI.Models.Users.UserSessionProfile
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("expressions") && parameters["expressions"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ExpressionsSchemaProperty.Validate("expressions", parameters["expressions"]);
-                    }
+                    ExpressionsSchemaProperty.Validate("expressions", parameters["expressions"]);
                     if (parameters["expressions"] is JArray)
                     {
                         Expressions = buildList<KalturaUserSessionProfileExpression>(typeof(KalturaUserSessionProfileExpression), (JArray) parameters["expressions"]);
@@ -40535,18 +37859,12 @@ namespace WebAPI.Models.Users.UserSessionProfile
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NameSchemaProperty.Validate("name", parameters["name"]);
-                    }
+                    NameSchemaProperty.Validate("name", parameters["name"]);
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("expression") && parameters["expression"] != null)
@@ -40592,10 +37910,7 @@ namespace WebAPI.Models.Users.UserSessionProfile
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idEqual") && parameters["idEqual"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdEqualSchemaProperty.Validate("idEqual", parameters["idEqual"]);
-                    }
+                    IdEqualSchemaProperty.Validate("idEqual", parameters["idEqual"]);
                     IdEqual = (Int64) Convert.ChangeType(parameters["idEqual"], typeof(Int64));
                 }
             }
@@ -40665,10 +37980,7 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Assets
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("ksql") && parameters["ksql"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        KsqlSchemaProperty.Validate("ksql", parameters["ksql"]);
-                    }
+                    KsqlSchemaProperty.Validate("ksql", parameters["ksql"]);
                     Ksql = (String) Convert.ChangeType(parameters["ksql"], typeof(String));
                 }
             }
@@ -40708,10 +38020,7 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("audioCodecIn") && parameters["audioCodecIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AudioCodecInSchemaProperty.Validate("audioCodecIn", parameters["audioCodecIn"]);
-                    }
+                    AudioCodecInSchemaProperty.Validate("audioCodecIn", parameters["audioCodecIn"]);
                     AudioCodecIn = (String) Convert.ChangeType(parameters["audioCodecIn"], typeof(String));
                 }
             }
@@ -40759,10 +38068,7 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("fileTypeIdIn") && parameters["fileTypeIdIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        FileTypeIdInSchemaProperty.Validate("fileTypeIdIn", parameters["fileTypeIdIn"]);
-                    }
+                    FileTypeIdInSchemaProperty.Validate("fileTypeIdIn", parameters["fileTypeIdIn"]);
                     FileTypeIdIn = (String) Convert.ChangeType(parameters["fileTypeIdIn"], typeof(String));
                 }
             }
@@ -40798,10 +38104,7 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("assetTypeIn") && parameters["assetTypeIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        AssetTypeInSchemaProperty.Validate("assetTypeIn", parameters["assetTypeIn"]);
-                    }
+                    AssetTypeInSchemaProperty.Validate("assetTypeIn", parameters["assetTypeIn"]);
                     AssetTypeIn = (String) Convert.ChangeType(parameters["assetTypeIn"], typeof(String));
                 }
             }
@@ -40861,10 +38164,7 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("labelIn") && parameters["labelIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        LabelInSchemaProperty.Validate("labelIn", parameters["labelIn"]);
-                    }
+                    LabelInSchemaProperty.Validate("labelIn", parameters["labelIn"]);
                     LabelIn = (String) Convert.ChangeType(parameters["labelIn"], typeof(String));
                 }
             }
@@ -40912,10 +38212,7 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("qualityIn") && parameters["qualityIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        QualityInSchemaProperty.Validate("qualityIn", parameters["qualityIn"]);
-                    }
+                    QualityInSchemaProperty.Validate("qualityIn", parameters["qualityIn"]);
                     QualityIn = (String) Convert.ChangeType(parameters["qualityIn"], typeof(String));
                 }
             }
@@ -40963,10 +38260,7 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("streamerTypeIn") && parameters["streamerTypeIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        StreamerTypeInSchemaProperty.Validate("streamerTypeIn", parameters["streamerTypeIn"]);
-                    }
+                    StreamerTypeInSchemaProperty.Validate("streamerTypeIn", parameters["streamerTypeIn"]);
                     StreamerTypeIn = (String) Convert.ChangeType(parameters["streamerTypeIn"], typeof(String));
                 }
             }
@@ -41014,10 +38308,7 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("videoCodecIn") && parameters["videoCodecIn"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        VideoCodecInSchemaProperty.Validate("videoCodecIn", parameters["videoCodecIn"]);
-                    }
+                    VideoCodecInSchemaProperty.Validate("videoCodecIn", parameters["videoCodecIn"]);
                     VideoCodecIn = (String) Convert.ChangeType(parameters["videoCodecIn"], typeof(String));
                 }
             }
@@ -41073,10 +38364,7 @@ namespace WebAPI.Models.Billing
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -41103,10 +38391,7 @@ namespace WebAPI.Models.Billing
                 }
                 if (parameters.ContainsKey("suspendSettings") && parameters["suspendSettings"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SuspendSettingsSchemaProperty.Validate("suspendSettings", parameters["suspendSettings"]);
-                    }
+                    SuspendSettingsSchemaProperty.Validate("suspendSettings", parameters["suspendSettings"]);
                     if (parameters["suspendSettings"] is JObject)
                     {
                         SuspendSettings = (KalturaSuspendSettings) Deserializer.deserialize(typeof(KalturaSuspendSettings), ((JObject) parameters["suspendSettings"]).ToObject<Dictionary<string, object>>());
@@ -41185,18 +38470,12 @@ namespace WebAPI.Models.Billing
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("externalId") && parameters["externalId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ExternalIdSchemaProperty.Validate("externalId", parameters["externalId"]);
-                    }
+                    ExternalIdSchemaProperty.Validate("externalId", parameters["externalId"]);
                     ExternalId = (String) Convert.ChangeType(parameters["externalId"], typeof(String));
                 }
                 if (parameters.ContainsKey("paymentGatewayId") && parameters["paymentGatewayId"] != null)
@@ -41209,10 +38488,7 @@ namespace WebAPI.Models.Billing
                 }
                 if (parameters.ContainsKey("isDefault") && parameters["isDefault"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsDefaultSchemaProperty.Validate("isDefault", parameters["isDefault"]);
-                    }
+                    IsDefaultSchemaProperty.Validate("isDefault", parameters["isDefault"]);
                     IsDefault = (Boolean) Convert.ChangeType(parameters["isDefault"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("paymentMethodProfileId") && parameters["paymentMethodProfileId"] != null)
@@ -41334,10 +38610,7 @@ namespace WebAPI.Models.Billing
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -41346,26 +38619,17 @@ namespace WebAPI.Models.Billing
                 }
                 if (parameters.ContainsKey("isDefault") && parameters["isDefault"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsDefaultSchemaProperty.Validate("isDefault", parameters["isDefault"]);
-                    }
+                    IsDefaultSchemaProperty.Validate("isDefault", parameters["isDefault"]);
                     IsDefault = (Boolean) Convert.ChangeType(parameters["isDefault"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("is_default") && parameters["is_default"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsDefaultSchemaProperty.Validate("is_default", parameters["is_default"]);
-                    }
+                    IsDefaultSchemaProperty.Validate("is_default", parameters["is_default"]);
                     IsDefault = (Boolean) Convert.ChangeType(parameters["is_default"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("selectedBy") && parameters["selectedBy"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        selectedBySchemaProperty.Validate("selectedBy", parameters["selectedBy"]);
-                    }
+                    selectedBySchemaProperty.Validate("selectedBy", parameters["selectedBy"]);
                     if(string.IsNullOrEmpty(parameters["selectedBy"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "selectedBy");
@@ -41380,10 +38644,7 @@ namespace WebAPI.Models.Billing
                 }
                 if (parameters.ContainsKey("selected_by") && parameters["selected_by"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        selectedBySchemaProperty.Validate("selected_by", parameters["selected_by"]);
-                    }
+                    selectedBySchemaProperty.Validate("selected_by", parameters["selected_by"]);
                     if(string.IsNullOrEmpty(parameters["selected_by"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "selected_by");
@@ -41536,18 +38797,12 @@ namespace WebAPI.Models.Billing
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("isActive") && parameters["isActive"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsActiveSchemaProperty.Validate("isActive", parameters["isActive"]);
-                    }
+                    IsActiveSchemaProperty.Validate("isActive", parameters["isActive"]);
                     IsActive = (Int32) Convert.ChangeType(parameters["isActive"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("is_active") && parameters["is_active"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        IsActiveSchemaProperty.Validate("is_active", parameters["is_active"]);
-                    }
+                    IsActiveSchemaProperty.Validate("is_active", parameters["is_active"]);
                     IsActive = (Int32) Convert.ChangeType(parameters["is_active"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("adapterUrl") && parameters["adapterUrl"] != null)
@@ -41584,10 +38839,7 @@ namespace WebAPI.Models.Billing
                 }
                 if (parameters.ContainsKey("paymentGatewaySettings") && parameters["paymentGatewaySettings"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        SettingsSchemaProperty.Validate("paymentGatewaySettings", parameters["paymentGatewaySettings"]);
-                    }
+                    SettingsSchemaProperty.Validate("paymentGatewaySettings", parameters["paymentGatewaySettings"]);
                     if (parameters["paymentGatewaySettings"] is JObject)
                     {
                         Settings = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["paymentGatewaySettings"]).ToObject<Dictionary<string, object>>());
@@ -41595,10 +38847,7 @@ namespace WebAPI.Models.Billing
                 }
                 if (parameters.ContainsKey("payment_gateway_settings") && parameters["payment_gateway_settings"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        SettingsSchemaProperty.Validate("payment_gateway_settings", parameters["payment_gateway_settings"]);
-                    }
+                    SettingsSchemaProperty.Validate("payment_gateway_settings", parameters["payment_gateway_settings"]);
                     if (parameters["payment_gateway_settings"] is JObject)
                     {
                         Settings = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["payment_gateway_settings"]).ToObject<Dictionary<string, object>>());
@@ -41614,34 +38863,22 @@ namespace WebAPI.Models.Billing
                 }
                 if (parameters.ContainsKey("pendingInterval") && parameters["pendingInterval"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PendingIntervalSchemaProperty.Validate("pendingInterval", parameters["pendingInterval"]);
-                    }
+                    PendingIntervalSchemaProperty.Validate("pendingInterval", parameters["pendingInterval"]);
                     PendingInterval = (Int32) Convert.ChangeType(parameters["pendingInterval"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("pending_interval") && parameters["pending_interval"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        PendingIntervalSchemaProperty.Validate("pending_interval", parameters["pending_interval"]);
-                    }
+                    PendingIntervalSchemaProperty.Validate("pending_interval", parameters["pending_interval"]);
                     PendingInterval = (Int32) Convert.ChangeType(parameters["pending_interval"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("pendingRetries") && parameters["pendingRetries"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PendingRetriesSchemaProperty.Validate("pendingRetries", parameters["pendingRetries"]);
-                    }
+                    PendingRetriesSchemaProperty.Validate("pendingRetries", parameters["pendingRetries"]);
                     PendingRetries = (Int32) Convert.ChangeType(parameters["pendingRetries"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("pending_retries") && parameters["pending_retries"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        PendingRetriesSchemaProperty.Validate("pending_retries", parameters["pending_retries"]);
-                    }
+                    PendingRetriesSchemaProperty.Validate("pending_retries", parameters["pending_retries"]);
                     PendingRetries = (Int32) Convert.ChangeType(parameters["pending_retries"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("sharedSecret") && parameters["sharedSecret"] != null)
@@ -41654,34 +38891,22 @@ namespace WebAPI.Models.Billing
                 }
                 if (parameters.ContainsKey("renewIntervalMinutes") && parameters["renewIntervalMinutes"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        RenewIntervalMinutesSchemaProperty.Validate("renewIntervalMinutes", parameters["renewIntervalMinutes"]);
-                    }
+                    RenewIntervalMinutesSchemaProperty.Validate("renewIntervalMinutes", parameters["renewIntervalMinutes"]);
                     RenewIntervalMinutes = (Int32) Convert.ChangeType(parameters["renewIntervalMinutes"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("renew_interval_minutes") && parameters["renew_interval_minutes"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        RenewIntervalMinutesSchemaProperty.Validate("renew_interval_minutes", parameters["renew_interval_minutes"]);
-                    }
+                    RenewIntervalMinutesSchemaProperty.Validate("renew_interval_minutes", parameters["renew_interval_minutes"]);
                     RenewIntervalMinutes = (Int32) Convert.ChangeType(parameters["renew_interval_minutes"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("renewStartMinutes") && parameters["renewStartMinutes"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        RenewStartMinutesSchemaProperty.Validate("renewStartMinutes", parameters["renewStartMinutes"]);
-                    }
+                    RenewStartMinutesSchemaProperty.Validate("renewStartMinutes", parameters["renewStartMinutes"]);
                     RenewStartMinutes = (Int32) Convert.ChangeType(parameters["renewStartMinutes"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("renew_start_minutes") && parameters["renew_start_minutes"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        RenewStartMinutesSchemaProperty.Validate("renew_start_minutes", parameters["renew_start_minutes"]);
-                    }
+                    RenewStartMinutesSchemaProperty.Validate("renew_start_minutes", parameters["renew_start_minutes"]);
                     RenewStartMinutes = (Int32) Convert.ChangeType(parameters["renew_start_minutes"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("externalVerification") && parameters["externalVerification"] != null)
@@ -41786,10 +39011,7 @@ namespace WebAPI.Models.Billing
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("paymentGatewayId") && parameters["paymentGatewayId"] != null)
@@ -41873,6 +39095,340 @@ namespace WebAPI.EventNotifications
     }
 }
 
+namespace WebAPI.Models.IngestStatus
+{
+    public partial class KalturaIngestByCompoundFilter
+    {
+        private static RuntimeSchemePropertyAttribute IngestNameContainsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByCompoundFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute IngestedByUserIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByCompoundFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute IngestStatusInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByCompoundFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute CreatedDateGreaterThanSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByCompoundFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute CreatedDateSmallerThanSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByCompoundFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaIngestByCompoundFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("ingestNameContains") && parameters["ingestNameContains"] != null)
+                {
+                    IngestNameContainsSchemaProperty.Validate("ingestNameContains", parameters["ingestNameContains"]);
+                    IngestNameContains = (String) Convert.ChangeType(parameters["ingestNameContains"], typeof(String));
+                }
+                if (parameters.ContainsKey("ingestedByUserIdIn") && parameters["ingestedByUserIdIn"] != null)
+                {
+                    IngestedByUserIdInSchemaProperty.Validate("ingestedByUserIdIn", parameters["ingestedByUserIdIn"]);
+                    IngestedByUserIdIn = (String) Convert.ChangeType(parameters["ingestedByUserIdIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("ingestStatusIn") && parameters["ingestStatusIn"] != null)
+                {
+                    IngestStatusInSchemaProperty.Validate("ingestStatusIn", parameters["ingestStatusIn"]);
+                    IngestStatusIn = (String) Convert.ChangeType(parameters["ingestStatusIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("createdDateGreaterThan") && parameters["createdDateGreaterThan"] != null)
+                {
+                    CreatedDateGreaterThanSchemaProperty.Validate("createdDateGreaterThan", parameters["createdDateGreaterThan"]);
+                    CreatedDateGreaterThan = (Int64) Convert.ChangeType(parameters["createdDateGreaterThan"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("createdDateSmallerThan") && parameters["createdDateSmallerThan"] != null)
+                {
+                    CreatedDateSmallerThanSchemaProperty.Validate("createdDateSmallerThan", parameters["createdDateSmallerThan"]);
+                    CreatedDateSmallerThan = (Int64) Convert.ChangeType(parameters["createdDateSmallerThan"], typeof(Int64));
+                }
+            }
+        }
+    }
+    public partial class KalturaIngestByIdsFilter
+    {
+        private static RuntimeSchemePropertyAttribute IngestIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByIdsFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaIngestByIdsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("ingestIdIn") && parameters["ingestIdIn"] != null)
+                {
+                    IngestIdInSchemaProperty.Validate("ingestIdIn", parameters["ingestIdIn"]);
+                    IngestIdIn = (String) Convert.ChangeType(parameters["ingestIdIn"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaIngestEpg
+    {
+        private static RuntimeSchemePropertyAttribute IngestIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestEpg")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinLong = 0,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute IngestNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestEpg")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = 0,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute IngestFilenameExtensionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestEpg")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = 0,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute CompletedDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestEpg")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute IngestProfileIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestEpg")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaIngestEpg(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("ingestId") && parameters["ingestId"] != null)
+                {
+                    IngestIdSchemaProperty.Validate("ingestId", parameters["ingestId"]);
+                    IngestId = (Int64) Convert.ChangeType(parameters["ingestId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("ingestName") && parameters["ingestName"] != null)
+                {
+                    IngestNameSchemaProperty.Validate("ingestName", parameters["ingestName"]);
+                    IngestName = (String) Convert.ChangeType(parameters["ingestName"], typeof(String));
+                }
+                if (parameters.ContainsKey("ingestFilenameExtension") && parameters["ingestFilenameExtension"] != null)
+                {
+                    IngestFilenameExtensionSchemaProperty.Validate("ingestFilenameExtension", parameters["ingestFilenameExtension"]);
+                    IngestFilenameExtension = (String) Convert.ChangeType(parameters["ingestFilenameExtension"], typeof(String));
+                }
+                if (parameters.ContainsKey("createdDate") && parameters["createdDate"] != null)
+                {
+                    CreatedDate = (Int64) Convert.ChangeType(parameters["createdDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("ingestedByUserId") && parameters["ingestedByUserId"] != null)
+                {
+                    IngestedByUserId = (Int64) Convert.ChangeType(parameters["ingestedByUserId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("completedDate") && parameters["completedDate"] != null)
+                {
+                    CompletedDateSchemaProperty.Validate("completedDate", parameters["completedDate"]);
+                    CompletedDate = (Int64) Convert.ChangeType(parameters["completedDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("ingestProfileId") && parameters["ingestProfileId"] != null)
+                {
+                    IngestProfileIdSchemaProperty.Validate("ingestProfileId", parameters["ingestProfileId"]);
+                    IngestProfileId = (Int64) Convert.ChangeType(parameters["ingestProfileId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("status") && parameters["status"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["status"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "status");
+                    }
+
+                    Status = (KalturaIngestStatus) Enum.Parse(typeof(KalturaIngestStatus), parameters["status"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaIngestStatus), Status))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Status, typeof(KalturaIngestStatus)));
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaIngestStatusEpgConfiguration
+    {
+        private static RuntimeSchemePropertyAttribute IsSupportedSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestStatusEpgConfiguration")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute RetainingPeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestStatusEpgConfiguration")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaIngestStatusEpgConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("isSupported") && parameters["isSupported"] != null)
+                {
+                    IsSupportedSchemaProperty.Validate("isSupported", parameters["isSupported"]);
+                    IsSupported = (Boolean) Convert.ChangeType(parameters["isSupported"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("retainingPeriod") && parameters["retainingPeriod"] != null)
+                {
+                    RetainingPeriodSchemaProperty.Validate("retainingPeriod", parameters["retainingPeriod"]);
+                    RetainingPeriod = (Int32) Convert.ChangeType(parameters["retainingPeriod"], typeof(Int32));
+                }
+            }
+        }
+    }
+    public partial class KalturaIngestStatusEpgListResponse
+    {
+        public KalturaIngestStatusEpgListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaIngestStatusPartnerConfiguration
+    {
+        private static RuntimeSchemePropertyAttribute EpgSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestStatusPartnerConfiguration")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaIngestStatusPartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("epg") && parameters["epg"] != null)
+                {
+                    EpgSchemaProperty.Validate("epg", parameters["epg"]);
+                    if (parameters["epg"] is JObject)
+                    {
+                        Epg = (KalturaIngestStatusEpgConfiguration) Deserializer.deserialize(typeof(KalturaIngestStatusEpgConfiguration), ((JObject) parameters["epg"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["epg"] is IDictionary)
+                    {
+                        Epg = (KalturaIngestStatusEpgConfiguration) Deserializer.deserialize(typeof(KalturaIngestStatusEpgConfiguration), (Dictionary<string, object>) parameters["epg"]);
+                    }
+                }
+            }
+        }
+    }
+}
+
 namespace WebAPI.Models.Api
 {
     public partial class KalturaPersonalList
@@ -41933,34 +39489,22 @@ namespace WebAPI.Models.Api
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NameSchemaProperty.Validate("name", parameters["name"]);
-                    }
+                    NameSchemaProperty.Validate("name", parameters["name"]);
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("ksql") && parameters["ksql"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        KsqlSchemaProperty.Validate("ksql", parameters["ksql"]);
-                    }
+                    KsqlSchemaProperty.Validate("ksql", parameters["ksql"]);
                     Ksql = (String) Convert.ChangeType(parameters["ksql"], typeof(String));
                 }
                 if (parameters.ContainsKey("partnerListType") && parameters["partnerListType"] != null)
@@ -42056,10 +39600,7 @@ namespace WebAPI.Models.Catalog.SearchPriorityGroup
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("multilingualName") && parameters["multilingualName"] != null)

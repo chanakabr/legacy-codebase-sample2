@@ -7,7 +7,6 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
-
 namespace WebAPI.Models.API
 {
     public partial class KalturaRegion : KalturaOTTObject
@@ -45,7 +44,7 @@ namespace WebAPI.Models.API
         [JsonProperty("isDefault")]
         [XmlElement(ElementName = "isDefault")]
         [SchemeProperty(ReadOnly = true)]
-        public bool IsDefault{ get; set; }
+        public bool IsDefault { get; set; }
 
         /// <summary>
         /// List of associated linear channels
@@ -62,23 +61,41 @@ namespace WebAPI.Models.API
         [DataMember(Name = "parentId")]
         [JsonProperty("parentId")]
         [XmlElement(ElementName = "parentId")]
-        [SchemeProperty(MinLong = 1)] 
+        [SchemeProperty(MinLong = 1)]
         public long ParentId { get; set; }
 
-
-        public void Validate(bool validateRequiredFields = false)
-        {           
-            if (RegionalChannels?.Count > 0 && RegionalChannels.Select(c => c.LinearChannelId).Distinct().Count() != RegionalChannels.Count)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "linearChannels.linearChannelId");
-            }
+        public void Validate(bool isMultiLcnsEnabled, bool validateRequiredFields)
+        {
             if (validateRequiredFields && string.IsNullOrEmpty(Name))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "name");
             }
+
             if (validateRequiredFields && string.IsNullOrEmpty(ExternalId))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "externalId");
+            }
+
+            if (RegionalChannels != null)
+            {
+                if (RegionalChannels.Select(x => x.LinearChannelId).Distinct().Count() != RegionalChannels.Count)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "linearChannels.linearChannelId");
+                }
+
+                if (RegionalChannels.Any(x => x.ChannelNumber < 0))
+                {
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "linearChannels.channelNumber");
+                }
+
+                var multiLcnRegionalChannels = RegionalChannels
+                    .OfType<KalturaRegionalChannelMultiLcns>()
+                    .Where(x => isMultiLcnsEnabled)
+                    .ToArray();
+                foreach (var multiLcnRegionalChannel in multiLcnRegionalChannels)
+                {
+                    multiLcnRegionalChannel.Validate("linearChannels");
+                }
             }
         }
     }

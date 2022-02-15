@@ -4,8 +4,8 @@ using ApiObjects.SearchObjects;
 using Core.Catalog.Cache;
 using Core.Catalog.Response;
 using GroupsCacheManager;
-using KLogMonitor;
-using KlogMonitorHelper;
+using Phx.Lib.Log;
+
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -27,6 +27,8 @@ namespace Core.Catalog.Request
         public int m_nBundleID;
         [DataMember]
         public OrderObj m_oOrderObj;
+        [DataMember]
+        public IReadOnlyCollection<AssetOrder> orderingParameters;
         [DataMember]
         public string m_sMediaType;
         [DataMember]
@@ -114,8 +116,15 @@ namespace Core.Catalog.Request
                             sMediaTypesFromRequest = request.m_sMediaType.Split(';');
                         }
 
-                        List<BaseSearchObject> searchObjectsList = BuildBaseSearchObjects(request, groupInCache, allChannels, sMediaTypesFromRequest, request.m_oOrderObj, parentGroupId, 
-                            doesGroupUsesTemplates, request.isAllowedToViewInactiveAssets, request.AssetFilterKsql);
+                        List<BaseSearchObject> searchObjectsList = BuildBaseSearchObjects(
+                            request,
+                            groupInCache,
+                            allChannels,
+                            sMediaTypesFromRequest,
+                            parentGroupId,
+                            doesGroupUsesTemplates,
+                            request.isAllowedToViewInactiveAssets,
+                            request.AssetFilterKsql);
 
                         if (searchObjectsList != null && searchObjectsList.Count > 0)
                         {
@@ -170,9 +179,8 @@ namespace Core.Catalog.Request
         public static List<BaseSearchObject> BuildBaseSearchObjects(
             BaseRequest request,
             Group groupInCache, 
-            List<GroupsCacheManager.Channel> allChannels,
+            List<Channel> allChannels,
             string[] mediaTypes,
-            OrderObj notUsed,
             int groupId,
             bool doesGroupUsesTemplates,
             bool isAllowedToViewInactiveAssets,
@@ -190,7 +198,7 @@ namespace Core.Catalog.Request
             Task[] channelsSearchObjectTasks = new Task[allChannels.Count];
 
             // save monitor and logs context data
-            ContextData contextData = new ContextData();
+            LogContextData contextData = new LogContextData();
 
             // Building search object for each channel
             for (int searchObjectIndex = 0; searchObjectIndex < allChannels.Count; searchObjectIndex++)

@@ -1,5 +1,5 @@
 ﻿using ApiObjects.CanaryDeployment.Elasticsearch;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using ElasticSearch.Searcher.Settings;
 using System;
 using System.Collections.Concurrent;

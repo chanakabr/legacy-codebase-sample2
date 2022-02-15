@@ -6,7 +6,6 @@ using ApiObjects;
 using ApiObjects.Catalog;
 using Core.Catalog;
 using Core.GroupManagers;
-using Core.GroupManagers.Adapters;
 using TvinciCache;
 using TvinciCache.Adapters;
 
@@ -19,7 +18,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Helpers
         private readonly IGroupsFeatures _groupsFeatures;
 
         private static readonly Lazy<IEpgAssetMultilingualMutator> InternalEpgAssetMultilingualMutator = new Lazy<IEpgAssetMultilingualMutator>(
-            () => new EpgAssetMultilingualMutator(CatalogPartnerConfigManager.Instance, GroupSettingsManagerAdapter.Instance, GroupsFeatureAdapter.Instance));
+            () => new EpgAssetMultilingualMutator(CatalogPartnerConfigManager.Instance, GroupSettingsManager.Instance, GroupsFeatureAdapter.Instance));
 
         public EpgAssetMultilingualMutator(ICatalogPartnerConfigManager catalogPartnerConfigManager, IGroupSettingsManager groupSettingsManager, IGroupsFeatures groupsFeatures)
         {

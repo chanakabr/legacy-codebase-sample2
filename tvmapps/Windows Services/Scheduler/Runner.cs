@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 using System.Configuration;
-using KLogMonitor;
+using Phx.Lib.Log;
 
 namespace Scheduler
 {
@@ -57,7 +57,7 @@ namespace Scheduler
 
         public void DoTheJob()
         {
-            using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_API_START, null, "Scheduler", null, null))
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_API_START, null, "Scheduler", null, null))
             {
                 try
                 {
@@ -107,7 +107,7 @@ namespace Scheduler
                 string sServer = string.Empty;
                 try
                 {
-                    sServer = TCMClient.Settings.Instance.GetValue<string>("SERVER");
+                    sServer = Phx.Lib.Appconfig.TCMClient.Settings.Instance.GetValue<string>("SERVER");
                 }
                 catch (Exception ex)
                 {

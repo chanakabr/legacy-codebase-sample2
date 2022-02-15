@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Data;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using System.Data.SqlClient;
 using System.Text.RegularExpressions;
 using System.Linq;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using System.Globalization;
 using CachingProvider.LayeredCache;
 
@@ -549,7 +549,7 @@ namespace ODBCWrapper
             string result = string.Empty;
             try
             {
-                result = TCMClient.Settings.Instance.GetValue<string>(sKey);
+                result = Phx.Lib.Appconfig.TCMClient.Settings.Instance.GetValue<string>(sKey);
                 if (string.IsNullOrEmpty(result))
                 {
                     log.Debug($"GetTcmConfigValue - missing key {sKey} or empty result");

@@ -14,7 +14,6 @@
     <Reference Include="System.Data.DataSetExtensions" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />
     <ProjectReference Include="..\..\Core\TVinciShared\TVinciShared.csproj" />
     <ProjectReference Include="..\TVPPro.Configuration\TVPPro.Configuration.csproj" />

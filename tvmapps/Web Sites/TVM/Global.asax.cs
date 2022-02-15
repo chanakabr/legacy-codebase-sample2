@@ -1,4 +1,4 @@
-﻿using ConfigurationManager;
+﻿using Phx.Lib.Appconfig;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,8 +15,8 @@ namespace TVM
             ApplicationConfiguration.Init();
 
             // set monitor and log configuration files
-            KLogMonitor.KMonitor.Configure("log4net.config", KLogMonitor.KLogEnums.AppType.WS);
-            KLogMonitor.KLogger.Configure("log4net.config", KLogMonitor.KLogEnums.AppType.WS);
+            Phx.Lib.Log.KMonitor.Configure("log4net.config", Phx.Lib.Log.KLogEnums.AppType.WS);
+            Phx.Lib.Log.KLogger.Configure("log4net.config", Phx.Lib.Log.KLogEnums.AppType.WS);
         }
 
         protected void Application_End(object sender, EventArgs e)

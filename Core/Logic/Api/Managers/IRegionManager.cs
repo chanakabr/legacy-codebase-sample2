@@ -7,6 +7,7 @@ namespace ApiLogic.Api.Managers
     public interface IRegionManager
     {
         GenericResponse<Region> GetRegion(long groupId, long regionId);
+        GenericListResponse<Region> GetRegions(int groupId, RegionFilter filter, int pageIndex = 0, int pageSize = 0);
         GenericResponse<Region> UpdateRegion(int groupId, Region regionToUpdate, long userId);
         IReadOnlyDictionary<long, List<int>> GetLinearMediaToRegionsMapWhenEnabled(int groupId);
         Dictionary<long, List<int>> GetLinearMediaRegions(int groupId);

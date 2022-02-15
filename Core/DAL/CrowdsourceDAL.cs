@@ -6,7 +6,7 @@ using ApiObjects.CrowdsourceItems.Base;
 using ApiObjects.CrowdsourceItems.CbDocs;
 using Newtonsoft.Json;
 using CouchbaseManager;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace DAL
 {

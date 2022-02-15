@@ -1,12 +1,8 @@
-﻿using ApiObjects.SearchObjects;
-using KLogMonitor;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
+using ApiObjects.SearchObjects;
+using ElasticSearch.Utils;
 
 namespace ElasticSearch.Searcher
 {
@@ -254,17 +250,13 @@ namespace ElasticSearch.Searcher
     public class ESTopHitsAggregation : ESBaseAggsItem
     {
         public const string DEFAULT_NAME = "top_hits_assets";
+        public IReadOnlyCollection<IEsOrderByField> EsOrderByFields { get; set; }
+        public List<string> SourceIncludes { get; set; }
 
-        public OrderObj Sort;
-        public List<string> SourceIncludes;
-
-        public ESTopHitsAggregation(OrderObj sort = null, List<string> sourceIncludes = null)
-            : base()
+        public ESTopHitsAggregation()
         {
             this.Type = eElasticAggregationType.top_hits;
-
-            this.Sort = sort;
-            this.SourceIncludes = sourceIncludes;
+            // TODO: Add function score param.
         }
 
         protected override string InnerToString()
@@ -273,14 +265,15 @@ namespace ElasticSearch.Searcher
 
             StringBuilder sb = new StringBuilder();
 
-            sb.AppendFormat("\"{0}\":", this.Type);
+            sb.AppendFormat("\"{0}\":", Type);
             sb.Append("{");
 
-            if (this.Sort != null && this.Sort.m_eOrderBy != OrderBy.NONE)
-            {
-                string sort = SortUtils.GetSort(this.Sort, new List<string>());
+            var shouldIncludeOrdering = EsOrderByFields?.Count > 0
+                && !EsOrderByFields.Any(x => x is EsOrderByField field && field.OrderByField == OrderBy.NONE);
 
-                sb.AppendFormat("{0},", sort);
+            if (shouldIncludeOrdering)
+            {
+                sb.AppendFormat("{0},", EsSortingService.Instance.GetSorting(EsOrderByFields));
             }
 
             if (this.Size > -1 && this.IsSizeable())
@@ -288,10 +281,18 @@ namespace ElasticSearch.Searcher
                 sb.AppendFormat("\"size\": {0},", this.Size);
             }
 
-            if (this.SourceIncludes != null && this.SourceIncludes.Count > 0)
+            if (this.SourceIncludes?.Count > 0)
             {
+                var fieldsToInclude = new HashSet<string>(SourceIncludes);
+                if (EsOrderByFields?.Count > 0)
+                {
+                    fieldsToInclude.UnionWith(EsOrderByFields
+                        .Where(x => x is EsOrderByMetaField)
+                        .Select(x => $"\"{x.EsField}\""));;
+                }
+
                 sb.Append("\"_source\" : { \"includes\": [ ");
-                sb.Append(this.SourceIncludes.Aggregate((current, next) => string.Format("{0}, {1}", current, next)));
+                sb.Append(fieldsToInclude.Aggregate((current, next) => $"{current}, {next}"));
                 sb.Append("]},");
             }
 

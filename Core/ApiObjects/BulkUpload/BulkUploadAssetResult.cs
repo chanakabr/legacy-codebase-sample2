@@ -10,6 +10,8 @@ namespace ApiObjects.BulkUpload
         [JsonProperty("Type")] public int? Type { get; set; }
 
         [JsonProperty("ExternalId")] public string ExternalId { get; set; }
+
+        [JsonProperty("EntryId")] public string EntryId { get; set; }
     }
 
     [Serializable]

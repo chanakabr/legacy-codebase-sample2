@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TVPApi;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using Core.Social.Requests;
 using ApiObjects;
@@ -65,7 +65,7 @@ namespace TVPApiModule.Services
                     m_sSiteGuid = siteGuid
                 };
 
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     DoSocialActionResponse response = 
                         Core.Social.Module.DoUserAction(m_groupID, actionRequest);
@@ -107,7 +107,7 @@ namespace TVPApiModule.Services
                         m_sSiteGuid = siteGuid
                     };
 
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                     {
                         var response = Core.Social.Module.GetFriendsActions(m_groupID, friendActionRequest);
                         if (response != null && response.SocialActivity != null)
@@ -125,7 +125,7 @@ namespace TVPApiModule.Services
                         m_sSiteGuid = siteGuid
                     };
 
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                     {
                         var response = Core.Social.Module.GetUserActions(m_groupID, userActionRequest);
                         if (response != null && response.SocialActivity != null)
@@ -151,7 +151,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var innerResult = Core.Social.Module.GetAllFriendsWatched(m_groupID, sGuid, maxResult);
 
@@ -176,7 +176,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var innerResult = Core.Social.Module.GetFriendsWatchedByMedia(m_groupID, sGuid, mediaId);
 
@@ -201,7 +201,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     res = Core.Social.Module.GetUsersLikedMedia(m_groupID, iSiteGuid, iMediaID, iPlatform,
                                                       bOnlyFriends, iStartIndex, iPageSize);
@@ -222,7 +222,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     res = Core.Social.Module.GetUserFriends(m_groupID, sGuid);
                 }
@@ -241,7 +241,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var response = Core.Social.Module.FBConfig(m_groupID);
                     if (response != null)
@@ -265,7 +265,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     facebookResponse = Core.Social.Module.FBUserData(m_groupID, stoken);
                     if (facebookResponse != null)
@@ -287,7 +287,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     facebookResponse = Core.Social.Module.FBUserRegister(m_groupID, stoken, oExtra, sIP);
                     if (facebookResponse != null)
@@ -309,7 +309,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     facebookResponse = Core.Social.Module.FBUserMerge(m_groupID, stoken, sFBID, sUsername, sPassword);
                     if (facebookResponse != null)
@@ -330,7 +330,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     res = Core.Social.Module.GetUserSocialPrivacy(m_groupID, sGuid, socialPlatform, userAction);
                 }
@@ -349,7 +349,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     res = Core.Social.Module.GetUserAllowedSocialPrivacyList(m_groupID, sGuid);
                 }
@@ -368,7 +368,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     res = Core.Social.Module.SetUserSocialPrivacy(m_groupID, sGuid, socialPlatform, userAction, socialPrivacy);
                 }
@@ -399,7 +399,7 @@ namespace TVPApiModule.Services
                     m_sSiteGuid = siteGuid
                 };
 
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var response = Core.Social.Module.GetUserActions(m_groupID, request);
                     if (response != null && response.SocialActivity != null)
@@ -437,7 +437,7 @@ namespace TVPApiModule.Services
                     m_sSiteGuid = siteGuid,
                 };
 
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var response = Core.Social.Module.GetFriendsActions(m_groupID, request);
                     if (response != null && response.SocialActivity != null)
@@ -471,7 +471,7 @@ namespace TVPApiModule.Services
 
                 };
 
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     res = Core.Social.Module.DoUserAction(m_groupID, request);
                 }
@@ -493,7 +493,7 @@ namespace TVPApiModule.Services
                 int iSiteGuid = 0;
                 if (int.TryParse(siteGuid, out iSiteGuid))
                 {
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                     {
                         res = Core.Social.Module.GetUserExternalActionShare(m_groupID, iSiteGuid, socialPlatform, userAction);
                     }
@@ -518,7 +518,7 @@ namespace TVPApiModule.Services
                 int iSiteGuid = 0;
                 if (int.TryParse(siteGuid, out iSiteGuid))
                 {
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                     {
                         res = Core.Social.Module.GetUserInternalActionPrivacy(m_groupID, iSiteGuid, socialPlatform, userAction);
                     }
@@ -543,7 +543,7 @@ namespace TVPApiModule.Services
                 int iSiteGuid = 0;
                 if (int.TryParse(siteGuid, out iSiteGuid))
                 {
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                     {
                         res = Core.Social.Module.SetUserExternalActionShare(m_groupID, iSiteGuid, socialPlatform, userAction, actionPrivacy);
                     }
@@ -568,7 +568,7 @@ namespace TVPApiModule.Services
                 int iSiteGuid = 0;
                 if (int.TryParse(siteGuid, out iSiteGuid))
                 {
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                     {
                         res = Core.Social.Module.SetUserInternalActionPrivacy(m_groupID, iSiteGuid, socialPlatform, userAction, actionPrivacy);
                     }
@@ -591,7 +591,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     facebookResponse = Core.Social.Module.FBUserUnmerge(m_groupID, token, username, password);
                     if (facebookResponse != null)
@@ -614,7 +614,7 @@ namespace TVPApiModule.Services
             SocialActivityDoc[] response = null;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var res = Core.Social.Module.GetUserActivityFeed(m_groupID, siteGuid, nPageSize, nPageIndex, sPicDimension);
 
@@ -638,7 +638,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     res = Core.Social.Module.FBTokenValidation(m_groupID, sToken);
                 }
@@ -657,7 +657,7 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     res = Core.Social.Module.FBUserSignin(m_groupID, token, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP(), deviceId, preventDoubleLogin);
                 }

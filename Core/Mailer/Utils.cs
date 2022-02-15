@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Net.Http;
 using System.IO;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using TVinciShared;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace Mailer
 {

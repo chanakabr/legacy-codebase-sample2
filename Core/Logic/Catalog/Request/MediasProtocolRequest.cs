@@ -5,7 +5,7 @@ using System.Text;
 using System.Runtime.Serialization;
 using System.Reflection;
 using Core.Catalog.Response;
-using KLogMonitor;
+using Phx.Lib.Log;
 
 
 namespace Core.Catalog.Request

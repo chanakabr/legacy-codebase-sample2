@@ -26,6 +26,8 @@ namespace SoapAdaptersCommon.GrpcAdapters {
     static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.PostGetUserDataRequest> __Marshaller_PostGetUserDataRequest = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::SoapAdaptersCommon.GrpcAdapters.PostGetUserDataRequest.Parser.ParseFrom);
     static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.InvokeRequest> __Marshaller_InvokeRequest = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::SoapAdaptersCommon.GrpcAdapters.InvokeRequest.Parser.ParseFrom);
     static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.InvokeResponse> __Marshaller_InvokeResponse = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::SoapAdaptersCommon.GrpcAdapters.InvokeResponse.Parser.ParseFrom);
+    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdRequest> __Marshaller_AdjustRegionIdRequest = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdRequest.Parser.ParseFrom);
+    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdResponse> __Marshaller_AdjustRegionIdResponse = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdResponse.Parser.ParseFrom);
 
     static readonly grpc::Method<global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationRequest, global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationResponse> __Method_SetConfiguration = new grpc::Method<global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationRequest, global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationResponse>(
         grpc::MethodType.Unary,
@@ -90,6 +92,13 @@ namespace SoapAdaptersCommon.GrpcAdapters {
         __Marshaller_InvokeRequest,
         __Marshaller_InvokeResponse);
 
+    static readonly grpc::Method<global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdRequest, global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdResponse> __Method_AdjustRegionId = new grpc::Method<global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdRequest, global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdResponse>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "AdjustRegionId",
+        __Marshaller_AdjustRegionIdRequest,
+        __Marshaller_AdjustRegionIdResponse);
+
     /// <summary>Service descriptor</summary>
     public static global::Google.Protobuf.Reflection.ServiceDescriptor Descriptor
     {
@@ -141,6 +150,11 @@ namespace SoapAdaptersCommon.GrpcAdapters {
       }
 
       public virtual global::System.Threading.Tasks.Task<global::SoapAdaptersCommon.GrpcAdapters.InvokeResponse> Invoke(global::SoapAdaptersCommon.GrpcAdapters.InvokeRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      public virtual global::System.Threading.Tasks.Task<global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdResponse> AdjustRegionId(global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
@@ -314,6 +328,22 @@ namespace SoapAdaptersCommon.GrpcAdapters {
       {
         return CallInvoker.AsyncUnaryCall(__Method_Invoke, null, options, request);
       }
+      public virtual global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdResponse AdjustRegionId(global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return AdjustRegionId(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      public virtual global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdResponse AdjustRegionId(global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_AdjustRegionId, null, options, request);
+      }
+      public virtual grpc::AsyncUnaryCall<global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdResponse> AdjustRegionIdAsync(global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return AdjustRegionIdAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      public virtual grpc::AsyncUnaryCall<global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdResponse> AdjustRegionIdAsync(global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_AdjustRegionId, null, options, request);
+      }
       /// <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
       protected override SSOAdapterGRPCClient NewInstance(ClientBaseConfiguration configuration)
       {
@@ -334,7 +364,8 @@ namespace SoapAdaptersCommon.GrpcAdapters {
           .AddMethod(__Method_PostSignOut, serviceImpl.PostSignOut)
           .AddMethod(__Method_PreGetUserData, serviceImpl.PreGetUserData)
           .AddMethod(__Method_PostGetUserData, serviceImpl.PostGetUserData)
-          .AddMethod(__Method_Invoke, serviceImpl.Invoke).Build();
+          .AddMethod(__Method_Invoke, serviceImpl.Invoke)
+          .AddMethod(__Method_AdjustRegionId, serviceImpl.AdjustRegionId).Build();
     }
 
     /// <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
@@ -352,6 +383,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
       serviceBinder.AddMethod(__Method_PreGetUserData, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::SoapAdaptersCommon.GrpcAdapters.PreGetUserDataRequest, global::SoapAdaptersCommon.GrpcAdapters.UserResponse>(serviceImpl.PreGetUserData));
       serviceBinder.AddMethod(__Method_PostGetUserData, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::SoapAdaptersCommon.GrpcAdapters.PostGetUserDataRequest, global::SoapAdaptersCommon.GrpcAdapters.UserResponse>(serviceImpl.PostGetUserData));
       serviceBinder.AddMethod(__Method_Invoke, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::SoapAdaptersCommon.GrpcAdapters.InvokeRequest, global::SoapAdaptersCommon.GrpcAdapters.InvokeResponse>(serviceImpl.Invoke));
+      serviceBinder.AddMethod(__Method_AdjustRegionId, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdRequest, global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdResponse>(serviceImpl.AdjustRegionId));
     }
 
   }

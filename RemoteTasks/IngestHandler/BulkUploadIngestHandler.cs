@@ -11,7 +11,7 @@ using CouchbaseManager;
 using EpgBL;
 using EventBus.Abstraction;
 using IngestHandler.Common;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Polly;
 using Polly.Retry;
 using Synchronizer;
@@ -21,7 +21,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using ApiLogic.Catalog.CatalogManagement.Helpers;
+using ApiLogic.IndexManager.Helpers;
 using Core.Catalog;
+using Core.Catalog.CatalogManagement.Services;
 using IngestHandler.Common.Infrastructure;
 using IngestHandler.Domain.IngestProtection;
 using Tvinci.Core.DAL;
@@ -34,7 +36,7 @@ namespace IngestHandler
         private readonly IIngestProtectProcessor _ingestProtectProcessor;
         private readonly ICatalogManagerAdapter _catalogManagerAdapter;
         private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        
+
         private readonly CouchbaseManager.CouchbaseManager _couchbaseManager;
 
         private IIndexManager _indexManager;
@@ -45,45 +47,52 @@ namespace IngestHandler
         private IDictionary<string, LanguageObj> _languages;
         private LanguageObj _defaultLanguage;
 
-        private readonly RetryPolicy _ingestRetryPolicy;
-        // private EpgElasticUpdater _elasticSearchUpdater;
         private List<EpgProgramBulkUploadObject> _allRelevantPrograms;
         private Dictionary<string, EpgCB> _autoFillEpgsCb;
         private Lazy<IReadOnlyDictionary<long, List<int>>> _linearChannelToRegionsMap;
         private string _logPrefix;
         private readonly IEpgAssetMultilingualMutator _epgAssetMultilingualMutator;
         private readonly IRegionManager _regionManager;
+        private readonly IEpgIngestMessaging _epgIngestMessaging;
 
         public BulkUploadIngestHandler(
             IIngestProtectProcessor ingestProtectProcessor,
             ICatalogManagerAdapter catalogManagerAdapter,
             IEpgAssetMultilingualMutator epgAssetMultilingualMutator,
-            IRegionManager regionManager)
+            IRegionManager regionManager,
+            IEpgIngestMessaging epgIngestMessaging)
         {
             _ingestProtectProcessor = ingestProtectProcessor;
             _catalogManagerAdapter = catalogManagerAdapter;
             _couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.EPG);
-            _ingestRetryPolicy = GetRetryPolicy<Exception>();
             _epgAssetMultilingualMutator = epgAssetMultilingualMutator
                                            ?? throw new ArgumentNullException(nameof(epgAssetMultilingualMutator));
             _regionManager = regionManager ?? throw new ArgumentNullException(nameof(regionManager));
+            _epgIngestMessaging = epgIngestMessaging;
         }
 
         public async Task Handle(BulkUploadIngestEvent serviceEvent)
         {
             try
             {
+                if (serviceEvent.TargetIndexName == null)
+                {
+                    _logger.Warn($"received event without TargetIndexName, assuming older version of transformation sent the message, trying to pares DateOfProgramsToIngest:{serviceEvent.DateOfProgramsToIngest}");
+                    if (serviceEvent.DateOfProgramsToIngest == null) throw new Exception("could not parse target index  DateOfProgramsToIngest and TargetIndexName are null and");
+                    serviceEvent.TargetIndexName = NamingHelper.Instance.GetDailyEpgIndexName(serviceEvent.GroupId, serviceEvent.DateOfProgramsToIngest);
+                }
+
                 _indexManager = IndexManagerFactory.Instance.GetIndexManager(serviceEvent.GroupId);
-                _logger.Info($"Starting ingest write handler BulkUploadId: [{serviceEvent.BulkUploadId}], Date:[{serviceEvent.DateOfProgramsToIngest}], BulkUploadId:[{serviceEvent.BulkUploadId}], crud operations: [{serviceEvent.CrudOperations}]");
+                _logger.Info($"Starting ingest write handler BulkUploadId: [{serviceEvent.BulkUploadId}], TargetIndexName:[{serviceEvent.TargetIndexName}], BulkUploadId:[{serviceEvent.BulkUploadId}], crud operations: [{serviceEvent.CrudOperations}]");
                 await HandleIngestCrudOperations(serviceEvent);
             }
             finally
             {
                 // unlock this day since it was refreshed and ingested
-                var lockKeyOfthisDay = BulkUploadMethods.GetIngestLockKey(serviceEvent.GroupId, serviceEvent.DateOfProgramsToIngest);
+                var lockKeyOfThisDay = BulkUploadMethods.GetIngestLockKey(serviceEvent.TargetIndexName);
                 var locker = new DistributedLock(serviceEvent.GroupId);
-                _logger.Info($"HandleIngestCrudOperations completed, unlocking current Date:[{serviceEvent.DateOfProgramsToIngest}], BulkUploadId: [{_eventData.BulkUploadId}]");
-                locker.Unlock(new[] { lockKeyOfthisDay });
+                _logger.Info($"HandleIngestCrudOperations completed, unlocking current TargetIndexName:[{serviceEvent.TargetIndexName}], BulkUploadId: [{_eventData.BulkUploadId}]");
+                locker.Unlock(new[] { lockKeyOfThisDay });
             }
         }
 
@@ -97,6 +106,7 @@ namespace IngestHandler
                 SetResultsWithObjectId(serviceEvent.CrudOperations);
 
                 // validate no errors or fail
+                // TODO very strange condition and block of code
                 if (_bulkUpload.Results.Any(r => r.Errors?.Any() == true))
                 {
                     _bulkUpload.AddError(eResponseStatus.Error, "errors while trying to create multilingual translations, see results for details");
@@ -106,7 +116,7 @@ namespace IngestHandler
                     {
                         if (r.Status != BulkUploadResultStatus.Error)
                         {
-                            r.AddError(eResponseStatus.Error, $"Item was not ingested due to errors in other items in same date:[{_eventData.DateOfProgramsToIngest}]");
+                            r.AddError(eResponseStatus.Error, $"Item was not ingested due to errors in other items in same TargetIndexName:[{_eventData.TargetIndexName}]");
 
                         }
                     }
@@ -124,7 +134,7 @@ namespace IngestHandler
 
                 try
                 {
-                    dailyEpgIndexName = _indexManager.SetupEpgV2Index(serviceEvent.DateOfProgramsToIngest);
+                    dailyEpgIndexName = _indexManager.SetupEpgV2Index(serviceEvent.TargetIndexName);
                 }
                 catch
                 {
@@ -134,31 +144,30 @@ namespace IngestHandler
 
                 await BulkUploadMethods.UpdateCouchbase(serviceEvent.CrudOperations, serviceEvent.GroupId);
 
-                _indexManager.DeletePrograms(serviceEvent.CrudOperations.ItemsToDelete, dailyEpgIndexName, _languages);
+                _indexManager.DeletePrograms(serviceEvent.CrudOperations.ItemsToDelete, NamingHelper.GetEpgIndexAlias(serviceEvent.GroupId), _languages);
                 var programsToIndex = serviceEvent.CrudOperations.ItemsToAdd.Concat(serviceEvent.CrudOperations.ItemsToUpdate).Concat(serviceEvent.CrudOperations.AffectedItems).ToList();
-                _indexManager.UpsertPrograms(programsToIndex, dailyEpgIndexName, 
-                    serviceEvent.DateOfProgramsToIngest, _defaultLanguage, _languages);
+                _indexManager.UpsertPrograms(programsToIndex, dailyEpgIndexName, _defaultLanguage, _languages);
 
-                var finalizer = new IngestFinalizer(_bulkUpload, _relevantResultsDictionary, serviceEvent.DateOfProgramsToIngest, serviceEvent.RequestId,_indexManager);
+                var finalizer = new IngestFinalizer(_bulkUpload, _relevantResultsDictionary, serviceEvent.TargetIndexName, serviceEvent.RequestId,_indexManager, _epgIngestMessaging);
                 await finalizer.FinalizeEpgIngest();
                 _logger.Info($"{_logPrefix} Ingest Handler completed.");
             }
             catch (Exception ex)
             {
-                _logger.Error($"An Exception occurred in BulkUploadIngestHandler requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}] Date:[{_eventData.DateOfProgramsToIngest}].", ex);
+                _logger.Error($"An Exception occurred in BulkUploadIngestHandler requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}] targetIndexName:[{serviceEvent.TargetIndexName}].", ex);
                 try
                 {
-                    _logger.Error($"Setting bulk upload results to error status because of an unexpected error, BulkUploadId:[{serviceEvent.BulkUploadId}] Date:[{_eventData.DateOfProgramsToIngest}]", ex);
+                    _logger.Error($"Setting bulk upload results to error status because of an unexpected error, BulkUploadId:[{serviceEvent.BulkUploadId}] targetIndexName:[{serviceEvent.TargetIndexName}]", ex);
                     _bulkUpload.Results.ForEach(r => r.Status = BulkUploadResultStatus.Error);
-                    _bulkUpload.AddError(eResponseStatus.Error, $"An unexpected error occored during ingest handler, {ex.Message}");
-                    _logger.Error($"Trying to set fatal status on BulkUploadId:[{serviceEvent.BulkUploadId}] Date:[{_eventData.DateOfProgramsToIngest}].", ex);
-                    _bulkUpload.AddError(eResponseStatus.Error, $"An unexpected error occored during ingest, {ex.Message}");
+                    _logger.Error($"Trying to set fatal status on BulkUploadId:[{serviceEvent.BulkUploadId}] targetIndexName:[{serviceEvent.TargetIndexName}].", ex);
+                    _bulkUpload.AddError(eResponseStatus.Error, $"An unexpected error occured during ingest, {ex.Message}");
                     var result = BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_bulkUpload, BulkUploadJobStatus.Fatal);
+                    if (result.IsOkStatusCode()) TrySendIngestCompleted(BulkUploadJobStatus.Fatal);
                     _logger.Error($"An Exception occurred in BulkUploadIngestValidationHandler requestId:[{_eventData.RequestId}], BulkUploadId:[{_eventData.BulkUploadId}], update result status [{result.Status}].", ex);
                 }
                 catch (Exception innerEx)
                 {
-                    _logger.Error($"An Exception occurred when trying to set FATAL status on bulkUpload. requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}] Date:[{_eventData.DateOfProgramsToIngest}].", innerEx);
+                    _logger.Error($"An Exception occurred when trying to set FATAL status on bulkUpload. requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}] targetIndexName:[{serviceEvent.TargetIndexName}].", innerEx);
                     throw;
                 }
 
@@ -180,7 +189,7 @@ namespace IngestHandler
             _logger.Debug($"Starting BulkUploadIngestHandler  requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}]");
             _epgBL = new TvinciEpgBL(serviceEvent.GroupId);
             _eventData = serviceEvent;
-            _logPrefix = $"BulkUploadId [{_eventData.BulkUploadId}], Date:[{_eventData.DateOfProgramsToIngest}] >"; // TODO should be contextual logging
+            _logPrefix = $"BulkUploadId [{_eventData.BulkUploadId}], targetIndexName:[{serviceEvent.TargetIndexName}] >"; // TODO should be contextual logging
             ValidateServiceEvent();
             _bulkUpload = BulkUploadMethods.GetBulkUploadData(serviceEvent.GroupId, serviceEvent.BulkUploadId);
             if (_bulkUpload.Results?.Any() != true) { throw new Exception("received bulk upload without any crud operations"); }
@@ -351,6 +360,8 @@ namespace IngestHandler
             epgItem.Tags = parsedProg.ParseTags(langCode, defaultLangCode, bulkUploadResultItem, isMultilingualFallback);
             epgItem.regions = GetRegions(epgItem.LinearMediaId);
 
+            epgItem.ExternalOfferIds = parsedProg.ParseExternalOfferIds(langCode, defaultLangCode, bulkUploadResultItem);
+
             PrepareEpgItemImages(parsedProg.icon, epgItem);
 
             return epgItem;
@@ -372,7 +383,7 @@ namespace IngestHandler
             epgItem.pictures = epgItem.pictures ?? new List<EpgPicture>();
             var groupRatioNamesToImageTypes = Core.Catalog.CatalogManagement.ImageManager.GetImageTypesMapBySystemName(_eventData.GroupId);
             var nonOpcGroupRatios = EpgDal.Get_PicsEpgRatios();
-            var isOpc = GroupSettingsManager.IsOpc(_eventData.GroupId);
+            var isOpc = GroupSettingsManager.Instance.IsOpc(_eventData.GroupId);
             foreach (var icon in icons)
             {
                 var epgPicture = new EpgPicture();
@@ -433,15 +444,6 @@ namespace IngestHandler
             }
         }
 
-        private static RetryPolicy GetRetryPolicy<TException>(int retryCount = 3) where TException : Exception
-        {
-            return Policy.Handle<TException>()
-                .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time, attempt, ctx) =>
-                {
-                    _logger.Warn($"upsert attempt [{attempt}/{retryCount}] Failed, waiting for:[{time.TotalSeconds}] seconds.", ex);
-                });
-        }
-
         private Dictionary<string, EpgCB> GetAutoFillEpgCBDocuments(EpgProgramBulkUploadObject prog)
         {
             var autofillDocs = new Dictionary<string, EpgCB>();
@@ -475,6 +477,15 @@ namespace IngestHandler
             return _linearChannelToRegionsMap.Value.TryGetValue(linearMediaId, out var regions)
                 ? regions
                 : null;
+        }
+
+        private void TrySendIngestCompleted(BulkUploadJobStatus newStatus)
+        {
+            if (!BulkUpload.IsProcessCompletedByStatus(newStatus)) return;
+
+            var updateDate = DateTime.UtcNow; // TODO looks like _bulUpload.UpdateDate is not updated in CB
+            _epgIngestMessaging.EpgIngestCompleted(_bulkUpload.GroupId, _bulkUpload.UpdaterId,
+                _bulkUpload.Id, newStatus, _bulkUpload.Errors, updateDate);
         }
     }
 }

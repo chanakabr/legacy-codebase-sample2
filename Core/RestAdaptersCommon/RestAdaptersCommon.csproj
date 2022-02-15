@@ -23,7 +23,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AdaptersCommon\AdaptersCommon.csproj" />
-    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
   </ItemGroup>
   
    <!-- This is a workaround that will allow TVM website project to build, if you read this an 

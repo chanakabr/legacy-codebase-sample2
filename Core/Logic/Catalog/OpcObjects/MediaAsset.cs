@@ -40,6 +40,7 @@ namespace Core.Catalog
         [JsonProperty("MediaType")]
         public MediaType MediaType { get; set; }
 
+        [ExcelColumn(ExcelColumnType.Basic, AssetManager.ENTRY_ID_META_SYSTEM_NAME, IsMandatory = true)]
         [JsonProperty("EntryId")]
         public string EntryId { get; set; }
 
@@ -253,6 +254,12 @@ namespace Core.Catalog
                 excelValues.TryAdd(excelColumn, this.IsActive);
             }
 
+            if (!string.IsNullOrEmpty(this.EntryId))
+            {
+                var excelColumn = ExcelColumn.GetFullColumnName(AssetManager.ENTRY_ID_META_SYSTEM_NAME, null, null, true);
+                excelValues.TryAdd(excelColumn, this.EntryId);
+            }
+
             return excelValues;
         }
 
@@ -439,6 +446,14 @@ namespace Core.Catalog
             if (columnValue.Key.Equals(externalIdColumnName))
             {
                 this.CoGuid = columnValue.Value.ToString();
+                return;
+            }
+
+            // ENTRY_ID
+            var entryIdColumnName = ExcelColumn.GetFullColumnName(AssetManager.ENTRY_ID_META_SYSTEM_NAME, null, null, true);
+            if (columnValue.Key.Equals(entryIdColumnName))
+            {
+                this.EntryId = columnValue.Value.ToString();
                 return;
             }
         }

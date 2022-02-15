@@ -5,7 +5,7 @@ using ApiObjects;
 using ApiObjects.Notification;
 using Core.Notification.Adapters;
 using DAL;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -265,7 +265,7 @@ namespace Core.Notification
                 // get iot registration data
                 if (!string.IsNullOrEmpty(udid))
                 {
-                    iotDevice = NotificationDal.Instance.GetRegisteredDevice(groupId.ToString(), udid);
+                    iotDevice = IotManager.Instance.GetRegisteredDevice(groupId, udid);
                     if (iotDevice == null)
                     {
                         log.Error($"Iot device wasn't found. groupId: {groupId}, udid: {udid}");
@@ -974,7 +974,7 @@ namespace Core.Notification
                 foreach (var udid in udids)
                 {
                     //check if iot
-                    var deviceData = NotificationDal.Instance.GetRegisteredDevice(groupId.ToString(), udid);
+                    var deviceData = IotManager.Instance.GetRegisteredDevice(groupId, udid);
 
                     if (deviceData == null || string.IsNullOrEmpty(deviceData.Udid))
                     {

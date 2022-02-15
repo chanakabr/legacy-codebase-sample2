@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Ingest.Clients.ClientManager;
 
 namespace Ingest.Clients

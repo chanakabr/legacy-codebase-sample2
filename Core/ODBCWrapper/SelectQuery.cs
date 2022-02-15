@@ -2,8 +2,8 @@ using System;
 using System.Data.SqlClient;
 using System.Reflection;
 using System.Web;
-using ConfigurationManager;
-using KLogMonitor;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
 
 namespace ODBCWrapper
 {
@@ -157,7 +157,7 @@ namespace ODBCWrapper
                     command.Connection = con;
 
                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() })
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() })
                     {
                         m_myReader = command.ExecuteReader();
                     }

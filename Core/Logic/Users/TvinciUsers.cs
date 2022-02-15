@@ -4,10 +4,10 @@ using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.Segmentation;
 using CachingProvider.LayeredCache;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using DAL;
-using KLogMonitor;
-using KlogMonitorHelper;
+using Phx.Lib.Log;
+
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -947,7 +947,7 @@ namespace Core.Users
                             if ((DateTime.UtcNow - timeStamp).TotalMinutes >= cache_period)
                             {
                                 // save monitor and logs context data
-                                ContextData contextData = new ContextData();
+                                LogContextData contextData = new LogContextData();
 
                                 Thread thread = new Thread(() =>
                                 {

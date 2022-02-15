@@ -1,37 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <Version>5.2.0.8667</Version>
-    <AssemblyTitle>2019-05-16 18:23:21 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-0-228-g9a5fe5ee-dirty</AssemblyTitle>
+    <TargetFramework>net48</TargetFramework>
   </PropertyGroup>
-  
-  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
-    <TargetFrameworks>netcoreapp3.1;net48</TargetFrameworks>
-  </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />
+    <ProjectReference Include="..\ElasticSearchHandler\ElasticSearchHandler.csproj" />
+    <ProjectReference Include="..\RemoteTasksCommon\RemoteTasksCommon.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj" />
-    <ProjectReference Include="..\..\Core\DAL\DAL.csproj" />
-    <ProjectReference Include="..\..\Core\ElasticSearch\ElasticSearch.csproj" />
-    <ProjectReference Include="..\..\Core\GroupsCacheManager\GroupsCacheManager.csproj" />
-    <ProjectReference Include="..\..\Core\KlogMonitorHelper\KlogMonitorHelper.csproj" />
-    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
-	<ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj" />
-	<ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />
-	<ProjectReference Include="..\..\Core\ODBCWrapper\ODBCWrapper.csproj" />
-	<ProjectReference Include="..\..\Core\Synchronizer\Synchronizer.csproj" />
-	<ProjectReference Include="..\..\Core\TVinciShared\TVinciShared.csproj" />
-	<ProjectReference Include="..\ElasticsearchHandlerCommon\ElasticsearchTasksCommon.csproj" />
-	<ProjectReference Include="..\ElasticSearchHandler\ElasticSearchHandler.csproj" />
-	<ProjectReference Include="..\RemoteTasksCommon\RemoteTasksCommon.csproj" />
-  </ItemGroup>
-
 </Project>

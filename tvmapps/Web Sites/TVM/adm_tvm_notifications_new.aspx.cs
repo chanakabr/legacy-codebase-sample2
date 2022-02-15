@@ -7,7 +7,7 @@ using System.Web.UI.WebControls;
 using TVinciShared;
 using System.Configuration;
 using System.Data;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 
 public partial class adm_tvm_notifications_new : System.Web.UI.Page

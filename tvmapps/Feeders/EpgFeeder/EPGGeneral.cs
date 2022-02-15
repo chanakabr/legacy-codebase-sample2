@@ -1,7 +1,7 @@
 ﻿using ApiObjects;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using EpgBL;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.IO;

@@ -4,7 +4,7 @@ using System.Configuration;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Tvinci.Data.Loaders;
 using TVPApi;
 using TVPApiModule.Objects.Responses;
@@ -17,7 +17,7 @@ using Core.Catalog.Request;
 using Core.Catalog.Response;
 using UnifiedSearchResponse = Core.Catalog.Response.UnifiedSearchResponse;
 using Core.Catalog;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace TVPApiModule.CatalogLoaders
 {

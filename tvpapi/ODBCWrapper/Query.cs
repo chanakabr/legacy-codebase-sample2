@@ -1,7 +1,7 @@
 using System;
 using System.Data.Odbc;
 using System.Collections;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using System.Data.SqlClient;
 

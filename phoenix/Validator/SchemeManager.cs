@@ -1,4 +1,4 @@
-﻿using KLogMonitor;
+﻿using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -55,14 +55,13 @@ namespace Validator.Managers.Scheme
 
         private static string GetProjectDir()
         {
-            string filename = Assembly.GetExecutingAssembly().CodeBase;
+            var assembly = Assembly.GetExecutingAssembly();
             const string prefix = "file:///";
-
-            if (filename.StartsWith(prefix))
+            if (assembly.CodeBase.StartsWith(prefix))
             {
-                FileInfo dll = new FileInfo(filename.Substring(prefix.Length));
-                var projectDir = dll.Directory.Parent.Parent.Parent.Parent;
-                return $"{projectDir.FullName}\\..\\Core\\";
+                FileInfo dll = new FileInfo(assembly.Location);
+                var projectDir = dll.Directory.Parent.Parent.Parent.Parent.Parent;
+                return Path.Combine(projectDir.FullName, "Core");
             }
             else
             {

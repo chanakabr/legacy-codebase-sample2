@@ -6,7 +6,7 @@ using System.Xml;
 using System.Data;
 using System.Data.OleDb;
 using System.Configuration;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 
 namespace XMLAdapter

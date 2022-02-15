@@ -1,8 +1,7 @@
 ﻿using System.Web;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
-using KlogMonitorHelper;
-using KLogMonitor;
+using Phx.Lib.Log;
 
 
 namespace WebAPI.Filters
@@ -12,7 +11,7 @@ namespace WebAPI.Filters
         
         public override void OnActionExecuting(HttpActionContext actionContext)
         {
-            var contextData = new ContextData();
+            var contextData = new LogContextData();
             contextData.Load();
         }
     }

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Runtime.Caching;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace ODBCWrapper
 {

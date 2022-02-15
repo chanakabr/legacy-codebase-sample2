@@ -12,7 +12,7 @@ using AutoMapper;
 using Core.Catalog.CatalogManagement;
 using Core.Pricing;
 using Couchbase.IO.Operations.Errors;
-using KLogMonitor;
+using Phx.Lib.Log;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -3039,40 +3039,6 @@ namespace WebAPI.Clients
             return responseSettings;
         }
 
-        internal KalturaRegionListResponse GetRegions(int groupId, KalturaRegionFilter filter, int pageIndex, int pageSize)
-        {
-            List<KalturaRegion> regions = new List<KalturaRegion>();
-            GenericListResponse<Region> response = null;
-
-            RegionFilter wsFilter = AutoMapper.Mapper.Map<RegionFilter>(filter);
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Api.Module.GetRegions(groupId, wsFilter, pageIndex, pageSize);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException(StatusCode.Error);
-            }
-
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response.Status);
-            }
-
-            regions = AutoMapper.Mapper.Map<List<KalturaRegion>>(response.Objects);
-
-            return new KalturaRegionListResponse() { Regions = regions, TotalCount = response.TotalItems };
-        }
-
         internal KalturaDeviceFamilyListResponse GetDeviceFamilyList(int groupId)
         {
 
@@ -4348,19 +4314,59 @@ namespace WebAPI.Clients
             return response;
 
         }
+        
+        #region
+
+        internal KalturaGenericListResponse<KalturaRegion> GetRegions(int groupId, RegionFilter filter, int pageIndex, int pageSize)
+        {
+            var isMultiLcnsEnabled = GeneralPartnerConfigManager.Instance.GetGeneralPartnerConfig(groupId)?.EnableMultiLcns == true;
+
+            Func<GenericListResponse<Region>> getRegionsFunc = () => Core.Api.Module.GetRegions(groupId, filter, pageIndex, pageSize);
+            var response = ClientUtils.GetResponseListFromWS<KalturaRegion, Region>(getRegionsFunc);
+            response.Objects = GetUpdatedKalturaRegions(isMultiLcnsEnabled, response.Objects);
+
+            return response;
+        }
+
+        internal KalturaRegionListResponse GetDefaultRegion(int groupId)
+        {
+            var isMultiLcnsEnabled = GeneralPartnerConfigManager.Instance.GetGeneralPartnerConfig(groupId)?.EnableMultiLcns == true;
+
+            Func<GenericListResponse<Region>> getDefaultRegionFunc = () => Core.Api.Module.GetDefaultRegion(groupId);
+            var response = ClientUtils.GetResponseListFromWS<KalturaRegion, Region>(getDefaultRegionFunc);
+            response.Objects = GetUpdatedKalturaRegions(isMultiLcnsEnabled, response.Objects);
+
+            var result = new KalturaRegionListResponse
+            {
+                Regions = new List<KalturaRegion>(response.Objects),
+                TotalCount = response.TotalCount
+            };
+
+            return result;
+        }
 
         internal KalturaRegion AddRegion(int groupId, KalturaRegion region, long userId)
         {
-            Func<Region, GenericResponse<Region>> addRegionFunc = (Region regionToToAdd) => Core.Api.Module.AddRegion(groupId, regionToToAdd, userId);
+            var isMultiLcnsEnabled = GeneralPartnerConfigManager.Instance.GetGeneralPartnerConfig(groupId)?.EnableMultiLcns == true;
+            region.RegionalChannels = GetKalturaRegionalChannelsList(isMultiLcnsEnabled, region.RegionalChannels);
 
-            return ClientUtils.GetResponseFromWS<KalturaRegion, Region>(region, addRegionFunc);
+            Func<Region, GenericResponse<Region>> addRegionFunc = regionToToAdd => Core.Api.Module.AddRegion(groupId, regionToToAdd, userId);
+            var response = ClientUtils.GetResponseFromWS(region, addRegionFunc);
+            response.RegionalChannels = GetUpdatedKalturaRegionalChannels(isMultiLcnsEnabled, response.RegionalChannels);
+
+            return response;
         }
 
         internal KalturaRegion UpdateRegion(int groupId, KalturaRegion region, long userId)
         {
-            Func<Region, GenericResponse<Region>> updateRegionFunc = (Region regionToToUpdate) => Core.Api.Module.UpdateRegion(groupId, regionToToUpdate, userId);
+            var isMultiLcnsEnabled = GeneralPartnerConfigManager.Instance.GetGeneralPartnerConfig(groupId)?.EnableMultiLcns == true;
+            region.RegionalChannels = GetKalturaRegionalChannelsList(isMultiLcnsEnabled, region.RegionalChannels);
 
-            return ClientUtils.GetResponseFromWS<KalturaRegion, Region>(region, updateRegionFunc);
+            Func<Region, GenericResponse<Region>> updateRegionFunc = regionToToUpdate => Core.Api.Module.UpdateRegion(groupId, regionToToUpdate, userId);
+            var response = ClientUtils.GetResponseFromWS(region, updateRegionFunc);
+            response.RegionalChannels = GetUpdatedKalturaRegionalChannels(isMultiLcnsEnabled, response.RegionalChannels);
+
+            return response;
         }
 
         internal void DeleteRegion(int groupId, int id, long userId)
@@ -4371,6 +4377,9 @@ namespace WebAPI.Clients
 
         internal bool BulkUpdateRegions(int groupId, long userId, long linearChannelId, IReadOnlyCollection<KalturaRegionChannelNumber> regionChannelNumbers)
         {
+            var isMultiLcnsEnabled = GeneralPartnerConfigManager.Instance.GetGeneralPartnerConfig(groupId)?.EnableMultiLcns == true;
+            regionChannelNumbers = GetKalturaRegionChannelNumberList(isMultiLcnsEnabled, regionChannelNumbers);
+
             var mappedRegionChannelNumbers = Mapper.Map<List<RegionChannelNumber>>(regionChannelNumbers);
 
             Func<Status> updateFunc = () => Core.Api.Module.BulkUpdateRegions(groupId, userId, linearChannelId, mappedRegionChannelNumbers);
@@ -4378,6 +4387,72 @@ namespace WebAPI.Clients
 
             return response;
         }
+
+        private static List<KalturaRegionalChannel> GetKalturaRegionalChannelsList(bool isMultiLcnsEnabled, IReadOnlyCollection<KalturaRegionalChannel> regionalChannels)
+        {
+            if (regionalChannels == null)
+            {
+                return null;
+            }
+
+            var multiLcnRegionalChannels = regionalChannels
+                .OfType<KalturaRegionalChannelMultiLcns>()
+                .ToArray();
+            var newRegionalChannels = isMultiLcnsEnabled
+                ? multiLcnRegionalChannels.SelectMany(x => x.ParsedLcns.Select(_ => new KalturaRegionalChannel(x.LinearChannelId, _)))
+                : multiLcnRegionalChannels.Select(x => new KalturaRegionalChannel(x.LinearChannelId, x.ParsedLcns.First()));
+
+            var result = regionalChannels
+                .Except(multiLcnRegionalChannels)
+                .Concat(newRegionalChannels)
+                .ToList();
+
+            return result;
+        }
+
+        private static List<KalturaRegionChannelNumber> GetKalturaRegionChannelNumberList(bool enableMultiLcns, IReadOnlyCollection<KalturaRegionChannelNumber> regionChannelNumbers)
+        {
+            var multiRegionChannelNumbers = regionChannelNumbers
+                .OfType<KalturaRegionChannelNumberMultiLcns>()
+                .ToArray();
+            var newRegionChannelNumbers = enableMultiLcns
+                ? multiRegionChannelNumbers.SelectMany(x => x.ParsedLcns.Select(_ => new KalturaRegionChannelNumber(x.RegionId, _)))
+                : multiRegionChannelNumbers.Select(x => new KalturaRegionChannelNumber(x.RegionId, x.ParsedLcns.First()));
+
+            var result = regionChannelNumbers
+                .Except(multiRegionChannelNumbers)
+                .Concat(newRegionChannelNumbers)
+                .ToList();
+
+            return result;
+        }
+
+        private static List<KalturaRegion> GetUpdatedKalturaRegions(bool isMultiLcnsEnabled, List<KalturaRegion> regions)
+        {
+            if (isMultiLcnsEnabled)
+            {
+                foreach (var region in regions)
+                {
+                    region.RegionalChannels = GetUpdatedKalturaRegionalChannels(true, region.RegionalChannels);
+                }
+            }
+
+            return regions;
+        }
+
+        private static List<KalturaRegionalChannel> GetUpdatedKalturaRegionalChannels(bool isMultiLcnsEnabled, IEnumerable<KalturaRegionalChannel> regionalChannels)
+        {
+            return isMultiLcnsEnabled
+                ? regionalChannels
+                    .GroupBy(x => x.LinearChannelId, x => x.ChannelNumber)
+                    .Select(x => new KalturaRegionalChannelMultiLcns(x.Key, x.First(), string.Join(",", x)))
+                    .Cast<KalturaRegionalChannel>()
+                    .ToList()
+                : regionalChannels
+                    .ToList();
+        }
+
+        #endregion
 
         internal bool UpdateObjectVirtualAssetPartnerConfiguration(int groupId, KalturaObjectVirtualAssetPartnerConfig partnerConfig)
         {
@@ -4458,21 +4533,6 @@ namespace WebAPI.Clients
 
             KalturaPlaybackContext result =
                 ClientUtils.GetResponseFromWS<KalturaPlaybackContext, ApiObjects.PlaybackAdapter.PlaybackContext>(kalturaPlaybackContext, updateBusinessModuleRuleFunc);
-
-            return result;
-        }
-
-        internal KalturaRegionListResponse GetDefaultRegion(int groupId)
-        {
-            KalturaRegionListResponse result = new KalturaRegionListResponse();
-
-            Func<GenericListResponse<Region>> getDefaultRegionFunc = () => Core.Api.Module.GetDefaultRegion(groupId);
-
-            KalturaGenericListResponse<KalturaRegion> response =
-                ClientUtils.GetResponseListFromWS<KalturaRegion, Region>(getDefaultRegionFunc);
-
-            result.Regions = new List<KalturaRegion>(response.Objects);
-            result.TotalCount = response.TotalCount;
 
             return result;
         }

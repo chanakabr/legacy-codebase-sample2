@@ -2,11 +2,12 @@
 using RemoteTasksCommon;
 using System;
 using System.Text;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using System.IO;
 using System.Net.Http;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Appconfig.Types;
 
 namespace ProfessionalServicesHandler
 {

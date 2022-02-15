@@ -10,9 +10,9 @@ using System.IO;
 using Tvinci.Core.DAL;
 using System.IO.Compression;
 using ApiObjects.Epg;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace EPG_XDTVTransform
 {

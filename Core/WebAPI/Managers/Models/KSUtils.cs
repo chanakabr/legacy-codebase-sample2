@@ -84,7 +84,7 @@ namespace WebAPI.Managers.Models
             if (pl.ContainsKey(PAYLOAD_USER_ROLES))
             {
                 userRoles.AddRange(pl[PAYLOAD_USER_ROLES].GetItemsIn<long>(out _));
-            }
+            } 
 
             pl.TryGetValue(PAYLOAD_SESSION_CHARACTERISTIC_KEY, out var sessionCharacteristicKey);
 

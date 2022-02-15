@@ -496,10 +496,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.RegionId, opt => opt.MapFrom(src => src.RegionId))
                 .ForMember(dest => dest.ChannelNumber, opt => opt.MapFrom(src => src.ChannelNumber));
 
-            cfg.CreateMap<RegionChannelNumber, KalturaRegionChannelNumber>()
-                .ForMember(dest => dest.RegionId, opt => opt.MapFrom(src => src.RegionId))
-                .ForMember(dest => dest.ChannelNumber, opt => opt.MapFrom(src => src.ChannelNumber));
-
             #endregion
 
             #region Device Family

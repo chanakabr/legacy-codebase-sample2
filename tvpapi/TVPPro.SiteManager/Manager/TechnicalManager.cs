@@ -14,7 +14,7 @@ using TVPPro.Configuration.Technical;
 using Tvinci.Configuration;
 using Tvinci.Localization;
 using TVPPro.Configuration.Online;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 
 namespace TVPPro.SiteManager.Manager

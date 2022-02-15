@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
-using KLogMonitor;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -84,7 +85,7 @@ namespace OPC_Migration
         {
             string retVal;
             //Get key from DB
-            string hmacSecret = ConfigurationManager.ApplicationConfiguration.Current.WebServicesConfiguration.Catalog.SignatureKey.Value;
+            string hmacSecret = ApplicationConfiguration.Current.WebServicesConfiguration.Catalog.SignatureKey.Value;
             // The HMAC secret as configured in the skin
             // Values are always transferred using UTF-8 encoding
             System.Text.UTF8Encoding encoding = new System.Text.UTF8Encoding();

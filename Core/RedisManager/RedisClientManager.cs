@@ -1,7 +1,7 @@
-﻿using ConfigurationManager;
+﻿using Phx.Lib.Appconfig;
 using StackExchange.Redis;
 using System.Reflection;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;

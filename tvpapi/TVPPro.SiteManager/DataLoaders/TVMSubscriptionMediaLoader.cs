@@ -14,7 +14,7 @@ using System.Data;
 using System.Configuration;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Manager;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace TVPPro.SiteManager.DataLoaders
 {

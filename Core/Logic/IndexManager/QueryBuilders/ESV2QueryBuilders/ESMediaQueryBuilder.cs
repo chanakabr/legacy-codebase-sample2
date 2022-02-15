@@ -5,8 +5,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using ApiObjects.SearchObjects;
-using KLogMonitor;
-using ConfigurationManager;
+using Phx.Lib.Log;
+using Phx.Lib.Appconfig;
 using ElasticSearch.Searcher;
 
 namespace ApiLogic.IndexManager.QueryBuilders

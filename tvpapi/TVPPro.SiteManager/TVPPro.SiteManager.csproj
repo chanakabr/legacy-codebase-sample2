@@ -137,7 +137,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj" />
-    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />
     <ProjectReference Include="..\..\Core\TVinciShared\TVinciShared.csproj" />
     <ProjectReference Include="..\DataLoader\Tvinci.Data.DataLoader.csproj" />
@@ -492,7 +491,5 @@
     <Compile Remove="DataEntities\dsBrowseByABC.Designer.cs" />
     <Compile Remove="Services\FacebookService.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-  </ItemGroup>
+
 </Project>

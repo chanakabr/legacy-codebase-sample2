@@ -5,7 +5,7 @@ using System.Text;
 using keygen4Lib;
 using System.Net;
 using System.Web;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using System.Runtime.Caching;
 

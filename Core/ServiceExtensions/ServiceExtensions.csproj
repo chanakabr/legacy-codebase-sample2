@@ -21,20 +21,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\KlogMonitorHelper\KlogMonitorHelper.csproj" />
-    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
+    <PackageReference Include="Phx.Lib.Log" Version="1.2.3" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
     <Reference Include="System.configuration" />
-    <!--<Reference Include="System.ServiceModel" />-->
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Services" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <ProjectReference Include="..\StaticHttpContextForNetCore\StaticHttpContextForNetCore.csproj" />
+    <PackageReference Include="Phx.Lib.Static.HttpContext" Version="1.5.2" />
   </ItemGroup>
 
 </Project>
-

@@ -14,7 +14,7 @@ using ApiObjects.Rules;
 using ApiObjects.SubscriptionSet;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Api.Managers;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
@@ -27,8 +27,8 @@ using Core.Users;
 using DAL;
 using EpgBL;
 using GroupsCacheManager;
-using KLogMonitor;
-using KlogMonitorHelper;
+using Phx.Lib.Log;
+
 using NPVR;
 using QueueWrapper;
 using System;
@@ -3991,11 +3991,13 @@ namespace Core.ConditionalAccess
             {
                 string productCode = string.Empty;
                 MediaFileStatus eMediaFileStatus = MediaFileStatus.OK;
+                bool isOpc = false;
 
                 Dictionary<int, int> mapperDic = new Dictionary<int, int>();
 
                 if (withMediaFilesInvalidation)
                 {
+                    isOpc = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
                     MeidaMaper[] mapper = GetMediaMapper(groupId, nMediaFiles);
                     if (mapper != null)
                     {
@@ -4026,7 +4028,14 @@ namespace Core.ConditionalAccess
 
                     if (mapperDic.ContainsKey(mf))
                     {
-                        invalidationKeysMap.Add(mfKey, new List<string>() { LayeredCacheKeys.GetAssetInvalidationKey(groupId, eAssetTypes.MEDIA.ToString(), mapperDic[mf]) });
+                        string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(groupId, eAssetTypes.MEDIA.ToString(), mapperDic[mf]);
+                        
+                        if (!isOpc)
+                        {
+                            invalidationKey = LayeredCacheKeys.GetMediaInvalidationKey(groupId, mapperDic[mf]);
+                        }
+                        
+                        invalidationKeysMap.Add(mfKey, new List<string>() { invalidationKey });
                     }
                 }
 
@@ -4439,7 +4448,7 @@ namespace Core.ConditionalAccess
                         int collCode = 0;
                         if (Int32.TryParse(bundleCode, out collCode) && collCode > 0)
                         {
-                            if (!userBundleEntitlements.EntitledCollections.ContainsKey(bundleCode))
+                            if (!userBundleEntitlements.EntitledCollections.ContainsKey(bundleCode) && endDate >= DateTime.UtcNow)
                             {
                                 userBundleEntitlements.EntitledCollections.Add(bundleCode, new UserBundlePurchase()
                                 {
@@ -5792,7 +5801,6 @@ namespace Core.ConditionalAccess
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             DateTime newEpgStartDate;
-
             if (epgStartDate.HasValue)
             {
                 newEpgStartDate = epgStartDate.Value;
@@ -5821,6 +5829,17 @@ namespace Core.ConditionalAccess
                     response.Set((int)eResponseStatus.CatchUpBufferLimitation, eResponseStatus.CatchUpBufferLimitation.ToString());
                     return response;
                 }
+            }
+
+            return response;
+        }
+
+        internal static ApiObjects.Response.Status ValidateEpgForStartOver(EPGChannelProgrammeObject epg)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            if (epg.ENABLE_START_OVER != 1)
+            {
+                response.Set((int)eResponseStatus.ProgramStartOverNotEnabled, eResponseStatus.ProgramStartOverNotEnabled.ToString());
             }
 
             return response;
@@ -8023,7 +8042,7 @@ namespace Core.ConditionalAccess
 
         private static List<MediaFile> ValidateMediaFilesUponSecurity(List<MediaFile> allMediafiles, int groupId)
         {
-            if (!GroupSettingsManager.IsOpc(groupId))
+            if (!GroupSettingsManager.Instance.IsOpc(groupId))
             {
                 // If group is not OPC, we should check child subgroups for permissions as well.
                 var subGroups = new GroupManager().GetSubGroup(groupId);
@@ -8035,7 +8054,7 @@ namespace Core.ConditionalAccess
 
         public static bool IsOpc(int groupId)
         {
-            return GroupSettingsManager.IsOpc(groupId);
+            return GroupSettingsManager.Instance.IsOpc(groupId);
         }
 
         internal static ApiObjects.Response.Status GetMediaIdForAsset(int groupId, string assetId, eAssetTypes assetType, string userId, Domain domain, string udid,
@@ -8882,7 +8901,7 @@ namespace Core.ConditionalAccess
             return (dtEndDate);
         }
 
-        internal static void InsertOfflinePpvUse(int groupId, int mediaFileId, string productCode, string userId, string countryCode, string languageCode, string udid, int nRelPP, int releventCollectionID, ContextData context)
+        internal static void InsertOfflinePpvUse(int groupId, int mediaFileId, string productCode, string userId, string countryCode, string languageCode, string udid, int nRelPP, int releventCollectionID, LogContextData context)
         {
             try
             {
@@ -8898,7 +8917,7 @@ namespace Core.ConditionalAccess
             }
         }
 
-        internal static void InsertOfflineSubscriptionUse(int groupId, int mediaFileId, string productCode, string userId, string countryCode, string languageCode, string udid, int nRelPP, ContextData context)
+        internal static void InsertOfflineSubscriptionUse(int groupId, int mediaFileId, string productCode, string userId, string countryCode, string languageCode, string udid, int nRelPP, LogContextData context)
         {
             try
             {
@@ -9684,6 +9703,13 @@ namespace Core.ConditionalAccess
 
         internal static bool RenewUnifiedTransactionMessageInQueue(int groupId, long householdId, long endDateUnix, DateTime nextRenewalDate, long processId)
         {
+            if (nextRenewalDate > DateTime.UtcNow.AddYears(1).AddDays(5))
+            {
+                //BEO-11219
+                log.Debug($"BEO-11219 - skip Enqueue unified renew msg (more then 1 year)! processId:{processId}, endDateUnix:{endDateUnix}");
+                return true;
+            }
+
             log.DebugFormat("RenewUnifiedTransactionMessageInQueue (RenewUnifiedData) processId:{0}", processId);
 
             // add new message to new routing key queue
@@ -9732,7 +9758,7 @@ namespace Core.ConditionalAccess
             }
         }
 
-        internal static void InsertOfflineCollectionUse(int groupId, int mediaFileId, string productCode, string userId, string countryCode, string languageCode, string udid, int nRelPP, ContextData context)
+        internal static void InsertOfflineCollectionUse(int groupId, int mediaFileId, string productCode, string userId, string countryCode, string languageCode, string udid, int nRelPP, LogContextData context)
         {
             try
             {

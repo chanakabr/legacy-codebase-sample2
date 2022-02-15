@@ -1,4 +1,4 @@
-﻿using ConfigurationManager;
+﻿using Phx.Lib.Appconfig;
 using System.Collections.Concurrent;
 using WebAPI.Clients;
 

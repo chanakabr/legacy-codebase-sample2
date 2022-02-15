@@ -7,9 +7,9 @@ using System.Threading;
 using System.Configuration;
 using Tvinci.Configuration.ConfigSvc;
 using TVPPro.Configuration.Media;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 
 namespace TVPApi.Configuration.Media
 {

@@ -1,24 +1,28 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 using System.Threading;
 using ApiLogic.Catalog.IndexManager;
 using CachingProvider.LayeredCache;
 using CanaryDeploymentManager;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Catalog.Cache;
 using EventBus.Kafka;
 using ElasticSearch.Common;
 using Core.Catalog.CatalogManagement;
 using ApiLogic.Catalog;
+using ApiLogic.IndexManager.Helpers;
 using ApiObjects.CanaryDeployment.Elasticsearch;
 using ElasticSearch.NEST;
 using ElasticSearch.Utilities;
 using ApiLogic.IndexManager.QueryBuilders;
 using TvinciCache.Adapters;
 using ApiLogic.IndexManager.Mappings;
+using Core.GroupManagers;
+using ApiLogic.IndexManager.Sorting;
+using ElasticSearch.Utils;
 using TVinciShared;
 
 namespace Core.Catalog
@@ -100,7 +104,9 @@ namespace Core.Catalog
                         WatchRuleManager.Instance,
                         ChannelQueryBuilder.Instance,
                         GroupsFeatureAdapter.Instance,
-                        LayeredCache.Instance);
+                        LayeredCache.Instance,
+                        NamingHelper.Instance,
+                        GroupSettingsManager.Instance);
 
                     if (isMigrationEventsEnabled)
                     {
@@ -126,7 +132,14 @@ namespace Core.Catalog
                         CatalogCache.Instance(),
                         WatchRuleManager.Instance,
                         ChannelQueryBuilder.Instance,
-                        MappingTypeResolver.Instance);
+                        MappingTypeResolver.Instance,
+                        NamingHelper.Instance,
+                        GroupSettingsManager.Instance,
+                        SortingService.Instance,
+                        StartDateAssociationTagsSortStrategy.Instance, 
+                        StatisticsSortStrategy.Instance,
+                        SortingAdapter.Instance,
+                        EsSortingService.Instance);
 
                     if (isMigrationEventsEnabled)
                     {

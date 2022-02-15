@@ -6,7 +6,7 @@ using ApiObjects.Rules;
 using ApiObjects.Segmentation;
 using ApiObjects.User.SessionProfile;
 using Core.Api;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;

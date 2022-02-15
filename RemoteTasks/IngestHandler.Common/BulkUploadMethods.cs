@@ -1,14 +1,18 @@
 ﻿using ApiObjects.BulkUpload;
 using Core.Catalog.CatalogManagement;
 using DalCB;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using Polly;
 using System.Linq;
-using ConfigurationManager;
+using ApiLogic.EPG;
+using ApiLogic.IndexManager.Helpers;
+using Phx.Lib.Appconfig;
+using ApiLogic.EPG;
+using ApiLogic.IndexManager.Helpers;
 using ApiObjects;
 using ApiObjects.Catalog;
 using Core.Catalog.Cache;
@@ -172,9 +176,9 @@ namespace IngestHandler.Common
             return liveAsstes;
         }
 
-        public static string GetIngestLockKey(int groupId, DateTime dateOfProgramsToIngest)
+        public static string GetIngestLockKey(string indexName)
         {
-            return $"Ingest_V2_Lock_{groupId}_{dateOfProgramsToIngest.ToString(LOCK_KEY_DATE_FORMAT)}";
+            return $"Ingest_V2_Lock_{indexName}";
         }
     }
 }

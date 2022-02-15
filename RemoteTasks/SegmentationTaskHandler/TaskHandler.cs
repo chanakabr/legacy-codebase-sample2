@@ -1,4 +1,4 @@
-﻿using KLogMonitor;
+﻿using Phx.Lib.Log;
 using Newtonsoft.Json;
 using RemoteTasksCommon;
 using System;
@@ -10,7 +10,7 @@ using System.Net;
 using System.Web;
 using QueueWrapper;
 using ApiObjects;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using ApiObjects.Segmentation;
 
 namespace SegmentationTaskHandler

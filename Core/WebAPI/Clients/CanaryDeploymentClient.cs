@@ -1,6 +1,6 @@
 ﻿using ApiObjects.CanaryDeployment;
 using ApiObjects.Response;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Reflection;
 using ApiObjects.CanaryDeployment.Elasticsearch;

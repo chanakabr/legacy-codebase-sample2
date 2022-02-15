@@ -1,12 +1,13 @@
 ﻿using ApiObjects.Notification;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using DAL;
-using KlogMonitorHelper;
+
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
+using Phx.Lib.Log;
 
 namespace Core.Notification
 {
@@ -126,7 +127,7 @@ namespace Core.Notification
             int threadSleepIndicator = this.ThreadSleepIndicator;
 
             // save monitor and logs context data
-            ContextData contextData = new ContextData();
+            LogContextData contextData = new LogContextData();
 
             for (int i = 0; i < tasksNumber; i++)
             {

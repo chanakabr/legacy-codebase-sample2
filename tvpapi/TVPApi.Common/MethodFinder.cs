@@ -9,7 +9,7 @@ using System.Text;
 using System.Xml;
 using System.Runtime.Serialization;
 using System.Xml.Linq;
-using KLogMonitor;
+using Phx.Lib.Log;
 using TVinciShared;
 
 /// <summary>

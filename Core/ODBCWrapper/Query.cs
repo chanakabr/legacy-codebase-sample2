@@ -2,7 +2,7 @@ using System;
 using System.Data.SqlClient;
 using System.Collections;
 using System.Configuration;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System.Reflection;
 
 

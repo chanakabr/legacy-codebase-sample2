@@ -1,15 +1,18 @@
-﻿using ConfigurationManager;
+﻿using Phx.Lib.Appconfig;
 using Confluent.Kafka;
 using Confluent.Kafka.Admin;
 using Couchbase.N1QL;
 using EventBus.Abstraction;
-using KLogMonitor;
+using Phx.Lib.Log;
+using Phx.Lib.Appconfig;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Phx.Lib.Appconfig.Types;
+
 
 namespace EventBus.Kafka
 {
@@ -167,7 +170,10 @@ namespace EventBus.Kafka
         {
             if (ack.Error.IsError)
             {
-                _Logger.Error($"KafkaPublisher > Delivery Report key:[{ack.Key}], val:[{ack.Value}], err:[{ack.Error}]");
+                var traceId = ack.Headers.TryGetLastBytes(REQ_ID_HEADER, out var bytes)
+                    ? System.Text.Encoding.UTF8.GetString(bytes)
+                    : "unknown";
+                _Logger.Error($"KafkaPublisher > Delivery Report key:[{ack.Key}], val:[{ack.Value}], traceId:[{traceId}], err:[{ack.Error}]");
                 _IsHealthy = false;
             }
             else

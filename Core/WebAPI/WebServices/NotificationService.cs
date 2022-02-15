@@ -3,8 +3,8 @@ using ApiObjects.Notification;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using Core.Notification;
-using KLogMonitor;
-using KlogMonitorHelper;
+using Phx.Lib.Log;
+
 using System;
 using System.Collections.Generic;
 using System.Data;

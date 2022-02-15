@@ -1,4 +1,4 @@
-﻿using KLogMonitor;
+﻿using Phx.Lib.Log;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using System;
@@ -13,7 +13,7 @@ namespace TVPApi.Web.Middleware
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public const string SESSION_HEADER_KEY = KLogMonitor.Constants.REQUEST_ID_KEY;
+        public const string SESSION_HEADER_KEY = Phx.Lib.Log.Constants.REQUEST_ID_KEY;
         private readonly RequestDelegate _Next;
 
         public TVPApiSessionId(RequestDelegate next)

@@ -1,7 +1,7 @@
 ﻿using ApiObjects.Base;
 using ApiObjects.Response;
 using Core.Pricing;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using DAL;
 using System.Collections.Generic;
@@ -14,7 +14,6 @@ using CachingProvider.LayeredCache;
 using System.Data;
 using Core.Api;
 using Core.GroupManagers;
-using Core.GroupManagers.Adapters;
 
 namespace ApiLogic.Pricing.Handlers
 {
@@ -28,7 +27,7 @@ namespace ApiLogic.Pricing.Handlers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private static readonly Lazy<DiscountDetailsManager> lazy = new Lazy<DiscountDetailsManager>(() => new DiscountDetailsManager(
-            PricingDAL.Instance, LayeredCache.Instance, GeneralPartnerConfigManager.Instance, api.Instance, GroupSettingsManagerAdapter.Instance), LazyThreadSafetyMode.PublicationOnly);
+            PricingDAL.Instance, LayeredCache.Instance, GeneralPartnerConfigManager.Instance, api.Instance, GroupSettingsManager.Instance), LazyThreadSafetyMode.PublicationOnly);
         public static DiscountDetailsManager Instance => lazy.Value;
 
         private readonly IDiscountDetailsRepository _repository;

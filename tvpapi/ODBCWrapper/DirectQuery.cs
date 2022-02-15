@@ -1,6 +1,6 @@
 using System;
 using System.Reflection;
-using KLogMonitor;
+using Phx.Lib.Log;
 
 namespace TVPApi.ODBCWrapper
 {
@@ -30,7 +30,7 @@ namespace TVPApi.ODBCWrapper
             oraStr = m_sOraStr;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = m_sOraStr })
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = m_sOraStr })
                 {
                     command.ExecuteNonQuery();
                 }

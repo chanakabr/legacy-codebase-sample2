@@ -2,13 +2,13 @@
 using ApiObjects.Response;
 using ApiObjects.Rules;
 using CachingProvider.LayeredCache;
-using ConfigurationManager;
+using Phx.Lib.Appconfig;
 using Core.Api;
 using Core.Api.Managers;
 using Core.Catalog.CatalogManagement;
 using Core.Users;
 using EpgBL;
-using KLogMonitor;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Data;
