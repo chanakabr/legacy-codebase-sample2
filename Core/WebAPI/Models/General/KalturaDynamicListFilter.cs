@@ -13,11 +13,6 @@ using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.General
 {
-    public enum KalturaDynamicListOrderBy
-    {
-        NONE
-    }
-
     /// <summary>
     /// DynamicListFilter
     /// </summary>

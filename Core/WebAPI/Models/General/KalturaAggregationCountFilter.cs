@@ -17,9 +17,4 @@ namespace WebAPI.Models.General
             return KalturaAggregationCountOrderBy.NONE;
         }
     }
-
-    public enum KalturaAggregationCountOrderBy
-    {
-        NONE
-    }
 }
