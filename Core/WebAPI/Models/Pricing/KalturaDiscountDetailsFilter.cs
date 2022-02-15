@@ -19,40 +19,10 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "idIn")]
         [SchemeProperty(DynamicMinInt = 1)]
         public string IdIn { get; set; }
-                
-        internal List<long> GetIdIn()
-        {
-            List<long> list = null;
-            if (!string.IsNullOrEmpty(IdIn))
-            {
-                list = new List<long>();
-                string[] stringValues = IdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                long longValue;
-                foreach (string stringValue in stringValues)
-                {
-                    if (long.TryParse(stringValue, out longValue))
-                    {
-                        list.Add(longValue);
-                    }
-                    else
-                    {
-                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaDiscountFilter.codeIn");
-                    }
-                }
-            }
-
-            return list;
-        }
+        
         public override KalturaDiscountFilterOrderBy GetDefaultOrderByValue()
         {
             return KalturaDiscountFilterOrderBy.CODE_ASC;
         }
     }
-
-
-    public enum KalturaDiscountFilterOrderBy
-    {
-        CODE_ASC   
-    }
-    
 }
