@@ -1,0 +1,32 @@
+﻿namespace WebAPI.Models.ConditionalAccess
+{
+    public enum KalturaRuleActionType
+    {
+        BLOCK,
+        START_DATE_OFFSET,
+        END_DATE_OFFSET,
+        USER_BLOCK,
+        ALLOW_PLAYBACK,
+        BLOCK_PLAYBACK,
+        APPLY_DISCOUNT_MODULE,
+        APPLY_PLAYBACK_ADAPTER,
+        FILTER,
+        ASSET_LIFE_CYCLE_TRANSITION,
+        APPLY_FREE_PLAYBACK,
+        FilterAssetByKsql,
+        FilterFileByQualityInDiscovery,
+        FilterFileByQualityInPlayback,
+        FilterFileByFileTypeIdForAssetTypeInDiscovery,
+        FilterFileByFileTypeIdForAssetTypeInPlayback,
+        FilterFileByFileTypeIdInDiscovery,
+        FilterFileByFileTypeIdInPlayback,
+        FilterFileByAudioCodecInDiscovery,
+        FilterFileByAudioCodecInPlayback,
+        FilterFileByVideoCodecInDiscovery,
+        FilterFileByVideoCodecInPlayback,
+        FilterFileByStreamerTypeInDiscovery,
+        FilterFileByStreamerTypeInPlayback,
+        FilterFileByLabelInDiscovery,
+        FilterFileByLabelInPlayback
+    }
+}

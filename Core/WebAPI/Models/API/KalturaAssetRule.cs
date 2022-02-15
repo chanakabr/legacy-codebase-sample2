@@ -57,36 +57,7 @@ namespace WebAPI.Models.API
         [SchemeProperty(ReadOnly = true)]
         public KalturaAssetRuleStatus Status { get; set; }
 
-        internal void Validate()
-        {
-            if (Conditions == null || Conditions.Count == 0)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "conditions");
-            }
-
-            var existConditions = Conditions.ToLookup(x => x.Type);
-            HashSet<KalturaRuleActionType> allowedActions = null;
-            foreach (var condition in Conditions)
-            {
-                if (!AllowedConditionsToRelationValidationsFunc.TryGetValue(condition.Type, out var validationFunc))
-                {
-                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, $"{condition.objectType}");
-                }
-
-                // validate the relation of current condition to other existing conditions + get allowed actions of this condition
-                var allowed = validationFunc(existConditions);
-
-                condition.Validate();
-
-                if (allowedActions == null)
-                {
-                    allowedActions = allowed;
-                }
-            }
-
-            ValidateActions(allowedActions);
-        }
-        
+       
         private static HashSet<KalturaRuleActionType> NoValidation(ConditionsMap existConditions) => null;
 
         private static HashSet<KalturaRuleActionType> ValidateCountryConditionRelations(ConditionsMap existConditions)
@@ -194,56 +165,6 @@ namespace WebAPI.Models.API
             }
         }
 
-        /// <summary>
-        /// Fill current AssetRule data members with givven assetRule only if they are empty\null
-        /// </summary>
-        /// <param name="oldAssetRule">givven assetRule to fill with</param>
-        internal void FillEmpty(KalturaAssetRule oldAssetRule)
-        {
-            if (oldAssetRule != null)
-            {
-                if (string.IsNullOrEmpty(this.Name) || string.IsNullOrWhiteSpace(this.Name))
-                {
-                    this.Name = oldAssetRule.Name;
-                }
 
-                if (this.NullableProperties != null && this.NullableProperties.Contains("description"))
-                {
-                    this.Description = string.Empty;
-                }
-                else if (string.IsNullOrEmpty(this.Description) || string.IsNullOrWhiteSpace(this.Description))
-                {
-                    this.Description = oldAssetRule.Description;
-                }
-
-                if (this.Actions == null || this.Actions.Count == 0)
-                {
-                    this.Actions = oldAssetRule.Actions;
-                }
-
-                if (this.Conditions == null || this.Conditions.Count == 0)
-                {
-                    this.Conditions = oldAssetRule.Conditions;
-                }
-            }
-        }
-    }
-
-    public partial class KalturaAssetRuleListResponse : KalturaListResponse
-    {
-        /// <summary>
-        /// Asset rules
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty(PropertyName = "objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaAssetRule> Objects { get; set; }
-    }
-
-    public enum KalturaAssetRuleStatus
-    {
-        READY,
-        IN_PROGRESS
     }
 }

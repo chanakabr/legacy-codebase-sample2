@@ -5,7 +5,7 @@ namespace WebAPI.ObjectsConvertor.Extensions
 {
     public static class CollectionFilterMapper
     {
-        public static  string[] getCollectionIdIn(this KalturaCollectionFilter model)
+        public static string[] getCollectionIdIn(this KalturaCollectionFilter model)
         {
             if (string.IsNullOrEmpty(model.CollectionIdIn))
                 return null;
