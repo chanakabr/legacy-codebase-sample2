@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using ApiLogic.IndexManager.Sorting;
+using ApiObjects;
 using ApiObjects.SearchObjects;
 using ElasticSearch.Common;
 using ElasticSearch.Searcher;
@@ -96,6 +96,14 @@ namespace ApiLogic.Tests.IndexManager
                     {
                         "metas.padded_meta_double",
                         $"{assetId}.5"
+                    },
+                    {
+                        "metas.meta_eng",
+                        $"eng meta from {assetDateTime:s}"
+                    },
+                    {
+                        "metas.padded_meta_eng",
+                        $"padded eng meta from {assetDateTime:s}"
                     }
                 }
             };
@@ -117,8 +125,7 @@ namespace ApiLogic.Tests.IndexManager
             var esDocuments = GenerateData(10);
             var shuffledDocuments = esDocuments.OrderBy(x => Random.Next()).ToList();
 
-            IEnumerable<(long id, string sortValue)> GetExpectedResult(
-                Func<ElasticSearchApi.ESAssetDocument, string> getSortValue)
+            IEnumerable<(long id, string sortValue)> GetExpectedResult(Func<ElasticSearchApi.ESAssetDocument, string> getSortValue)
                 => esDocuments
                     .Select(x => (x.asset_id, getSortValue(x)))
                     .Select(x => ((long id, string sortValue))x)
@@ -176,23 +183,43 @@ namespace ApiLogic.Tests.IndexManager
 
             yield return new TestCaseData(
                 shuffledDocuments,
-                new EsOrderByMetaField("meta", OrderDir.DESC, false, typeof(string)),
+                new EsOrderByMetaField("meta", OrderDir.DESC, false, typeof(string), null),
                 GetExpectedResult(x => x.extraReturnFields["metas.meta"]));
 
             yield return new TestCaseData(
                 shuffledDocuments,
-                new EsOrderByMetaField("meta_date", OrderDir.ASC, true, typeof(DateTime)),
+                new EsOrderByMetaField("meta_date", OrderDir.ASC, true, typeof(DateTime), new LanguageObj { IsDefault = true }),
                 GetExpectedResult(x => x.extraReturnFields["metas.padded_meta_date"]).Reverse());
 
             yield return new TestCaseData(
                 shuffledDocuments,
-                new EsOrderByMetaField("meta_int", OrderDir.DESC, false, typeof(int)),
+                new EsOrderByMetaField("meta_int", OrderDir.DESC, false, typeof(int), new LanguageObj { IsDefault = true }),
                 GetExpectedResult(x => x.extraReturnFields["metas.meta_int"]));
 
             yield return new TestCaseData(
                 shuffledDocuments,
-                new EsOrderByMetaField("meta_double", OrderDir.ASC, true, typeof(double)),
+                new EsOrderByMetaField("meta_double", OrderDir.ASC, true, typeof(double), null),
                 GetExpectedResult(x => x.extraReturnFields["metas.padded_meta_double"]).Reverse());
+
+            yield return new TestCaseData(
+                shuffledDocuments,
+                new EsOrderByMetaField("meta", OrderDir.DESC, false, typeof(string), new LanguageObj { Code = "eng" }),
+                GetExpectedResult(x => x.extraReturnFields["metas.meta_eng"]));
+
+            yield return new TestCaseData(
+                shuffledDocuments,
+                new EsOrderByMetaField("meta", OrderDir.ASC, false, typeof(string), new LanguageObj { Code = "eng" }),
+                GetExpectedResult(x => x.extraReturnFields["metas.meta_eng"]).Reverse());
+
+            yield return new TestCaseData(
+                shuffledDocuments,
+                new EsOrderByMetaField("meta", OrderDir.DESC, true, typeof(string), new LanguageObj { Code = "eng" }),
+                GetExpectedResult(x => x.extraReturnFields["metas.padded_meta_eng"]));
+
+            yield return new TestCaseData(
+                shuffledDocuments,
+                new EsOrderByMetaField("meta", OrderDir.ASC, true, typeof(string), new LanguageObj { Code = "eng" }),
+                GetExpectedResult(x => x.extraReturnFields["metas.padded_meta_eng"]).Reverse());
         }
     }
 }

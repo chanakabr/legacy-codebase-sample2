@@ -1402,15 +1402,17 @@ namespace Core.Catalog
             UnifiedSearchResponse searchResult;
 
             string deviceId = string.Empty;
+            int langId = 0;
 
             if (request.m_oFilter != null)
             {
                 deviceId = request.m_oFilter.m_sDeviceId;
+                langId = request.m_oFilter.m_nLanguage;
             }
 
             string cacheKey = GetSearchCacheKey(request.m_nGroupID, request.m_sSiteGuid, request.domainId, deviceId,
                 request.m_sUserIP, request.assetTypes, request.filterQuery,
-                searchDefinitions, searchDefinitions.PersonalData);
+                searchDefinitions, searchDefinitions.PersonalData, langId);
 
             if (!string.IsNullOrEmpty(cacheKey))
             {
@@ -6553,7 +6555,7 @@ namespace Core.Catalog
 
             string cacheKey = GetChannelSearchCacheKey(parentGroupID, request.internalChannelID, request.m_sSiteGuid,
                 request.domainId, request.m_oFilter.m_sDeviceId, request.m_sUserIP, request.filterQuery,
-                unifiedSearchDefinitions, unifiedSearchDefinitions.PersonalData);
+                unifiedSearchDefinitions, unifiedSearchDefinitions.PersonalData, request.m_oFilter.m_nLanguage);
             if (!string.IsNullOrEmpty(cacheKey))
             {
                 log.DebugFormat("Going to get channel assets from cache with key: {0}", cacheKey);
@@ -6697,7 +6699,7 @@ namespace Core.Catalog
 
         private static string GetChannelSearchCacheKey(int groupId, string channelId, string userId, int domainId,
             string udid, string ip, string ksql, UnifiedSearchDefinitions unifiedSearchDefinitions,
-            List<string> personalData)
+            List<string> personalData, int langId)
         {
             string key = null;
             if (LayeredCache.Instance.ShouldGoToCache(LayeredCacheConfigNames.UNIFIED_SEARCH_WITH_PERSONAL_DATA,
@@ -6710,6 +6712,7 @@ namespace Core.Catalog
                     StringBuilder cacheKey = new StringBuilder();
                     cacheKey.AppendFormat("channel={0}", channelId);
                     cacheKey.AppendFormat("_gId={0}", groupId);
+                    cacheKey.AppendFormat($"_l={langId}");  //BEO-11556
                     cacheKey.AppendFormat("_paging={0}|{1}", unifiedSearchDefinitions.pageIndex,
                         unifiedSearchDefinitions.pageSize);
                     cacheKey.AppendFormat("_order={0}|{1}", unifiedSearchDefinitions.order.m_eOrderBy,
@@ -6810,7 +6813,7 @@ namespace Core.Catalog
 
         private string GetSearchCacheKey(int groupId, string userId, int domainId, string udid, string ip,
             List<int> assetTypes, string ksql, UnifiedSearchDefinitions unifiedSearchDefinitions,
-            List<string> personalData)
+            List<string> personalData, int langId)
         {
             string key = null;
             if (LayeredCache.Instance.ShouldGoToCache(LayeredCacheConfigNames.UNIFIED_SEARCH_WITH_PERSONAL_DATA,
@@ -6820,6 +6823,7 @@ namespace Core.Catalog
                 {
                     StringBuilder cacheKey = new StringBuilder("search");
                     cacheKey.AppendFormat("_gId={0}", groupId);
+                    cacheKey.AppendFormat($"_l={langId}"); //BEO-11556
                     cacheKey.AppendFormat("_paging={0}|{1}", unifiedSearchDefinitions.pageIndex, unifiedSearchDefinitions.pageSize);
                     cacheKey.Append(BuildOrderCacheKeyPart(unifiedSearchDefinitions));
                     if (assetTypes != null && assetTypes.Count > 0)
@@ -7347,7 +7351,8 @@ namespace Core.Catalog
                 ShouldSearchMedia = definitions.shouldSearchRecordings,
                 ShouldSearchRecordings = definitions.shouldSearchRecordings,
                 AssociationTags = definitions.associationTags,
-                ParentMediaTypes = definitions.parentMediaTypes
+                ParentMediaTypes = definitions.parentMediaTypes,
+                Language = language
             };
 
             var orderingResult = AssetOrderingService.Instance.MapToEsOrderByFields(request, model);
@@ -8194,7 +8199,8 @@ namespace Core.Catalog
             }
 
             var languageId = request.m_oFilter?.m_nLanguage ?? -1;
-            definitions.langauge = GetLanguage(request.m_nGroupID, languageId);
+            var language = GetLanguage(request.m_nGroupID, languageId);
+            definitions.langauge = language;
 
             #endregion
 
@@ -8636,7 +8642,8 @@ namespace Core.Catalog
                 ShouldSearchMedia = definitions.shouldSearchRecordings,
                 ShouldSearchRecordings = definitions.shouldSearchRecordings,
                 AssociationTags = definitions.associationTags,
-                ParentMediaTypes = definitions.parentMediaTypes
+                ParentMediaTypes = definitions.parentMediaTypes,
+                Language = language
             };
 
             var orderingResult = AssetOrderingService.Instance.MapToChannelEsOrderByFields(request, channel, model);

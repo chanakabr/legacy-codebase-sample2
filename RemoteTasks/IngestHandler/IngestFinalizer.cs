@@ -206,6 +206,9 @@ namespace IngestHandler
             var reallyUpdated = affectedObjects.Union(updatedObjects).ToArray();
             var reallyDeleted = deletedObjects.Except(reallyUpdated).ToArray();
 
+            _logger.Info($"reallyUpdated: {string.Join(",", reallyUpdated)}");
+            _logger.Info($"reallyDeleted: {string.Join(",", reallyDeleted)}");
+
             return new Operations
             {
                 AddedEpgIds = addedEpgIds,

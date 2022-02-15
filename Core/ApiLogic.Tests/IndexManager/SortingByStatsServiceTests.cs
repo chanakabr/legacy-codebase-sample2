@@ -213,7 +213,7 @@ namespace ApiLogic.Tests.IndexManager
             yield return new TestCaseData(new EsOrderByField(OrderBy.MEDIA_ID, OrderDir.DESC));
             yield return new TestCaseData(new EsOrderByField(OrderBy.ID, OrderDir.DESC));
             yield return new TestCaseData(new EsOrderByField(OrderBy.RELATED, OrderDir.DESC));
-            yield return new TestCaseData(new EsOrderByMetaField("meta", OrderDir.DESC, default, null));
+            yield return new TestCaseData(new EsOrderByMetaField("meta", OrderDir.DESC, default, null, null));
         }
     }
 }
