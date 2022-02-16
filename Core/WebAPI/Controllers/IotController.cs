@@ -14,7 +14,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [Service("iot")]
-    public class IotController : KalturaCrudController<KalturaIot, KalturaIotListResponse, Iot, long, KalturaIotFilter>
+    public class IotController : IKalturaController
     {
         /// <summary>
         /// Register IOT device

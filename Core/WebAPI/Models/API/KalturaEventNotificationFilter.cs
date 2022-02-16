@@ -87,9 +87,4 @@ namespace WebAPI.Models.API
             return EventNotificationActionManager.Instance.List(contextData, coreFilter);
         }
     }
-
-    public enum KalturaEventNotificationOrderBy
-    {
-        NONE
-    }
 }

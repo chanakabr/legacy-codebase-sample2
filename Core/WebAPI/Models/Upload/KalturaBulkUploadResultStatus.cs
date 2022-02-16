@@ -9,3 +9,4 @@ namespace WebAPI.Models.Upload
         Ok = 2,
         InProgress = 3
     }
+}

@@ -12,7 +12,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// IOT DEVICE
     /// </summary>
-    public partial class KalturaIot : KalturaCrudObject<Iot, long>
+    public partial class KalturaIot : KalturaOTTObjectSupportNullable
     {
         /// <summary>
         /// id
@@ -104,23 +104,5 @@ namespace WebAPI.Models.API
         [JsonProperty(PropertyName = "identityPoolId")]
         [XmlElement(ElementName = "identityPoolId")]
         public string IdentityPoolId { get; set; }
-
-        public KalturaIot()
-        {
-
-        }
-
-        internal override ICrudHandler<Iot, long> Handler
-        {
-            get
-            {
-                return ApiLogic.Notification.IotManager.Instance;
-            }
-        }
-
-        internal override void SetId(long id)
-        {
-            throw new System.NotImplementedException();
-        }
     }
 }

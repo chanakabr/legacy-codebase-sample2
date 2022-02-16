@@ -17,7 +17,7 @@ namespace WebAPI.ModelsValidators
             {
                 case KalturaBulkUploadExcelJobData c: c.Validate(fileData); break;
                 case KalturaBulkUploadIngestJobData c: break;
-                default: throw new NotImplementedException($"ValidateForAdd for {model.objectType} is not implemented");
+                default: throw new NotImplementedException($"Validate for {model.objectType} is not implemented");
             }
         }
 
