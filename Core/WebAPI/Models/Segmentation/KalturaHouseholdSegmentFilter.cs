@@ -1,9 +1,4 @@
-﻿using ApiLogic.Base;
-using ApiLogic.Users.Managers;
-using ApiObjects.Base;
-using ApiObjects.Response;
-using ApiObjects.Segmentation;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
@@ -11,7 +6,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Segmentation
 {
-    public partial class KalturaHouseholdSegmentFilter : KalturaCrudFilter<KalturaHouseholdSegmentOrderBy, HouseholdSegment>
+    public partial class KalturaHouseholdSegmentFilter : KalturaFilter<KalturaHouseholdSegmentOrderBy>
     {
         /// <summary>
         /// KSQL expression
@@ -26,24 +21,5 @@ namespace WebAPI.Models.Segmentation
         {
             return KalturaHouseholdSegmentOrderBy.NONE;
         }
-
-        public override void Validate(ContextData contextData)
-        {
-        }
-
-        public KalturaHouseholdSegmentFilter() : base()
-        {
-        }
-
-        public override GenericListResponse<HouseholdSegment> List(ContextData contextData, CorePager pager)
-        {
-            var coreFilter = AutoMapper.Mapper.Map<HouseholdSegmentFilter>(this);
-            return HouseholdSegmentManager.Instance.List(contextData, coreFilter);
-        }
-    }
-
-    public enum KalturaHouseholdSegmentOrderBy
-    {
-        NONE
     }
 }

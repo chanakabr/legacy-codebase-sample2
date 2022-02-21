@@ -1,5 +1,4 @@
 ﻿using ApiLogic.Api.Managers;
-using ApiLogic.Base;
 using ApiLogic.Catalog;
 using ApiObjects;
 using ApiObjects.Base;
@@ -25,7 +24,7 @@ namespace Core.Catalog.CatalogManagement
         Status Delete(ContextData contextData, long id);
     }
 
-    public class CategoryItemHandler : ICrudHandler<CategoryItem, long>, ICategoryItemManager
+    public class CategoryItemHandler : ICategoryItemManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 

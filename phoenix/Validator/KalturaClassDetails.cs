@@ -13,7 +13,6 @@ namespace Validator
         public Type ServiceType { get; set; }
         public string ServiceId { get; set; }
         public List<KalturaActionDetails> Actions { get; set; }
-        public bool IsCrudController { get; set; }
         public bool IsAbstract { get; set; }
 
         public KalturaControllerDetails()

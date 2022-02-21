@@ -1,20 +1,19 @@
-﻿using ApiLogic.Base;
-using APILogic.AmazonSnsAdapter;
+﻿using APILogic.AmazonSnsAdapter;
 using APILogic.DmsService;
 using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Notification;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
-using Phx.Lib.Appconfig;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using Core.Notification.Adapters;
 using DAL;
-using Phx.Lib.Log;
 using Newtonsoft.Json;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -27,7 +26,7 @@ using TVinciShared;
 
 namespace Core.Notification
 {
-    public class FollowManager : ICrudHandler<FollowDataTvSeries, int>
+    public class FollowManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public static DateTime oldEpgSendDate { get; set; }

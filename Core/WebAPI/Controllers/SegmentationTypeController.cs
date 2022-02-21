@@ -141,8 +141,6 @@ namespace WebAPI.Controllers
                     case KalturaSegmentValueFilter f: response = ListBySegmentValueFilter(groupId, userId, pager, f); break;
                     default: throw new NotImplementedException($"List for {filter.objectType} is not implemented");
                 }
-
-                response = filter.GetSegmentationTypes(groupId, userId, pager);
             }
 
             catch (ClientException ex)

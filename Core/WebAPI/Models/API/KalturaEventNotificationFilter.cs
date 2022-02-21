@@ -1,20 +1,14 @@
-﻿using ApiLogic.Api.Managers;
-using ApiLogic.Base;
-using ApiObjects;
-using ApiObjects.Base;
-using ApiObjects.Response;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
     [Serializable]
-    public partial class KalturaEventNotificationFilter : KalturaCrudFilter<KalturaEventNotificationOrderBy, EventNotificationAction>
+    public partial class KalturaEventNotificationFilter : KalturaFilter<KalturaEventNotificationOrderBy>
     {
         /// <summary>
         /// Indicates which event notification to return by their event notifications Id.
@@ -44,47 +38,9 @@ namespace WebAPI.Models.API
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string EventObjectTypeEqual { get; set; }
 
-        private static readonly Type relatedObjectFilterType = typeof(KalturaEventNotificationFilter);
-
-        public override Type RelatedObjectFilterType
-        {
-            get
-            {
-                return relatedObjectFilterType;
-            }
-        }
-
         public override KalturaEventNotificationOrderBy GetDefaultOrderByValue()
         {
             return KalturaEventNotificationOrderBy.NONE;
-        }
-
-        public override void Validate(ContextData contextData)
-        {
-            if( !string.IsNullOrEmpty(IdEqual) && ObjectIdEqual.HasValue)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "idEqual", "objectIdEqual");
-            }
-
-            if (ObjectIdEqual.HasValue && string.IsNullOrEmpty(EventObjectTypeEqual))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "eventObjectTypeEqual");
-            }
-           
-            if (ObjectIdEqual <= 0)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ObjectIdEqual");
-            }
-        }
-
-        public KalturaEventNotificationFilter() : base()
-        {
-        }
-
-        public override GenericListResponse<EventNotificationAction> List(ContextData contextData, CorePager pager)
-        {
-            var coreFilter = AutoMapper.Mapper.Map<EventNotificationActionFilter>(this);
-            return EventNotificationActionManager.Instance.List(contextData, coreFilter);
         }
     }
 }

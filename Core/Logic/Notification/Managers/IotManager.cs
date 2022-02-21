@@ -1,4 +1,19 @@
-﻿using System;
+﻿using ApiLogic.Api.Managers;
+using ApiObjects;
+using ApiObjects.Base;
+using ApiObjects.EventBus;
+using ApiObjects.Notification;
+using ApiObjects.Response;
+using CachingProvider.LayeredCache;
+using Core.Catalog.CatalogManagement;
+using Core.Domains;
+using Core.Notification;
+using Core.Notification.Adapters;
+using DAL;
+using Newtonsoft.Json;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -7,28 +22,12 @@ using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
-using ApiLogic.Api.Managers;
-using ApiLogic.Base;
-using ApiObjects;
-using ApiObjects.Base;
-using ApiObjects.EventBus;
-using ApiObjects.Notification;
-using ApiObjects.Response;
-using CachingProvider.LayeredCache;
-using Phx.Lib.Appconfig;
-using Core.Catalog.CatalogManagement;
-using Core.Domains;
-using Core.Notification;
-using Core.Notification.Adapters;
-using DAL;
-using Phx.Lib.Log;
-using Newtonsoft.Json;
 using TVinciShared;
 using Module = Core.Domains.Module;
 
 namespace ApiLogic.Notification
 {
-    public interface IIotManager : ICrudHandler<Iot, long>
+    public interface IIotManager
     {
         bool PublishIotMessage(int groupId, string message, string topic);
         bool AddToThingShadow(int groupId, string message, string thingArn, string udid);

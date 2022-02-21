@@ -1,17 +1,10 @@
-﻿using ApiLogic.Base;
-using ApiLogic.Users.Managers;
-using ApiObjects;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
-using System.Collections.Generic;
-using System;
-using System.Linq;
-using WebAPI.Exceptions;
-using ApiObjects.Base;
-using ApiObjects.Response;
 
 namespace WebAPI.Models.Users
 {
@@ -19,7 +12,7 @@ namespace WebAPI.Models.Users
     /// Password policy settings
     /// </summary>
     [Serializable]
-    public partial class KalturaPasswordPolicy : KalturaCrudObject<PasswordPolicy, long>
+    public partial class KalturaPasswordPolicy : KalturaOTTObjectSupportNullable
     {
         /// <summary>
         /// id
@@ -79,62 +72,5 @@ namespace WebAPI.Models.Users
         [JsonProperty("lockoutFailuresCount")]
         [XmlElement(ElementName = "lockoutFailuresCount", IsNullable = true)]
         public int? LockoutFailuresCount { get; set; }
-
-        public KalturaPasswordPolicy() : base() { }
-
-        internal override ICrudHandler<PasswordPolicy, long> Handler
-        {
-            get
-            {
-                return PasswordPolicyManager.Instance;
-            }
-        }
-
-        internal override void SetId(long id)
-        {
-            this.Id = id;
-        }
-
-        public override void ValidateForAdd()
-        {
-            if (string.IsNullOrEmpty(this.UserRoleIds))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "userRoleIds");
-            }
-            this.ValidateComplexities();
-        }
-
-        internal override void ValidateForUpdate()
-        {
-            this.ValidateComplexities();
-        }
-
-        internal void ValidateComplexities()
-        {
-            if (this.Complexities?.Count > 0)
-            {
-                foreach (var pattern in this.Complexities)
-                {
-                    pattern.Validate();
-                }
-            }
-        }
-
-        internal override GenericResponse<PasswordPolicy> Add(ContextData contextData)
-        {
-            var coreObject = AutoMapper.Mapper.Map<PasswordPolicy>(this);
-            return PasswordPolicyManager.Instance.Add(contextData, coreObject);
-        }
-
-        internal override GenericResponse<PasswordPolicy> Update(ContextData contextData)
-        {
-            var coreObject = AutoMapper.Mapper.Map<PasswordPolicy>(this);
-            return PasswordPolicyManager.Instance.Update(contextData, coreObject);
-        }
-    }
-
-    public partial class KalturaPasswordPolicyListResponse : KalturaListResponse<KalturaPasswordPolicy>
-    {
-        public KalturaPasswordPolicyListResponse() : base() { }
     }
 }

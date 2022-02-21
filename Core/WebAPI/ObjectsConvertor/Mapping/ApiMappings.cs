@@ -2208,8 +2208,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
             cfg.CreateMap<KalturaUdidDynamicList, UdidDynamicList>()
-                .IncludeBase<KalturaDynamicList, DynamicList>()
-                .IncludeBase<IKalturaExcelStructureManager, IExcelStructureManager>();
+                .IncludeBase<KalturaDynamicList, DynamicList>();
 
             cfg.CreateMap<UdidDynamicList, KalturaUdidDynamicList>()
                 .IncludeBase<DynamicList, KalturaDynamicList>();

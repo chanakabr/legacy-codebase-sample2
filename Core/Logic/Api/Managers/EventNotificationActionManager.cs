@@ -1,5 +1,4 @@
-﻿using ApiLogic.Base;
-using ApiObjects;
+﻿using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Response;
 using DAL;
@@ -11,7 +10,7 @@ using TVinciShared;
 
 namespace ApiLogic.Api.Managers
 {
-    public class EventNotificationActionManager : ICrudHandler<EventNotificationAction, string>
+    public class EventNotificationActionManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -137,11 +136,6 @@ namespace ApiLogic.Api.Managers
             }
 
             return response;
-        }
-
-        public GenericResponse<EventNotificationAction> ValidateCrudObject(ContextData contextData, string id = null, EventNotificationAction objectToValidate = null)
-        {
-            throw new NotImplementedException();
         }
     }
 }

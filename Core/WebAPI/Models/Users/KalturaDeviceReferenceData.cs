@@ -1,14 +1,9 @@
-﻿using ApiLogic.Base;
-using ApiLogic.Users.Managers;
-using ApiObjects;
-using WebAPI.Models.General;
+﻿using Newtonsoft.Json;
 using System;
 using System.Runtime.Serialization;
-using Newtonsoft.Json;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
-using ApiObjects.Base;
-using ApiObjects.Response;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Users
 {
@@ -16,7 +11,7 @@ namespace WebAPI.Models.Users
     /// Device Information
     /// </summary>
     [Serializable]
-    public partial class KalturaDeviceReferenceData : KalturaCrudObject<DeviceReferenceData, long>
+    public partial class KalturaDeviceReferenceData : KalturaOTTObjectSupportNullable
     {
         /// <summary>
         /// id
@@ -43,64 +38,5 @@ namespace WebAPI.Models.Users
         [JsonProperty("status")]
         [XmlElement(ElementName = "status")]
         public bool? Status { get; set; }
-
-        internal override ICrudHandler<DeviceReferenceData, long> Handler
-        {
-            get
-            {
-                return DeviceReferenceDataManager.Instance;
-            }
-        }
-
-        public KalturaDeviceReferenceData()
-        {
-
-        }
-
-        internal override void SetId(long id)
-        {
-            Id = id;
-        }
-
-        public override void ValidateForAdd()
-        {
-        }
-
-        internal override void ValidateForUpdate()
-        {
-        }
-
-        internal override GenericResponse<DeviceReferenceData> Add(ContextData contextData)
-        {
-            throw new NotImplementedException();
-        }
-
-        internal override GenericResponse<DeviceReferenceData> Update(ContextData contextData)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    /// <summary>
-    /// Device Manufacturer Information
-    /// </summary>
-    [Serializable]
-    public partial class KalturaDeviceManufacturerInformation : KalturaDeviceReferenceData
-    {
-        internal override GenericResponse<DeviceReferenceData> Add(ContextData contextData)
-        {
-            var coreObject = AutoMapper.Mapper.Map<DeviceManufacturerInformation>(this);
-            return DeviceReferenceDataManager.Instance.Add(contextData, coreObject);
-        }
-        internal override GenericResponse<DeviceReferenceData> Update(ContextData contextData)
-        {
-            var coreObject = AutoMapper.Mapper.Map<DeviceManufacturerInformation>(this);
-            return DeviceReferenceDataManager.Instance.Update(contextData, coreObject);
-        }
-    }
-
-    public partial class KalturaDeviceReferenceDataListResponse : KalturaListResponse<KalturaDeviceReferenceData>
-    {
-        public KalturaDeviceReferenceDataListResponse() : base() { }
     }
 }

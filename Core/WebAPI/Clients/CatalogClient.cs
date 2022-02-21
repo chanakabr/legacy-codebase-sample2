@@ -1,14 +1,7 @@
-using ApiLogic.IndexManager.QueryBuilders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Security.Cryptography;
-using System.Text;
-using System.Web;
 using ApiLogic.Catalog;
 using ApiLogic.Catalog.CatalogManagement.Managers;
 using ApiLogic.Catalog.CatalogManagement.Services;
+using ApiLogic.IndexManager.QueryBuilders;
 using APILogic.CRUD;
 using ApiObjects;
 using ApiObjects.BulkUpload;
@@ -25,8 +18,14 @@ using Core.Catalog.Response;
 using GroupsCacheManager;
 using KalturaRequestContext;
 using Phx.Lib.Log;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
+using System.Web;
 using TVinciShared;
-using WebAPI.App_Start;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -35,8 +34,8 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.Api;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
-using WebAPI.Models.Catalog.SearchPriorityGroup;
 using WebAPI.Models.Catalog.SearchPriority;
+using WebAPI.Models.Catalog.SearchPriorityGroup;
 using WebAPI.Models.General;
 using WebAPI.Models.Upload;
 using WebAPI.Models.Users;
@@ -4054,41 +4053,6 @@ namespace WebAPI.Clients
 
             result.TotalCount = response.TotalCount;
             return result;
-        }
-
-        internal Dictionary<string, object> GetExcelValues(int groupId, IKalturaExcelableObject kalturaExcelableObject)
-        {
-            Dictionary<string, object> excelValues = null;
-            try
-            {
-                var excelableObject = Mapper.Map<IExcelObject>(kalturaExcelableObject);
-                excelValues = excelableObject.GetExcelValues(groupId);
-
-            }
-            catch (Exception ex)
-            {
-                log.Error("Exception received while GetExcelValues from inner object.", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            return excelValues;
-        }
-
-        internal ExcelStructure GetExcelStructure(int groupId, IKalturaExcelStructureManager kalturaExcelStructureManager)
-        {
-            ExcelStructure excelStructure = null;
-            try
-            {
-                var excelStructureManager = Mapper.Map<IExcelStructureManager>(kalturaExcelStructureManager);
-                excelStructure = excelStructureManager.GetExcelStructure(groupId);
-            }
-            catch (Exception ex)
-            {
-                log.Error("Exception received while GetExcelStructure from inner object.", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            return excelStructure;
         }
 
         internal KalturaCategoryTree Duplicate(int groupId, long userId, long categoryItemId, string name)

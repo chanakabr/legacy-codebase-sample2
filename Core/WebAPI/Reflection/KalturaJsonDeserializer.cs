@@ -750,9 +750,6 @@ namespace WebAPI.Reflection
                 case "KalturaCredentialsProvider":
                     return new KalturaCredentialsProvider(parameters, true);
                     
-                case "KalturaCrudObject":
-                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
-                    
                 case "KalturaCurrency":
                     return new KalturaCurrency(parameters, true);
                     
@@ -8047,12 +8044,6 @@ namespace WebAPI.Models.General
             }
         }
     }
-    public partial class KalturaCrudObject<ICrudHandeledObject, IdentifierT>
-    {
-        public KalturaCrudObject(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
-        {
-        }
-    }
     public partial class KalturaDetachedResponseProfile
     {
         public KalturaDetachedResponseProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
@@ -8285,6 +8276,20 @@ namespace WebAPI.Models.General
     {
         public KalturaDynamicListListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaDynamicList>(typeof(KalturaDynamicList), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaDynamicList), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaDynamicListSearchFilter
@@ -8487,30 +8492,6 @@ namespace WebAPI.Models.General
                 if (parameters.ContainsKey("totalCount") && parameters["totalCount"] != null)
                 {
                     TotalCount = (Int32) Convert.ChangeType(parameters["totalCount"], typeof(Int32));
-                }
-            }
-        }
-    }
-    public partial class KalturaListResponse<KalturaT>
-    {
-        public KalturaListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("totalCount") && parameters["totalCount"] != null)
-                {
-                    TotalCount = (Int32) Convert.ChangeType(parameters["totalCount"], typeof(Int32));
-                }
-                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
-                {
-                    if (parameters["objects"] is JArray)
-                    {
-                        Objects = buildList<KalturaT>(typeof(KalturaT), (JArray) parameters["objects"]);
-                    }
-                    else if (parameters["objects"] is IList)
-                    {
-                        Objects = buildList(typeof(KalturaT), parameters["objects"] as object[]);
-                    }
                 }
             }
         }
@@ -10840,6 +10821,20 @@ namespace WebAPI.Models.API
     {
         public KalturaEventNotificationListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaEventNotification>(typeof(KalturaEventNotification), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaEventNotification), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaEventNotificationObjectScope
@@ -11570,6 +11565,20 @@ namespace WebAPI.Models.API
     {
         public KalturaIotListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaIot>(typeof(KalturaIot), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaIot), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaIotProfile
@@ -11647,6 +11656,20 @@ namespace WebAPI.Models.API
     {
         public KalturaIotProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaIotProfile>(typeof(KalturaIotProfile), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaIotProfile), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaIpRangeCondition
@@ -13007,6 +13030,20 @@ namespace WebAPI.Models.API
     {
         public KalturaPermissionItemListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaPermissionItem>(typeof(KalturaPermissionItem), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaPermissionItem), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaPermissionListResponse
@@ -22339,6 +22376,20 @@ namespace WebAPI.Models.Catalog
     {
         public KalturaLineupChannelAssetListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaLineupChannelAsset>(typeof(KalturaLineupChannelAsset), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaLineupChannelAsset), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaLiveAsset
@@ -25765,6 +25816,20 @@ namespace WebAPI.Models.Pricing
     {
         public KalturaCouponListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaCoupon>(typeof(KalturaCoupon), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaCoupon), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaCouponsGroup
@@ -29876,6 +29941,20 @@ namespace WebAPI.Models.Segmentation
     {
         public KalturaHouseholdSegmentListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaHouseholdSegment>(typeof(KalturaHouseholdSegment), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaHouseholdSegment), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaKsqlSegmentAction
@@ -31278,6 +31357,20 @@ namespace WebAPI.Models.Users
     {
         public KalturaDeviceReferenceDataListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaDeviceReferenceData>(typeof(KalturaDeviceReferenceData), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaDeviceReferenceData), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaDynamicData
@@ -32386,6 +32479,20 @@ namespace WebAPI.Models.Users
     {
         public KalturaPasswordPolicyListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaPasswordPolicy>(typeof(KalturaPasswordPolicy), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaPasswordPolicy), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaSession
@@ -36597,6 +36704,20 @@ namespace WebAPI.Models.Domains
     {
         public KalturaHouseholdCouponListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaHouseholdCoupon>(typeof(KalturaHouseholdCoupon), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaHouseholdCoupon), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaHouseholdDevice
@@ -37400,6 +37521,20 @@ namespace WebAPI.Models.Domains
     {
         public KalturaHouseholdListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaHousehold>(typeof(KalturaHousehold), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaHousehold), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaHouseholdUser
@@ -39390,6 +39525,20 @@ namespace WebAPI.Models.IngestStatus
     {
         public KalturaIngestStatusEpgListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaIngestEpg>(typeof(KalturaIngestEpg), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaIngestEpg), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaIngestStatusPartnerConfiguration

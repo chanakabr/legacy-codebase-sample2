@@ -548,7 +548,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             //KalturaAsset to Asset
             cfg.CreateMap<KalturaAsset, Asset>()
-                .IncludeBase<IKalturaExcelableObject, IExcelObject>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
                 .ForMember(dest => dest.NamesWithLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer().ToArray()))
@@ -760,7 +759,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // KalturaAssetStruct to AssetStruct
             cfg.CreateMap<KalturaAssetStruct, AssetStruct>()
-                .IncludeBase<IKalturaExcelStructureManager, IExcelStructureManager>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
                 .ForMember(dest => dest.NamesInOtherLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer()))
@@ -1079,16 +1077,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
 
             #region BulkUpload
-
-            cfg.CreateMap<IKalturaBulkUploadObject, IBulkUploadObject>();
-
-            cfg.CreateMap<IKalturaExcelableObject, IExcelObject>()
-                .IncludeBase<IKalturaBulkUploadObject, IBulkUploadObject>();
-
-            cfg.CreateMap<IKalturaBulkUploadStructureManager, IBulkUploadStructureManager>();
-
-            cfg.CreateMap<IKalturaExcelStructureManager, IExcelStructureManager>()
-                .IncludeBase<IKalturaBulkUploadStructureManager, IBulkUploadStructureManager>();
 
             // BulkUpload to KalturaBulkUpload
             cfg.CreateMap<BulkUpload, KalturaBulkUpload>()

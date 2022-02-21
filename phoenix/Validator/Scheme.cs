@@ -606,19 +606,6 @@ namespace Validator.Managers.Scheme
                 IsAbstract = controllerType.IsAbstract
             };
 
-            if (SchemeManager.IsCrudController(controllerType, out Dictionary<string, CrudActionAttribute> crudActionAttributes, out Dictionary<string, MethodInfo> crudActions))
-            {
-                controllerDetails.IsCrudController = true;
-                foreach (var crudActionAttribute in crudActionAttributes)
-                {
-                    if (crudActions.ContainsKey(crudActionAttribute.Key) && !crudActionAttribute.Value.IsInternal)
-                    {
-                        var crudActionDetails = SchemeManager.GetCrudActionDetails(crudActionAttribute.Value, crudActions[crudActionAttribute.Key]);
-                        controllerDetails.Actions.Add(crudActionDetails);
-                    }
-                }
-            }
-
             var methods = controllerType.GetMethods().OrderBy(method => method.Name);
             foreach (var method in methods)
             {
@@ -743,24 +730,6 @@ namespace Validator.Managers.Scheme
             foreach (var property in properties)
             {
                 propertyToDescription.Add(property, GetPropertyDescription(property));
-            }
-
-            if (SchemeManager.IsGenericListResponse(classType, out listResponseAttribute, out PropertyInfo objectsProperty))
-            {
-                if (objectsProperty != null)
-                {
-                    string description = string.Empty;
-                    if (listResponseAttribute != null)
-                    {
-                        description = listResponseAttribute.ObjectsDescription;
-                    }
-                    else
-                    {
-                        description = GetPropertyDescription(objectsProperty);
-                    }
-
-                    propertyToDescription.Add(objectsProperty, description);
-                }
             }
 
             kalturaClassDetails.Properties = GetPropertiesDetails(propertyToDescription, kalturaClassDetails.Name);

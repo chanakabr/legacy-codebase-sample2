@@ -1,10 +1,10 @@
 ﻿using ApiLogic.Api.Managers.Rule;
-using ApiLogic.Catalog;
 using ApiLogic.Users.Managers;
 using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Response;
 using ApiObjects.Rules;
+using ApiObjects.SearchObjects;
 using AutoMapper;
 using Core.Catalog.CatalogManagement;
 using Phx.Lib.Log;
@@ -13,7 +13,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Web;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -24,9 +23,10 @@ using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.Models.Upload;
-using WebAPI.Utils;
-using ApiObjects.SearchObjects;
+using WebAPI.ModelsValidators;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.ObjectsConvertor.Ordering;
+using WebAPI.Utils;
 using SearchAssetsFilter = WebAPI.InternalModels.SearchAssetsFilter;
 
 namespace WebAPI.Controllers

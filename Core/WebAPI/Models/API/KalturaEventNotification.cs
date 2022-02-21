@@ -1,22 +1,9 @@
-﻿using ApiLogic.Api.Managers;
-using ApiLogic.Base;
-using ApiObjects;
-using ApiObjects.Base;
-using ApiObjects.Pricing;
-using ApiObjects.Response;
-using Core.Pricing.Handlers;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
-using WebAPI.Models.Pricing;
-using WebAPI.Utils;
 
 namespace WebAPI.Models.API
 {
@@ -24,7 +11,7 @@ namespace WebAPI.Models.API
     /// Household Coupon details
     /// </summary>
     [Serializable]
-    public partial class KalturaEventNotification : KalturaCrudObject<EventNotificationAction, string>
+    public partial class KalturaEventNotification : KalturaOTTObjectSupportNullable
     {
         /// <summary>
         /// Identifier 
@@ -92,31 +79,5 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "updateDate")]
         [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
-
-        internal override ICrudHandler<EventNotificationAction, string> Handler
-        {
-            get
-            {
-                return EventNotificationActionManager.Instance;
-            }
-        }      
-
-        public KalturaEventNotification() : base() { }
-
-        internal override void SetId(string id)
-        {
-            Id = id;            
-        }
-
-        internal override GenericResponse<EventNotificationAction> Update(ContextData contextData)
-        {
-            var coreObject = AutoMapper.Mapper.Map<EventNotificationAction>(this);
-            return EventNotificationActionManager.Instance.Update(contextData, coreObject);
-        }
-    }
-
-    public partial class KalturaEventNotificationListResponse : KalturaListResponse<KalturaEventNotification>
-    {
-        public KalturaEventNotificationListResponse() : base() { }
     }
 }

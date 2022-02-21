@@ -1,20 +1,8 @@
-﻿using ApiLogic.Base;
-using ApiObjects.Base;
-using ApiObjects.Pricing;
-using ApiObjects.Response;
-using Core.Pricing.Handlers;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Exceptions;
-using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
-using WebAPI.Models.Pricing;
-using WebAPI.Utils;
 
 namespace WebAPI.Models.Domains
 {
@@ -22,7 +10,7 @@ namespace WebAPI.Models.Domains
     /// Household Coupon details
     /// </summary>
     [Serializable]
-    public partial class KalturaHouseholdCoupon : KalturaCrudObject<CouponWallet, string>
+    public partial class KalturaHouseholdCoupon : KalturaOTTObjectSupportNullable
     {        
         /// <summary>
         /// Coupon code
@@ -39,62 +27,5 @@ namespace WebAPI.Models.Domains
         [JsonProperty("lastUsageDate")]
         [XmlElement(ElementName = "lastUsageDate")]
         public long? LastUsageDate { get; set; }
-
-        internal override ICrudHandler<CouponWallet, string> Handler
-        {
-            get
-            {
-                return CouponWalletHandler.Instance;
-            }
-        }
-
-        public override void ValidateForAdd()
-        {
-            if (string.IsNullOrEmpty(this.Code))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "code");
-            }
-        }
-
-        internal override void SetId(string id)
-        {
-            this.Code = id;
-        }
-
-        public KalturaHouseholdCoupon() : base() { }
-
-        internal override GenericResponse<CouponWallet> Add(ContextData contextData)
-        {
-            var coreObject = AutoMapper.Mapper.Map<CouponWallet>(this);
-            return CouponWalletHandler.Instance.Add(contextData, coreObject);
-        }
-    }
-
-    public partial class KalturaHouseholdCouponListResponse : KalturaListResponse<KalturaHouseholdCoupon>
-    {
-        public KalturaHouseholdCouponListResponse() : base() { }
-        
-        public override void SetRelatedObjects(ContextData contextData, KalturaDetachedResponseProfile profile)
-        {
-            if (Objects != null && Objects.Count > 0)
-            {
-                foreach (var householdCoupon in Objects)
-                {
-                    var res = PricingUtils.GetCouponListResponse(contextData, householdCoupon);
-                    if (res != null)
-                    {
-                        if (householdCoupon.relatedObjects == null)
-                        {
-                            householdCoupon.relatedObjects = new SerializableDictionary<string, IKalturaListResponse>();
-                        }
-
-                        if (!householdCoupon.relatedObjects.ContainsKey(profile.Name))
-                        {
-                            householdCoupon.relatedObjects.Add(profile.Name, res);
-                        }
-                    }
-                }
-            }
-        }
     }
 }

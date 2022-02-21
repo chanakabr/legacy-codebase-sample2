@@ -1,12 +1,11 @@
-﻿using ApiLogic.Base;
-using APILogic.Api.Managers;
+﻿using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using DAL;
-using Phx.Lib.Log;
 using Newtonsoft.Json;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +14,7 @@ using System.Text.RegularExpressions;
 
 namespace ApiLogic.Users.Managers
 {
-    public class PasswordPolicyManager : ICrudHandler<PasswordPolicy, long>
+    public class PasswordPolicyManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly Lazy<PasswordPolicyManager> lazy = new Lazy<PasswordPolicyManager>(() => new PasswordPolicyManager());

@@ -1,5 +1,4 @@
-﻿using ApiLogic.Base;
-using ApiObjects.Base;
+﻿using ApiObjects.Base;
 using ApiObjects.Pricing;
 using ApiObjects.Response;
 using DAL;
@@ -12,7 +11,7 @@ using TVinciShared;
 
 namespace Core.Pricing.Handlers
 {
-    public class CouponWalletHandler : ICrudHandler<CouponWallet, string>
+    public class CouponWalletHandler
     {
         private const int MAX_WALLET_COUPON = 100;
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -297,11 +296,6 @@ namespace Core.Pricing.Handlers
                     }
                 }
             }
-        }
-
-        public GenericResponse<CouponWallet> ValidateCrudObject(ContextData contextData, string id = null, CouponWallet objectToValidate = null)
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>

@@ -43,8 +43,6 @@ namespace WebAPI.Models.API
         }
     }
 
-    public partial class KalturaPermissionItemListResponse : KalturaListResponse<KalturaPermissionItem>
-    {
-    }
+    
 
 }

@@ -119,22 +119,6 @@ namespace Validator.Managers.Scheme
                         LoadType(method.ReturnType);
                     }
                 };
-
-                if (SchemeManager.IsCrudController(controller, out Dictionary<string, CrudActionAttribute> crudActionAttributes, out Dictionary<string, MethodInfo> crudActions))
-                {
-                    foreach (var crudActionAttribute in crudActionAttributes)
-                    {
-                        foreach (var param in crudActions[crudActionAttribute.Key].GetParameters())
-                        {
-                            LoadType(param.ParameterType);
-                        }
-
-                        if (crudActions[crudActionAttribute.Key].ReturnType != null)
-                        {
-                            LoadType(crudActions[crudActionAttribute.Key].ReturnType);
-                        }
-                    }
-                }
             }
 
             var filters = Assembly.GetTypes().Where(myType => myType.IsClass && typeof(IKalturaFilter).IsAssignableFrom(myType));

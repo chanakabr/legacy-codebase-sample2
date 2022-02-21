@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.App_Start;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
@@ -21,7 +20,7 @@ namespace WebAPI.Models.Catalog
     [XmlInclude(typeof(KalturaRecordingAsset))]
     [XmlInclude(typeof(KalturaProgramAsset))]
     [XmlInclude(typeof(KalturaMediaAsset))]
-    abstract public partial class KalturaAsset : KalturaOTTObject, KalturaIAssetable, IKalturaExcelableObject
+    abstract public partial class KalturaAsset : KalturaOTTObject, KalturaIAssetable
     {
         #region Consts
 
@@ -350,12 +349,6 @@ namespace WebAPI.Models.Catalog
             }
         }
 
-        public Dictionary<string, object> GetExcelValues(int groupId)
-        {
-            Dictionary<string, object> excelValues = ClientManagers.Client.ClientsManager.CatalogClient().GetExcelValues(groupId, this);
-            return excelValues;
-        }
-
         internal void ValidateRelatedEntities()
         {
             if(RelatedEntities?.Count > 5)
@@ -385,11 +378,6 @@ namespace WebAPI.Models.Catalog
                     }
                 }
             }
-        }
-
-        public long GetId()
-        {
-            return this.Id ?? -1;
         }
     }
 }
