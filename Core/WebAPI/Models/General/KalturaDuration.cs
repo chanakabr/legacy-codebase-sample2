@@ -37,25 +37,4 @@ namespace WebAPI.Models.General
         [SchemeProperty(ReadOnly = true)]
         public long Code { get; set; }
     }
-
-    public enum KalturaDurationUnit
-    {
-        Minutes = 0,
-        Hours = 1,
-        Days = 2,
-        Months = 3,
-        Years = 4
-    }
-
-    public partial class KalturaDurationListResponse : KalturaListResponse
-    {
-        /// <summary>
-        /// Durations
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty(PropertyName = "objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaDuration> Objects { get; set; }
-    }
 }

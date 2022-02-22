@@ -3647,14 +3647,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaGenericListResponse`1":
-                    switch(property.Name)
-                    {
-                        case "Objects":
-                            return "objects";
-                    }
-                    break;
-                    
                 case "KalturaGenericRule":
                     switch(property.Name)
                     {

@@ -27,7 +27,7 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
 
         public List<MediaFileTypeQuality> GetQualities()
         {
-            var types = this.GetItemsIn<List<KalturaMediaFileTypeQuality>, KalturaMediaFileTypeQuality>(QualityIn, "qualityIn", true, true);
+            var types = Utils.Utils.ParseCommaSeparatedValues<List<KalturaMediaFileTypeQuality>, KalturaMediaFileTypeQuality>(QualityIn, "qualityIn", true, true);
             return AutoMapper.Mapper.Map<List<MediaFileTypeQuality>>(types);
         }
     }

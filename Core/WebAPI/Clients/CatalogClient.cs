@@ -40,6 +40,7 @@ using WebAPI.Models.General;
 using WebAPI.Models.Upload;
 using WebAPI.Models.Users;
 using WebAPI.ObjectsConvertor;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.ObjectsConvertor.Ordering;
 using WebAPI.Utils;
@@ -4039,7 +4040,7 @@ namespace WebAPI.Clients
             else
             {
                 bool illegalRequest;
-                var pagedObjects = response.Objects.Page(pager.getPageSize(), pager.getPageIndex(), out illegalRequest);
+                var pagedObjects = response.Objects.Page(pager.PageSize.Value, pager.GetRealPageIndex(), out illegalRequest);
 
                 if (illegalRequest)
                 {

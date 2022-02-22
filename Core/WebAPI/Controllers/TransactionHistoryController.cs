@@ -1,12 +1,13 @@
-﻿using System;
+﻿using KalturaRequestContext;
+using System;
 using System.Web;
-using KalturaRequestContext;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -59,7 +60,7 @@ namespace WebAPI.Controllers
                 {
                     case KalturaEntityReferenceBy.user:
                         {
-                            response = ClientsManager.ConditionalAccessClient().GetUserTransactionHistory(groupId, userID, pager.getPageIndex(), pager.getPageSize(), filter, startDate, endDate);
+                            response = ClientsManager.ConditionalAccessClient().GetUserTransactionHistory(groupId, userID, pager.GetRealPageIndex(), pager.PageSize.Value, filter, startDate, endDate);
                             break;
                         }
                     case KalturaEntityReferenceBy.household:
@@ -67,7 +68,7 @@ namespace WebAPI.Controllers
                             bool isDeprecated = !DeprecatedAttribute.IsDeprecated("4.8.0.0", (Version)HttpContext.Current.Items[RequestContextConstants.REQUEST_VERSION]); // fix for userFullName and userId disapearing from response since 4.8.0.0
 
                             response = ClientsManager.ConditionalAccessClient().GetDomainBillingHistory(
-                                groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), startDate, endDate, pager.getPageIndex(), pager.getPageSize(), filter, isDeprecated);
+                                groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), startDate, endDate, pager.GetRealPageIndex(), pager.PageSize.Value, filter, isDeprecated);
                             break;
                         }
                     default:
@@ -124,7 +125,7 @@ namespace WebAPI.Controllers
                 {
                     case KalturaEntityReferenceBy.user:
                         {
-                            response = ClientsManager.ConditionalAccessClient().GetUserTransactionHistory(groupId, userID, filter.getPageIndex(), filter.getPageSize(),
+                            response = ClientsManager.ConditionalAccessClient().GetUserTransactionHistory(groupId, userID, filter.PageSize.Value, filter.GetRealPageIndex(),
                                                                                         KalturaTransactionHistoryOrderBy.CREATE_DATE_DESC, startDate, endDate);
                             break;
                         }
@@ -133,7 +134,7 @@ namespace WebAPI.Controllers
 
 
                             response = ClientsManager.ConditionalAccessClient().GetDomainBillingHistory(
-                                groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), startDate, endDate, filter.getPageIndex(), filter.getPageSize(), KalturaTransactionHistoryOrderBy.CREATE_DATE_DESC, true);
+                                groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), startDate, endDate, filter.PageSize.Value, filter.GetRealPageIndex(), KalturaTransactionHistoryOrderBy.CREATE_DATE_DESC, true);
                             break;
                         }
                     default:

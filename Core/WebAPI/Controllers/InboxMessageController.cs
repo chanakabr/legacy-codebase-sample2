@@ -6,6 +6,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Notification;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -83,7 +84,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client                
-                response = ClientsManager.NotificationClient().GetInboxMessageList(groupId, userId, pager.getPageSize(), pager.getPageIndex(), filter.getTypeIn(), filter.CreatedAtGreaterThanOrEqual.Value, filter.CreatedAtLessThanOrEqual.Value);
+                response = ClientsManager.NotificationClient().GetInboxMessageList(groupId, userId, pager.PageSize.Value, pager.GetRealPageIndex(), filter.getTypeIn(), filter.CreatedAtGreaterThanOrEqual.Value, filter.CreatedAtLessThanOrEqual.Value);
             }
             catch (ClientException ex)
             {

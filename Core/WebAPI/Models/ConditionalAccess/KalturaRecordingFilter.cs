@@ -8,6 +8,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.Models.ConditionalAccess
 {
@@ -112,7 +113,7 @@ namespace WebAPI.Models.ConditionalAccess
             this.Validate();
 
             var response = ClientsManager.ConditionalAccessClient().SearchRecordings(contextData.GroupId, contextData.UserId.Value.ToString(), contextData.DomainId.Value,
-                this.ConvertStatusIn(), this.Ksql, this.GetExternalRecordingIds(), pager.getPageIndex(), pager.PageSize, this.OrderBy, null);
+                this.ConvertStatusIn(), this.Ksql, this.GetExternalRecordingIds(), pager.GetRealPageIndex(), pager.PageSize, this.OrderBy, null);
 
             return response;
         }

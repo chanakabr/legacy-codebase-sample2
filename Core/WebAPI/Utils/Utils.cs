@@ -374,6 +374,16 @@ namespace WebAPI.Utils
                 checkDuplicate,
                 ignoreDefaultValueValidation);
 
+        /// <summary>
+        /// Convert comma separated string to collection.
+        /// </summary>
+        /// <typeparam name="U">Collection of T</typeparam>
+        /// <typeparam name="T">>Type of items in collection</typeparam>
+        /// <param name="itemsIn">Comma separated string</param>
+        /// <param name="propertyName">>The property name of comma separated string (for error message)</param>
+        /// <param name="checkDuplicate"></param>
+        /// <param name="ignoreDefaultValueValidation"></param>
+        /// <returns></returns>
         public static U ParseCommaSeparatedValues<U, T>(
             string itemsIn,
             string propertyName,

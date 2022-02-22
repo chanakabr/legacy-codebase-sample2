@@ -28,7 +28,6 @@ namespace Reflector
             types.Remove(typeof(KalturaOTTObject));
             types.Remove(typeof(KalturaApiExceptionArg));
             types.Remove(typeof(KalturaFilter<>));
-            types.Remove(typeof(KalturaGenericListResponse<>));
         }
         
         protected override void writeHeader()
@@ -59,6 +58,7 @@ namespace Reflector
             file.WriteLine("using WebAPI.ModelsValidators;");
             file.WriteLine("using WebAPI.ObjectsConvertor.Extensions;");
             file.WriteLine("using WebAPI.ModelsFactory;");
+            file.WriteLine("using WebAPI.Utils;");
         }
 
         protected override void writeBody()
@@ -108,7 +108,7 @@ namespace Reflector
             }
             else if (propertyType == typeof(DateTime))
             {
-                file.WriteLine("                    " + property.Name + " = longToDateTime((long) parameters[\"" + apiName + "\"]);");
+                file.WriteLine("                    " + property.Name + " = OTTObjectBuilder.longToDateTime((long) parameters[\"" + apiName + "\"]);");
             }
             else if (propertyType.IsArray)
             {
@@ -124,11 +124,11 @@ namespace Reflector
                     file.WriteLine("                    {");
                     if (typeof(IKalturaOTTObject).IsAssignableFrom(genericParam))
                     {
-                        file.WriteLine("                        " + property.Name + " = buildList<" + genericParamName + ">(typeof(" + genericParamName + "), (JArray) parameters[\"" + apiName + "\"]);");
+                        file.WriteLine("                        " + property.Name + " = OTTObjectBuilder.buildList<" + genericParamName + ">(typeof(" + genericParamName + "), (JArray) parameters[\"" + apiName + "\"]);");
                     }
                     else
                     {
-                        file.WriteLine("                        " + property.Name + " = buildNativeList<" + genericParamName + ">(typeof(" + genericParamName + "), (JArray) parameters[\"" + apiName + "\"]);");
+                        file.WriteLine("                        " + property.Name + " = OTTObjectBuilder.buildNativeList<" + genericParamName + ">(typeof(" + genericParamName + "), (JArray) parameters[\"" + apiName + "\"]);");
                     }
                     file.WriteLine("                    }");
 
@@ -136,11 +136,11 @@ namespace Reflector
                     file.WriteLine("                    {");
                     if (typeof(IKalturaOTTObject).IsAssignableFrom(genericParam))
                     {
-                        file.WriteLine("                        " + property.Name + " = buildList(typeof(" + genericParamName + "), parameters[\"" + apiName + "\"] as object[]);");
+                        file.WriteLine("                        " + property.Name + " = OTTObjectBuilder.buildList(typeof(" + genericParamName + "), parameters[\"" + apiName + "\"] as object[]);");
                     }
                     else
                     {
-                        file.WriteLine("                        " + property.Name + " = buildNativeList(typeof(" + genericParamName + "), parameters[\"" + apiName + "\"] as object[]);");
+                        file.WriteLine("                        " + property.Name + " = OTTObjectBuilder.buildNativeList(typeof(" + genericParamName + "), parameters[\"" + apiName + "\"] as object[]);");
                     }
                     file.WriteLine("                    }");
                 }
@@ -149,7 +149,7 @@ namespace Reflector
                     string genericParamName = GetTypeName(propertyType.GetGenericArguments()[1]);
                     file.WriteLine("                    if (parameters[\"" + apiName + "\"] is JObject)");
                     file.WriteLine("                    {");
-                    file.WriteLine("                        " + property.Name + " = buildDictionary<" + genericParamName + ">(typeof(" + genericParamName + "), ((JObject) parameters[\"" + apiName + "\"]).ToObject<Dictionary<string, object>>());");
+                    file.WriteLine("                        " + property.Name + " = OTTObjectBuilder.buildDictionary<" + genericParamName + ">(typeof(" + genericParamName + "), ((JObject) parameters[\"" + apiName + "\"]).ToObject<Dictionary<string, object>>());");
                     file.WriteLine("                    }");
                 }
             }
@@ -341,7 +341,7 @@ namespace Reflector
                     file.WriteLine("                if (parameters.ContainsKey(\"" + nullableParam + "\") && parameters[\"" +
                                    nullableParam + "\"] != null)");
                     file.WriteLine("                {");
-                    file.WriteLine("                    AddNullableProperty(\"" + apiName + "\");");
+                    file.WriteLine("                    this.AddNullableProperty(\"" + apiName + "\");");
                     file.WriteLine("                }");
 
                 }

@@ -87,7 +87,7 @@ namespace WebAPI.Controllers
 
                 // call client
                 response = ClientsManager.CatalogClient().getAssetHistory(groupId, userId.ToString(), udid,
-                    language, pager.getPageIndex(), pager.PageSize, filter.StatusEqual.Value, filter.getDaysLessThanOrEqual(), filter.getTypeIn(), filter.getAssetIdIn(),
+                    language, pager.GetRealPageIndex(), pager.PageSize, filter.StatusEqual.Value, filter.getDaysLessThanOrEqual(), filter.getTypeIn(), filter.getAssetIdIn(),
                     suppress, filter.Ksql);
             }
             catch (ClientException ex)
@@ -158,7 +158,7 @@ namespace WebAPI.Controllers
 
                 // call client
                 response = ClientsManager.CatalogClient().WatchHistory(groupId, userId.ToString(), udid,
-                    language, pager.getPageIndex(), pager.PageSize, filter.StatusEqual.Value, filter.getDaysLessThanOrEqual(), filter.getTypeIn(), filter.getAssetIdIn(), withList);
+                    language, pager.GetRealPageIndex(), pager.PageSize, filter.StatusEqual.Value, filter.getDaysLessThanOrEqual(), filter.getTypeIn(), filter.getAssetIdIn(), withList);
             }
             catch (ClientException ex)
             {

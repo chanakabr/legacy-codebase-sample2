@@ -24,7 +24,7 @@ namespace WebAPI.ModelsValidators
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "idIn");
             }
 
-            var items = model.GetItemsIn<List<long>, long>(model.IdIn, "idIn", true);
+            var items = WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(model.IdIn, "idIn", true);
             if (items.Count > 500)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_MAX_ITEMS_CROSSED, "KalturaDynamicListIdInFilter.idIn", 500);

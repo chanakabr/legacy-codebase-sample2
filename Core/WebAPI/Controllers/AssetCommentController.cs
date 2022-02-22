@@ -1,13 +1,14 @@
-﻿using Phx.Lib.Log;
+﻿using ApiObjects.Response;
+using Phx.Lib.Log;
 using System;
 using System.Reflection;
-using ApiObjects.Response;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -41,7 +42,7 @@ namespace WebAPI.Controllers
                 string udid = KSUtils.ExtractKSPayload().UDID;
                 int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
 
-                response = ClientsManager.CatalogClient().GetAssetCommentsList(groupId, language, filter.AssetIdEqual, filter.AssetTypeEqual, userId, domainId, udid, pager.getPageIndex(), pager.PageSize,
+                response = ClientsManager.CatalogClient().GetAssetCommentsList(groupId, language, filter.AssetIdEqual, filter.AssetTypeEqual, userId, domainId, udid, pager.GetRealPageIndex(), pager.PageSize,
                     filter.OrderBy);
 
                 // if no response - return not found status 

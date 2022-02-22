@@ -1,5 +1,4 @@
 ﻿using APILogic.Api.Managers;
-using WebAPI.App_Start;
 using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.BulkExport;
@@ -21,16 +20,14 @@ using WebAPI.Managers.Models;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
-using WebAPI.Models.ConditionalAccess.FilterActions.Files;
 using WebAPI.Models.ConditionalAccess.FilterActions.Assets;
+using WebAPI.Models.ConditionalAccess.FilterActions.Files;
 using WebAPI.Models.General;
-using WebAPI.Models.Users;
 using WebAPI.Models.Users.UserSessionProfile;
+using WebAPI.ModelsFactory;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
 using KeyValuePair = ApiObjects.KeyValuePair;
-using ApiObjects.BulkUpload;
-using WebAPI.ObjectsConvertor.Extensions;
-using WebAPI.ModelsFactory;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -39,8 +36,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
         public static void RegisterMappings(MapperConfigurationExpression cfg)
         {
             cfg.CreateMap<KalturaFilterPager, CorePager>()
-                .ForMember(dest => dest.PageIndex, opt => opt.MapFrom(src => src.getPageIndex()))
-                .ForMember(dest => dest.PageSize, opt => opt.MapFrom(src => src.getPageSize()));
+                .ForMember(dest => dest.PageIndex, opt => opt.MapFrom(src => src.GetRealPageIndex()))
+                .ForMember(dest => dest.PageSize, opt => opt.MapFrom(src => src.PageSize.Value));
 
             //Language 
             cfg.CreateMap<LanguageObj, WebAPI.Managers.Models.Language>()
@@ -343,7 +340,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<KalturaPermissionItemByIdInFilter, PermissionItemByIdInFilter>()
                .IncludeBase<KalturaPermissionItemFilter, PermissionItemFilter>()
-               .ForMember(dest => dest.IdIn, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.IdIn) ? src.GetItemsIn<List<long>, long>(src.IdIn, "KalturaPermissionItemByIdInFilter.IdIn", true) : null));
+               .ForMember(dest => dest.IdIn, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.IdIn) ? WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(src.IdIn, "KalturaPermissionItemByIdInFilter.IdIn", true) : null));
 
             cfg.CreateMap<KalturaPermissionItemByApiActionFilter, PermissionItemByApiActionFilter>()
                .IncludeBase<KalturaPermissionItemFilter, PermissionItemFilter>()
@@ -484,7 +481,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ConvertUsing(x => new KeyValuePair<long, int>(x.LinearChannelId, x.ChannelNumber));
 
             cfg.CreateMap<KalturaRegionFilter, RegionFilter>()
-                .ForMember(dest => dest.RegionIds, opt => opt.MapFrom(src => src.GetItemsIn<HashSet<int>, int>(src.IdIn, "KalturaRegionFilter.idIn", true, true)))
+                .ForMember(dest => dest.RegionIds, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ParseCommaSeparatedValues<HashSet<int>, int>(src.IdIn, "KalturaRegionFilter.idIn", true, true)))
                 .ForMember(dest => dest.ExternalIds, opt => opt.MapFrom(src => src.GetExternalIdIn()))
                 .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentIdEqual))
                 .ForMember(dest => dest.orderBy, opt => opt.MapFrom(src => ConvertRegionOrderBy(src.OrderBy)))
@@ -889,7 +886,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaUserSubscriptionCondition, UserSubscriptionCondition>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.SubscriptionIds, opt => opt.MapFrom(src => src.GetItemsIn<HashSet<long>, long>(src.IdIn, "KalturaUserSubscriptionCondition.idIn", true, true)));
+                .ForMember(dest => dest.SubscriptionIds, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ParseCommaSeparatedValues<HashSet<long>, long>(src.IdIn, "KalturaUserSubscriptionCondition.idIn", true, true)));
 
             cfg.CreateMap<UserSubscriptionCondition, KalturaUserSubscriptionCondition>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
@@ -900,7 +897,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaAssetSubscriptionCondition, AssetSubscriptionCondition>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.SubscriptionIds, opt => opt.MapFrom(src => src.GetItemsIn<HashSet<long>, long>(src.IdIn, "KalturaUserSubscriptionCondition.idIn", true, true)));
+                .ForMember(dest => dest.SubscriptionIds, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ParseCommaSeparatedValues<HashSet<long>, long>(src.IdIn, "KalturaUserSubscriptionCondition.idIn", true, true)));
 
             cfg.CreateMap<AssetSubscriptionCondition, KalturaAssetSubscriptionCondition>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
@@ -961,7 +958,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaUserRoleCondition, UserRoleCondition>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.RoleIds, opt => opt.MapFrom(src => src.GetItemsIn<HashSet<long>, long>(src.IdIn, "KalturaUserRoleCondition.idIn", true, true)));
+                .ForMember(dest => dest.RoleIds, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ParseCommaSeparatedValues<HashSet<long>, long>(src.IdIn, "KalturaUserRoleCondition.idIn", true, true)));
 
             cfg.CreateMap<UserRoleCondition, KalturaUserRoleCondition>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
@@ -1230,7 +1227,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<KalturaAssetLifeCycleTagTransitionAction, AssetLifeCycleTagTransitionAction>()
                 .IncludeBase<KalturaAssetLifeCycleTransitionAction, AssetLifeCycleTransitionAction>()
-                .ForMember(dest => dest.TagIds, opt => opt.MapFrom(src => src.GetItemsIn<List<int>, int>(src.TagIds, "tagsIds", true, false)));
+                .ForMember(dest => dest.TagIds, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<int>, int>(src.TagIds, "tagsIds", true, false)));
 
             cfg.CreateMap<AssetLifeCycleTagTransitionAction, KalturaAssetLifeCycleTagTransitionAction>()
                 .IncludeBase<AssetLifeCycleTransitionAction, KalturaAssetLifeCycleTransitionAction>()
@@ -1238,8 +1235,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<KalturaAssetLifeCycleBuisnessModuleTransitionAction, AssetLifeCycleBuisnessModuleTransitionAction>()
                .IncludeBase<KalturaAssetLifeCycleTransitionAction, AssetLifeCycleTransitionAction>()
-               .ForPath(dest => dest.Transitions.FileTypeIds, opt => opt.MapFrom(src => src.GetItemsIn<HashSet<int>, int>(src.FileTypeIds, "fileTypeIds", true, false)))
-               .ForPath(dest => dest.Transitions.PpvIds, opt => opt.MapFrom(src => src.GetItemsIn<HashSet<int>, int>(src.PpvIds, "ppvIds", true, false)));
+               .ForPath(dest => dest.Transitions.FileTypeIds, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ParseCommaSeparatedValues<HashSet<int>, int>(src.FileTypeIds, "fileTypeIds", true, false)))
+               .ForPath(dest => dest.Transitions.PpvIds, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ParseCommaSeparatedValues<HashSet<int>, int>(src.PpvIds, "ppvIds", true, false)));
 
             cfg.CreateMap<AssetLifeCycleBuisnessModuleTransitionAction, KalturaAssetLifeCycleBuisnessModuleTransitionAction>()
                 .IncludeBase<AssetLifeCycleTransitionAction, KalturaAssetLifeCycleTransitionAction>()
@@ -1624,7 +1621,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<KalturaCampaignIdInFilter, CampaignIdInFilter>()
                 .IncludeBase<KalturaCampaignFilter, CampaignFilter>()
-                .ForMember(dest => dest.IdIn, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.IdIn) ? src.GetItemsIn<List<long>, long>(src.IdIn, "filter.idIn") : null))
+                .ForMember(dest => dest.IdIn, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.IdIn) ? WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(src.IdIn, "filter.idIn") : null))
                 ;
 
             cfg.CreateMap<KalturaCampaignSearchFilter, CampaignSearchFilter>()
@@ -1724,7 +1721,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaBusinessModuleRuleFilter, BusinessModuleRuleConditionScope>()
                 .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleIdApplied.HasValue ? src.BusinessModuleIdApplied.Value : 0))
                 .ForMember(dest => dest.BusinessModuleType, opt => opt.MapFrom(src => src.BusinessModuleTypeApplied))
-                .ForMember(dest => dest.SegmentIds, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.SegmentIdsApplied) ? src.GetItemsIn<List<long>, long>(src.SegmentIdsApplied, "filter.segmentIdsApplied") : null))
+                .ForMember(dest => dest.SegmentIds, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.SegmentIdsApplied) ? WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(src.SegmentIdsApplied, "filter.segmentIdsApplied") : null))
                 .ForMember(dest => dest.FilterBySegments, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.SegmentIdsApplied) ? true : false));
 
             #endregion
@@ -2217,7 +2214,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<KalturaDynamicListIdInFilter, DynamicListnIdInFilter>()
                 .IncludeBase<KalturaDynamicListFilter, DynamicListFilter>()
-                .ForMember(dest => dest.IdIn, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.IdIn) ? src.GetItemsIn<List<long>, long>(src.IdIn, "filter.idIn") : null));
+                .ForMember(dest => dest.IdIn, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.IdIn) ? WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(src.IdIn, "filter.idIn") : null));
 
             cfg.CreateMap<KalturaDynamicListSearchFilter, DynamicListSearchFilter>()
                 .IncludeBase<KalturaDynamicListFilter, DynamicListFilter>()

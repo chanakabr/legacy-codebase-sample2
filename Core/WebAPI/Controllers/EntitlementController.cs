@@ -6,6 +6,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -247,14 +248,14 @@ namespace WebAPI.Controllers
                         {
                             response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KS.GetFromRequest().UserId,
                                 filter.EntitlementTypeEqual.HasValue ? filter.EntitlementTypeEqual.Value : filter.ProductTypeEqual.Value,
-                                filter.getIsExpiredEqual(), pager.getPageSize(), pager.getPageIndex(), filter.OrderBy);
+                                filter.getIsExpiredEqual(), pager.PageSize.Value, pager.GetRealPageIndex(), filter.OrderBy);
                         }
                         break;
                     case KalturaEntityReferenceBy.household:
                         {
                             response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId),
                                 filter.EntitlementTypeEqual.HasValue ? filter.EntitlementTypeEqual.Value : filter.ProductTypeEqual.Value,
-                                filter.getIsExpiredEqual(), pager.getPageSize(), pager.getPageIndex(), filter.OrderBy);
+                                filter.getIsExpiredEqual(), pager.PageSize.Value, pager.GetRealPageIndex(), filter.OrderBy);
                         }
                         break;
                 }
@@ -296,12 +297,12 @@ namespace WebAPI.Controllers
                 {
                     case KalturaEntityReferenceBy.user:
                         {
-                            response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KS.GetFromRequest().UserId, filter.EntitlementType, true, pager.getPageSize(), pager.getPageIndex());
+                            response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KS.GetFromRequest().UserId, filter.EntitlementType, true, pager.PageSize.Value, pager.GetRealPageIndex());
                         }
                         break;
                     case KalturaEntityReferenceBy.household:
                         {
-                            response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.EntitlementType, true, pager.getPageSize(), pager.getPageIndex());
+                            response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.EntitlementType, true, pager.PageSize.Value, pager.GetRealPageIndex());
                         }
                         break;
                 }

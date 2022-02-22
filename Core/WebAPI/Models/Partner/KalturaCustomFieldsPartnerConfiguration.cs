@@ -38,7 +38,7 @@ namespace WebAPI.Models.Partner
 
         internal List<string> GetMetaSystemNameInsteadOfAliasList()
         {
-            return GetItemsIn<List<string>, string>(MetaSystemNameInsteadOfAliasList, "KalturaCustomFieldsPartnerConfiguration.metaSystemNameInsteadOfAliasList", false, false);
+            return Utils.Utils.ParseCommaSeparatedValues<List<string>, string>(MetaSystemNameInsteadOfAliasList, "KalturaCustomFieldsPartnerConfiguration.metaSystemNameInsteadOfAliasList", false, false);
         }
 
         protected override KalturaPartnerConfigurationType ConfigurationType { get { return KalturaPartnerConfigurationType.CustomFields; } }

@@ -26,7 +26,7 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
 
         public HashSet<long> GetFileTypesIds()
         {
-            var types = this.GetItemsIn<HashSet<long>, long>(FileTypeIdIn, "fileTypeIdIn", true);
+            var types = Utils.Utils.ParseCommaSeparatedValues<HashSet<long>, long>(FileTypeIdIn, "fileTypeIdIn", true);
             return types;
         }
     }

@@ -44,7 +44,7 @@ namespace WebAPI.Controllers
                     userId = Utils.Utils.GetUserIdFromKs();
                 }
 
-                var statuses = filter.GetItemsIn<List<KalturaBulkUploadJobStatus>, KalturaBulkUploadJobStatus>(filter.StatusIn, "statusIn");
+                var statuses = Utils.Utils.ParseCommaSeparatedValues<List<KalturaBulkUploadJobStatus>, KalturaBulkUploadJobStatus>(filter.StatusIn, "statusIn");
                 response = ClientsManager.CatalogClient().GetBulkUploadList(groupId, filter.BulkObjectTypeEqual, statuses, createDate, userId, filter.OrderBy, pager);
             }
             catch (ClientException ex)

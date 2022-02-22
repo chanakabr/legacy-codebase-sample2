@@ -77,7 +77,7 @@ namespace WebAPI.Models.API
 
             if (!string.IsNullOrEmpty(PermissionItemsIds))
             {
-                var items = GetItemsIn<List<long>, long>(this.PermissionItemsIds, "permissionItemsIds", true);
+                var items = WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(this.PermissionItemsIds, "permissionItemsIds", true);
             }
         }
 
@@ -85,13 +85,13 @@ namespace WebAPI.Models.API
         {          
             if (!string.IsNullOrEmpty(PermissionItemsIds))
             {
-                var items = GetItemsIn<List<long>, long>(this.PermissionItemsIds, "permissionItemsIds", true);
+                var items = WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(this.PermissionItemsIds, "permissionItemsIds", true);
             }
         }
 
         internal object GetPermissionItemsIds()
         {
-            return this.GetItemsIn<List<int>, int>(PermissionItemsIds, "KalturaPermission.permissionItemsIds");
+            return Utils.Utils.ParseCommaSeparatedValues<List<int>, int>(PermissionItemsIds, "KalturaPermission.permissionItemsIds");
         }
     }
 

@@ -14,15 +14,8 @@ namespace WebAPI.ModelsValidators
             {
                 HashSet<string> languageCodes = new HashSet<string>();
                 HashSet<string> groupLanguageCodes = Utils.Utils.GetGroupLanguageCodes();
-                if (string.IsNullOrEmpty(model.GroupDefaultLanguageCode))
-                {
-                    model.GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
-                }
-
-                if (string.IsNullOrEmpty(model.RequestLanguageCode))
-                {
-                    model.RequestLanguageCode = Utils.Utils.GetLanguageFromRequest();
-                }
+                var GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
+                var RequestLanguageCode = Utils.Utils.GetLanguageFromRequest();
 
                 foreach (KalturaTranslationToken token in model.Values)
                 {
@@ -45,14 +38,14 @@ namespace WebAPI.ModelsValidators
                     languageCodes.Add(token.Language);
                 }
 
-                if (shouldCheckDefaultLanguageIsSent && !languageCodes.Contains(model.GroupDefaultLanguageCode))
+                if (shouldCheckDefaultLanguageIsSent && !languageCodes.Contains(GroupDefaultLanguageCode))
                 {
                     throw new BadRequestException(ApiException.DEFUALT_LANGUAGE_MUST_BE_SENT, parameterName);
                 }
 
                 if (shouldValidateRequestLanguage)
                 {
-                    if (string.IsNullOrEmpty(model.RequestLanguageCode) || model.RequestLanguageCode != "*")
+                    if (string.IsNullOrEmpty(RequestLanguageCode) || RequestLanguageCode != "*")
                     {
                         throw new BadRequestException(ApiException.GLOBAL_LANGUAGE_MUST_BE_ASTERISK_FOR_WRITE_ACTIONS);
                     }
@@ -65,13 +58,10 @@ namespace WebAPI.ModelsValidators
             if (model.Values != null && model.Values.Count > 0)
             {
                 HashSet<string> groupLanguageCodes = Utils.Utils.GetGroupLanguageCodes();
-                if (string.IsNullOrEmpty(model.GroupDefaultLanguageCode))
-                {
-                    model.GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
-                }
+                var GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
 
-                bool doesDefaultLangHasValue = model.Values.Any(x => x.Language == model.GroupDefaultLanguageCode && !string.IsNullOrEmpty(x.Value));
-                if (!doesDefaultLangHasValue && model.Values.Any(x => x.Language != model.GroupDefaultLanguageCode && !string.IsNullOrEmpty(x.Value)))
+                bool doesDefaultLangHasValue = model.Values.Any(x => x.Language == GroupDefaultLanguageCode && !string.IsNullOrEmpty(x.Value));
+                if (!doesDefaultLangHasValue && model.Values.Any(x => x.Language != GroupDefaultLanguageCode && !string.IsNullOrEmpty(x.Value)))
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaTranslationToken.value, you can't translate an empty value");
                 }

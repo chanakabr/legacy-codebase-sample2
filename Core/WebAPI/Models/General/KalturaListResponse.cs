@@ -7,12 +7,6 @@ using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.General
 {
-    public interface IKalturaListResponse
-    {
-        string ToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false);
-        string ToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false);
-    }
-
     public partial class KalturaListResponse : KalturaOTTObject, IKalturaListResponse
     {
         /// <summary>

@@ -165,7 +165,7 @@ namespace WebAPI.Controllers
                 isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userId.ToString(), true);
             }
 
-            return ClientsManager.ApiClient().ListSegmentationTypes(groupId, ids, pager.getPageIndex(), pager.getPageSize(),
+            return ClientsManager.ApiClient().ListSegmentationTypes(groupId, ids, pager.GetRealPageIndex(), pager.PageSize.Value,
                 new AssetSearchDefinition() { Filter = filter.Ksql, UserId = userId, IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets });
         }
 
@@ -175,7 +175,7 @@ namespace WebAPI.Controllers
 
             return ClientsManager.ApiClient().GetSegmentationTypesBySegmentIds(groupId, filter.GetIdIn(),
                 new AssetSearchDefinition() { UserId = userId, IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets },
-                pager.getPageIndex(), pager.getPageSize());
+                pager.GetRealPageIndex(), pager.PageSize.Value);
         }
     }
 }
