@@ -3577,6 +3577,11 @@ namespace Core.Catalog.CatalogManagement
             return new GenericListResponse<Asset>(Status.Ok, assets, assets.Count());
         }
 
+        public IEnumerable<Asset> GetAssets(long groupId, IEnumerable<KeyValuePair<eAssetTypes, long>> assetTypes, bool isAllowedToViewInactiveAssets)
+        {
+            return AssetManager.GetAssets((int)groupId, assetTypes.ToList(), isAllowedToViewInactiveAssets);
+        }
+
         #endregion
     }
 }

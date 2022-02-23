@@ -136,7 +136,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = AuthorizationManager.StartSessionWithAppToken(groupId, id, tokenHash, userId, udid, null, expiry, 
+                response = AuthorizationManager.StartSessionWithAppToken(groupId, id, tokenHash, userId, udid, null, expiry,
                     (int)HouseholdUtils.GetHouseholdIDByKS());
             }
             catch (ClientException ex)

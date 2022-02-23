@@ -137,7 +137,14 @@ public partial class adm_media_types_new : System.Web.UI.Page
         assetTypeDropDown.SetNoSelectStr("---");
         theRecord.AddRecord(assetTypeDropDown);
         
-
+        var episodeNumberField = new DataRecordShortTextField("ltr", true, 60, 128);
+        episodeNumberField.Initialize("Episode number meta", "adm_table_header_nbg", "FormInput", "EPISODE_NUMBER_META", false);
+        theRecord.AddRecord(episodeNumberField);
+        
+        var seasonNumberField = new DataRecordShortTextField("ltr", true, 60, 128);
+        seasonNumberField.Initialize("Season number meta", "adm_table_header_nbg", "FormInput", "SEASON_NUMBER_META", false);
+        theRecord.AddRecord(seasonNumberField);
+        
         //bool bVisible = PageUtils.IsTvinciUser();
         //if (bVisible == true)
         //{

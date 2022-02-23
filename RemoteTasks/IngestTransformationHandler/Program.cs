@@ -3,14 +3,18 @@ using ApiLogic.IndexManager.Mappings;
 using ApiObjects;
 using Core.Catalog.CatalogManagement.Services;
 using Core.Metrics;
+using EventBus.Abstraction;
 using EventBus.Kafka;
 using EventBus.RabbitMQ;
 using IngestHandler.Common.Infrastructure;
+using IngestHandler.Common.Kafka;
 using IngestTransformationHandler.Managers;
 using IngestTransformationHandler.Repositories;
 using Phx.Lib.Log;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using OTT.Lib.Kafka;
 using TvinciCache;
 using WebAPI.Filters;
 
@@ -32,14 +36,16 @@ namespace EPGTransformationHandler
                     s.AddScoped<IMappingTypeResolver, MappingTypeResolver>();
                     s.AddSingleton<ICatalogManagerAdapter, CatalogManagerAdapter>();
                     s.AddSingleton<IndexCompactionManager, IndexCompactionManager>();
-                    s.AddScoped<IEpgIngestMessaging>(provider =>
-                        new EpgIngestMessaging(KafkaPublisher.GetFromTcmConfiguration(),
-                            new KLogger(nameof(EpgIngestMessaging))));
+                    s.AddKafkaProducerFactory(KafkaConfig.Get());
+                    s.AddKafkaContextProvider<IngestKafkaContextProvider>();
+                    s.AddScoped<IEventBusPublisher, KafkaPublisher>();
+                    s.AddScoped<IEpgIngestMessaging>(provider => new EpgIngestMessaging(provider.GetService<IEventBusPublisher>(), new KLogger(nameof(EpgIngestMessaging))));
                 })
                 .ConfigureEventBusConsumer(c =>
                 {
                     c.DedicatedPartnerIdsResolver = () => GroupsFeatures.GetGroupsThatImplementFeature(GroupFeature.EPG_INGEST_V2);
-                });
+                })
+                .ConfigureLogging(configureLogging => configureLogging.AddLog4Net());
             await builder.RunConsoleAsync();
         }
     }

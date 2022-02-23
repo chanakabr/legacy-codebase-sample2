@@ -229,7 +229,7 @@ namespace WebAPI.Clients
             string result = string.Empty;
 
             string dmsServer = ApplicationConfiguration.Current.DMSUrl.Value;
-            
+
             if (string.IsNullOrWhiteSpace(dmsServer))
             {
                 throw new InternalServerErrorException(InternalServerErrorException.MISSING_CONFIGURATION, "dms_url");
@@ -278,7 +278,7 @@ namespace WebAPI.Clients
             }
             var dmsRestUrl = string.Format("{0}/api/{1}", dmsServer, url);
 
-            StringContent strContent = new StringContent(data != null ? data : string.Empty , Encoding.UTF8, "application/json");
+            StringContent strContent = new StringContent(data != null ? data : string.Empty, Encoding.UTF8, "application/json");
 
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS) { Database = dmsRestUrl })
             {

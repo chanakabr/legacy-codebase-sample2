@@ -14,6 +14,7 @@ using TVinciShared;
 using WebAPI;
 using WebAPI.Controllers;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -493,6 +494,8 @@ namespace Validator.Managers.Scheme
                     var permissions = validPermissions.Where((t, i) => ((int)t & propertyDetails.SchemeProperty.RequiresPermission) > 0).Select(t => t.ToString().ToLower()).ToArray();
                     writer.WriteAttributeString("requiresPermissions", string.Join(",", permissions));
                 }
+
+                writer.WriteAttributeString("validationState", propertyDetails.SchemeProperty.ValidationState.ToString());
 
                 if (propertyDetails.SchemeProperty.MaxInteger < int.MaxValue)
                     writer.WriteAttributeString("maxValue", propertyDetails.SchemeProperty.MaxInteger.ToString());

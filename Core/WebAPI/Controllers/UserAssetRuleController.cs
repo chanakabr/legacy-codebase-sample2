@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
@@ -48,12 +49,12 @@ namespace WebAPI.Controllers
                 if ((AssetType)filter.AssetType == AssetType.epg)
                 {
                     // call client
-                    response = ClientsManager.ApiClient().GetEpgRulesOldStandard(groupId, userID, filter.getAssetId(), (int)HouseholdUtils.GetHouseholdIDByKS(groupId));
+                    response = ClientsManager.ApiClient().GetEpgRulesOldStandard(groupId, userID, filter.getAssetId(), (int)HouseholdUtils.GetHouseholdIDByKS());
                 }
                 else if ((AssetType)filter.AssetType == AssetType.media)
                 {
                     // call client
-                    response = ClientsManager.ApiClient().GetMediaRulesOldStandard(groupId, userID, filter.getAssetId(), (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+                    response = ClientsManager.ApiClient().GetMediaRulesOldStandard(groupId, userID, filter.getAssetId(), (int)HouseholdUtils.GetHouseholdIDByKS(), udid);
                 }
             }
             catch (ClientException ex)
@@ -72,7 +73,7 @@ namespace WebAPI.Controllers
         /// <param name="filter">Filter</param>
         /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
         [Action("list")]
-        [ApiAuthorize]
+        [ApiAuthorize(eKSValidation.Expiration)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.UserSuspended)]
@@ -102,16 +103,16 @@ namespace WebAPI.Controllers
                 if ((AssetType)filter.AssetTypeEqual == AssetType.epg)
                 {
                     // call client
-                    response = ClientsManager.ApiClient().GetEpgRules(groupId, userID, filter.getAssetId(), (int)HouseholdUtils.GetHouseholdIDByKS(groupId));
+                    response = ClientsManager.ApiClient().GetEpgRules(groupId, userID, filter.getAssetId(), (int)HouseholdUtils.GetHouseholdIDByKS());
                 }
                 else if ((AssetType)filter.AssetTypeEqual == AssetType.media)
                 {
                     // call client
-                    response = ClientsManager.ApiClient().GetMediaRules(groupId, userID, filter.getAssetId(), (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+                    response = ClientsManager.ApiClient().GetMediaRules(groupId, userID, filter.getAssetId(), (int)HouseholdUtils.GetHouseholdIDByKS(), udid);
                 }
                 else if ((AssetType) filter.AssetTypeEqual == AssetType.npvr)
                 {
-                    response = ClientsManager.ApiClient().GetNPVRRules(groupId, userID, filter.getAssetId(), (int) HouseholdUtils.GetHouseholdIDByKS(groupId));
+                    response = ClientsManager.ApiClient().GetNPVRRules(groupId, userID, filter.getAssetId(), (int)HouseholdUtils.GetHouseholdIDByKS());
                 }
             }
             catch (ClientException ex)

@@ -21,7 +21,9 @@ namespace Core.Notification
         EpisodeMediaTypeId,
         Reminders,
         MessageTemplate,
-        TopicInterests
+        TopicInterests,
+        EpisodeNumberMeta,
+        SeasonNumberMeta
     }
 
     public interface INotificationCache
@@ -64,6 +66,9 @@ namespace Core.Notification
                     return string.Format("MessageTemplates_{0}", groupId);
                 case eNotificationCacheTypes.TopicInterests:
                     return string.Format("TopicInterests_{0}", groupId);
+                case eNotificationCacheTypes.EpisodeNumberMeta:
+                case eNotificationCacheTypes.SeasonNumberMeta:
+                    return type.ToString() + "_" + groupId;
                 default:
                     break;
             }
@@ -323,6 +328,58 @@ namespace Core.Notification
                 log.ErrorFormat("Error while getting cached episode association tag name. GID {0}, ex: {1}", groupId, ex);
             }
             return associationTagName;
+        }
+        
+        public string GetEpisodeNumberMeta(int groupId)
+        {
+            string episodeNumberMetaKey = GetKey(eNotificationCacheTypes.EpisodeNumberMeta, groupId);
+
+            var episodeNumberMetaCached = Get<string>(episodeNumberMetaKey);
+
+            if (!string.IsNullOrEmpty(episodeNumberMetaCached))
+            {
+                return episodeNumberMetaCached;
+            }
+            
+            var (episodeNumberMeta, _) = GetEpisodeAndSeasonNumberMetasAndSetCache(groupId);
+
+            return episodeNumberMeta;
+        }
+
+        public string GetSeasonNumberMeta(int groupId)
+        {
+            var seasonNumberMetaKey = GetKey(eNotificationCacheTypes.SeasonNumberMeta, groupId);
+
+            var seasonNumberMetaCached = Get<string>(seasonNumberMetaKey);
+
+            if (!string.IsNullOrEmpty(seasonNumberMetaCached))
+            {
+                return seasonNumberMetaCached;
+            }
+            
+            var (_, seasonNumberMeta) = GetEpisodeAndSeasonNumberMetasAndSetCache(groupId);
+
+            return seasonNumberMeta;
+        }
+        
+        private (string episodeNumberMeta, string seasonNumberMeta) GetEpisodeAndSeasonNumberMetasAndSetCache(int groupId)
+        {
+            var episodeNumberMetaKey = GetKey(eNotificationCacheTypes.EpisodeNumberMeta, groupId);
+            var seasonNumberMetaKey = GetKey(eNotificationCacheTypes.SeasonNumberMeta, groupId);
+
+            var (episodeNumberMeta, seasonNumberMeta) = NotificationDal.GetEpisodeAndSeasonNumberMetas(groupId);
+
+            if (!string.IsNullOrEmpty(episodeNumberMeta))
+            {
+                Set(episodeNumberMetaKey, episodeNumberMeta, DEFAULT_TIME_IN_CACHE_SECONDS);
+            }
+
+            if (!string.IsNullOrEmpty(seasonNumberMeta))
+            {
+                Set(seasonNumberMetaKey, seasonNumberMeta, DEFAULT_TIME_IN_CACHE_SECONDS);
+            }
+
+            return (episodeNumberMeta, seasonNumberMeta);
         }
 
         public void RemovePartnerNotificationSettingsFromCache(int groupId)

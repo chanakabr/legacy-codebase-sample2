@@ -16275,6 +16275,12 @@ namespace Core.ConditionalAccess
                             continue;
                         }
 
+                        //BEO-11423 - Check if user already recorded episode as single
+                        if (true)
+                        {
+                            //Remove single and allow series recording?
+                        }
+
                         RecordingType recordingType;
                         long domainSeriesRecordingId;
                         userId = Utils.Instance.GetFollowingUserIdForSerie(m_nGroupID, series, potentialRecording, out recordingType, out domainSeriesRecordingId);

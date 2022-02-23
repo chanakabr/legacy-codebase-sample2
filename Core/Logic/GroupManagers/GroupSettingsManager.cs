@@ -16,6 +16,7 @@ namespace Core.GroupManagers
     public interface IGroupSettingsManager
     {
         bool IsOpc(int groupId);
+        bool IsTvm(int groupId);
         
         bool DoesGroupUsesTemplates(int groupId);
 
@@ -42,6 +43,7 @@ namespace Core.GroupManagers
         }
         
         public bool IsOpc(int groupId) => DoesGroupUsesTemplates(groupId);
+        public bool IsTvm(int groupId) => !IsOpc(groupId);
 
         public bool DoesGroupUsesTemplates(int groupId)
         {

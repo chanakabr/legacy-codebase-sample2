@@ -85,7 +85,7 @@ namespace Core.Users
                     Udid = sDeviceUDID,
                     Pin = pinCode,
                 };
-                KafkaPublisher.GetFromTcmConfiguration().Publish(migrationEvent);
+                KafkaPublisher.GetFromTcmConfiguration(migrationEvent).Publish(migrationEvent);
             }
         }
 

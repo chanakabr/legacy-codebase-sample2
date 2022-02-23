@@ -48,14 +48,13 @@ namespace Core.Catalog
         public EpgAsset()
             : base()
         {
-            this.AssetType = eAssetTypes.EPG;
+            AssetType = eAssetTypes.EPG;
+            ExternalOfferIds = new List<string>();
         }
 
         public EpgAsset(List<EpgCB> epgCBList, string defaultLanguageCode, Dictionary<string, List<EpgPicture>> groupEpgPicturesSizes, int groupId)
-            : base()
+            : this()
         {
-            this.AssetType = eAssetTypes.EPG;
-
             if (epgCBList != null && epgCBList.Count > 0)
             {
                 var defaultEpgCB = epgCBList.FirstOrDefault(x => x.Language.Equals(defaultLanguageCode));

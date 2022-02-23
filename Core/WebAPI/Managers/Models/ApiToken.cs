@@ -47,6 +47,9 @@ namespace WebAPI.Managers.Models
         [JsonProperty("SessionCharacteristicKey")]
         public string SessionCharacteristicKey { get; set; }
         
+        [JsonProperty("DomainId")]
+        public int DomainId { get; set; }
+        
         [JsonIgnore]
         public KS KsObject { get; set; }
         

@@ -38,7 +38,7 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
-                long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                long domainId = HouseholdUtils.GetHouseholdIDByKS();
                 response = ClientsManager.ConditionalAccessClient().CancelSeriesRecord(groupId, userId, domainId, id);
             }
             catch (ClientException ex)
@@ -72,7 +72,7 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
-                long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                long domainId = HouseholdUtils.GetHouseholdIDByKS();
 
                 // call client                
                 response = ClientsManager.ConditionalAccessClient().CancelSeriesRecord(groupId, userId, domainId, id, epgId);
@@ -108,7 +108,7 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
-                long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                long domainId = HouseholdUtils.GetHouseholdIDByKS();
 
                 // call client                
                 response = ClientsManager.ConditionalAccessClient().CancelSeriesRecord(groupId, userId, domainId, id, 0, seasonNumber);
@@ -141,7 +141,7 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
-                long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                long domainId = HouseholdUtils.GetHouseholdIDByKS();
                 // call client                
                 response = ClientsManager.ConditionalAccessClient().DeleteSeriesRecord(groupId, userId, domainId, id);
             }
@@ -178,7 +178,7 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
-                long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                long domainId = HouseholdUtils.GetHouseholdIDByKS();
 
                 // call client                
                 response = ClientsManager.ConditionalAccessClient().DeleteSeriesRecord(groupId, userId, domainId, id, 0, seasonNumber);
@@ -212,7 +212,7 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
-                long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                long domainId = HouseholdUtils.GetHouseholdIDByKS();
 
                 if (filter == null)
                 {
@@ -329,7 +329,7 @@ namespace WebAPI.Controllers
             {
                 var groupId = KS.GetFromRequest().GroupId;
                 var userId = Utils.Utils.GetUserIdFromKs();
-                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                var domainId = HouseholdUtils.GetHouseholdIDByKS();
 
                 response = ClientsManager.ConditionalAccessClient().RebookCanceledRecordByEpgId(groupId, userId, domainId, epgId);
             }

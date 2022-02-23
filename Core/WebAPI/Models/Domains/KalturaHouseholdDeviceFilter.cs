@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Managers;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -16,7 +17,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "householdIdEqual")]
         [JsonProperty("householdIdEqual")]
         [XmlElement(ElementName = "householdIdEqual")]
-        [SchemeProperty(RequiresPermission = (int)RequestType.READ)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.READ, ValidationState = eKSValidation.Expiration)]
         public int? HouseholdIdEqual { get; set; }
 
         /// <summary>

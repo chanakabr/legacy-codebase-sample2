@@ -65,7 +65,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().UpgradeSubscription(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), purchase.Price,
+                response = ClientsManager.ConditionalAccessClient().UpgradeSubscription(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(), purchase.Price,
                                                                                                         purchase.Currency, purchase.ProductId, purchase.getCoupon(), udid, purchase.getPaymentGatewayId(),
                                                                                                         purchase.getPaymentMethodId(), purchase.AdapterData);
             }
@@ -107,7 +107,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                ClientsManager.ConditionalAccessClient().DowngradeSubscription(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), purchase.Price, purchase.Currency, purchase.ProductId, 
+                ClientsManager.ConditionalAccessClient().DowngradeSubscription(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(), purchase.Price, purchase.Currency, purchase.ProductId, 
                                                                                purchase.getCoupon(), udid, purchase.getPaymentGatewayId(), purchase.getPaymentMethodId(), purchase.AdapterData);
             }
             catch (ClientException ex)
@@ -444,7 +444,7 @@ namespace WebAPI.Controllers
             {
 
                 // get domain       
-                var domain = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                var domain = (int)HouseholdUtils.GetHouseholdIDByKS();
 
                 // check if the user performing the action is domain master
                 if (domain == 0)
@@ -453,7 +453,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                response = ClientsManager.ConditionalAccessClient().WaiverTransaction(groupId, (int)domain, KS.GetFromRequest().UserId, assetId, transactionType);
+                response = ClientsManager.ConditionalAccessClient().WaiverTransaction(groupId, domain, KS.GetFromRequest().UserId, assetId, transactionType);
             }
             catch (ClientException ex)
             {

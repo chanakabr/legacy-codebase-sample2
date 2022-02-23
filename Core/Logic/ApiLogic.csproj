@@ -59,6 +59,7 @@
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj" />
     <ProjectReference Include="..\QueueWrapper\QueueWrapper.csproj" />
     <ProjectReference Include="..\ScheduledTasks\ScheduledTasks.csproj" />
+    <ProjectReference Include="..\SchemaRegistryEvents\SchemaRegistryEvents.csproj" />
     <ProjectReference Include="..\ServiceExtensions\ServiceExtensions.csproj" />
     <ProjectReference Include="..\SessionManager\SessionManager.csproj" />
     <ProjectReference Include="..\StaticticsBL\StaticticsBL.csproj" />

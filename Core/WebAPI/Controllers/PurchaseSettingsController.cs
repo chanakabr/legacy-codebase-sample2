@@ -35,7 +35,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+                var householdId = (int)HouseholdUtils.GetHouseholdIDByKS();
 
                 if (by == KalturaEntityReferenceBy.user)
                 {
@@ -80,7 +80,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+                int householdId = (int)HouseholdUtils.GetHouseholdIDByKS();
 
                 if (by == KalturaEntityReferenceBy.user)
                 {
@@ -139,7 +139,7 @@ namespace WebAPI.Controllers
                 else if (entityReference == KalturaEntityReferenceBy.household)
                 {
                     // call client
-                    response = ClientsManager.ApiClient().SetDomainPurchaseSettings(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), (int)settings.Permission);
+                    response = ClientsManager.ApiClient().SetDomainPurchaseSettings(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(), (int)settings.Permission);
                 }
                 
             }
@@ -180,7 +180,7 @@ namespace WebAPI.Controllers
                 else if (by == KalturaEntityReferenceBy.household)
                 {
                     // call client
-                    ClientsManager.ApiClient().SetDomainPurchaseSettings(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), setting);
+                    ClientsManager.ApiClient().SetDomainPurchaseSettings(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(), setting);
                 }
 
             }

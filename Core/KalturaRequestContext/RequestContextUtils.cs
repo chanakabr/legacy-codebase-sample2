@@ -6,7 +6,19 @@ namespace KalturaRequestContext
     {
         private const string REQUEST_REGION = "region_id";
 
-        public string GetRequestId() => GetValueOrDefault<object>(RequestContextConstants.REQUEST_ID_KEY)?.ToString();
+        public string GetRequestId() => GetValueOrDefault<object>(RequestContextConstants.SESSION_ID_KEY)?.ToString()
+                                        ?? GetValueOrDefault<object>(RequestContextConstants.REQUEST_ID_KEY)?.ToString();
+
+        public long? GetPartnerId()
+        {
+            if (GetRequestContextValue(RequestContextConstants.REQUEST_GROUP_ID, out object partnerIdObject)
+                && long.TryParse(partnerIdObject.ToString(), out var partnerId))
+            {
+                return partnerId;
+            }
+
+            return null;
+        }
 
         public long? GetUserId()
         {

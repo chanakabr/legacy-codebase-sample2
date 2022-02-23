@@ -44,16 +44,18 @@ namespace WebAPI.Managers.Models
             public List<long> UserSegments { get; set; }
             public List<long> UserRoles { get; set; }
             public string SessionCharacteristicKey { get; }
+            public int DomainId { get; set; }
             public string Signature { get; set; }
 
             public static KSData Empty { get; } = new KSData();
             
             private KSData(){}
 
-            public KSData(string udid, int createDate, int regionId, List<long> userSegments, List<long> userRoles, string sessionCharacteristicKey, string signature = "")
+            public KSData(string udid, int createDate, int regionId, List<long> userSegments, List<long> userRoles, string sessionCharacteristicKey, int domainId, string signature = "")
             {
                 UDID = udid;
                 CreateDate = createDate;
+                DomainId = domainId;
                 RegionId = regionId;
                 UserSegments = userSegments;
                 UserRoles = userRoles;
@@ -65,6 +67,7 @@ namespace WebAPI.Managers.Models
             {
                 CreateDate = createDate;
                 UDID = payload.UDID;
+                DomainId = payload.DomainId;
                 RegionId = payload.RegionId;
                 UserSegments = payload.UserSegments;
                 UserRoles = payload.UserRoles;
@@ -75,6 +78,7 @@ namespace WebAPI.Managers.Models
             {
                 CreateDate = createDate;
                 UDID = udid;
+                DomainId = token.DomainId;
                 RegionId = token.RegionId;
                 UserSegments = token.UserSegments;
                 UserRoles = token.UserRoles;
@@ -85,7 +89,7 @@ namespace WebAPI.Managers.Models
         public KSVersion ksVersion { get; private set; }
 
         public bool IsValid => AuthorizationManager.IsKsValid(this);
-
+        
         public int GroupId { get; private set; }
 
         public string UserId
@@ -381,7 +385,7 @@ namespace WebAPI.Managers.Models
             var items = HttpContext.Current.Items;
             return items.ContainsKey(RequestContextConstants.REQUEST_KS)
                 ? (KS)items[RequestContextConstants.REQUEST_KS]
-                : null;
+                : null; 
         }
 
         public static KS CreateKSFromApiToken(ApiToken token, string tokenVal)
@@ -434,7 +438,7 @@ namespace WebAPI.Managers.Models
             return CreateKSFromEncoded(encryptedData, groupId, adminSecret, ks, KSVersion.V2, fallbackSecret);
         }
 
-        public static ContextData GetContextData(bool skipDomain = false)
+        public static ContextData GetContextData()
         {
             var ks = GetFromRequest();
             if (ks == null)
@@ -446,7 +450,7 @@ namespace WebAPI.Managers.Models
 
             return new ContextData(ks.GroupId)
             {
-                DomainId = GetDomainId(skipDomain),
+                DomainId = payload?.DomainId,
                 UserId = Utils.Utils.GetUserIdFromKs(ks),
                 Udid = payload?.UDID,
                 UserIp = Utils.Utils.GetClientIP(),
@@ -463,23 +467,6 @@ namespace WebAPI.Managers.Models
             try
             {
                 return KSUtils.ExtractKSPayload();
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
-
-        private static long? GetDomainId(bool skipDomain)
-        {
-            if (skipDomain)
-            {
-                return null;
-            }
-
-            try
-            {
-                return HouseholdUtils.GetHouseholdIDByKS();
             }
             catch (Exception)
             {

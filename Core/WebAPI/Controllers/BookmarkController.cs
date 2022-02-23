@@ -2,6 +2,7 @@
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
@@ -43,9 +44,9 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
                 string udid = KSUtils.ExtractKSPayload().UDID;
-                int domain = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+                int domainId = (int)HouseholdUtils.GetHouseholdIDByKS();
 
-                response = ClientsManager.CatalogClient().GetAssetsBookmarksOldStandard(userID, groupId, domain, udid, filter.Assets);
+                response = ClientsManager.CatalogClient().GetAssetsBookmarksOldStandard(userID, groupId, domainId, udid, filter.Assets);
                 
             }
             catch (ClientException ex)
@@ -82,9 +83,9 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
                 string udid = KSUtils.ExtractKSPayload().UDID;
-                int domain = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+                int domainId = (int)HouseholdUtils.GetHouseholdIDByKS();
 
-                response = ClientsManager.CatalogClient().GetAssetsBookmarks(userID, groupId, domain, udid, filter.getAssetIn(), filter.OrderBy);
+                response = ClientsManager.CatalogClient().GetAssetsBookmarks(userID, groupId, domainId, udid, filter.getAssetIn(), filter.OrderBy);
 
             }
             catch (ClientException ex)
@@ -103,7 +104,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: BadRequest = 500003, ConcurrencyLimitation = 4001, InvalidAssetType = 4021, 
         /// ProgramDoesntExist = 4022, ActionNotRecognized = 4023, InvalidAssetId = 4024,</remarks>
         [Action("add")]
-        [ApiAuthorize(true)]
+        [ApiAuthorize(eKSValidation.None)]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
         [Throws(eResponseStatus.ConcurrencyLimitation)]
         static public bool Add(KalturaBookmark bookmark)
@@ -117,7 +118,7 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string udid = KSUtils.ExtractKSPayload().UDID;
-                int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+                int householdId = (int)HouseholdUtils.GetHouseholdIDByKS();
                 string userId = KS.GetFromRequest().UserId;
                 ClientsManager.CatalogClient().AddBookmark(groupId, userId, householdId, udid, bookmark.Id, bookmark.Type, bookmark.PlayerData.getFileId(), 
                                                            bookmark.getPosition(), bookmark.PlayerData.action.ToString(), bookmark.PlayerData.getAverageBitRate(), 
@@ -145,7 +146,7 @@ namespace WebAPI.Controllers
         /// ProgramDoesntExist = 4022, ActionNotRecognized = 4023, InvalidAssetId = 4024,</remarks>
         [Action("addOldStandard")]
         [OldStandardAction("add")]
-        [ApiAuthorize(true)]
+        [ApiAuthorize(eKSValidation.None)]
         [Obsolete]
         [Throws(eResponseStatus.ConcurrencyLimitation)]
         [Throws(eResponseStatus.InvalidAssetType)]
@@ -158,7 +159,7 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string udid = KSUtils.ExtractKSPayload().UDID;
-                int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+                int householdId = (int)HouseholdUtils.GetHouseholdIDByKS();
                 string siteGuid = KS.GetFromRequest().UserId;
                 ClientsManager.CatalogClient().AddBookmark(groupId, siteGuid, householdId, udid, asset_id, asset_type, file_id, player_asset_data.getLocation(), 
                                                            player_asset_data.action, player_asset_data.getAverageBitRate(), player_asset_data.getTotalBitRate(), 

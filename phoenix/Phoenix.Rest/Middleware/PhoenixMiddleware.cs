@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Phoenix.Rest.Services;
 using System.Reflection;
+using ApiLogic.Context;
+using Core.Catalog.CatalogManagement;
 using WebAPI.Filters;
 using Core.Middleware;
 using HealthCheck;
@@ -25,6 +27,7 @@ namespace Phoenix.Rest.Middleware
             services.AddStaticHttpContextAccessor();
             services.AddSingleton<IResponseFromatterProvider, ResponseFromatterProvider>();
             services.AddApiExceptionHandler<PhoenixExceptionHandler>();
+            EpgAssetManager.InitProgramAssetCrudMessageService(WebKafkaContextProvider.Instance);
 
             return services;
         }

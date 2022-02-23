@@ -35,6 +35,7 @@ using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
 using KalturaRequestContext;
+using WebAPI.Controllers;
 using AppToken = WebAPI.Managers.Models.AppToken;
 using Status = ApiObjects.Response.Status;
 using StatusCode = Grpc.Core.StatusCode;
@@ -50,6 +51,7 @@ namespace WebAPI.Managers
         private const string CB_SECTION_NAME = "tokens";
         private const string REVOKED_SESSION_KEY_FORMAT = "r_session_{0}";
         private const string KS_VALIDATION_FALLBACK_EXPIRATION_KEY = "ks_validation_fallback_expiration_{0}";
+        private const string IS_KS_VALID_KEY = "is_ks_validated";
 
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
         private static readonly RequestContextUtils RequestContextUtils = new RequestContextUtils();
@@ -71,7 +73,7 @@ namespace WebAPI.Managers
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "refreshToken");
             }
 
-            if (!IsKsValid(ks, false))
+            if (!IsKsActive(ks))
             {
                 log.ErrorFormat("RefreshSession: KS already revoked or overwritten");
                 throw new UnauthorizedException(UnauthorizedException.KS_EXPIRED);
@@ -167,7 +169,7 @@ namespace WebAPI.Managers
 
             // SessionCharacteristicKey is initialized only in Auth MS
             string sessionCharacteristicKey = null;
-            var payload = new KS.KSData(udid, createDate, regionId, userSegments, userRoles, sessionCharacteristicKey);
+            var payload = new KS.KSData(udid, createDate, regionId, userSegments, userRoles, sessionCharacteristicKey, domainId);
             return payload;
         }
 
@@ -240,7 +242,7 @@ namespace WebAPI.Managers
                     ExpirationDate = DateUtils.GetUtcUnixTimestampNow()+refreshTokenExpirationSeconds
                 };
 
-                KafkaPublisher.GetFromTcmConfiguration().Publish(migrationEvent);
+                KafkaPublisher.GetFromTcmConfiguration(migrationEvent).Publish(migrationEvent);
             }
         }
 
@@ -639,7 +641,7 @@ namespace WebAPI.Managers
                     UpdateDate = appToken.UpdateDate,
                 };
 
-                KafkaPublisher.GetFromTcmConfiguration().Publish(migrationEvent);
+                KafkaPublisher.GetFromTcmConfiguration(migrationEvent).Publish(migrationEvent);
             }
         }
 
@@ -717,7 +719,7 @@ namespace WebAPI.Managers
                     KsExpiry = revokedSessionTime + revokedSessionExpiryInSeconds,
                     SessionRevocationTime = revokedSessionTime,
                 };
-                KafkaPublisher.GetFromTcmConfiguration().Publish(migrationEvent);
+                KafkaPublisher.GetFromTcmConfiguration(migrationEvent).Publish(migrationEvent);
             }
         }
 
@@ -766,7 +768,7 @@ namespace WebAPI.Managers
                     KsExpiry = TVinciShared.DateUtils.ToUtcUnixTimestampSeconds(ks.Expiration),
                 };
 
-                KafkaPublisher.GetFromTcmConfiguration().Publish(migrationEvent);
+                KafkaPublisher.GetFromTcmConfiguration(migrationEvent).Publish(migrationEvent);
             }
         }
 
@@ -815,20 +817,20 @@ namespace WebAPI.Managers
             return true;
         }
 
-        internal static bool IsKsValid(KS ks, bool validateExpiration = true)
-        {                        
+        internal static bool IsKsExpired(KS ks)
+        {
+            return ks.Expiration < DateTime.UtcNow;
+        }
+
+        private static bool IsKsActive(KS ks)
+        {
             // Check if KS already validated by gateway
             string ksRandomHeader = HttpContext.Current.Request.Headers["X-Kaltura-KS-Random"];
             if (ks.IsKsFormat && ksRandomHeader == ks.Random)
             {
                 return ValidateKsSignature(ks);
             }
-
-            if (validateExpiration && ks.Expiration < DateTime.UtcNow)
-            {
-                return false;
-            }
-
+            
             if (ks.IsKsFormat && CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().IsDataOwnershipFlagEnabled(ks.GroupId, CanaryDeploymentDataOwnershipEnum.AuthenticationSessionRevocation))
             {
                 //use cache if not found
@@ -868,7 +870,46 @@ namespace WebAPI.Managers
 
             return ValidateKSLegacy(ks);
         }
+        
+        
+        internal static bool IsAuthorized(KS ks, eKSValidation validationState = eKSValidation.All)
+        {
+            if (HttpContext.Current.Items.ContainsKey(IS_KS_VALID_KEY))
+            {
+                return (bool)HttpContext.Current.Items[IS_KS_VALID_KEY];
+            }
+            
+            var isAuthotized =  (validationState == eKSValidation.None) ||
+                                (validationState == eKSValidation.Expiration && !IsKsExpired(ks)) ||
+                                (validationState == eKSValidation.All && ks.IsValid);
+            
+            if (!HttpContext.Current.Items.ContainsKey(IS_KS_VALID_KEY))
+            {
+                HttpContext.Current.Items.Add(IS_KS_VALID_KEY, isAuthotized);
+            }
 
+            return isAuthotized;
+        }
+        
+        internal static bool IsKsValid(KS ks, bool validateExpiration = true)
+        {
+            if (HttpContext.Current.Items.ContainsKey(IS_KS_VALID_KEY))
+            {
+                return (bool)HttpContext.Current.Items[IS_KS_VALID_KEY];
+            }
+
+            var isValid = !(validateExpiration && IsKsExpired(ks));
+            
+            if(isValid) isValid = IsKsActive(ks);
+            
+            if (!HttpContext.Current.Items.ContainsKey(IS_KS_VALID_KEY))
+            {
+                HttpContext.Current.Items.Add(IS_KS_VALID_KEY, isValid);
+            }
+
+            return isValid;
+        }
+        
         private static bool ValidateKSLegacy(KS ks)
         {
             Group group = GroupsManager.Instance.GetGroup(ks.GroupId);

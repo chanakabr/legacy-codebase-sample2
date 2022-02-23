@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using ApiLogic.Catalog.CatalogManagement.Models;
+using ApiLogic.Context;
 using ApiObjects.BulkUpload;
 using ApiObjects.EventBus.EpgIngest;
 using EventBus.Abstraction;
@@ -24,7 +25,7 @@ namespace Core.Catalog.CatalogManagement.Services
     {
         private static readonly Lazy<EpgIngestMessaging> LazyInstance = new Lazy<EpgIngestMessaging>(() =>
                 new EpgIngestMessaging(
-                    KafkaPublisher.GetFromTcmConfiguration(),
+                    KafkaPublisher.GetFromTcmConfiguration(WebKafkaContextProvider.Instance),
                     new KLogger(nameof(EpgIngestMessaging))),
             LazyThreadSafetyMode.PublicationOnly);
 

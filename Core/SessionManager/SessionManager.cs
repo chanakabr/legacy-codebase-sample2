@@ -153,7 +153,7 @@ namespace SessionManager
                     KsExpiry = usersSessions.expiration,
                     UserDeviceSessionCreationDate = revocationTime,
                 };
-                KafkaPublisher.GetFromTcmConfiguration().Publish(migrationEvent);
+                KafkaPublisher.GetFromTcmConfiguration(migrationEvent).Publish(migrationEvent);
             }
         }
 

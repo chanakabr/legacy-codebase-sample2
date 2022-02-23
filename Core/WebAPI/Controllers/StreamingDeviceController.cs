@@ -36,7 +36,7 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-                long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                long householdId = HouseholdUtils.GetHouseholdIDByKS();
 
                 // check if the user performing the action is domain master
                 if (householdId == 0)
