@@ -75,7 +75,7 @@ namespace WebAPI.ObjectsConvertor.Extensions
             return string.Format("multilingual{0}{1}", name.Substring(0, 1).ToUpper(), name.Substring(1)); ;
         }
 
-        public static string ToString(this KalturaMultilingualString model)
+        public static string ToString(KalturaMultilingualString model)
         {
             if (model.Values != null && model.Values.Count > 0)
             {
@@ -103,10 +103,10 @@ namespace WebAPI.ObjectsConvertor.Extensions
         public static string ToCustomJson(this KalturaMultilingualString model, Version currentVersion, bool omitObsolete, string propertyName)
         {
             string ret = null;
-            string value = model.ToString();
+            string value = MultilingualStringMapper.ToString(model);
             if (value != null)
             {
-                ret = "\"" + propertyName + "\": \"" + model.EscapeJson(model.ToString()) + "\"";
+                ret = "\"" + propertyName + "\": \"" + model.EscapeJson(value) + "\"";
             }
 
             string language = Utils.Utils.GetLanguageFromRequest();
@@ -125,10 +125,10 @@ namespace WebAPI.ObjectsConvertor.Extensions
         public static string ToCustomXml(this KalturaMultilingualString model, Version currentVersion, bool omitObsolete, string propertyName)
         {
             string ret = "";
-            string value = model.ToString();
+            string value = MultilingualStringMapper.ToString(model);
             if (value != null)
             {
-                ret = "<" + propertyName + ">" + model.EscapeXml(model.ToString()) + "</" + propertyName + ">";
+                ret = "<" + propertyName + ">" + model.EscapeXml(value) + "</" + propertyName + ">";
             }
 
             string language = Utils.Utils.GetLanguageFromRequest();
