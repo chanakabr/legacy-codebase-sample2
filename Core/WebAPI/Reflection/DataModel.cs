@@ -30,6 +30,8 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.MultiRequest;
 using TVinciShared;
 using KalturaRequestContext;
+using WebAPI.ModelsValidators;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Social;
 using WebAPI.Models.General;
@@ -1381,6 +1383,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaCampaignListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaCampaignSearchFilter":
                     switch(property.Name)
                     {
@@ -1491,6 +1501,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaCategoryItemListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaCategoryItemSearchFilter":
                     switch(property.Name)
                     {
@@ -1580,6 +1598,14 @@ namespace WebAPI.Reflection
                             return "stateEqual";
                         case "TreeIdEqual":
                             return "treeIdEqual";
+                    }
+                    break;
+                    
+                case "KalturaCategoryVersionListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
                     }
                     break;
                     
@@ -5850,7 +5876,7 @@ namespace WebAPI.Reflection
                     {
                         case "Origin":
                             return "origin";
-                        case "PIN":
+                        case "Pin":
                             return "pin";
                         case "Type":
                             return "type";
@@ -5862,7 +5888,7 @@ namespace WebAPI.Reflection
                     {
                         case "Origin":
                             return "origin";
-                        case "PIN":
+                        case "Pin":
                             return "pin";
                         case "Type":
                             return "type";
@@ -7332,6 +7358,14 @@ namespace WebAPI.Reflection
                             return "settings";
                         case "SharedSecret":
                             return "sharedSecret";
+                    }
+                    break;
+                    
+                case "KalturaSmsAdapterProfileListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
                     }
                     break;
                     
@@ -9141,27 +9175,27 @@ namespace WebAPI.Reflection
                 case "campaign":
                     switch(action)
                     {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("campaign", "add", WebAPI.Managers.eKSValidation.All);
+                            return CampaignController.Add((KalturaCampaign) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("campaign", "delete", WebAPI.Managers.eKSValidation.All);
+                            CampaignController.Delete((long) methodParams[0]);
+                            return null;
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("campaign", "list", WebAPI.Managers.eKSValidation.All);
+                            return CampaignController.List((KalturaCampaignFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
                         case "setstate":
                             RolesManager.ValidateActionPermitted("campaign", "setState", WebAPI.Managers.eKSValidation.All);
                             CampaignController.SetState((long) methodParams[0], (KalturaObjectState) methodParams[1]);
                             return null;
                             
-                        case "add":
-                            RolesManager.ValidateActionPermitted("campaign", "add");
-                            return CampaignController.Add((KalturaCampaign) methodParams[0]);
-                            
                         case "update":
-                            RolesManager.ValidateActionPermitted("campaign", "update");
+                            RolesManager.ValidateActionPermitted("campaign", "update", WebAPI.Managers.eKSValidation.All);
                             return CampaignController.Update((long) methodParams[0], (KalturaCampaign) methodParams[1]);
-                            
-                        case "delete":
-                            RolesManager.ValidateActionPermitted("campaign", "delete");
-                            CampaignController.Delete((long) methodParams[0]);
-                            return null;
-                            
-                        case "list":
-                            RolesManager.ValidateActionPermitted("campaign", "list");
-                            return CampaignController.List((KalturaCampaignFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
                     break;
@@ -9180,21 +9214,21 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("categoryitem", "add");
+                            RolesManager.ValidateActionPermitted("categoryItem", "add", WebAPI.Managers.eKSValidation.All);
                             return CategoryItemController.Add((KalturaCategoryItem) methodParams[0]);
                             
-                        case "update":
-                            RolesManager.ValidateActionPermitted("categoryitem", "update");
-                            return CategoryItemController.Update((long) methodParams[0], (KalturaCategoryItem) methodParams[1]);
-                            
                         case "delete":
-                            RolesManager.ValidateActionPermitted("categoryitem", "delete");
+                            RolesManager.ValidateActionPermitted("categoryItem", "delete", WebAPI.Managers.eKSValidation.All);
                             CategoryItemController.Delete((long) methodParams[0]);
                             return null;
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("categoryitem", "list");
+                            RolesManager.ValidateActionPermitted("categoryItem", "list", WebAPI.Managers.eKSValidation.All);
                             return CategoryItemController.List((KalturaCategoryItemFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("categoryItem", "update", WebAPI.Managers.eKSValidation.All);
+                            return CategoryItemController.Update((long) methodParams[0], (KalturaCategoryItem) methodParams[1]);
                             
                     }
                     break;
@@ -9220,31 +9254,31 @@ namespace WebAPI.Reflection
                 case "categoryversion":
                     switch(action)
                     {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("categoryVersion", "add", WebAPI.Managers.eKSValidation.All);
+                            return CategoryVersionController.Add((KalturaCategoryVersion) methodParams[0]);
+                            
                         case "createtree":
                             RolesManager.ValidateActionPermitted("categoryVersion", "createTree", WebAPI.Managers.eKSValidation.All);
                             return CategoryVersionController.CreateTree((long) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("categoryVersion", "delete", WebAPI.Managers.eKSValidation.All);
+                            CategoryVersionController.Delete((long) methodParams[0]);
+                            return null;
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("categoryVersion", "list", WebAPI.Managers.eKSValidation.All);
+                            return CategoryVersionController.List((KalturaCategoryVersionFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "setdefault":
                             RolesManager.ValidateActionPermitted("categoryVersion", "setDefault", WebAPI.Managers.eKSValidation.All);
                             CategoryVersionController.SetDefault((long) methodParams[0], (bool) methodParams[1]);
                             return null;
                             
-                        case "add":
-                            RolesManager.ValidateActionPermitted("categoryversion", "add");
-                            return CategoryVersionController.Add((KalturaCategoryVersion) methodParams[0]);
-                            
                         case "update":
-                            RolesManager.ValidateActionPermitted("categoryversion", "update");
+                            RolesManager.ValidateActionPermitted("categoryVersion", "update", WebAPI.Managers.eKSValidation.All);
                             return CategoryVersionController.Update((long) methodParams[0], (KalturaCategoryVersion) methodParams[1]);
-                            
-                        case "delete":
-                            RolesManager.ValidateActionPermitted("categoryversion", "delete");
-                            CategoryVersionController.Delete((long) methodParams[0]);
-                            return null;
-                            
-                        case "list":
-                            RolesManager.ValidateActionPermitted("categoryversion", "list");
-                            return CategoryVersionController.List((KalturaCategoryVersionFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
                     break;
@@ -12172,30 +12206,30 @@ namespace WebAPI.Reflection
                 case "smsadapterprofile":
                     switch(action)
                     {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("smsAdapterProfile", "add", WebAPI.Managers.eKSValidation.All);
+                            return SmsAdapterProfileController.Add((KalturaSmsAdapterProfile) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("smsAdapterProfile", "delete", WebAPI.Managers.eKSValidation.All);
+                            SmsAdapterProfileController.Delete((long) methodParams[0]);
+                            return null;
+                            
                         case "generatesharedsecret":
                             RolesManager.ValidateActionPermitted("smsAdapterProfile", "generateSharedSecret", WebAPI.Managers.eKSValidation.All);
                             return SmsAdapterProfileController.GenerateSharedSecret((int) methodParams[0]);
                             
-                        case "add":
-                            RolesManager.ValidateActionPermitted("smsadapterprofile", "add");
-                            return SmsAdapterProfileController.Add((KalturaSmsAdapterProfile) methodParams[0]);
-                            
-                        case "update":
-                            RolesManager.ValidateActionPermitted("smsadapterprofile", "update");
-                            return SmsAdapterProfileController.Update((long) methodParams[0], (KalturaSmsAdapterProfile) methodParams[1]);
-                            
                         case "get":
-                            RolesManager.ValidateActionPermitted("smsadapterprofile", "get");
+                            RolesManager.ValidateActionPermitted("smsAdapterProfile", "get", WebAPI.Managers.eKSValidation.All);
                             return SmsAdapterProfileController.Get((long) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("smsadapterprofile", "list");
+                            RolesManager.ValidateActionPermitted("smsAdapterProfile", "list", WebAPI.Managers.eKSValidation.All);
                             return SmsAdapterProfileController.List((KalturaSmsAdapterProfileFilter) methodParams[0]);
                             
-                        case "delete":
-                            RolesManager.ValidateActionPermitted("smsadapterprofile", "delete");
-                            SmsAdapterProfileController.Delete((long) methodParams[0]);
-                            return null;
+                        case "update":
+                            RolesManager.ValidateActionPermitted("smsAdapterProfile", "update", WebAPI.Managers.eKSValidation.All);
+                            return SmsAdapterProfileController.Update((long) methodParams[0], (KalturaSmsAdapterProfile) methodParams[1]);
                             
                     }
                     break;
@@ -14882,32 +14916,8 @@ namespace WebAPI.Reflection
                 case "campaign":
                     switch(action)
                     {
-                        case "setstate":
-                            ret.Add("campaignId", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
-                            });
-                            ret.Add("newState", new MethodParam(){
-                                NewName = newParamName,
-                                IsEnum = true,
-                                Type = typeof(KalturaObjectState),
-                            });
-                            return ret;
-                            
                         case "add":
                             ret.Add("objectToAdd", new MethodParam(){
-                                NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaCampaign),
-                            });
-                            return ret;
-                            
-                        case "update":
-                            ret.Add("id", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
-                            });
-                            ret.Add("objectToUpdate", new MethodParam(){
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaCampaign),
@@ -14918,6 +14928,14 @@ namespace WebAPI.Reflection
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "campaign", "delete") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
+                                },
                             });
                             return ret;
                             
@@ -14933,6 +14951,38 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "setstate":
+                            ret.Add("campaignId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("newState", new MethodParam(){
+                                NewName = newParamName,
+                                IsEnum = true,
+                                Type = typeof(KalturaObjectState),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "campaign", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
+                                },
+                            });
+                            ret.Add("objectToUpdate", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCampaign),
                             });
                             return ret;
                             
@@ -14963,22 +15013,18 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
-                        case "update":
-                            ret.Add("id", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
-                            });
-                            ret.Add("objectToUpdate", new MethodParam(){
-                                NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaCategoryItem),
-                            });
-                            return ret;
-                            
                         case "delete":
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "categoryItem", "delete") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
+                                },
                             });
                             return ret;
                             
@@ -14996,6 +15042,26 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "categoryItem", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
+                                },
+                            });
+                            ret.Add("objectToUpdate", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCategoryItem),
                             });
                             return ret;
                             
@@ -15052,6 +15118,14 @@ namespace WebAPI.Reflection
                 case "categoryversion":
                     switch(action)
                     {
+                        case "add":
+                            ret.Add("objectToAdd", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCategoryVersion),
+                            });
+                            return ret;
+                            
                         case "createtree":
                             ret.Add("categoryItemId", new MethodParam(){
                                 NewName = newParamName,
@@ -15064,6 +15138,36 @@ namespace WebAPI.Reflection
                             ret.Add("comment", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "categoryVersion", "delete") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCategoryVersionFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
                             });
                             return ret;
                             
@@ -15080,45 +15184,23 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
-                        case "add":
-                            ret.Add("objectToAdd", new MethodParam(){
-                                NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaCategoryVersion),
-                            });
-                            return ret;
-                            
                         case "update":
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "categoryVersion", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
+                                },
                             });
                             ret.Add("objectToUpdate", new MethodParam(){
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaCategoryVersion),
-                            });
-                            return ret;
-                            
-                        case "delete":
-                            ret.Add("id", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
-                            });
-                            return ret;
-                            
-                        case "list":
-                            ret.Add("filter", new MethodParam(){
-                                NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaCategoryVersionFilter),
-                            });
-                            ret.Add("pager", new MethodParam(){
-                                NewName = newParamName,
-                                IsOptional = true,
-                                DefaultValue = null,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaFilterPager),
                             });
                             return ret;
                             
@@ -21266,13 +21348,6 @@ namespace WebAPI.Reflection
                 case "smsadapterprofile":
                     switch(action)
                     {
-                        case "generatesharedsecret":
-                            ret.Add("smsAdapterId", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(int),
-                            });
-                            return ret;
-                            
                         case "add":
                             ret.Add("objectToAdd", new MethodParam(){
                                 NewName = newParamName,
@@ -21281,15 +21356,25 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
-                        case "update":
+                        case "delete":
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "smsAdapterProfile", "delete") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
+                                },
                             });
-                            ret.Add("objectToUpdate", new MethodParam(){
+                            return ret;
+                            
+                        case "generatesharedsecret":
+                            ret.Add("smsAdapterId", new MethodParam(){
                                 NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaSmsAdapterProfile),
+                                Type = typeof(int),
                             });
                             return ret;
                             
@@ -21297,21 +21382,44 @@ namespace WebAPI.Reflection
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "smsAdapterProfile", "get") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
+                                },
                             });
                             return ret;
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaSmsAdapterProfileFilter),
                             });
                             return ret;
                             
-                        case "delete":
+                        case "update":
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "smsAdapterProfile", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
+                                },
+                            });
+                            ret.Add("objectToUpdate", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSmsAdapterProfile),
                             });
                             return ret;
                             

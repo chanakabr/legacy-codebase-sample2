@@ -19,6 +19,9 @@ using WebAPI.Filters;
 using WebAPI.Reflection;
 using KalturaRequestContext;
 using WebAPI.Exceptions;
+using WebAPI.ModelsValidators;
+using WebAPI.ObjectsConvertor.Extensions;
+using WebAPI.ModelsFactory;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Social;
 using WebAPI.Models.General;
@@ -8720,11 +8723,11 @@ namespace WebAPI.Models.General
                 {
                     if (parameters["multilingualValue"] is JArray)
                     {
-                        value = new KalturaMultilingualString(((JArray) parameters["multilingualValue"]));
+                        value = MultilengualStringFactory.Create((JArray) parameters["multilingualValue"]);
                     }
                     else if (parameters["multilingualValue"] is IList)
                     {
-                        value = new KalturaMultilingualString((List<object>) parameters["multilingualValue"]);
+                        value = MultilengualStringFactory.Create((List<object>) parameters["multilingualValue"]);
                     }
                 }
             }
@@ -9949,6 +9952,20 @@ namespace WebAPI.Models.API
     {
         public KalturaCampaignListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaCampaign>(typeof(KalturaCampaign), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaCampaign), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaCampaignSearchFilter
@@ -12127,11 +12144,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["multilingualName"] is JArray)
                     {
-                        Name = new KalturaMultilingualString(((JArray) parameters["multilingualName"]));
+                        Name = MultilengualStringFactory.Create((JArray) parameters["multilingualName"]);
                     }
                     else if (parameters["multilingualName"] is IList)
                     {
-                        Name = new KalturaMultilingualString((List<object>) parameters["multilingualName"]);
+                        Name = MultilengualStringFactory.Create((List<object>) parameters["multilingualName"]);
                     }
                 }
                 if (parameters.ContainsKey("systemName") && parameters["systemName"] != null)
@@ -13247,7 +13264,7 @@ namespace WebAPI.Models.API
             {
                 if (parameters.ContainsKey("pin") && parameters["pin"] != null)
                 {
-                    PIN = (String) Convert.ChangeType(parameters["pin"], typeof(String));
+                    Pin = (String) Convert.ChangeType(parameters["pin"], typeof(String));
                 }
                 if (parameters.ContainsKey("origin") && parameters["origin"] != null)
                 {
@@ -13288,7 +13305,7 @@ namespace WebAPI.Models.API
             {
                 if (parameters.ContainsKey("pin") && parameters["pin"] != null)
                 {
-                    PIN = (String) Convert.ChangeType(parameters["pin"], typeof(String));
+                    Pin = (String) Convert.ChangeType(parameters["pin"], typeof(String));
                 }
                 if (parameters.ContainsKey("origin") && parameters["origin"] != null)
                 {
@@ -17537,6 +17554,20 @@ namespace WebAPI.Models.Notification
     {
         public KalturaSmsAdapterProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaSmsAdapterProfile>(typeof(KalturaSmsAdapterProfile), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaSmsAdapterProfile), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaTopic
@@ -17905,22 +17936,22 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["multilingualName"] is JArray)
                     {
-                        Name = new KalturaMultilingualString(((JArray) parameters["multilingualName"]));
+                        Name = MultilengualStringFactory.Create((JArray) parameters["multilingualName"]);
                     }
                     else if (parameters["multilingualName"] is IList)
                     {
-                        Name = new KalturaMultilingualString((List<object>) parameters["multilingualName"]);
+                        Name = MultilengualStringFactory.Create((List<object>) parameters["multilingualName"]);
                     }
                 }
                 if (parameters.ContainsKey("multilingualDescription") && parameters["multilingualDescription"] != null)
                 {
                     if (parameters["multilingualDescription"] is JArray)
                     {
-                        Description = new KalturaMultilingualString(((JArray) parameters["multilingualDescription"]));
+                        Description = MultilengualStringFactory.Create((JArray) parameters["multilingualDescription"]);
                     }
                     else if (parameters["multilingualDescription"] is IList)
                     {
-                        Description = new KalturaMultilingualString((List<object>) parameters["multilingualDescription"]);
+                        Description = MultilengualStringFactory.Create((List<object>) parameters["multilingualDescription"]);
                     }
                 }
                 if (parameters.ContainsKey("images") && parameters["images"] != null)
@@ -19282,11 +19313,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["multilingualName"] is JArray)
                     {
-                        Name = new KalturaMultilingualString(((JArray) parameters["multilingualName"]));
+                        Name = MultilengualStringFactory.Create((JArray) parameters["multilingualName"]);
                     }
                     else if (parameters["multilingualName"] is IList)
                     {
-                        Name = new KalturaMultilingualString((List<object>) parameters["multilingualName"]);
+                        Name = MultilengualStringFactory.Create((List<object>) parameters["multilingualName"]);
                     }
                 }
                 if (parameters.ContainsKey("systemName") && parameters["systemName"] != null)
@@ -20304,7 +20335,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
@@ -20417,11 +20448,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["multilingualName"] is JArray)
                     {
-                        Name = new KalturaMultilingualString(((JArray) parameters["multilingualName"]));
+                        Name = MultilengualStringFactory.Create((JArray) parameters["multilingualName"]);
                     }
                     else if (parameters["multilingualName"] is IList)
                     {
-                        Name = new KalturaMultilingualString((List<object>) parameters["multilingualName"]);
+                        Name = MultilengualStringFactory.Create((List<object>) parameters["multilingualName"]);
                     }
                 }
                 if (parameters.ContainsKey("parentId") && parameters["parentId"] != null)
@@ -20460,6 +20491,10 @@ namespace WebAPI.Models.Catalog
                     {
                         DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
                     }
+                }
+                if (parameters.ContainsKey("updateDate__null") && parameters["updateDate__null"] != null)
+                {
+                    AddNullableProperty("updateDate");
                 }
                 if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
                 {
@@ -20573,6 +20608,20 @@ namespace WebAPI.Models.Catalog
     {
         public KalturaCategoryItemListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaCategoryItem>(typeof(KalturaCategoryItem), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaCategoryItem), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaCategoryItemSearchFilter
@@ -20758,11 +20807,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["multilingualName"] is JArray)
                     {
-                        Name = new KalturaMultilingualString(((JArray) parameters["multilingualName"]));
+                        Name = MultilengualStringFactory.Create((JArray) parameters["multilingualName"]);
                     }
                     else if (parameters["multilingualName"] is IList)
                     {
-                        Name = new KalturaMultilingualString((List<object>) parameters["multilingualName"]);
+                        Name = MultilengualStringFactory.Create((List<object>) parameters["multilingualName"]);
                     }
                 }
                 if (parameters.ContainsKey("children") && parameters["children"] != null)
@@ -21120,6 +21169,20 @@ namespace WebAPI.Models.Catalog
     {
         public KalturaCategoryVersionListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaCategoryVersion>(typeof(KalturaCategoryVersion), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaCategoryVersion), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaChannel
@@ -21269,11 +21332,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["multilingualName"] is JArray)
                     {
-                        Name = new KalturaMultilingualString(((JArray) parameters["multilingualName"]));
+                        Name = MultilengualStringFactory.Create((JArray) parameters["multilingualName"]);
                     }
                     else if (parameters["multilingualName"] is IList)
                     {
-                        Name = new KalturaMultilingualString((List<object>) parameters["multilingualName"]);
+                        Name = MultilengualStringFactory.Create((List<object>) parameters["multilingualName"]);
                     }
                 }
                 if (parameters.ContainsKey("oldName") && parameters["oldName"] != null)
@@ -21292,11 +21355,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["multilingualDescription"] is JArray)
                     {
-                        Description = new KalturaMultilingualString(((JArray) parameters["multilingualDescription"]));
+                        Description = MultilengualStringFactory.Create((JArray) parameters["multilingualDescription"]);
                     }
                     else if (parameters["multilingualDescription"] is IList)
                     {
-                        Description = new KalturaMultilingualString((List<object>) parameters["multilingualDescription"]);
+                        Description = MultilengualStringFactory.Create((List<object>) parameters["multilingualDescription"]);
                     }
                 }
                 if (parameters.ContainsKey("oldDescription") && parameters["oldDescription"] != null)
@@ -25011,11 +25074,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["multilingualTag"] is JArray)
                     {
-                        Tag = new KalturaMultilingualString(((JArray) parameters["multilingualTag"]));
+                        Tag = MultilengualStringFactory.Create((JArray) parameters["multilingualTag"]);
                     }
                     else if (parameters["multilingualTag"] is IList)
                     {
-                        Tag = new KalturaMultilingualString((List<object>) parameters["multilingualTag"]);
+                        Tag = MultilengualStringFactory.Create((List<object>) parameters["multilingualTag"]);
                     }
                 }
             }
@@ -25807,11 +25870,11 @@ namespace WebAPI.Models.Pricing
                     NameSchemaProperty.Validate("multilingualName", parameters["multilingualName"]);
                     if (parameters["multilingualName"] is JArray)
                     {
-                        Name = new KalturaMultilingualString(((JArray) parameters["multilingualName"]));
+                        Name = MultilengualStringFactory.Create((JArray) parameters["multilingualName"]);
                     }
                     else if (parameters["multilingualName"] is IList)
                     {
-                        Name = new KalturaMultilingualString((List<object>) parameters["multilingualName"]);
+                        Name = MultilengualStringFactory.Create((List<object>) parameters["multilingualName"]);
                     }
                 }
                 if (parameters.ContainsKey("multilingualDescription__null") && parameters["multilingualDescription__null"] != null)
@@ -25823,11 +25886,11 @@ namespace WebAPI.Models.Pricing
                     DescriptionSchemaProperty.Validate("multilingualDescription", parameters["multilingualDescription"]);
                     if (parameters["multilingualDescription"] is JArray)
                     {
-                        Description = new KalturaMultilingualString(((JArray) parameters["multilingualDescription"]));
+                        Description = MultilengualStringFactory.Create((JArray) parameters["multilingualDescription"]);
                     }
                     else if (parameters["multilingualDescription"] is IList)
                     {
-                        Description = new KalturaMultilingualString((List<object>) parameters["multilingualDescription"]);
+                        Description = MultilengualStringFactory.Create((List<object>) parameters["multilingualDescription"]);
                     }
                 }
                 if (parameters.ContainsKey("usageModule__null") && parameters["usageModule__null"] != null)
@@ -29080,11 +29143,11 @@ namespace WebAPI.Models.Pricing
                 {
                     if (parameters["multilingualName"] is JArray)
                     {
-                        Name = new KalturaMultilingualString(((JArray) parameters["multilingualName"]));
+                        Name = MultilengualStringFactory.Create((JArray) parameters["multilingualName"]);
                     }
                     else if (parameters["multilingualName"] is IList)
                     {
-                        Name = new KalturaMultilingualString((List<object>) parameters["multilingualName"]);
+                        Name = MultilengualStringFactory.Create((List<object>) parameters["multilingualName"]);
                     }
                 }
                 if (parameters.ContainsKey("names") && parameters["names"] != null)
@@ -29107,11 +29170,11 @@ namespace WebAPI.Models.Pricing
                     DescriptionSchemaProperty.Validate("multilingualDescription", parameters["multilingualDescription"]);
                     if (parameters["multilingualDescription"] is JArray)
                     {
-                        Description = new KalturaMultilingualString(((JArray) parameters["multilingualDescription"]));
+                        Description = MultilengualStringFactory.Create((JArray) parameters["multilingualDescription"]);
                     }
                     else if (parameters["multilingualDescription"] is IList)
                     {
-                        Description = new KalturaMultilingualString((List<object>) parameters["multilingualDescription"]);
+                        Description = MultilengualStringFactory.Create((List<object>) parameters["multilingualDescription"]);
                     }
                 }
                 if (parameters.ContainsKey("descriptions") && parameters["descriptions"] != null)
@@ -40496,11 +40559,11 @@ namespace WebAPI.Models.Catalog.SearchPriorityGroup
                 {
                     if (parameters["multilingualName"] is JArray)
                     {
-                        Name = new KalturaMultilingualString(((JArray) parameters["multilingualName"]));
+                        Name = MultilengualStringFactory.Create((JArray) parameters["multilingualName"]);
                     }
                     else if (parameters["multilingualName"] is IList)
                     {
-                        Name = new KalturaMultilingualString((List<object>) parameters["multilingualName"]);
+                        Name = MultilengualStringFactory.Create((List<object>) parameters["multilingualName"]);
                     }
                 }
                 if (parameters.ContainsKey("criteria") && parameters["criteria"] != null)
