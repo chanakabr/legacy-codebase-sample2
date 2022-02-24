@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority.Models;
 using ApiLogic.IndexManager.Sorting;
+using ApiObjects;
 using ApiObjects.SearchObjects;
 using ApiObjects.SearchPriorityGroups;
 using Core.Catalog.Response;
@@ -301,7 +302,7 @@ namespace ApiLogic.Tests.IndexManager
             GenerateData(int count)
         {
             var sortResults = Enumerable.Range(1, count)
-                .Select(x => new UnifiedSearchResult { AssetId = x.ToString(), Score = (int)(x / 2)})
+                .Select(x => new UnifiedSearchResult { AssetId = x.ToString(), Score = (int)(x / 2) })
                 .Reverse()
                 .ToArray();
             var esDocuments = sortResults
@@ -339,6 +340,14 @@ namespace ApiLogic.Tests.IndexManager
                     {
                         "metas.padded_meta",
                         $"meta {groupCount}"
+                    },
+                    {
+                        "metas.meta_eng",
+                        $"meta eng {groupCount}"
+                    },
+                    {
+                        "metas.padded_meta_eng",
+                        $"padded meta eng {groupCount}"
                     }
                 }
             };
@@ -396,7 +405,7 @@ namespace ApiLogic.Tests.IndexManager
                 new List<IEsOrderByField>
                 {
                     new EsOrderByField(OrderBy.NAME, OrderDir.DESC),
-                    new EsOrderByMetaField("value", OrderDir.DESC, false, null)
+                    new EsOrderByMetaField("value", OrderDir.DESC, false, null, null)
                 });
         }
 
@@ -406,8 +415,10 @@ namespace ApiLogic.Tests.IndexManager
             yield return new TestCaseData(new EsOrderByField(OrderBy.CREATE_DATE, OrderDir.DESC));
             yield return new TestCaseData(new EsOrderByField(OrderBy.UPDATE_DATE, OrderDir.DESC));
             yield return new TestCaseData(new EsOrderByField(OrderBy.START_DATE, OrderDir.DESC));
-            yield return new TestCaseData(new EsOrderByMetaField("meta", OrderDir.DESC, false, typeof(long)));
-            yield return new TestCaseData(new EsOrderByMetaField("meta", OrderDir.DESC, true, typeof(long)));
+            yield return new TestCaseData(new EsOrderByMetaField("meta", OrderDir.DESC, false, typeof(long), null));
+            yield return new TestCaseData(new EsOrderByMetaField("meta", OrderDir.DESC, true, typeof(long), new LanguageObj { IsDefault = true }));
+            yield return new TestCaseData(new EsOrderByMetaField("meta", OrderDir.DESC, false, typeof(long), new LanguageObj { Code = "eng"}));
+            yield return new TestCaseData(new EsOrderByMetaField("meta", OrderDir.DESC, true, typeof(long), new LanguageObj { Code = "eng"}));
         }
     }
 }

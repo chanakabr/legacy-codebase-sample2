@@ -30,8 +30,6 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.MultiRequest;
 using TVinciShared;
 using KalturaRequestContext;
-using WebAPI.ModelsValidators;
-using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Social;
 using WebAPI.Models.General;
@@ -1383,14 +1381,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaCampaignListResponse":
-                    switch(property.Name)
-                    {
-                        case "Objects":
-                            return "objects";
-                    }
-                    break;
-                    
                 case "KalturaCampaignSearchFilter":
                     switch(property.Name)
                     {
@@ -1501,14 +1491,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaCategoryItemListResponse":
-                    switch(property.Name)
-                    {
-                        case "Objects":
-                            return "objects";
-                    }
-                    break;
-                    
                 case "KalturaCategoryItemSearchFilter":
                     switch(property.Name)
                     {
@@ -1598,14 +1580,6 @@ namespace WebAPI.Reflection
                             return "stateEqual";
                         case "TreeIdEqual":
                             return "treeIdEqual";
-                    }
-                    break;
-                    
-                case "KalturaCategoryVersionListResponse":
-                    switch(property.Name)
-                    {
-                        case "Objects":
-                            return "objects";
                     }
                     break;
                     
@@ -5876,7 +5850,7 @@ namespace WebAPI.Reflection
                     {
                         case "Origin":
                             return "origin";
-                        case "Pin":
+                        case "PIN":
                             return "pin";
                         case "Type":
                             return "type";
@@ -5888,7 +5862,7 @@ namespace WebAPI.Reflection
                     {
                         case "Origin":
                             return "origin";
-                        case "Pin":
+                        case "PIN":
                             return "pin";
                         case "Type":
                             return "type";
@@ -7361,14 +7335,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaSmsAdapterProfileListResponse":
-                    switch(property.Name)
-                    {
-                        case "Objects":
-                            return "objects";
-                    }
-                    break;
-                    
                 case "KalturaSocial":
                     switch(property.Name)
                     {
@@ -8731,58 +8697,58 @@ namespace WebAPI.Reflection
                         case "add":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("announcement", "add", false);
+                                RolesManager.ValidateActionPermitted("announcement", "add", WebAPI.Managers.eKSValidation.All);
                                 return AnnouncementController.AddOldStandard((KalturaAnnouncement) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("announcement", "add", false);
+                            RolesManager.ValidateActionPermitted("announcement", "add", WebAPI.Managers.eKSValidation.All);
                             return AnnouncementController.Add((KalturaAnnouncement) methodParams[0]);
                             
                         case "addoldstandard":
-                            RolesManager.ValidateActionPermitted("announcement", "addOldStandard", false);
+                            RolesManager.ValidateActionPermitted("announcement", "addOldStandard", WebAPI.Managers.eKSValidation.All);
                             return AnnouncementController.AddOldStandard((KalturaAnnouncement) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("announcement", "delete", false);
+                            RolesManager.ValidateActionPermitted("announcement", "delete", WebAPI.Managers.eKSValidation.All);
                             return AnnouncementController.Delete((long) methodParams[0]);
                             
                         case "enablesystemannouncements":
-                            RolesManager.ValidateActionPermitted("announcement", "enableSystemAnnouncements", false);
+                            RolesManager.ValidateActionPermitted("announcement", "enableSystemAnnouncements", WebAPI.Managers.eKSValidation.All);
                             return AnnouncementController.EnableSystemAnnouncements();
                             
                         case "list":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("announcement", "list", false);
+                                RolesManager.ValidateActionPermitted("announcement", "list", WebAPI.Managers.eKSValidation.All);
                                 return AnnouncementController.ListOldStandard((KalturaFilterPager) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("announcement", "list", false);
+                            RolesManager.ValidateActionPermitted("announcement", "list", WebAPI.Managers.eKSValidation.All);
                             return AnnouncementController.List((KalturaAnnouncementFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "listoldstandard":
-                            RolesManager.ValidateActionPermitted("announcement", "listOldStandard", false);
+                            RolesManager.ValidateActionPermitted("announcement", "listOldStandard", WebAPI.Managers.eKSValidation.All);
                             return AnnouncementController.ListOldStandard((KalturaFilterPager) methodParams[0]);
                             
                         case "update":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("announcement", "update", false);
+                                RolesManager.ValidateActionPermitted("announcement", "update", WebAPI.Managers.eKSValidation.All);
                                 return AnnouncementController.UpdateOldStandard((KalturaAnnouncement) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("announcement", "update", false);
+                            RolesManager.ValidateActionPermitted("announcement", "update", WebAPI.Managers.eKSValidation.All);
                             return AnnouncementController.Update((int) methodParams[0], (KalturaAnnouncement) methodParams[1]);
                             
                         case "updateoldstandard":
-                            RolesManager.ValidateActionPermitted("announcement", "updateOldStandard", false);
+                            RolesManager.ValidateActionPermitted("announcement", "updateOldStandard", WebAPI.Managers.eKSValidation.All);
                             return AnnouncementController.UpdateOldStandard((KalturaAnnouncement) methodParams[0]);
                             
                         case "updatestatus":
-                            RolesManager.ValidateActionPermitted("announcement", "updateStatus", false);
+                            RolesManager.ValidateActionPermitted("announcement", "updateStatus", WebAPI.Managers.eKSValidation.All);
                             return AnnouncementController.UpdateStatus((long) methodParams[0], (bool) methodParams[1]);
                             
                         case "createannouncement":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("announcement", "createAnnouncement", false);
+                                RolesManager.ValidateActionPermitted("announcement", "createAnnouncement", WebAPI.Managers.eKSValidation.All);
                                 return AnnouncementController.EnableSystemAnnouncements();
                             }
                             break;
@@ -8794,19 +8760,19 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("appToken", "add", false);
+                            RolesManager.ValidateActionPermitted("appToken", "add", WebAPI.Managers.eKSValidation.All);
                             return AppTokenController.Add((KalturaAppToken) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("appToken", "delete", false);
+                            RolesManager.ValidateActionPermitted("appToken", "delete", WebAPI.Managers.eKSValidation.All);
                             return AppTokenController.Delete((string) methodParams[0]);
                             
                         case "get":
-                            RolesManager.ValidateActionPermitted("appToken", "get", false);
+                            RolesManager.ValidateActionPermitted("appToken", "get", WebAPI.Managers.eKSValidation.All);
                             return AppTokenController.Get((string) methodParams[0]);
                             
                         case "startsession":
-                            RolesManager.ValidateActionPermitted("appToken", "startSession", false);
+                            RolesManager.ValidateActionPermitted("appToken", "startSession", WebAPI.Managers.eKSValidation.All);
                             return AppTokenController.StartSession((string) methodParams[0], (string) methodParams[1], (string) methodParams[2], (Nullable<int>) methodParams[3], (string) methodParams[4]);
                             
                     }
@@ -8816,11 +8782,11 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("assetComment", "add", false);
+                            RolesManager.ValidateActionPermitted("assetComment", "add", WebAPI.Managers.eKSValidation.All);
                             return AssetCommentController.Add((KalturaAssetComment) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("assetComment", "list", false);
+                            RolesManager.ValidateActionPermitted("assetComment", "list", WebAPI.Managers.eKSValidation.All);
                             return AssetCommentController.List((KalturaAssetCommentFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
@@ -8830,93 +8796,93 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("asset", "add", false);
+                            RolesManager.ValidateActionPermitted("asset", "add", WebAPI.Managers.eKSValidation.All);
                             return AssetController.Add((KalturaAsset) methodParams[0]);
                             
                         case "addfrombulkupload":
-                            RolesManager.ValidateActionPermitted("asset", "addFromBulkUpload", false);
+                            RolesManager.ValidateActionPermitted("asset", "addFromBulkUpload", WebAPI.Managers.eKSValidation.All);
                             return AssetController.AddFromBulkUpload((KalturaOTTFile) methodParams[0], (KalturaBulkUploadJobData) methodParams[1], (KalturaBulkUploadAssetData) methodParams[2]);
                             
                         case "autocomplete":
-                            RolesManager.ValidateActionPermitted("asset", "autocomplete", false);
+                            RolesManager.ValidateActionPermitted("asset", "autocomplete", WebAPI.Managers.eKSValidation.All);
                             return AssetController.Autocomplete((string) methodParams[0], (List<KalturaCatalogWithHolder>) methodParams[1], (List<KalturaIntegerValue>) methodParams[2], (Nullable<KalturaOrder>) methodParams[3], (Nullable<int>) methodParams[4]);
                             
                         case "channel":
-                            RolesManager.ValidateActionPermitted("asset", "channel", false);
+                            RolesManager.ValidateActionPermitted("asset", "channel", WebAPI.Managers.eKSValidation.All);
                             return AssetController.Channel((int) methodParams[0], (List<KalturaCatalogWithHolder>) methodParams[1], (Nullable<KalturaOrder>) methodParams[2], (KalturaFilterPager) methodParams[3], (string) methodParams[4]);
                             
                         case "count":
-                            RolesManager.ValidateActionPermitted("asset", "count", false);
+                            RolesManager.ValidateActionPermitted("asset", "count", WebAPI.Managers.eKSValidation.All);
                             return AssetController.Count((KalturaSearchAssetFilter) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("asset", "delete", false);
+                            RolesManager.ValidateActionPermitted("asset", "delete", WebAPI.Managers.eKSValidation.All);
                             return AssetController.Delete((long) methodParams[0], (KalturaAssetReferenceType) methodParams[1]);
                             
                         case "externalchannel":
-                            RolesManager.ValidateActionPermitted("asset", "externalChannel", false);
+                            RolesManager.ValidateActionPermitted("asset", "externalChannel", WebAPI.Managers.eKSValidation.All);
                             return AssetController.ExternalChannel((int) methodParams[0], (List<KalturaCatalogWithHolder>) methodParams[1], (Nullable<KalturaOrder>) methodParams[2], (KalturaFilterPager) methodParams[3], (Nullable<float>) methodParams[4], (string) methodParams[5]);
                             
                         case "get":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("asset", "get", false);
+                                RolesManager.ValidateActionPermitted("asset", "get", WebAPI.Managers.eKSValidation.All);
                                 return AssetController.GetOldStandard((string) methodParams[0], (KalturaAssetReferenceType) methodParams[1], (List<KalturaCatalogWithHolder>) methodParams[2]);
                             }
-                            RolesManager.ValidateActionPermitted("asset", "get", false);
+                            RolesManager.ValidateActionPermitted("asset", "get", WebAPI.Managers.eKSValidation.All);
                             return AssetController.Get((string) methodParams[0], (KalturaAssetReferenceType) methodParams[1]);
                             
                         case "getadscontext":
-                            RolesManager.ValidateActionPermitted("asset", "getAdsContext", false);
+                            RolesManager.ValidateActionPermitted("asset", "getAdsContext", WebAPI.Managers.eKSValidation.All);
                             return AssetController.GetAdsContext((string) methodParams[0], (KalturaAssetType) methodParams[1], (KalturaPlaybackContextOptions) methodParams[2]);
                             
                         case "getoldstandard":
-                            RolesManager.ValidateActionPermitted("asset", "getOldStandard", false);
+                            RolesManager.ValidateActionPermitted("asset", "getOldStandard", WebAPI.Managers.eKSValidation.All);
                             return AssetController.GetOldStandard((string) methodParams[0], (KalturaAssetReferenceType) methodParams[1], (List<KalturaCatalogWithHolder>) methodParams[2]);
                             
                         case "getplaybackcontext":
-                            RolesManager.ValidateActionPermitted("asset", "getPlaybackContext", false);
+                            RolesManager.ValidateActionPermitted("asset", "getPlaybackContext", WebAPI.Managers.eKSValidation.All);
                             return AssetController.GetPlaybackContext((string) methodParams[0], (KalturaAssetType) methodParams[1], (KalturaPlaybackContextOptions) methodParams[2], (string) methodParams[3]);
                             
                         case "getplaybackmanifest":
-                            RolesManager.ValidateActionPermitted("asset", "getPlaybackManifest", false);
+                            RolesManager.ValidateActionPermitted("asset", "getPlaybackManifest", WebAPI.Managers.eKSValidation.All);
                             return AssetController.GetPlaybackManifest((string) methodParams[0], (KalturaAssetType) methodParams[1], (KalturaPlaybackContextOptions) methodParams[2], (string) methodParams[3]);
                             
                         case "list":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("asset", "list", false);
+                                RolesManager.ValidateActionPermitted("asset", "list", WebAPI.Managers.eKSValidation.All);
                                 return AssetController.ListOldStandard((KalturaAssetInfoFilter) methodParams[0], (List<KalturaCatalogWithHolder>) methodParams[1], (Nullable<KalturaOrder>) methodParams[2], (KalturaFilterPager) methodParams[3]);
                             }
-                            RolesManager.ValidateActionPermitted("asset", "list", false);
+                            RolesManager.ValidateActionPermitted("asset", "list", WebAPI.Managers.eKSValidation.Expiration);
                             return AssetController.List((KalturaAssetFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "listoldstandard":
-                            RolesManager.ValidateActionPermitted("asset", "listOldStandard", false);
+                            RolesManager.ValidateActionPermitted("asset", "listOldStandard", WebAPI.Managers.eKSValidation.All);
                             return AssetController.ListOldStandard((KalturaAssetInfoFilter) methodParams[0], (List<KalturaCatalogWithHolder>) methodParams[1], (Nullable<KalturaOrder>) methodParams[2], (KalturaFilterPager) methodParams[3]);
                             
                         case "related":
-                            RolesManager.ValidateActionPermitted("asset", "related", false);
+                            RolesManager.ValidateActionPermitted("asset", "related", WebAPI.Managers.eKSValidation.All);
                             return AssetController.Related((int) methodParams[0], (string) methodParams[1], (KalturaFilterPager) methodParams[2], (List<KalturaIntegerValue>) methodParams[3], (List<KalturaCatalogWithHolder>) methodParams[4]);
                             
                         case "relatedexternal":
-                            RolesManager.ValidateActionPermitted("asset", "relatedExternal", false);
+                            RolesManager.ValidateActionPermitted("asset", "relatedExternal", WebAPI.Managers.eKSValidation.All);
                             return AssetController.RelatedExternal((int) methodParams[0], (KalturaFilterPager) methodParams[1], (List<KalturaIntegerValue>) methodParams[2], (int) methodParams[3], (List<KalturaCatalogWithHolder>) methodParams[4], (string) methodParams[5]);
                             
                         case "removemetasandtags":
-                            RolesManager.ValidateActionPermitted("asset", "removeMetasAndTags", false);
+                            RolesManager.ValidateActionPermitted("asset", "removeMetasAndTags", WebAPI.Managers.eKSValidation.All);
                             return AssetController.RemoveMetasAndTags((long) methodParams[0], (KalturaAssetReferenceType) methodParams[1], (string) methodParams[2]);
                             
                         case "search":
-                            RolesManager.ValidateActionPermitted("asset", "search", false);
+                            RolesManager.ValidateActionPermitted("asset", "search", WebAPI.Managers.eKSValidation.All);
                             return AssetController.Search((Nullable<KalturaOrder>) methodParams[0], (List<KalturaIntegerValue>) methodParams[1], (string) methodParams[2], (List<KalturaCatalogWithHolder>) methodParams[3], (KalturaFilterPager) methodParams[4], (string) methodParams[5]);
                             
                         case "searchexternal":
-                            RolesManager.ValidateActionPermitted("asset", "searchExternal", false);
+                            RolesManager.ValidateActionPermitted("asset", "searchExternal", WebAPI.Managers.eKSValidation.All);
                             return AssetController.searchExternal((string) methodParams[0], (KalturaFilterPager) methodParams[1], (List<KalturaIntegerValue>) methodParams[2], (int) methodParams[3], (List<KalturaCatalogWithHolder>) methodParams[4]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("asset", "update", false);
+                            RolesManager.ValidateActionPermitted("asset", "update", WebAPI.Managers.eKSValidation.All);
                             return AssetController.Update((long) methodParams[0], (KalturaAsset) methodParams[1]);
                             
                     }
@@ -8926,7 +8892,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "getcontext":
-                            RolesManager.ValidateActionPermitted("assetFile", "getContext", false);
+                            RolesManager.ValidateActionPermitted("assetFile", "getContext", WebAPI.Managers.eKSValidation.All);
                             return AssetFileController.GetContext((string) methodParams[0], (KalturaContextType) methodParams[1]);
                             
                         case "playmanifest":
@@ -8939,19 +8905,19 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("assetFilePpv", "add", false);
+                            RolesManager.ValidateActionPermitted("assetFilePpv", "add", WebAPI.Managers.eKSValidation.All);
                             return AssetFilePpvController.Add((KalturaAssetFilePpv) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("assetFilePpv", "delete", false);
+                            RolesManager.ValidateActionPermitted("assetFilePpv", "delete", WebAPI.Managers.eKSValidation.All);
                             return AssetFilePpvController.Delete((long) methodParams[0], (long) methodParams[1]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("assetFilePpv", "list", false);
+                            RolesManager.ValidateActionPermitted("assetFilePpv", "list", WebAPI.Managers.eKSValidation.All);
                             return AssetFilePpvController.List((KalturaAssetFilePpvFilter) methodParams[0]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("assetFilePpv", "update", false);
+                            RolesManager.ValidateActionPermitted("assetFilePpv", "update", WebAPI.Managers.eKSValidation.All);
                             return AssetFilePpvController.Update((long) methodParams[0], (long) methodParams[1], (KalturaAssetFilePpv) methodParams[2]);
                             
                     }
@@ -8963,32 +8929,32 @@ namespace WebAPI.Reflection
                         case "clean":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("assetHistory", "clean", false);
+                                RolesManager.ValidateActionPermitted("assetHistory", "clean", WebAPI.Managers.eKSValidation.All);
                                 return AssetHistoryController.CleanOldStandard((KalturaAssetsFilter) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("assetHistory", "clean", false);
+                            RolesManager.ValidateActionPermitted("assetHistory", "clean", WebAPI.Managers.eKSValidation.All);
                             AssetHistoryController.Clean((KalturaAssetHistoryFilter) methodParams[0]);
                             return null;
                             
                         case "cleanoldstandard":
-                            RolesManager.ValidateActionPermitted("assetHistory", "cleanOldStandard", false);
+                            RolesManager.ValidateActionPermitted("assetHistory", "cleanOldStandard", WebAPI.Managers.eKSValidation.All);
                             return AssetHistoryController.CleanOldStandard((KalturaAssetsFilter) methodParams[0]);
                             
                         case "getnextepisode":
-                            RolesManager.ValidateActionPermitted("assetHistory", "getNextEpisode", false);
+                            RolesManager.ValidateActionPermitted("assetHistory", "getNextEpisode", WebAPI.Managers.eKSValidation.All);
                             return AssetHistoryController.GetNextEpisode((long) methodParams[0]);
                             
                         case "list":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("assetHistory", "list", false);
+                                RolesManager.ValidateActionPermitted("assetHistory", "list", WebAPI.Managers.eKSValidation.All);
                                 return AssetHistoryController.ListOldStandard((KalturaAssetHistoryFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             }
-                            RolesManager.ValidateActionPermitted("assetHistory", "list", false);
+                            RolesManager.ValidateActionPermitted("assetHistory", "list", WebAPI.Managers.eKSValidation.All);
                             return AssetHistoryController.List((KalturaAssetHistoryFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "listoldstandard":
-                            RolesManager.ValidateActionPermitted("assetHistory", "listOldStandard", false);
+                            RolesManager.ValidateActionPermitted("assetHistory", "listOldStandard", WebAPI.Managers.eKSValidation.All);
                             return AssetHistoryController.ListOldStandard((KalturaAssetHistoryFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
@@ -8998,19 +8964,19 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("assetRule", "add", false);
+                            RolesManager.ValidateActionPermitted("assetRule", "add", WebAPI.Managers.eKSValidation.All);
                             return AssetRuleController.Add((KalturaAssetRule) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("assetRule", "delete", false);
+                            RolesManager.ValidateActionPermitted("assetRule", "delete", WebAPI.Managers.eKSValidation.All);
                             return AssetRuleController.Delete((long) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("assetRule", "list", false);
+                            RolesManager.ValidateActionPermitted("assetRule", "list", WebAPI.Managers.eKSValidation.All);
                             return AssetRuleController.List((KalturaAssetRuleFilter) methodParams[0]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("assetRule", "update", false);
+                            RolesManager.ValidateActionPermitted("assetRule", "update", WebAPI.Managers.eKSValidation.All);
                             return AssetRuleController.Update((long) methodParams[0], (KalturaAssetRule) methodParams[1]);
                             
                     }
@@ -9020,7 +8986,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "query":
-                            RolesManager.ValidateActionPermitted("assetStatistics", "query", false);
+                            RolesManager.ValidateActionPermitted("assetStatistics", "query", WebAPI.Managers.eKSValidation.All);
                             return AssetStatisticsController.Query((KalturaAssetStatisticsQuery) methodParams[0]);
                             
                     }
@@ -9030,23 +8996,23 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("assetStruct", "add", false);
+                            RolesManager.ValidateActionPermitted("assetStruct", "add", WebAPI.Managers.eKSValidation.All);
                             return AssetStructController.Add((KalturaAssetStruct) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("assetStruct", "delete", false);
+                            RolesManager.ValidateActionPermitted("assetStruct", "delete", WebAPI.Managers.eKSValidation.All);
                             return AssetStructController.Delete((long) methodParams[0]);
                             
                         case "get":
-                            RolesManager.ValidateActionPermitted("assetStruct", "get", false);
+                            RolesManager.ValidateActionPermitted("assetStruct", "get", WebAPI.Managers.eKSValidation.All);
                             return AssetStructController.Get((long) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("assetStruct", "list", false);
+                            RolesManager.ValidateActionPermitted("assetStruct", "list", WebAPI.Managers.eKSValidation.All);
                             return AssetStructController.List((KalturaBaseAssetStructFilter) methodParams[0]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("assetStruct", "update", false);
+                            RolesManager.ValidateActionPermitted("assetStruct", "update", WebAPI.Managers.eKSValidation.All);
                             return AssetStructController.Update((long) methodParams[0], (KalturaAssetStruct) methodParams[1]);
                             
                     }
@@ -9056,11 +9022,11 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
-                            RolesManager.ValidateActionPermitted("assetStructMeta", "list", false);
+                            RolesManager.ValidateActionPermitted("assetStructMeta", "list", WebAPI.Managers.eKSValidation.All);
                             return AssetStructMetaController.List((KalturaAssetStructMetaFilter) methodParams[0]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("assetStructMeta", "update", false);
+                            RolesManager.ValidateActionPermitted("assetStructMeta", "update", WebAPI.Managers.eKSValidation.All);
                             return AssetStructMetaController.Update((long) methodParams[0], (long) methodParams[1], (KalturaAssetStructMeta) methodParams[2]);
                             
                     }
@@ -9070,30 +9036,30 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("assetUserRule", "add", false);
+                            RolesManager.ValidateActionPermitted("assetUserRule", "add", WebAPI.Managers.eKSValidation.All);
                             return AssetUserRuleController.Add((KalturaAssetUserRule) methodParams[0]);
                             
                         case "attachuser":
-                            RolesManager.ValidateActionPermitted("assetUserRule", "attachUser", false);
+                            RolesManager.ValidateActionPermitted("assetUserRule", "attachUser", WebAPI.Managers.eKSValidation.All);
                             AssetUserRuleController.AttachUser((long) methodParams[0]);
                             return null;
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("assetUserRule", "delete", false);
+                            RolesManager.ValidateActionPermitted("assetUserRule", "delete", WebAPI.Managers.eKSValidation.All);
                             AssetUserRuleController.Delete((long) methodParams[0]);
                             return null;
                             
                         case "detachuser":
-                            RolesManager.ValidateActionPermitted("assetUserRule", "detachUser", false);
+                            RolesManager.ValidateActionPermitted("assetUserRule", "detachUser", WebAPI.Managers.eKSValidation.All);
                             AssetUserRuleController.DetachUser((long) methodParams[0]);
                             return null;
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("assetUserRule", "list", false);
+                            RolesManager.ValidateActionPermitted("assetUserRule", "list", WebAPI.Managers.eKSValidation.All);
                             return AssetUserRuleController.List((KalturaAssetUserRuleFilter) methodParams[0]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("assetUserRule", "update", false);
+                            RolesManager.ValidateActionPermitted("assetUserRule", "update", WebAPI.Managers.eKSValidation.All);
                             return AssetUserRuleController.Update((long) methodParams[0], (KalturaAssetUserRule) methodParams[1]);
                             
                     }
@@ -9105,27 +9071,27 @@ namespace WebAPI.Reflection
                         case "add":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("bookmark", "add", true);
+                                RolesManager.ValidateActionPermitted("bookmark", "add", WebAPI.Managers.eKSValidation.None);
                                 return BookmarkController.AddOldStandard((string) methodParams[0], (KalturaAssetType) methodParams[1], (long) methodParams[2], (KalturaPlayerAssetData) methodParams[3]);
                             }
-                            RolesManager.ValidateActionPermitted("bookmark", "add", true);
+                            RolesManager.ValidateActionPermitted("bookmark", "add", WebAPI.Managers.eKSValidation.None);
                             return BookmarkController.Add((KalturaBookmark) methodParams[0]);
                             
                         case "addoldstandard":
-                            RolesManager.ValidateActionPermitted("bookmark", "addOldStandard", true);
+                            RolesManager.ValidateActionPermitted("bookmark", "addOldStandard", WebAPI.Managers.eKSValidation.None);
                             return BookmarkController.AddOldStandard((string) methodParams[0], (KalturaAssetType) methodParams[1], (long) methodParams[2], (KalturaPlayerAssetData) methodParams[3]);
                             
                         case "list":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("bookmark", "list", false);
+                                RolesManager.ValidateActionPermitted("bookmark", "list", WebAPI.Managers.eKSValidation.All);
                                 return BookmarkController.ListOldStandard((KalturaAssetsFilter) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("bookmark", "list", false);
+                            RolesManager.ValidateActionPermitted("bookmark", "list", WebAPI.Managers.eKSValidation.All);
                             return BookmarkController.List((KalturaBookmarkFilter) methodParams[0]);
                             
                         case "listoldstandard":
-                            RolesManager.ValidateActionPermitted("bookmark", "listOldStandard", false);
+                            RolesManager.ValidateActionPermitted("bookmark", "listOldStandard", WebAPI.Managers.eKSValidation.All);
                             return BookmarkController.ListOldStandard((KalturaAssetsFilter) methodParams[0]);
                             
                     }
@@ -9135,11 +9101,11 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "get":
-                            RolesManager.ValidateActionPermitted("bulkUpload", "get", false);
+                            RolesManager.ValidateActionPermitted("bulkUpload", "get", WebAPI.Managers.eKSValidation.All);
                             return BulkUploadController.Get((long) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("bulkUpload", "list", false);
+                            RolesManager.ValidateActionPermitted("bulkUpload", "list", WebAPI.Managers.eKSValidation.All);
                             return BulkUploadController.List((KalturaBulkUploadFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
@@ -9149,24 +9115,24 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("businessModuleRule", "add", false);
+                            RolesManager.ValidateActionPermitted("businessModuleRule", "add", WebAPI.Managers.eKSValidation.All);
                             return BusinessModuleRuleController.Add((KalturaBusinessModuleRule) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("businessModuleRule", "delete", false);
+                            RolesManager.ValidateActionPermitted("businessModuleRule", "delete", WebAPI.Managers.eKSValidation.All);
                             BusinessModuleRuleController.Delete((long) methodParams[0]);
                             return null;
                             
                         case "get":
-                            RolesManager.ValidateActionPermitted("businessModuleRule", "get", false);
+                            RolesManager.ValidateActionPermitted("businessModuleRule", "get", WebAPI.Managers.eKSValidation.All);
                             return BusinessModuleRuleController.Get((long) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("businessModuleRule", "list", false);
+                            RolesManager.ValidateActionPermitted("businessModuleRule", "list", WebAPI.Managers.eKSValidation.All);
                             return BusinessModuleRuleController.List((KalturaBusinessModuleRuleFilter) methodParams[0]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("businessModuleRule", "update", false);
+                            RolesManager.ValidateActionPermitted("businessModuleRule", "update", WebAPI.Managers.eKSValidation.All);
                             return BusinessModuleRuleController.Update((long) methodParams[0], (KalturaBusinessModuleRule) methodParams[1]);
                             
                     }
@@ -9175,27 +9141,27 @@ namespace WebAPI.Reflection
                 case "campaign":
                     switch(action)
                     {
+                        case "setstate":
+                            RolesManager.ValidateActionPermitted("campaign", "setState", WebAPI.Managers.eKSValidation.All);
+                            CampaignController.SetState((long) methodParams[0], (KalturaObjectState) methodParams[1]);
+                            return null;
+                            
                         case "add":
-                            RolesManager.ValidateActionPermitted("campaign", "add", false);
+                            RolesManager.ValidateActionPermitted("campaign", "add");
                             return CampaignController.Add((KalturaCampaign) methodParams[0]);
                             
+                        case "update":
+                            RolesManager.ValidateActionPermitted("campaign", "update");
+                            return CampaignController.Update((long) methodParams[0], (KalturaCampaign) methodParams[1]);
+                            
                         case "delete":
-                            RolesManager.ValidateActionPermitted("campaign", "delete", false);
+                            RolesManager.ValidateActionPermitted("campaign", "delete");
                             CampaignController.Delete((long) methodParams[0]);
                             return null;
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("campaign", "list", false);
+                            RolesManager.ValidateActionPermitted("campaign", "list");
                             return CampaignController.List((KalturaCampaignFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
-                            
-                        case "setstate":
-                            RolesManager.ValidateActionPermitted("campaign", "setState", false);
-                            CampaignController.SetState((long) methodParams[0], (KalturaObjectState) methodParams[1]);
-                            return null;
-                            
-                        case "update":
-                            RolesManager.ValidateActionPermitted("campaign", "update", false);
-                            return CampaignController.Update((long) methodParams[0], (KalturaCampaign) methodParams[1]);
                             
                     }
                     break;
@@ -9204,7 +9170,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "get":
-                            RolesManager.ValidateActionPermitted("category", "get", false);
+                            RolesManager.ValidateActionPermitted("category", "get", WebAPI.Managers.eKSValidation.All);
                             return CategoryController.Get((int) methodParams[0]);
                             
                     }
@@ -9214,21 +9180,21 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("categoryItem", "add", false);
+                            RolesManager.ValidateActionPermitted("categoryitem", "add");
                             return CategoryItemController.Add((KalturaCategoryItem) methodParams[0]);
                             
+                        case "update":
+                            RolesManager.ValidateActionPermitted("categoryitem", "update");
+                            return CategoryItemController.Update((long) methodParams[0], (KalturaCategoryItem) methodParams[1]);
+                            
                         case "delete":
-                            RolesManager.ValidateActionPermitted("categoryItem", "delete", false);
+                            RolesManager.ValidateActionPermitted("categoryitem", "delete");
                             CategoryItemController.Delete((long) methodParams[0]);
                             return null;
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("categoryItem", "list", false);
+                            RolesManager.ValidateActionPermitted("categoryitem", "list");
                             return CategoryItemController.List((KalturaCategoryItemFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
-                            
-                        case "update":
-                            RolesManager.ValidateActionPermitted("categoryItem", "update", false);
-                            return CategoryItemController.Update((long) methodParams[0], (KalturaCategoryItem) methodParams[1]);
                             
                     }
                     break;
@@ -9237,15 +9203,15 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "duplicate":
-                            RolesManager.ValidateActionPermitted("categoryTree", "duplicate", false);
+                            RolesManager.ValidateActionPermitted("categoryTree", "duplicate", WebAPI.Managers.eKSValidation.All);
                             return CategoryTreeController.Duplicate((long) methodParams[0], (string) methodParams[1]);
                             
                         case "get":
-                            RolesManager.ValidateActionPermitted("categoryTree", "get", false);
+                            RolesManager.ValidateActionPermitted("categoryTree", "get", WebAPI.Managers.eKSValidation.All);
                             return CategoryTreeController.Get((long) methodParams[0], (bool) methodParams[1]);
                             
                         case "getbyversion":
-                            RolesManager.ValidateActionPermitted("categoryTree", "getByVersion", false);
+                            RolesManager.ValidateActionPermitted("categoryTree", "getByVersion", WebAPI.Managers.eKSValidation.All);
                             return CategoryTreeController.GetByVersion((Nullable<long>) methodParams[0], (Nullable<int>) methodParams[1]);
                             
                     }
@@ -9254,31 +9220,31 @@ namespace WebAPI.Reflection
                 case "categoryversion":
                     switch(action)
                     {
-                        case "add":
-                            RolesManager.ValidateActionPermitted("categoryVersion", "add", false);
-                            return CategoryVersionController.Add((KalturaCategoryVersion) methodParams[0]);
-                            
                         case "createtree":
-                            RolesManager.ValidateActionPermitted("categoryVersion", "createTree", false);
+                            RolesManager.ValidateActionPermitted("categoryVersion", "createTree", WebAPI.Managers.eKSValidation.All);
                             return CategoryVersionController.CreateTree((long) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             
+                        case "setdefault":
+                            RolesManager.ValidateActionPermitted("categoryVersion", "setDefault", WebAPI.Managers.eKSValidation.All);
+                            CategoryVersionController.SetDefault((long) methodParams[0], (bool) methodParams[1]);
+                            return null;
+                            
+                        case "add":
+                            RolesManager.ValidateActionPermitted("categoryversion", "add");
+                            return CategoryVersionController.Add((KalturaCategoryVersion) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("categoryversion", "update");
+                            return CategoryVersionController.Update((long) methodParams[0], (KalturaCategoryVersion) methodParams[1]);
+                            
                         case "delete":
-                            RolesManager.ValidateActionPermitted("categoryVersion", "delete", false);
+                            RolesManager.ValidateActionPermitted("categoryversion", "delete");
                             CategoryVersionController.Delete((long) methodParams[0]);
                             return null;
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("categoryVersion", "list", false);
+                            RolesManager.ValidateActionPermitted("categoryversion", "list");
                             return CategoryVersionController.List((KalturaCategoryVersionFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
-                            
-                        case "setdefault":
-                            RolesManager.ValidateActionPermitted("categoryVersion", "setDefault", false);
-                            CategoryVersionController.SetDefault((long) methodParams[0], (bool) methodParams[1]);
-                            return null;
-                            
-                        case "update":
-                            RolesManager.ValidateActionPermitted("categoryVersion", "update", false);
-                            return CategoryVersionController.Update((long) methodParams[0], (KalturaCategoryVersion) methodParams[1]);
                             
                     }
                     break;
@@ -9287,23 +9253,23 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("cdnAdapterProfile", "add", false);
+                            RolesManager.ValidateActionPermitted("cdnAdapterProfile", "add", WebAPI.Managers.eKSValidation.All);
                             return CdnAdapterProfileController.Add((KalturaCDNAdapterProfile) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("cdnAdapterProfile", "delete", false);
+                            RolesManager.ValidateActionPermitted("cdnAdapterProfile", "delete", WebAPI.Managers.eKSValidation.All);
                             return CdnAdapterProfileController.Delete((int) methodParams[0]);
                             
                         case "generatesharedsecret":
-                            RolesManager.ValidateActionPermitted("cdnAdapterProfile", "generateSharedSecret", false);
+                            RolesManager.ValidateActionPermitted("cdnAdapterProfile", "generateSharedSecret", WebAPI.Managers.eKSValidation.All);
                             return CdnAdapterProfileController.GenerateSharedSecret((int) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("cdnAdapterProfile", "list", false);
+                            RolesManager.ValidateActionPermitted("cdnAdapterProfile", "list", WebAPI.Managers.eKSValidation.All);
                             return CdnAdapterProfileController.List();
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("cdnAdapterProfile", "update", false);
+                            RolesManager.ValidateActionPermitted("cdnAdapterProfile", "update", WebAPI.Managers.eKSValidation.All);
                             return CdnAdapterProfileController.Update((int) methodParams[0], (KalturaCDNAdapterProfile) methodParams[1]);
                             
                     }
@@ -9313,11 +9279,11 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "get":
-                            RolesManager.ValidateActionPermitted("cdnPartnerSettings", "get", false);
+                            RolesManager.ValidateActionPermitted("cdnPartnerSettings", "get", WebAPI.Managers.eKSValidation.All);
                             return CdnPartnerSettingsController.Get();
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("cdnPartnerSettings", "update", false);
+                            RolesManager.ValidateActionPermitted("cdnPartnerSettings", "update", WebAPI.Managers.eKSValidation.All);
                             return CdnPartnerSettingsController.Update((KalturaCDNPartnerSettings) methodParams[0]);
                             
                     }
@@ -9327,41 +9293,41 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "add", false);
+                            RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "add", WebAPI.Managers.eKSValidation.All);
                             return CDVRAdapterProfileController.Add((KalturaCDVRAdapterProfile) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "delete", false);
+                            RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "delete", WebAPI.Managers.eKSValidation.All);
                             return CDVRAdapterProfileController.Delete((int) methodParams[0]);
                             
                         case "generatesharedsecret":
-                            RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "generateSharedSecret", false);
+                            RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "generateSharedSecret", WebAPI.Managers.eKSValidation.All);
                             return CDVRAdapterProfileController.GenerateSharedSecret((int) methodParams[0]);
                             
                         case "list":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "list", false);
+                                RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "list", WebAPI.Managers.eKSValidation.All);
                                 return CDVRAdapterProfileController.ListOldStandard();
                             }
-                            RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "list", false);
+                            RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "list", WebAPI.Managers.eKSValidation.All);
                             return CDVRAdapterProfileController.List();
                             
                         case "listoldstandard":
-                            RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "listOldStandard", false);
+                            RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "listOldStandard", WebAPI.Managers.eKSValidation.All);
                             return CDVRAdapterProfileController.ListOldStandard();
                             
                         case "update":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "update", false);
+                                RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "update", WebAPI.Managers.eKSValidation.All);
                                 return CDVRAdapterProfileController.UpdateOldStandard((KalturaCDVRAdapterProfile) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "update", false);
+                            RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "update", WebAPI.Managers.eKSValidation.All);
                             return CDVRAdapterProfileController.Update((int) methodParams[0], (KalturaCDVRAdapterProfile) methodParams[1]);
                             
                         case "updateoldstandard":
-                            RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "updateOldStandard", false);
+                            RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "updateOldStandard", WebAPI.Managers.eKSValidation.All);
                             return CDVRAdapterProfileController.UpdateOldStandard((KalturaCDVRAdapterProfile) methodParams[0]);
                             
                     }
@@ -9373,48 +9339,48 @@ namespace WebAPI.Reflection
                         case "add":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("channel", "add", false);
+                                RolesManager.ValidateActionPermitted("channel", "add", WebAPI.Managers.eKSValidation.All);
                                 return ChannelController.AddOldStandard((KalturaChannelProfile) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("channel", "add", false);
+                            RolesManager.ValidateActionPermitted("channel", "add", WebAPI.Managers.eKSValidation.All);
                             return ChannelController.Add((KalturaChannel) methodParams[0]);
                             
                         case "addoldstandard":
-                            RolesManager.ValidateActionPermitted("channel", "addOldStandard", false);
+                            RolesManager.ValidateActionPermitted("channel", "addOldStandard", WebAPI.Managers.eKSValidation.All);
                             return ChannelController.AddOldStandard((KalturaChannelProfile) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("channel", "delete", false);
+                            RolesManager.ValidateActionPermitted("channel", "delete", WebAPI.Managers.eKSValidation.All);
                             return ChannelController.Delete((int) methodParams[0]);
                             
                         case "get":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("channel", "get", false);
+                                RolesManager.ValidateActionPermitted("channel", "get", WebAPI.Managers.eKSValidation.All);
                                 return ChannelController.GetOldStandard((int) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("channel", "get", false);
+                            RolesManager.ValidateActionPermitted("channel", "get", WebAPI.Managers.eKSValidation.All);
                             return ChannelController.Get((int) methodParams[0]);
                             
                         case "getoldstandard":
-                            RolesManager.ValidateActionPermitted("channel", "getOldStandard", false);
+                            RolesManager.ValidateActionPermitted("channel", "getOldStandard", WebAPI.Managers.eKSValidation.All);
                             return ChannelController.GetOldStandard((int) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("channel", "list", false);
+                            RolesManager.ValidateActionPermitted("channel", "list", WebAPI.Managers.eKSValidation.All);
                             return ChannelController.List((KalturaChannelsBaseFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "update":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("channel", "update", false);
+                                RolesManager.ValidateActionPermitted("channel", "update", WebAPI.Managers.eKSValidation.All);
                                 return ChannelController.UpdateOldStandard((KalturaChannelProfile) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("channel", "update", false);
+                            RolesManager.ValidateActionPermitted("channel", "update", WebAPI.Managers.eKSValidation.All);
                             return ChannelController.Update((int) methodParams[0], (KalturaChannel) methodParams[1]);
                             
                         case "updateoldstandard":
-                            RolesManager.ValidateActionPermitted("channel", "updateOldStandard", false);
+                            RolesManager.ValidateActionPermitted("channel", "updateOldStandard", WebAPI.Managers.eKSValidation.All);
                             return ChannelController.UpdateOldStandard((KalturaChannelProfile) methodParams[0]);
                             
                     }
@@ -9424,19 +9390,19 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("collection", "add", false);
+                            RolesManager.ValidateActionPermitted("collection", "add", WebAPI.Managers.eKSValidation.All);
                             return CollectionController.Add((KalturaCollection) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("collection", "delete", false);
+                            RolesManager.ValidateActionPermitted("collection", "delete", WebAPI.Managers.eKSValidation.All);
                             return CollectionController.Delete((long) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("collection", "list", false);
+                            RolesManager.ValidateActionPermitted("collection", "list", WebAPI.Managers.eKSValidation.All);
                             return CollectionController.List((KalturaCollectionFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("collection", "update", false);
+                            RolesManager.ValidateActionPermitted("collection", "update", WebAPI.Managers.eKSValidation.All);
                             return CollectionController.Update((long) methodParams[0], (KalturaCollection) methodParams[1]);
                             
                     }
@@ -9446,16 +9412,16 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("compensation", "add", false);
+                            RolesManager.ValidateActionPermitted("compensation", "add", WebAPI.Managers.eKSValidation.All);
                             return CompensationController.Add((KalturaCompensation) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("compensation", "delete", false);
+                            RolesManager.ValidateActionPermitted("compensation", "delete", WebAPI.Managers.eKSValidation.All);
                             CompensationController.Delete((long) methodParams[0]);
                             return null;
                             
                         case "get":
-                            RolesManager.ValidateActionPermitted("compensation", "get", false);
+                            RolesManager.ValidateActionPermitted("compensation", "get", WebAPI.Managers.eKSValidation.All);
                             return CompensationController.Get((long) methodParams[0]);
                             
                     }
@@ -9465,23 +9431,23 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("configurationGroup", "add", false);
+                            RolesManager.ValidateActionPermitted("configurationGroup", "add", WebAPI.Managers.eKSValidation.All);
                             return ConfigurationGroupController.Add((KalturaConfigurationGroup) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("configurationGroup", "delete", false);
+                            RolesManager.ValidateActionPermitted("configurationGroup", "delete", WebAPI.Managers.eKSValidation.All);
                             return ConfigurationGroupController.Delete((string) methodParams[0]);
                             
                         case "get":
-                            RolesManager.ValidateActionPermitted("configurationGroup", "get", false);
+                            RolesManager.ValidateActionPermitted("configurationGroup", "get", WebAPI.Managers.eKSValidation.All);
                             return ConfigurationGroupController.Get((string) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("configurationGroup", "list", false);
+                            RolesManager.ValidateActionPermitted("configurationGroup", "list", WebAPI.Managers.eKSValidation.All);
                             return ConfigurationGroupController.List();
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("configurationGroup", "update", false);
+                            RolesManager.ValidateActionPermitted("configurationGroup", "update", WebAPI.Managers.eKSValidation.All);
                             return ConfigurationGroupController.Update((string) methodParams[0], (KalturaConfigurationGroup) methodParams[1]);
                             
                     }
@@ -9491,19 +9457,19 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("configurationGroupDevice", "add", false);
+                            RolesManager.ValidateActionPermitted("configurationGroupDevice", "add", WebAPI.Managers.eKSValidation.All);
                             return ConfigurationGroupDeviceController.Add((KalturaConfigurationGroupDevice) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("configurationGroupDevice", "delete", false);
+                            RolesManager.ValidateActionPermitted("configurationGroupDevice", "delete", WebAPI.Managers.eKSValidation.All);
                             return ConfigurationGroupDeviceController.Delete((string) methodParams[0]);
                             
                         case "get":
-                            RolesManager.ValidateActionPermitted("configurationGroupDevice", "get", false);
+                            RolesManager.ValidateActionPermitted("configurationGroupDevice", "get", WebAPI.Managers.eKSValidation.All);
                             return ConfigurationGroupDeviceController.Get((string) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("configurationGroupDevice", "list", false);
+                            RolesManager.ValidateActionPermitted("configurationGroupDevice", "list", WebAPI.Managers.eKSValidation.All);
                             return ConfigurationGroupDeviceController.List((KalturaConfigurationGroupDeviceFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
@@ -9513,19 +9479,19 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("configurationGroupTag", "add", false);
+                            RolesManager.ValidateActionPermitted("configurationGroupTag", "add", WebAPI.Managers.eKSValidation.All);
                             return ConfigurationGroupTagController.Add((KalturaConfigurationGroupTag) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("configurationGroupTag", "delete", false);
+                            RolesManager.ValidateActionPermitted("configurationGroupTag", "delete", WebAPI.Managers.eKSValidation.All);
                             return ConfigurationGroupTagController.Delete((string) methodParams[0]);
                             
                         case "get":
-                            RolesManager.ValidateActionPermitted("configurationGroupTag", "get", false);
+                            RolesManager.ValidateActionPermitted("configurationGroupTag", "get", WebAPI.Managers.eKSValidation.All);
                             return ConfigurationGroupTagController.Get((string) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("configurationGroupTag", "list", false);
+                            RolesManager.ValidateActionPermitted("configurationGroupTag", "list", WebAPI.Managers.eKSValidation.All);
                             return ConfigurationGroupTagController.List((KalturaConfigurationGroupTagFilter) methodParams[0]);
                             
                     }
@@ -9535,19 +9501,19 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("configurations", "add", false);
+                            RolesManager.ValidateActionPermitted("configurations", "add", WebAPI.Managers.eKSValidation.All);
                             return ConfigurationsController.Add((KalturaConfigurations) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("configurations", "delete", false);
+                            RolesManager.ValidateActionPermitted("configurations", "delete", WebAPI.Managers.eKSValidation.All);
                             return ConfigurationsController.Delete((string) methodParams[0]);
                             
                         case "get":
-                            RolesManager.ValidateActionPermitted("configurations", "get", false);
+                            RolesManager.ValidateActionPermitted("configurations", "get", WebAPI.Managers.eKSValidation.All);
                             return ConfigurationsController.Get((string) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("configurations", "list", false);
+                            RolesManager.ValidateActionPermitted("configurations", "list", WebAPI.Managers.eKSValidation.All);
                             return ConfigurationsController.List((KalturaConfigurationsFilter) methodParams[0]);
                             
                         case "servebydevice":
@@ -9555,7 +9521,7 @@ namespace WebAPI.Reflection
                             return ConfigurationsController.ServeByDevice((string) methodParams[0], (string) methodParams[1], (string) methodParams[2], (string) methodParams[3], (string) methodParams[4], (int) methodParams[5]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("configurations", "update", false);
+                            RolesManager.ValidateActionPermitted("configurations", "update", WebAPI.Managers.eKSValidation.All);
                             return ConfigurationsController.Update((string) methodParams[0], (KalturaConfigurations) methodParams[1]);
                             
                     }
@@ -9565,7 +9531,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
-                            RolesManager.ValidateActionPermitted("country", "list", false);
+                            RolesManager.ValidateActionPermitted("country", "list", WebAPI.Managers.eKSValidation.All);
                             return CountryController.List((KalturaCountryFilter) methodParams[0]);
                             
                     }
@@ -9575,7 +9541,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "get":
-                            RolesManager.ValidateActionPermitted("coupon", "get", false);
+                            RolesManager.ValidateActionPermitted("coupon", "get", WebAPI.Managers.eKSValidation.All);
                             return CouponController.Get((string) methodParams[0]);
                             
                     }
@@ -9585,27 +9551,27 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("couponsGroup", "add", false);
+                            RolesManager.ValidateActionPermitted("couponsGroup", "add", WebAPI.Managers.eKSValidation.All);
                             return CouponsGroupController.Add((KalturaCouponsGroup) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("couponsGroup", "delete", false);
+                            RolesManager.ValidateActionPermitted("couponsGroup", "delete", WebAPI.Managers.eKSValidation.All);
                             return CouponsGroupController.Delete((long) methodParams[0]);
                             
                         case "generate":
-                            RolesManager.ValidateActionPermitted("couponsGroup", "generate", false);
+                            RolesManager.ValidateActionPermitted("couponsGroup", "generate", WebAPI.Managers.eKSValidation.All);
                             return CouponsGroupController.Generate((long) methodParams[0], (KalturaCouponGenerationOptions) methodParams[1]);
                             
                         case "get":
-                            RolesManager.ValidateActionPermitted("couponsGroup", "get", false);
+                            RolesManager.ValidateActionPermitted("couponsGroup", "get", WebAPI.Managers.eKSValidation.All);
                             return CouponsGroupController.Get((long) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("couponsGroup", "list", false);
+                            RolesManager.ValidateActionPermitted("couponsGroup", "list", WebAPI.Managers.eKSValidation.All);
                             return CouponsGroupController.List();
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("couponsGroup", "update", false);
+                            RolesManager.ValidateActionPermitted("couponsGroup", "update", WebAPI.Managers.eKSValidation.All);
                             return CouponsGroupController.Update((long) methodParams[0], (KalturaCouponsGroup) methodParams[1]);
                             
                     }
@@ -9615,7 +9581,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
-                            RolesManager.ValidateActionPermitted("currency", "list", false);
+                            RolesManager.ValidateActionPermitted("currency", "list", WebAPI.Managers.eKSValidation.All);
                             return CurrencyController.List((KalturaCurrencyFilter) methodParams[0]);
                             
                     }
@@ -9625,7 +9591,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
-                            RolesManager.ValidateActionPermitted("deviceBrand", "list", false);
+                            RolesManager.ValidateActionPermitted("deviceBrand", "list", WebAPI.Managers.eKSValidation.All);
                             return DeviceBrandController.List();
                             
                     }
@@ -9635,7 +9601,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
-                            RolesManager.ValidateActionPermitted("deviceFamily", "list", false);
+                            RolesManager.ValidateActionPermitted("deviceFamily", "list", WebAPI.Managers.eKSValidation.All);
                             return DeviceFamilyController.List();
                             
                     }
@@ -9668,19 +9634,19 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("discountDetails", "add", false);
+                            RolesManager.ValidateActionPermitted("discountDetails", "add", WebAPI.Managers.eKSValidation.All);
                             return DiscountDetailsController.Add((KalturaDiscountDetails) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("discountDetails", "delete", false);
+                            RolesManager.ValidateActionPermitted("discountDetails", "delete", WebAPI.Managers.eKSValidation.All);
                             return DiscountDetailsController.Delete((long) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("discountDetails", "list", false);
+                            RolesManager.ValidateActionPermitted("discountDetails", "list", WebAPI.Managers.eKSValidation.All);
                             return DiscountDetailsController.List((KalturaDiscountDetailsFilter) methodParams[0]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("discountDetails", "update", false);
+                            RolesManager.ValidateActionPermitted("discountDetails", "update", WebAPI.Managers.eKSValidation.All);
                             return DiscountDetailsController.Update((long) methodParams[0], (KalturaDiscountDetails) methodParams[1]);
                             
                     }
@@ -9690,15 +9656,15 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("drmProfile", "add", false);
+                            RolesManager.ValidateActionPermitted("drmProfile", "add", WebAPI.Managers.eKSValidation.All);
                             return DrmProfileController.Add((KalturaDrmProfile) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("drmProfile", "delete", false);
+                            RolesManager.ValidateActionPermitted("drmProfile", "delete", WebAPI.Managers.eKSValidation.All);
                             return DrmProfileController.Delete((long) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("drmProfile", "list", false);
+                            RolesManager.ValidateActionPermitted("drmProfile", "list", WebAPI.Managers.eKSValidation.All);
                             return DrmProfileController.List();
                             
                     }
@@ -9708,7 +9674,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
-                            RolesManager.ValidateActionPermitted("duration", "list", false);
+                            RolesManager.ValidateActionPermitted("duration", "list", WebAPI.Managers.eKSValidation.All);
                             return DurationController.List();
                             
                     }
@@ -9718,7 +9684,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "addfrombulkupload":
-                            RolesManager.ValidateActionPermitted("dynamicList", "addFromBulkUpload", false);
+                            RolesManager.ValidateActionPermitted("dynamicList", "addFromBulkUpload", WebAPI.Managers.eKSValidation.All);
                             return DynamicListController.AddFromBulkUpload((KalturaOTTFile) methodParams[0], (KalturaBulkUploadExcelJobData) methodParams[1], (KalturaBulkUploadDynamicListData) methodParams[2]);
                             
                         case "add":
@@ -9745,19 +9711,19 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "delete":
-                            RolesManager.ValidateActionPermitted("elasticsearchCanaryDeploymentConfiguration", "delete", false);
+                            RolesManager.ValidateActionPermitted("elasticsearchCanaryDeploymentConfiguration", "delete", WebAPI.Managers.eKSValidation.All);
                             return ElasticsearchCanaryDeploymentConfiguration.Delete((int) methodParams[0]);
                             
                         case "get":
-                            RolesManager.ValidateActionPermitted("elasticsearchCanaryDeploymentConfiguration", "get", false);
+                            RolesManager.ValidateActionPermitted("elasticsearchCanaryDeploymentConfiguration", "get", WebAPI.Managers.eKSValidation.All);
                             return ElasticsearchCanaryDeploymentConfiguration.Get((int) methodParams[0]);
                             
                         case "setactiveversion":
-                            RolesManager.ValidateActionPermitted("elasticsearchCanaryDeploymentConfiguration", "setActiveVersion", false);
+                            RolesManager.ValidateActionPermitted("elasticsearchCanaryDeploymentConfiguration", "setActiveVersion", WebAPI.Managers.eKSValidation.All);
                             return ElasticsearchCanaryDeploymentConfiguration.SetActiveVersion((int) methodParams[0], (KalturaElasticsearchVersion) methodParams[1]);
                             
                         case "setmigrationeventsstatus":
-                            RolesManager.ValidateActionPermitted("elasticsearchCanaryDeploymentConfiguration", "setMigrationEventsStatus", false);
+                            RolesManager.ValidateActionPermitted("elasticsearchCanaryDeploymentConfiguration", "setMigrationEventsStatus", WebAPI.Managers.eKSValidation.All);
                             return ElasticsearchCanaryDeploymentConfiguration.SetMigrationEventsStatus((int) methodParams[0], (bool) methodParams[1]);
                             
                     }
@@ -9767,7 +9733,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "send":
-                            RolesManager.ValidateActionPermitted("email", "send", false);
+                            RolesManager.ValidateActionPermitted("email", "send", WebAPI.Managers.eKSValidation.All);
                             return EmailController.Send((KalturaEmailMessage) methodParams[0]);
                             
                     }
@@ -9777,27 +9743,27 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("engagementAdapter", "add", false);
+                            RolesManager.ValidateActionPermitted("engagementAdapter", "add", WebAPI.Managers.eKSValidation.All);
                             return EngagementAdapterController.Add((KalturaEngagementAdapter) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("engagementAdapter", "delete", false);
+                            RolesManager.ValidateActionPermitted("engagementAdapter", "delete", WebAPI.Managers.eKSValidation.All);
                             return EngagementAdapterController.Delete((int) methodParams[0]);
                             
                         case "generatesharedsecret":
-                            RolesManager.ValidateActionPermitted("engagementAdapter", "generateSharedSecret", false);
+                            RolesManager.ValidateActionPermitted("engagementAdapter", "generateSharedSecret", WebAPI.Managers.eKSValidation.All);
                             return EngagementAdapterController.GenerateSharedSecret((int) methodParams[0]);
                             
                         case "get":
-                            RolesManager.ValidateActionPermitted("engagementAdapter", "get", false);
+                            RolesManager.ValidateActionPermitted("engagementAdapter", "get", WebAPI.Managers.eKSValidation.All);
                             return EngagementAdapterController.Get((int) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("engagementAdapter", "list", false);
+                            RolesManager.ValidateActionPermitted("engagementAdapter", "list", WebAPI.Managers.eKSValidation.All);
                             return EngagementAdapterController.List();
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("engagementAdapter", "update", false);
+                            RolesManager.ValidateActionPermitted("engagementAdapter", "update", WebAPI.Managers.eKSValidation.All);
                             return EngagementAdapterController.Update((int) methodParams[0], (KalturaEngagementAdapter) methodParams[1]);
                             
                     }
@@ -9807,19 +9773,19 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("engagement", "add", false);
+                            RolesManager.ValidateActionPermitted("engagement", "add", WebAPI.Managers.eKSValidation.All);
                             return EngagementController.Add((KalturaEngagement) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("engagement", "delete", false);
+                            RolesManager.ValidateActionPermitted("engagement", "delete", WebAPI.Managers.eKSValidation.All);
                             return EngagementController.Delete((int) methodParams[0]);
                             
                         case "get":
-                            RolesManager.ValidateActionPermitted("engagement", "get", false);
+                            RolesManager.ValidateActionPermitted("engagement", "get", WebAPI.Managers.eKSValidation.All);
                             return EngagementController.Get((int) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("engagement", "list", false);
+                            RolesManager.ValidateActionPermitted("engagement", "list", WebAPI.Managers.eKSValidation.All);
                             return EngagementController.List((KalturaEngagementFilter) methodParams[0]);
                             
                     }
@@ -9829,66 +9795,66 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "applycoupon":
-                            RolesManager.ValidateActionPermitted("entitlement", "applyCoupon", false);
+                            RolesManager.ValidateActionPermitted("entitlement", "applyCoupon", WebAPI.Managers.eKSValidation.All);
                             EntitlementController.ApplyCoupon((long) methodParams[0], (string) methodParams[1]);
                             return null;
                             
                         case "buy":
-                            RolesManager.ValidateActionPermitted("entitlement", "buy", false);
+                            RolesManager.ValidateActionPermitted("entitlement", "buy", WebAPI.Managers.eKSValidation.All);
                             return EntitlementController.Buy((string) methodParams[0], (bool) methodParams[1], (double) methodParams[2], (string) methodParams[3], (string) methodParams[4], (string) methodParams[5], (string) methodParams[6], (int) methodParams[7], (string) methodParams[8]);
                             
                         case "cancel":
-                            RolesManager.ValidateActionPermitted("entitlement", "cancel", false);
+                            RolesManager.ValidateActionPermitted("entitlement", "cancel", WebAPI.Managers.eKSValidation.All);
                             return EntitlementController.Cancel((int) methodParams[0], (KalturaTransactionType) methodParams[1]);
                             
                         case "cancelrenewal":
-                            RolesManager.ValidateActionPermitted("entitlement", "cancelRenewal", false);
+                            RolesManager.ValidateActionPermitted("entitlement", "cancelRenewal", WebAPI.Managers.eKSValidation.All);
                             EntitlementController.CancelRenewal((string) methodParams[0]);
                             return null;
                             
                         case "cancelscheduledsubscription":
-                            RolesManager.ValidateActionPermitted("entitlement", "cancelScheduledSubscription", false);
+                            RolesManager.ValidateActionPermitted("entitlement", "cancelScheduledSubscription", WebAPI.Managers.eKSValidation.All);
                             return EntitlementController.CancelScheduledSubscription((long) methodParams[0]);
                             
                         case "externalreconcile":
-                            RolesManager.ValidateActionPermitted("entitlement", "externalReconcile", false);
+                            RolesManager.ValidateActionPermitted("entitlement", "externalReconcile", WebAPI.Managers.eKSValidation.All);
                             return EntitlementController.ExternalReconcile();
                             
                         case "forcecancel":
-                            RolesManager.ValidateActionPermitted("entitlement", "forceCancel", false);
+                            RolesManager.ValidateActionPermitted("entitlement", "forceCancel", WebAPI.Managers.eKSValidation.All);
                             return EntitlementController.ForceCancel((int) methodParams[0], (KalturaTransactionType) methodParams[1]);
                             
                         case "getnextrenewal":
-                            RolesManager.ValidateActionPermitted("entitlement", "getNextRenewal", false);
+                            RolesManager.ValidateActionPermitted("entitlement", "getNextRenewal", WebAPI.Managers.eKSValidation.All);
                             return EntitlementController.GetNextRenewal((int) methodParams[0]);
                             
                         case "grant":
-                            RolesManager.ValidateActionPermitted("entitlement", "grant", false);
+                            RolesManager.ValidateActionPermitted("entitlement", "grant", WebAPI.Managers.eKSValidation.All);
                             return EntitlementController.Grant((int) methodParams[0], (KalturaTransactionType) methodParams[1], (bool) methodParams[2], (int) methodParams[3]);
                             
                         case "list":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("entitlement", "list", false);
+                                RolesManager.ValidateActionPermitted("entitlement", "list", WebAPI.Managers.eKSValidation.All);
                                 return EntitlementController.ListOldStandard((KalturaEntitlementsFilter) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("entitlement", "list", false);
+                            RolesManager.ValidateActionPermitted("entitlement", "list", WebAPI.Managers.eKSValidation.All);
                             return EntitlementController.List((KalturaEntitlementFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "listexpired":
-                            RolesManager.ValidateActionPermitted("entitlement", "listExpired", false);
+                            RolesManager.ValidateActionPermitted("entitlement", "listExpired", WebAPI.Managers.eKSValidation.All);
                             return EntitlementController.ListExpired((KalturaEntitlementsFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "listoldstandard":
-                            RolesManager.ValidateActionPermitted("entitlement", "listOldStandard", false);
+                            RolesManager.ValidateActionPermitted("entitlement", "listOldStandard", WebAPI.Managers.eKSValidation.All);
                             return EntitlementController.ListOldStandard((KalturaEntitlementsFilter) methodParams[0]);
                             
                         case "swap":
-                            RolesManager.ValidateActionPermitted("entitlement", "swap", false);
+                            RolesManager.ValidateActionPermitted("entitlement", "swap", WebAPI.Managers.eKSValidation.All);
                             return EntitlementController.Swap((int) methodParams[0], (int) methodParams[1], (bool) methodParams[2]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("entitlement", "update", false);
+                            RolesManager.ValidateActionPermitted("entitlement", "update", WebAPI.Managers.eKSValidation.All);
                             return EntitlementController.Update((int) methodParams[0], (KalturaEntitlement) methodParams[1]);
                             
                     }
@@ -9898,7 +9864,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
-                            RolesManager.ValidateActionPermitted("epgChannel", "list", false);
+                            RolesManager.ValidateActionPermitted("epgChannel", "list", WebAPI.Managers.eKSValidation.All);
                             return EpgChannelController.List((KalturaEpgChannelFilter) methodParams[0], (List<KalturaCatalogWithHolder>) methodParams[1]);
                             
                     }
@@ -9908,7 +9874,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
-                            RolesManager.ValidateActionPermitted("epg", "list", false);
+                            RolesManager.ValidateActionPermitted("epg", "list", WebAPI.Managers.eKSValidation.All);
                             return EpgController.List((KalturaEpgFilter) methodParams[0]);
                             
                     }
@@ -9918,11 +9884,11 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "get":
-                            RolesManager.ValidateActionPermitted("epgServicePartnerConfiguration", "get", false);
+                            RolesManager.ValidateActionPermitted("epgServicePartnerConfiguration", "get", WebAPI.Managers.eKSValidation.All);
                             return EpgServicePartnerConfigurationController.Get();
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("epgServicePartnerConfiguration", "update", false);
+                            RolesManager.ValidateActionPermitted("epgServicePartnerConfiguration", "update", WebAPI.Managers.eKSValidation.All);
                             EpgServicePartnerConfigurationController.Update((KalturaEpgServicePartnerConfiguration) methodParams[0]);
                             return null;
                             
@@ -9933,7 +9899,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "dispatch":
-                            RolesManager.ValidateActionPermitted("eventNotificationAction", "dispatch", false);
+                            RolesManager.ValidateActionPermitted("eventNotificationAction", "dispatch", WebAPI.Managers.eKSValidation.All);
                             return EventNotificationActionController.Dispatch((KalturaEventNotificationScope) methodParams[0]);
                             
                     }
@@ -9957,41 +9923,41 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("exportTask", "add", false);
+                            RolesManager.ValidateActionPermitted("exportTask", "add", WebAPI.Managers.eKSValidation.All);
                             return ExportTaskController.Add((KalturaExportTask) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("exportTask", "delete", false);
+                            RolesManager.ValidateActionPermitted("exportTask", "delete", WebAPI.Managers.eKSValidation.All);
                             return ExportTaskController.Delete((long) methodParams[0]);
                             
                         case "get":
-                            RolesManager.ValidateActionPermitted("exportTask", "get", false);
+                            RolesManager.ValidateActionPermitted("exportTask", "get", WebAPI.Managers.eKSValidation.All);
                             return ExportTaskController.Get((long) methodParams[0]);
                             
                         case "list":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("exportTask", "list", false);
+                                RolesManager.ValidateActionPermitted("exportTask", "list", WebAPI.Managers.eKSValidation.All);
                                 return ExportTaskController.ListOldStandard((KalturaExportFilter) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("exportTask", "list", false);
+                            RolesManager.ValidateActionPermitted("exportTask", "list", WebAPI.Managers.eKSValidation.All);
                             return ExportTaskController.List((KalturaExportTaskFilter) methodParams[0]);
                             
                         case "listoldstandard":
-                            RolesManager.ValidateActionPermitted("exportTask", "listOldStandard", false);
+                            RolesManager.ValidateActionPermitted("exportTask", "listOldStandard", WebAPI.Managers.eKSValidation.All);
                             return ExportTaskController.ListOldStandard((KalturaExportFilter) methodParams[0]);
                             
                         case "update":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("exportTask", "update", false);
+                                RolesManager.ValidateActionPermitted("exportTask", "update", WebAPI.Managers.eKSValidation.All);
                                 return ExportTaskController.UpdateOldStandard((KalturaExportTask) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("exportTask", "update", false);
+                            RolesManager.ValidateActionPermitted("exportTask", "update", WebAPI.Managers.eKSValidation.All);
                             return ExportTaskController.Update((long) methodParams[0], (KalturaExportTask) methodParams[1]);
                             
                         case "updateoldstandard":
-                            RolesManager.ValidateActionPermitted("exportTask", "updateOldStandard", false);
+                            RolesManager.ValidateActionPermitted("exportTask", "updateOldStandard", WebAPI.Managers.eKSValidation.All);
                             return ExportTaskController.UpdateOldStandard((KalturaExportTask) methodParams[0]);
                             
                     }
@@ -10001,37 +9967,37 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("externalChannelProfile", "add", false);
+                            RolesManager.ValidateActionPermitted("externalChannelProfile", "add", WebAPI.Managers.eKSValidation.All);
                             return ExternalChannelProfileController.Add((KalturaExternalChannelProfile) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("externalChannelProfile", "delete", false);
+                            RolesManager.ValidateActionPermitted("externalChannelProfile", "delete", WebAPI.Managers.eKSValidation.All);
                             return ExternalChannelProfileController.Delete((int) methodParams[0]);
                             
                         case "list":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("externalChannelProfile", "list", false);
+                                RolesManager.ValidateActionPermitted("externalChannelProfile", "list", WebAPI.Managers.eKSValidation.All);
                                 return ExternalChannelProfileController.ListOldStandard();
                             }
-                            RolesManager.ValidateActionPermitted("externalChannelProfile", "list", false);
+                            RolesManager.ValidateActionPermitted("externalChannelProfile", "list", WebAPI.Managers.eKSValidation.All);
                             return ExternalChannelProfileController.List((KalturaExternalChannelProfileFilter) methodParams[0]);
                             
                         case "listoldstandard":
-                            RolesManager.ValidateActionPermitted("externalChannelProfile", "listOldStandard", false);
+                            RolesManager.ValidateActionPermitted("externalChannelProfile", "listOldStandard", WebAPI.Managers.eKSValidation.All);
                             return ExternalChannelProfileController.ListOldStandard();
                             
                         case "update":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("externalChannelProfile", "update", false);
+                                RolesManager.ValidateActionPermitted("externalChannelProfile", "update", WebAPI.Managers.eKSValidation.All);
                                 return ExternalChannelProfileController.UpdateOldStandard((KalturaExternalChannelProfile) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("externalChannelProfile", "update", false);
+                            RolesManager.ValidateActionPermitted("externalChannelProfile", "update", WebAPI.Managers.eKSValidation.All);
                             return ExternalChannelProfileController.Update((int) methodParams[0], (KalturaExternalChannelProfile) methodParams[1]);
                             
                         case "updateoldstandard":
-                            RolesManager.ValidateActionPermitted("externalChannelProfile", "updateOldStandard", false);
+                            RolesManager.ValidateActionPermitted("externalChannelProfile", "updateOldStandard", WebAPI.Managers.eKSValidation.All);
                             return ExternalChannelProfileController.UpdateOldStandard((KalturaExternalChannelProfile) methodParams[0]);
                             
                     }
@@ -10043,40 +10009,40 @@ namespace WebAPI.Reflection
                         case "add":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("favorite", "add", false);
+                                RolesManager.ValidateActionPermitted("favorite", "add", WebAPI.Managers.eKSValidation.All);
                                 return FavoriteController.AddOldStandard((string) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             }
-                            RolesManager.ValidateActionPermitted("favorite", "add", false);
+                            RolesManager.ValidateActionPermitted("favorite", "add", WebAPI.Managers.eKSValidation.All);
                             return FavoriteController.Add((KalturaFavorite) methodParams[0]);
                             
                         case "addoldstandard":
-                            RolesManager.ValidateActionPermitted("favorite", "addOldStandard", false);
+                            RolesManager.ValidateActionPermitted("favorite", "addOldStandard", WebAPI.Managers.eKSValidation.All);
                             return FavoriteController.AddOldStandard((string) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             
                         case "delete":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("favorite", "delete", false);
+                                RolesManager.ValidateActionPermitted("favorite", "delete", WebAPI.Managers.eKSValidation.All);
                                 return FavoriteController.DeleteOldStandard((List<KalturaIntegerValue>) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("favorite", "delete", false);
+                            RolesManager.ValidateActionPermitted("favorite", "delete", WebAPI.Managers.eKSValidation.All);
                             return FavoriteController.Delete((long) methodParams[0]);
                             
                         case "deleteoldstandard":
-                            RolesManager.ValidateActionPermitted("favorite", "deleteOldStandard", false);
+                            RolesManager.ValidateActionPermitted("favorite", "deleteOldStandard", WebAPI.Managers.eKSValidation.All);
                             return FavoriteController.DeleteOldStandard((List<KalturaIntegerValue>) methodParams[0]);
                             
                         case "list":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("favorite", "list", false);
+                                RolesManager.ValidateActionPermitted("favorite", "list", WebAPI.Managers.eKSValidation.All);
                                 return FavoriteController.ListOldStandard((KalturaFavoriteFilter) methodParams[0], (List<KalturaCatalogWithHolder>) methodParams[1], (string) methodParams[2]);
                             }
-                            RolesManager.ValidateActionPermitted("favorite", "list", false);
+                            RolesManager.ValidateActionPermitted("favorite", "list", WebAPI.Managers.eKSValidation.All);
                             return FavoriteController.List((KalturaFavoriteFilter) methodParams[0]);
                             
                         case "listoldstandard":
-                            RolesManager.ValidateActionPermitted("favorite", "listOldStandard", false);
+                            RolesManager.ValidateActionPermitted("favorite", "listOldStandard", WebAPI.Managers.eKSValidation.All);
                             return FavoriteController.ListOldStandard((KalturaFavoriteFilter) methodParams[0], (List<KalturaCatalogWithHolder>) methodParams[1], (string) methodParams[2]);
                             
                     }
@@ -10088,18 +10054,18 @@ namespace WebAPI.Reflection
                         case "add":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("followTvSeries", "add", false);
+                                RolesManager.ValidateActionPermitted("followTvSeries", "add", WebAPI.Managers.eKSValidation.All);
                                 return FollowTvSeriesController.AddOldStandard((int) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("followTvSeries", "add", false);
+                            RolesManager.ValidateActionPermitted("followTvSeries", "add", WebAPI.Managers.eKSValidation.All);
                             return FollowTvSeriesController.Add((KalturaFollowTvSeries) methodParams[0]);
                             
                         case "addoldstandard":
-                            RolesManager.ValidateActionPermitted("followTvSeries", "addOldStandard", false);
+                            RolesManager.ValidateActionPermitted("followTvSeries", "addOldStandard", WebAPI.Managers.eKSValidation.All);
                             return FollowTvSeriesController.AddOldStandard((int) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("followTvSeries", "delete", false);
+                            RolesManager.ValidateActionPermitted("followTvSeries", "delete", WebAPI.Managers.eKSValidation.All);
                             return FollowTvSeriesController.Delete((int) methodParams[0]);
                             
                         case "deletewithtoken":
@@ -10109,14 +10075,14 @@ namespace WebAPI.Reflection
                         case "list":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("followTvSeries", "list", false);
+                                RolesManager.ValidateActionPermitted("followTvSeries", "list", WebAPI.Managers.eKSValidation.All);
                                 return FollowTvSeriesController.ListOldStandard((Nullable<KalturaOrder>) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             }
-                            RolesManager.ValidateActionPermitted("followTvSeries", "list", false);
+                            RolesManager.ValidateActionPermitted("followTvSeries", "list", WebAPI.Managers.eKSValidation.All);
                             return FollowTvSeriesController.List((KalturaFollowTvSeriesFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "listoldstandard":
-                            RolesManager.ValidateActionPermitted("followTvSeries", "listOldStandard", false);
+                            RolesManager.ValidateActionPermitted("followTvSeries", "listOldStandard", WebAPI.Managers.eKSValidation.All);
                             return FollowTvSeriesController.ListOldStandard((Nullable<KalturaOrder>) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
@@ -10126,37 +10092,37 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("homeNetwork", "add", false);
+                            RolesManager.ValidateActionPermitted("homeNetwork", "add", WebAPI.Managers.eKSValidation.All);
                             return HomeNetworkController.Add((KalturaHomeNetwork) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("homeNetwork", "delete", false);
+                            RolesManager.ValidateActionPermitted("homeNetwork", "delete", WebAPI.Managers.eKSValidation.All);
                             return HomeNetworkController.Delete((string) methodParams[0]);
                             
                         case "list":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("homeNetwork", "list", false);
+                                RolesManager.ValidateActionPermitted("homeNetwork", "list", WebAPI.Managers.eKSValidation.All);
                                 return HomeNetworkController.ListOldStandard();
                             }
-                            RolesManager.ValidateActionPermitted("homeNetwork", "list", false);
+                            RolesManager.ValidateActionPermitted("homeNetwork", "list", WebAPI.Managers.eKSValidation.All);
                             return HomeNetworkController.List();
                             
                         case "listoldstandard":
-                            RolesManager.ValidateActionPermitted("homeNetwork", "listOldStandard", false);
+                            RolesManager.ValidateActionPermitted("homeNetwork", "listOldStandard", WebAPI.Managers.eKSValidation.All);
                             return HomeNetworkController.ListOldStandard();
                             
                         case "update":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("homeNetwork", "update", false);
+                                RolesManager.ValidateActionPermitted("homeNetwork", "update", WebAPI.Managers.eKSValidation.All);
                                 return HomeNetworkController.UpdateOldStandard((KalturaHomeNetwork) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("homeNetwork", "update", false);
+                            RolesManager.ValidateActionPermitted("homeNetwork", "update", WebAPI.Managers.eKSValidation.All);
                             return HomeNetworkController.Update((string) methodParams[0], (KalturaHomeNetwork) methodParams[1]);
                             
                         case "updateoldstandard":
-                            RolesManager.ValidateActionPermitted("homeNetwork", "updateOldStandard", false);
+                            RolesManager.ValidateActionPermitted("homeNetwork", "updateOldStandard", WebAPI.Managers.eKSValidation.All);
                             return HomeNetworkController.UpdateOldStandard((KalturaHomeNetwork) methodParams[0]);
                             
                     }
@@ -10168,84 +10134,84 @@ namespace WebAPI.Reflection
                         case "add":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("household", "add", false);
+                                RolesManager.ValidateActionPermitted("household", "add", WebAPI.Managers.eKSValidation.All);
                                 return HouseholdController.AddOldStandard((string) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             }
-                            RolesManager.ValidateActionPermitted("household", "add", false);
+                            RolesManager.ValidateActionPermitted("household", "add", WebAPI.Managers.eKSValidation.All);
                             return HouseholdController.Add((KalturaHousehold) methodParams[0]);
                             
                         case "addoldstandard":
-                            RolesManager.ValidateActionPermitted("household", "addOldStandard", false);
+                            RolesManager.ValidateActionPermitted("household", "addOldStandard", WebAPI.Managers.eKSValidation.All);
                             return HouseholdController.AddOldStandard((string) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("household", "delete", false);
+                            RolesManager.ValidateActionPermitted("household", "delete", WebAPI.Managers.eKSValidation.All);
                             return HouseholdController.Delete((Nullable<int>) methodParams[0]);
                             
                         case "deletebyoperator":
-                            RolesManager.ValidateActionPermitted("household", "deleteByOperator", false);
+                            RolesManager.ValidateActionPermitted("household", "deleteByOperator", WebAPI.Managers.eKSValidation.All);
                             return HouseholdController.DeleteByOperator((KalturaIdentifierTypeFilter) methodParams[0]);
                             
                         case "get":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("household", "get", false);
+                                RolesManager.ValidateActionPermitted("household", "get", WebAPI.Managers.eKSValidation.All);
                                 return HouseholdController.GetOldStandard((List<KalturaHouseholdWithHolder>) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("household", "get", false);
+                            RolesManager.ValidateActionPermitted("household", "get", WebAPI.Managers.eKSValidation.Expiration);
                             return HouseholdController.Get((Nullable<int>) methodParams[0]);
                             
                         case "getbyoperator":
-                            RolesManager.ValidateActionPermitted("household", "getByOperator", false);
+                            RolesManager.ValidateActionPermitted("household", "getByOperator", WebAPI.Managers.eKSValidation.All);
                             return HouseholdController.GetByOperator((KalturaIdentifierTypeFilter) methodParams[0], (List<KalturaHouseholdWithHolder>) methodParams[1]);
                             
                         case "getchargeid":
-                            RolesManager.ValidateActionPermitted("household", "getChargeID", false);
+                            RolesManager.ValidateActionPermitted("household", "getChargeID", WebAPI.Managers.eKSValidation.All);
                             return HouseholdController.GetChargeID((string) methodParams[0]);
                             
                         case "getoldstandard":
-                            RolesManager.ValidateActionPermitted("household", "getOldStandard", false);
+                            RolesManager.ValidateActionPermitted("household", "getOldStandard", WebAPI.Managers.eKSValidation.All);
                             return HouseholdController.GetOldStandard((List<KalturaHouseholdWithHolder>) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("household", "list", false);
+                            RolesManager.ValidateActionPermitted("household", "list", WebAPI.Managers.eKSValidation.All);
                             return HouseholdController.List((KalturaHouseholdFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "purge":
-                            RolesManager.ValidateActionPermitted("household", "purge", false);
+                            RolesManager.ValidateActionPermitted("household", "purge", WebAPI.Managers.eKSValidation.All);
                             return HouseholdController.Purge((int) methodParams[0]);
                             
                         case "resetfrequency":
-                            RolesManager.ValidateActionPermitted("household", "resetFrequency", false);
+                            RolesManager.ValidateActionPermitted("household", "resetFrequency", WebAPI.Managers.eKSValidation.All);
                             return HouseholdController.ResetFrequency((KalturaHouseholdFrequencyType) methodParams[0]);
                             
                         case "resume":
-                            RolesManager.ValidateActionPermitted("household", "resume", false);
+                            RolesManager.ValidateActionPermitted("household", "resume", WebAPI.Managers.eKSValidation.All);
                             return HouseholdController.Resume();
                             
                         case "setchargeid":
-                            RolesManager.ValidateActionPermitted("household", "setChargeID", false);
+                            RolesManager.ValidateActionPermitted("household", "setChargeID", WebAPI.Managers.eKSValidation.All);
                             return HouseholdController.SetChargeID((string) methodParams[0], (string) methodParams[1]);
                             
                         case "setpaymentmethodexternalid":
-                            RolesManager.ValidateActionPermitted("household", "setPaymentMethodExternalId", false);
+                            RolesManager.ValidateActionPermitted("household", "setPaymentMethodExternalId", WebAPI.Managers.eKSValidation.All);
                             return HouseholdController.SetPaymentMethodExternalId((string) methodParams[0], (string) methodParams[1], (string) methodParams[2], (string) methodParams[3]);
                             
                         case "suspend":
-                            RolesManager.ValidateActionPermitted("household", "suspend", false);
+                            RolesManager.ValidateActionPermitted("household", "suspend", WebAPI.Managers.eKSValidation.All);
                             return HouseholdController.Suspend((Nullable<int>) methodParams[0]);
                             
                         case "update":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("household", "update", false);
+                                RolesManager.ValidateActionPermitted("household", "update", WebAPI.Managers.eKSValidation.All);
                                 return HouseholdController.UpdateOldStandard((string) methodParams[0], (string) methodParams[1]);
                             }
-                            RolesManager.ValidateActionPermitted("household", "update", false);
+                            RolesManager.ValidateActionPermitted("household", "update", WebAPI.Managers.eKSValidation.All);
                             return HouseholdController.Update((KalturaHousehold) methodParams[0]);
                             
                         case "updateoldstandard":
-                            RolesManager.ValidateActionPermitted("household", "updateOldStandard", false);
+                            RolesManager.ValidateActionPermitted("household", "updateOldStandard", WebAPI.Managers.eKSValidation.All);
                             return HouseholdController.UpdateOldStandard((string) methodParams[0], (string) methodParams[1]);
                             
                     }
@@ -10276,42 +10242,42 @@ namespace WebAPI.Reflection
                         case "add":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("householdDevice", "add", false);
+                                RolesManager.ValidateActionPermitted("householdDevice", "add", WebAPI.Managers.eKSValidation.All);
                                 return HouseholdDeviceController.AddOldStandard((string) methodParams[0], (int) methodParams[1], (string) methodParams[2]);
                             }
-                            RolesManager.ValidateActionPermitted("householdDevice", "add", false);
+                            RolesManager.ValidateActionPermitted("householdDevice", "add", WebAPI.Managers.eKSValidation.All);
                             return HouseholdDeviceController.Add((KalturaHouseholdDevice) methodParams[0]);
                             
                         case "addbypin":
-                            RolesManager.ValidateActionPermitted("householdDevice", "addByPin", false);
+                            RolesManager.ValidateActionPermitted("householdDevice", "addByPin", WebAPI.Managers.eKSValidation.All);
                             return HouseholdDeviceController.AddByPin((string) methodParams[0], (string) methodParams[1]);
                             
                         case "addoldstandard":
-                            RolesManager.ValidateActionPermitted("householdDevice", "addOldStandard", false);
+                            RolesManager.ValidateActionPermitted("householdDevice", "addOldStandard", WebAPI.Managers.eKSValidation.All);
                             return HouseholdDeviceController.AddOldStandard((string) methodParams[0], (int) methodParams[1], (string) methodParams[2]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("householdDevice", "delete", false);
+                            RolesManager.ValidateActionPermitted("householdDevice", "delete", WebAPI.Managers.eKSValidation.All);
                             return HouseholdDeviceController.Delete((string) methodParams[0]);
                             
                         case "deletedynamicdata":
-                            RolesManager.ValidateActionPermitted("householdDevice", "deleteDynamicData", false);
+                            RolesManager.ValidateActionPermitted("householdDevice", "deleteDynamicData", WebAPI.Managers.eKSValidation.All);
                             return HouseholdDeviceController.DeleteDynamicData((string) methodParams[0], (string) methodParams[1]);
                             
                         case "generatepin":
-                            RolesManager.ValidateActionPermitted("householdDevice", "generatePin", false);
+                            RolesManager.ValidateActionPermitted("householdDevice", "generatePin", WebAPI.Managers.eKSValidation.All);
                             return HouseholdDeviceController.GeneratePin((string) methodParams[0], (int) methodParams[1]);
                             
                         case "get":
-                            RolesManager.ValidateActionPermitted("householdDevice", "get", false);
+                            RolesManager.ValidateActionPermitted("householdDevice", "get", WebAPI.Managers.eKSValidation.All);
                             return HouseholdDeviceController.Get((string) methodParams[0]);
                             
                         case "getstatus":
-                            RolesManager.ValidateActionPermitted("householdDevice", "getStatus", false);
+                            RolesManager.ValidateActionPermitted("householdDevice", "getStatus", WebAPI.Managers.eKSValidation.All);
                             return HouseholdDeviceController.GetStatus((string) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("householdDevice", "list", false);
+                            RolesManager.ValidateActionPermitted("householdDevice", "list", WebAPI.Managers.eKSValidation.Expiration);
                             return HouseholdDeviceController.List((KalturaHouseholdDeviceFilter) methodParams[0]);
                             
                         case "loginwithpin":
@@ -10320,22 +10286,22 @@ namespace WebAPI.Reflection
                         case "update":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("householdDevice", "update", false);
+                                RolesManager.ValidateActionPermitted("householdDevice", "update", WebAPI.Managers.eKSValidation.All);
                                 return HouseholdDeviceController.UpdateOldStandard((string) methodParams[0], (string) methodParams[1]);
                             }
-                            RolesManager.ValidateActionPermitted("householdDevice", "update", false);
+                            RolesManager.ValidateActionPermitted("householdDevice", "update", WebAPI.Managers.eKSValidation.All);
                             return HouseholdDeviceController.Update((string) methodParams[0], (KalturaHouseholdDevice) methodParams[1]);
                             
                         case "updateoldstandard":
-                            RolesManager.ValidateActionPermitted("householdDevice", "updateOldStandard", false);
+                            RolesManager.ValidateActionPermitted("householdDevice", "updateOldStandard", WebAPI.Managers.eKSValidation.All);
                             return HouseholdDeviceController.UpdateOldStandard((string) methodParams[0], (string) methodParams[1]);
                             
                         case "updatestatus":
-                            RolesManager.ValidateActionPermitted("householdDevice", "updateStatus", false);
+                            RolesManager.ValidateActionPermitted("householdDevice", "updateStatus", WebAPI.Managers.eKSValidation.All);
                             return HouseholdDeviceController.UpdateStatus((string) methodParams[0], (KalturaDeviceStatus) methodParams[1]);
                             
                         case "upsertdynamicdata":
-                            RolesManager.ValidateActionPermitted("householdDevice", "upsertDynamicData", false);
+                            RolesManager.ValidateActionPermitted("householdDevice", "upsertDynamicData", WebAPI.Managers.eKSValidation.All);
                             return HouseholdDeviceController.UpsertDynamicData((string) methodParams[0], (string) methodParams[1], (KalturaStringValue) methodParams[2]);
                             
                     }
@@ -10345,27 +10311,27 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("householdLimitations", "add", false);
+                            RolesManager.ValidateActionPermitted("householdLimitations", "add", WebAPI.Managers.eKSValidation.All);
                             return HouseholdLimitationsController.Add((KalturaHouseholdLimitations) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("householdLimitations", "delete", false);
+                            RolesManager.ValidateActionPermitted("householdLimitations", "delete", WebAPI.Managers.eKSValidation.All);
                             return HouseholdLimitationsController.Delete((int) methodParams[0]);
                             
                         case "get":
-                            RolesManager.ValidateActionPermitted("householdLimitations", "get", false);
+                            RolesManager.ValidateActionPermitted("householdLimitations", "get", WebAPI.Managers.eKSValidation.All);
                             return HouseholdLimitationsController.Get((int) methodParams[0]);
                             
                         case "isused":
-                            RolesManager.ValidateActionPermitted("householdLimitations", "isUsed", false);
+                            RolesManager.ValidateActionPermitted("householdLimitations", "isUsed", WebAPI.Managers.eKSValidation.All);
                             return HouseholdLimitationsController.IsUsed((int) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("householdLimitations", "list", false);
+                            RolesManager.ValidateActionPermitted("householdLimitations", "list", WebAPI.Managers.eKSValidation.All);
                             return HouseholdLimitationsController.List();
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("householdLimitations", "update", false);
+                            RolesManager.ValidateActionPermitted("householdLimitations", "update", WebAPI.Managers.eKSValidation.All);
                             return HouseholdLimitationsController.Update((int) methodParams[0], (KalturaHouseholdLimitations) methodParams[1]);
                             
                     }
@@ -10375,43 +10341,43 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "disable":
-                            RolesManager.ValidateActionPermitted("householdPaymentGateway", "disable", false);
+                            RolesManager.ValidateActionPermitted("householdPaymentGateway", "disable", WebAPI.Managers.eKSValidation.All);
                             return HouseholdPaymentGatewayController.Disable((int) methodParams[0]);
                             
                         case "enable":
-                            RolesManager.ValidateActionPermitted("householdPaymentGateway", "enable", false);
+                            RolesManager.ValidateActionPermitted("householdPaymentGateway", "enable", WebAPI.Managers.eKSValidation.All);
                             return HouseholdPaymentGatewayController.Enable((int) methodParams[0]);
                             
                         case "getchargeid":
-                            RolesManager.ValidateActionPermitted("householdPaymentGateway", "getChargeID", false);
+                            RolesManager.ValidateActionPermitted("householdPaymentGateway", "getChargeID", WebAPI.Managers.eKSValidation.All);
                             return HouseholdPaymentGatewayController.GetChargeID((string) methodParams[0]);
                             
                         case "invoke":
-                            RolesManager.ValidateActionPermitted("householdPaymentGateway", "invoke", false);
+                            RolesManager.ValidateActionPermitted("householdPaymentGateway", "invoke", WebAPI.Managers.eKSValidation.All);
                             return HouseholdPaymentGatewayController.Invoke((int) methodParams[0], (string) methodParams[1], (List<KalturaKeyValue>) methodParams[2]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("householdPaymentGateway", "list", false);
+                            RolesManager.ValidateActionPermitted("householdPaymentGateway", "list", WebAPI.Managers.eKSValidation.All);
                             return HouseholdPaymentGatewayController.List();
                             
                         case "resume":
-                            RolesManager.ValidateActionPermitted("householdPaymentGateway", "resume", false);
+                            RolesManager.ValidateActionPermitted("householdPaymentGateway", "resume", WebAPI.Managers.eKSValidation.All);
                             HouseholdPaymentGatewayController.Resume((int) methodParams[0], (List<KalturaKeyValue>) methodParams[1]);
                             return null;
                             
                         case "setchargeid":
-                            RolesManager.ValidateActionPermitted("householdPaymentGateway", "setChargeID", false);
+                            RolesManager.ValidateActionPermitted("householdPaymentGateway", "setChargeID", WebAPI.Managers.eKSValidation.All);
                             return HouseholdPaymentGatewayController.SetChargeID((string) methodParams[0], (string) methodParams[1]);
                             
                         case "suspend":
-                            RolesManager.ValidateActionPermitted("householdPaymentGateway", "suspend", false);
+                            RolesManager.ValidateActionPermitted("householdPaymentGateway", "suspend", WebAPI.Managers.eKSValidation.All);
                             HouseholdPaymentGatewayController.Suspend((int) methodParams[0], (KalturaSuspendSettings) methodParams[1]);
                             return null;
                             
                         case "delete":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("householdPaymentGateway", "delete", false);
+                                RolesManager.ValidateActionPermitted("householdPaymentGateway", "delete", WebAPI.Managers.eKSValidation.All);
                                 return HouseholdPaymentGatewayController.Disable((int) methodParams[0]);
                             }
                             break;
@@ -10419,7 +10385,7 @@ namespace WebAPI.Reflection
                         case "set":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("householdPaymentGateway", "set", false);
+                                RolesManager.ValidateActionPermitted("householdPaymentGateway", "set", WebAPI.Managers.eKSValidation.All);
                                 return HouseholdPaymentGatewayController.Enable((int) methodParams[0]);
                             }
                             break;
@@ -10431,27 +10397,27 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("householdPaymentMethod", "add", false);
+                            RolesManager.ValidateActionPermitted("householdPaymentMethod", "add", WebAPI.Managers.eKSValidation.All);
                             return HouseholdPaymentMethodController.Add((KalturaHouseholdPaymentMethod) methodParams[0]);
                             
                         case "forceremove":
-                            RolesManager.ValidateActionPermitted("householdPaymentMethod", "forceRemove", false);
+                            RolesManager.ValidateActionPermitted("householdPaymentMethod", "forceRemove", WebAPI.Managers.eKSValidation.All);
                             return HouseholdPaymentMethodController.ForceRemove((int) methodParams[0], (int) methodParams[1]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("householdPaymentMethod", "list", false);
+                            RolesManager.ValidateActionPermitted("householdPaymentMethod", "list", WebAPI.Managers.eKSValidation.All);
                             return HouseholdPaymentMethodController.List();
                             
                         case "remove":
-                            RolesManager.ValidateActionPermitted("householdPaymentMethod", "remove", false);
+                            RolesManager.ValidateActionPermitted("householdPaymentMethod", "remove", WebAPI.Managers.eKSValidation.All);
                             return HouseholdPaymentMethodController.Remove((int) methodParams[0], (int) methodParams[1]);
                             
                         case "setasdefault":
-                            RolesManager.ValidateActionPermitted("householdPaymentMethod", "setAsDefault", false);
+                            RolesManager.ValidateActionPermitted("householdPaymentMethod", "setAsDefault", WebAPI.Managers.eKSValidation.All);
                             return HouseholdPaymentMethodController.SetAsDefault((int) methodParams[0], (int) methodParams[1]);
                             
                         case "setexternalid":
-                            RolesManager.ValidateActionPermitted("householdPaymentMethod", "setExternalId", false);
+                            RolesManager.ValidateActionPermitted("householdPaymentMethod", "setExternalId", WebAPI.Managers.eKSValidation.All);
                             return HouseholdPaymentMethodController.SetExternalId((string) methodParams[0], (string) methodParams[1], (string) methodParams[2], (string) methodParams[3]);
                             
                     }
@@ -10463,14 +10429,14 @@ namespace WebAPI.Reflection
                         case "list":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("householdPremiumService", "list", false);
+                                RolesManager.ValidateActionPermitted("householdPremiumService", "list", WebAPI.Managers.eKSValidation.All);
                                 return HouseholdPremiumServiceController.ListOldStandard();
                             }
-                            RolesManager.ValidateActionPermitted("householdPremiumService", "list", false);
+                            RolesManager.ValidateActionPermitted("householdPremiumService", "list", WebAPI.Managers.eKSValidation.All);
                             return HouseholdPremiumServiceController.List();
                             
                         case "listoldstandard":
-                            RolesManager.ValidateActionPermitted("householdPremiumService", "listOldStandard", false);
+                            RolesManager.ValidateActionPermitted("householdPremiumService", "listOldStandard", WebAPI.Managers.eKSValidation.All);
                             return HouseholdPremiumServiceController.ListOldStandard();
                             
                     }
@@ -10480,7 +10446,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "get":
-                            RolesManager.ValidateActionPermitted("householdQuota", "get", false);
+                            RolesManager.ValidateActionPermitted("householdQuota", "get", WebAPI.Managers.eKSValidation.All);
                             return HouseholdQuotaController.Get();
                             
                     }
@@ -10511,26 +10477,26 @@ namespace WebAPI.Reflection
                         case "add":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("householdUser", "add", false);
+                                RolesManager.ValidateActionPermitted("householdUser", "add", WebAPI.Managers.eKSValidation.All);
                                 return HouseholdUserController.AddOldStandard((string) methodParams[0], (bool) methodParams[1]);
                             }
-                            RolesManager.ValidateActionPermitted("householdUser", "add", false);
+                            RolesManager.ValidateActionPermitted("householdUser", "add", WebAPI.Managers.eKSValidation.All);
                             return HouseholdUserController.Add((KalturaHouseholdUser) methodParams[0]);
                             
                         case "addbyoperator":
-                            RolesManager.ValidateActionPermitted("householdUser", "addByOperator", false);
+                            RolesManager.ValidateActionPermitted("householdUser", "addByOperator", WebAPI.Managers.eKSValidation.All);
                             return HouseholdUserController.AddByOperator((string) methodParams[0], (int) methodParams[1], (bool) methodParams[2]);
                             
                         case "addoldstandard":
-                            RolesManager.ValidateActionPermitted("householdUser", "addOldStandard", false);
+                            RolesManager.ValidateActionPermitted("householdUser", "addOldStandard", WebAPI.Managers.eKSValidation.All);
                             return HouseholdUserController.AddOldStandard((string) methodParams[0], (bool) methodParams[1]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("householdUser", "delete", false);
+                            RolesManager.ValidateActionPermitted("householdUser", "delete", WebAPI.Managers.eKSValidation.All);
                             return HouseholdUserController.Delete((string) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("householdUser", "list", false);
+                            RolesManager.ValidateActionPermitted("householdUser", "list", WebAPI.Managers.eKSValidation.All);
                             return HouseholdUserController.List((KalturaHouseholdUserFilter) methodParams[0]);
                             
                     }
@@ -10540,19 +10506,19 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("image", "add", false);
+                            RolesManager.ValidateActionPermitted("image", "add", WebAPI.Managers.eKSValidation.All);
                             return ImageController.Add((KalturaImage) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("image", "delete", false);
+                            RolesManager.ValidateActionPermitted("image", "delete", WebAPI.Managers.eKSValidation.All);
                             return ImageController.Delete((long) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("image", "list", false);
+                            RolesManager.ValidateActionPermitted("image", "list", WebAPI.Managers.eKSValidation.All);
                             return ImageController.List((KalturaImageFilter) methodParams[0]);
                             
                         case "setcontent":
-                            RolesManager.ValidateActionPermitted("image", "setContent", false);
+                            RolesManager.ValidateActionPermitted("image", "setContent", WebAPI.Managers.eKSValidation.All);
                             ImageController.SetContent((long) methodParams[0], (KalturaContentResource) methodParams[1]);
                             return null;
                             
@@ -10563,19 +10529,19 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("imageType", "add", false);
+                            RolesManager.ValidateActionPermitted("imageType", "add", WebAPI.Managers.eKSValidation.All);
                             return ImageTypeController.Add((KalturaImageType) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("imageType", "delete", false);
+                            RolesManager.ValidateActionPermitted("imageType", "delete", WebAPI.Managers.eKSValidation.All);
                             return ImageTypeController.Delete((long) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("imageType", "list", false);
+                            RolesManager.ValidateActionPermitted("imageType", "list", WebAPI.Managers.eKSValidation.All);
                             return ImageTypeController.List((KalturaImageTypeFilter) methodParams[0]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("imageType", "update", false);
+                            RolesManager.ValidateActionPermitted("imageType", "update", WebAPI.Managers.eKSValidation.All);
                             return ImageTypeController.Update((long) methodParams[0], (KalturaImageType) methodParams[1]);
                             
                     }
@@ -10585,15 +10551,15 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "get":
-                            RolesManager.ValidateActionPermitted("inboxMessage", "get", false);
+                            RolesManager.ValidateActionPermitted("inboxMessage", "get", WebAPI.Managers.eKSValidation.All);
                             return InboxMessageController.Get((string) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("inboxMessage", "list", false);
+                            RolesManager.ValidateActionPermitted("inboxMessage", "list", WebAPI.Managers.eKSValidation.All);
                             return InboxMessageController.List((KalturaInboxMessageFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "updatestatus":
-                            RolesManager.ValidateActionPermitted("inboxMessage", "updateStatus", false);
+                            RolesManager.ValidateActionPermitted("inboxMessage", "updateStatus", WebAPI.Managers.eKSValidation.All);
                             return InboxMessageController.UpdateStatus((string) methodParams[0], (KalturaInboxMessageStatus) methodParams[1]);
                             
                     }
@@ -10603,19 +10569,19 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("IngestProfile", "add", false);
+                            RolesManager.ValidateActionPermitted("IngestProfile", "add", WebAPI.Managers.eKSValidation.All);
                             return IngestProfileController.Add((KalturaIngestProfile) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("IngestProfile", "delete", false);
+                            RolesManager.ValidateActionPermitted("IngestProfile", "delete", WebAPI.Managers.eKSValidation.All);
                             return IngestProfileController.Delete((int) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("IngestProfile", "list", false);
+                            RolesManager.ValidateActionPermitted("IngestProfile", "list", WebAPI.Managers.eKSValidation.All);
                             return IngestProfileController.List();
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("IngestProfile", "update", false);
+                            RolesManager.ValidateActionPermitted("IngestProfile", "update", WebAPI.Managers.eKSValidation.All);
                             return IngestProfileController.Update((int) methodParams[0], (KalturaIngestProfile) methodParams[1]);
                             
                     }
@@ -10628,11 +10594,11 @@ namespace WebAPI.Reflection
                             return IngestStatusController.GetEpgList((KalturaIngestByIdsFilter) methodParams[0], (KalturaIngestByCompoundFilter) methodParams[1], (KalturaFilterPager) methodParams[2]);
                             
                         case "getpartnerconfiguration":
-                            RolesManager.ValidateActionPermitted("ingestStatus", "getPartnerConfiguration", false);
+                            RolesManager.ValidateActionPermitted("ingestStatus", "getPartnerConfiguration", WebAPI.Managers.eKSValidation.All);
                             return IngestStatusController.GetPartnerConfiguration();
                             
                         case "updatepartnerconfiguration":
-                            RolesManager.ValidateActionPermitted("ingestStatus", "updatePartnerConfiguration", false);
+                            RolesManager.ValidateActionPermitted("ingestStatus", "updatePartnerConfiguration", WebAPI.Managers.eKSValidation.All);
                             IngestStatusController.UpdatePartnerConfiguration((KalturaIngestStatusPartnerConfiguration) methodParams[0]);
                             return null;
                             
@@ -10643,11 +10609,11 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "getclientconfiguration":
-                            RolesManager.ValidateActionPermitted("iot", "getClientConfiguration", false);
+                            RolesManager.ValidateActionPermitted("iot", "getClientConfiguration", WebAPI.Managers.eKSValidation.All);
                             return IotController.GetClientConfiguration();
                             
                         case "register":
-                            RolesManager.ValidateActionPermitted("iot", "register", false);
+                            RolesManager.ValidateActionPermitted("iot", "register", WebAPI.Managers.eKSValidation.All);
                             return IotController.Register();
                             
                     }
@@ -10675,19 +10641,19 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("label", "add", false);
+                            RolesManager.ValidateActionPermitted("label", "add", WebAPI.Managers.eKSValidation.All);
                             return LabelController.Add((KalturaLabel) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("label", "delete", false);
+                            RolesManager.ValidateActionPermitted("label", "delete", WebAPI.Managers.eKSValidation.All);
                             return LabelController.Delete((long) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("label", "list", false);
+                            RolesManager.ValidateActionPermitted("label", "list", WebAPI.Managers.eKSValidation.All);
                             return LabelController.List((KalturaLabelFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("label", "update", false);
+                            RolesManager.ValidateActionPermitted("label", "update", WebAPI.Managers.eKSValidation.All);
                             return LabelController.Update((long) methodParams[0], (KalturaLabel) methodParams[1]);
                             
                     }
@@ -10697,7 +10663,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
-                            RolesManager.ValidateActionPermitted("language", "list", false);
+                            RolesManager.ValidateActionPermitted("language", "list", WebAPI.Managers.eKSValidation.All);
                             return LanguageController.List((KalturaLanguageFilter) methodParams[0]);
                             
                     }
@@ -10707,7 +10673,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
-                            RolesManager.ValidateActionPermitted("lastPosition", "list", false);
+                            RolesManager.ValidateActionPermitted("lastPosition", "list", WebAPI.Managers.eKSValidation.All);
                             return LastPositionController.List((KalturaLastPositionFilter) methodParams[0]);
                             
                     }
@@ -10719,14 +10685,14 @@ namespace WebAPI.Reflection
                         case "get":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("licensedUrl", "get", false);
+                                RolesManager.ValidateActionPermitted("licensedUrl", "get", WebAPI.Managers.eKSValidation.All);
                                 return LicensedUrlController.GetOldStandard((KalturaAssetType) methodParams[0], (int) methodParams[1], (string) methodParams[2], (string) methodParams[3], (Nullable<long>) methodParams[4], (Nullable<KalturaStreamType>) methodParams[5]);
                             }
-                            RolesManager.ValidateActionPermitted("licensedUrl", "get", false);
+                            RolesManager.ValidateActionPermitted("licensedUrl", "get", WebAPI.Managers.eKSValidation.All);
                             return LicensedUrlController.Get((KalturaLicensedUrlBaseRequest) methodParams[0]);
                             
                         case "getoldstandard":
-                            RolesManager.ValidateActionPermitted("licensedUrl", "getOldStandard", false);
+                            RolesManager.ValidateActionPermitted("licensedUrl", "getOldStandard", WebAPI.Managers.eKSValidation.All);
                             return LicensedUrlController.GetOldStandard((KalturaAssetType) methodParams[0], (int) methodParams[1], (string) methodParams[2], (string) methodParams[3], (Nullable<long>) methodParams[4], (Nullable<KalturaStreamType>) methodParams[5]);
                             
                     }
@@ -10736,11 +10702,11 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "get":
-                            RolesManager.ValidateActionPermitted("lineup", "get", false);
+                            RolesManager.ValidateActionPermitted("lineup", "get", WebAPI.Managers.eKSValidation.All);
                             return LineupController.Get((Nullable<int>) methodParams[0], (Nullable<int>) methodParams[1]);
                             
                         case "sendupdatednotification":
-                            RolesManager.ValidateActionPermitted("lineup", "sendUpdatedNotification", false);
+                            RolesManager.ValidateActionPermitted("lineup", "sendUpdatedNotification", WebAPI.Managers.eKSValidation.All);
                             return LineupController.SendUpdatedNotification((string) methodParams[0]);
                             
                     }
@@ -10750,7 +10716,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
-                            RolesManager.ValidateActionPermitted("mediaConcurrencyRule", "list", false);
+                            RolesManager.ValidateActionPermitted("mediaConcurrencyRule", "list", WebAPI.Managers.eKSValidation.All);
                             return MediaConcurrencyRuleController.List();
                             
                     }
@@ -10760,19 +10726,19 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("mediaFile", "add", false);
+                            RolesManager.ValidateActionPermitted("mediaFile", "add", WebAPI.Managers.eKSValidation.All);
                             return MediaFileController.Add((KalturaMediaFile) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("mediaFile", "delete", false);
+                            RolesManager.ValidateActionPermitted("mediaFile", "delete", WebAPI.Managers.eKSValidation.All);
                             return MediaFileController.Delete((long) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("mediaFile", "list", false);
+                            RolesManager.ValidateActionPermitted("mediaFile", "list", WebAPI.Managers.eKSValidation.All);
                             return MediaFileController.List((KalturaMediaFileFilter) methodParams[0]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("mediaFile", "update", false);
+                            RolesManager.ValidateActionPermitted("mediaFile", "update", WebAPI.Managers.eKSValidation.All);
                             return MediaFileController.Update((long) methodParams[0], (KalturaMediaFile) methodParams[1]);
                             
                     }
@@ -10782,19 +10748,19 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("mediaFileType", "add", false);
+                            RolesManager.ValidateActionPermitted("mediaFileType", "add", WebAPI.Managers.eKSValidation.All);
                             return MediaFileTypeController.Add((KalturaMediaFileType) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("mediaFileType", "delete", false);
+                            RolesManager.ValidateActionPermitted("mediaFileType", "delete", WebAPI.Managers.eKSValidation.All);
                             return MediaFileTypeController.Delete((int) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("mediaFileType", "list", false);
+                            RolesManager.ValidateActionPermitted("mediaFileType", "list", WebAPI.Managers.eKSValidation.All);
                             return MediaFileTypeController.List();
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("mediaFileType", "update", false);
+                            RolesManager.ValidateActionPermitted("mediaFileType", "update", WebAPI.Managers.eKSValidation.All);
                             return MediaFileTypeController.Update((int) methodParams[0], (KalturaMediaFileType) methodParams[1]);
                             
                     }
@@ -10804,15 +10770,15 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "get":
-                            RolesManager.ValidateActionPermitted("messageTemplate", "get", false);
+                            RolesManager.ValidateActionPermitted("messageTemplate", "get", WebAPI.Managers.eKSValidation.All);
                             return MessageTemplateController.Get((KalturaMessageTemplateType) methodParams[0]);
                             
                         case "set":
-                            RolesManager.ValidateActionPermitted("messageTemplate", "set", false);
+                            RolesManager.ValidateActionPermitted("messageTemplate", "set", WebAPI.Managers.eKSValidation.All);
                             return MessageTemplateController.Set((KalturaMessageTemplate) methodParams[0]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("messageTemplate", "update", false);
+                            RolesManager.ValidateActionPermitted("messageTemplate", "update", WebAPI.Managers.eKSValidation.All);
                             return MessageTemplateController.Update((KalturaMessageTemplateType) methodParams[0], (KalturaMessageTemplate) methodParams[1]);
                             
                     }
@@ -10822,37 +10788,37 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("meta", "add", false);
+                            RolesManager.ValidateActionPermitted("meta", "add", WebAPI.Managers.eKSValidation.All);
                             return MetaController.Add((KalturaMeta) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("meta", "delete", false);
+                            RolesManager.ValidateActionPermitted("meta", "delete", WebAPI.Managers.eKSValidation.All);
                             return MetaController.Delete((long) methodParams[0]);
                             
                         case "list":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("meta", "list", false);
+                                RolesManager.ValidateActionPermitted("meta", "list", WebAPI.Managers.eKSValidation.All);
                                 return MetaController.ListOldStandard((KalturaMetaFilter) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("meta", "list", false);
+                            RolesManager.ValidateActionPermitted("meta", "list", WebAPI.Managers.eKSValidation.All);
                             return MetaController.List((KalturaMetaFilter) methodParams[0]);
                             
                         case "listoldstandard":
-                            RolesManager.ValidateActionPermitted("meta", "listOldStandard", false);
+                            RolesManager.ValidateActionPermitted("meta", "listOldStandard", WebAPI.Managers.eKSValidation.All);
                             return MetaController.ListOldStandard((KalturaMetaFilter) methodParams[0]);
                             
                         case "update":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("meta", "update", false);
+                                RolesManager.ValidateActionPermitted("meta", "update", WebAPI.Managers.eKSValidation.All);
                                 return MetaController.UpdateOldStandard((string) methodParams[0], (KalturaMeta) methodParams[1]);
                             }
-                            RolesManager.ValidateActionPermitted("meta", "update", false);
+                            RolesManager.ValidateActionPermitted("meta", "update", WebAPI.Managers.eKSValidation.All);
                             return MetaController.Update((long) methodParams[0], (KalturaMeta) methodParams[1]);
                             
                         case "updateoldstandard":
-                            RolesManager.ValidateActionPermitted("meta", "updateOldStandard", false);
+                            RolesManager.ValidateActionPermitted("meta", "updateOldStandard", WebAPI.Managers.eKSValidation.All);
                             return MetaController.UpdateOldStandard((string) methodParams[0], (KalturaMeta) methodParams[1]);
                             
                     }
@@ -10862,31 +10828,31 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "delete":
-                            RolesManager.ValidateActionPermitted("microservicesCanaryDeploymentConfiguration", "delete", false);
+                            RolesManager.ValidateActionPermitted("microservicesCanaryDeploymentConfiguration", "delete", WebAPI.Managers.eKSValidation.All);
                             return MicroservicesCanaryDeploymentConfigurationController.Delete((int) methodParams[0]);
                             
                         case "get":
-                            RolesManager.ValidateActionPermitted("microservicesCanaryDeploymentConfiguration", "get", false);
+                            RolesManager.ValidateActionPermitted("microservicesCanaryDeploymentConfiguration", "get", WebAPI.Managers.eKSValidation.All);
                             return MicroservicesCanaryDeploymentConfigurationController.Get((int) methodParams[0]);
                             
                         case "setallmigrationeventsstatus":
-                            RolesManager.ValidateActionPermitted("microservicesCanaryDeploymentConfiguration", "setAllMigrationEventsStatus", false);
+                            RolesManager.ValidateActionPermitted("microservicesCanaryDeploymentConfiguration", "setAllMigrationEventsStatus", WebAPI.Managers.eKSValidation.All);
                             return MicroservicesCanaryDeploymentConfigurationController.SetAllMigrationEventsStatus((int) methodParams[0], (bool) methodParams[1]);
                             
                         case "setallroutingactionstoms":
-                            RolesManager.ValidateActionPermitted("microservicesCanaryDeploymentConfiguration", "setAllRoutingActionsToMs", false);
+                            RolesManager.ValidateActionPermitted("microservicesCanaryDeploymentConfiguration", "setAllRoutingActionsToMs", WebAPI.Managers.eKSValidation.All);
                             return MicroservicesCanaryDeploymentConfigurationController.SetAllRoutingActionsToMs((int) methodParams[0]);
                             
                         case "setallroutingactionstophoenix":
-                            RolesManager.ValidateActionPermitted("microservicesCanaryDeploymentConfiguration", "setAllRoutingActionsToPhoenix", false);
+                            RolesManager.ValidateActionPermitted("microservicesCanaryDeploymentConfiguration", "setAllRoutingActionsToPhoenix", WebAPI.Managers.eKSValidation.All);
                             return MicroservicesCanaryDeploymentConfigurationController.SetAllRoutingActionsToPhoenix((int) methodParams[0]);
                             
                         case "setmigrationeventstatus":
-                            RolesManager.ValidateActionPermitted("microservicesCanaryDeploymentConfiguration", "setMigrationEventStatus", false);
+                            RolesManager.ValidateActionPermitted("microservicesCanaryDeploymentConfiguration", "setMigrationEventStatus", WebAPI.Managers.eKSValidation.All);
                             return MicroservicesCanaryDeploymentConfigurationController.SetMigrationEventStatus((int) methodParams[0], (KalturaCanaryDeploymentMicroservicesMigrationEvent) methodParams[1], (bool) methodParams[2]);
                             
                         case "setroutingaction":
-                            RolesManager.ValidateActionPermitted("microservicesCanaryDeploymentConfiguration", "setRoutingAction", false);
+                            RolesManager.ValidateActionPermitted("microservicesCanaryDeploymentConfiguration", "setRoutingAction", WebAPI.Managers.eKSValidation.All);
                             return MicroservicesCanaryDeploymentConfigurationController.SetRoutingAction((int) methodParams[0], (KalturaCanaryDeploymentMicroservicesRoutingAction) methodParams[1], (KalturaCanaryDeploymentMicroservicesRoutingService) methodParams[2]);
                             
                     }
@@ -10905,19 +10871,19 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "register":
-                            RolesManager.ValidateActionPermitted("notification", "register", false);
+                            RolesManager.ValidateActionPermitted("notification", "register", WebAPI.Managers.eKSValidation.All);
                             return NotificationController.Register((string) methodParams[0], (KalturaNotificationType) methodParams[1]);
                             
                         case "sendpush":
-                            RolesManager.ValidateActionPermitted("notification", "sendPush", false);
+                            RolesManager.ValidateActionPermitted("notification", "sendPush", WebAPI.Managers.eKSValidation.All);
                             return NotificationController.SendPush((int) methodParams[0], (KalturaPushMessage) methodParams[1]);
                             
                         case "sendsms":
-                            RolesManager.ValidateActionPermitted("notification", "sendSms", false);
+                            RolesManager.ValidateActionPermitted("notification", "sendSms", WebAPI.Managers.eKSValidation.All);
                             return NotificationController.SendSms((string) methodParams[0], (string) methodParams[1], (SerializableDictionary<string, KalturaStringValue>) methodParams[2]);
                             
                         case "setdevicepushtoken":
-                            RolesManager.ValidateActionPermitted("notification", "setDevicePushToken", false);
+                            RolesManager.ValidateActionPermitted("notification", "setDevicePushToken", WebAPI.Managers.eKSValidation.All);
                             return NotificationController.SetDevicePushToken((string) methodParams[0]);
                             
                     }
@@ -10929,27 +10895,27 @@ namespace WebAPI.Reflection
                         case "get":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("notificationsPartnerSettings", "get", false);
+                                RolesManager.ValidateActionPermitted("notificationsPartnerSettings", "get", WebAPI.Managers.eKSValidation.All);
                                 return NotificationsPartnerSettingsController.GetOldStandard();
                             }
-                            RolesManager.ValidateActionPermitted("notificationsPartnerSettings", "get", false);
+                            RolesManager.ValidateActionPermitted("notificationsPartnerSettings", "get", WebAPI.Managers.eKSValidation.All);
                             return NotificationsPartnerSettingsController.Get();
                             
                         case "getoldstandard":
-                            RolesManager.ValidateActionPermitted("notificationsPartnerSettings", "getOldStandard", false);
+                            RolesManager.ValidateActionPermitted("notificationsPartnerSettings", "getOldStandard", WebAPI.Managers.eKSValidation.All);
                             return NotificationsPartnerSettingsController.GetOldStandard();
                             
                         case "update":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("notificationsPartnerSettings", "update", false);
+                                RolesManager.ValidateActionPermitted("notificationsPartnerSettings", "update", WebAPI.Managers.eKSValidation.All);
                                 return NotificationsPartnerSettingsController.UpdateOldStandard((KalturaPartnerNotificationSettings) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("notificationsPartnerSettings", "update", false);
+                            RolesManager.ValidateActionPermitted("notificationsPartnerSettings", "update", WebAPI.Managers.eKSValidation.All);
                             return NotificationsPartnerSettingsController.Update((KalturaNotificationsPartnerSettings) methodParams[0]);
                             
                         case "updateoldstandard":
-                            RolesManager.ValidateActionPermitted("notificationsPartnerSettings", "updateOldStandard", false);
+                            RolesManager.ValidateActionPermitted("notificationsPartnerSettings", "updateOldStandard", WebAPI.Managers.eKSValidation.All);
                             return NotificationsPartnerSettingsController.UpdateOldStandard((KalturaPartnerNotificationSettings) methodParams[0]);
                             
                     }
@@ -10961,27 +10927,27 @@ namespace WebAPI.Reflection
                         case "get":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("notificationsSettings", "get", false);
+                                RolesManager.ValidateActionPermitted("notificationsSettings", "get", WebAPI.Managers.eKSValidation.All);
                                 return NotificationsSettingsController.GetOldStandard();
                             }
-                            RolesManager.ValidateActionPermitted("notificationsSettings", "get", false);
+                            RolesManager.ValidateActionPermitted("notificationsSettings", "get", WebAPI.Managers.eKSValidation.All);
                             return NotificationsSettingsController.Get();
                             
                         case "getoldstandard":
-                            RolesManager.ValidateActionPermitted("notificationsSettings", "getOldStandard", false);
+                            RolesManager.ValidateActionPermitted("notificationsSettings", "getOldStandard", WebAPI.Managers.eKSValidation.All);
                             return NotificationsSettingsController.GetOldStandard();
                             
                         case "update":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("notificationsSettings", "update", false);
+                                RolesManager.ValidateActionPermitted("notificationsSettings", "update", WebAPI.Managers.eKSValidation.All);
                                 return NotificationsSettingsController.UpdateOldStandard((KalturaNotificationSettings) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("notificationsSettings", "update", false);
+                            RolesManager.ValidateActionPermitted("notificationsSettings", "update", WebAPI.Managers.eKSValidation.All);
                             return NotificationsSettingsController.Update((KalturaNotificationsSettings) methodParams[0]);
                             
                         case "updateoldstandard":
-                            RolesManager.ValidateActionPermitted("notificationsSettings", "updateOldStandard", false);
+                            RolesManager.ValidateActionPermitted("notificationsSettings", "updateOldStandard", WebAPI.Managers.eKSValidation.All);
                             return NotificationsSettingsController.UpdateOldStandard((KalturaNotificationSettings) methodParams[0]);
                             
                         case "updatewithtoken":
@@ -10994,45 +10960,45 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("ossAdapterProfile", "add", false);
+                            RolesManager.ValidateActionPermitted("ossAdapterProfile", "add", WebAPI.Managers.eKSValidation.All);
                             return OssAdapterProfileController.Add((KalturaOSSAdapterProfile) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("ossAdapterProfile", "delete", false);
+                            RolesManager.ValidateActionPermitted("ossAdapterProfile", "delete", WebAPI.Managers.eKSValidation.All);
                             return OssAdapterProfileController.Delete((int) methodParams[0]);
                             
                         case "generatesharedsecret":
-                            RolesManager.ValidateActionPermitted("ossAdapterProfile", "generateSharedSecret", false);
+                            RolesManager.ValidateActionPermitted("ossAdapterProfile", "generateSharedSecret", WebAPI.Managers.eKSValidation.All);
                             return OssAdapterProfileController.GenerateSharedSecret((int) methodParams[0]);
                             
                         case "get":
-                            RolesManager.ValidateActionPermitted("ossAdapterProfile", "get", false);
+                            RolesManager.ValidateActionPermitted("ossAdapterProfile", "get", WebAPI.Managers.eKSValidation.All);
                             return OssAdapterProfileController.Get((int) methodParams[0]);
                             
                         case "list":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("ossAdapterProfile", "list", false);
+                                RolesManager.ValidateActionPermitted("ossAdapterProfile", "list", WebAPI.Managers.eKSValidation.All);
                                 return OssAdapterProfileController.ListOldStandard();
                             }
-                            RolesManager.ValidateActionPermitted("ossAdapterProfile", "list", false);
+                            RolesManager.ValidateActionPermitted("ossAdapterProfile", "list", WebAPI.Managers.eKSValidation.All);
                             return OssAdapterProfileController.List();
                             
                         case "listoldstandard":
-                            RolesManager.ValidateActionPermitted("ossAdapterProfile", "listOldStandard", false);
+                            RolesManager.ValidateActionPermitted("ossAdapterProfile", "listOldStandard", WebAPI.Managers.eKSValidation.All);
                             return OssAdapterProfileController.ListOldStandard();
                             
                         case "update":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("ossAdapterProfile", "update", false);
+                                RolesManager.ValidateActionPermitted("ossAdapterProfile", "update", WebAPI.Managers.eKSValidation.All);
                                 return OssAdapterProfileController.UpdateOldStandard((KalturaOSSAdapterProfile) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("ossAdapterProfile", "update", false);
+                            RolesManager.ValidateActionPermitted("ossAdapterProfile", "update", WebAPI.Managers.eKSValidation.All);
                             return OssAdapterProfileController.Update((int) methodParams[0], (KalturaOSSAdapterProfile) methodParams[1]);
                             
                         case "updateoldstandard":
-                            RolesManager.ValidateActionPermitted("ossAdapterProfile", "updateOldStandard", false);
+                            RolesManager.ValidateActionPermitted("ossAdapterProfile", "updateOldStandard", WebAPI.Managers.eKSValidation.All);
                             return OssAdapterProfileController.UpdateOldStandard((KalturaOSSAdapterProfile) methodParams[0]);
                             
                     }
@@ -11042,19 +11008,19 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("ossAdapterProfileSettings", "add", false);
+                            RolesManager.ValidateActionPermitted("ossAdapterProfileSettings", "add", WebAPI.Managers.eKSValidation.All);
                             return OssAdapterProfileSettingsController.Add((int) methodParams[0], (SerializableDictionary<string, KalturaStringValue>) methodParams[1]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("ossAdapterProfileSettings", "delete", false);
+                            RolesManager.ValidateActionPermitted("ossAdapterProfileSettings", "delete", WebAPI.Managers.eKSValidation.All);
                             return OssAdapterProfileSettingsController.Delete((int) methodParams[0], (SerializableDictionary<string, KalturaStringValue>) methodParams[1]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("ossAdapterProfileSettings", "list", false);
+                            RolesManager.ValidateActionPermitted("ossAdapterProfileSettings", "list", WebAPI.Managers.eKSValidation.All);
                             return OssAdapterProfileSettingsController.List();
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("ossAdapterProfileSettings", "update", false);
+                            RolesManager.ValidateActionPermitted("ossAdapterProfileSettings", "update", WebAPI.Managers.eKSValidation.All);
                             return OssAdapterProfileSettingsController.Update((int) methodParams[0], (SerializableDictionary<string, KalturaStringValue>) methodParams[1]);
                             
                     }
@@ -11064,7 +11030,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "get":
-                            RolesManager.ValidateActionPermitted("ottCategory", "get", false);
+                            RolesManager.ValidateActionPermitted("ottCategory", "get", WebAPI.Managers.eKSValidation.All);
                             return OttCategoryController.Get((int) methodParams[0]);
                             
                     }
@@ -11077,18 +11043,18 @@ namespace WebAPI.Reflection
                             return OttUserController.Activate((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             
                         case "addrole":
-                            RolesManager.ValidateActionPermitted("ottUser", "addRole", false);
+                            RolesManager.ValidateActionPermitted("ottUser", "addRole", WebAPI.Managers.eKSValidation.All);
                             return OttUserController.AddRole((long) methodParams[0]);
                             
                         case "anonymouslogin":
                             return OttUserController.AnonymousLogin((int) methodParams[0], (string) methodParams[1]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("ottUser", "delete", false);
+                            RolesManager.ValidateActionPermitted("ottUser", "delete", WebAPI.Managers.eKSValidation.All);
                             return OttUserController.Delete();
                             
                         case "deletedynamicdata":
-                            RolesManager.ValidateActionPermitted("ottUser", "deleteDynamicData", false);
+                            RolesManager.ValidateActionPermitted("ottUser", "deleteDynamicData", WebAPI.Managers.eKSValidation.All);
                             return OttUserController.DeleteDynamicData((string) methodParams[0]);
                             
                         case "facebooklogin":
@@ -11097,22 +11063,22 @@ namespace WebAPI.Reflection
                         case "get":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("ottUser", "get", false);
+                                RolesManager.ValidateActionPermitted("ottUser", "get", WebAPI.Managers.eKSValidation.All);
                                 return OttUserController.GetOldStandard();
                             }
-                            RolesManager.ValidateActionPermitted("ottUser", "get", false);
+                            RolesManager.ValidateActionPermitted("ottUser", "get", WebAPI.Managers.eKSValidation.All);
                             return OttUserController.Get();
                             
                         case "getencrypteduserid":
-                            RolesManager.ValidateActionPermitted("ottUser", "getEncryptedUserId", false);
+                            RolesManager.ValidateActionPermitted("ottUser", "getEncryptedUserId", WebAPI.Managers.eKSValidation.All);
                             return OttUserController.GetEncryptedUserId();
                             
                         case "getoldstandard":
-                            RolesManager.ValidateActionPermitted("ottUser", "getOldStandard", false);
+                            RolesManager.ValidateActionPermitted("ottUser", "getOldStandard", WebAPI.Managers.eKSValidation.All);
                             return OttUserController.GetOldStandard();
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("ottUser", "list", false);
+                            RolesManager.ValidateActionPermitted("ottUser", "list", WebAPI.Managers.eKSValidation.All);
                             return OttUserController.List((KalturaOTTUserFilter) methodParams[0]);
                             
                         case "login":
@@ -11130,11 +11096,11 @@ namespace WebAPI.Reflection
                             return OttUserController.LoginWithPin((int) methodParams[0], (string) methodParams[1], (string) methodParams[2], (string) methodParams[3], (SerializableDictionary<string, KalturaStringValue>) methodParams[4]);
                             
                         case "logout":
-                            RolesManager.ValidateActionPermitted("ottUser", "logout", false);
+                            RolesManager.ValidateActionPermitted("ottUser", "logout", WebAPI.Managers.eKSValidation.All);
                             return OttUserController.Logout((SerializableDictionary<string, KalturaStringValue>) methodParams[0]);
                             
                         case "refreshsession":
-                            RolesManager.ValidateActionPermitted("ottUser", "refreshSession", true);
+                            RolesManager.ValidateActionPermitted("ottUser", "refreshSession", WebAPI.Managers.eKSValidation.None);
                             return OttUserController.RefreshSession((string) methodParams[0], (string) methodParams[1]);
                             
                         case "register":
@@ -11146,7 +11112,7 @@ namespace WebAPI.Reflection
                         case "resetpassword":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("ottUser", "resetPassword", false);
+                                RolesManager.ValidateActionPermitted("ottUser", "resetPassword", WebAPI.Managers.eKSValidation.All);
                                 return OttUserController.setPassword((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             }
                             return OttUserController.resetPassword((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
@@ -11159,15 +11125,15 @@ namespace WebAPI.Reflection
                             return OttUserController.setInitialPassword((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             
                         case "setpassword":
-                            RolesManager.ValidateActionPermitted("ottUser", "setPassword", false);
+                            RolesManager.ValidateActionPermitted("ottUser", "setPassword", WebAPI.Managers.eKSValidation.All);
                             return OttUserController.setPassword((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("ottUser", "update", false);
+                            RolesManager.ValidateActionPermitted("ottUser", "update", WebAPI.Managers.eKSValidation.All);
                             return OttUserController.Update((KalturaOTTUser) methodParams[0], (string) methodParams[1]);
                             
                         case "updatedynamicdata":
-                            RolesManager.ValidateActionPermitted("ottUser", "updateDynamicData", false);
+                            RolesManager.ValidateActionPermitted("ottUser", "updateDynamicData", WebAPI.Managers.eKSValidation.All);
                             return OttUserController.UpdateDynamicData((string) methodParams[0], (KalturaStringValue) methodParams[1]);
                             
                         case "updatelogindata":
@@ -11175,7 +11141,7 @@ namespace WebAPI.Reflection
                             {
                                 throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.GetHttpMethod().ToUpper());
                             }
-                            RolesManager.ValidateActionPermitted("ottUser", "updateLoginData", false);
+                            RolesManager.ValidateActionPermitted("ottUser", "updateLoginData", WebAPI.Managers.eKSValidation.All);
                             return OttUserController.UpdateLoginData((string) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             
                         case "updatepassword":
@@ -11183,12 +11149,12 @@ namespace WebAPI.Reflection
                             {
                                 throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.GetHttpMethod().ToUpper());
                             }
-                            RolesManager.ValidateActionPermitted("ottUser", "updatePassword", true);
+                            RolesManager.ValidateActionPermitted("ottUser", "updatePassword", WebAPI.Managers.eKSValidation.None);
                             OttUserController.updatePassword((int) methodParams[0], (string) methodParams[1]);
                             return null;
                             
                         case "upsertdynamicdata":
-                            RolesManager.ValidateActionPermitted("ottUser", "upsertDynamicData", false);
+                            RolesManager.ValidateActionPermitted("ottUser", "upsertDynamicData", WebAPI.Managers.eKSValidation.All);
                             return OttUserController.UpsertDynamicData((string) methodParams[0], (KalturaStringValue) methodParams[1]);
                             
                         case "validatetoken":
@@ -11215,7 +11181,7 @@ namespace WebAPI.Reflection
                                 {
                                     throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.GetHttpMethod().ToUpper());
                                 }
-                                RolesManager.ValidateActionPermitted("ottUser", "changePassword", false);
+                                RolesManager.ValidateActionPermitted("ottUser", "changePassword", WebAPI.Managers.eKSValidation.All);
                                 return OttUserController.UpdateLoginData((string) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             }
                             break;
@@ -11227,44 +11193,44 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("parentalRule", "add", false);
+                            RolesManager.ValidateActionPermitted("parentalRule", "add", WebAPI.Managers.eKSValidation.All);
                             return ParentalRuleController.Add((KalturaParentalRule) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("parentalRule", "delete", false);
+                            RolesManager.ValidateActionPermitted("parentalRule", "delete", WebAPI.Managers.eKSValidation.All);
                             return ParentalRuleController.Delete((long) methodParams[0]);
                             
                         case "disable":
-                            RolesManager.ValidateActionPermitted("parentalRule", "disable", false);
+                            RolesManager.ValidateActionPermitted("parentalRule", "disable", WebAPI.Managers.eKSValidation.All);
                             return ParentalRuleController.Disable((long) methodParams[0], (KalturaEntityReferenceBy) methodParams[1]);
                             
                         case "disabledefault":
-                            RolesManager.ValidateActionPermitted("parentalRule", "disableDefault", false);
+                            RolesManager.ValidateActionPermitted("parentalRule", "disableDefault", WebAPI.Managers.eKSValidation.All);
                             return ParentalRuleController.DisableDefault((KalturaEntityReferenceBy) methodParams[0]);
                             
                         case "enable":
-                            RolesManager.ValidateActionPermitted("parentalRule", "enable", false);
+                            RolesManager.ValidateActionPermitted("parentalRule", "enable", WebAPI.Managers.eKSValidation.All);
                             return ParentalRuleController.Enable((long) methodParams[0], (KalturaEntityReferenceBy) methodParams[1]);
                             
                         case "get":
-                            RolesManager.ValidateActionPermitted("parentalRule", "get", false);
+                            RolesManager.ValidateActionPermitted("parentalRule", "get", WebAPI.Managers.eKSValidation.All);
                             return ParentalRuleController.Get((long) methodParams[0]);
                             
                         case "list":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("parentalRule", "list", false);
+                                RolesManager.ValidateActionPermitted("parentalRule", "list", WebAPI.Managers.eKSValidation.All);
                                 return ParentalRuleController.ListOldStandard((KalturaRuleFilter) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("parentalRule", "list", false);
+                            RolesManager.ValidateActionPermitted("parentalRule", "list", WebAPI.Managers.eKSValidation.All);
                             return ParentalRuleController.List((KalturaParentalRuleFilter) methodParams[0]);
                             
                         case "listoldstandard":
-                            RolesManager.ValidateActionPermitted("parentalRule", "listOldStandard", false);
+                            RolesManager.ValidateActionPermitted("parentalRule", "listOldStandard", WebAPI.Managers.eKSValidation.All);
                             return ParentalRuleController.ListOldStandard((KalturaRuleFilter) methodParams[0]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("parentalRule", "update", false);
+                            RolesManager.ValidateActionPermitted("parentalRule", "update", WebAPI.Managers.eKSValidation.All);
                             return ParentalRuleController.Update((long) methodParams[0], (KalturaParentalRule) methodParams[1]);
                             
                     }
@@ -11274,7 +11240,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
-                            RolesManager.ValidateActionPermitted("parentalRuleProfile", "list", false);
+                            RolesManager.ValidateActionPermitted("parentalRuleProfile", "list", WebAPI.Managers.eKSValidation.All);
                             return ParentalRuleProfileController.List();
                             
                     }
@@ -11284,11 +11250,11 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
-                            RolesManager.ValidateActionPermitted("partnerConfiguration", "list", false);
+                            RolesManager.ValidateActionPermitted("partnerConfiguration", "list", WebAPI.Managers.eKSValidation.All);
                             return PartnerConfigurationController.List((KalturaPartnerConfigurationFilter) methodParams[0]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("partnerConfiguration", "update", false);
+                            RolesManager.ValidateActionPermitted("partnerConfiguration", "update", WebAPI.Managers.eKSValidation.All);
                             return PartnerConfigurationController.Update((KalturaPartnerConfiguration) methodParams[0]);
                             
                     }
@@ -11298,23 +11264,23 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("partner", "add", false);
+                            RolesManager.ValidateActionPermitted("partner", "add", WebAPI.Managers.eKSValidation.All);
                             return PartnerController.Add((KalturaPartner) methodParams[0], (KalturaPartnerSetup) methodParams[1]);
                             
                         case "createindexes":
-                            RolesManager.ValidateActionPermitted("partner", "createIndexes", false);
+                            RolesManager.ValidateActionPermitted("partner", "createIndexes", WebAPI.Managers.eKSValidation.All);
                             return PartnerController.CreateIndexes();
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("partner", "delete", false);
+                            RolesManager.ValidateActionPermitted("partner", "delete", WebAPI.Managers.eKSValidation.All);
                             return PartnerController.Delete((int) methodParams[0]);
                             
                         case "externallogin":
-                            RolesManager.ValidateActionPermitted("partner", "externalLogin", false);
+                            RolesManager.ValidateActionPermitted("partner", "externalLogin", WebAPI.Managers.eKSValidation.All);
                             return PartnerController.ExternalLogin();
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("partner", "list", false);
+                            RolesManager.ValidateActionPermitted("partner", "list", WebAPI.Managers.eKSValidation.All);
                             return PartnerController.List((KalturaPartnerFilter) methodParams[0]);
                             
                     }
@@ -11324,11 +11290,11 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "get":
-                            RolesManager.ValidateActionPermitted("partnerPremiumServices", "get", false);
+                            RolesManager.ValidateActionPermitted("partnerPremiumServices", "get", WebAPI.Managers.eKSValidation.All);
                             return PartnerPremiumServicesController.Get();
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("partnerPremiumServices", "update", false);
+                            RolesManager.ValidateActionPermitted("partnerPremiumServices", "update", WebAPI.Managers.eKSValidation.All);
                             return PartnerPremiumServicesController.Update((KalturaPartnerPremiumServices) methodParams[0]);
                             
                     }
@@ -11361,27 +11327,27 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "delete":
-                            RolesManager.ValidateActionPermitted("paymentGateway", "delete", false);
+                            RolesManager.ValidateActionPermitted("paymentGateway", "delete", WebAPI.Managers.eKSValidation.All);
                             return PaymentGatewayController.Delete((int) methodParams[0]);
                             
                         case "forceremovepaymentmethod":
-                            RolesManager.ValidateActionPermitted("paymentGateway", "forceRemovePaymentMethod", false);
+                            RolesManager.ValidateActionPermitted("paymentGateway", "forceRemovePaymentMethod", WebAPI.Managers.eKSValidation.All);
                             return PaymentGatewayController.ForceRemovePaymentMethod((int) methodParams[0], (int) methodParams[1]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("paymentGateway", "list", false);
+                            RolesManager.ValidateActionPermitted("paymentGateway", "list", WebAPI.Managers.eKSValidation.All);
                             return PaymentGatewayController.List();
                             
                         case "removepaymentmethod":
-                            RolesManager.ValidateActionPermitted("paymentGateway", "removePaymentMethod", false);
+                            RolesManager.ValidateActionPermitted("paymentGateway", "removePaymentMethod", WebAPI.Managers.eKSValidation.All);
                             return PaymentGatewayController.RemovePaymentMethod((int) methodParams[0], (int) methodParams[1]);
                             
                         case "set":
-                            RolesManager.ValidateActionPermitted("paymentGateway", "set", false);
+                            RolesManager.ValidateActionPermitted("paymentGateway", "set", WebAPI.Managers.eKSValidation.All);
                             return PaymentGatewayController.Set((int) methodParams[0]);
                             
                         case "setpaymentmethod":
-                            RolesManager.ValidateActionPermitted("paymentGateway", "setPaymentMethod", false);
+                            RolesManager.ValidateActionPermitted("paymentGateway", "setPaymentMethod", WebAPI.Managers.eKSValidation.All);
                             return PaymentGatewayController.SetPaymentMethod((int) methodParams[0], (int) methodParams[1]);
                             
                     }
@@ -11393,52 +11359,52 @@ namespace WebAPI.Reflection
                         case "add":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("paymentGatewayProfile", "add", false);
+                                RolesManager.ValidateActionPermitted("paymentGatewayProfile", "add", WebAPI.Managers.eKSValidation.All);
                                 return PaymentGatewayProfileController.AddOldStandard((KalturaPaymentGatewayProfile) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("paymentGatewayProfile", "add", false);
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfile", "add", WebAPI.Managers.eKSValidation.All);
                             return PaymentGatewayProfileController.Add((KalturaPaymentGatewayProfile) methodParams[0]);
                             
                         case "addoldstandard":
-                            RolesManager.ValidateActionPermitted("paymentGatewayProfile", "addOldStandard", false);
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfile", "addOldStandard", WebAPI.Managers.eKSValidation.All);
                             return PaymentGatewayProfileController.AddOldStandard((KalturaPaymentGatewayProfile) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("paymentGatewayProfile", "delete", false);
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfile", "delete", WebAPI.Managers.eKSValidation.All);
                             return PaymentGatewayProfileController.Delete((int) methodParams[0]);
                             
                         case "generatesharedsecret":
-                            RolesManager.ValidateActionPermitted("paymentGatewayProfile", "generateSharedSecret", false);
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfile", "generateSharedSecret", WebAPI.Managers.eKSValidation.All);
                             return PaymentGatewayProfileController.GenerateSharedSecret((int) methodParams[0]);
                             
                         case "getconfiguration":
-                            RolesManager.ValidateActionPermitted("paymentGatewayProfile", "getConfiguration", false);
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfile", "getConfiguration", WebAPI.Managers.eKSValidation.All);
                             return PaymentGatewayProfileController.GetConfiguration((string) methodParams[0], (string) methodParams[1], (List<KalturaKeyValue>) methodParams[2]);
                             
                         case "list":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("paymentGatewayProfile", "list", false);
+                                RolesManager.ValidateActionPermitted("paymentGatewayProfile", "list", WebAPI.Managers.eKSValidation.All);
                                 return PaymentGatewayProfileController.ListOldStandard();
                             }
-                            RolesManager.ValidateActionPermitted("paymentGatewayProfile", "list", false);
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfile", "list", WebAPI.Managers.eKSValidation.All);
                             return PaymentGatewayProfileController.List();
                             
                         case "listoldstandard":
-                            RolesManager.ValidateActionPermitted("paymentGatewayProfile", "listOldStandard", false);
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfile", "listOldStandard", WebAPI.Managers.eKSValidation.All);
                             return PaymentGatewayProfileController.ListOldStandard();
                             
                         case "update":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("paymentGatewayProfile", "update", false);
+                                RolesManager.ValidateActionPermitted("paymentGatewayProfile", "update", WebAPI.Managers.eKSValidation.All);
                                 return PaymentGatewayProfileController.UpdateOldStandard((int) methodParams[0], (KalturaPaymentGatewayProfile) methodParams[1]);
                             }
-                            RolesManager.ValidateActionPermitted("paymentGatewayProfile", "update", false);
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfile", "update", WebAPI.Managers.eKSValidation.All);
                             return PaymentGatewayProfileController.Update((int) methodParams[0], (KalturaPaymentGatewayProfile) methodParams[1]);
                             
                         case "updateoldstandard":
-                            RolesManager.ValidateActionPermitted("paymentGatewayProfile", "updateOldStandard", false);
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfile", "updateOldStandard", WebAPI.Managers.eKSValidation.All);
                             return PaymentGatewayProfileController.UpdateOldStandard((int) methodParams[0], (KalturaPaymentGatewayProfile) methodParams[1]);
                             
                     }
@@ -11450,26 +11416,26 @@ namespace WebAPI.Reflection
                         case "add":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("paymentGatewayProfileSettings", "add", false);
+                                RolesManager.ValidateActionPermitted("paymentGatewayProfileSettings", "add", WebAPI.Managers.eKSValidation.All);
                                 return PaymentGatewayProfileSettingsController.AddOldStandard((int) methodParams[0], (SerializableDictionary<string, KalturaStringValue>) methodParams[1]);
                             }
-                            RolesManager.ValidateActionPermitted("paymentGatewayProfileSettings", "add", false);
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfileSettings", "add", WebAPI.Managers.eKSValidation.All);
                             return PaymentGatewayProfileSettingsController.Add((KalturaPaymentGatewayProfile) methodParams[0]);
                             
                         case "addoldstandard":
-                            RolesManager.ValidateActionPermitted("paymentGatewayProfileSettings", "addOldStandard", false);
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfileSettings", "addOldStandard", WebAPI.Managers.eKSValidation.All);
                             return PaymentGatewayProfileSettingsController.AddOldStandard((int) methodParams[0], (SerializableDictionary<string, KalturaStringValue>) methodParams[1]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("paymentGatewayProfileSettings", "delete", false);
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfileSettings", "delete", WebAPI.Managers.eKSValidation.All);
                             return PaymentGatewayProfileSettingsController.Delete((int) methodParams[0], (SerializableDictionary<string, KalturaStringValue>) methodParams[1]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("paymentGatewayProfileSettings", "list", false);
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfileSettings", "list", WebAPI.Managers.eKSValidation.All);
                             return PaymentGatewayProfileSettingsController.List();
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("paymentGatewayProfileSettings", "update", false);
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfileSettings", "update", WebAPI.Managers.eKSValidation.All);
                             return PaymentGatewayProfileSettingsController.Update((int) methodParams[0], (SerializableDictionary<string, KalturaStringValue>) methodParams[1]);
                             
                     }
@@ -11481,53 +11447,53 @@ namespace WebAPI.Reflection
                         case "add":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("paymentMethodProfile", "add", false);
+                                RolesManager.ValidateActionPermitted("paymentMethodProfile", "add", WebAPI.Managers.eKSValidation.All);
                                 return PaymentMethodProfileController.AddOldStandard((int) methodParams[0], (KalturaPaymentMethodProfile) methodParams[1]);
                             }
-                            RolesManager.ValidateActionPermitted("paymentMethodProfile", "add", false);
+                            RolesManager.ValidateActionPermitted("paymentMethodProfile", "add", WebAPI.Managers.eKSValidation.All);
                             return PaymentMethodProfileController.Add((KalturaPaymentMethodProfile) methodParams[0]);
                             
                         case "addoldstandard":
-                            RolesManager.ValidateActionPermitted("paymentMethodProfile", "addOldStandard", false);
+                            RolesManager.ValidateActionPermitted("paymentMethodProfile", "addOldStandard", WebAPI.Managers.eKSValidation.All);
                             return PaymentMethodProfileController.AddOldStandard((int) methodParams[0], (KalturaPaymentMethodProfile) methodParams[1]);
                             
                         case "delete":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("paymentMethodProfile", "delete", false);
+                                RolesManager.ValidateActionPermitted("paymentMethodProfile", "delete", WebAPI.Managers.eKSValidation.All);
                                 return PaymentMethodProfileController.DeleteOldStandard((int) methodParams[0], (int) methodParams[1]);
                             }
-                            RolesManager.ValidateActionPermitted("paymentMethodProfile", "delete", false);
+                            RolesManager.ValidateActionPermitted("paymentMethodProfile", "delete", WebAPI.Managers.eKSValidation.All);
                             return PaymentMethodProfileController.Delete((int) methodParams[0]);
                             
                         case "deleteoldstandard":
-                            RolesManager.ValidateActionPermitted("paymentMethodProfile", "deleteOldStandard", false);
+                            RolesManager.ValidateActionPermitted("paymentMethodProfile", "deleteOldStandard", WebAPI.Managers.eKSValidation.All);
                             return PaymentMethodProfileController.DeleteOldStandard((int) methodParams[0], (int) methodParams[1]);
                             
                         case "list":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("paymentMethodProfile", "list", false);
+                                RolesManager.ValidateActionPermitted("paymentMethodProfile", "list", WebAPI.Managers.eKSValidation.All);
                                 return PaymentMethodProfileController.ListOldStandard((int) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("paymentMethodProfile", "list", false);
+                            RolesManager.ValidateActionPermitted("paymentMethodProfile", "list", WebAPI.Managers.eKSValidation.All);
                             return PaymentMethodProfileController.List((KalturaPaymentMethodProfileFilter) methodParams[0]);
                             
                         case "listoldstandard":
-                            RolesManager.ValidateActionPermitted("paymentMethodProfile", "listOldStandard", false);
+                            RolesManager.ValidateActionPermitted("paymentMethodProfile", "listOldStandard", WebAPI.Managers.eKSValidation.All);
                             return PaymentMethodProfileController.ListOldStandard((int) methodParams[0]);
                             
                         case "update":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("paymentMethodProfile", "update", false);
+                                RolesManager.ValidateActionPermitted("paymentMethodProfile", "update", WebAPI.Managers.eKSValidation.All);
                                 return PaymentMethodProfileController.UpdateOldStandard((int) methodParams[0], (KalturaPaymentMethodProfile) methodParams[1]);
                             }
-                            RolesManager.ValidateActionPermitted("paymentMethodProfile", "update", false);
+                            RolesManager.ValidateActionPermitted("paymentMethodProfile", "update", WebAPI.Managers.eKSValidation.All);
                             return PaymentMethodProfileController.Update((int) methodParams[0], (KalturaPaymentMethodProfile) methodParams[1]);
                             
                         case "updateoldstandard":
-                            RolesManager.ValidateActionPermitted("paymentMethodProfile", "updateOldStandard", false);
+                            RolesManager.ValidateActionPermitted("paymentMethodProfile", "updateOldStandard", WebAPI.Managers.eKSValidation.All);
                             return PaymentMethodProfileController.UpdateOldStandard((int) methodParams[0], (KalturaPaymentMethodProfile) methodParams[1]);
                             
                     }
@@ -11537,34 +11503,34 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("permission", "add", false);
+                            RolesManager.ValidateActionPermitted("permission", "add", WebAPI.Managers.eKSValidation.All);
                             return PermissionController.Add((KalturaPermission) methodParams[0]);
                             
                         case "addpermissionitem":
-                            RolesManager.ValidateActionPermitted("permission", "addPermissionItem", false);
+                            RolesManager.ValidateActionPermitted("permission", "addPermissionItem", WebAPI.Managers.eKSValidation.All);
                             PermissionController.AddPermissionItem((long) methodParams[0], (long) methodParams[1]);
                             return null;
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("permission", "delete", false);
+                            RolesManager.ValidateActionPermitted("permission", "delete", WebAPI.Managers.eKSValidation.All);
                             PermissionController.Delete((long) methodParams[0]);
                             return null;
                             
                         case "getcurrentpermissions":
-                            RolesManager.ValidateActionPermitted("permission", "getCurrentPermissions", false);
+                            RolesManager.ValidateActionPermitted("permission", "getCurrentPermissions", WebAPI.Managers.eKSValidation.All);
                             return PermissionController.GetCurrentPermissions();
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("permission", "list", false);
+                            RolesManager.ValidateActionPermitted("permission", "list", WebAPI.Managers.eKSValidation.All);
                             return PermissionController.List((KalturaBasePermissionFilter) methodParams[0]);
                             
                         case "removepermissionitem":
-                            RolesManager.ValidateActionPermitted("permission", "removePermissionItem", false);
+                            RolesManager.ValidateActionPermitted("permission", "removePermissionItem", WebAPI.Managers.eKSValidation.All);
                             PermissionController.RemovePermissionItem((long) methodParams[0], (long) methodParams[1]);
                             return null;
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("permission", "update", false);
+                            RolesManager.ValidateActionPermitted("permission", "update", WebAPI.Managers.eKSValidation.All);
                             return PermissionController.Update((long) methodParams[0], (KalturaPermission) methodParams[1]);
                             
                     }
@@ -11574,7 +11540,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
-                            RolesManager.ValidateActionPermitted("permissionItem", "list", false);
+                            RolesManager.ValidateActionPermitted("permissionItem", "list", WebAPI.Managers.eKSValidation.All);
                             return PermissionItemController.List((KalturaPermissionItemFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
@@ -11584,7 +11550,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
-                            RolesManager.ValidateActionPermitted("personalAsset", "list", false);
+                            RolesManager.ValidateActionPermitted("personalAsset", "list", WebAPI.Managers.eKSValidation.All);
                             return PersonalAssetController.List((List<KalturaPersonalAssetRequest>) methodParams[0], (List<KalturaPersonalAssetWithHolder>) methodParams[1]);
                             
                     }
@@ -11596,14 +11562,14 @@ namespace WebAPI.Reflection
                         case "list":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("personalFeed", "list", false);
+                                RolesManager.ValidateActionPermitted("personalFeed", "list", WebAPI.Managers.eKSValidation.All);
                                 return PersonalFeedController.ListOldStandard((Nullable<KalturaOrder>) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             }
-                            RolesManager.ValidateActionPermitted("personalFeed", "list", false);
+                            RolesManager.ValidateActionPermitted("personalFeed", "list", WebAPI.Managers.eKSValidation.All);
                             return PersonalFeedController.List((KalturaPersonalFeedFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "listoldstandard":
-                            RolesManager.ValidateActionPermitted("personalFeed", "listOldStandard", false);
+                            RolesManager.ValidateActionPermitted("personalFeed", "listOldStandard", WebAPI.Managers.eKSValidation.All);
                             return PersonalFeedController.ListOldStandard((Nullable<KalturaOrder>) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
@@ -11613,16 +11579,16 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("personalList", "add", false);
+                            RolesManager.ValidateActionPermitted("personalList", "add", WebAPI.Managers.eKSValidation.All);
                             return PersonalListController.Add((KalturaPersonalList) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("personalList", "delete", false);
+                            RolesManager.ValidateActionPermitted("personalList", "delete", WebAPI.Managers.eKSValidation.All);
                             PersonalListController.Delete((long) methodParams[0]);
                             return null;
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("personalList", "list", false);
+                            RolesManager.ValidateActionPermitted("personalList", "list", WebAPI.Managers.eKSValidation.All);
                             return PersonalListController.List((KalturaPersonalListFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
@@ -11634,14 +11600,14 @@ namespace WebAPI.Reflection
                         case "get":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("pin", "get", false);
+                                RolesManager.ValidateActionPermitted("pin", "get", WebAPI.Managers.eKSValidation.All);
                                 return PinController.GetOldStandard((KalturaEntityReferenceBy) methodParams[0], (KalturaPinType) methodParams[1], (Nullable<int>) methodParams[2]);
                             }
-                            RolesManager.ValidateActionPermitted("pin", "get", false);
+                            RolesManager.ValidateActionPermitted("pin", "get", WebAPI.Managers.eKSValidation.All);
                             return PinController.Get((KalturaEntityReferenceBy) methodParams[0], (KalturaPinType) methodParams[1], (Nullable<int>) methodParams[2]);
                             
                         case "getoldstandard":
-                            RolesManager.ValidateActionPermitted("pin", "getOldStandard", false);
+                            RolesManager.ValidateActionPermitted("pin", "getOldStandard", WebAPI.Managers.eKSValidation.All);
                             return PinController.GetOldStandard((KalturaEntityReferenceBy) methodParams[0], (KalturaPinType) methodParams[1], (Nullable<int>) methodParams[2]);
                             
                         case "update":
@@ -11651,14 +11617,14 @@ namespace WebAPI.Reflection
                                 {
                                     throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.GetHttpMethod().ToUpper());
                                 }
-                                RolesManager.ValidateActionPermitted("pin", "update", false);
+                                RolesManager.ValidateActionPermitted("pin", "update", WebAPI.Managers.eKSValidation.All);
                                 return PinController.UpdateOldStandard((string) methodParams[0], (KalturaEntityReferenceBy) methodParams[1], (KalturaPinType) methodParams[2], (Nullable<int>) methodParams[3]);
                             }
                             if(HttpContext.Current.Request.GetHttpMethod().ToLower() == "get")
                             {
                                 throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.GetHttpMethod().ToUpper());
                             }
-                            RolesManager.ValidateActionPermitted("pin", "update", false);
+                            RolesManager.ValidateActionPermitted("pin", "update", WebAPI.Managers.eKSValidation.All);
                             return PinController.Update((KalturaEntityReferenceBy) methodParams[0], (KalturaPinType) methodParams[1], (KalturaPin) methodParams[2], (Nullable<int>) methodParams[3]);
                             
                         case "updateoldstandard":
@@ -11666,7 +11632,7 @@ namespace WebAPI.Reflection
                             {
                                 throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.GetHttpMethod().ToUpper());
                             }
-                            RolesManager.ValidateActionPermitted("pin", "updateOldStandard", false);
+                            RolesManager.ValidateActionPermitted("pin", "updateOldStandard", WebAPI.Managers.eKSValidation.All);
                             return PinController.UpdateOldStandard((string) methodParams[0], (KalturaEntityReferenceBy) methodParams[1], (KalturaPinType) methodParams[2], (Nullable<int>) methodParams[3]);
                             
                         case "validate":
@@ -11674,7 +11640,7 @@ namespace WebAPI.Reflection
                             {
                                 throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.GetHttpMethod().ToUpper());
                             }
-                            RolesManager.ValidateActionPermitted("pin", "validate", false);
+                            RolesManager.ValidateActionPermitted("pin", "validate", WebAPI.Managers.eKSValidation.All);
                             return PinController.Validate((string) methodParams[0], (KalturaPinType) methodParams[1], (Nullable<int>) methodParams[2]);
                             
                     }
@@ -11684,23 +11650,23 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("playbackProfile", "add", false);
+                            RolesManager.ValidateActionPermitted("playbackProfile", "add", WebAPI.Managers.eKSValidation.All);
                             return PlaybackProfileController.Add((KalturaPlaybackProfile) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("playbackProfile", "delete", false);
+                            RolesManager.ValidateActionPermitted("playbackProfile", "delete", WebAPI.Managers.eKSValidation.All);
                             return PlaybackProfileController.Delete((int) methodParams[0]);
                             
                         case "generatesharedsecret":
-                            RolesManager.ValidateActionPermitted("playbackProfile", "generateSharedSecret", false);
+                            RolesManager.ValidateActionPermitted("playbackProfile", "generateSharedSecret", WebAPI.Managers.eKSValidation.All);
                             return PlaybackProfileController.GenerateSharedSecret((int) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("playbackProfile", "list", false);
+                            RolesManager.ValidateActionPermitted("playbackProfile", "list", WebAPI.Managers.eKSValidation.All);
                             return PlaybackProfileController.List((KalturaPlaybackProfileFilter) methodParams[0]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("playbackProfile", "update", false);
+                            RolesManager.ValidateActionPermitted("playbackProfile", "update", WebAPI.Managers.eKSValidation.All);
                             return PlaybackProfileController.Update((int) methodParams[0], (KalturaPlaybackProfile) methodParams[1]);
                             
                     }
@@ -11710,23 +11676,23 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("ppv", "add", false);
+                            RolesManager.ValidateActionPermitted("ppv", "add", WebAPI.Managers.eKSValidation.All);
                             return PpvController.Add((KalturaPpv) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("ppv", "delete", false);
+                            RolesManager.ValidateActionPermitted("ppv", "delete", WebAPI.Managers.eKSValidation.All);
                             return PpvController.Delete((long) methodParams[0]);
                             
                         case "get":
-                            RolesManager.ValidateActionPermitted("ppv", "get", false);
+                            RolesManager.ValidateActionPermitted("ppv", "get", WebAPI.Managers.eKSValidation.All);
                             return PpvController.Get((long) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("ppv", "list", false);
+                            RolesManager.ValidateActionPermitted("ppv", "list", WebAPI.Managers.eKSValidation.All);
                             return PpvController.List((KalturaPpvFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("ppv", "update", false);
+                            RolesManager.ValidateActionPermitted("ppv", "update", WebAPI.Managers.eKSValidation.All);
                             return PpvController.Update((int) methodParams[0], (KalturaPpv) methodParams[1]);
                             
                     }
@@ -11736,19 +11702,19 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("previewModule", "add", false);
+                            RolesManager.ValidateActionPermitted("previewModule", "add", WebAPI.Managers.eKSValidation.All);
                             return PreviewModuleController.Add((KalturaPreviewModule) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("previewModule", "delete", false);
+                            RolesManager.ValidateActionPermitted("previewModule", "delete", WebAPI.Managers.eKSValidation.All);
                             return PreviewModuleController.Delete((long) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("previewModule", "list", false);
+                            RolesManager.ValidateActionPermitted("previewModule", "list", WebAPI.Managers.eKSValidation.All);
                             return PreviewModuleController.List((KalturaPreviewModuleFilter) methodParams[0]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("previewModule", "update", false);
+                            RolesManager.ValidateActionPermitted("previewModule", "update", WebAPI.Managers.eKSValidation.All);
                             return PreviewModuleController.Update((long) methodParams[0], (KalturaPreviewModule) methodParams[1]);
                             
                     }
@@ -11758,7 +11724,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
-                            RolesManager.ValidateActionPermitted("price", "list", false);
+                            RolesManager.ValidateActionPermitted("price", "list", WebAPI.Managers.eKSValidation.All);
                             return PriceController.List((KalturaPricesFilter) methodParams[0], (string) methodParams[1]);
                             
                     }
@@ -11768,19 +11734,19 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("priceDetails", "add", false);
+                            RolesManager.ValidateActionPermitted("priceDetails", "add", WebAPI.Managers.eKSValidation.All);
                             return PriceDetailsController.Add((KalturaPriceDetails) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("priceDetails", "delete", false);
+                            RolesManager.ValidateActionPermitted("priceDetails", "delete", WebAPI.Managers.eKSValidation.All);
                             return PriceDetailsController.Delete((long) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("priceDetails", "list", false);
+                            RolesManager.ValidateActionPermitted("priceDetails", "list", WebAPI.Managers.eKSValidation.All);
                             return PriceDetailsController.List((KalturaPriceDetailsFilter) methodParams[0]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("priceDetails", "update", false);
+                            RolesManager.ValidateActionPermitted("priceDetails", "update", WebAPI.Managers.eKSValidation.All);
                             return PriceDetailsController.Update((long) methodParams[0], (KalturaPriceDetails) methodParams[1]);
                             
                     }
@@ -11790,19 +11756,19 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("pricePlan", "add", false);
+                            RolesManager.ValidateActionPermitted("pricePlan", "add", WebAPI.Managers.eKSValidation.All);
                             return PricePlanController.Add((KalturaPricePlan) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("pricePlan", "delete", false);
+                            RolesManager.ValidateActionPermitted("pricePlan", "delete", WebAPI.Managers.eKSValidation.All);
                             return PricePlanController.Delete((long) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("pricePlan", "list", false);
+                            RolesManager.ValidateActionPermitted("pricePlan", "list", WebAPI.Managers.eKSValidation.All);
                             return PricePlanController.List((KalturaPricePlanFilter) methodParams[0]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("pricePlan", "update", false);
+                            RolesManager.ValidateActionPermitted("pricePlan", "update", WebAPI.Managers.eKSValidation.All);
                             return PricePlanController.Update((long) methodParams[0], (KalturaPricePlan) methodParams[1]);
                             
                     }
@@ -11812,7 +11778,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
-                            RolesManager.ValidateActionPermitted("productPrice", "list", false);
+                            RolesManager.ValidateActionPermitted("productPrice", "list", WebAPI.Managers.eKSValidation.Expiration);
                             return ProductPriceController.List((KalturaProductPriceFilter) methodParams[0]);
                             
                     }
@@ -11824,27 +11790,27 @@ namespace WebAPI.Reflection
                         case "get":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("purchaseSettings", "get", false);
+                                RolesManager.ValidateActionPermitted("purchaseSettings", "get", WebAPI.Managers.eKSValidation.All);
                                 return PurchaseSettingsController.GetOldStandard((KalturaEntityReferenceBy) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("purchaseSettings", "get", false);
+                            RolesManager.ValidateActionPermitted("purchaseSettings", "get", WebAPI.Managers.eKSValidation.All);
                             return PurchaseSettingsController.Get((KalturaEntityReferenceBy) methodParams[0]);
                             
                         case "getoldstandard":
-                            RolesManager.ValidateActionPermitted("purchaseSettings", "getOldStandard", false);
+                            RolesManager.ValidateActionPermitted("purchaseSettings", "getOldStandard", WebAPI.Managers.eKSValidation.All);
                             return PurchaseSettingsController.GetOldStandard((KalturaEntityReferenceBy) methodParams[0]);
                             
                         case "update":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("purchaseSettings", "update", false);
+                                RolesManager.ValidateActionPermitted("purchaseSettings", "update", WebAPI.Managers.eKSValidation.All);
                                 return PurchaseSettingsController.UpdateOldStandard((int) methodParams[0], (KalturaEntityReferenceBy) methodParams[1]);
                             }
-                            RolesManager.ValidateActionPermitted("purchaseSettings", "update", false);
+                            RolesManager.ValidateActionPermitted("purchaseSettings", "update", WebAPI.Managers.eKSValidation.All);
                             return PurchaseSettingsController.Update((KalturaEntityReferenceBy) methodParams[0], (KalturaPurchaseSettings) methodParams[1]);
                             
                         case "updateoldstandard":
-                            RolesManager.ValidateActionPermitted("purchaseSettings", "updateOldStandard", false);
+                            RolesManager.ValidateActionPermitted("purchaseSettings", "updateOldStandard", WebAPI.Managers.eKSValidation.All);
                             return PurchaseSettingsController.UpdateOldStandard((int) methodParams[0], (KalturaEntityReferenceBy) methodParams[1]);
                             
                     }
@@ -11854,15 +11820,15 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("ratio", "add", false);
+                            RolesManager.ValidateActionPermitted("ratio", "add", WebAPI.Managers.eKSValidation.All);
                             return RatioController.Add((KalturaRatio) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("ratio", "list", false);
+                            RolesManager.ValidateActionPermitted("ratio", "list", WebAPI.Managers.eKSValidation.All);
                             return RatioController.List();
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("ratio", "update", false);
+                            RolesManager.ValidateActionPermitted("ratio", "update", WebAPI.Managers.eKSValidation.All);
                             return RatioController.Update((long) methodParams[0], (KalturaRatio) methodParams[1]);
                             
                     }
@@ -11872,41 +11838,41 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("recommendationProfile", "add", false);
+                            RolesManager.ValidateActionPermitted("recommendationProfile", "add", WebAPI.Managers.eKSValidation.All);
                             return RecommendationProfileController.Add((KalturaRecommendationProfile) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("recommendationProfile", "delete", false);
+                            RolesManager.ValidateActionPermitted("recommendationProfile", "delete", WebAPI.Managers.eKSValidation.All);
                             return RecommendationProfileController.Delete((int) methodParams[0]);
                             
                         case "generatesharedsecret":
-                            RolesManager.ValidateActionPermitted("recommendationProfile", "generateSharedSecret", false);
+                            RolesManager.ValidateActionPermitted("recommendationProfile", "generateSharedSecret", WebAPI.Managers.eKSValidation.All);
                             return RecommendationProfileController.GenerateSharedSecret((int) methodParams[0]);
                             
                         case "list":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("recommendationProfile", "list", false);
+                                RolesManager.ValidateActionPermitted("recommendationProfile", "list", WebAPI.Managers.eKSValidation.All);
                                 return RecommendationProfileController.ListOldStandard();
                             }
-                            RolesManager.ValidateActionPermitted("recommendationProfile", "list", false);
+                            RolesManager.ValidateActionPermitted("recommendationProfile", "list", WebAPI.Managers.eKSValidation.All);
                             return RecommendationProfileController.List();
                             
                         case "listoldstandard":
-                            RolesManager.ValidateActionPermitted("recommendationProfile", "listOldStandard", false);
+                            RolesManager.ValidateActionPermitted("recommendationProfile", "listOldStandard", WebAPI.Managers.eKSValidation.All);
                             return RecommendationProfileController.ListOldStandard();
                             
                         case "update":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("recommendationProfile", "update", false);
+                                RolesManager.ValidateActionPermitted("recommendationProfile", "update", WebAPI.Managers.eKSValidation.All);
                                 return RecommendationProfileController.UpdateOldStandard((KalturaRecommendationProfile) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("recommendationProfile", "update", false);
+                            RolesManager.ValidateActionPermitted("recommendationProfile", "update", WebAPI.Managers.eKSValidation.All);
                             return RecommendationProfileController.Update((int) methodParams[0], (KalturaRecommendationProfile) methodParams[1]);
                             
                         case "updateoldstandard":
-                            RolesManager.ValidateActionPermitted("recommendationProfile", "updateOldStandard", false);
+                            RolesManager.ValidateActionPermitted("recommendationProfile", "updateOldStandard", WebAPI.Managers.eKSValidation.All);
                             return RecommendationProfileController.UpdateOldStandard((KalturaRecommendationProfile) methodParams[0]);
                             
                     }
@@ -11916,19 +11882,19 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("recommendationProfileSettings", "add", false);
+                            RolesManager.ValidateActionPermitted("recommendationProfileSettings", "add", WebAPI.Managers.eKSValidation.All);
                             return RecommendationProfileSettingsController.Add((int) methodParams[0], (SerializableDictionary<string, KalturaStringValue>) methodParams[1]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("recommendationProfileSettings", "delete", false);
+                            RolesManager.ValidateActionPermitted("recommendationProfileSettings", "delete", WebAPI.Managers.eKSValidation.All);
                             return RecommendationProfileSettingsController.Delete((int) methodParams[0], (SerializableDictionary<string, KalturaStringValue>) methodParams[1]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("recommendationProfileSettings", "list", false);
+                            RolesManager.ValidateActionPermitted("recommendationProfileSettings", "list", WebAPI.Managers.eKSValidation.All);
                             return RecommendationProfileSettingsController.List();
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("recommendationProfileSettings", "update", false);
+                            RolesManager.ValidateActionPermitted("recommendationProfileSettings", "update", WebAPI.Managers.eKSValidation.All);
                             return RecommendationProfileSettingsController.Update((int) methodParams[0], (SerializableDictionary<string, KalturaStringValue>) methodParams[1]);
                             
                     }
@@ -11938,35 +11904,35 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("recording", "add", false);
+                            RolesManager.ValidateActionPermitted("recording", "add", WebAPI.Managers.eKSValidation.All);
                             return RecordingController.Add((KalturaRecording) methodParams[0]);
                             
                         case "bulkdelete":
-                            RolesManager.ValidateActionPermitted("recording", "bulkdelete", false);
+                            RolesManager.ValidateActionPermitted("recording", "bulkdelete", WebAPI.Managers.eKSValidation.All);
                             return RecordingController.BulkDelete((string) methodParams[0]);
                             
                         case "cancel":
-                            RolesManager.ValidateActionPermitted("recording", "cancel", false);
+                            RolesManager.ValidateActionPermitted("recording", "cancel", WebAPI.Managers.eKSValidation.All);
                             return RecordingController.Cancel((long) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("recording", "delete", false);
+                            RolesManager.ValidateActionPermitted("recording", "delete", WebAPI.Managers.eKSValidation.All);
                             return RecordingController.Delete((long) methodParams[0]);
                             
                         case "get":
-                            RolesManager.ValidateActionPermitted("recording", "get", false);
+                            RolesManager.ValidateActionPermitted("recording", "get", WebAPI.Managers.eKSValidation.All);
                             return RecordingController.Get((long) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("recording", "list", false);
+                            RolesManager.ValidateActionPermitted("recording", "list", WebAPI.Managers.eKSValidation.All);
                             return RecordingController.List((KalturaRecordingFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "protect":
-                            RolesManager.ValidateActionPermitted("recording", "protect", false);
+                            RolesManager.ValidateActionPermitted("recording", "protect", WebAPI.Managers.eKSValidation.All);
                             return RecordingController.Protect((long) methodParams[0]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("recording", "update", false);
+                            RolesManager.ValidateActionPermitted("recording", "update", WebAPI.Managers.eKSValidation.All);
                             return RecordingController.Update((long) methodParams[0], (KalturaRecording) methodParams[1]);
                             
                     }
@@ -11976,28 +11942,28 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("region", "add", false);
+                            RolesManager.ValidateActionPermitted("region", "add", WebAPI.Managers.eKSValidation.All);
                             return RegionController.Add((KalturaRegion) methodParams[0]);
                             
                         case "linearchannelbulkadd":
-                            RolesManager.ValidateActionPermitted("region", "linearchannelbulkadd", false);
+                            RolesManager.ValidateActionPermitted("region", "linearchannelbulkadd", WebAPI.Managers.eKSValidation.All);
                             return RegionController.BulkAddLinearChannel((long) methodParams[0], (List<KalturaRegionChannelNumber>) methodParams[1]);
                             
                         case "linearchannelbulkdelete":
-                            RolesManager.ValidateActionPermitted("region", "linearchannelbulkdelete", false);
+                            RolesManager.ValidateActionPermitted("region", "linearchannelbulkdelete", WebAPI.Managers.eKSValidation.All);
                             return RegionController.BulkDeleteLinearChannel((long) methodParams[0], (string) methodParams[1]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("region", "delete", false);
+                            RolesManager.ValidateActionPermitted("region", "delete", WebAPI.Managers.eKSValidation.All);
                             RegionController.Delete((int) methodParams[0]);
                             return null;
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("region", "list", false);
+                            RolesManager.ValidateActionPermitted("region", "list", WebAPI.Managers.eKSValidation.All);
                             return RegionController.List((KalturaBaseRegionFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("region", "update", false);
+                            RolesManager.ValidateActionPermitted("region", "update", WebAPI.Managers.eKSValidation.All);
                             return RegionController.Update((int) methodParams[0], (KalturaRegion) methodParams[1]);
                             
                     }
@@ -12009,14 +11975,14 @@ namespace WebAPI.Reflection
                         case "list":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("registrySettings", "list", false);
+                                RolesManager.ValidateActionPermitted("registrySettings", "list", WebAPI.Managers.eKSValidation.All);
                                 return RegistrySettingsController.ListOldStandard();
                             }
-                            RolesManager.ValidateActionPermitted("registrySettings", "list", false);
+                            RolesManager.ValidateActionPermitted("registrySettings", "list", WebAPI.Managers.eKSValidation.All);
                             return RegistrySettingsController.List();
                             
                         case "listoldstandard":
-                            RolesManager.ValidateActionPermitted("registrySettings", "listOldStandard", false);
+                            RolesManager.ValidateActionPermitted("registrySettings", "listOldStandard", WebAPI.Managers.eKSValidation.All);
                             return RegistrySettingsController.ListOldStandard();
                             
                     }
@@ -12026,11 +11992,11 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("reminder", "add", false);
+                            RolesManager.ValidateActionPermitted("reminder", "add", WebAPI.Managers.eKSValidation.All);
                             return ReminderController.Add((KalturaReminder) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("reminder", "delete", false);
+                            RolesManager.ValidateActionPermitted("reminder", "delete", WebAPI.Managers.eKSValidation.All);
                             return ReminderController.Delete((long) methodParams[0], (KalturaReminderType) methodParams[1]);
                             
                         case "deletewithtoken":
@@ -12038,7 +12004,7 @@ namespace WebAPI.Reflection
                             return null;
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("reminder", "list", false);
+                            RolesManager.ValidateActionPermitted("reminder", "list", WebAPI.Managers.eKSValidation.All);
                             return ServiceController.ExecGeneric(typeof(ReminderController).GetMethod("List"), methodParams);
                             
                     }
@@ -12048,11 +12014,11 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "get":
-                            RolesManager.ValidateActionPermitted("report", "get", false);
+                            RolesManager.ValidateActionPermitted("report", "get", WebAPI.Managers.eKSValidation.All);
                             return ReportController.Get((string) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("report", "list", false);
+                            RolesManager.ValidateActionPermitted("report", "list", WebAPI.Managers.eKSValidation.All);
                             return ReportController.List((KalturaReportFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
@@ -12062,15 +12028,15 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "clean":
-                            RolesManager.ValidateActionPermitted("searchHistory", "clean", false);
+                            RolesManager.ValidateActionPermitted("searchHistory", "clean", WebAPI.Managers.eKSValidation.All);
                             return SearchHistoryController.Clean((KalturaSearchHistoryFilter) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("searchHistory", "delete", false);
+                            RolesManager.ValidateActionPermitted("searchHistory", "delete", WebAPI.Managers.eKSValidation.All);
                             return SearchHistoryController.Delete((string) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("searchHistory", "list", false);
+                            RolesManager.ValidateActionPermitted("searchHistory", "list", WebAPI.Managers.eKSValidation.All);
                             return SearchHistoryController.List((KalturaSearchHistoryFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
@@ -12080,19 +12046,19 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("searchPriorityGroup", "add", false);
+                            RolesManager.ValidateActionPermitted("searchPriorityGroup", "add", WebAPI.Managers.eKSValidation.All);
                             return SearchPriorityGroupController.Add((KalturaSearchPriorityGroup) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("searchPriorityGroup", "delete", false);
+                            RolesManager.ValidateActionPermitted("searchPriorityGroup", "delete", WebAPI.Managers.eKSValidation.All);
                             return SearchPriorityGroupController.Delete((int) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("searchPriorityGroup", "list", false);
+                            RolesManager.ValidateActionPermitted("searchPriorityGroup", "list", WebAPI.Managers.eKSValidation.All);
                             return SearchPriorityGroupController.List((KalturaSearchPriorityGroupFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("searchPriorityGroup", "update", false);
+                            RolesManager.ValidateActionPermitted("searchPriorityGroup", "update", WebAPI.Managers.eKSValidation.All);
                             return SearchPriorityGroupController.Update((long) methodParams[0], (KalturaSearchPriorityGroup) methodParams[1]);
                             
                     }
@@ -12102,11 +12068,11 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "get":
-                            RolesManager.ValidateActionPermitted("searchPriorityGroupOrderedIdsSet", "get", false);
+                            RolesManager.ValidateActionPermitted("searchPriorityGroupOrderedIdsSet", "get", WebAPI.Managers.eKSValidation.All);
                             return SearchPriorityGroupOrderedListController.Get();
                             
                         case "set":
-                            RolesManager.ValidateActionPermitted("searchPriorityGroupOrderedIdsSet", "set", false);
+                            RolesManager.ValidateActionPermitted("searchPriorityGroupOrderedIdsSet", "set", WebAPI.Managers.eKSValidation.All);
                             return SearchPriorityGroupOrderedListController.Set((KalturaSearchPriorityGroupOrderedIdsSet) methodParams[0]);
                             
                     }
@@ -12116,19 +12082,19 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("segmentationType", "add", false);
+                            RolesManager.ValidateActionPermitted("segmentationType", "add", WebAPI.Managers.eKSValidation.All);
                             return SegmentationTypeController.Add((KalturaSegmentationType) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("segmentationType", "delete", false);
+                            RolesManager.ValidateActionPermitted("segmentationType", "delete", WebAPI.Managers.eKSValidation.All);
                             return SegmentationTypeController.Delete((long) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("segmentationType", "list", false);
+                            RolesManager.ValidateActionPermitted("segmentationType", "list", WebAPI.Managers.eKSValidation.All);
                             return SegmentationTypeController.List((KalturaBaseSegmentationTypeFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("segmentationType", "update", false);
+                            RolesManager.ValidateActionPermitted("segmentationType", "update", WebAPI.Managers.eKSValidation.All);
                             return SegmentationTypeController.Update((long) methodParams[0], (KalturaSegmentationType) methodParams[1]);
                             
                     }
@@ -12138,35 +12104,35 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("seriesRecording", "add", false);
+                            RolesManager.ValidateActionPermitted("seriesRecording", "add", WebAPI.Managers.eKSValidation.All);
                             return SeriesRecordingController.Add((KalturaSeriesRecording) methodParams[0]);
                             
                         case "cancel":
-                            RolesManager.ValidateActionPermitted("seriesRecording", "cancel", false);
+                            RolesManager.ValidateActionPermitted("seriesRecording", "cancel", WebAPI.Managers.eKSValidation.All);
                             return SeriesRecordingController.Cancel((long) methodParams[0]);
                             
                         case "cancelbyepgid":
-                            RolesManager.ValidateActionPermitted("seriesRecording", "cancelByEpgId", false);
+                            RolesManager.ValidateActionPermitted("seriesRecording", "cancelByEpgId", WebAPI.Managers.eKSValidation.All);
                             return SeriesRecordingController.CancelByEpgId((long) methodParams[0], (long) methodParams[1]);
                             
                         case "cancelbyseasonnumber":
-                            RolesManager.ValidateActionPermitted("seriesRecording", "cancelBySeasonNumber", false);
+                            RolesManager.ValidateActionPermitted("seriesRecording", "cancelBySeasonNumber", WebAPI.Managers.eKSValidation.All);
                             return SeriesRecordingController.CancelBySeasonNumber((long) methodParams[0], (long) methodParams[1]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("seriesRecording", "delete", false);
+                            RolesManager.ValidateActionPermitted("seriesRecording", "delete", WebAPI.Managers.eKSValidation.All);
                             return SeriesRecordingController.Delete((long) methodParams[0]);
                             
                         case "deletebyseasonnumber":
-                            RolesManager.ValidateActionPermitted("seriesRecording", "deleteBySeasonNumber", false);
+                            RolesManager.ValidateActionPermitted("seriesRecording", "deleteBySeasonNumber", WebAPI.Managers.eKSValidation.All);
                             return SeriesRecordingController.DeleteBySeasonNumber((long) methodParams[0], (int) methodParams[1]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("seriesRecording", "list", false);
+                            RolesManager.ValidateActionPermitted("seriesRecording", "list", WebAPI.Managers.eKSValidation.All);
                             return SeriesRecordingController.List((KalturaSeriesRecordingFilter) methodParams[0]);
                             
                         case "rebookcanceledbyepgid":
-                            RolesManager.ValidateActionPermitted("seriesRecording", "rebookCanceledByEpgId", false);
+                            RolesManager.ValidateActionPermitted("seriesRecording", "rebookCanceledByEpgId", WebAPI.Managers.eKSValidation.All);
                             return SeriesRecordingController.RebookCanceledByEpgId((long) methodParams[0]);
                             
                     }
@@ -12176,28 +12142,28 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "createsessioncharacteristic":
-                            RolesManager.ValidateActionPermitted("session", "createSessionCharacteristic", false);
+                            RolesManager.ValidateActionPermitted("session", "createSessionCharacteristic", WebAPI.Managers.eKSValidation.All);
                             return SessionController.CreateSessionCharacteristic((string) methodParams[0], (long) methodParams[1], (string) methodParams[2], (long) methodParams[3], (Nullable<int>) methodParams[4], (SerializableDictionary<string, KalturaStringValueArray>) methodParams[5]);
                             
                         case "get":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("session", "get", false);
+                                RolesManager.ValidateActionPermitted("session", "get", WebAPI.Managers.eKSValidation.All);
                                 return SessionController.GetOldStandard((string) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("session", "get", false);
+                            RolesManager.ValidateActionPermitted("session", "get", WebAPI.Managers.eKSValidation.All);
                             return SessionController.Get((string) methodParams[0]);
                             
                         case "getoldstandard":
-                            RolesManager.ValidateActionPermitted("session", "getOldStandard", false);
+                            RolesManager.ValidateActionPermitted("session", "getOldStandard", WebAPI.Managers.eKSValidation.All);
                             return SessionController.GetOldStandard((string) methodParams[0]);
                             
                         case "revoke":
-                            RolesManager.ValidateActionPermitted("session", "revoke", false);
+                            RolesManager.ValidateActionPermitted("session", "revoke", WebAPI.Managers.eKSValidation.All);
                             return SessionController.Revoke();
                             
                         case "switchuser":
-                            RolesManager.ValidateActionPermitted("session", "switchUser", false);
+                            RolesManager.ValidateActionPermitted("session", "switchUser", WebAPI.Managers.eKSValidation.All);
                             return SessionController.SwitchUser((string) methodParams[0]);
                             
                     }
@@ -12206,30 +12172,30 @@ namespace WebAPI.Reflection
                 case "smsadapterprofile":
                     switch(action)
                     {
-                        case "add":
-                            RolesManager.ValidateActionPermitted("smsAdapterProfile", "add", false);
-                            return SmsAdapterProfileController.Add((KalturaSmsAdapterProfile) methodParams[0]);
-                            
-                        case "delete":
-                            RolesManager.ValidateActionPermitted("smsAdapterProfile", "delete", false);
-                            SmsAdapterProfileController.Delete((long) methodParams[0]);
-                            return null;
-                            
                         case "generatesharedsecret":
-                            RolesManager.ValidateActionPermitted("smsAdapterProfile", "generateSharedSecret", false);
+                            RolesManager.ValidateActionPermitted("smsAdapterProfile", "generateSharedSecret", WebAPI.Managers.eKSValidation.All);
                             return SmsAdapterProfileController.GenerateSharedSecret((int) methodParams[0]);
                             
+                        case "add":
+                            RolesManager.ValidateActionPermitted("smsadapterprofile", "add");
+                            return SmsAdapterProfileController.Add((KalturaSmsAdapterProfile) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("smsadapterprofile", "update");
+                            return SmsAdapterProfileController.Update((long) methodParams[0], (KalturaSmsAdapterProfile) methodParams[1]);
+                            
                         case "get":
-                            RolesManager.ValidateActionPermitted("smsAdapterProfile", "get", false);
+                            RolesManager.ValidateActionPermitted("smsadapterprofile", "get");
                             return SmsAdapterProfileController.Get((long) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("smsAdapterProfile", "list", false);
+                            RolesManager.ValidateActionPermitted("smsadapterprofile", "list");
                             return SmsAdapterProfileController.List((KalturaSmsAdapterProfileFilter) methodParams[0]);
                             
-                        case "update":
-                            RolesManager.ValidateActionPermitted("smsAdapterProfile", "update", false);
-                            return SmsAdapterProfileController.Update((long) methodParams[0], (KalturaSmsAdapterProfile) methodParams[1]);
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("smsadapterprofile", "delete");
+                            SmsAdapterProfileController.Delete((long) methodParams[0]);
+                            return null;
                             
                     }
                     break;
@@ -12238,15 +12204,15 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("socialAction", "add", false);
+                            RolesManager.ValidateActionPermitted("socialAction", "add", WebAPI.Managers.eKSValidation.All);
                             return SocialActionController.Add((KalturaSocialAction) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("socialAction", "delete", false);
+                            RolesManager.ValidateActionPermitted("socialAction", "delete", WebAPI.Managers.eKSValidation.All);
                             return SocialActionController.Delete((string) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("socialAction", "list", false);
+                            RolesManager.ValidateActionPermitted("socialAction", "list", WebAPI.Managers.eKSValidation.All);
                             return SocialActionController.List((KalturaSocialActionFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
@@ -12256,7 +12222,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
-                            RolesManager.ValidateActionPermitted("socialComment", "list", false);
+                            RolesManager.ValidateActionPermitted("socialComment", "list", WebAPI.Managers.eKSValidation.All);
                             return SocialCommentController.List((KalturaSocialCommentFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
@@ -12266,7 +12232,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "get":
-                            RolesManager.ValidateActionPermitted("social", "get", false);
+                            RolesManager.ValidateActionPermitted("social", "get", WebAPI.Managers.eKSValidation.All);
                             return SocialController.Get((KalturaSocialNetwork) methodParams[0]);
                             
                         case "getbytoken":
@@ -12276,14 +12242,14 @@ namespace WebAPI.Reflection
                                 {
                                     throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.GetHttpMethod().ToUpper());
                                 }
-                                RolesManager.ValidateActionPermitted("social", "getByToken", false);
+                                RolesManager.ValidateActionPermitted("social", "getByToken", WebAPI.Managers.eKSValidation.All);
                                 return SocialController.GetByTokenOldStandard((int) methodParams[0], (string) methodParams[1], (KalturaSocialNetwork) methodParams[2]);
                             }
                             if(HttpContext.Current.Request.GetHttpMethod().ToLower() == "get")
                             {
                                 throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.GetHttpMethod().ToUpper());
                             }
-                            RolesManager.ValidateActionPermitted("social", "getByToken", false);
+                            RolesManager.ValidateActionPermitted("social", "getByToken", WebAPI.Managers.eKSValidation.All);
                             return SocialController.GetByToken((int) methodParams[0], (string) methodParams[1], (KalturaSocialNetwork) methodParams[2]);
                             
                         case "getbytokenoldstandard":
@@ -12291,11 +12257,11 @@ namespace WebAPI.Reflection
                             {
                                 throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.GetHttpMethod().ToUpper());
                             }
-                            RolesManager.ValidateActionPermitted("social", "getByTokenOldStandard", false);
+                            RolesManager.ValidateActionPermitted("social", "getByTokenOldStandard", WebAPI.Managers.eKSValidation.All);
                             return SocialController.GetByTokenOldStandard((int) methodParams[0], (string) methodParams[1], (KalturaSocialNetwork) methodParams[2]);
                             
                         case "getconfiguration":
-                            RolesManager.ValidateActionPermitted("social", "getConfiguration", false);
+                            RolesManager.ValidateActionPermitted("social", "getConfiguration", WebAPI.Managers.eKSValidation.All);
                             return SocialController.GetConfiguration((Nullable<KalturaSocialNetwork>) methodParams[0], (Nullable<int>) methodParams[1]);
                             
                         case "login":
@@ -12308,50 +12274,50 @@ namespace WebAPI.Reflection
                         case "merge":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("social", "merge", false);
+                                RolesManager.ValidateActionPermitted("social", "merge", WebAPI.Managers.eKSValidation.All);
                                 return SocialController.MergeOldStandard((int) methodParams[0], (string) methodParams[1], (string) methodParams[2], (string) methodParams[3], (string) methodParams[4], (KalturaSocialNetwork) methodParams[5]);
                             }
-                            RolesManager.ValidateActionPermitted("social", "merge", false);
+                            RolesManager.ValidateActionPermitted("social", "merge", WebAPI.Managers.eKSValidation.All);
                             return SocialController.Merge((string) methodParams[0], (KalturaSocialNetwork) methodParams[1]);
                             
                         case "mergeoldstandard":
-                            RolesManager.ValidateActionPermitted("social", "mergeOldStandard", false);
+                            RolesManager.ValidateActionPermitted("social", "mergeOldStandard", WebAPI.Managers.eKSValidation.All);
                             return SocialController.MergeOldStandard((int) methodParams[0], (string) methodParams[1], (string) methodParams[2], (string) methodParams[3], (string) methodParams[4], (KalturaSocialNetwork) methodParams[5]);
                             
                         case "register":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("social", "register", false);
+                                RolesManager.ValidateActionPermitted("social", "register", WebAPI.Managers.eKSValidation.All);
                                 return SocialController.RegisterOldStandard((int) methodParams[0], (string) methodParams[1], (bool) methodParams[2], (bool) methodParams[3], (KalturaSocialNetwork) methodParams[4], (string) methodParams[5]);
                             }
-                            RolesManager.ValidateActionPermitted("social", "register", false);
+                            RolesManager.ValidateActionPermitted("social", "register", WebAPI.Managers.eKSValidation.All);
                             return SocialController.Register((int) methodParams[0], (string) methodParams[1], (KalturaSocialNetwork) methodParams[2], (string) methodParams[3]);
                             
                         case "registeroldstandard":
-                            RolesManager.ValidateActionPermitted("social", "registerOldStandard", false);
+                            RolesManager.ValidateActionPermitted("social", "registerOldStandard", WebAPI.Managers.eKSValidation.All);
                             return SocialController.RegisterOldStandard((int) methodParams[0], (string) methodParams[1], (bool) methodParams[2], (bool) methodParams[3], (KalturaSocialNetwork) methodParams[4], (string) methodParams[5]);
                             
                         case "unmerge":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("social", "unmerge", false);
+                                RolesManager.ValidateActionPermitted("social", "unmerge", WebAPI.Managers.eKSValidation.All);
                                 return SocialController.UnmergeOldStandard((string) methodParams[0], (string) methodParams[1], (string) methodParams[2], (KalturaSocialNetwork) methodParams[3]);
                             }
-                            RolesManager.ValidateActionPermitted("social", "unmerge", false);
+                            RolesManager.ValidateActionPermitted("social", "unmerge", WebAPI.Managers.eKSValidation.All);
                             return SocialController.Unmerge((KalturaSocialNetwork) methodParams[0]);
                             
                         case "unmergeoldstandard":
-                            RolesManager.ValidateActionPermitted("social", "unmergeOldStandard", false);
+                            RolesManager.ValidateActionPermitted("social", "unmergeOldStandard", WebAPI.Managers.eKSValidation.All);
                             return SocialController.UnmergeOldStandard((string) methodParams[0], (string) methodParams[1], (string) methodParams[2], (KalturaSocialNetwork) methodParams[3]);
                             
                         case "updateconfiguration":
-                            RolesManager.ValidateActionPermitted("social", "UpdateConfiguration", false);
+                            RolesManager.ValidateActionPermitted("social", "UpdateConfiguration", WebAPI.Managers.eKSValidation.All);
                             return SocialController.UpdateConfiguration((KalturaSocialConfig) methodParams[0]);
                             
                         case "config":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("social", "config", false);
+                                RolesManager.ValidateActionPermitted("social", "config", WebAPI.Managers.eKSValidation.All);
                                 return SocialController.GetConfiguration((Nullable<KalturaSocialNetwork>) methodParams[0], (Nullable<int>) methodParams[1]);
                             }
                             break;
@@ -12363,7 +12329,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
-                            RolesManager.ValidateActionPermitted("socialFriendActivity", "list", false);
+                            RolesManager.ValidateActionPermitted("socialFriendActivity", "list", WebAPI.Managers.eKSValidation.All);
                             return SocialFriendActivityController.List((KalturaSocialFriendActivityFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
@@ -12373,27 +12339,27 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("ssoAdapterProfile", "add", false);
+                            RolesManager.ValidateActionPermitted("ssoAdapterProfile", "add", WebAPI.Managers.eKSValidation.All);
                             return SsoAdapterProfileController.Add((KalturaSSOAdapterProfile) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("ssoAdapterProfile", "delete", false);
+                            RolesManager.ValidateActionPermitted("ssoAdapterProfile", "delete", WebAPI.Managers.eKSValidation.All);
                             return SsoAdapterProfileController.Delete((int) methodParams[0]);
                             
                         case "generatesharedsecret":
-                            RolesManager.ValidateActionPermitted("ssoAdapterProfile", "generateSharedSecret", false);
+                            RolesManager.ValidateActionPermitted("ssoAdapterProfile", "generateSharedSecret", WebAPI.Managers.eKSValidation.All);
                             return SsoAdapterProfileController.GenerateSharedSecret((int) methodParams[0]);
                             
                         case "invoke":
-                            RolesManager.ValidateActionPermitted("ssoAdapterProfile", "invoke", false);
+                            RolesManager.ValidateActionPermitted("ssoAdapterProfile", "invoke", WebAPI.Managers.eKSValidation.All);
                             return SsoAdapterProfileController.Invoke((string) methodParams[0], (List<KalturaKeyValue>) methodParams[1]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("ssoAdapterProfile", "list", false);
+                            RolesManager.ValidateActionPermitted("ssoAdapterProfile", "list", WebAPI.Managers.eKSValidation.All);
                             return SsoAdapterProfileController.List();
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("ssoAdapterProfile", "update", false);
+                            RolesManager.ValidateActionPermitted("ssoAdapterProfile", "update", WebAPI.Managers.eKSValidation.All);
                             return SsoAdapterProfileController.Update((int) methodParams[0], (KalturaSSOAdapterProfile) methodParams[1]);
                             
                     }
@@ -12403,7 +12369,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
-                            RolesManager.ValidateActionPermitted("streamingDevice", "list", false);
+                            RolesManager.ValidateActionPermitted("streamingDevice", "list", WebAPI.Managers.eKSValidation.All);
                             return StreamingDeviceController.List((KalturaStreamingDeviceFilter) methodParams[0]);
                             
                     }
@@ -12413,32 +12379,32 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("subscription", "add", false);
+                            RolesManager.ValidateActionPermitted("subscription", "add", WebAPI.Managers.eKSValidation.All);
                             return SubscriptionController.Add((KalturaSubscription) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("subscription", "delete", false);
+                            RolesManager.ValidateActionPermitted("subscription", "delete", WebAPI.Managers.eKSValidation.All);
                             return SubscriptionController.Delete((long) methodParams[0]);
                             
                         case "list":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("subscription", "list", false);
+                                RolesManager.ValidateActionPermitted("subscription", "list", WebAPI.Managers.eKSValidation.All);
                                 return SubscriptionController.ListOldStandard((KalturaSubscriptionsFilter) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("subscription", "list", false);
+                            RolesManager.ValidateActionPermitted("subscription", "list", WebAPI.Managers.eKSValidation.All);
                             return SubscriptionController.List((KalturaSubscriptionFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "listoldstandard":
-                            RolesManager.ValidateActionPermitted("subscription", "listOldStandard", false);
+                            RolesManager.ValidateActionPermitted("subscription", "listOldStandard", WebAPI.Managers.eKSValidation.All);
                             return SubscriptionController.ListOldStandard((KalturaSubscriptionsFilter) methodParams[0]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("subscription", "update", false);
+                            RolesManager.ValidateActionPermitted("subscription", "update", WebAPI.Managers.eKSValidation.All);
                             return SubscriptionController.Update((long) methodParams[0], (KalturaSubscription) methodParams[1]);
                             
                         case "validatecoupon":
-                            RolesManager.ValidateActionPermitted("subscription", "validateCoupon", false);
+                            RolesManager.ValidateActionPermitted("subscription", "validateCoupon", WebAPI.Managers.eKSValidation.All);
                             return SubscriptionController.ValidateCoupon((int) methodParams[0], (string) methodParams[1]);
                             
                     }
@@ -12448,23 +12414,23 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("subscriptionSet", "add", false);
+                            RolesManager.ValidateActionPermitted("subscriptionSet", "add", WebAPI.Managers.eKSValidation.All);
                             return SubscriptionSetController.Add((KalturaSubscriptionSet) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("subscriptionSet", "delete", false);
+                            RolesManager.ValidateActionPermitted("subscriptionSet", "delete", WebAPI.Managers.eKSValidation.All);
                             return SubscriptionSetController.Delete((long) methodParams[0]);
                             
                         case "get":
-                            RolesManager.ValidateActionPermitted("subscriptionSet", "get", false);
+                            RolesManager.ValidateActionPermitted("subscriptionSet", "get", WebAPI.Managers.eKSValidation.All);
                             return SubscriptionSetController.Get((long) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("subscriptionSet", "list", false);
+                            RolesManager.ValidateActionPermitted("subscriptionSet", "list", WebAPI.Managers.eKSValidation.All);
                             return SubscriptionSetController.List((KalturaSubscriptionSetFilter) methodParams[0]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("subscriptionSet", "update", false);
+                            RolesManager.ValidateActionPermitted("subscriptionSet", "update", WebAPI.Managers.eKSValidation.All);
                             return SubscriptionSetController.Update((long) methodParams[0], (KalturaSubscriptionSet) methodParams[1]);
                             
                     }
@@ -12474,23 +12440,23 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "clearlocalservercache":
-                            RolesManager.ValidateActionPermitted("system", "clearLocalServerCache", false);
+                            RolesManager.ValidateActionPermitted("system", "clearLocalServerCache", WebAPI.Managers.eKSValidation.All);
                             return SystemController.ClearLocalServerCache((string) methodParams[0], (string) methodParams[1]);
                             
                         case "getcountry":
-                            RolesManager.ValidateActionPermitted("system", "getCountry", false);
+                            RolesManager.ValidateActionPermitted("system", "getCountry", WebAPI.Managers.eKSValidation.All);
                             return SystemController.GetCountry((string) methodParams[0]);
                             
                         case "getinvalidationkeyvalue":
-                            RolesManager.ValidateActionPermitted("system", "getInvalidationKeyValue", false);
+                            RolesManager.ValidateActionPermitted("system", "getInvalidationKeyValue", WebAPI.Managers.eKSValidation.All);
                             return SystemController.GetInvalidationKeyValue((string) methodParams[0], (string) methodParams[1], (int) methodParams[2]);
                             
                         case "getlayeredcachegroupconfig":
-                            RolesManager.ValidateActionPermitted("system", "getLayeredCacheGroupConfig", false);
+                            RolesManager.ValidateActionPermitted("system", "getLayeredCacheGroupConfig", WebAPI.Managers.eKSValidation.All);
                             return SystemController.GetLayeredCacheGroupConfig((int) methodParams[0]);
                             
                         case "getloglevel":
-                            RolesManager.ValidateActionPermitted("system", "getLogLevel", false);
+                            RolesManager.ValidateActionPermitted("system", "getLogLevel", WebAPI.Managers.eKSValidation.All);
                             return SystemController.GetLogLevel();
                             
                         case "gettime":
@@ -12500,18 +12466,18 @@ namespace WebAPI.Reflection
                             return SystemController.GetVersion();
                             
                         case "incrementlayeredcachegroupconfigversion":
-                            RolesManager.ValidateActionPermitted("system", "incrementLayeredCacheGroupConfigVersion", false);
+                            RolesManager.ValidateActionPermitted("system", "incrementLayeredCacheGroupConfigVersion", WebAPI.Managers.eKSValidation.All);
                             return SystemController.IncrementLayeredCacheGroupConfigVersion((int) methodParams[0]);
                             
                         case "invalidatelayeredcacheinvalidationkey":
-                            RolesManager.ValidateActionPermitted("system", "invalidateLayeredCacheInvalidationKey", false);
+                            RolesManager.ValidateActionPermitted("system", "invalidateLayeredCacheInvalidationKey", WebAPI.Managers.eKSValidation.All);
                             return SystemController.InvalidateLayeredCacheInvalidationKey((string) methodParams[0]);
                             
                         case "ping":
                             return SystemController.Ping();
                             
                         case "setloglevel":
-                            RolesManager.ValidateActionPermitted("system", "setLogLevel", false);
+                            RolesManager.ValidateActionPermitted("system", "setLogLevel", WebAPI.Managers.eKSValidation.All);
                             return SystemController.SetLogLevel((KalturaLogLevel) methodParams[0]);
                             
                     }
@@ -12521,19 +12487,19 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("tag", "add", false);
+                            RolesManager.ValidateActionPermitted("tag", "add", WebAPI.Managers.eKSValidation.All);
                             return TagController.Add((KalturaTag) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("tag", "delete", false);
+                            RolesManager.ValidateActionPermitted("tag", "delete", WebAPI.Managers.eKSValidation.All);
                             return TagController.Delete((long) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("tag", "list", false);
+                            RolesManager.ValidateActionPermitted("tag", "list", WebAPI.Managers.eKSValidation.All);
                             return TagController.List((KalturaTagFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("tag", "update", false);
+                            RolesManager.ValidateActionPermitted("tag", "update", WebAPI.Managers.eKSValidation.All);
                             return TagController.Update((long) methodParams[0], (KalturaTag) methodParams[1]);
                             
                     }
@@ -12543,11 +12509,11 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "get":
-                            RolesManager.ValidateActionPermitted("timeShiftedTvPartnerSettings", "get", false);
+                            RolesManager.ValidateActionPermitted("timeShiftedTvPartnerSettings", "get", WebAPI.Managers.eKSValidation.All);
                             return TimeShiftedTvPartnerSettingsController.Get();
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("timeShiftedTvPartnerSettings", "update", false);
+                            RolesManager.ValidateActionPermitted("timeShiftedTvPartnerSettings", "update", WebAPI.Managers.eKSValidation.All);
                             return TimeShiftedTvPartnerSettingsController.Update((KalturaTimeShiftedTvPartnerSettings) methodParams[0]);
                             
                     }
@@ -12557,28 +12523,28 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "delete":
-                            RolesManager.ValidateActionPermitted("topic", "delete", false);
+                            RolesManager.ValidateActionPermitted("topic", "delete", WebAPI.Managers.eKSValidation.All);
                             return TopicController.Delete((int) methodParams[0]);
                             
                         case "get":
-                            RolesManager.ValidateActionPermitted("topic", "get", false);
+                            RolesManager.ValidateActionPermitted("topic", "get", WebAPI.Managers.eKSValidation.All);
                             return TopicController.Get((int) methodParams[0]);
                             
                         case "list":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("topic", "list", false);
+                                RolesManager.ValidateActionPermitted("topic", "list", WebAPI.Managers.eKSValidation.All);
                                 return TopicController.ListOldStandard((KalturaFilterPager) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("topic", "list", false);
+                            RolesManager.ValidateActionPermitted("topic", "list", WebAPI.Managers.eKSValidation.All);
                             return TopicController.List((KalturaTopicFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "listoldstandard":
-                            RolesManager.ValidateActionPermitted("topic", "listOldStandard", false);
+                            RolesManager.ValidateActionPermitted("topic", "listOldStandard", WebAPI.Managers.eKSValidation.All);
                             return TopicController.ListOldStandard((KalturaFilterPager) methodParams[0]);
                             
                         case "updatestatus":
-                            RolesManager.ValidateActionPermitted("topic", "updateStatus", false);
+                            RolesManager.ValidateActionPermitted("topic", "updateStatus", WebAPI.Managers.eKSValidation.All);
                             return TopicController.UpdateStatus((int) methodParams[0], (KalturaTopicAutomaticIssueNotification) methodParams[1]);
                             
                     }
@@ -12588,30 +12554,30 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("topicNotification", "add", false);
+                            RolesManager.ValidateActionPermitted("topicNotification", "add", WebAPI.Managers.eKSValidation.All);
                             return TopicNotificationController.Add((KalturaTopicNotification) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("topicNotification", "delete", false);
+                            RolesManager.ValidateActionPermitted("topicNotification", "delete", WebAPI.Managers.eKSValidation.All);
                             TopicNotificationController.Delete((long) methodParams[0]);
                             return null;
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("topicNotification", "list", false);
+                            RolesManager.ValidateActionPermitted("topicNotification", "list", WebAPI.Managers.eKSValidation.All);
                             return TopicNotificationController.List((KalturaTopicNotificationFilter) methodParams[0]);
                             
                         case "subscribe":
-                            RolesManager.ValidateActionPermitted("topicNotification", "subscribe", false);
+                            RolesManager.ValidateActionPermitted("topicNotification", "subscribe", WebAPI.Managers.eKSValidation.All);
                             TopicNotificationController.Subscribe((long) methodParams[0]);
                             return null;
                             
                         case "unsubscribe":
-                            RolesManager.ValidateActionPermitted("topicNotification", "unsubscribe", false);
+                            RolesManager.ValidateActionPermitted("topicNotification", "unsubscribe", WebAPI.Managers.eKSValidation.All);
                             TopicNotificationController.Unubscribe((long) methodParams[0]);
                             return null;
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("topicNotification", "update", false);
+                            RolesManager.ValidateActionPermitted("topicNotification", "update", WebAPI.Managers.eKSValidation.All);
                             return TopicNotificationController.Update((int) methodParams[0], (KalturaTopicNotification) methodParams[1]);
                             
                     }
@@ -12621,20 +12587,20 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("topicNotificationMessage", "add", false);
+                            RolesManager.ValidateActionPermitted("topicNotificationMessage", "add", WebAPI.Managers.eKSValidation.All);
                             return TopicNotificationMessageController.Add((KalturaTopicNotificationMessage) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("topicNotificationMessage", "delete", false);
+                            RolesManager.ValidateActionPermitted("topicNotificationMessage", "delete", WebAPI.Managers.eKSValidation.All);
                             TopicNotificationMessageController.Delete((long) methodParams[0]);
                             return null;
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("topicNotificationMessage", "list", false);
+                            RolesManager.ValidateActionPermitted("topicNotificationMessage", "list", WebAPI.Managers.eKSValidation.All);
                             return TopicNotificationMessageController.List((KalturaTopicNotificationMessageFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("topicNotificationMessage", "update", false);
+                            RolesManager.ValidateActionPermitted("topicNotificationMessage", "update", WebAPI.Managers.eKSValidation.All);
                             return TopicNotificationMessageController.Update((int) methodParams[0], (KalturaTopicNotificationMessage) methodParams[1]);
                             
                     }
@@ -12644,61 +12610,61 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "downgrade":
-                            RolesManager.ValidateActionPermitted("transaction", "downgrade", false);
+                            RolesManager.ValidateActionPermitted("transaction", "downgrade", WebAPI.Managers.eKSValidation.All);
                             TransactionController.Downgrade((KalturaPurchase) methodParams[0]);
                             return null;
                             
                         case "getpurchasesessionid":
-                            RolesManager.ValidateActionPermitted("transaction", "getPurchaseSessionId", false);
+                            RolesManager.ValidateActionPermitted("transaction", "getPurchaseSessionId", WebAPI.Managers.eKSValidation.All);
                             return TransactionController.getPurchaseSessionId((KalturaPurchaseSession) methodParams[0]);
                             
                         case "processreceipt":
-                            RolesManager.ValidateActionPermitted("transaction", "processReceipt", false);
+                            RolesManager.ValidateActionPermitted("transaction", "processReceipt", WebAPI.Managers.eKSValidation.All);
                             return TransactionController.ProcessReceipt((int) methodParams[0], (KalturaTransactionType) methodParams[1], (string) methodParams[2], (string) methodParams[3], (int) methodParams[4]);
                             
                         case "purchase":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("transaction", "purchase", false);
+                                RolesManager.ValidateActionPermitted("transaction", "purchase", WebAPI.Managers.eKSValidation.All);
                                 return TransactionController.PurchaseOldStandard((double) methodParams[0], (string) methodParams[1], (int) methodParams[2], (KalturaTransactionType) methodParams[3], (int) methodParams[4], (string) methodParams[5], (int) methodParams[6], (Nullable<int>) methodParams[7], (string) methodParams[8]);
                             }
-                            RolesManager.ValidateActionPermitted("transaction", "purchase", false);
+                            RolesManager.ValidateActionPermitted("transaction", "purchase", WebAPI.Managers.eKSValidation.All);
                             return TransactionController.Purchase((KalturaPurchase) methodParams[0]);
                             
                         case "purchaseoldstandard":
-                            RolesManager.ValidateActionPermitted("transaction", "purchaseOldStandard", false);
+                            RolesManager.ValidateActionPermitted("transaction", "purchaseOldStandard", WebAPI.Managers.eKSValidation.All);
                             return TransactionController.PurchaseOldStandard((double) methodParams[0], (string) methodParams[1], (int) methodParams[2], (KalturaTransactionType) methodParams[3], (int) methodParams[4], (string) methodParams[5], (int) methodParams[6], (Nullable<int>) methodParams[7], (string) methodParams[8]);
                             
                         case "purchasesessionidoldstandard":
-                            RolesManager.ValidateActionPermitted("transaction", "purchaseSessionIdOldStandard", false);
+                            RolesManager.ValidateActionPermitted("transaction", "purchaseSessionIdOldStandard", WebAPI.Managers.eKSValidation.All);
                             return TransactionController.PurchaseSessionIdOldStandard((double) methodParams[0], (string) methodParams[1], (int) methodParams[2], (KalturaTransactionType) methodParams[3], (int) methodParams[4], (string) methodParams[5], (int) methodParams[6]);
                             
                         case "setwaiver":
-                            RolesManager.ValidateActionPermitted("transaction", "setWaiver", false);
+                            RolesManager.ValidateActionPermitted("transaction", "setWaiver", WebAPI.Managers.eKSValidation.All);
                             return TransactionController.SetWaiver((int) methodParams[0], (KalturaTransactionType) methodParams[1]);
                             
                         case "updatestate":
-                            RolesManager.ValidateActionPermitted("transaction", "updateState", false);
+                            RolesManager.ValidateActionPermitted("transaction", "updateState", WebAPI.Managers.eKSValidation.All);
                             TransactionController.UpdateState((string) methodParams[0], (int) methodParams[1], (string) methodParams[2], (string) methodParams[3], (string) methodParams[4], (int) methodParams[5], (string) methodParams[6]);
                             return null;
                             
                         case "updatestatus":
-                            RolesManager.ValidateActionPermitted("transaction", "updateStatus", false);
+                            RolesManager.ValidateActionPermitted("transaction", "updateStatus", WebAPI.Managers.eKSValidation.All);
                             TransactionController.UpdateStatus((string) methodParams[0], (string) methodParams[1], (string) methodParams[2], (KalturaTransactionStatus) methodParams[3]);
                             return null;
                             
                         case "upgrade":
-                            RolesManager.ValidateActionPermitted("transaction", "upgrade", false);
+                            RolesManager.ValidateActionPermitted("transaction", "upgrade", WebAPI.Managers.eKSValidation.All);
                             return TransactionController.Upgrade((KalturaPurchase) methodParams[0]);
                             
                         case "validatereceipt":
-                            RolesManager.ValidateActionPermitted("transaction", "validateReceipt", false);
+                            RolesManager.ValidateActionPermitted("transaction", "validateReceipt", WebAPI.Managers.eKSValidation.All);
                             return TransactionController.ValidateReceipt((KalturaExternalReceipt) methodParams[0]);
                             
                         case "purchasesessionid":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("transaction", "purchaseSessionId", false);
+                                RolesManager.ValidateActionPermitted("transaction", "purchaseSessionId", WebAPI.Managers.eKSValidation.All);
                                 return TransactionController.PurchaseSessionIdOldStandard((double) methodParams[0], (string) methodParams[1], (int) methodParams[2], (KalturaTransactionType) methodParams[3], (int) methodParams[4], (string) methodParams[5], (int) methodParams[6]);
                             }
                             break;
@@ -12706,7 +12672,7 @@ namespace WebAPI.Reflection
                         case "waiver":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("transaction", "waiver", false);
+                                RolesManager.ValidateActionPermitted("transaction", "waiver", WebAPI.Managers.eKSValidation.All);
                                 return TransactionController.SetWaiver((int) methodParams[0], (KalturaTransactionType) methodParams[1]);
                             }
                             break;
@@ -12720,14 +12686,14 @@ namespace WebAPI.Reflection
                         case "list":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("transactionHistory", "list", false);
+                                RolesManager.ValidateActionPermitted("transactionHistory", "list", WebAPI.Managers.eKSValidation.All);
                                 return TransactionHistoryController.ListOldStandard((KalturaTransactionsFilter) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("transactionHistory", "list", false);
+                            RolesManager.ValidateActionPermitted("transactionHistory", "list", WebAPI.Managers.eKSValidation.All);
                             return TransactionHistoryController.List((KalturaTransactionHistoryFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "listoldstandard":
-                            RolesManager.ValidateActionPermitted("transactionHistory", "listOldStandard", false);
+                            RolesManager.ValidateActionPermitted("transactionHistory", "listOldStandard", WebAPI.Managers.eKSValidation.All);
                             return TransactionHistoryController.ListOldStandard((KalturaTransactionsFilter) methodParams[0]);
                             
                     }
@@ -12737,7 +12703,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
-                            RolesManager.ValidateActionPermitted("tvmRule", "list", false);
+                            RolesManager.ValidateActionPermitted("tvmRule", "list", WebAPI.Managers.eKSValidation.All);
                             return TvmRuleController.List((KalturaTvmRuleFilter) methodParams[0]);
                             
                     }
@@ -12747,7 +12713,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "getnextrenewal":
-                            RolesManager.ValidateActionPermitted("unifiedPayment", "getNextRenewal", false);
+                            RolesManager.ValidateActionPermitted("unifiedPayment", "getNextRenewal", WebAPI.Managers.eKSValidation.All);
                             return UnifiedPaymentController.GetNextRenewal((int) methodParams[0]);
                             
                     }
@@ -12757,11 +12723,11 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("uploadToken", "add", false);
+                            RolesManager.ValidateActionPermitted("uploadToken", "add", WebAPI.Managers.eKSValidation.All);
                             return UploadTokenController.Add((KalturaUploadToken) methodParams[0]);
                             
                         case "upload":
-                            RolesManager.ValidateActionPermitted("uploadToken", "upload", false);
+                            RolesManager.ValidateActionPermitted("uploadToken", "upload", WebAPI.Managers.eKSValidation.All);
                             return UploadTokenController.Upload((string) methodParams[0], (KalturaOTTFile) methodParams[1]);
                             
                     }
@@ -12771,19 +12737,19 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("usageModule", "add", false);
+                            RolesManager.ValidateActionPermitted("usageModule", "add", WebAPI.Managers.eKSValidation.All);
                             return UsageModuleController.Add((KalturaUsageModule) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("usageModule", "delete", false);
+                            RolesManager.ValidateActionPermitted("usageModule", "delete", WebAPI.Managers.eKSValidation.All);
                             return UsageModuleController.Delete((long) methodParams[0]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("usageModule", "list", false);
+                            RolesManager.ValidateActionPermitted("usageModule", "list", WebAPI.Managers.eKSValidation.All);
                             return UsageModuleController.List((KalturaUsageModuleFilter) methodParams[0]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("usageModule", "update", false);
+                            RolesManager.ValidateActionPermitted("usageModule", "update", WebAPI.Managers.eKSValidation.All);
                             return UsageModuleController.Update((int) methodParams[0], (KalturaUsageModule) methodParams[1]);
                             
                     }
@@ -12795,14 +12761,14 @@ namespace WebAPI.Reflection
                         case "list":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("userAssetRule", "list", false);
+                                RolesManager.ValidateActionPermitted("userAssetRule", "list", WebAPI.Managers.eKSValidation.All);
                                 return UserAssetRuleController.ListOldStandard((KalturaGenericRuleFilter) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("userAssetRule", "list", false);
+                            RolesManager.ValidateActionPermitted("userAssetRule", "list", WebAPI.Managers.eKSValidation.Expiration);
                             return UserAssetRuleController.List((KalturaUserAssetRuleFilter) methodParams[0]);
                             
                         case "listoldstandard":
-                            RolesManager.ValidateActionPermitted("userAssetRule", "listOldStandard", false);
+                            RolesManager.ValidateActionPermitted("userAssetRule", "listOldStandard", WebAPI.Managers.eKSValidation.All);
                             return UserAssetRuleController.ListOldStandard((KalturaGenericRuleFilter) methodParams[0]);
                             
                     }
@@ -12812,7 +12778,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
-                            RolesManager.ValidateActionPermitted("userAssetsList", "list", false);
+                            RolesManager.ValidateActionPermitted("userAssetsList", "list", WebAPI.Managers.eKSValidation.All);
                             return UserAssetsListController.List((KalturaUserAssetsListFilter) methodParams[0]);
                             
                     }
@@ -12822,33 +12788,33 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("userAssetsListItem", "add", false);
+                            RolesManager.ValidateActionPermitted("userAssetsListItem", "add", WebAPI.Managers.eKSValidation.All);
                             return UserAssetsListItemController.Add((KalturaUserAssetsListItem) methodParams[0]);
                             
                         case "delete":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("userAssetsListItem", "delete", false);
+                                RolesManager.ValidateActionPermitted("userAssetsListItem", "delete", WebAPI.Managers.eKSValidation.All);
                                 return UserAssetsListItemController.DeleteOldStandard((KalturaUserAssetsListItem) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("userAssetsListItem", "delete", false);
+                            RolesManager.ValidateActionPermitted("userAssetsListItem", "delete", WebAPI.Managers.eKSValidation.All);
                             return UserAssetsListItemController.Delete((string) methodParams[0], (KalturaUserAssetsListType) methodParams[1]);
                             
                         case "deleteoldstandard":
-                            RolesManager.ValidateActionPermitted("userAssetsListItem", "deleteOldStandard", false);
+                            RolesManager.ValidateActionPermitted("userAssetsListItem", "deleteOldStandard", WebAPI.Managers.eKSValidation.All);
                             return UserAssetsListItemController.DeleteOldStandard((KalturaUserAssetsListItem) methodParams[0]);
                             
                         case "get":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("userAssetsListItem", "get", false);
+                                RolesManager.ValidateActionPermitted("userAssetsListItem", "get", WebAPI.Managers.eKSValidation.All);
                                 return UserAssetsListItemController.GetOldStandard((KalturaUserAssetsListItem) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("userAssetsListItem", "get", false);
+                            RolesManager.ValidateActionPermitted("userAssetsListItem", "get", WebAPI.Managers.eKSValidation.All);
                             return UserAssetsListItemController.Get((string) methodParams[0], (KalturaUserAssetsListType) methodParams[1], (KalturaUserAssetsListItemType) methodParams[2]);
                             
                         case "getoldstandard":
-                            RolesManager.ValidateActionPermitted("userAssetsListItem", "getOldStandard", false);
+                            RolesManager.ValidateActionPermitted("userAssetsListItem", "getOldStandard", WebAPI.Managers.eKSValidation.All);
                             return UserAssetsListItemController.GetOldStandard((KalturaUserAssetsListItem) methodParams[0]);
                             
                     }
@@ -12858,11 +12824,11 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("userInterest", "add", false);
+                            RolesManager.ValidateActionPermitted("userInterest", "add", WebAPI.Managers.eKSValidation.All);
                             return UserInterestController.Add((KalturaUserInterest) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("userInterest", "delete", false);
+                            RolesManager.ValidateActionPermitted("userInterest", "delete", WebAPI.Managers.eKSValidation.All);
                             return UserInterestController.Delete((string) methodParams[0]);
                             
                         case "deletewithtoken":
@@ -12870,7 +12836,7 @@ namespace WebAPI.Reflection
                             return null;
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("userInterest", "list", false);
+                            RolesManager.ValidateActionPermitted("userInterest", "list", WebAPI.Managers.eKSValidation.All);
                             return UserInterestController.List();
                             
                     }
@@ -12880,19 +12846,19 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("userLoginPin", "add", false);
+                            RolesManager.ValidateActionPermitted("userLoginPin", "add", WebAPI.Managers.eKSValidation.All);
                             return UserLoginPinController.Add((string) methodParams[0], (Nullable<int>) methodParams[1], (Nullable<int>) methodParams[2]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("userLoginPin", "delete", false);
+                            RolesManager.ValidateActionPermitted("userLoginPin", "delete", WebAPI.Managers.eKSValidation.All);
                             return UserLoginPinController.Delete((string) methodParams[0]);
                             
                         case "deleteall":
-                            RolesManager.ValidateActionPermitted("userLoginPin", "deleteAll", false);
+                            RolesManager.ValidateActionPermitted("userLoginPin", "deleteAll", WebAPI.Managers.eKSValidation.All);
                             return UserLoginPinController.DeleteAll();
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("userLoginPin", "update", false);
+                            RolesManager.ValidateActionPermitted("userLoginPin", "update", WebAPI.Managers.eKSValidation.All);
                             return UserLoginPinController.Update((string) methodParams[0], (string) methodParams[1], (Nullable<int>) methodParams[2], (Nullable<int>) methodParams[3]);
                             
                     }
@@ -12902,28 +12868,28 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("userRole", "add", false);
+                            RolesManager.ValidateActionPermitted("userRole", "add", WebAPI.Managers.eKSValidation.All);
                             return UserRoleController.Add((KalturaUserRole) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("userRole", "delete", false);
+                            RolesManager.ValidateActionPermitted("userRole", "delete", WebAPI.Managers.eKSValidation.All);
                             return UserRoleController.Delete((long) methodParams[0]);
                             
                         case "list":
                             if(isOldVersion)
                             {
-                                RolesManager.ValidateActionPermitted("userRole", "list", false);
+                                RolesManager.ValidateActionPermitted("userRole", "list", WebAPI.Managers.eKSValidation.All);
                                 return UserRoleController.ListOldStandard((KalturaUserRoleFilter) methodParams[0]);
                             }
-                            RolesManager.ValidateActionPermitted("userRole", "list", false);
+                            RolesManager.ValidateActionPermitted("userRole", "list", WebAPI.Managers.eKSValidation.All);
                             return UserRoleController.List((KalturaUserRoleFilter) methodParams[0]);
                             
                         case "listoldstandard":
-                            RolesManager.ValidateActionPermitted("userRole", "listOldStandard", false);
+                            RolesManager.ValidateActionPermitted("userRole", "listOldStandard", WebAPI.Managers.eKSValidation.All);
                             return UserRoleController.ListOldStandard((KalturaUserRoleFilter) methodParams[0]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("userRole", "update", false);
+                            RolesManager.ValidateActionPermitted("userRole", "update", WebAPI.Managers.eKSValidation.All);
                             return UserRoleController.Update((long) methodParams[0], (KalturaUserRole) methodParams[1]);
                             
                     }
@@ -12933,15 +12899,15 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("userSegment", "add", false);
+                            RolesManager.ValidateActionPermitted("userSegment", "add", WebAPI.Managers.eKSValidation.All);
                             return UserSegment.Add((KalturaUserSegment) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("userSegment", "delete", false);
+                            RolesManager.ValidateActionPermitted("userSegment", "delete", WebAPI.Managers.eKSValidation.All);
                             return UserSegment.Delete((string) methodParams[0], (long) methodParams[1]);
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("userSegment", "list", false);
+                            RolesManager.ValidateActionPermitted("userSegment", "list", WebAPI.Managers.eKSValidation.All);
                             return UserSegment.List((KalturaUserSegmentFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
@@ -12951,20 +12917,20 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("userSessionProfile", "add", false);
+                            RolesManager.ValidateActionPermitted("userSessionProfile", "add", WebAPI.Managers.eKSValidation.All);
                             return UserSessionProfileController.Add((KalturaUserSessionProfile) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("userSessionProfile", "delete", false);
+                            RolesManager.ValidateActionPermitted("userSessionProfile", "delete", WebAPI.Managers.eKSValidation.All);
                             UserSessionProfileController.Delete((long) methodParams[0]);
                             return null;
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("userSessionProfile", "list", false);
+                            RolesManager.ValidateActionPermitted("userSessionProfile", "list", WebAPI.Managers.eKSValidation.All);
                             return UserSessionProfileController.List((KalturaUserSessionProfileFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("userSessionProfile", "update", false);
+                            RolesManager.ValidateActionPermitted("userSessionProfile", "update", WebAPI.Managers.eKSValidation.All);
                             return UserSessionProfileController.Update((long) methodParams[0], (KalturaUserSessionProfile) methodParams[1]);
                             
                     }
@@ -14916,8 +14882,32 @@ namespace WebAPI.Reflection
                 case "campaign":
                     switch(action)
                     {
+                        case "setstate":
+                            ret.Add("campaignId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("newState", new MethodParam(){
+                                NewName = newParamName,
+                                IsEnum = true,
+                                Type = typeof(KalturaObjectState),
+                            });
+                            return ret;
+                            
                         case "add":
                             ret.Add("objectToAdd", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCampaign),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("objectToUpdate", new MethodParam(){
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaCampaign),
@@ -14928,14 +14918,6 @@ namespace WebAPI.Reflection
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
-                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "campaign", "delete") {
-                                    RequiresPermission = false,
-                                    MaxLength = -1,
-                                    MinLength = -1,
-                                    MinLong = 1,
-                                    MinItems = -1,
-                                    MaxItems = -1,
-                                },
                             });
                             return ret;
                             
@@ -14951,38 +14933,6 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaFilterPager),
-                            });
-                            return ret;
-                            
-                        case "setstate":
-                            ret.Add("campaignId", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
-                            });
-                            ret.Add("newState", new MethodParam(){
-                                NewName = newParamName,
-                                IsEnum = true,
-                                Type = typeof(KalturaObjectState),
-                            });
-                            return ret;
-                            
-                        case "update":
-                            ret.Add("id", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
-                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "campaign", "update") {
-                                    RequiresPermission = false,
-                                    MaxLength = -1,
-                                    MinLength = -1,
-                                    MinLong = 1,
-                                    MinItems = -1,
-                                    MaxItems = -1,
-                                },
-                            });
-                            ret.Add("objectToUpdate", new MethodParam(){
-                                NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaCampaign),
                             });
                             return ret;
                             
@@ -15013,18 +14963,22 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("objectToUpdate", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCategoryItem),
+                            });
+                            return ret;
+                            
                         case "delete":
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
-                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "categoryItem", "delete") {
-                                    RequiresPermission = false,
-                                    MaxLength = -1,
-                                    MinLength = -1,
-                                    MinLong = 1,
-                                    MinItems = -1,
-                                    MaxItems = -1,
-                                },
                             });
                             return ret;
                             
@@ -15042,26 +14996,6 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaFilterPager),
-                            });
-                            return ret;
-                            
-                        case "update":
-                            ret.Add("id", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
-                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "categoryItem", "update") {
-                                    RequiresPermission = false,
-                                    MaxLength = -1,
-                                    MinLength = -1,
-                                    MinLong = 1,
-                                    MinItems = -1,
-                                    MaxItems = -1,
-                                },
-                            });
-                            ret.Add("objectToUpdate", new MethodParam(){
-                                NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaCategoryItem),
                             });
                             return ret;
                             
@@ -15118,14 +15052,6 @@ namespace WebAPI.Reflection
                 case "categoryversion":
                     switch(action)
                     {
-                        case "add":
-                            ret.Add("objectToAdd", new MethodParam(){
-                                NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaCategoryVersion),
-                            });
-                            return ret;
-                            
                         case "createtree":
                             ret.Add("categoryItemId", new MethodParam(){
                                 NewName = newParamName,
@@ -15138,36 +15064,6 @@ namespace WebAPI.Reflection
                             ret.Add("comment", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(string),
-                            });
-                            return ret;
-                            
-                        case "delete":
-                            ret.Add("id", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
-                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "categoryVersion", "delete") {
-                                    RequiresPermission = false,
-                                    MaxLength = -1,
-                                    MinLength = -1,
-                                    MinLong = 1,
-                                    MinItems = -1,
-                                    MaxItems = -1,
-                                },
-                            });
-                            return ret;
-                            
-                        case "list":
-                            ret.Add("filter", new MethodParam(){
-                                NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaCategoryVersionFilter),
-                            });
-                            ret.Add("pager", new MethodParam(){
-                                NewName = newParamName,
-                                IsOptional = true,
-                                DefaultValue = null,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaFilterPager),
                             });
                             return ret;
                             
@@ -15184,23 +15080,45 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
+                        case "add":
+                            ret.Add("objectToAdd", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCategoryVersion),
+                            });
+                            return ret;
+                            
                         case "update":
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
-                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "categoryVersion", "update") {
-                                    RequiresPermission = false,
-                                    MaxLength = -1,
-                                    MinLength = -1,
-                                    MinLong = 1,
-                                    MinItems = -1,
-                                    MaxItems = -1,
-                                },
                             });
                             ret.Add("objectToUpdate", new MethodParam(){
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaCategoryVersion),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCategoryVersionFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
                             });
                             return ret;
                             
@@ -21348,6 +21266,13 @@ namespace WebAPI.Reflection
                 case "smsadapterprofile":
                     switch(action)
                     {
+                        case "generatesharedsecret":
+                            ret.Add("smsAdapterId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
                         case "add":
                             ret.Add("objectToAdd", new MethodParam(){
                                 NewName = newParamName,
@@ -21356,25 +21281,15 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
-                        case "delete":
+                        case "update":
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
-                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "smsAdapterProfile", "delete") {
-                                    RequiresPermission = false,
-                                    MaxLength = -1,
-                                    MinLength = -1,
-                                    MinLong = 1,
-                                    MinItems = -1,
-                                    MaxItems = -1,
-                                },
                             });
-                            return ret;
-                            
-                        case "generatesharedsecret":
-                            ret.Add("smsAdapterId", new MethodParam(){
+                            ret.Add("objectToUpdate", new MethodParam(){
                                 NewName = newParamName,
-                                Type = typeof(int),
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSmsAdapterProfile),
                             });
                             return ret;
                             
@@ -21382,44 +21297,21 @@ namespace WebAPI.Reflection
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
-                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "smsAdapterProfile", "get") {
-                                    RequiresPermission = false,
-                                    MaxLength = -1,
-                                    MinLength = -1,
-                                    MinLong = 1,
-                                    MinItems = -1,
-                                    MaxItems = -1,
-                                },
                             });
                             return ret;
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,
-                                IsOptional = true,
-                                DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaSmsAdapterProfileFilter),
                             });
                             return ret;
                             
-                        case "update":
+                        case "delete":
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
-                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "smsAdapterProfile", "update") {
-                                    RequiresPermission = false,
-                                    MaxLength = -1,
-                                    MinLength = -1,
-                                    MinLong = 1,
-                                    MinItems = -1,
-                                    MaxItems = -1,
-                                },
-                            });
-                            ret.Add("objectToUpdate", new MethodParam(){
-                                NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaSmsAdapterProfile),
                             });
                             return ret;
                             

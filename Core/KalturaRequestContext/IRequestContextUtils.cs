@@ -3,6 +3,7 @@ namespace KalturaRequestContext
     public interface IRequestContextUtils
     {
         string GetRequestId();
+        long? GetPartnerId();
         long? GetUserId();
         long GetOriginalUserId();
         bool IsPartnerRequest();

@@ -94,7 +94,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return response;
+            return response; 
         }
 
         /// <summary>
@@ -178,13 +178,11 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         static public bool CleanOldStandard(KalturaAssetsFilter filter = null)
         {
-            var ks = KS.GetFromRequest();
             int groupId = KS.GetFromRequest().GroupId;
             string userId = KS.GetFromRequest().UserId;
 
             try
             {
-                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
                 // call client
                 return ClientsManager.ApiClient().CleanUserHistory(groupId, userId, filter.Assets);
             }

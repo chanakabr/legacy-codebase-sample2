@@ -590,7 +590,7 @@ namespace WebAPI.Clients
             }
 
             // get asset name
-            var mediaInfoResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), KSUtils.ExtractKSPayload().UDID, null, 0, 0,
+            var mediaInfoResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), KSUtils.ExtractKSPayload().UDID, null, 0, 0,
                                                                                     new List<int>() { assetId }, KalturaAssetOrderBy.START_DATE_DESC);
 
             FollowDataTvSeries followData = new FollowDataTvSeries();
@@ -639,7 +639,7 @@ namespace WebAPI.Clients
             }
 
             // get asset name
-            var mediaInfoResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), KSUtils.ExtractKSPayload().UDID, null, 0, 0,
+            var mediaInfoResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), KSUtils.ExtractKSPayload().UDID, null, 0, 0,
                                                                                     new List<int>() { followData.AssetId }, KalturaAssetOrderBy.START_DATE_DESC);
 
             followData.Status = 1;

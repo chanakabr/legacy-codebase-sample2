@@ -6,7 +6,7 @@ namespace Phoenix.Generated.Api.Events.Crud.ProgramAsset
         private const string ProgramAssetTopic = "events.crud.ProgramAsset";
         public string GetPartitioningKey()
         {
-            return $"ProgramAsset_{this.Operation }_{this.PartnerId }";
+            return $"ProgramAsset_{this.Operation }_{this.PartnerId }_{this.Id }";
 
         }
 

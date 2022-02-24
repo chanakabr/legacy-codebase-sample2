@@ -1,103 +1,39 @@
-﻿using Phx.Lib.Appconfig;
-using Confluent.Kafka;
-using Confluent.Kafka.Admin;
-using Couchbase.N1QL;
+﻿using Confluent.Kafka;
 using EventBus.Abstraction;
 using Phx.Lib.Log;
-using Phx.Lib.Appconfig;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using Phx.Lib.Appconfig.Types;
-
+using OTT.Lib.Kafka;
 
 namespace EventBus.Kafka
 {
     public class KafkaPublisher : IEventBusPublisher
     {
-        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string REQ_ID_HEADER = "traceId";
-        private const string PARTNER_ID_HEADER = "partnerId";
-        private const string USER_ID_HEADER = "userId";
-        private static IProducer<string, string> _Producer = null;
-        private static KafkaPublisher _RandomProducerInstance = null;
-        private static KafkaPublisher _ConsistantProducerInstance = null;
-        private static object locker = new object();
+        private static readonly KLogger Logger = new KLogger(nameof(KafkaPublisher));
+        private static bool _isHealthy = true;
 
-        private bool _IsHealthy = true;
+        private readonly IKafkaProducer<string, string> _producer;
 
-        public static IEventBusPublisher GetFromTcmConfiguration(bool useRandomPartitioner=true)
+        public KafkaPublisher(IKafkaContextProvider contextProvider, IKafkaProducerFactory producerFactory)
+            : this(producerFactory.Get<string, string>(contextProvider, Partitioner.Murmur2Random))
         {
-            if (useRandomPartitioner)
-            {
-                if (_RandomProducerInstance == null)
-                {
-                    lock (locker)
-                    {
-                        var tcmConfig = ApplicationConfiguration.Current.KafkaClientConfiguration;
-                        if (_RandomProducerInstance != null) return _RandomProducerInstance;
-                        _RandomProducerInstance = GetKafkaPublisher(tcmConfig, Partitioner.Murmur2Random);
-                    }
-                }
-                return _RandomProducerInstance;
-            }
-
-            if (_ConsistantProducerInstance == null) 
-            {
-                lock (locker)
-                {
-                    var tcmConfig = ApplicationConfiguration.Current.KafkaClientConfiguration;
-                    if (_ConsistantProducerInstance != null) return _ConsistantProducerInstance;
-                    _ConsistantProducerInstance = GetKafkaPublisher(tcmConfig, Partitioner.Murmur2);
-                    
-                }
-            }
-            return _ConsistantProducerInstance;
         }
 
-        public static KafkaPublisher GetKafkaPublisher(KafkaClientConfiguration tcmConfig, Partitioner partitioner)
+        private KafkaPublisher(IKafkaProducer<string, string> producer)
         {
-            var producerConfig = new ProducerConfig
-            {
-                BootstrapServers = tcmConfig.BootstrapServers.Value,
-                SocketTimeoutMs = tcmConfig.SocketTimeoutMs.Value,
-                ClientId = KLogger.GetServerName(),
-                Partitioner = partitioner,
-            };
-
-            // create topic for health check if it doesn't exist
-            using (var adminClient = new AdminClientBuilder(new AdminClientConfig {BootstrapServers = tcmConfig.BootstrapServers.Value}).Build())
-            {
-                try
-                {
-                    var createTopicsResult = adminClient.CreateTopicsAsync(new TopicSpecification[]
-                    {
-                        new TopicSpecification
-                        {
-                            Name = ApplicationConfiguration.Current.KafkaClientConfiguration.HealthCheckTopic.Value,
-                            ReplicationFactor = 1,
-                            NumPartitions = 1
-                        }
-                    });
-                }
-                catch (CreateTopicsException e)
-                {
-                    _Logger.Error($"An error occured creating topic {e.Results[0].Topic}: {e.Results[0].Error.Reason}", e);
-                }
-            }
-
-            var producerFactory = new KafkaProducerFactory<string, string>(producerConfig);
-
-            var puvlisher = new KafkaPublisher(producerFactory);
-            return puvlisher;
+            _producer = producer;
         }
 
-        public KafkaPublisher(IKafkaProducerFactory<string, string> producerFactory)
+        public static IEventBusPublisher GetFromTcmConfiguration(IKafkaContextProvider contextProvider, bool useRandomPartitioner = true)
         {
-            _Producer = producerFactory.Build();
+            var partitioner = useRandomPartitioner
+                ? Partitioner.Murmur2Random
+                : Partitioner.Murmur2;
+            var kafkaProducer = KafkaProducerFactoryInstance.Get().Get<string, string>(contextProvider, partitioner);
+            var publisher = new KafkaPublisher(kafkaProducer);
+
+            return publisher;
         }
 
         public void Publish(ServiceEvent serviceEvent)
@@ -121,49 +57,24 @@ namespace EventBus.Kafka
             Publish(serviceEvent, true, headersToAdd);
         }
 
-        private void Publish(ServiceEvent serviceEvent, bool shouldSendOnlyHeaders = false, Dictionary<string, string> headersToAdd = null)
+        private void Publish(ServiceEvent serviceEvent, bool shouldSendOnlyHeaders, Dictionary<string, string> headersToAdd = null)
         {
-            string groupId = serviceEvent.GroupId.ToString();
-            string reqId = serviceEvent.RequestId;
+            var groupId = serviceEvent.GroupId.ToString();
+            var reqId = serviceEvent.RequestId;
             var topic = serviceEvent.GetRoutingKey();
-            var msg = new Message<string, string>();
-            string key = serviceEvent.EventKey;
-            msg.Key = key;
-            msg.Headers = GetMessageHeaders(groupId, reqId, serviceEvent.UserId, headersToAdd);
-            if (!shouldSendOnlyHeaders)
+            var key = serviceEvent.EventKey;
+            using (new KMonitor(Events.eEvent.EVENT_KAFKA, groupId, "kafka.publish", reqId) { Database = topic, Table = key })
             {
-                msg.Value = JsonConvert.SerializeObject(serviceEvent);
-            }
-            
-            using (var kmon = new KMonitor(Events.eEvent.EVENT_KAFKA, groupId, "kafka.publish", reqId) { Database = topic, Table = key })
-            {                
-                _Producer.Produce(topic, msg, DeliveryHandler);
-            }
-        }
-
-        private Headers GetMessageHeaders(string groupId, string reqId, long userId, Dictionary<string, string> headersToAdd = null)
-        {
-            Headers headers = new Headers();
-            headers.Add(PARTNER_ID_HEADER, System.Text.Encoding.UTF8.GetBytes(groupId));
-            if (!string.IsNullOrEmpty(reqId))
-            {
-                headers.Add(REQ_ID_HEADER, System.Text.Encoding.UTF8.GetBytes(reqId));
-            }
-
-            if (userId > 0)
-            {
-                headers.Add(USER_ID_HEADER, System.Text.Encoding.UTF8.GetBytes(userId.ToString()));
-            }
-
-            if (headersToAdd != null)
-            {
-                foreach (KeyValuePair<string, string> header in headersToAdd)
+                if (shouldSendOnlyHeaders)
                 {
-                    headers.Add(header.Key, System.Text.Encoding.UTF8.GetBytes(header.Value)); 
+                    _producer.Produce(topic, serviceEvent.EventKey, null, headersToAdd, DeliveryHandler);
+                }
+                else
+                {
+                    var value = JsonConvert.SerializeObject(serviceEvent);
+                    _producer.Produce(topic, serviceEvent.EventKey, value, headersToAdd, DeliveryHandler);
                 }
             }
-
-            return headers;
         }
 
         private void DeliveryHandler(DeliveryReport<string, string> ack)
@@ -173,21 +84,21 @@ namespace EventBus.Kafka
                 var traceId = ack.Headers.TryGetLastBytes(REQ_ID_HEADER, out var bytes)
                     ? System.Text.Encoding.UTF8.GetString(bytes)
                     : "unknown";
-                _Logger.Error($"KafkaPublisher > Delivery Report key:[{ack.Key}], val:[{ack.Value}], traceId:[{traceId}], err:[{ack.Error}]");
-                _IsHealthy = false;
+                Logger.Error($"KafkaPublisher > Delivery Report key:[{ack.Key}], val:[{ack.Value}], traceId:[{traceId}], err:[{ack.Error}]");
+                _isHealthy = false;
             }
             else
             {
-                using (var kmon = new KMonitor(Events.eEvent.EVENT_KAFKA, "0", $"kafka.publish.success.{ack.Offset}", KLogger.GetRequestId()) { Database = ack.Value, Table = ack.Key, })
+                using (new KMonitor(Events.eEvent.EVENT_KAFKA, "0", $"kafka.publish.success.{ack.Offset}", KLogger.GetRequestId()) { Database = ack.Value, Table = ack.Key, })
                 {
-                    _IsHealthy = true;
+                    _isHealthy = true;
                 }
             }
         }
 
-        public bool HealthCheck()
+        public static bool HealthCheck()
         {
-            return _IsHealthy;
+            return _isHealthy;
         }
     }
 }

@@ -110,10 +110,8 @@ namespace Core.Catalog
 
                     if (isMigrationEventsEnabled)
                     {
-                        var useRandomPartitioner = false;
-                        var eventBusPublisher = KafkaPublisher.GetFromTcmConfiguration(useRandomPartitioner);
                         return new IndexManagerEventsDecorator(indexManagerV7,
-                            eventBusPublisher,
+                            contextProvider => KafkaPublisher.GetFromTcmConfiguration(contextProvider),
                             IndexManagerVersion.EsV7,
                             partnerId);
                     }
@@ -143,10 +141,8 @@ namespace Core.Catalog
 
                     if (isMigrationEventsEnabled)
                     {
-                        var useRandomPartitioner = false;
-                        var eventBusPublisher = KafkaPublisher.GetFromTcmConfiguration(useRandomPartitioner);
                         return new IndexManagerEventsDecorator(indexManagerV2,
-                            eventBusPublisher,
+                            contextProvider => KafkaPublisher.GetFromTcmConfiguration(contextProvider),
                             IndexManagerVersion.EsV2,
                             partnerId);
                     }

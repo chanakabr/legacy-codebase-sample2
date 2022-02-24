@@ -12,23 +12,30 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
-using ApiLogic.Api.Managers;
 using ApiLogic.Catalog.CatalogManagement.Helpers;
+using ApiLogic.Catalog.CatalogManagement.Services;
 using ElasticSearch.Utilities;
+using EventBus.Kafka;
+using OTT.Lib.Kafka;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using MetaType = ApiObjects.MetaType;
-using ApiObjects.Base;
-using static Core.Catalog.CatalogManagement.EpgAssetManager;
 
 namespace Core.Catalog.CatalogManagement
 {
-    public class EpgAssetManager
+    public interface IEpgAssetManager
+    {
+        IEnumerable<EpgAsset> GetEpgAssets(long groupId, IEnumerable<long> epgIds);
+    }
+
+    public class EpgAssetManager : IEpgAssetManager
     {
         #region Constants and Read-only
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly Lazy<EpgAssetManager> Lazy = new Lazy<EpgAssetManager>(() => new EpgAssetManager(), LazyThreadSafetyMode.PublicationOnly);
 
         private const string EPGS_PROGRAM_DATES_ERROR = "Error at EPG Program Start/End Dates";
         private const string META_DOES_NOT_EXIST = "{0}: {1} does not exist for this group";
@@ -59,6 +66,8 @@ namespace Core.Catalog.CatalogManagement
         public const string EXTERNAL_OFFER_IDS_META_SYSTEM_NAME = "ExternalOfferIds";
         private static readonly int MaxDescriptionSize = 1024;
         private static readonly int MaxNameSize = 255;
+
+        private static IProgramAssetCrudMessageService _messageService;
 
         public static readonly Dictionary<string, string> BasicProgramMetasSystemNameToName = new Dictionary<string, string>()
         {
@@ -93,6 +102,8 @@ namespace Core.Catalog.CatalogManagement
         {
             SERIES_ID_META_SYSTEM_NAME, SEASON_NUMBER_META_SYSTEM_NAME, EPISODE_NUMBER_META_SYSTEM_NAME
         };
+
+        public static EpgAssetManager Instance => Lazy.Value;
 
         #endregion
 
@@ -233,6 +244,10 @@ namespace Core.Catalog.CatalogManagement
 
                 SendActionEvent(groupId, newEpgId, eAction.On);
                 result = AssetManager.GetAsset(groupId, newEpgId, eAssetTypes.EPG, true);
+                if (result.IsOkStatusCode())
+                {
+                    _messageService.PublishCreateEventAsync(groupId, newEpgId).GetAwaiter().GetResult();
+                }
             }
             catch (Exception ex)
             {
@@ -403,6 +418,10 @@ namespace Core.Catalog.CatalogManagement
 
                 // get updated epgAsset
                 result = AssetManager.GetAsset(groupId, epgAssetToUpdate.Id, eAssetTypes.EPG, true);
+                if (result.IsOkStatusCode())
+                {
+                    _messageService.PublishUpdateEventAsync(groupId, epgAssetToUpdate.Id).GetAwaiter().GetResult();
+                }
             }
             catch (Exception ex)
             {
@@ -453,6 +472,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             SendActionEvent(groupId, epgId, eAction.Delete);
+            _messageService.PublishDeleteEventAsync(groupId, epgId).GetAwaiter().GetResult();
 
             // Delete Index
             var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
@@ -1710,6 +1730,8 @@ namespace Core.Catalog.CatalogManagement
                 RemoveTopicsFromProgramEpgCB(epgCB, programMetas, programTags, catalogGroupCache.GetDefaultLanguage().Code);
             }
 
+            _messageService.PublishUpdateEventAsync(groupId, epgId).GetAwaiter().GetResult();
+
             return epgCbList;
         }
 
@@ -1984,6 +2006,21 @@ namespace Core.Catalog.CatalogManagement
             var keys = GetEpgCBKeys(groupId, epgId, null, false);
 
             return keys.FirstOrDefault();
+        }
+
+        public IEnumerable<EpgAsset> GetEpgAssets(long groupId, IEnumerable<long> epgIds)
+        {
+            return GetEpgAssetsFromCache(epgIds.ToList(), (int)groupId);
+        }
+
+        public static void InitProgramAssetCrudMessageService(IKafkaContextProvider contextProvider)
+        {
+            _messageService = new ProgramAssetCrudMessageService(
+                AssetManager.Instance,
+                Instance,
+                KafkaProducerFactoryInstance.Get(),
+                contextProvider,
+                new KLogger(nameof(ProgramAssetCrudMessageService)));
         }
 
         private static string GetEpgCBKey(int groupId, long epgId, string langCode, string defaultLangCode, bool isAddAction = false)

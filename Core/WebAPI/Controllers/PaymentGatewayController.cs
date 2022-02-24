@@ -34,7 +34,7 @@ namespace WebAPI.Controllers
             int groupId = KS.GetFromRequest().GroupId;
 
             // get domain id      
-            var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+            var domainId = HouseholdUtils.GetHouseholdIDByKS();
 
             try
             {
@@ -77,7 +77,7 @@ namespace WebAPI.Controllers
                 string userID = KS.GetFromRequest().UserId;
 
                 // get domain id      
-                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                var domainId = HouseholdUtils.GetHouseholdIDByKS();
                 
                 // call client
                 response = ClientsManager.BillingClient().SetHouseholdPaymentGateway(groupId, payment_gateway_id, userID, domainId);
@@ -118,7 +118,7 @@ namespace WebAPI.Controllers
                 string userID = KS.GetFromRequest().UserId;
 
                 // get domain id        
-                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                var domainId = HouseholdUtils.GetHouseholdIDByKS();
 
                 // call client
                 response = ClientsManager.BillingClient().DeleteHouseholdPaymentGateway(groupId, paymentGatewayId, userID, domainId);
@@ -162,7 +162,7 @@ namespace WebAPI.Controllers
                 string userID = KS.GetFromRequest().UserId;
 
                 // get domain id      
-                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                var domainId = HouseholdUtils.GetHouseholdIDByKS();
 
                 // call client
                 response = ClientsManager.BillingClient().SetPaymentMethodHouseholdPaymentGateway(groupId, payment_gateway_id, userID, domainId, payment_method_id);
@@ -205,7 +205,7 @@ namespace WebAPI.Controllers
                 string userID = KS.GetFromRequest().UserId;
 
                 // get domain id      
-                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                var domainId = HouseholdUtils.GetHouseholdIDByKS();
 
                 // call client
                 response = ClientsManager.ConditionalAccessClient().RemovePaymentMethodHouseholdPaymentGateway(payment_gateway_id, groupId, userID, domainId, payment_method_id);
@@ -247,7 +247,7 @@ namespace WebAPI.Controllers
                 string userID = KS.GetFromRequest().UserId;
 
                 // get domain id      
-                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                var domainId = HouseholdUtils.GetHouseholdIDByKS();
 
                 // call client
                 response = ClientsManager.ConditionalAccessClient().RemovePaymentMethodHouseholdPaymentGateway(payment_gateway_id, groupId, userID, domainId, payment_method_id, true);

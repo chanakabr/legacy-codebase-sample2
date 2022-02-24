@@ -57,7 +57,6 @@ namespace CachingProvider.LayeredCache
 
         private readonly bool ShouldProduceInvalidationEventsToKafka;
         private readonly string InvalidationEventsTopic = ApplicationConfiguration.Current.MicroservicesClientConfiguration.LayeredCacheConfiguration.InvalidationEventsTopic.Value;
-        private readonly IEventBusPublisher _InvalidationEventsPublisher;
         private List<Regex> _InvalidationEventsRegexRules;
 
         public LayeredCache()
@@ -67,7 +66,6 @@ namespace CachingProvider.LayeredCache
             ShouldProduceInvalidationEventsToKafka = GetShouldProduceInvalidationEventsToKafkaValue();
             if (ShouldProduceInvalidationEventsToKafka)
             {
-                _InvalidationEventsPublisher = KafkaPublisher.GetFromTcmConfiguration();
                 LoadInvalidationEventsRules();
             }
         }
@@ -1707,10 +1705,7 @@ namespace CachingProvider.LayeredCache
                 }
 
                 var invalidationEvent = new CacheInvalidationEvent(key, InvalidationEventsTopic);
-                if (invalidationEvent != null)
-                {
-                    _InvalidationEventsPublisher.PublishHeadersOnly(invalidationEvent);
-                }
+                KafkaPublisher.GetFromTcmConfiguration(invalidationEvent).PublishHeadersOnly(invalidationEvent);
             }
             catch (Exception e)
             {

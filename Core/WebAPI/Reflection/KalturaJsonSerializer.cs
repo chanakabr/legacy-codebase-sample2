@@ -18,8 +18,6 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Filters;
 using WebAPI.Managers;
 using WebAPI.Utils;
-using WebAPI.ModelsValidators;
-using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Social;
 using WebAPI.Models.General;
@@ -8446,10 +8444,13 @@ namespace WebAPI.Models.General
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(value != null && (retrievedProperties == null || retrievedProperties.Contains("value")))
+            if((retrievedProperties == null || retrievedProperties.Contains("value")))
             {
-                propertyValue = value.ToJson(currentVersion, omitObsolete);
-                ret.Add("value", "\"value\": " + propertyValue);
+                propertyValue = value.ToCustomJson(currentVersion, omitObsolete, "value");
+                if(propertyValue != null)
+                {
+                    ret.Add("value", propertyValue);
+                }
             }
             return ret;
         }
@@ -8465,10 +8466,9 @@ namespace WebAPI.Models.General
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(value != null && (retrievedProperties == null || retrievedProperties.Contains("value")))
+            if((retrievedProperties == null || retrievedProperties.Contains("value")))
             {
-                propertyValue = value.ToXml(currentVersion, omitObsolete);
-                ret.Add("value", "<value>" + propertyValue + "</value>");
+                ret.Add("value", value.ToCustomXml(currentVersion, omitObsolete, "value"));
             }
             return ret;
         }
@@ -10328,11 +10328,6 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(Objects != null)
-            {
-                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
-                ret.Add("objects", "\"objects\": " + propertyValue);
-            }
             return ret;
         }
         
@@ -10347,11 +10342,6 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(Objects != null)
-            {
-                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
-                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
-            }
             return ret;
         }
     }
@@ -13821,10 +13811,13 @@ namespace WebAPI.Models.API
             {
                 ret.Add("multipleValue", "\"multipleValue\": " + MultipleValue.ToString().ToLower());
             }
-            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            if((retrievedProperties == null || retrievedProperties.Contains("name")))
             {
-                propertyValue = Name.ToJson(currentVersion, omitObsolete);
-                ret.Add("name", "\"name\": " + propertyValue);
+                propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
+                if(propertyValue != null)
+                {
+                    ret.Add("name", propertyValue);
+                }
             }
             if(ParentId != null && (retrievedProperties == null || retrievedProperties.Contains("parentId")))
             {
@@ -13901,10 +13894,9 @@ namespace WebAPI.Models.API
             {
                 ret.Add("multipleValue", "<multipleValue>" + MultipleValue.ToString().ToLower() + "</multipleValue>");
             }
-            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            if((retrievedProperties == null || retrievedProperties.Contains("name")))
             {
-                propertyValue = Name.ToXml(currentVersion, omitObsolete);
-                ret.Add("name", "<name>" + propertyValue + "</name>");
+                ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
             }
             if(ParentId != null && (retrievedProperties == null || retrievedProperties.Contains("parentId")))
             {
@@ -15141,9 +15133,9 @@ namespace WebAPI.Models.API
             {
                 ret.Add("origin", "\"origin\": " + "\"" + Enum.GetName(typeof(KalturaRuleLevel), Origin) + "\"");
             }
-            if(Pin != null && (retrievedProperties == null || retrievedProperties.Contains("pin")))
+            if(PIN != null && (retrievedProperties == null || retrievedProperties.Contains("pin")))
             {
-                ret.Add("pin", "\"pin\": " + "\"" + EscapeJson(Pin) + "\"");
+                ret.Add("pin", "\"pin\": " + "\"" + EscapeJson(PIN) + "\"");
             }
             if((retrievedProperties == null || retrievedProperties.Contains("type")))
             {
@@ -15167,9 +15159,9 @@ namespace WebAPI.Models.API
             {
                 ret.Add("origin", "<origin>" + "" + Enum.GetName(typeof(KalturaRuleLevel), Origin) + "" + "</origin>");
             }
-            if(Pin != null && (retrievedProperties == null || retrievedProperties.Contains("pin")))
+            if(PIN != null && (retrievedProperties == null || retrievedProperties.Contains("pin")))
             {
-                ret.Add("pin", "<pin>" + EscapeXml(Pin) + "</pin>");
+                ret.Add("pin", "<pin>" + EscapeXml(PIN) + "</pin>");
             }
             if((retrievedProperties == null || retrievedProperties.Contains("type")))
             {
@@ -15195,9 +15187,9 @@ namespace WebAPI.Models.API
             {
                 ret.Add("origin", "\"origin\": " + "\"" + Enum.GetName(typeof(KalturaRuleLevel), Origin) + "\"");
             }
-            if(Pin != null && (retrievedProperties == null || retrievedProperties.Contains("pin")))
+            if(PIN != null && (retrievedProperties == null || retrievedProperties.Contains("pin")))
             {
-                ret.Add("pin", "\"pin\": " + "\"" + EscapeJson(Pin) + "\"");
+                ret.Add("pin", "\"pin\": " + "\"" + EscapeJson(PIN) + "\"");
             }
             if((retrievedProperties == null || retrievedProperties.Contains("type")))
             {
@@ -15221,9 +15213,9 @@ namespace WebAPI.Models.API
             {
                 ret.Add("origin", "<origin>" + "" + Enum.GetName(typeof(KalturaRuleLevel), Origin) + "" + "</origin>");
             }
-            if(Pin != null && (retrievedProperties == null || retrievedProperties.Contains("pin")))
+            if(PIN != null && (retrievedProperties == null || retrievedProperties.Contains("pin")))
             {
-                ret.Add("pin", "<pin>" + EscapeXml(Pin) + "</pin>");
+                ret.Add("pin", "<pin>" + EscapeXml(PIN) + "</pin>");
             }
             if((retrievedProperties == null || retrievedProperties.Contains("type")))
             {
@@ -21333,11 +21325,6 @@ namespace WebAPI.Models.Notification
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(Objects != null)
-            {
-                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
-                ret.Add("objects", "\"objects\": " + propertyValue);
-            }
             return ret;
         }
         
@@ -21352,11 +21339,6 @@ namespace WebAPI.Models.Notification
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(Objects != null)
-            {
-                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
-                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
-            }
             return ret;
         }
     }
@@ -21778,10 +21760,13 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("createDate", "\"createDate\": " + CreateDate);
             }
-            if(Description != null && (retrievedProperties == null || retrievedProperties.Contains("description")))
+            if((retrievedProperties == null || retrievedProperties.Contains("description")))
             {
-                propertyValue = Description.ToJson(currentVersion, omitObsolete);
-                ret.Add("description", "\"description\": " + propertyValue);
+                propertyValue = Description.ToCustomJson(currentVersion, omitObsolete, "description");
+                if(propertyValue != null)
+                {
+                    ret.Add("description", propertyValue);
+                }
             }
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && EnableCatchUp.HasValue && (retrievedProperties == null || retrievedProperties.Contains("enableCatchUp")))
             {
@@ -21846,10 +21831,13 @@ namespace WebAPI.Models.Catalog
                    ret.Add("metas", "\"metas\": " + propertyValue);
                 }
             }
-            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            if((retrievedProperties == null || retrievedProperties.Contains("name")))
             {
-                propertyValue = Name.ToJson(currentVersion, omitObsolete);
-                ret.Add("name", "\"name\": " + propertyValue);
+                propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
+                if(propertyValue != null)
+                {
+                    ret.Add("name", propertyValue);
+                }
             }
             if(RelatedEntities != null && (retrievedProperties == null || retrievedProperties.Contains("relatedEntities")))
             {
@@ -21913,10 +21901,9 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
             }
-            if(Description != null && (retrievedProperties == null || retrievedProperties.Contains("description")))
+            if((retrievedProperties == null || retrievedProperties.Contains("description")))
             {
-                propertyValue = Description.ToXml(currentVersion, omitObsolete);
-                ret.Add("description", "<description>" + propertyValue + "</description>");
+                ret.Add("description", Description.ToCustomXml(currentVersion, omitObsolete, "description"));
             }
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && EnableCatchUp.HasValue && (retrievedProperties == null || retrievedProperties.Contains("enableCatchUp")))
             {
@@ -21965,10 +21952,9 @@ namespace WebAPI.Models.Catalog
                 propertyValue = Metas.Count > 0 ? "<item>" + String.Join("</item><item>", Metas.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
                 ret.Add("metas", "<metas>" + propertyValue + "</metas>");
             }
-            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            if((retrievedProperties == null || retrievedProperties.Contains("name")))
             {
-                propertyValue = Name.ToXml(currentVersion, omitObsolete);
-                ret.Add("name", "<name>" + propertyValue + "</name>");
+                ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
             }
             if(RelatedEntities != null && (retrievedProperties == null || retrievedProperties.Contains("relatedEntities")))
             {
@@ -23696,10 +23682,13 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("metaIds", "\"metaIds\": " + "\"" + EscapeJson(MetaIds) + "\"");
             }
-            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            if((retrievedProperties == null || retrievedProperties.Contains("name")))
             {
-                propertyValue = Name.ToJson(currentVersion, omitObsolete);
-                ret.Add("name", "\"name\": " + propertyValue);
+                propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
+                if(propertyValue != null)
+                {
+                    ret.Add("name", propertyValue);
+                }
             }
             if(ParentId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("parentId")))
             {
@@ -23764,10 +23753,9 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("metaIds", "<metaIds>" + EscapeXml(MetaIds) + "</metaIds>");
             }
-            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            if((retrievedProperties == null || retrievedProperties.Contains("name")))
             {
-                propertyValue = Name.ToXml(currentVersion, omitObsolete);
-                ret.Add("name", "<name>" + propertyValue + "</name>");
+                ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
             }
             if(ParentId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("parentId")))
             {
@@ -24870,10 +24858,13 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("isActive", "\"isActive\": " + IsActive.ToString().ToLower());
             }
-            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            if((retrievedProperties == null || retrievedProperties.Contains("name")))
             {
-                propertyValue = Name.ToJson(currentVersion, omitObsolete);
-                ret.Add("name", "\"name\": " + propertyValue);
+                propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
+                if(propertyValue != null)
+                {
+                    ret.Add("name", propertyValue);
+                }
             }
             if((retrievedProperties == null || retrievedProperties.Contains("parentId")))
             {
@@ -24896,7 +24887,7 @@ namespace WebAPI.Models.Catalog
                 propertyValue = "[" + String.Join(", ", UnifiedChannels.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("unifiedChannels", "\"unifiedChannels\": " + propertyValue);
             }
-            if(UpdateDate.HasValue && (retrievedProperties == null || retrievedProperties.Contains("updateDate")))
+            if((retrievedProperties == null || retrievedProperties.Contains("updateDate")))
             {
                 ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
             }
@@ -24943,10 +24934,9 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("isActive", "<isActive>" + IsActive.ToString().ToLower() + "</isActive>");
             }
-            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            if((retrievedProperties == null || retrievedProperties.Contains("name")))
             {
-                propertyValue = Name.ToXml(currentVersion, omitObsolete);
-                ret.Add("name", "<name>" + propertyValue + "</name>");
+                ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
             }
             if((retrievedProperties == null || retrievedProperties.Contains("parentId")))
             {
@@ -24969,7 +24959,7 @@ namespace WebAPI.Models.Catalog
                 propertyValue = UnifiedChannels.Count > 0 ? "<item>" + String.Join("</item><item>", UnifiedChannels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("unifiedChannels", "<unifiedChannels>" + propertyValue + "</unifiedChannels>");
             }
-            if(UpdateDate.HasValue && (retrievedProperties == null || retrievedProperties.Contains("updateDate")))
+            if((retrievedProperties == null || retrievedProperties.Contains("updateDate")))
             {
                 ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
             }
@@ -25103,11 +25093,6 @@ namespace WebAPI.Models.Catalog
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(Objects != null)
-            {
-                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
-                ret.Add("objects", "\"objects\": " + propertyValue);
-            }
             return ret;
         }
         
@@ -25122,11 +25107,6 @@ namespace WebAPI.Models.Catalog
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(Objects != null)
-            {
-                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
-                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
-            }
             return ret;
         }
     }
@@ -25224,10 +25204,13 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("isActive", "\"isActive\": " + IsActive.ToString().ToLower());
             }
-            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            if((retrievedProperties == null || retrievedProperties.Contains("name")))
             {
-                propertyValue = Name.ToJson(currentVersion, omitObsolete);
-                ret.Add("name", "\"name\": " + propertyValue);
+                propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
+                if(propertyValue != null)
+                {
+                    ret.Add("name", propertyValue);
+                }
             }
             if(ReferenceId != null && (retrievedProperties == null || retrievedProperties.Contains("referenceId")))
             {
@@ -25295,10 +25278,9 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("isActive", "<isActive>" + IsActive.ToString().ToLower() + "</isActive>");
             }
-            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            if((retrievedProperties == null || retrievedProperties.Contains("name")))
             {
-                propertyValue = Name.ToXml(currentVersion, omitObsolete);
-                ret.Add("name", "<name>" + propertyValue + "</name>");
+                ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
             }
             if(ReferenceId != null && (retrievedProperties == null || retrievedProperties.Contains("referenceId")))
             {
@@ -25535,11 +25517,6 @@ namespace WebAPI.Models.Catalog
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(Objects != null)
-            {
-                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
-                ret.Add("objects", "\"objects\": " + propertyValue);
-            }
             return ret;
         }
         
@@ -25554,11 +25531,6 @@ namespace WebAPI.Models.Catalog
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(Objects != null)
-            {
-                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
-                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
-            }
             return ret;
         }
     }
@@ -25592,10 +25564,13 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("createDate", "\"createDate\": " + CreateDate);
             }
-            if(Description != null && (retrievedProperties == null || retrievedProperties.Contains("description")))
+            if((retrievedProperties == null || retrievedProperties.Contains("description")))
             {
-                propertyValue = Description.ToJson(currentVersion, omitObsolete);
-                ret.Add("description", "\"description\": " + propertyValue);
+                propertyValue = Description.ToCustomJson(currentVersion, omitObsolete, "description");
+                if(propertyValue != null)
+                {
+                    ret.Add("description", propertyValue);
+                }
             }
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && FilterExpression != null && (retrievedProperties == null || retrievedProperties.Contains("filterExpression")))
             {
@@ -25633,10 +25608,13 @@ namespace WebAPI.Models.Catalog
                 propertyValue = "{" + String.Join(", ", MetaData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
                 ret.Add("metaData", "\"metaData\": " + propertyValue);
             }
-            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            if((retrievedProperties == null || retrievedProperties.Contains("name")))
             {
-                propertyValue = Name.ToJson(currentVersion, omitObsolete);
-                ret.Add("name", "\"name\": " + propertyValue);
+                propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
+                if(propertyValue != null)
+                {
+                    ret.Add("name", propertyValue);
+                }
             }
             if(OldDescription != null && (retrievedProperties == null || retrievedProperties.Contains("oldDescription")))
             {
@@ -25715,10 +25693,9 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
             }
-            if(Description != null && (retrievedProperties == null || retrievedProperties.Contains("description")))
+            if((retrievedProperties == null || retrievedProperties.Contains("description")))
             {
-                propertyValue = Description.ToXml(currentVersion, omitObsolete);
-                ret.Add("description", "<description>" + propertyValue + "</description>");
+                ret.Add("description", Description.ToCustomXml(currentVersion, omitObsolete, "description"));
             }
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && FilterExpression != null && (retrievedProperties == null || retrievedProperties.Contains("filterExpression")))
             {
@@ -25756,10 +25733,9 @@ namespace WebAPI.Models.Catalog
                 propertyValue = MetaData.Count > 0 ? "<item>" + String.Join("</item><item>", MetaData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
                 ret.Add("metaData", "<metaData>" + propertyValue + "</metaData>");
             }
-            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            if((retrievedProperties == null || retrievedProperties.Contains("name")))
             {
-                propertyValue = Name.ToXml(currentVersion, omitObsolete);
-                ret.Add("name", "<name>" + propertyValue + "</name>");
+                ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
             }
             if(OldDescription != null && (retrievedProperties == null || retrievedProperties.Contains("oldDescription")))
             {
@@ -29817,10 +29793,13 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("id", "\"id\": " + Id);
             }
-            if(Tag != null && (retrievedProperties == null || retrievedProperties.Contains("tag")))
+            if((retrievedProperties == null || retrievedProperties.Contains("tag")))
             {
-                propertyValue = Tag.ToJson(currentVersion, omitObsolete);
-                ret.Add("tag", "\"tag\": " + propertyValue);
+                propertyValue = Tag.ToCustomJson(currentVersion, omitObsolete, "tag");
+                if(propertyValue != null)
+                {
+                    ret.Add("tag", propertyValue);
+                }
             }
             if((retrievedProperties == null || retrievedProperties.Contains("type")))
             {
@@ -29844,10 +29823,9 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("id", "<id>" + Id + "</id>");
             }
-            if(Tag != null && (retrievedProperties == null || retrievedProperties.Contains("tag")))
+            if((retrievedProperties == null || retrievedProperties.Contains("tag")))
             {
-                propertyValue = Tag.ToXml(currentVersion, omitObsolete);
-                ret.Add("tag", "<tag>" + propertyValue + "</tag>");
+                ret.Add("tag", Tag.ToCustomXml(currentVersion, omitObsolete, "tag"));
             }
             if((retrievedProperties == null || retrievedProperties.Contains("type")))
             {
@@ -30517,10 +30495,13 @@ namespace WebAPI.Models.Pricing
             {
                 ret.Add("createDate", "\"createDate\": " + CreateDate);
             }
-            if(Description != null && (retrievedProperties == null || retrievedProperties.Contains("description")))
+            if((retrievedProperties == null || retrievedProperties.Contains("description")))
             {
-                propertyValue = Description.ToJson(currentVersion, omitObsolete);
-                ret.Add("description", "\"description\": " + propertyValue);
+                propertyValue = Description.ToCustomJson(currentVersion, omitObsolete, "description");
+                if(propertyValue != null)
+                {
+                    ret.Add("description", propertyValue);
+                }
             }
             if(DiscountModule != null && (retrievedProperties == null || retrievedProperties.Contains("discountModule")))
             {
@@ -30551,10 +30532,13 @@ namespace WebAPI.Models.Pricing
             {
                 ret.Add("isActive", "\"isActive\": " + IsActive.ToString().ToLower());
             }
-            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            if((retrievedProperties == null || retrievedProperties.Contains("name")))
             {
-                propertyValue = Name.ToJson(currentVersion, omitObsolete);
-                ret.Add("name", "\"name\": " + propertyValue);
+                propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
+                if(propertyValue != null)
+                {
+                    ret.Add("name", propertyValue);
+                }
             }
             if(PriceDetailsId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("priceDetailsId")))
             {
@@ -30623,10 +30607,9 @@ namespace WebAPI.Models.Pricing
             {
                 ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
             }
-            if(Description != null && (retrievedProperties == null || retrievedProperties.Contains("description")))
+            if((retrievedProperties == null || retrievedProperties.Contains("description")))
             {
-                propertyValue = Description.ToXml(currentVersion, omitObsolete);
-                ret.Add("description", "<description>" + propertyValue + "</description>");
+                ret.Add("description", Description.ToCustomXml(currentVersion, omitObsolete, "description"));
             }
             if(DiscountModule != null && (retrievedProperties == null || retrievedProperties.Contains("discountModule")))
             {
@@ -30657,10 +30640,9 @@ namespace WebAPI.Models.Pricing
             {
                 ret.Add("isActive", "<isActive>" + IsActive.ToString().ToLower() + "</isActive>");
             }
-            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            if((retrievedProperties == null || retrievedProperties.Contains("name")))
             {
-                propertyValue = Name.ToXml(currentVersion, omitObsolete);
-                ret.Add("name", "<name>" + propertyValue + "</name>");
+                ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
             }
             if(PriceDetailsId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("priceDetailsId")))
             {
@@ -33405,10 +33387,13 @@ namespace WebAPI.Models.Pricing
             {
                 ret.Add("dependencyType", "\"dependencyType\": " + "\"" + Enum.GetName(typeof(KalturaSubscriptionDependencyType), DependencyType) + "\"");
             }
-            if(Description != null && (retrievedProperties == null || retrievedProperties.Contains("description")))
+            if((retrievedProperties == null || retrievedProperties.Contains("description")))
             {
-                propertyValue = Description.ToJson(currentVersion, omitObsolete);
-                ret.Add("description", "\"description\": " + propertyValue);
+                propertyValue = Description.ToCustomJson(currentVersion, omitObsolete, "description");
+                if(propertyValue != null)
+                {
+                    ret.Add("description", propertyValue);
+                }
             }
             if(!DeprecatedAttribute.IsDeprecated("3.6.287.27312", currentVersion) && Descriptions != null && (retrievedProperties == null || retrievedProperties.Contains("descriptions")))
             {
@@ -33521,10 +33506,13 @@ namespace WebAPI.Models.Pricing
                     ret.Add("media_id", "\"media_id\": " + MediaId);
                 }
             }
-            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            if((retrievedProperties == null || retrievedProperties.Contains("name")))
             {
-                propertyValue = Name.ToJson(currentVersion, omitObsolete);
-                ret.Add("name", "\"name\": " + propertyValue);
+                propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
+                if(propertyValue != null)
+                {
+                    ret.Add("name", propertyValue);
+                }
             }
             if(!DeprecatedAttribute.IsDeprecated("3.6.287.27312", currentVersion) && Names != null && (retrievedProperties == null || retrievedProperties.Contains("names")))
             {
@@ -33553,7 +33541,7 @@ namespace WebAPI.Models.Pricing
                     ret.Add("preview_module", "\"preview_module\": " + propertyValue);
                 }
             }
-            if(PreviewModuleId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("previewModuleId")))
+            if((retrievedProperties == null || retrievedProperties.Contains("previewModuleId")))
             {
                 ret.Add("previewModuleId", "\"previewModuleId\": " + PreviewModuleId);
             }
@@ -33699,10 +33687,9 @@ namespace WebAPI.Models.Pricing
             {
                 ret.Add("dependencyType", "<dependencyType>" + "" + Enum.GetName(typeof(KalturaSubscriptionDependencyType), DependencyType) + "" + "</dependencyType>");
             }
-            if(Description != null && (retrievedProperties == null || retrievedProperties.Contains("description")))
+            if((retrievedProperties == null || retrievedProperties.Contains("description")))
             {
-                propertyValue = Description.ToXml(currentVersion, omitObsolete);
-                ret.Add("description", "<description>" + propertyValue + "</description>");
+                ret.Add("description", Description.ToCustomXml(currentVersion, omitObsolete, "description"));
             }
             if(!DeprecatedAttribute.IsDeprecated("3.6.287.27312", currentVersion) && Descriptions != null && (retrievedProperties == null || retrievedProperties.Contains("descriptions")))
             {
@@ -33815,10 +33802,9 @@ namespace WebAPI.Models.Pricing
                 ret.Add("media_id", "<media_id>" + MediaId + "</media_id>");
                 }
             }
-            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            if((retrievedProperties == null || retrievedProperties.Contains("name")))
             {
-                propertyValue = Name.ToXml(currentVersion, omitObsolete);
-                ret.Add("name", "<name>" + propertyValue + "</name>");
+                ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
             }
             if(!DeprecatedAttribute.IsDeprecated("3.6.287.27312", currentVersion) && Names != null && (retrievedProperties == null || retrievedProperties.Contains("names")))
             {
@@ -33847,7 +33833,7 @@ namespace WebAPI.Models.Pricing
                 ret.Add("preview_module", "<preview_module>" + propertyValue + "</preview_module>");
                 }
             }
-            if(PreviewModuleId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("previewModuleId")))
+            if((retrievedProperties == null || retrievedProperties.Contains("previewModuleId")))
             {
                 ret.Add("previewModuleId", "<previewModuleId>" + PreviewModuleId + "</previewModuleId>");
             }
@@ -47260,10 +47246,13 @@ namespace WebAPI.Models.Catalog.SearchPriorityGroup
             {
                 ret.Add("id", "\"id\": " + Id);
             }
-            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            if((retrievedProperties == null || retrievedProperties.Contains("name")))
             {
-                propertyValue = Name.ToJson(currentVersion, omitObsolete);
-                ret.Add("name", "\"name\": " + propertyValue);
+                propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
+                if(propertyValue != null)
+                {
+                    ret.Add("name", propertyValue);
+                }
             }
             return ret;
         }
@@ -47288,10 +47277,9 @@ namespace WebAPI.Models.Catalog.SearchPriorityGroup
             {
                 ret.Add("id", "<id>" + Id + "</id>");
             }
-            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            if((retrievedProperties == null || retrievedProperties.Contains("name")))
             {
-                propertyValue = Name.ToXml(currentVersion, omitObsolete);
-                ret.Add("name", "<name>" + propertyValue + "</name>");
+                ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
             }
             return ret;
         }

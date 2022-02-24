@@ -30,6 +30,9 @@ namespace Phoenix.Generated.Api.Events.Crud.ProgramAsset
         [JsonProperty("schema", NullValueHandling = NullValueHandling.Ignore)]
         public Schema Schema { get; set; }
 
+        [JsonProperty("endDate", NullValueHandling = NullValueHandling.Ignore)]
+        public long? EndDate { get; set; }
+
         [JsonProperty("expirationDate", NullValueHandling = NullValueHandling.Ignore)]
         public long? ExpirationDate { get; set; }
 
@@ -38,6 +41,9 @@ namespace Phoenix.Generated.Api.Events.Crud.ProgramAsset
 
         [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
         public long? Id { get; set; }
+
+        [JsonProperty("startDate", NullValueHandling = NullValueHandling.Ignore)]
+        public long? StartDate { get; set; }
     }
 
     public partial class Schema

@@ -8,6 +8,7 @@ using ApiLogic.Api.Managers;
 using ApiLogic.Catalog.CatalogManagement.Helpers;
 using ApiLogic.Catalog.CatalogManagement.Models;
 using ApiLogic.IndexManager.Helpers;
+using ApiLogic.Notification.Managers;
 using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Epg;
@@ -32,13 +33,10 @@ namespace IngestHandler
 {
     public class BulkUploadIngestHandler : IServiceEventHandler<BulkUploadIngestEvent>
     {
-        private readonly IIngestProtectProcessor _ingestProtectProcessor;
-        private readonly ICatalogManagerAdapter _catalogManagerAdapter;
         private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private readonly CouchbaseManager.CouchbaseManager _couchbaseManager;
 
-        private IIndexManager _indexManager;
         private TvinciEpgBL _epgBL;
         private BulkUploadIngestEvent _eventData;
         private BulkUpload _bulkUpload;
@@ -50,17 +48,24 @@ namespace IngestHandler
         private Dictionary<string, EpgCB> _autoFillEpgsCb;
         private Lazy<IReadOnlyDictionary<long, List<int>>> _linearChannelToRegionsMap;
         private string _logPrefix;
+        private readonly IIndexManagerFactory _indexManagerFactory;
+        private readonly IIngestProtectProcessor _ingestProtectProcessor;
+        private readonly ICatalogManagerAdapter _catalogManagerAdapter;
         private readonly IEpgAssetMultilingualMutator _epgAssetMultilingualMutator;
         private readonly IRegionManager _regionManager;
         private readonly IEpgIngestMessaging _epgIngestMessaging;
+        private readonly IIngestFinalizer _ingestFinalizer;
 
         public BulkUploadIngestHandler(
+            IIndexManagerFactory indexManagerFactory,
             IIngestProtectProcessor ingestProtectProcessor,
             ICatalogManagerAdapter catalogManagerAdapter,
             IEpgAssetMultilingualMutator epgAssetMultilingualMutator,
             IRegionManager regionManager,
-            IEpgIngestMessaging epgIngestMessaging)
+            IEpgIngestMessaging epgIngestMessaging,
+            IIngestFinalizer ingestFinalizer)
         {
+            _indexManagerFactory = indexManagerFactory;
             _ingestProtectProcessor = ingestProtectProcessor;
             _catalogManagerAdapter = catalogManagerAdapter;
             _couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.EPG);
@@ -68,6 +73,7 @@ namespace IngestHandler
                                            ?? throw new ArgumentNullException(nameof(epgAssetMultilingualMutator));
             _regionManager = regionManager ?? throw new ArgumentNullException(nameof(regionManager));
             _epgIngestMessaging = epgIngestMessaging;
+            _ingestFinalizer = ingestFinalizer;
         }
 
         public async Task Handle(BulkUploadIngestEvent serviceEvent)
@@ -81,7 +87,6 @@ namespace IngestHandler
                     serviceEvent.TargetIndexName = NamingHelper.Instance.GetDailyEpgIndexName(serviceEvent.GroupId, serviceEvent.DateOfProgramsToIngest);
                 }
 
-                _indexManager = IndexManagerFactory.Instance.GetIndexManager(serviceEvent.GroupId);
                 _logger.Info($"Starting ingest write handler BulkUploadId: [{serviceEvent.BulkUploadId}], TargetIndexName:[{serviceEvent.TargetIndexName}], BulkUploadId:[{serviceEvent.BulkUploadId}], crud operations: [{serviceEvent.CrudOperations}]");
                 await HandleIngestCrudOperations(serviceEvent);
             }
@@ -132,9 +137,10 @@ namespace IngestHandler
 
                 string dailyEpgIndexName = string.Empty;
 
+                var indexManager = _indexManagerFactory.GetIndexManager(serviceEvent.GroupId);
                 try
                 {
-                    dailyEpgIndexName = _indexManager.SetupEpgV2Index(serviceEvent.TargetIndexName);
+                    dailyEpgIndexName = indexManager.SetupEpgV2Index(serviceEvent.TargetIndexName);
                 }
                 catch
                 {
@@ -144,12 +150,12 @@ namespace IngestHandler
 
                 await BulkUploadMethods.UpdateCouchbase(serviceEvent.CrudOperations, serviceEvent.GroupId);
 
-                _indexManager.DeletePrograms(serviceEvent.CrudOperations.ItemsToDelete, NamingHelper.GetEpgIndexAlias(serviceEvent.GroupId), _languages);
+                indexManager.DeletePrograms(serviceEvent.CrudOperations.ItemsToDelete, NamingHelper.GetEpgIndexAlias(serviceEvent.GroupId), _languages);
                 var programsToIndex = serviceEvent.CrudOperations.ItemsToAdd.Concat(serviceEvent.CrudOperations.ItemsToUpdate).Concat(serviceEvent.CrudOperations.AffectedItems).ToList();
-                _indexManager.UpsertPrograms(programsToIndex, dailyEpgIndexName, _defaultLanguage, _languages);
+                indexManager.UpsertPrograms(programsToIndex, dailyEpgIndexName, _defaultLanguage, _languages);
 
-                var finalizer = new IngestFinalizer(_bulkUpload, _relevantResultsDictionary, serviceEvent.TargetIndexName, serviceEvent.RequestId,_indexManager, _epgIngestMessaging);
-                await finalizer.FinalizeEpgIngest();
+                await _ingestFinalizer.FinalizeEpgIngest(serviceEvent, _bulkUpload, _relevantResultsDictionary);
+
                 _logger.Info($"{_logPrefix} Ingest Handler completed.");
             }
             catch (Exception ex)

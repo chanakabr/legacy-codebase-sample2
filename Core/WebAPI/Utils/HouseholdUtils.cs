@@ -18,12 +18,7 @@ namespace WebAPI.Utils
 
         private const string HOUSEHOLD_KEY = "household";
 
-        public static long GetHouseholdIDByKS()
-        {
-            return GetHouseholdIDByKS(0);
-        }
-
-        public static long GetHouseholdIDByKS(int groupID)
+        public static long GetHouseholdIDByKS(int groupId = 0)
         {
             var ks = KS.GetFromRequest();
 
@@ -34,6 +29,10 @@ namespace WebAPI.Utils
 
             if (userID == "0")
                 return 0;
+
+            var domainId = KSUtils.ExtractKSPayload().DomainId;
+            if (domainId > 0)
+                return domainId;
 
             KalturaHousehold domain = GetHouseholdFromRequest();
             if (domain == null)

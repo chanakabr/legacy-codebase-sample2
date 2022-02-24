@@ -45,7 +45,7 @@ namespace WebAPI.Controllers
             try
             {
                 // get domain       
-                var domain = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                var domain = (int)HouseholdUtils.GetHouseholdIDByKS();
 
                 // check if the user performing the action is domain master
                 if (domain == 0)
@@ -56,7 +56,7 @@ namespace WebAPI.Controllers
                 var userId = KS.GetFromRequest().UserId;
 
                 // call client
-                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, productType, false, KSUtils.ExtractKSPayload().UDID, userId);
+                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, domain, assetId, productType, false, KSUtils.ExtractKSPayload().UDID, userId);
             }
             catch (ClientException ex)
             {
@@ -103,7 +103,7 @@ namespace WebAPI.Controllers
             {
 
                 // get domain       
-                var domain = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                var domain = (int)HouseholdUtils.GetHouseholdIDByKS();
 
                 // check if the user performing the action is domain master
                 if (domain == 0)
@@ -114,7 +114,7 @@ namespace WebAPI.Controllers
                 var userId = KS.GetFromRequest().UserId;
 
                 // call client
-                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, productType, true, KSUtils.ExtractKSPayload().UDID, userId);
+                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, domain, assetId, productType, true, KSUtils.ExtractKSPayload().UDID, userId);
             }
             catch (ClientException ex)
             {
@@ -156,7 +156,7 @@ namespace WebAPI.Controllers
             try
             {
                 // get domain       
-                var domain = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                var domain = (int)HouseholdUtils.GetHouseholdIDByKS();
 
                 // check if the user performing the action is domain master
                 if (domain == 0)
@@ -165,7 +165,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                ClientsManager.ConditionalAccessClient().CancelSubscriptionRenewal(groupId, (int)domain, subscriptionId, KS.GetFromRequest().UserId, KSUtils.ExtractKSPayload().UDID);
+                ClientsManager.ConditionalAccessClient().CancelSubscriptionRenewal(groupId, domain, subscriptionId, KS.GetFromRequest().UserId, KSUtils.ExtractKSPayload().UDID);
             }
             catch (ClientException ex)
             {
@@ -199,7 +199,7 @@ namespace WebAPI.Controllers
                         break;
                     case KalturaEntityReferenceBy.household:
                         {
-                            response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.EntitlementType);
+                            response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(), filter.EntitlementType);
                         }
                         break;
                 }
@@ -252,7 +252,7 @@ namespace WebAPI.Controllers
                         break;
                     case KalturaEntityReferenceBy.household:
                         {
-                            response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId),
+                            response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(),
                                 filter.EntitlementTypeEqual.HasValue ? filter.EntitlementTypeEqual.Value : filter.ProductTypeEqual.Value,
                                 filter.getIsExpiredEqual(), pager.getPageSize(), pager.getPageIndex(), filter.OrderBy);
                         }
@@ -301,7 +301,7 @@ namespace WebAPI.Controllers
                         break;
                     case KalturaEntityReferenceBy.household:
                         {
-                            response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.EntitlementType, true, pager.getPageSize(), pager.getPageIndex());
+                            response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(), filter.EntitlementType, true, pager.getPageSize(), pager.getPageIndex());
                         }
                         break;
                 }
@@ -362,7 +362,7 @@ namespace WebAPI.Controllers
             int groupId = KS.GetFromRequest().GroupId;
             string userId = KS.GetFromRequest().UserId;
 
-            long domainID = HouseholdUtils.GetHouseholdIDByKS(groupId);
+            long domainID = HouseholdUtils.GetHouseholdIDByKS();
 
             try
             {
@@ -459,8 +459,6 @@ namespace WebAPI.Controllers
             int groupId = KS.GetFromRequest().GroupId;
             string userId = KS.GetFromRequest().UserId;
 
-            long domainID = HouseholdUtils.GetHouseholdIDByKS(groupId);
-
             try
             {
                 response = ClientsManager.ConditionalAccessClient().ReconcileEntitlements(groupId, userId);
@@ -494,7 +492,7 @@ namespace WebAPI.Controllers
         static public KalturaEntitlement Update(int id, KalturaEntitlement entitlement)
         {
             int groupId = KS.GetFromRequest().GroupId;
-            long domainID = HouseholdUtils.GetHouseholdIDByKS(groupId);
+            long domainID = HouseholdUtils.GetHouseholdIDByKS();
 
             try
             {
@@ -574,7 +572,7 @@ namespace WebAPI.Controllers
         {
             bool result = false;
             int groupId = KS.GetFromRequest().GroupId;
-            long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+            long domainId = HouseholdUtils.GetHouseholdIDByKS();
 
             try
             {
@@ -601,7 +599,7 @@ namespace WebAPI.Controllers
         static public KalturaEntitlementRenewal GetNextRenewal(int id)
         {
             int groupId = KS.GetFromRequest().GroupId;
-            long domainID = HouseholdUtils.GetHouseholdIDByKS(groupId);
+            long domainID = HouseholdUtils.GetHouseholdIDByKS();
             long userId = long.Parse(KS.GetFromRequest().UserId);
 
             try
@@ -633,7 +631,7 @@ namespace WebAPI.Controllers
         static public void ApplyCoupon(long purchaseId, string couponCode)
         {
             var groupId = KS.GetFromRequest().GroupId;
-            var householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+            var householdId = HouseholdUtils.GetHouseholdIDByKS();
             var userId = KS.GetFromRequest().UserId;
 
             try

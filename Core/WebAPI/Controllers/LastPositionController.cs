@@ -72,8 +72,8 @@ namespace WebAPI.Controllers
                                 var household = HouseholdUtils.GetHouseholdFromRequest();
                                 if (household != null && household.DefaultUsers != null && household.DefaultUsers.Count > 0)
                                 {
-                                    response = ClientsManager.CatalogClient().GetAssetsLastPositionBookmarks(household.DefaultUsers[0].Id, groupId, 
-                                        (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, assets);
+                                    response = ClientsManager.CatalogClient().GetAssetsLastPositionBookmarks(household.DefaultUsers[0].Id, groupId,
+                                        (int)HouseholdUtils.GetHouseholdIDByKS(), udid, assets);
                                 }
                             }
                             else

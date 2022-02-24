@@ -36,7 +36,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                coupon = ClientsManager.PricingClient().GetCouponStatus(groupId, code, HouseholdUtils.GetHouseholdIDByKS(groupId));
+                coupon = ClientsManager.PricingClient().GetCouponStatus(groupId, code, HouseholdUtils.GetHouseholdIDByKS());
             }
             catch (ClientException ex)
             {

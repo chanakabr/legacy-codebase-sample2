@@ -28,6 +28,7 @@ using WebAPI.Utils;
 using ApiObjects.SearchObjects;
 using WebAPI.ObjectsConvertor.Ordering;
 using SearchAssetsFilter = WebAPI.InternalModels.SearchAssetsFilter;
+using WebAPI.Managers;
 
 namespace WebAPI.Controllers
 {
@@ -105,7 +106,7 @@ namespace WebAPI.Controllers
                                 throw new BadRequestException(BadRequestException.EPG_INTERNAL_IDS_MUST_BE_NUMERIC);
                             }
 
-                            response = ClientsManager.CatalogClient().GetEPGByInternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
+                            response = ClientsManager.CatalogClient().GetEPGByInternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), udid, language,
                                pager.getPageIndex(), pager.PageSize, ids, with.Select(x => x.type).ToList());
 
                             // if no response - return not found status 
@@ -118,7 +119,7 @@ namespace WebAPI.Controllers
                         break;
                     case KalturaCatalogReferenceBy.EPG_EXTERNAL:
                         {
-                            response = ClientsManager.CatalogClient().GetEPGByExternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
+                            response = ClientsManager.CatalogClient().GetEPGByExternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), udid, language,
                                   pager.getPageIndex(), pager.PageSize, filter.IDs.Select(id => id.value).ToList(), with.Select(x => x.type).ToList());
 
                             // if no response - return not found status 
@@ -137,7 +138,7 @@ namespace WebAPI.Controllers
                             }
 
                             var withList = with.Select(x => x.type).ToList();
-                            response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
+                            response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), udid, language,
                             pager.getPageIndex(), pager.PageSize, withList, channelID, order_by, string.Empty, false);
                         }
                         break;
@@ -158,7 +159,7 @@ namespace WebAPI.Controllers
         /// <param name="pager">Paging the request</param>
         /// <remarks></remarks>
         [Action("list")]
-        [ApiAuthorize]
+        [ApiAuthorize(eKSValidation.Expiration)]
         [Throws(eResponseStatus.SyntaxError)]
         [Throws(eResponseStatus.BadSearchRequest)]
         [Throws(eResponseStatus.IndexMissing)]
@@ -202,7 +203,7 @@ namespace WebAPI.Controllers
                         asset.Metas = ModifyAlias(
                         contextData.GroupId, clientTag, asset));
                 }
-             
+
                 CatalogUtils.HandleResponseProfile(responseProfile, response.Objects);
             }
             catch (ClientException ex)
@@ -268,7 +269,7 @@ namespace WebAPI.Controllers
                                 {
                                     GroupId = groupId,
                                     SiteGuid = userID,
-                                    DomainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId),
+                                    DomainId = (int)HouseholdUtils.GetHouseholdIDByKS(),
                                     Udid = udid,
                                     Language = language,
                                     PageIndex = 0,
@@ -299,7 +300,7 @@ namespace WebAPI.Controllers
                             }
                         }
 
-                        asset = ClientsManager.CatalogClient().GetAsset(groupId, mediaId, assetReferenceType, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, isAllowedToViewInactiveAssets, true);
+                        asset = ClientsManager.CatalogClient().GetAsset(groupId, mediaId, assetReferenceType, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), udid, language, isAllowedToViewInactiveAssets, true);
                         break;
                     case KalturaAssetReferenceType.epg_internal:
                         int epgId;
@@ -314,7 +315,7 @@ namespace WebAPI.Controllers
                         }
                         else
                         {
-                            var epgRes = ClientsManager.CatalogClient().GetEPGByInternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
+                            var epgRes = ClientsManager.CatalogClient().GetEPGByInternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), udid, language,
                                0, 1, new List<int> { epgId }, KalturaAssetOrderBy.START_DATE_DESC);
 
                             // if no response - return not found status 
@@ -381,7 +382,7 @@ namespace WebAPI.Controllers
             }
             else
             {
-                int epgId = (int)recording.AssetId; 
+                int epgId = (int)recording.AssetId;
 
                 if (Utils.Utils.DoesGroupUsesTemplates(groupId))
                 {
@@ -390,7 +391,7 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    var epgRes = ClientsManager.CatalogClient().GetEPGByInternalIds(groupId, userId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
+                    var epgRes = ClientsManager.CatalogClient().GetEPGByInternalIds(groupId, userId, (int)HouseholdUtils.GetHouseholdIDByKS(), udid, language,
                        0, 1, new List<int> { epgId }, KalturaAssetOrderBy.START_DATE_DESC);
 
                     // if no response - return not found status 
@@ -462,7 +463,7 @@ namespace WebAPI.Controllers
                                 throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "id");
                             }
 
-                            var epgRes = ClientsManager.CatalogClient().GetEPGByInternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
+                            var epgRes = ClientsManager.CatalogClient().GetEPGByInternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), udid, language,
                                0, 1, new List<int> { epgId }, with.Select(x => x.type).ToList());
 
                             // if no response - return not found status 
@@ -476,7 +477,7 @@ namespace WebAPI.Controllers
                         break;
                     case KalturaAssetReferenceType.epg_external:
                         {
-                            var epgRes = ClientsManager.CatalogClient().GetEPGByExternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
+                            var epgRes = ClientsManager.CatalogClient().GetEPGByExternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), udid, language,
                               0, 1, new List<string> { id }, with.Select(x => x.type).ToList());
 
                             // if no response - return not found status 
@@ -545,7 +546,7 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
             string userID = KS.GetFromRequest().UserId;
-            int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+            int domainId = (int)HouseholdUtils.GetHouseholdIDByKS();
             string udid = KSUtils.ExtractKSPayload().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
 
@@ -659,7 +660,7 @@ namespace WebAPI.Controllers
                 string udid = KSUtils.ExtractKSPayload().UDID;
                 string language = Utils.Utils.GetLanguageFromRequest();
 
-                response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
+                response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), udid,
                     language, pager.getPageIndex(), pager.PageSize, media_id, filter, filter_types.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
             }
             catch (ClientException ex)
@@ -708,7 +709,7 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
 
-                response = ClientsManager.CatalogClient().GetRelatedMediaExternal(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
+                response = ClientsManager.CatalogClient().GetRelatedMediaExternal(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), udid,
                     language, pager.getPageIndex(), pager.PageSize, asset_id, filter_type_ids.Select(x => x.value).ToList(), utc_offset, with.Select(x => x.type).ToList(), free_param);
             }
             catch (ClientException ex)
@@ -757,7 +758,7 @@ namespace WebAPI.Controllers
                 string userID = KS.GetFromRequest().UserId;
                 string language = Utils.Utils.GetLanguageFromRequest();
 
-                response = ClientsManager.CatalogClient().GetSearchMediaExternal(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
+                response = ClientsManager.CatalogClient().GetSearchMediaExternal(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), udid,
                     language, pager.getPageIndex(), pager.PageSize, query, filter_type_ids.Select(x => x.value).ToList(), utc_offset, with.Select(x => x.type).ToList());
             }
             catch (ClientException ex)
@@ -823,7 +824,7 @@ namespace WebAPI.Controllers
                 string userID = KS.GetFromRequest().UserId;
 
                 var withList = with.Select(x => x.type).ToList();
-                response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
+                response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), udid, language,
                     pager.getPageIndex(), pager.PageSize, withList, id, order_by, filter_query, false);
             }
             catch (ClientException ex)
@@ -886,7 +887,7 @@ namespace WebAPI.Controllers
 
                 string deviceType = System.Web.HttpContext.Current.Request.GetUserAgentString();
                 string str_utc_offset = utc_offset.HasValue ? utc_offset.Value.ToString() : null;
-                response = ClientsManager.CatalogClient().GetExternalChannelAssets(groupId, id.ToString(), userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
+                response = ClientsManager.CatalogClient().GetExternalChannelAssets(groupId, id.ToString(), userID, (int)HouseholdUtils.GetHouseholdIDByKS(), udid,
                     language, pager.getPageIndex(), pager.PageSize, order_by, convertedWith, deviceType, str_utc_offset, free_param);
             }
             catch (ClientException ex)
@@ -936,7 +937,7 @@ namespace WebAPI.Controllers
                 if (response.Sources != null && response.Sources.Count > 0)
                 {
                     response.Sources = FilterAssetFilesForUserInPlayback(response.Sources, assetType, ks);
-                    
+
                     DrmUtils.BuildSourcesDrmData(assetId, assetType, contextDataParams, ks, ref response);
 
                     // Check and get PlaybackAdapter in case asset set rule and action.
@@ -1040,7 +1041,7 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
             string userID = KS.GetFromRequest().UserId;
-            int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+            int domainId = (int)HouseholdUtils.GetHouseholdIDByKS();
             string udid = KSUtils.ExtractKSPayload().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
 
@@ -1486,7 +1487,7 @@ namespace WebAPI.Controllers
 
             return mediaFiles?.Where(mediaFile => FileMatchUser(rules, assetType, mediaFile, fileTypes));
         }
-        
+
         private static IEnumerable<KalturaMediaFile> MarkPlaybackable(IEnumerable<KalturaMediaFile> mediaFiles,
             IReadOnlyCollection<AssetRuleAction> rules, eAssetTypes assetType, FileManager.FileTypes fileTypes)
         {
@@ -1511,9 +1512,9 @@ namespace WebAPI.Controllers
         {
             switch (assetTypeId)
             {
-                case null : return eAssetTypes.UNKNOWN;
-                case 0 : return eAssetTypes.EPG;
-                case 1 : return eAssetTypes.NPVR;
+                case null: return eAssetTypes.UNKNOWN;
+                case 0: return eAssetTypes.EPG;
+                case 1: return eAssetTypes.NPVR;
                 default: return eAssetTypes.MEDIA;
             }
         }

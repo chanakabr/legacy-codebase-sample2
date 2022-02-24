@@ -215,7 +215,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.PricingClient().ValidateCouponForSubscription(groupId, id, code, HouseholdUtils.GetHouseholdIDByKS(groupId));
+                response = ClientsManager.PricingClient().ValidateCouponForSubscription(groupId, id, code, (int)HouseholdUtils.GetHouseholdIDByKS());
             }
             catch (ClientException ex)
             {

@@ -38,7 +38,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+                int householdId = (int)HouseholdUtils.GetHouseholdIDByKS();
 
                 if (by == KalturaEntityReferenceBy.user)
                 {
@@ -120,7 +120,7 @@ namespace WebAPI.Controllers
                 }
                 else if (by == KalturaEntityReferenceBy.household)
                 {
-                    int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+                    int householdId = (int)HouseholdUtils.GetHouseholdIDByKS();
 
                     if (type == KalturaPinType.parental)
                     {
@@ -163,7 +163,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+                int householdId = (int)HouseholdUtils.GetHouseholdIDByKS();
 
                 if (by == KalturaEntityReferenceBy.user)
                 {
@@ -241,7 +241,7 @@ namespace WebAPI.Controllers
                 }
                 else if (by == KalturaEntityReferenceBy.household)
                 {
-                    int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+                    int householdId = (int)HouseholdUtils.GetHouseholdIDByKS();
 
                     if (type == KalturaPinType.parental)
                     {

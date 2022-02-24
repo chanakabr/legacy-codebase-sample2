@@ -47,7 +47,7 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    response = ClientsManager.CatalogClient().GetChannelInfo(groupId, ks.UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), KSUtils.ExtractKSPayload().UDID,
+                    response = ClientsManager.CatalogClient().GetChannelInfo(groupId, ks.UserId, (int)HouseholdUtils.GetHouseholdIDByKS(), KSUtils.ExtractKSPayload().UDID,
                                                                                 Utils.Utils.GetLanguageFromRequest(), id);
 
                     // if no response - return not found status 
@@ -86,7 +86,7 @@ namespace WebAPI.Controllers
                 string userID = KS.GetFromRequest().UserId;
                 string udid = KSUtils.ExtractKSPayload().UDID;
                 string language = Utils.Utils.GetLanguageFromRequest();
-                response = ClientsManager.CatalogClient().GetChannelInfo(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, id);
+                response = ClientsManager.CatalogClient().GetChannelInfo(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), udid, language, id);
 
                 // if no response - return not found status 
                 if (response == null || response.Id == 0)

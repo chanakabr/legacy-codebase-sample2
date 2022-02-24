@@ -303,9 +303,6 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            // get domain id      
-            var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
-
             try
             {
                 // call client

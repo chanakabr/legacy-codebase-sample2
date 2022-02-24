@@ -32,7 +32,7 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-                long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                long domainId = HouseholdUtils.GetHouseholdIDByKS();
                 // call client                
                 response = ClientsManager.ConditionalAccessClient().GetRecord(groupId, domainId, id);
             }

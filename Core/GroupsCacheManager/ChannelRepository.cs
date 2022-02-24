@@ -589,10 +589,10 @@ namespace GroupsCacheManager
                 return;
             }
 
-            if (orderingParameters.First() is AssetOrderByMeta assetOrderByMeta)
+            if (orderingParameters.First() is AssetOrderByMeta assetOrderByMeta && string.IsNullOrEmpty(assetOrderByMeta.MetaName))
             {
                 var metasEnumName = Enum.GetName(typeof(MetasEnum), orderBy);
-                if (metasValues.TryGetValue(metasEnumName, out var metaName))
+                if (metasEnumName != null && metasValues.TryGetValue(metasEnumName, out var metaName))
                 {
                     assetOrderByMeta.MetaName = metaName;
                 }

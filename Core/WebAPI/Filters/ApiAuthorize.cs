@@ -7,18 +7,19 @@ namespace WebAPI.Controllers
     {
         [Flags]
         public enum eRole { /* Placeholder */ }
+
         public eRole Role { get; set; }
-        public bool Silent { get; set; }
+        public eKSValidation KSValidation { get; set; }
         
-        public ApiAuthorizeAttribute(bool silent = false)
+        public ApiAuthorizeAttribute(eKSValidation validationState = eKSValidation.All)
             : base()
         {
-            Silent = silent;
+            KSValidation = validationState;
         }
 
         public bool IsAuthorized(string service, string action)
         {
-            RolesManager.ValidateActionPermitted(service, action, Silent);
+            RolesManager.ValidateActionPermitted(service, action, KSValidation);
             return true;
         }
     }

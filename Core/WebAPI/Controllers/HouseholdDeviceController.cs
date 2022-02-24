@@ -38,7 +38,7 @@ namespace WebAPI.Controllers
             bool res = false;
             KS ks = KS.GetFromRequest();
             int groupId = ks.GroupId;
-            long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+            var householdId = (int)HouseholdUtils.GetHouseholdIDByKS();
 
             try
             {
@@ -50,7 +50,7 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    res = ClientsManager.DomainsClient().RemoveDeviceFromDomain(groupId, (int)householdId, udid);
+                    res = ClientsManager.DomainsClient().RemoveDeviceFromDomain(groupId, householdId, udid);
                 }
 
                 DeviceRemovalPolicyHandler.Instance.DeleteDomainDeviceUsageDate(udid, groupId);
@@ -92,7 +92,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                device = ClientsManager.DomainsClient().RegisterDeviceByPin(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), deviceName, pin);
+                device = ClientsManager.DomainsClient().RegisterDeviceByPin(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(), deviceName, pin);
             }
             catch (ClientException ex)
             {
@@ -121,7 +121,7 @@ namespace WebAPI.Controllers
             device.Validate();
 
             int groupId = KS.GetFromRequest().GroupId;
-            int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+            int householdId = (int)HouseholdUtils.GetHouseholdIDByKS();
             long userId = KS.GetFromRequest().UserId.ParseUserId();
             var contextData = new ContextData(groupId) { UserId = userId };
 
@@ -174,7 +174,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                household = ClientsManager.DomainsClient().AddDeviceToDomain(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), device_name, udid, device_brand_id);
+                household = ClientsManager.DomainsClient().AddDeviceToDomain(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(), device_name, udid, device_brand_id);
             }
             catch (ClientException ex)
             {
@@ -210,7 +210,7 @@ namespace WebAPI.Controllers
             if (udid.IsNullOrEmptyOrWhiteSpace())
             {
                 udid = KSUtils.ExtractKSPayload().UDID;
-                householdId = (int)HouseholdUtils.GetHouseholdIDByKS(ks.GroupId);
+                householdId = (int)HouseholdUtils.GetHouseholdIDByKS();
             }
 
             if (string.IsNullOrEmpty(udid))
@@ -256,7 +256,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                status = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+                status = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(), udid);
             }
             catch (ClientException ex)
             {
@@ -322,7 +322,7 @@ namespace WebAPI.Controllers
                 ClientsManager.DomainsClient().ValidateDeviceReferencesData(contextData, device);
 
                 // check device registration status - return forbidden if device not in domain        
-                var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+                var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(), udid);
                 if (deviceRegistrationStatus != KalturaDeviceRegistrationStatus.registered)
                 {
                     throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
@@ -361,7 +361,7 @@ namespace WebAPI.Controllers
             try
             {
                 // check device registration status - return forbidden if device not in domain        
-                var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+                var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(), udid);
                 if (deviceRegistrationStatus != KalturaDeviceRegistrationStatus.registered)
                 {
                     throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
@@ -392,12 +392,12 @@ namespace WebAPI.Controllers
         static public bool UpdateStatus(string udid, KalturaDeviceStatus status)
         {
             int groupId = KS.GetFromRequest().GroupId;
-            int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+            int householdId = (int)HouseholdUtils.GetHouseholdIDByKS();
 
             try
             {
                 // check device registration status - return forbidden if device not in domain        
-                var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+                var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, householdId, udid);
                 if (deviceRegistrationStatus != KalturaDeviceRegistrationStatus.registered)
                 {
                     throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
@@ -423,7 +423,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">Household devices filter</param>
         [Action("list")]
-        [ApiAuthorize]
+        [ApiAuthorize(eKSValidation.Expiration)]
         static public KalturaHouseholdDeviceListResponse List(KalturaHouseholdDeviceFilter filter = null)
         {
             KalturaHouseholdDeviceListResponse response = null;
@@ -537,7 +537,7 @@ namespace WebAPI.Controllers
             {
                 if (!RequestContextUtilsInstance.Get().IsPartnerRequest())
                 {
-                    var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+                    var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(), udid);
                     if (deviceRegistrationStatus != KalturaDeviceRegistrationStatus.registered)
                     {
                         throw new UnauthorizedException(BadRequestException.SERVICE_FORBIDDEN);
@@ -580,7 +580,7 @@ namespace WebAPI.Controllers
             {
                 if (!RequestContextUtilsInstance.Get().IsPartnerRequest())
                 {
-                    var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+                    var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(), udid);
                     if (deviceRegistrationStatus != KalturaDeviceRegistrationStatus.registered)
                     {
                         throw new UnauthorizedException(BadRequestException.SERVICE_FORBIDDEN);

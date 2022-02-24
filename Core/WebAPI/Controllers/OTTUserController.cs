@@ -6,7 +6,6 @@ using System.Linq;
 using System.Web;
 using ApiObjects.User;
 using KalturaRequestContext;
-using TVinciShared;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -192,7 +191,7 @@ namespace WebAPI.Controllers
         /// <param name="udid">Device UDID</param>
         /// <returns></returns>
         [Action("refreshSession")]
-        [ApiAuthorize(true)]
+        [ApiAuthorize(eKSValidation.None)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [OldStandardArgument("refreshToken", "refresh_token")]
         [Throws(StatusCode.InvalidRefreshToken)]
@@ -443,7 +442,7 @@ namespace WebAPI.Controllers
         /// <param name="userId">User Identifier</param>        
         /// <param name="password">new password</param>
         [Action("updatePassword")]
-        [ApiAuthorize(true)]
+        [ApiAuthorize(eKSValidation.None)]
         [BlockHttpMethods("GET")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.PasswordPolicyViolation)]

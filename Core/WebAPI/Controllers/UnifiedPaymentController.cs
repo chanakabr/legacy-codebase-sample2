@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
         static public KalturaUnifiedPaymentRenewal GetNextRenewal(int id)
         {
             int groupId = KS.GetFromRequest().GroupId;
-            long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+            long householdId = HouseholdUtils.GetHouseholdIDByKS();
             long userId = long.Parse(KS.GetFromRequest().UserId);
 
             try

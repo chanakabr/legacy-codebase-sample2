@@ -1,10 +1,8 @@
 ﻿using Phx.Lib.Log;
 using Newtonsoft.Json;
 using System;
-using System.Collections;
-using System.IO;
 using System.Reflection;
-using System.Runtime.Serialization.Formatters.Binary;
+using OTT.Lib.Kafka;
 
 namespace EventBus.Abstraction
 {
@@ -19,7 +17,7 @@ namespace EventBus.Abstraction
     }
 
     [Serializable]
-    public abstract class ServiceEvent
+    public abstract class ServiceEvent : IKafkaContextProvider
     {
         public ServiceEvent()
         {
@@ -109,6 +107,21 @@ namespace EventBus.Abstraction
             {
                 return base.ToString();
             }
+        }
+
+        public string GetRequestId()
+        {
+            return RequestId;
+        }
+
+        public long? GetPartnerId()
+        {
+            return GroupId;
+        }
+
+        public long? GetUserId()
+        {
+            return UserId;
         }
     }
 }
