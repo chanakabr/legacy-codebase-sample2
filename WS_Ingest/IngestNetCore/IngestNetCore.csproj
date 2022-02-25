@@ -39,6 +39,7 @@
     <ProjectReference Include="..\..\Core\Core.Metrics\Core.Metrics.csproj" />
     <ProjectReference Include="..\..\Core\Core.Middleware\Core.Middleware.csproj" />
     <ProjectReference Include="..\..\Core\HealthCheck\HealthCheck.csproj" />
+    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />
     <ProjectReference Include="..\IngestCommon\Ingest.Common.csproj" />
   </ItemGroup>

@@ -188,7 +188,7 @@ namespace ApiLogic.Users.Services
                         LastLoginDate = now,
                     };
                     
-                    KafkaPublisher.GetFromTcmConfiguration().Publish(migrationEvent);
+                    KafkaPublisher.GetFromTcmConfiguration(migrationEvent).Publish(migrationEvent);
 
                 }
             }

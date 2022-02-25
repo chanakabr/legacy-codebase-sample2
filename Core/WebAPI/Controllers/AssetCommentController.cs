@@ -40,7 +40,7 @@ namespace WebAPI.Controllers
                 string language = Utils.Utils.GetLanguageFromRequest();
                 string userId = KS.GetFromRequest().UserId;
                 string udid = KSUtils.ExtractKSPayload().UDID;
-                int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+                int domainId = (int)HouseholdUtils.GetHouseholdIDByKS();
 
                 response = ClientsManager.CatalogClient().GetAssetCommentsList(groupId, language, filter.AssetIdEqual, filter.AssetTypeEqual, userId, domainId, udid, pager.GetRealPageIndex(), pager.PageSize,
                     filter.OrderBy);
@@ -81,12 +81,12 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
-                long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);     
+                var domainId = (int)HouseholdUtils.GetHouseholdIDByKS();
                 string udid = KSUtils.ExtractKSPayload().UDID;
                 string language = Utils.Utils.GetLanguageFromRequest();
                 
                 // call client
-                response = ClientsManager.CatalogClient().AddAssetComment(groupId, comment.AssetId, comment.AssetType, userId, (int)domainId, comment.Writer,
+                response = ClientsManager.CatalogClient().AddAssetComment(groupId, comment.AssetId, comment.AssetType, userId, domainId, comment.Writer,
                                                                           comment.Header, comment.SubHeader, comment.Text, udid, language);
             }
             catch (ClientException ex)

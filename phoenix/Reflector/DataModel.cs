@@ -513,14 +513,7 @@ namespace Reflector
                     permissionActionName = actionAttribute.Name;
                 }
 
-                if (authorization.Silent)
-                {
-                    file.WriteLine(tab + "                            RolesManager.ValidateActionPermitted(\"" + serviceAttribute.Name + "\", \"" + permissionActionName + "\", true);");
-                }
-                else
-                {
-                    file.WriteLine(tab + "                            RolesManager.ValidateActionPermitted(\"" + serviceAttribute.Name + "\", \"" + permissionActionName + "\", false);");
-                }
+                file.WriteLine(tab + "                            RolesManager.ValidateActionPermitted(\"" + serviceAttribute.Name + "\", \"" + permissionActionName + "\", WebAPI.Managers.eKSValidation." + authorization.KSValidation + ");");
             }
 
             SchemeServeAttribute serve = action.GetCustomAttribute<SchemeServeAttribute>(true);

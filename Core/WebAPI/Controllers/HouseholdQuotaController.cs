@@ -36,7 +36,7 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-                long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                long domainId = HouseholdUtils.GetHouseholdIDByKS();
                 string userId = KS.GetFromRequest().UserId;
 
                 // call client                

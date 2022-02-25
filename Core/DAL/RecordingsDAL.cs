@@ -180,6 +180,7 @@ namespace DAL
 
         public static bool DeleteRecording(long recordingId)
         {
+            log.Info($"DeleteRecording: recordingId: {recordingId}");
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteRecording");
             sp.SetConnectionKey(RECORDING_CONNECTION);
             sp.AddParameter("@RecordID", recordingId);
@@ -900,6 +901,7 @@ namespace DAL
         {
             if (recording != null)
             {
+                log.Info($"UpdateRecording_CB: recordingId: {recording.RecordingId}, epgId: {recording.EpgID}, status: {recording.Status}");
                 CouchbaseManager.CouchbaseManager client = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
 
                 bool result = client.Set<RecordingCB>(recording.EpgID.ToString(), recording);
@@ -915,6 +917,7 @@ namespace DAL
         {
             if (recording != null)
             {
+                log.Info($"DeleteRecording_CB: recordingId: {recording.RecordingId}, epgId: {recording.EpgID}, status: {recording.Status}");
                 CouchbaseManager.CouchbaseManager client = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
 
                 bool result = client.Remove(recording.EpgID.ToString());

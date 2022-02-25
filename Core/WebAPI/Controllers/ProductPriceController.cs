@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
@@ -20,7 +21,7 @@ namespace WebAPI.Controllers
         /// <param name="filter">Request filter</param>
         /// <remarks></remarks>
         [Action("list")]
-        [ApiAuthorize]
+        [ApiAuthorize(eKSValidation.Expiration)]
         static public KalturaProductPriceListResponse List(KalturaProductPriceFilter filter)
         {
             List<KalturaProductPrice> productPrices = new List<KalturaProductPrice>();

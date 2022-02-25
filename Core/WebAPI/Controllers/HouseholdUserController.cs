@@ -97,7 +97,7 @@ namespace WebAPI.Controllers
                 }
                 else if (string.IsNullOrEmpty(householdUser.HouseholdMasterUsername))
                 {
-                    householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+                    householdId = (int)HouseholdUtils.GetHouseholdIDByKS();
                     masterId = KS.GetFromRequest().UserId;
                 }
 
@@ -150,10 +150,10 @@ namespace WebAPI.Controllers
             try
             {
                 // get domain id       
-                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                var domainId = (int)HouseholdUtils.GetHouseholdIDByKS();
 
                 // call client
-                return ClientsManager.DomainsClient().AddUserToDomain(groupId, (int)domainId, user_id_to_add, KS.GetFromRequest().UserId, is_master) != null;
+                return ClientsManager.DomainsClient().AddUserToDomain(groupId, domainId, user_id_to_add, KS.GetFromRequest().UserId, is_master) != null;
             }
             catch (ClientException ex)
             {

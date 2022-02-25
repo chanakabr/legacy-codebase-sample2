@@ -10,6 +10,7 @@ using System.Collections;
 using System.IO;
 using WebAPI.ModelsValidators;
 using WebAPI.ObjectsConvertor.Extensions;
+using WebAPI.Managers;
 
 namespace Reflector
 {
@@ -238,6 +239,10 @@ namespace Reflector
                             else if (schemePropertyProperty.PropertyType == typeof(Type))
                             {
                                 file.WriteLine("            " + schemePropertyProperty.Name + " = typeof(" + ((Type)val).Name + "),");
+                            }
+                            else if (schemePropertyProperty.PropertyType == typeof(eKSValidation))
+                            {
+                                file.WriteLine("            " + schemePropertyProperty.Name + " = WebAPI.Managers.eKSValidation." + val.ToString() + ",");
                             }
                             else
                             {

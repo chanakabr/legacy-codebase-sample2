@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ApiObjects;
 using ApiObjects.SearchObjects;
 using ElasticSearch.Searcher;
 using ElasticSearch.Utils;
@@ -126,11 +127,11 @@ namespace ElasticSearch.Test
             });
             yield return new TestCaseData(new List<IEsOrderByField>
             {
-                new EsOrderByMetaField("meta", OrderDir.DESC, true, typeof(string))
+                new EsOrderByMetaField("meta", OrderDir.DESC, true, typeof(string), new LanguageObj { Code = "eng" })
             });
             yield return new TestCaseData(new List<IEsOrderByField>
             {
-                new EsOrderByMetaField("meta", OrderDir.ASC, false, typeof(int)),
+                new EsOrderByMetaField("meta", OrderDir.ASC, false, typeof(int), new LanguageObj { IsDefault = true }),
                 new EsOrderByField(OrderBy.START_DATE, OrderDir.ASC)
             });
             yield return new TestCaseData(new List<IEsOrderByField>
@@ -209,8 +210,8 @@ namespace ElasticSearch.Test
             yield return new TestCaseData(new EsOrderByField(OrderBy.UPDATE_DATE, OrderDir.DESC));
             yield return new TestCaseData(new EsOrderByField(OrderBy.EPG_ID, OrderDir.DESC));
             yield return new TestCaseData(new EsOrderByField(OrderBy.MEDIA_ID, OrderDir.DESC));
-            yield return new TestCaseData(new EsOrderByMetaField("meta", OrderDir.DESC, true, typeof(int)));
-            yield return new TestCaseData(new EsOrderByMetaField("meta", OrderDir.ASC, false, typeof(DateTime)));
+            yield return new TestCaseData(new EsOrderByMetaField("meta", OrderDir.DESC, true, typeof(int), new LanguageObj { IsDefault = true }));
+            yield return new TestCaseData(new EsOrderByMetaField("meta", OrderDir.ASC, false, typeof(DateTime), new LanguageObj { Code = "eng" }));
         }
 
         private static IEnumerable<TestCaseData> ShouldSortByStatisticsSinglePositiveData()
@@ -235,12 +236,11 @@ namespace ElasticSearch.Test
             });
             yield return new TestCaseData(new List<IEsOrderByField>
             {
-
-                new EsOrderByMetaField("meta", OrderDir.DESC, true, typeof(string))
+                new EsOrderByMetaField("meta", OrderDir.DESC, true, typeof(string), new LanguageObj { IsDefault = true })
             });
             yield return new TestCaseData(new List<IEsOrderByField>
             {
-                new EsOrderByMetaField("meta", OrderDir.ASC, false, typeof(int)),
+                new EsOrderByMetaField("meta", OrderDir.ASC, false, typeof(int), new LanguageObj { Code = "eng" }),
                 new EsOrderByField(OrderBy.START_DATE, OrderDir.ASC)
             });
             yield return new TestCaseData(new List<IEsOrderByField>
@@ -274,7 +274,7 @@ namespace ElasticSearch.Test
             yield return new TestCaseData(new List<IEsOrderByField>
             {
                 new EsOrderByStartDateAndAssociationTags(OrderDir.DESC),
-                new EsOrderByMetaField("meta", OrderDir.DESC, true, typeof(string))
+                new EsOrderByMetaField("meta", OrderDir.DESC, true, typeof(string), null)
             });
             yield return new TestCaseData(new List<IEsOrderByField>
             {
@@ -365,17 +365,25 @@ namespace ElasticSearch.Test
                 false,
                 "\"sort\" : [{\"_uid\":{\"order\":\"desc\"}}]");
             yield return new TestCaseData(
-                new List<IEsOrderByField> { new EsOrderByMetaField("meta", OrderDir.ASC, false, typeof(DateTime)) },
+                new List<IEsOrderByField> { new EsOrderByMetaField("meta", OrderDir.ASC, false, typeof(DateTime), null) },
                 false,
                 "\"sort\" : [{\"metas.meta\":{\"order\":\"asc\"}},{\"_uid\":{\"order\":\"desc\"}}]");
             yield return new TestCaseData(
                 new List<IEsOrderByField>
                 {
-                    new EsOrderByMetaField("meta", OrderDir.ASC, true, typeof(int)),
+                    new EsOrderByMetaField("meta", OrderDir.ASC, true, typeof(int), new LanguageObj { IsDefault = true }),
                     new EsOrderByField(OrderBy.NAME, OrderDir.DESC)
                 },
                 false,
                 "\"sort\" : [{\"metas.padded_meta\":{\"order\":\"asc\"}},{\"name\":{\"order\":\"desc\"}},{\"_uid\":{\"order\":\"desc\"}}]");
+            yield return new TestCaseData(
+                new List<IEsOrderByField>
+                {
+                    new EsOrderByMetaField("meta1", OrderDir.ASC, false, typeof(int), new LanguageObj { Code = "eng" }),
+                    new EsOrderByMetaField("meta2", OrderDir.DESC, true, typeof(int), new LanguageObj { Code = "eng" }),
+                },
+                false,
+                "\"sort\" : [{\"metas.meta1_eng\":{\"order\":\"asc\"}},{\"metas.padded_meta2_eng\":{\"order\":\"desc\"}},{\"_uid\":{\"order\":\"desc\"}}]");
             yield return new TestCaseData(
                 new List<IEsOrderByField>
                 {
@@ -422,21 +430,29 @@ namespace ElasticSearch.Test
                     new EsOrderByField(OrderBy.NAME, OrderDir.DESC),
                     new EsOrderByStatisticsField(OrderBy.VIEWS, OrderDir.DESC, null)
                 },
-                new [] { "name" });
+                new[] { "name" });
             yield return new TestCaseData(
                 new IEsOrderByField[]
                 {
-                    new EsOrderByMetaField("meta1", OrderDir.DESC, false, typeof(int)),
-                    new EsOrderByMetaField("meta2", OrderDir.DESC, true, typeof(string))
+                    new EsOrderByMetaField("meta1", OrderDir.DESC, false, typeof(int), null),
+                    new EsOrderByMetaField("meta2", OrderDir.DESC, true, typeof(string), new LanguageObj {Code = "eng"})
                 },
                 Enumerable.Empty<string>());
             yield return new TestCaseData(
                 new IEsOrderByField[]
                 {
                     new EsOrderByStartDateAndAssociationTags(OrderDir.DESC),
-                    new EsOrderByMetaField("meta2", OrderDir.DESC, true, typeof(string))
+                    new EsOrderByMetaField("meta2", OrderDir.DESC, true, typeof(string), new LanguageObj { IsDefault = true })
                 },
-                new [] { "metas.padded_meta2" });
+                new[] { "metas.padded_meta2" });
+            yield return new TestCaseData(
+                new IEsOrderByField[]
+                {
+
+                    new EsOrderByMetaField("meta2", OrderDir.ASC, true, typeof(string), new LanguageObj { Code = "eng" }),
+                    new EsOrderBySlidingWindow(OrderBy.RATING, OrderDir.DESC, 1)
+                },
+                new[] { "metas.padded_meta2_eng" });
         }
     }
 }

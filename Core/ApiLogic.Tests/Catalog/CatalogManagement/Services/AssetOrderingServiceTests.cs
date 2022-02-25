@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using ApiLogic.Catalog.CatalogManagement.Models;
 using ApiLogic.Catalog.CatalogManagement.Services;
+using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.SearchObjects;
 using Core.Catalog.CatalogManagement;
@@ -101,13 +102,14 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
         public void MapToEsOrderByFields_MediaRelatedRequest_ReturnsMeta(
             bool shouldSearchEpg,
             Type metaType,
-            bool isMetaPadded)
+            bool isMetaPadded,
+            LanguageObj language)
         {
             const string metaName = "meta";
             var expectedResult = new AssetListEsOrderingResult
             {
                 Order = new OrderObj { m_eOrderBy = OrderBy.META, m_eOrderDir = OrderDir.DESC, m_sOrderValue = metaName, shouldPadString = isMetaPadded },
-                EsOrderByFields = new[] { new EsOrderByMetaField(metaName, OrderDir.DESC, isMetaPadded, metaType) }
+                EsOrderByFields = new[] { new EsOrderByMetaField(metaName, OrderDir.DESC, isMetaPadded, metaType, language) }
             };
 
             var request = new MediaRelatedRequest
@@ -125,7 +127,8 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                 ShouldSearchMedia = true,
                 ShouldSearchEpg = shouldSearchEpg,
                 ShouldSearchRecordings = true,
-                GroupId = 10
+                GroupId = 10,
+                Language = language
             };
 
             var catalogManagerMock = _mockRepository.Create<ICatalogManager>();
@@ -532,12 +535,12 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
 
             foreach (var (type, _) in typeToShouldPad)
             {
-                yield return new TestCaseData(false, type, false);
+                yield return new TestCaseData(false, type, false, null);
             }
 
             foreach (var (type, shouldPad) in typeToShouldPad)
             {
-                yield return new TestCaseData(true, type, shouldPad);
+                yield return new TestCaseData(true, type, shouldPad, new LanguageObj { Code = "eng" });
             }
         }
 

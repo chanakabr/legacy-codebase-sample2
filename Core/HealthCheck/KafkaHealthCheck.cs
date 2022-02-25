@@ -12,8 +12,7 @@ namespace HealthCheck
     {
         public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
-            var publisher = (KafkaPublisher)KafkaPublisher.GetFromTcmConfiguration();
-            bool isHealthy = publisher.HealthCheck();
+            var isHealthy = KafkaPublisher.HealthCheck();
 
             if (isHealthy)
             {

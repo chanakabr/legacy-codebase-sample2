@@ -68,7 +68,7 @@ namespace WebAPI.Controllers
                             bool isDeprecated = !DeprecatedAttribute.IsDeprecated("4.8.0.0", (Version)HttpContext.Current.Items[RequestContextConstants.REQUEST_VERSION]); // fix for userFullName and userId disapearing from response since 4.8.0.0
 
                             response = ClientsManager.ConditionalAccessClient().GetDomainBillingHistory(
-                                groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), startDate, endDate, pager.GetRealPageIndex(), pager.PageSize.Value, filter, isDeprecated);
+                                groupId, (int)HouseholdUtils.GetHouseholdIDByKS(), startDate, endDate, pager.GetRealPageIndex(), pager.PageSize.Value, filter, isDeprecated);
                             break;
                         }
                     default:
@@ -134,7 +134,7 @@ namespace WebAPI.Controllers
 
 
                             response = ClientsManager.ConditionalAccessClient().GetDomainBillingHistory(
-                                groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), startDate, endDate, filter.PageSize.Value, filter.GetRealPageIndex(), KalturaTransactionHistoryOrderBy.CREATE_DATE_DESC, true);
+                                groupId, (int)HouseholdUtils.GetHouseholdIDByKS(), startDate, endDate, filter.PageSize.Value, filter.GetRealPageIndex(), KalturaTransactionHistoryOrderBy.CREATE_DATE_DESC, true);
                             break;
                         }
                     default:

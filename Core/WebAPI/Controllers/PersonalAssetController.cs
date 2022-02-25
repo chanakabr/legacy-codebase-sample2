@@ -48,7 +48,7 @@ namespace WebAPI.Controllers
             {
                 // get user id and domain from KS
                 string userID = KS.GetFromRequest().UserId;
-                int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+                int domainId = (int)HouseholdUtils.GetHouseholdIDByKS();
                 string language = Utils.Utils.GetLanguageFromRequest();
 
                 Dictionary<string, KalturaPersonalAsset> assetIdToPersonalAsset = new Dictionary<string, KalturaPersonalAsset>();

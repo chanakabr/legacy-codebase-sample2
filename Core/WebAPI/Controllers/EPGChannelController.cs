@@ -43,7 +43,7 @@ namespace WebAPI.Controllers
                 string udid = KSUtils.ExtractKSPayload().UDID;
                 string language = Utils.Utils.GetLanguageFromRequest();
 
-                response = ClientsManager.CatalogClient().GetEPGByChannelIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, 0, 0, 
+                response = ClientsManager.CatalogClient().GetEPGByChannelIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), udid, language, 0, 0, 
                     new List<int>(filter.IDs.Select(x => x.value).ToList()), 
                     DateUtils.UtcUnixTimestampSecondsToDateTime(filter.getStartTime()),
                     DateUtils.UtcUnixTimestampSecondsToDateTime(filter.getEndTime()), with.Select(x => x.type).ToList());

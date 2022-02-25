@@ -15,6 +15,7 @@ using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
+using Core.GroupManagers;
 using GroupsCacheManager;
 using KalturaRequestContext;
 using Phx.Lib.Log;
@@ -1088,8 +1089,16 @@ namespace WebAPI.Clients
 
         public KalturaAssetHistory GetNextEpisode(int groupId, string siteGuid, long assetId)
         {
-            GenericResponse<UserWatchHistory> getNextEpisodeFunc() =>
-                CatalogLogic.GetNextEpisode(groupId, siteGuid, assetId);
+            GenericResponse<UserWatchHistory> getNextEpisodeFunc()
+            {
+                if (GroupSettingsManager.Instance.IsTvm(groupId))
+                {
+                    return CatalogLogic.GetNextEpisodeForTvm(groupId, siteGuid, assetId);
+                }
+                
+                return CatalogLogic.GetNextEpisodeForOpc(groupId, siteGuid, assetId);
+            }
+
             KalturaAssetHistory result = ClientUtils.GetResponseFromWS<KalturaAssetHistory, UserWatchHistory>(getNextEpisodeFunc);
             return result;
         }
@@ -1650,7 +1659,7 @@ namespace WebAPI.Clients
         public KalturaAssetInfoListResponse GetMediaByIds(int groupId, string siteGuid, string udid, string language, int pageIndex, int? pageSize, List<int> mediaIds, List<KalturaCatalogWith> with)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
-            int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+            int domainId = (int)HouseholdUtils.GetHouseholdIDByKS();
 
             // get group configuration 
             Group group = GroupsManager.Instance.GetGroup(groupId);
