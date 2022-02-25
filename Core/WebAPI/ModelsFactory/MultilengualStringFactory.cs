@@ -7,7 +7,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.ModelsFactory
 {
-    public static class MultilengualStringFactory
+    public class MultilengualStringFactory
     {
         public static KalturaMultilingualString Create(LanguageContainer[] values)
         {

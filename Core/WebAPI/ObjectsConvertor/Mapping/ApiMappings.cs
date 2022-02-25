@@ -536,7 +536,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<Meta, KalturaMeta>()
               .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.AssetType))
               .ForMember(dest => dest.FieldName, opt => opt.ResolveUsing(src => ConvertFieldName(src.FieldName)))
-              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => MultilengualStringFactory.Create(src.Name)))
+              .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => MultilengualStringFactory.Create(src.Name)))
               .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertMetaType(src.Type)))
               .ForMember(dest => dest.Features, opt => opt.ResolveUsing(src => ConvertFeatures(src.Features)))
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
