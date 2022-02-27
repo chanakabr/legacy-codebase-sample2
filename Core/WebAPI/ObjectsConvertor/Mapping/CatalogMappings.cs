@@ -44,7 +44,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Ratio, opt => opt.MapFrom(src => src.ratio))
                  .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.isDefault))
                  .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.version))
-                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.id));
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.id))
+                 .ForMember(dest => dest.ImageTypeId, opt => opt.MapFrom(src => src.imageTypeId))
+                 ;
 
             // EPGPicture to KalturaMediaImage
             cfg.CreateMap<EpgPicture, KalturaMediaImage>()

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ApiLogic.Catalog.IndexManager.GroupBy;
 using ApiObjects.SearchObjects;
 using Core.Catalog.Response;
 using ElasticSearch.Common;
@@ -11,5 +12,7 @@ namespace ApiLogic.IndexManager.Sorting
             IEnumerable<UnifiedSearchResult> searchResults,
             UnifiedSearchDefinitions definitions,
             IDictionary<string, ElasticSearchApi.ESAssetDocument> assetIdToDocument);
+
+        IGroupBySearch GetGroupBySortingStrategy(IEsOrderByField orderByField);
     }
 }

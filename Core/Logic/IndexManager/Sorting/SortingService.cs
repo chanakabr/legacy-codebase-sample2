@@ -5,6 +5,8 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ApiLogic.Catalog.IndexManager.GroupBy;
+using ApiLogic.IndexManager.Helpers;
 using ApiLogic.IndexManager.Sorting.Stages;
 using ApiObjects.SearchObjects;
 using Core.Catalog.Response;
@@ -68,6 +70,16 @@ namespace ApiLogic.IndexManager.Sorting
                 x => long.Parse(x.AssetId))
                 ?.Select(x => x.id)
                 .ToArray();
+        }
+
+        public IGroupBySearch GetGroupBySortingStrategy(IEsOrderByField orderByField)
+        {
+            if (orderByField is EsOrderByField esOrderByField)
+            {
+                return IndexManagerCommonHelpers.GetStrategy(esOrderByField.OrderByField);
+            }
+
+            return orderByField is EsOrderByMetaField ? GroupByWithOrderByNonNumericField.Instance : null;
         }
 
         private static IEnumerable<(long id, string sortValue)> GetReorderedItemIds<TItem, TKey>(

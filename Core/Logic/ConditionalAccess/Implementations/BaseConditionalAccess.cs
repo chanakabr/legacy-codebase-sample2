@@ -14349,10 +14349,13 @@ namespace Core.ConditionalAccess
 
                     if (recording.RecordingStatus == TstvRecordingStatus.OK)
                     {
-                        int recordingDuration = QuotaManager.GetRecordingDurationSeconds(recording);
-                        if (recordingDuration > totalSeconds)
+                        if (totalSeconds != -1)
                         {
-                            recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExceededQuota, eResponseStatus.ExceededQuota.ToString());
+                            int recordingDuration = QuotaManager.GetRecordingDurationSeconds(recording);
+                            if (recordingDuration > totalSeconds) 
+                            {
+                                recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExceededQuota, eResponseStatus.ExceededQuota.ToString());
+                            }
                         }
                     }
                 }
@@ -16182,8 +16185,9 @@ namespace Core.ConditionalAccess
                 int availibleQuota = QuotaManager.Instance.GetDomainAvailableQuota(m_nGroupID, domainId, out int used);
 
                 // min quota threshold for skipping this process                
-                if (availibleQuota <= 60 && (!tstvSettings.QuotaOveragePolicy.HasValue ||
-                    (tstvSettings.QuotaOveragePolicy.HasValue && tstvSettings.QuotaOveragePolicy.Value == QuotaOveragePolicy.StopAtQuota)))
+                if (availibleQuota != -1 && 
+                    availibleQuota <= 60 && (!tstvSettings.QuotaOveragePolicy.HasValue || 
+                                             (tstvSettings.QuotaOveragePolicy.HasValue && tstvSettings.QuotaOveragePolicy.Value == QuotaOveragePolicy.StopAtQuota)))
                 {
                     log.DebugFormat("Not enough quota to complete series recordings for domainId = {0}", domainId);
                     return response;

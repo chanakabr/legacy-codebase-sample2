@@ -8901,7 +8901,7 @@ namespace Core.Api
                                          && settings.RecordingScheduleWindow == null && settings.PaddingBeforeProgramStarts == null && settings.PaddingAfterProgramEnds == null
                                          && settings.ProtectionPeriod == null && settings.ProtectionQuotaPercentage == null && settings.IsSeriesRecordingEnabled == null
                                          && settings.IsRecordingPlaybackNonEntitledChannelEnabled == null && settings.IsRecordingPlaybackNonExistingChannelEnabled == null
-                                         && !settings.QuotaOveragePolicy.HasValue && !settings.ProtectionPolicy.HasValue && !settings.RecoveryGracePeriod.HasValue))
+                                         && !settings.QuotaOveragePolicy.HasValue && !settings.ProtectionPolicy.HasValue && !settings.RecoveryGracePeriod.HasValue && !settings.DefaultQuota.HasValue))
                 {
                     response.Code = (int)ApiObjects.Response.eResponseStatus.TimeShiftedTvPartnerSettingsNotSent;
                     response.Message = ApiObjects.Response.eResponseStatus.TimeShiftedTvPartnerSettingsNotSent.ToString();

@@ -115,8 +115,8 @@
     <Reference Include="OpenTracing, Version=0.12.0.0, Culture=neutral, PublicKeyToken=61503406977abdaf, processorArchitecture=MSIL">
       <HintPath>..\packages\OpenTracing.0.12.0\lib\net45\OpenTracing.dll</HintPath>
     </Reference>
-    <Reference Include="Phx.Lib.Appconfig, Version=1.2.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Phx.Lib.Appconfig.1.2.0\lib\netstandard2.0\Phx.Lib.Appconfig.dll</HintPath>
+    <Reference Include="Phx.Lib.Appconfig, Version=1.4.2.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Phx.Lib.Appconfig.1.4.2\lib\netstandard2.0\Phx.Lib.Appconfig.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Phx.Lib.Log, Version=1.2.3.0, Culture=neutral, PublicKeyToken=null">

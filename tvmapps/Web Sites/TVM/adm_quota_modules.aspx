@@ -96,10 +96,14 @@
 										</table>
 									</td>
 								</tr>
-								
+								<tr>
+                                	<td>
+                                		<a>This page is deprecated</a>
+                                    </td>
+                                </tr>
 								<tr>
 									<td id="page_content">
-									    <!-- the actual content -->
+										<!-- the actual content -->
 									</td>
 								</tr>
 							</table>
@@ -114,7 +118,7 @@
 	<table>
 		<tr>
 			<td>
-				<div class="rights"> Copyright © 2006 Kaltura Ltd. All rights reserved. | &nbsp;<a style="color:#0080ff;" tabindex="2000" href="mailto:info@kaltura.com">Contact Us</a></div></td><td ><img src="images/admin-footerLogo.png" alt="Kaltura" />
+				<div class="rights"> Copyright Â© 2006 Kaltura Ltd. All rights reserved. | &nbsp;<a style="color:#0080ff;" tabindex="2000" href="mailto:info@kaltura.com">Contact Us</a></div></td><td ><img src="images/admin-footerLogo.png" alt="Kaltura" />
 			</td>
 		</tr>
 	</table>

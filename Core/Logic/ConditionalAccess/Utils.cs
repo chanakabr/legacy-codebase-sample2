@@ -5243,7 +5243,7 @@ namespace Core.ConditionalAccess
                     if (groupId.HasValue)
                     {
                         DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(groupId.Value, out getTstsvSuccess);
-
+                        
                         if (dr != null)
                         {
                             int catchup = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_catch_up", 0);
@@ -5268,20 +5268,32 @@ namespace Core.ConditionalAccess
                             int protectionPolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_policy", 0);
                             int recoveryGracePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "recovery_grace_period_seconds", 0); // seconds
                             int privateCopy = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_private_copy", 0);
-
+                            int quotaModuleId = ODBCWrapper.Utils.GetIntSafeVal(dr, "quota_module_id", 0);
+                            int defaultQuota = ODBCWrapper.Utils.GetIntSafeVal(dr, "quota_in_seconds", 0);
+                            
+                            if (defaultQuota == 0 && quotaModuleId != 0)
+                            {
+                                int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "id", 0);
+                                defaultQuota =  ConditionalAccessDAL.GetDefaultQuotaByModuleIdInSeconds(groupId.Value, quotaModuleId);
+                                if (defaultQuota != 0)
+                                {
+                                    ConditionalAccessDAL.SetDefaultQuotaInSeconds(id, defaultQuota);
+                                }
+                            }
                             if (recordingScheduleWindow > -1)
                             {
                                 tstvAccountSettings = new TimeShiftedTvPartnerSettings(catchup == 1, cdvr == 1, startOver == 1, trickPlay == 1, recordingScheduleWindow == 1, catchUpBuffer,
                                             trickPlayBuffer, recordingScheduleWindowBuffer, paddingAfterProgramEnds, paddingBeforeProgramStarts,
                                             protection == 1, protectionPeriod, protectionQuotaPercentage, recordingLifetimePeriod, cleanupNoticePeriod, enableSeriesRecording == 1,
                                             recordingPlaybackNonEntitledChannel == 1, recordingPlaybackNonExistingChannel == 1, quotaOveragePolicy, protectionPolicy,
-                                            recoveryGracePeriod, privateCopy == 1);
+                                            recoveryGracePeriod, privateCopy == 1, defaultQuota);
                             }
                         }
                         else
                         {
-                            tstvAccountSettings = new TimeShiftedTvPartnerSettings(false, false, false, false, false, 7, 1, 0, 0, 0, false, 90, 25, 182, 7, true, false, false, 0, 0, 0, false);
+                            tstvAccountSettings = new TimeShiftedTvPartnerSettings(false, false, false, false, false, 7, 1, 0, 0, 0, false, 90, 25, 182, 7, true, false, false, 0, 0, 0, false, 0);
                         }
+                       
                     }
                 }
             }
@@ -6500,7 +6512,7 @@ namespace Core.ConditionalAccess
                 bool res = ConditionalAccessCache.GetItem<int>(key, out domainDefaultQuota);
                 if (!res || domainDefaultQuota == 0)
                 {
-                    domainDefaultQuota = ConditionalAccessDAL.GetDefaultQuotaInSeconds(groupId);
+                    domainDefaultQuota = (int)GetTimeShiftedTvPartnerSettings(groupId).DefaultQuota;
                     res = ConditionalAccessCache.AddItem(key, domainDefaultQuota);
                 }
             }

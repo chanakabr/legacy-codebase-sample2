@@ -1,6 +1,8 @@
 ﻿using Phx.Lib.Appconfig;
+using CachingProvider.LayeredCache;
 using Phx.Lib.Log;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using TVinciShared;
 
@@ -47,6 +49,8 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
                         TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "UpdateTimeShiftedTvEpgChannelsSettings", "api", "1.1.1.1", ref sWSUserName, ref sWSPass);
 
                         TVM.apiWS.Status status = api.UpdateTimeShiftedTvEpgChannelsSettings(sWSUserName, sWSPass, tstvNew);
+                        LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GetTstvAccountSettingsInvalidationKey(groupId)});
+
                     }
                 }
             }
@@ -105,7 +109,10 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
 
         // check if to insert a new record to the table or update an existing one
         int idFromTable = DAL.TvmDAL.GetTimeShiftedTVSettingsID(groupID);
- 
+        if (DAL.TvmDAL.UpdateQuataInSeconds(groupID))
+        {
+            LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GetTstvAccountSettingsInvalidationKey(groupID)});
+        }
         if (idFromTable > 0)
         {
             fieldIndexValue = idFromTable;
@@ -195,12 +202,10 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
         dr_adapters.SetDefaultVal("---");
         theRecord.AddRecord(dr_adapters);
 
-        DataRecordDropDownField dr_quota = new DataRecordDropDownField("time_shifted_tv_settings", "quota_module_id", "id", "", null, 60, true);
-        sQuery = "select name as txt,id as id from quota_modules where status=1 and is_active=1 and group_id=" + groupID;
-        dr_quota.SetSelectsQuery(sQuery);
-        dr_quota.Initialize("Quota Management", "adm_table_header_nbg", "FormInput", "quota_module_id", false);
-        dr_quota.SetDefaultVal("---");
-        theRecord.AddRecord(dr_quota);
+        DataRecordShortIntField dr_quota_sec = new DataRecordShortIntField(true, 9, 9, -1);
+        dr_quota_sec.Initialize("Quota in Seconds", "adm_table_header_nbg", "FormInput", "quota_in_Seconds", false);
+        dr_quota_sec.SetDefault(0);
+        theRecord.AddRecord(dr_quota_sec);
 
         DataRecordCheckBoxField dr_seriesRecording = new DataRecordCheckBoxField(true);
         dr_seriesRecording.Initialize("Enable Series Recording ", "adm_table_header_nbg", "FormInput", "enable_series_recording", false);

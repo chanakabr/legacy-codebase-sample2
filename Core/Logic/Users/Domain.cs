@@ -2624,7 +2624,7 @@ namespace Core.Users
                     foreach (KeyValuePair<int, DeviceContainer> currentItem in DeviceFamiliesMapping) // all keys not exists in new DLM - Delete
                     {
                         oldDeviceFamilyContainer = DeviceFamiliesMapping[currentItem.Value.m_deviceFamilyID];
-                        List<Device> devices = oldDeviceFamilyContainer.DeviceInstances;
+                        List<Device> devices = oldDeviceFamilyContainer.DeviceInstances.FindAll( d=> d.IsActivated());
                         if (!oLimitationsManager.lDeviceFamilyLimitations.Exists(x =>
                             x.deviceFamily == currentItem.Value.m_deviceFamilyID))
                         {
@@ -2658,7 +2658,7 @@ namespace Core.Users
                                 // quantity of the new dlm is less than the current dlm only if new dlm is <> 0 (0 = unlimited)
                                 if (oldDeviceFamilyContainer.m_oLimitationsManager.Quantity > item.quantity && item.quantity != 0) // need to delete the laset devices
                                 {
-                                    List<Device> devices = oldDeviceFamilyContainer.DeviceInstances;
+                                    List<Device> devices = oldDeviceFamilyContainer.DeviceInstances.FindAll( d=> d.IsActivated());
                                     if (devices != null && devices.Count > 0 && devices.Count > item.quantity)
                                     {
                                         devices = getOrderByDowngradePolicyDevices(devices, downgradePolicy);
@@ -2677,7 +2677,7 @@ namespace Core.Users
                                 // If the device family become unlimited dont remove the actual devices but delete them from the counter 
                                 if (item.quantity == 0 && !oldDeviceFamilyContainer.IsUnlimitedQuantity())
                                 {
-                                    m_totalNumOfDevices -= oldDeviceFamilyContainer.DeviceInstances.Count;
+                                    m_totalNumOfDevices -= oldDeviceFamilyContainer.DeviceInstances.FindAll(d=> d.IsActivated()).Count;
                                 }
                             }
                         }
@@ -2699,7 +2699,7 @@ namespace Core.Users
                                     oldDeviceFamilyContainer = DeviceFamiliesMapping[priority[i]];
                                     if (oldDeviceFamilyContainer != null && oldDeviceFamilyContainer.m_oLimitationsManager != null)
                                     {
-                                        List<Device> devices = oldDeviceFamilyContainer.DeviceInstances;
+                                        List<Device> devices = oldDeviceFamilyContainer.DeviceInstances.FindAll( d=> d.IsActivated());
                                         if (devices.Count > 0)
                                         {
                                             if (countToDelete > devices.Count)
@@ -2736,7 +2736,7 @@ namespace Core.Users
                             {
                                 if (DeviceFamiliesMapping.ContainsKey(deviceFamilyLimitation.deviceFamily))
                                 {
-                                    allDevices.AddRange((DeviceFamiliesMapping[deviceFamilyLimitation.deviceFamily].DeviceInstances));
+                                    allDevices.AddRange((DeviceFamiliesMapping[deviceFamilyLimitation.deviceFamily].DeviceInstances.FindAll(x=> x.IsActivated())));
                                 }
                             }
 

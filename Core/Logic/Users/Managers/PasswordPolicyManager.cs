@@ -433,6 +433,13 @@ namespace ApiLogic.Users.Managers
                             roleIds = filter.RoleIdsIn;
                         }
 
+                        //BEO-11218
+                        foreach (var _roleId in roleIds)
+                        {
+                            var passwordPolicykey = LayeredCacheKeys.GetPasswordPolicyKey(_roleId);
+                            result.Add(passwordPolicykey, new List<PasswordPolicy>());
+                        }
+
                         var relevantPasswordPolicies = new List<long>();
                         if (roleIds != null && roleIds.Count > 0)
                         {

@@ -3751,6 +3751,7 @@ namespace DAL
                 }
 
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@EnablePrivateCopy", settings.IsPrivateCopyEnabled);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@QuotaInSeconds", settings.DefaultQuota);
                 isUpdated = spUpdateTimeShiftedTvPartnerSettings.ExecuteReturnValue<bool>();
             }
 
