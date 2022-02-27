@@ -386,5 +386,10 @@ namespace WebAPI.Models.Catalog
                 }
             }
         }
+
+        public long GetId()
+        {
+            return this.Id ?? -1;
+        }
     }
 }

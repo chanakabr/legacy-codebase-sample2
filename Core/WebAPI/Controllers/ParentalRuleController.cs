@@ -50,7 +50,7 @@ namespace WebAPI.Controllers
                 else if (filter.By == KalturaEntityReferenceBy.household)
                 {
                     // call client
-                    response = ClientsManager.ApiClient().GetDomainParentalRules(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId));
+                    response = ClientsManager.ApiClient().GetDomainParentalRules(groupId, (int)HouseholdUtils.GetHouseholdIDByKS());
                 }
             }
             catch (ClientException ex)
@@ -101,7 +101,7 @@ namespace WebAPI.Controllers
                 else if (filter.EntityReferenceEqual.Value == KalturaEntityReferenceBy.household)
                 {
                     // call client
-                    response = ClientsManager.ApiClient().GetDomainParentalRules(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId));
+                    response = ClientsManager.ApiClient().GetDomainParentalRules(groupId, (int)HouseholdUtils.GetHouseholdIDByKS());
                 }
             }
             catch (ClientException ex)
@@ -148,7 +148,7 @@ namespace WebAPI.Controllers
                 else if (entityReference == KalturaEntityReferenceBy.household)
                 {
                     // call client
-                    success = ClientsManager.ApiClient().SetDomainParentalRules(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), ruleId, 1);
+                    success = ClientsManager.ApiClient().SetDomainParentalRules(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(), ruleId, 1);
                 }
             }
             catch (ClientException ex)
@@ -195,7 +195,7 @@ namespace WebAPI.Controllers
                 else if (entityReference == KalturaEntityReferenceBy.household)
                 {
                     // call client
-                    success = ClientsManager.ApiClient().SetDomainParentalRules(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), ruleId, 0);
+                    success = ClientsManager.ApiClient().SetDomainParentalRules(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(), ruleId, 0);
                 }
 
             }
@@ -233,7 +233,7 @@ namespace WebAPI.Controllers
                 if (entityReference == KalturaEntityReferenceBy.household)
                 {
                     // call client
-                    success = ClientsManager.ApiClient().DisableDomainDefaultParentalRule(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId));
+                    success = ClientsManager.ApiClient().DisableDomainDefaultParentalRule(groupId, (int)HouseholdUtils.GetHouseholdIDByKS());
                 }
                 else if (entityReference == KalturaEntityReferenceBy.user)
                 {

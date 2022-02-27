@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ApiObjects;
 
 namespace ApiLogic.Catalog.CatalogManagement.Models
 {
@@ -8,6 +9,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Models
         public bool ShouldSearchEpg { get; set; }
         public bool ShouldSearchMedia { get; set; }
         public bool ShouldSearchRecordings { get; set; }
+        public LanguageObj Language { get; set; }
         public IDictionary<int, int> ParentMediaTypes { get; set; }
         public IDictionary<int, string> AssociationTags { get; set; }
     }

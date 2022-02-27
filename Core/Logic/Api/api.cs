@@ -43,6 +43,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Xml;
+using ApiObjects.MediaMarks;
+using CouchbaseManager;
 using Tvinci.Core.DAL;
 using TvinciImporter;
 using TVinciShared;
@@ -4089,7 +4091,7 @@ namespace Core.Api
                     lMediaIDs = new List<int>();
                 }
 
-                var succeeded = DAL.ApiDAL.CleanUserHistory(siteGuid, lMediaIDs);
+                var succeeded = DAL.ApiDAL.CleanUserHistory(siteGuid, nGroupID, lMediaIDs);
                 if (succeeded)
                 {
                     return new ApiObjects.Response.Status((int)eResponseStatus.OK, "Ok");
@@ -10482,6 +10484,21 @@ namespace Core.Api
 
             try
             {
+                if (MediaMarksNewModel.Enabled(groupId))
+                {
+                    var mediaMarkManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
+                    string documentKey = UtilsDal.GetUserAllAssetMarksDocKey(userId);
+                    var userMarks = mediaMarkManager.Get<UserMediaMarks>(documentKey);
+                    if (userMarks?.mediaMarks != null && userMarks.mediaMarks.Count > 0)
+                    {
+                        userMarks.mediaMarks.RemoveAll(m => assets.Exists(MatchAssetIdAndType(m)));
+                        if (!mediaMarkManager.Set(documentKey, userMarks, UtilsDal.UserMediaMarksTtl))
+                        {
+                            return response;
+                        }
+                    }
+                }
+
                 List<string> assetHistoryKeys = new List<string>();
 
                 foreach (var asset in assets)
@@ -10513,6 +10530,12 @@ namespace Core.Api
             }
 
             return response;
+        }
+
+        private static Predicate<KeyValuePair<int, eAssetTypes>> MatchAssetIdAndType(AssetAndLocation m)
+        {
+            return kv => (kv.Value == eAssetTypes.NPVR && !string.IsNullOrEmpty(m.NpvrId) && kv.Key.ToString() == m.NpvrId) 
+                         || (kv.Value == m.AssetType && kv.Key == m.AssetId);
         }
 
         internal static DrmAdapterResponse SendDrmConfigurationToAdapter(int groupId, int adapterID)

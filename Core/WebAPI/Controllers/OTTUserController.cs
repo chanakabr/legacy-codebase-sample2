@@ -6,7 +6,6 @@ using System.Linq;
 using System.Web;
 using ApiObjects.User;
 using KalturaRequestContext;
-using TVinciShared;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -192,7 +191,7 @@ namespace WebAPI.Controllers
         /// <param name="udid">Device UDID</param>
         /// <returns></returns>
         [Action("refreshSession")]
-        [ApiAuthorize(true)]
+        [ApiAuthorize(eKSValidation.None)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [OldStandardArgument("refreshToken", "refresh_token")]
         [Throws(StatusCode.InvalidRefreshToken)]
@@ -443,7 +442,7 @@ namespace WebAPI.Controllers
         /// <param name="userId">User Identifier</param>        
         /// <param name="password">new password</param>
         [Action("updatePassword")]
-        [ApiAuthorize(true)]
+        [ApiAuthorize(eKSValidation.None)]
         [BlockHttpMethods("GET")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.PasswordPolicyViolation)]
@@ -935,7 +934,17 @@ namespace WebAPI.Controllers
                 }
                 else if (!string.IsNullOrEmpty(filter.EmailEqual))
                 {
-                    response = ClientsManager.UsersClient().GetUsersByEmail(groupId, filter.EmailEqual);
+                    if (isPartnerRequest)
+                    {
+                        response = ClientsManager.UsersClient().GetUsersByEmail(groupId, filter.EmailEqual);
+                    }
+                    else // for master get only if user in HH
+                    {
+                        var householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId);
+                        response = GetUsersData(groupId, householdUserIds);
+                        response.Users = response.Users.Where(u => u.Email.ToLower() == filter.EmailEqual.ToLower()).ToList();
+                        response.TotalCount = response.Users.Count;
+                    }
                 }
                 else if (!string.IsNullOrEmpty(filter.IdIn))
                 {

@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using ApiObjects;
+using ApiObjects.MediaMarks;
 using ApiObjects.Response;
 using Core.Catalog.Response;
 using Phx.Lib.Log;
@@ -72,23 +73,33 @@ namespace Core.Catalog.Request
                                     
                                     Dictionary<string, User> usersDictionary = CatalogLogic.GetUsers(request.m_nGroupID, usersToGet);
 
-                                    foreach (AssetBookmarkRequest asset in request.Data.Assets)
+                                    if (MediaMarksNewModel.Enabled(request.m_nGroupID))
                                     {
-                                        AssetBookmarks assetPositionResponseInfo = null;
+                                        var bookmarks = CatalogLogic.GetAssetsLastPosition(m_nGroupID,
+                                            request.Data.Assets, userID, isDefaultUser, users, defaultUsers,
+                                            usersDictionary);
+                                        response.AssetsBookmarks = bookmarks.ToList();
+                                    }
+                                    else
+                                    {
+                                        foreach (AssetBookmarkRequest asset in request.Data.Assets)
+                                        {
+                                            AssetBookmarks assetPositionResponseInfo = null;
 
-                                        if (asset.AssetType != eAssetTypes.UNKNOWN)
-                                        {
-                                            assetPositionResponseInfo = 
-                                                CatalogLogic.GetAssetLastPosition(m_nGroupID, asset.AssetID, asset.AssetType, userID, isDefaultUser, users, defaultUsers, usersDictionary);
-                                        }
-                                        else
-                                        {
-                                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidAssetType, "Invalid Asset Type");
-                                            return response;
-                                        }
-                                        if (assetPositionResponseInfo != null)
-                                        {
-                                            response.AssetsBookmarks.Add(assetPositionResponseInfo);
+                                            if (asset.AssetType != eAssetTypes.UNKNOWN)
+                                            {
+                                                assetPositionResponseInfo = 
+                                                    CatalogLogic.GetAssetLastPosition(m_nGroupID, asset.AssetID, asset.AssetType, userID, isDefaultUser, users, defaultUsers, usersDictionary);
+                                            }
+                                            else
+                                            {
+                                                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidAssetType, "Invalid Asset Type");
+                                                return response;
+                                            }
+                                            if (assetPositionResponseInfo != null)
+                                            {
+                                                response.AssetsBookmarks.Add(assetPositionResponseInfo);
+                                            }
                                         }
                                     }
 

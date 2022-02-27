@@ -1,35 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
+using ApiLogic.Catalog.CatalogManagement.Models;
+using ApiLogic.Context;
 using ApiObjects.BulkUpload;
 using ApiObjects.EventBus.EpgIngest;
-using ApiObjects.Response;
 using EventBus.Abstraction;
 using EventBus.Kafka;
-using Phx.Lib.Log;
 using Newtonsoft.Json;
+using Phx.Lib.Log;
 using TVinciShared;
 
 namespace Core.Catalog.CatalogManagement.Services
 {
     public interface IEpgIngestMessaging
     {
-        void EpgIngestStarted(int groupId, long userId, long bulkUploadId, int? ingestProfileId, string ingestFileName,
-            DateTime createdDate);
-
-        void EpgIngestCompleted(int groupId, long userId, long bulkUploadId, BulkUploadJobStatus status,
-            IEnumerable<Status> errors, DateTime completedDate);
+        void EpgIngestStarted(EpgIngestStartedParameters parameters);
+        void EpgIngestCompleted(EpgIngestCompletedParameters parameters);
+        void EpgIngestPartCompleted(EpgIngestPartCompletedParameters parameters);
     }
 
     public class EpgIngestMessaging : IEpgIngestMessaging
     {
         private static readonly Lazy<EpgIngestMessaging> LazyInstance = new Lazy<EpgIngestMessaging>(() =>
                 new EpgIngestMessaging(
-                    KafkaPublisher.GetFromTcmConfiguration(),
+                    KafkaPublisher.GetFromTcmConfiguration(WebKafkaContextProvider.Instance),
                     new KLogger(nameof(EpgIngestMessaging))),
             LazyThreadSafetyMode.PublicationOnly);
+
         public static IEpgIngestMessaging Instance => LazyInstance.Value;
-        
+
         private readonly IEventBusPublisher _kafkaPublisher;
         private readonly IKLogger _logger;
 
@@ -39,34 +40,50 @@ namespace Core.Catalog.CatalogManagement.Services
             _logger = logger;
         }
 
-        public void EpgIngestStarted(int groupId, long userId, long bulkUploadId, int? ingestProfileId,
-            string ingestFileName, DateTime createdDate)
+        public void EpgIngestStarted(EpgIngestStartedParameters parameters)
         {
             var e = new EpgIngestStarted
             {
                 RequestId = KLogger.GetRequestId(),
-                IngestedByUserId = userId,
-                PartnerId = groupId,
-                IngestId = bulkUploadId,
-                CreatedDate = createdDate.ToUtcUnixTimestampSeconds(),
-                IngestProfileId = ingestProfileId,
-                IngestFileName = ingestFileName
+                IngestedByUserId = parameters.UserId,
+                PartnerId = parameters.GroupId,
+                IngestId = parameters.BulkUploadId,
+                CreatedDate = parameters.CreatedDate.ToUtcUnixTimestampSeconds(),
+                IngestProfileId = parameters.IngestProfileId,
+                IngestFileName = parameters.IngestFileName
             };
+
             PublishToKafka(e);
         }
-        
-        public void EpgIngestCompleted(int groupId, long userId, long bulkUploadId, BulkUploadJobStatus status, IEnumerable<Status> errors, DateTime completedDate)
+
+        public void EpgIngestCompleted(EpgIngestCompletedParameters parameters)
         {
             var e = new EpgIngestCompleted
             {
                 RequestId = KLogger.GetRequestId(),
-                UserId = userId,
-                PartnerId = groupId,
-                IngestId = bulkUploadId,
-                CompletedDate = completedDate.ToUtcUnixTimestampSeconds(),
-                Status = ToCompletionStatus(status),
-                Errors = errors
+                UserId = parameters.UserId,
+                PartnerId = parameters.GroupId,
+                IngestId = parameters.BulkUploadId,
+                CompletedDate = parameters.CompletedDate.ToUtcUnixTimestampSeconds(),
+                Status = ToCompletionStatus(parameters.Status, parameters.Results),
+                Errors = parameters.Errors
             };
+
+            PublishToKafka(e);
+        }
+
+        public void EpgIngestPartCompleted(EpgIngestPartCompletedParameters parameters)
+        {
+            var e = new EpgIngestPartCompleted
+            {
+                RequestId = KLogger.GetRequestId(),
+                UserId = parameters.UserId,
+                PartnerId = parameters.GroupId,
+                IngestId = parameters.BulkUploadId,
+                HasMore = parameters.HasMoreEpgToIngest,
+                Results = parameters.Results.Select(MapToEpgIngestResult).ToArray()
+            };
+
             PublishToKafka(e);
         }
 
@@ -76,8 +93,29 @@ namespace Core.Catalog.CatalogManagement.Services
             _kafkaPublisher.Publish(e);
         }
 
-        private static EpgIngestCompletionStatus ToCompletionStatus(BulkUploadJobStatus status)
+        private static EpgIngestResult MapToEpgIngestResult(BulkUploadProgramAssetResult source)
+            => new EpgIngestResult
+            {
+                StartDate = source.StartDate.ToUtcUnixTimestampSeconds(),
+                EndDate = source.EndDate.ToUtcUnixTimestampSeconds(),
+                LinearChannelId = source.LiveAssetId,
+                Status = MapStatus(source),
+                IndexInFile = source.Index,
+                ExternalProgramId = source.ProgramExternalId,
+                ProgramId = source.ProgramId,
+                Errors = source.Errors,
+                Warnings = source.Warnings
+            };
+
+        private static EpgIngestCompletionStatus ToCompletionStatus(BulkUploadJobStatus status, IEnumerable<BulkUploadResult> results)
         {
+            if (status == BulkUploadJobStatus.Success
+                && results != null
+                && results.Any(x => x.Warnings?.Length > 0))
+            {
+                return EpgIngestCompletionStatus.WARNING;
+            }
+
             switch (status)
             {
                 case BulkUploadJobStatus.Success: return EpgIngestCompletionStatus.SUCCESS;
@@ -86,6 +124,24 @@ namespace Core.Catalog.CatalogManagement.Services
                 case BulkUploadJobStatus.Fatal: return EpgIngestCompletionStatus.TOTAL_FAILURE;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(status), status, null);
+            }
+        }
+
+        private static ProgramIngestResultStatus MapStatus(BulkUploadProgramAssetResult source)
+        {
+            if (source.Status == BulkUploadResultStatus.Ok && source.Warnings?.Length > 0)
+            {
+                return ProgramIngestResultStatus.Warning;
+            }
+
+            switch (source.Status)
+            {
+                case BulkUploadResultStatus.Error:
+                    return ProgramIngestResultStatus.Error;
+                case BulkUploadResultStatus.Ok:
+                    return ProgramIngestResultStatus.Success;
+                default:
+                    throw new ArgumentException(nameof(source.Status));
             }
         }
     }

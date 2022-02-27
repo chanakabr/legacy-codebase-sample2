@@ -3515,7 +3515,7 @@ namespace WebAPI.Clients
         internal void CleanUserAssetHistory(int groupId, string userId, string udid, List<string> assetIds, List<int> assetTypes, KalturaWatchStatus watchStatus, int days, string ksql)
         {
             Status response = null;
-
+            
             KalturaAssetHistoryListResponse historyResponse = ClientsManager.CatalogClient().getAssetHistory(groupId, userId, udid, string.Empty, 0, 0, watchStatus, days, assetTypes,
                             assetIds, false, ksql);
 

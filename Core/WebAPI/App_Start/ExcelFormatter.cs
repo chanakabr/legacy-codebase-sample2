@@ -1,21 +1,18 @@
-﻿using System;
+﻿using ApiObjects.BulkUpload;
+using ApiObjects.Response;
+using Newtonsoft.Json;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Web;
-using ApiObjects.BulkUpload;
-using ApiObjects.Response;
-using KalturaRequestContext;
-using Phx.Lib.Log;
-using Newtonsoft.Json;
-using OfficeOpenXml;
-using OfficeOpenXml.Style;
 using TVinciShared;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
@@ -23,16 +20,16 @@ using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Models.API;
 using WebAPI.Models.General;
-using ExcelColumn = ApiObjects.BulkUpload.ExcelColumn;
+using KalturaRequestContext;
+using Phx.Lib.Log;
+using System.Net.Http;
 
 namespace WebAPI.App_Start
 {
     public class ExcelFormatter : BaseFormatter
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        
         protected JsonManager jsonManager;
-
         public ExcelFormatter() : base(KalturaResponseType.EXCEL, ExcelFormatterConsts.EXCEL_CONTENT_TYPE)
         {
             jsonManager = JsonManager.GetInstance();
@@ -42,7 +39,6 @@ namespace WebAPI.App_Start
         {
             if (type == (Type)null)
                 throw new ArgumentNullException("type");
-
             return true;
         }
 
@@ -56,7 +52,6 @@ namespace WebAPI.App_Start
             bool isResponseValid = false;
             groupId = null;
             fileName = null;
-
             groupId = Utils.Utils.GetGroupIdFromRequest();
             if (!groupId.HasValue || groupId.Value == 0)
             {
@@ -75,12 +70,10 @@ namespace WebAPI.App_Start
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "Filter.name");
                     }
-
                     if (!fileName.EndsWith(ExcelFormatterConsts.EXCEL_EXTENTION))
                     {
                         throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "Filter.name");
                     }
-
                     isResponseValid = true;
                 }
                 else
@@ -93,7 +86,6 @@ namespace WebAPI.App_Start
                     }
                 }
             }
-
             return isResponseValid;
         }
 
@@ -102,7 +94,6 @@ namespace WebAPI.App_Start
             using (var pack = new ExcelPackage(new FileInfo(fileName)))
             {
                 var excelWorksheet = pack.Workbook.Worksheets.Add(ExcelFormatterConsts.EXCEL_SHEET_NAME);
-
                 int columnNameRowIndex = 1;
                 // Set overview instructions
                 if (excelStructure.OverviewInstructions.Count > 0)
@@ -111,21 +102,17 @@ namespace WebAPI.App_Start
                     {
                         excelWorksheet.Cells[i, 1].Value = excelStructure.OverviewInstructions[i - 1];
                     }
-
                     columnNameRowIndex = excelStructure.OverviewInstructions.Count + 2;
                 }
-
                 var columns = excelStructure.ExcelColumns.Values.ToList();
                 for (var i = 1; i <= columns.Count; i++)
                 {
                     // set the column name
                     excelWorksheet.Cells[columnNameRowIndex, i].Value = columns[i - 1].ToString();
-
                     if (!string.IsNullOrEmpty(columns[i - 1].HelpText))
                     {
                         excelWorksheet.Cells[columnNameRowIndex, i].AddComment(columns[i - 1].HelpText, "HelpText");
                     }
-
                     excelWorksheet.Cells[columnNameRowIndex, i].Style.Fill.PatternType = ExcelFillStyle.Solid;
                     excelWorksheet.Cells[columnNameRowIndex, i].Style.Font.Bold = true;
                     if (excelStructure.ColumnsColors.ContainsKey(columns[i - 1].ColumnType))
@@ -133,20 +120,18 @@ namespace WebAPI.App_Start
                         excelWorksheet.Cells[columnNameRowIndex, i].Style.Fill.BackgroundColor.SetColor(excelStructure.ColumnsColors[columns[i - 1].ColumnType]);
                     }
                 }
-
                 if (dt != null)
                 {
                     columnNameRowIndex++;
                     excelWorksheet.Cells[columnNameRowIndex, 1].LoadFromDataTable(dt, false);
                 }
-
                 // TODO - Synchronous operations are disallowed. Call WriteAsync or set AllowSynchronousIO to true instead.
-
                 pack.SaveAs(writeStream);
             }
         }
 
-        private static DataTable GetDataTableByObjects(int groupId, List<IKalturaExcelableObject> objects, Dictionary<string, ExcelColumn> columns)
+        private static DataTable GetDataTableByObjects(int groupId, List<IKalturaExcelableObject> objects,
+            Dictionary<string, ApiObjects.BulkUpload.ExcelColumn> columns)
         {
             DataTable dataTable = new DataTable();
             if (columns != null && columns.Count > 0)
@@ -156,7 +141,6 @@ namespace WebAPI.App_Start
                 {
                     dataTable.Columns.Add(col.Key, defaultType);
                 }
-
                 if (objects != null && objects.Count > 0)
                 {
                     foreach (var excelObject in objects)
@@ -166,30 +150,20 @@ namespace WebAPI.App_Start
                             var excelValues = excelObject.GetExcelValues(groupId);
                             if (excelValues != null && excelValues.Count > 0)
                             {
-                                var row = dataTable.NewRow();
-                                foreach (var excelValue in excelValues)
+                                if (excelValues.Count == 1 && excelValues.First().Value is IEnumerable)
                                 {
-                                    if (dataTable.Columns.Contains(excelValue.Key))
+                                    var key = excelValues.First().Key;
+                                    var values = (excelValues.First().Value as IEnumerable<object>)?.ToList();
+
+                                    foreach (var _value in values)
                                     {
-                                        object value = null;
-
-                                        if (columns[excelValue.Key].Property.PropertyType.Equals(typeof(DateTime)) ||
-                                            columns[excelValue.Key].Property.PropertyType.Equals(typeof(DateTime?)))
-                                        {
-                                            value = (excelValue.Value as DateTime?).Value.ToString(DateUtils.MAIN_FORMAT);
-                                        }
-                                        else
-                                        {
-                                            value = excelValue.Value;
-                                        }
-
-                                        if (value != null)
-                                        {
-                                            row[excelValue.Key] = value;
-                                        }
+                                        AddRowByExcelValues(columns, dataTable, new Dictionary<string, object> { { key, _value} });
                                     }
                                 }
-                                dataTable.Rows.Add(row);
+                                else
+                                {
+                                    AddRowByExcelValues(columns, dataTable, excelValues);
+                                }
                             }
                         }
                         catch (Exception ex)
@@ -199,11 +173,37 @@ namespace WebAPI.App_Start
                     }
                 }
             }
-
             return dataTable;
         }
 
-        public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, HttpContent content, TransportContext transportContext)
+        private static void AddRowByExcelValues(Dictionary<string, ApiObjects.BulkUpload.ExcelColumn> columns, DataTable dataTable, Dictionary<string, object> excelValues)
+        {
+            var row = dataTable.NewRow();
+            foreach (var excelValue in excelValues)
+            {
+                if (dataTable.Columns.Contains(excelValue.Key))
+                {
+                    object value = null;
+                    if (columns[excelValue.Key].Property.PropertyType.Equals(typeof(DateTime)) ||
+                        columns[excelValue.Key].Property.PropertyType.Equals(typeof(DateTime?)))
+                    {
+                        value = (excelValue.Value as DateTime?).Value.ToString(DateUtils.MAIN_FORMAT);
+                    }
+                    else
+                    {
+                        value = excelValue.Value;
+                    }
+                    if (value != null)
+                    {
+                        row[excelValue.Key] = value;
+                    }
+                }
+            }
+            dataTable.Rows.Add(row);
+        }
+
+        public override async Task WriteToStreamAsync(Type type, object value, Stream writeStream, 
+            HttpContent content, TransportContext transportContext)
         {
             if (value != null && value is StatusWrapper)
             {
@@ -211,47 +211,38 @@ namespace WebAPI.App_Start
                 {
                     // validate expected type was received
                     var restResultWrapper = value as StatusWrapper;
-
                     if (restResultWrapper != null && restResultWrapper.Result != null && !(restResultWrapper.Result is KalturaAPIExceptionWrapper))
                     {
                         if (!(restResultWrapper.Result is IKalturaExcelStructureManager))
                         {
                             throw new BadRequestException(BadRequestException.FORMAT_NOT_SUPPORTED, KalturaResponseType.EXCEL, (int)KalturaResponseType.EXCEL);
                         }
-
                         int? groupId;
                         string fileName;
-
                         if (!TryGetDataFromRequest(out groupId, out fileName))
                         {
                             throw new BadRequestException(BadRequestException.INVALID_ACTION_PARAMETERS);
                         }
-
                         var kalturaExcelStructure = restResultWrapper.Result as IKalturaExcelStructureManager;
                         if (kalturaExcelStructure == null)
                         {
                             throw new ClientException((int)eResponseStatus.InvalidBulkUploadStructure, "Invalid BulkUpload Structure");
                         }
-
                         var excelStructure = kalturaExcelStructure.GetExcelStructure(groupId.Value);
                         if (excelStructure == null)
                         {
                             log.ErrorFormat("excelStructure is null for groupId:{0}, value:{1}", groupId.Value, JsonConvert.SerializeObject(value));
                             throw new ClientException((int)eResponseStatus.InvalidBulkUploadStructure, "Invalid BulkUpload Structure");
                         }
-
                         DataTable fullDataTable = null;
                         var excelableListResponse = restResultWrapper.Result as IKalturaExcelableListResponse;
                         if (excelableListResponse != null)
                         {
                             fullDataTable = GetDataTableByObjects(groupId.Value, excelableListResponse.GetObjects(), excelStructure.ExcelColumns);
                         }
-
                         HttpContext.Current.Response.ContentType = ExcelFormatterConsts.EXCEL_CONTENT_TYPE;
                         HttpContext.Current.Response.Headers.Add("Content-Disposition", "attachment; filename=" + fileName);
-
                         CreateExcel(writeStream, fileName, fullDataTable, excelStructure);
-                        return Task.FromResult(writeStream);
                     }
                 }
                 catch (ApiException ex)
@@ -274,7 +265,6 @@ namespace WebAPI.App_Start
             {
                 string json = jsonManager.Serialize(value);
                 streamWriter.Write(json);
-                return Task.FromResult(writeStream);
             }
         }
 

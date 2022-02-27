@@ -86,12 +86,12 @@ namespace ApiLogic.Users.Services
                             break;
                         }
 
-                        var deviceUdidsReturned = deviceLoginRecords.Select(d => d.UDID);
+                        var deviceUdidsUsageKeysReturned = deviceLoginRecords.Select(d => GetDomainDeviceUsageDateKey(d.UDID));
                         // first check if there such old devices that do not have a login recotrd at all because of TTL
-                        var nonExistingDevices = deviceUuidUsageKeyToDevice.Keys.Except(deviceUdidsReturned).ToList();
+                        var nonExistingDevices = deviceUuidUsageKeyToDevice.Keys.Except(deviceUdidsUsageKeysReturned).ToList();
                         if (nonExistingDevices.Any())
                         {
-                            removalCandidateDeviceUsageKey = GetDomainDeviceUsageDateKey(nonExistingDevices.First());
+                            removalCandidateDeviceUsageKey = nonExistingDevices.First();
                         }
                         else // if no non existing devices then we can use the min login date..
                         {
@@ -115,7 +115,7 @@ namespace ApiLogic.Users.Services
                         var nonExistingDevices = deviceUuidUsageKeyToDevice.Keys.Except(loginRecords.Keys);
                         if (nonExistingDevices.Any())
                         {
-                            removalCandidateDeviceUsageKey = GetDomainDeviceUsageDateKey(nonExistingDevices.First());
+                            removalCandidateDeviceUsageKey = nonExistingDevices.First();
                         }
                         else  // if no non existing devices then we can use the min login date..
                         {
@@ -188,7 +188,7 @@ namespace ApiLogic.Users.Services
                         LastLoginDate = now,
                     };
                     
-                    KafkaPublisher.GetFromTcmConfiguration().Publish(migrationEvent);
+                    KafkaPublisher.GetFromTcmConfiguration(migrationEvent).Publish(migrationEvent);
 
                 }
             }

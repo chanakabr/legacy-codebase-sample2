@@ -68,8 +68,8 @@
     <Reference Include="Microsoft.Extensions.Configuration, Version=3.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.Configuration.3.1.0\lib\netstandard2.0\Microsoft.Extensions.Configuration.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Extensions.Configuration.Abstractions, Version=3.1.21.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Extensions.Configuration.Abstractions.3.1.21\lib\netstandard2.0\Microsoft.Extensions.Configuration.Abstractions.dll</HintPath>
+    <Reference Include="Microsoft.Extensions.Configuration.Abstractions, Version=3.1.22.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Configuration.Abstractions.3.1.22\lib\netstandard2.0\Microsoft.Extensions.Configuration.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Extensions.Configuration.Binder, Version=3.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.Configuration.Binder.3.1.0\lib\netstandard2.0\Microsoft.Extensions.Configuration.Binder.dll</HintPath>
@@ -89,8 +89,8 @@
     <Reference Include="Microsoft.Extensions.Options, Version=3.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.Options.3.1.0\lib\netstandard2.0\Microsoft.Extensions.Options.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Extensions.Primitives, Version=3.1.21.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Extensions.Primitives.3.1.21\lib\netstandard2.0\Microsoft.Extensions.Primitives.dll</HintPath>
+    <Reference Include="Microsoft.Extensions.Primitives, Version=3.1.22.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Primitives.3.1.22\lib\netstandard2.0\Microsoft.Extensions.Primitives.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -1056,6 +1056,10 @@
     <ProjectReference Include="..\..\Core\CouchbaseManager\CouchbaseManager.csproj">
       <Project>{3c7c3f29-198b-45cc-9f31-9ace194e37e8}</Project>
       <Name>CouchbaseManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj">
+      <Project>{73d6dbe9-0570-4fca-b10f-678dbe866f9d}</Project>
+      <Name>KLogMonitor</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj">
       <Project>{30B747E2-22E4-407E-BB76-83B3479C8132}</Project>

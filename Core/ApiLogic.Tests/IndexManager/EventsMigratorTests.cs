@@ -32,7 +32,7 @@ namespace ApiLogic.Tests.IndexManager
         public void TestCallingPublish()
         {
             var decorator = new IndexManagerEventsDecorator(_mockIManager.Object,
-                _mockIEventBusPublisher.Object,
+                provider => _mockIEventBusPublisher.Object,
                 IndexManagerVersion.EsV2,
                 0);
             

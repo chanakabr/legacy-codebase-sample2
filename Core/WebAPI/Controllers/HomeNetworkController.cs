@@ -33,7 +33,7 @@ namespace WebAPI.Controllers
             KalturaHomeNetwork response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-            long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+            long householdId = HouseholdUtils.GetHouseholdIDByKS();
 
             try
             {
@@ -60,7 +60,7 @@ namespace WebAPI.Controllers
             List<KalturaHomeNetwork> list = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-            long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+            long householdId = HouseholdUtils.GetHouseholdIDByKS();
 
             try
             {
@@ -89,7 +89,7 @@ namespace WebAPI.Controllers
             List<KalturaHomeNetwork> response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-            long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+            long householdId = HouseholdUtils.GetHouseholdIDByKS();
 
             try
             {
@@ -120,7 +120,7 @@ namespace WebAPI.Controllers
         static public KalturaHomeNetwork Update(string externalId, KalturaHomeNetwork homeNetwork)
         {
             int groupId = KS.GetFromRequest().GroupId;
-            long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+            long householdId = HouseholdUtils.GetHouseholdIDByKS();
 
             try
             {
@@ -152,7 +152,7 @@ namespace WebAPI.Controllers
         static public bool UpdateOldStandard(KalturaHomeNetwork home_network)
         {
             int groupId = KS.GetFromRequest().GroupId;
-            long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+            long householdId = HouseholdUtils.GetHouseholdIDByKS();
 
             try
             {
@@ -186,7 +186,7 @@ namespace WebAPI.Controllers
             bool response = false;
 
             int groupId = KS.GetFromRequest().GroupId;
-            long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+            long householdId = HouseholdUtils.GetHouseholdIDByKS();
 
             try
             {

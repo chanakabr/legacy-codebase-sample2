@@ -429,7 +429,8 @@ namespace Core.Catalog
                     ShouldSearchMedia = definitions.shouldSearchRecordings,
                     ShouldSearchRecordings = definitions.shouldSearchRecordings,
                     AssociationTags = definitions.associationTags,
-                    ParentMediaTypes = definitions.parentMediaTypes
+                    ParentMediaTypes = definitions.parentMediaTypes,
+                    Language = definitions.langauge
                 };
 
                 var orderingResult = _assetOrderingService.MapToEsOrderByFields(

@@ -115,6 +115,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.Metrics", "..\Core\Cor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RabbitQueueWrapper", "..\Core\RabbitQueueWrapper\RabbitQueueWrapper.csproj", "{3F740706-4926-4090-84A6-8B39716833A4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KLogMonitor", "..\Core\KLogMonitor\KLogMonitor.csproj", "{D9CAF32C-202F-484D-9523-AD210FF99E59}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -507,6 +509,14 @@ Global
 		{3F740706-4926-4090-84A6-8B39716833A4}.Local|Any CPU.Build.0 = Debug|Any CPU
 		{3F740706-4926-4090-84A6-8B39716833A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3F740706-4926-4090-84A6-8B39716833A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9CAF32C-202F-484D-9523-AD210FF99E59}.Basic|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9CAF32C-202F-484D-9523-AD210FF99E59}.Basic|Any CPU.Build.0 = Debug|Any CPU
+		{D9CAF32C-202F-484D-9523-AD210FF99E59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9CAF32C-202F-484D-9523-AD210FF99E59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9CAF32C-202F-484D-9523-AD210FF99E59}.Local|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9CAF32C-202F-484D-9523-AD210FF99E59}.Local|Any CPU.Build.0 = Debug|Any CPU
+		{D9CAF32C-202F-484D-9523-AD210FF99E59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9CAF32C-202F-484D-9523-AD210FF99E59}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -557,6 +567,7 @@ Global
 		{1BC8E702-8D51-4C4A-9A16-00AA19743F67} = {AB5CBEF6-EC94-4352-8419-F6D401AEEA9A}
 		{CC716FD3-303A-4BCA-A040-E75C2604DF7C} = {AB5CBEF6-EC94-4352-8419-F6D401AEEA9A}
 		{3F740706-4926-4090-84A6-8B39716833A4} = {AB5CBEF6-EC94-4352-8419-F6D401AEEA9A}
+		{D9CAF32C-202F-484D-9523-AD210FF99E59} = {AB5CBEF6-EC94-4352-8419-F6D401AEEA9A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AEAD6934-E9AC-43F3-A1C5-2A0E43A479C6}

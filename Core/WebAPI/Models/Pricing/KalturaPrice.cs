@@ -50,25 +50,7 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "countryId")]
         [SchemeProperty(RequiresPermission = (int)RequestType.READ, IsNullable = true)]
         public long? CountryId { get; set; }
-
-        public void Validate()
-        {
-            if (!this.Amount.HasValue)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "amount");
-            }
-
-            if (this.Amount.Value < 0.01)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, "amount", "0.01");
-            }
-
-            if (string.IsNullOrWhiteSpace(this.Currency))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "currency");
-            }
-        }
-
+        
         protected bool Equals(KalturaPrice other)
         {
             return Currency == other.Currency && 

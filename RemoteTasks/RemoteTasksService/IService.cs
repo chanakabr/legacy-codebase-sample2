@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
+﻿using System.IO;
 using System.ServiceModel;
-using System.ServiceModel.Web;
-using System.Text;
-using RemoteTasksCommon;
+using System.Threading.Tasks;
 
 namespace RemoteTasksService
 {
@@ -14,8 +8,9 @@ namespace RemoteTasksService
     public interface IService
     {
         [OperationContract]
+        Task<Stream> GetMetrics();
+        
+        [OperationContract]
         AddTaskResponse AddTask(AddTaskRequest request);
     }
-
-    
 }

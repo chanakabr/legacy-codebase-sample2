@@ -17,6 +17,7 @@ using Polly.Retry;
 using System.Reflection;
 using Couchbase.Utils;
 using EventBus.Abstraction;
+using OTT.Lib.Kafka;
 using TVinciShared;
 using Channel = GroupsCacheManager.Channel;
 
@@ -26,18 +27,18 @@ namespace ApiLogic.Catalog.IndexManager
     public class IndexManagerEventsDecorator : IIndexManager
     {
         private readonly IIndexManager _indexManager;
-        private readonly IEventBusPublisher _eventBusPublisher;
+        private readonly Func<IKafkaContextProvider, IEventBusPublisher> _publisherFunc;
         private readonly IndexManagerVersion _indexManagerVersion;
         private readonly int _partnerId;
         private readonly Type _indexManagerType;
 
         public IndexManagerEventsDecorator(IIndexManager indexManager,
-            IEventBusPublisher eventBusPublisher,
+            Func<IKafkaContextProvider, IEventBusPublisher> publisherFunc,
             IndexManagerVersion indexManagerVersion,
             int partnerId)
         {
             _indexManager = indexManager;
-            _eventBusPublisher = eventBusPublisher;
+            _publisherFunc = publisherFunc;
             _indexManagerVersion = indexManagerVersion;
             _indexManagerType = _indexManager.GetType();
             _partnerId = partnerId;
@@ -72,7 +73,7 @@ namespace ApiLogic.Catalog.IndexManager
                 EventKey = eventKey
             };
 
-            _eventBusPublisher.Publish(migrationEvent);
+            _publisherFunc(migrationEvent).Publish(migrationEvent);
         }
 
         #endregion

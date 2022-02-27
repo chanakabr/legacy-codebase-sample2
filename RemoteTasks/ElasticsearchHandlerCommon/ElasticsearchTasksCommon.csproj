@@ -1,11 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <Version>5.2.0.8667</Version>
     <AssemblyTitle>2019-05-16 18:23:21 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-0-228-g9a5fe5ee-dirty</AssemblyTitle>
-    <TargetFramework>net48</TargetFramework>
   </PropertyGroup>
- 
+  
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+    <TargetFrameworks>netcoreapp3.1;net48</TargetFrameworks>
+  </PropertyGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />
+    <PackageReference Include="Phx.Lib.Appconfig" Version="1.2.0" />
+    <PackageReference Include="Phx.Lib.Log" Version="1.2.3" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\DAL\DAL.csproj" />
+    <ProjectReference Include="..\..\Core\GroupsCacheManager\GroupsCacheManager.csproj" />
+	<ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj" />
+	<ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />
+	<ProjectReference Include="..\..\Core\ODBCWrapper\ODBCWrapper.csproj" />
+  </ItemGroup>
+
 </Project>

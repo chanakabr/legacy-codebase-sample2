@@ -755,8 +755,9 @@ namespace Core.Catalog.Request
               
             try
             {
-                var kafkaPublisher = EventBus.Kafka.KafkaPublisher.GetFromTcmConfiguration();
-                kafkaPublisher.Publish(new FirstPlayEvent(partnerId, mediaId, mediaTypeId, DateUtils.GetUtcUnixTimestampNow()));
+                var firstPlayEvent = new FirstPlayEvent(partnerId, mediaId, mediaTypeId, DateUtils.GetUtcUnixTimestampNow());
+                var kafkaPublisher = EventBus.Kafka.KafkaPublisher.GetFromTcmConfiguration(firstPlayEvent);
+                kafkaPublisher.Publish(firstPlayEvent);
 
                 result = true;
             }

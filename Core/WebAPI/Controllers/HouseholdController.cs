@@ -23,7 +23,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, Household user failed = 1007</remarks>        
         [Action("get")]
-        [ApiAuthorize]
+        [ApiAuthorize(eKSValidation.Expiration)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [SchemeArgument("id", RequiresPermission = true)]
         [Throws(eResponseStatus.DomainNotExists)]
@@ -35,7 +35,7 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
             if (!id.HasValue)
-                id = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+                id = (int)HouseholdUtils.GetHouseholdIDByKS();
 
             try
             {
@@ -281,10 +281,10 @@ namespace WebAPI.Controllers
             try
             {
                 // get domain id      
-                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                var domainId = (int)HouseholdUtils.GetHouseholdIDByKS();
 
                 // call client
-                response = ClientsManager.BillingClient().SetHouseholdChargeID(groupId, pg_id, (int)domainId, charge_id);
+                response = ClientsManager.BillingClient().SetHouseholdChargeID(groupId, pg_id, domainId, charge_id);
             }
             catch (ClientException ex)
             {
@@ -314,10 +314,10 @@ namespace WebAPI.Controllers
             try
             {
                 // get domain id       
-                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                var domainId = (int)HouseholdUtils.GetHouseholdIDByKS();
 
                 // call client
-                chargeId = ClientsManager.BillingClient().GetHouseholdChargeID(groupId, pg_id, (int)domainId);
+                chargeId = ClientsManager.BillingClient().GetHouseholdChargeID(groupId, pg_id, domainId);
             }
             catch (ClientException ex)
             {
@@ -366,10 +366,10 @@ namespace WebAPI.Controllers
             try
             {
                 // get domain id      
-                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                var domainId = (int)HouseholdUtils.GetHouseholdIDByKS();
 
                 // call client
-                response = ClientsManager.BillingClient().SetPaymentGatewayHouseholdPaymentMethod(groupId, payment_gateway_id, (int)domainId, payment_method_name, payment_details, payment_method_external_id);
+                response = ClientsManager.BillingClient().SetPaymentGatewayHouseholdPaymentMethod(groupId, payment_gateway_id, domainId, payment_method_name, payment_details, payment_method_external_id);
             }
             catch (ClientException ex)
             {
@@ -405,7 +405,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                household = ClientsManager.DomainsClient().ResetFrequency(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), frequencyType);
+                household = ClientsManager.DomainsClient().ResetFrequency(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(), frequencyType);
             }
             catch (ClientException ex)
             {
@@ -428,7 +428,7 @@ namespace WebAPI.Controllers
         static public KalturaHousehold Update(KalturaHousehold household)
         {
             int groupId = KS.GetFromRequest().GroupId;
-            var householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+            var householdId = (int)HouseholdUtils.GetHouseholdIDByKS();
 
             // no household to update - return forbidden
             if (householdId == 0)
@@ -439,7 +439,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                household = ClientsManager.DomainsClient().SetDomainInfo(groupId, (int)householdId, household.Name, household.Description, household.RegionId, household.ExternalId);
+                household = ClientsManager.DomainsClient().SetDomainInfo(groupId, householdId, household.Name, household.Description, household.RegionId, household.ExternalId);
             }
             catch (ClientException ex)
             {
@@ -470,7 +470,7 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            var householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+            var householdId = (int)HouseholdUtils.GetHouseholdIDByKS();
 
             // no household to update - return forbidden
             if (householdId == 0)
@@ -481,7 +481,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                household = ClientsManager.DomainsClient().SetDomainInfo(groupId, (int)householdId, name, description, null);
+                household = ClientsManager.DomainsClient().SetDomainInfo(groupId, householdId, name, description, null);
             }
             catch (ClientException ex)
             {
@@ -624,9 +624,9 @@ namespace WebAPI.Controllers
 
             try
             {
-                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                var domainId = (int)HouseholdUtils.GetHouseholdIDByKS();
                 // call client
-                return ClientsManager.DomainsClient().Suspend(groupId, (int)domainId, roleId);
+                return ClientsManager.DomainsClient().Suspend(groupId, domainId, roleId);
             }
             catch (ClientException ex)
             {
@@ -653,9 +653,9 @@ namespace WebAPI.Controllers
 
             try
             {
-                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                var domainId = (int)HouseholdUtils.GetHouseholdIDByKS();
                 // call client
-                return ClientsManager.DomainsClient().Resume(groupId, (int)domainId);
+                return ClientsManager.DomainsClient().Resume(groupId, domainId);
 
             }
             catch (ClientException ex)

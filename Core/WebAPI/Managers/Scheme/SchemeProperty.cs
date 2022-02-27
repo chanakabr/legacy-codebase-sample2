@@ -13,6 +13,7 @@ namespace WebAPI.Managers.Scheme
         public bool WriteOnly { get; set; }
         public int RequiresPermission { get; set; }
         public bool IsNullable { get; set; }
+        public eKSValidation ValidationState { get; set; }
 
         public SchemePropertyAttribute() : base()
         {
@@ -21,6 +22,7 @@ namespace WebAPI.Managers.Scheme
             WriteOnly = false;
             IsNullable = false;
             RequiresPermission = 0;
+            ValidationState = eKSValidation.All;
         }
     }
 
@@ -36,7 +38,7 @@ namespace WebAPI.Managers.Scheme
 
         internal void Validate(string parameterName, object value)
         {
-            string name = string.Format("{0}.{1}", TypeName, parameterName);
+            string name = $"{TypeName}.{parameterName}";
 
             base.Validate(name, value);
 
@@ -62,7 +64,7 @@ namespace WebAPI.Managers.Scheme
                 RequestType? requestType = (RequestType)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE];
                 if (requestType.HasValue && isA(requestType.Value, RequiresPermission))
                 {
-                    RolesManager.ValidatePropertyPermitted(TypeName, parameterName, requestType.Value);
+                    RolesManager.ValidatePropertyPermitted(TypeName, parameterName, requestType.Value, ValidationState);
                 }
             }
         }

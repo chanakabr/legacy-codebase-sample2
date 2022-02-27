@@ -11,6 +11,7 @@ using System.Web;
 using KalturaRequestContext;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
+using WebAPI.Controllers;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.API;
@@ -38,14 +39,14 @@ namespace WebAPI.Managers
 
         #region Private Methods
 
-        private static KS getKS(bool silent)
+        private static KS getKS(eKSValidation validationState)
         {
             KS ks = KS.GetFromRequest();
 
             if (ks == null)
                 throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
 
-            if (!ks.IsValid && !silent)
+            if (!AuthorizationManager.IsAuthorized(ks, validationState))
                 throw new UnauthorizedException(UnauthorizedException.KS_EXPIRED);
 
             return ks;
@@ -304,10 +305,10 @@ namespace WebAPI.Managers
         /// </summary>
         /// <param name="service">Service name</param>
         /// <param name="action">Action name</param>
-        /// <param name="silent">Fail silently</param>
-        internal static void ValidateActionPermitted(string service, string action, bool silent = false)
+        /// <param name="validationState">All, Expiration, None - level of KS validation</param>
+        internal static void ValidateActionPermitted(string service, string action, eKSValidation validationState = eKSValidation.All)
         {
-            KS ks = getKS(silent);
+            KS ks = getKS(validationState);
             List<long> roleIds = GetRoleIds(ks);
 
             // no roles found for the user
@@ -369,15 +370,15 @@ namespace WebAPI.Managers
         /// <param name="type">Type name</param>
         /// <param name="property">Property name</param>
         /// <param name="action">Required action</param>
-        /// <param name="silent">Fail silently</param>
+        /// <param name="validationState">All, Expiration, None - level of KS validation</param>
         /// <returns>True if the property is permitted, false otherwise</returns>
-        internal static void ValidatePropertyPermitted(string type, string property, RequestType action, bool silent = false)
+        internal static void ValidatePropertyPermitted(string type, string property, RequestType action, eKSValidation validationState = eKSValidation.All)
         {
             KS ks;
 
             try
             {
-                ks = getKS(silent);
+                ks = getKS(validationState);
             }
             catch (UnauthorizedException ex)
             {
@@ -409,12 +410,12 @@ namespace WebAPI.Managers
         /// <param name="type">Type name</param>
         /// <param name="property">Property name</param>
         /// <param name="action">Required action</param>
-        /// <param name="silent">Fail silently</param>
+        /// <param name="validationState">All, Expiration, None - level of KS validation</param>
         /// <returns>True if the property is permitted, false otherwise</returns>
-        internal static bool IsPropertyPermitted(string type, string property, RequestType action, bool silent = false)
+        internal static bool IsPropertyPermitted(string type, string property, RequestType action, eKSValidation validationState = eKSValidation.All)
         {
             bool result = false;
-            string key = string.Format(IS_PROPERTY_PERMITTED, type, property, action, silent);
+            string key = string.Format(IS_PROPERTY_PERMITTED, type, property, action, validationState);
             if (HttpContext.Current != null && HttpContext.Current.Items != null && HttpContext.Current.Items.ContainsKey(key))
             {
                 return (bool)HttpContext.Current.Items[key];
@@ -423,7 +424,7 @@ namespace WebAPI.Managers
             {
                 try
                 {
-                    ValidatePropertyPermitted(type, property, action, silent);
+                    ValidatePropertyPermitted(type, property, action, validationState);
                     result = true;
                 }
                 catch
@@ -442,11 +443,11 @@ namespace WebAPI.Managers
         /// <param name="service">Controller service name</param>
         /// <param name="action">Method action name</param>
         /// <param name="argument">Argument name</param>
-        /// <param name="silent">Fail silently</param>
+        /// <param name="validationState">All, Expiration, None - level of KS validation</param>
         /// <returns>True if the method argument is permitted, false otherwise</returns>
-        internal static void ValidateArgumentPermitted(string service, string action, string argument, bool silent = false)
+        internal static void ValidateArgumentPermitted(string service, string action, string argument, eKSValidation validationState = eKSValidation.All)
         {
-            KS ks = getKS(silent);
+            KS ks = getKS(validationState);
             List<long> roleIds = GetRoleIds(ks);
 
             // no roles found for the user

@@ -2268,6 +2268,24 @@ namespace DAL
                 log.ErrorFormat("Error at GetEpisodeAssociationTag. groupId: {0}. Error {1}", groupId, ex);
             }
         }
+        
+        public static (string episodeNumberMeta, string seasonNumberMeta) GetEpisodeAndSeasonNumberMetas(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetEpisodeAndSeasonNumberMetas");
+            sp.SetConnectionKey(TVINCI_CONNECTION);
+            sp.AddParameter("@groupId", groupId);
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                var episodeNumberMeta = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "EPISODE_NUMBER_META");
+                var seasonNumberMeta = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "SEASON_NUMBER_META");
+                
+                return (episodeNumberMeta, seasonNumberMeta);
+            }
+
+            return (null, null);
+        }
 
         public static List<DbReminder> GetReminders(int groupId, long reminderId = 0)
         {

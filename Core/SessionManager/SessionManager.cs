@@ -58,7 +58,7 @@ namespace SessionManager
                 }
                 else
                 {
-                    log.Debug("UpdateUsersSessionsRevocationTime user is empty and it's not revokeAll ,will not call revoke");
+                    log.Debug("UpdateUsersSessionsRevocationTime user is empty and it's not revokeAll, will not call revoke");
                 }
                 return true;
             }
@@ -111,20 +111,22 @@ namespace SessionManager
                 {
                     usersSessions.UserRevocation = revocationTime;
                     usersSessions.expiration = Math.Max(Math.Max(usersSessions.expiration, (now + groupKSExpirationSeconds)), now + groupAppTokenSessionMaxDurationSeconds);
+
+                    SendUserAndDeviceSessionRevocationCanaryMigrationEvent(groupId, userId, string.Empty, revocationTime, usersSessions);
                 }
-                else
+                else if (!string.IsNullOrEmpty(udid))
                 {
-                    if (!string.IsNullOrEmpty(udid))
+                    if (usersSessions.UserWithUdidRevocations.ContainsKey(udid))
                     {
-                        if (usersSessions.UserWithUdidRevocations.ContainsKey(udid))
-                        {
-                            usersSessions.UserWithUdidRevocations[udid] = revocationTime;
-                        }
-                        else
-                        {
-                            usersSessions.UserWithUdidRevocations.Add(udid, revocationTime);
-                        }
+                        usersSessions.UserWithUdidRevocations[udid] = revocationTime;
                     }
+                    else
+                    {
+                        usersSessions.UserWithUdidRevocations.Add(udid, revocationTime);
+                    }
+
+                    // what should we do with the exporter sunny is created that is using same code ????
+                    SendUserAndDeviceSessionRevocationCanaryMigrationEvent(groupId, userId, udid, revocationTime, usersSessions);
                 }
 
                 // store
@@ -134,8 +136,6 @@ namespace SessionManager
                     return false;
                 }
 
-                // what should we do with the exporter sunny is created that is using same code ????
-                SendUserAndDeviceSessionRevocationCanaryMigrationEvent(groupId, userId, udid, revocationTime, usersSessions);
             }
             return true;
         }
@@ -153,7 +153,7 @@ namespace SessionManager
                     KsExpiry = usersSessions.expiration,
                     UserDeviceSessionCreationDate = revocationTime,
                 };
-                KafkaPublisher.GetFromTcmConfiguration().Publish(migrationEvent);
+                KafkaPublisher.GetFromTcmConfiguration(migrationEvent).Publish(migrationEvent);
             }
         }
 

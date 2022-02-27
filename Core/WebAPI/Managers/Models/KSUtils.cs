@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using TVinciShared;
+using WebAPI.Utils;
 
 namespace WebAPI.Managers.Models
 {
@@ -13,6 +15,7 @@ namespace WebAPI.Managers.Models
         public const string PAYLOAD_USER_ROLES = "ur";
         public const string PAYLOAD_SESSION_CHARACTERISTIC_KEY = "sck";
         public const string PAYLOAD_SIGNATURE = "sig";
+        public const string PAYLOAD_DOMAINID = "hh";
 
         public static string PrepareKSPayload(KS.KSData pl)
         {
@@ -38,6 +41,11 @@ namespace WebAPI.Managers.Models
                 ksDataList.Add(new KeyValuePair<string, string>(PAYLOAD_SESSION_CHARACTERISTIC_KEY, pl.SessionCharacteristicKey));
             }
 
+            if (pl.DomainId > 0)
+            {
+                ksDataList.Add(new KeyValuePair<string, string>(PAYLOAD_DOMAINID, pl.DomainId.ToString()));
+            }
+            
             if (!string.IsNullOrEmpty(pl.Signature))
             {
                 ksDataList.Add(new KeyValuePair<string, string>(PAYLOAD_SIGNATURE, pl.Signature));
@@ -88,13 +96,21 @@ namespace WebAPI.Managers.Models
 
             pl.TryGetValue(PAYLOAD_SESSION_CHARACTERISTIC_KEY, out var sessionCharacteristicKey);
 
+            int domainId = 0;
+            if (!pl.ContainsKey(PAYLOAD_DOMAINID) || !int.TryParse(pl[PAYLOAD_DOMAINID], out domainId) || domainId <= 0)
+            {
+                var domain = HouseholdUtils.GetHouseholdFromRequest();
+                domainId = domain != null ? (int) domain.getId() : 0;
+            }
+            
             var signature = string.Empty;
             if (pl.ContainsKey(PAYLOAD_SIGNATURE))
             {
                 signature = pl[PAYLOAD_SIGNATURE];
             }
 
-            return new KS.KSData(udid, createDate, regionId, userSegments, userRoles, sessionCharacteristicKey, signature);
+            return new KS.KSData(udid, createDate, regionId, userSegments, userRoles, sessionCharacteristicKey,
+                domainId, signature);
         }
 
         internal static KS.KSData ExtractKSPayload()

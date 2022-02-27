@@ -25,11 +25,11 @@ namespace WebAPI.Controllers
             List<KalturaPremiumService> response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-            long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+            var householdId = (int)HouseholdUtils.GetHouseholdIDByKS();
 
             try
             {
-                response = ClientsManager.ConditionalAccessClient().GetDomainServicesOldStandart(groupId, (int)householdId);
+                response = ClientsManager.ConditionalAccessClient().GetDomainServicesOldStandart(groupId, householdId);
             }
             catch (ClientException ex)
             {
@@ -50,11 +50,11 @@ namespace WebAPI.Controllers
             KalturaHouseholdPremiumServiceListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-            long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+            var householdId = (int)HouseholdUtils.GetHouseholdIDByKS();
 
             try
             {
-                response = ClientsManager.ConditionalAccessClient().GetDomainServices(groupId, (int)householdId);
+                response = ClientsManager.ConditionalAccessClient().GetDomainServices(groupId, householdId);
             }
             catch (ClientException ex)
             {

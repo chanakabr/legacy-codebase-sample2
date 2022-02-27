@@ -5,5 +5,6 @@ namespace WebAPI.App_Start
     public interface IKalturaExcelableObject : IKalturaBulkUploadObject
     {
         Dictionary<string, object> GetExcelValues(int groupId);
+        long GetId();
     }
 }

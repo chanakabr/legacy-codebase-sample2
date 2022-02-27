@@ -47,6 +47,9 @@ namespace WebAPI.Managers.Models
         [JsonProperty("SessionCharacteristicKey")]
         public string SessionCharacteristicKey { get; set; }
         
+        [JsonProperty("DomainId")]
+        public int DomainId { get; set; }
+        
         [JsonIgnore]
         public KS KsObject { get; set; }
         
@@ -83,7 +86,14 @@ namespace WebAPI.Managers.Models
                 accessExpiration = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddSeconds(groupConfig.KSExpirationSeconds));
             }
 
-            AccessTokenExpiration = accessExpiration >= RefreshTokenExpiration ? RefreshTokenExpiration : accessExpiration;
+            AccessTokenExpiration = accessExpiration;
+
+            if (groupConfig.IsRefreshTokenEnabled)
+            {
+                AccessTokenExpiration = accessExpiration >= RefreshTokenExpiration
+                    ? RefreshTokenExpiration
+                    : accessExpiration;
+            }
 
             KsObject = new KS(isAdmin ? groupConfig.AdminSecret : groupConfig.UserSecret,
                               groupId.ToString(),
@@ -135,7 +145,14 @@ namespace WebAPI.Managers.Models
                 accessExpiration = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddSeconds(groupConfig.KSExpirationSeconds));
             }
 
-            AccessTokenExpiration = accessExpiration >= RefreshTokenExpiration ? RefreshTokenExpiration : accessExpiration;
+            AccessTokenExpiration = accessExpiration;
+
+            if (groupConfig.IsRefreshTokenEnabled)
+            {
+                AccessTokenExpiration = accessExpiration >= RefreshTokenExpiration
+                    ? RefreshTokenExpiration
+                    : accessExpiration;
+            }
 
             KsObject = new KS(token.IsAdmin ? groupConfig.AdminSecret : groupConfig.UserSecret,
                               token.GroupID.ToString(),

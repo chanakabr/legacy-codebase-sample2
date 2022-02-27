@@ -57,6 +57,10 @@
       <HintPath>..\packages\Microsoft.AspNetCore.Hosting.2.2.7\lib\netstandard2.0\Microsoft.AspNetCore.Hosting.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="OTT.Lib.Metrics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\OTT.Lib.Metrics.1.1.2\lib\netstandard2.0\OTT.Lib.Metrics.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.AspNetCore.Hosting.Abstractions, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
       <HintPath>..\packages\Microsoft.AspNetCore.Hosting.Abstractions.2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Hosting.Abstractions.dll</HintPath>
       <Private>True</Private>
@@ -86,8 +90,8 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.Extensions.Configuration.Abstractions, Version=3.1.21.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Extensions.Configuration.Abstractions.3.1.21\lib\netstandard2.0\Microsoft.Extensions.Configuration.Abstractions.dll</HintPath>
+    <Reference Include="Microsoft.Extensions.Configuration.Abstractions, Version=3.1.22.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Configuration.Abstractions.3.1.22\lib\netstandard2.0\Microsoft.Extensions.Configuration.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Extensions.Configuration.EnvironmentVariables, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
       <HintPath>..\packages\Microsoft.Extensions.Configuration.EnvironmentVariables.2.2.4\lib\netstandard2.0\Microsoft.Extensions.Configuration.EnvironmentVariables.dll</HintPath>
@@ -100,8 +104,8 @@
     <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=5.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.5.0.0\lib\net461\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Extensions.FileProviders.Abstractions, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
-      <HintPath>..\packages\Microsoft.Extensions.FileProviders.Abstractions.2.2.0\lib\netstandard2.0\Microsoft.Extensions.FileProviders.Abstractions.dll</HintPath>
+    <Reference Include="Microsoft.Extensions.FileProviders.Abstractions, Version=3.1.22.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
+      <HintPath>..\packages\Microsoft.Extensions.FileProviders.Abstractions.3.1.22\lib\netstandard2.0\Microsoft.Extensions.FileProviders.Abstractions.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Extensions.FileProviders.Physical, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
@@ -112,16 +116,16 @@
       <HintPath>..\packages\Microsoft.Extensions.FileSystemGlobbing.2.2.0\lib\netstandard2.0\Microsoft.Extensions.FileSystemGlobbing.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.Extensions.Hosting.Abstractions, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
-      <HintPath>..\packages\Microsoft.Extensions.Hosting.Abstractions.2.2.0\lib\netstandard2.0\Microsoft.Extensions.Hosting.Abstractions.dll</HintPath>
+    <Reference Include="Microsoft.Extensions.Hosting.Abstractions, Version=3.1.22.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
+      <HintPath>..\packages\Microsoft.Extensions.Hosting.Abstractions.3.1.22\lib\netstandard2.0\Microsoft.Extensions.Hosting.Abstractions.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Extensions.ObjectPool, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
       <HintPath>..\packages\Microsoft.Extensions.ObjectPool.2.2.0\lib\netstandard2.0\Microsoft.Extensions.ObjectPool.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.Extensions.Primitives, Version=3.1.21.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Extensions.Primitives.3.1.21\lib\netstandard2.0\Microsoft.Extensions.Primitives.dll</HintPath>
+    <Reference Include="Microsoft.Extensions.Primitives, Version=3.1.22.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Primitives.3.1.22\lib\netstandard2.0\Microsoft.Extensions.Primitives.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Net.Http.Headers, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
       <HintPath>..\packages\Microsoft.Net.Http.Headers.2.2.0\lib\netstandard2.0\Microsoft.Net.Http.Headers.dll</HintPath>
@@ -241,9 +245,10 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Infrastructure\Metrics.cs" />
     <Compile Include="IService.cs" />
     <Compile Include="Action.cs" />
-    <Compile Include="RequestID.cs" />
+    <Compile Include="RequestParams.cs" />
     <Compile Include="Service.svc.cs">
       <DependentUpon>Service.svc</DependentUpon>
     </Compile>
@@ -291,6 +296,10 @@
     <ProjectReference Include="..\..\Core\GroupsCacheManager\GroupsCacheManager.csproj">
       <Project>{25037a8a-7c6d-4496-b757-6fa85abdd3cf}</Project>
       <Name>GroupsCacheManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj">
+      <Project>{5b16fa9f-fdae-479d-b70d-4018ddd8ad02}</Project>
+      <Name>KLogMonitor</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Core\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>

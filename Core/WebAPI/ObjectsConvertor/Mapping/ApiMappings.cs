@@ -1,5 +1,5 @@
 ﻿using APILogic.Api.Managers;
-using APILogic.ConditionalAccess;
+using WebAPI.App_Start;
 using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.BulkExport;
@@ -28,6 +28,7 @@ using WebAPI.Models.Users;
 using WebAPI.Models.Users.UserSessionProfile;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
 using KeyValuePair = ApiObjects.KeyValuePair;
+using ApiObjects.BulkUpload;
 using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.ModelsFactory;
 
@@ -2207,7 +2208,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
             cfg.CreateMap<KalturaUdidDynamicList, UdidDynamicList>()
-                .IncludeBase<KalturaDynamicList, DynamicList>();
+                .IncludeBase<KalturaDynamicList, DynamicList>()
+                .IncludeBase<IKalturaExcelStructureManager, IExcelStructureManager>();
 
             cfg.CreateMap<UdidDynamicList, KalturaUdidDynamicList>()
                 .IncludeBase<DynamicList, KalturaDynamicList>();

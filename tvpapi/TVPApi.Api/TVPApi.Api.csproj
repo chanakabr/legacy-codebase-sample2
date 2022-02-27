@@ -19,6 +19,7 @@
     <ProjectReference Include="..\..\Core\Core.Metrics\Core.Metrics.csproj" />
     <ProjectReference Include="..\..\Core\Core.Middleware\Core.Middleware.csproj" />
     <ProjectReference Include="..\..\Core\HealthCheck\HealthCheck.csproj" />
+    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\..\Core\LogReloader\LogReloader.csproj" />
     <ProjectReference Include="..\Libs\TVPApiModule\TVPApiModule.csproj" />
     <ProjectReference Include="..\TVPApi.Common\TVPApi.Common.csproj" />

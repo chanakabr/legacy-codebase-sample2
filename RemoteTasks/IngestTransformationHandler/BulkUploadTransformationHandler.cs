@@ -9,6 +9,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using AdapterClients.IngestTransformation;
 using ApiLogic;
+using ApiLogic.Catalog.CatalogManagement.Models;
 using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
@@ -559,8 +560,18 @@ namespace IngestTransformationHandler
             if (!BulkUpload.IsProcessCompletedByStatus(newStatus)) return;
             
             var updateDate = DateTime.UtcNow; // TODO looks like _bulUpload.UpdateDate is not updated in CB
-            _epgIngestMessaging.EpgIngestCompleted(_bulUpload.GroupId, _bulUpload.UpdaterId,
-                _bulUpload.Id, newStatus, _bulUpload.Errors, updateDate);
+            var parameters = new EpgIngestCompletedParameters
+            {
+                GroupId = _bulUpload.GroupId,
+                BulkUploadId = _bulUpload.Id,
+                Status = newStatus,
+                Errors = _bulUpload.Errors,
+                CompletedDate = updateDate,
+                UserId = _bulUpload.UpdaterId,
+                Results = _bulUpload.Results
+            };
+
+            _epgIngestMessaging.EpgIngestCompleted(parameters);
         }
     }
 }

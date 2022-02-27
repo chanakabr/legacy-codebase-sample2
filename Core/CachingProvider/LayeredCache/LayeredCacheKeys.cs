@@ -884,7 +884,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetSessionCharacteristic(int groupId, string sessionCharacteristic) =>
             $"session_characteristic_{groupId}_{sessionCharacteristic}";
-
+        
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -1654,7 +1654,7 @@ namespace CachingProvider.LayeredCache
         {
             return $"invalidationKey_group_{groupId}_searchPriorityGroupsMappings";
         }
-
+        
         #endregion
 
         #region Invalidation keys functions

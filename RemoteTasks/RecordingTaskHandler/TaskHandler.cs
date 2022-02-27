@@ -19,12 +19,15 @@ namespace RecordingTaskHandler
         public string HandleTask(string data)
         {
             string result = "failure";
+            eRecordingTask? type = eRecordingTask.GetStatusAfterProgramEnded;
+            RecordingTaskRequest request = null;
 
             try
             {
                 log.DebugFormat("starting recording task. data={0}", data);
 
-                RecordingTaskRequest request = JsonConvert.DeserializeObject<RecordingTaskHandler.RecordingTaskRequest>(data);
+                request = JsonConvert.DeserializeObject<RecordingTaskHandler.RecordingTaskRequest>(data);
+                type = request.Task;
 
                 bool success = false;
                 string message = string.Empty;
@@ -137,6 +140,8 @@ namespace RecordingTaskHandler
                             break;
                         }
                 }
+                
+                Metrics.Track(request.Task, success, request?.GroupID);
 
                 if (!success)
                 {
@@ -150,6 +155,7 @@ namespace RecordingTaskHandler
             }
             catch (Exception ex)
             {
+                Metrics.Track(request?.Task, false, request?.GroupID);
                 log.ErrorFormat("Recording task handler error. data = {0}, message = {2}, ex = {1}", data, ex, ex.Message);
                 throw ex;
             }

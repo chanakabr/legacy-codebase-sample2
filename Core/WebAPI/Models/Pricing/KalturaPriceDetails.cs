@@ -6,6 +6,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using System.Linq;
+using WebAPI.ModelsValidators;
 
 namespace WebAPI.Models.Pricing
 {

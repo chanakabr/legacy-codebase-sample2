@@ -1102,7 +1102,7 @@ namespace Core.Recordings
             var epgDoc = epgBL.GetEpgCB((ulong)epgId);
 
             var recordingDoc = RecordingsDAL.GetRecordingByProgramId_CB(epgId);
-            if (epgDoc.StartDate.Date != recordingDoc.StartDate.Date)
+            if (recordingDoc != null && epgDoc.StartDate.Date != recordingDoc.StartDate.Date)
             {
                 Catalog.Module.UpdateRecordingsIndex(new List<long> { recordingId }, groupId, eAction.Delete);
             }
@@ -1112,6 +1112,7 @@ namespace Core.Recordings
 
         public static void UpdateCouchbase(int groupId, long programId, long recordingId, bool shouldDelete = false)
         {
+            log.Info($"UpdateCouchbase: recording UpdateCouchbase with epgId:{programId}, recordingId: {recordingId}, shouldDelete: {shouldDelete}");
             if (shouldDelete)
             {
                 RecordingCB recording = RecordingsDAL.GetRecordingByProgramId_CB(programId);

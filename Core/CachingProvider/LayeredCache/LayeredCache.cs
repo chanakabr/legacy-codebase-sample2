@@ -57,7 +57,6 @@ namespace CachingProvider.LayeredCache
 
         private readonly bool ShouldProduceInvalidationEventsToKafka;
         private readonly string InvalidationEventsTopic = ApplicationConfiguration.Current.MicroservicesClientConfiguration.LayeredCacheConfiguration.InvalidationEventsTopic.Value;
-        private readonly IEventBusPublisher _InvalidationEventsPublisher;
         private List<Regex> _InvalidationEventsRegexRules;
 
         public LayeredCache()
@@ -67,7 +66,6 @@ namespace CachingProvider.LayeredCache
             ShouldProduceInvalidationEventsToKafka = GetShouldProduceInvalidationEventsToKafkaValue();
             if (ShouldProduceInvalidationEventsToKafka)
             {
-                _InvalidationEventsPublisher = KafkaPublisher.GetFromTcmConfiguration();
                 LoadInvalidationEventsRules();
             }
         }
@@ -320,15 +318,25 @@ namespace CachingProvider.LayeredCache
                     }
                 }
             }
-
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetValues with keys {0} from LayeredCache, layeredCacheConfigName {1}, MethodName {2} and funcParameters {3}",
-                    // take only 20 first keys - to avoid flood of log
-                    string.Join(",", keyToOriginalValueMap.Keys).Take(20),
-                    string.IsNullOrEmpty(layeredCacheConfigName) ? string.Empty : layeredCacheConfigName,
-                    fillObjectsMethod.Method != null ? fillObjectsMethod.Method.Name : "No_Method_Name",
-                    funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters"), ex);
+                var _cacheConfigName = string.IsNullOrEmpty(layeredCacheConfigName) ? string.Empty : layeredCacheConfigName;
+                var _methodName = fillObjectsMethod.Method != null ? fillObjectsMethod.Method.Name : "No_Method_Name";
+                var _funcParameters = funcParameters != null && funcParameters.Count > 0 ? string.Join(", ", funcParameters.Keys.ToList()) : "No_Func_Parameters";
+                var message = $"Failed GetValues with keys {string.Join(",", keyToOriginalValueMap.Keys).Take(20)} " +
+                    $"from LayeredCache, layeredCacheConfigName {_cacheConfigName}, " +
+                    $"MethodName {_methodName} " +
+                    $"and funcParameters {_funcParameters}";
+                
+                //BEO-10787
+                if (ex is InvalidOperationException)
+                {
+                    log.Debug(message, ex);
+                }
+                else
+                {
+                    log.Error(message, ex);
+                }
             }
 
             return res;
@@ -1697,10 +1705,7 @@ namespace CachingProvider.LayeredCache
                 }
 
                 var invalidationEvent = new CacheInvalidationEvent(key, InvalidationEventsTopic);
-                if (invalidationEvent != null)
-                {
-                    _InvalidationEventsPublisher.PublishHeadersOnly(invalidationEvent);
-                }
+                KafkaPublisher.GetFromTcmConfiguration(invalidationEvent).PublishHeadersOnly(invalidationEvent);
             }
             catch (Exception e)
             {

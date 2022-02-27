@@ -29,7 +29,7 @@ namespace WebAPI.Controllers
             KalturaFavorite response = null;
             int groupId = KS.GetFromRequest().GroupId;
             string userId = KS.GetFromRequest().UserId;
-            int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+            int domainId = (int)HouseholdUtils.GetHouseholdIDByKS();
             string udid = KSUtils.ExtractKSPayload().UDID;
             
             KalturaAsset asset = null;
@@ -90,7 +90,7 @@ namespace WebAPI.Controllers
                 string userID = KS.GetFromRequest().UserId;
 
                 // call client
-                res = ClientsManager.UsersClient().AddUserFavorite(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, media_type,
+                res = ClientsManager.UsersClient().AddUserFavorite(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), udid, media_type,
                     media_id, extra_data);
             }
             catch (ClientException ex)
@@ -119,7 +119,7 @@ namespace WebAPI.Controllers
                 string udid = KSUtils.ExtractKSPayload().UDID;
 
                 // call client
-                res = ClientsManager.UsersClient().RemoveUserFavorite(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), new long[] {id});
+                res = ClientsManager.UsersClient().RemoveUserFavorite(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), new long[] {id});
             }
             catch (ClientException ex)
             {
@@ -158,7 +158,7 @@ namespace WebAPI.Controllers
                 string udid = KSUtils.ExtractKSPayload().UDID;
 
                 // call client
-                res = ClientsManager.UsersClient().RemoveUserFavorite(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), media_ids.Select(x => (long)x.value).ToArray());
+                res = ClientsManager.UsersClient().RemoveUserFavorite(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), media_ids.Select(x => (long)x.value).ToArray());
             }
             catch (ClientException ex)
             {
@@ -196,7 +196,7 @@ namespace WebAPI.Controllers
                 List<int> mediaIds = filter.getMediaIdIn();
                 if (mediaIds == null || mediaIds.Count == 0)
                 {
-                    favorites = ClientsManager.UsersClient().GetUserFavorites(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, filter.MediaTypeIn != 0 ? filter.MediaTypeIn.ToString() : string.Empty, filter.OrderBy);
+                    favorites = ClientsManager.UsersClient().GetUserFavorites(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), udid, filter.MediaTypeIn != 0 ? filter.MediaTypeIn.ToString() : string.Empty, filter.OrderBy);
                 }
                 else
                 {
@@ -247,7 +247,7 @@ namespace WebAPI.Controllers
                 // no media ids to filter from - use the regular favorites function
                 if (mediaIds == null || mediaIds.Count == 0)
                 {
-                    favorites = ClientsManager.UsersClient().GetUserFavorites(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.UDID,
+                    favorites = ClientsManager.UsersClient().GetUserFavorites(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), filter.UDID,
                         filter.MediaTypeIn != 0 ? filter.MediaTypeIn.ToString() : string.Empty, filter.OrderBy);
                 }
                 else
