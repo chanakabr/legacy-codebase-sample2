@@ -16529,6 +16529,10 @@ namespace WebAPI.Models.API
             {
                 ret.Add("cleanupNoticePeriod", "\"cleanupNoticePeriod\": " + CleanupNoticePeriod);
             }
+            if(DefaultQuota.HasValue && (retrievedProperties == null || retrievedProperties.Contains("defaultQuota")))
+            {
+                ret.Add("defaultQuota", "\"defaultQuota\": " + DefaultQuota);
+            }
             if(NonEntitledChannelPlaybackEnabled.HasValue && (retrievedProperties == null || retrievedProperties.Contains("nonEntitledChannelPlaybackEnabled")))
             {
                 ret.Add("nonEntitledChannelPlaybackEnabled", "\"nonEntitledChannelPlaybackEnabled\": " + NonEntitledChannelPlaybackEnabled.ToString().ToLower());
@@ -16662,6 +16666,10 @@ namespace WebAPI.Models.API
             if(CleanupNoticePeriod.HasValue && (retrievedProperties == null || retrievedProperties.Contains("cleanupNoticePeriod")))
             {
                 ret.Add("cleanupNoticePeriod", "<cleanupNoticePeriod>" + CleanupNoticePeriod + "</cleanupNoticePeriod>");
+            }
+            if(DefaultQuota.HasValue && (retrievedProperties == null || retrievedProperties.Contains("defaultQuota")))
+            {
+                ret.Add("defaultQuota", "<defaultQuota>" + DefaultQuota + "</defaultQuota>");
             }
             if(NonEntitledChannelPlaybackEnabled.HasValue && (retrievedProperties == null || retrievedProperties.Contains("nonEntitledChannelPlaybackEnabled")))
             {
@@ -33609,6 +33617,10 @@ namespace WebAPI.Models.Pricing
             {
                 ret.Add("currency", "\"currency\": " + "\"" + EscapeJson(Currency) + "\"");
             }
+            if(CurrencyId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("currencyId")))
+            {
+                ret.Add("currencyId", "\"currencyId\": " + CurrencyId);
+            }
             if(CurrencySign != null && (retrievedProperties == null || retrievedProperties.Contains("currencySign")))
             {
                 ret.Add("currencySign", "\"currencySign\": " + "\"" + EscapeJson(CurrencySign) + "\"");
@@ -33643,6 +33655,10 @@ namespace WebAPI.Models.Pricing
             if(Currency != null && (retrievedProperties == null || retrievedProperties.Contains("currency")))
             {
                 ret.Add("currency", "<currency>" + EscapeXml(Currency) + "</currency>");
+            }
+            if(CurrencyId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("currencyId")))
+            {
+                ret.Add("currencyId", "<currencyId>" + CurrencyId + "</currencyId>");
             }
             if(CurrencySign != null && (retrievedProperties == null || retrievedProperties.Contains("currencySign")))
             {
@@ -34210,6 +34226,276 @@ namespace WebAPI.Models.Pricing
             if(ProductsPrices != null)
             {
                 propertyValue = ProductsPrices.Count > 0 ? "<item>" + String.Join("</item><item>", ProductsPrices.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaProgramAssetGroupOffer
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
+            {
+                ret.Add("createDate", "\"createDate\": " + CreateDate);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("description")))
+            {
+                propertyValue = Description.ToCustomJson(currentVersion, omitObsolete, "description");
+                if(propertyValue != null)
+                {
+                    ret.Add("description", propertyValue);
+                }
+            }
+            if(EndDate.HasValue && (retrievedProperties == null || retrievedProperties.Contains("endDate")))
+            {
+                ret.Add("endDate", "\"endDate\": " + EndDate);
+            }
+            if(ExpiryDate.HasValue && (retrievedProperties == null || retrievedProperties.Contains("expiryDate")))
+            {
+                ret.Add("expiryDate", "\"expiryDate\": " + ExpiryDate);
+            }
+            if(ExternalId != null && (retrievedProperties == null || retrievedProperties.Contains("externalId")))
+            {
+                ret.Add("externalId", "\"externalId\": " + "\"" + EscapeJson(ExternalId) + "\"");
+            }
+            if(ExternalOfferId != null && (retrievedProperties == null || retrievedProperties.Contains("externalOfferId")))
+            {
+                ret.Add("externalOfferId", "\"externalOfferId\": " + "\"" + EscapeJson(ExternalOfferId) + "\"");
+            }
+            if(FileTypesIds != null && (retrievedProperties == null || retrievedProperties.Contains("fileTypesIds")))
+            {
+                ret.Add("fileTypesIds", "\"fileTypesIds\": " + "\"" + EscapeJson(FileTypesIds) + "\"");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "\"id\": " + Id);
+            }
+            if(IsActive.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isActive")))
+            {
+                ret.Add("isActive", "\"isActive\": " + IsActive.ToString().ToLower());
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("name")))
+            {
+                propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
+                if(propertyValue != null)
+                {
+                    ret.Add("name", propertyValue);
+                }
+            }
+            if(PriceDetailsId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("priceDetailsId")))
+            {
+                ret.Add("priceDetailsId", "\"priceDetailsId\": " + PriceDetailsId);
+            }
+            if(StartDate.HasValue && (retrievedProperties == null || retrievedProperties.Contains("startDate")))
+            {
+                ret.Add("startDate", "\"startDate\": " + StartDate);
+            }
+            if(UpdateDate.HasValue && (retrievedProperties == null || retrievedProperties.Contains("updateDate")))
+            {
+                ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
+            }
+            if(VirtualAssetId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("virtualAssetId")))
+            {
+                ret.Add("virtualAssetId", "\"virtualAssetId\": " + VirtualAssetId);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
+            {
+                ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("description")))
+            {
+                ret.Add("description", Description.ToCustomXml(currentVersion, omitObsolete, "description"));
+            }
+            if(EndDate.HasValue && (retrievedProperties == null || retrievedProperties.Contains("endDate")))
+            {
+                ret.Add("endDate", "<endDate>" + EndDate + "</endDate>");
+            }
+            if(ExpiryDate.HasValue && (retrievedProperties == null || retrievedProperties.Contains("expiryDate")))
+            {
+                ret.Add("expiryDate", "<expiryDate>" + ExpiryDate + "</expiryDate>");
+            }
+            if(ExternalId != null && (retrievedProperties == null || retrievedProperties.Contains("externalId")))
+            {
+                ret.Add("externalId", "<externalId>" + EscapeXml(ExternalId) + "</externalId>");
+            }
+            if(ExternalOfferId != null && (retrievedProperties == null || retrievedProperties.Contains("externalOfferId")))
+            {
+                ret.Add("externalOfferId", "<externalOfferId>" + EscapeXml(ExternalOfferId) + "</externalOfferId>");
+            }
+            if(FileTypesIds != null && (retrievedProperties == null || retrievedProperties.Contains("fileTypesIds")))
+            {
+                ret.Add("fileTypesIds", "<fileTypesIds>" + EscapeXml(FileTypesIds) + "</fileTypesIds>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "<id>" + Id + "</id>");
+            }
+            if(IsActive.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isActive")))
+            {
+                ret.Add("isActive", "<isActive>" + IsActive.ToString().ToLower() + "</isActive>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("name")))
+            {
+                ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
+            }
+            if(PriceDetailsId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("priceDetailsId")))
+            {
+                ret.Add("priceDetailsId", "<priceDetailsId>" + PriceDetailsId + "</priceDetailsId>");
+            }
+            if(StartDate.HasValue && (retrievedProperties == null || retrievedProperties.Contains("startDate")))
+            {
+                ret.Add("startDate", "<startDate>" + StartDate + "</startDate>");
+            }
+            if(UpdateDate.HasValue && (retrievedProperties == null || retrievedProperties.Contains("updateDate")))
+            {
+                ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
+            }
+            if(VirtualAssetId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("virtualAssetId")))
+            {
+                ret.Add("virtualAssetId", "<virtualAssetId>" + VirtualAssetId + "</virtualAssetId>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaProgramAssetGroupOfferFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+
+            if(AlsoInactive.HasValue && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaProgramAssetGroupOfferFilter", "AlsoInactive", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("alsoInactive")))
+            {
+                ret.Add("alsoInactive", "\"alsoInactive\": " + AlsoInactive.ToString().ToLower());
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+
+            if(AlsoInactive.HasValue && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaProgramAssetGroupOfferFilter", "AlsoInactive", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("alsoInactive")))
+            {
+                ret.Add("alsoInactive", "<alsoInactive>" + AlsoInactive.ToString().ToLower() + "</alsoInactive>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaProgramAssetGroupOfferIdInFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+
+            if(IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
+            {
+                ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+
+            if(IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
+            {
+                ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaProgramAssetGroupOfferListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;

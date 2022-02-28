@@ -6324,6 +6324,8 @@ namespace WebAPI.Reflection
                             return "countryId";
                         case "Currency":
                             return "currency";
+                        case "CurrencyId":
+                            return "currencyId";
                         case "CurrencySign":
                             return "currencySign";
                     }
@@ -6502,6 +6504,64 @@ namespace WebAPI.Reflection
                     {
                         case "LiveAssetId":
                             return "liveAssetId";
+                    }
+                    break;
+                    
+                case "KalturaProgramAssetGroupOffer":
+                    switch(property.Name)
+                    {
+                        case "CreateDate":
+                            return "createDate";
+                        case "Description":
+                            return "description";
+                        case "EndDate":
+                            return "endDate";
+                        case "ExpiryDate":
+                            return "expiryDate";
+                        case "ExternalId":
+                            return "externalId";
+                        case "ExternalOfferId":
+                            return "externalOfferId";
+                        case "FileTypesIds":
+                            return "fileTypesIds";
+                        case "Id":
+                            return "id";
+                        case "IsActive":
+                            return "isActive";
+                        case "Name":
+                            return "name";
+                        case "PriceDetailsId":
+                            return "priceDetailsId";
+                        case "StartDate":
+                            return "startDate";
+                        case "UpdateDate":
+                            return "updateDate";
+                        case "VirtualAssetId":
+                            return "virtualAssetId";
+                    }
+                    break;
+                    
+                case "KalturaProgramAssetGroupOfferFilter":
+                    switch(property.Name)
+                    {
+                        case "AlsoInactive":
+                            return "alsoInactive";
+                    }
+                    break;
+                    
+                case "KalturaProgramAssetGroupOfferIdInFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                    }
+                    break;
+                    
+                case "KalturaProgramAssetGroupOfferListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
                     }
                     break;
                     
@@ -8092,6 +8152,8 @@ namespace WebAPI.Reflection
                             return "cdvrEnabled";
                         case "CleanupNoticePeriod":
                             return "cleanupNoticePeriod";
+                        case "DefaultQuota":
+                            return "defaultQuota";
                         case "NonEntitledChannelPlaybackEnabled":
                             return "nonEntitledChannelPlaybackEnabled";
                         case "NonExistingChannelPlaybackEnabled":
@@ -11924,6 +11986,28 @@ namespace WebAPI.Reflection
                         case "list":
                             RolesManager.ValidateActionPermitted("productPrice", "list", WebAPI.Managers.eKSValidation.Expiration);
                             return ProductPriceController.List((KalturaProductPriceFilter) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "programassetgroupoffer":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("programAssetGroupOffer", "add", WebAPI.Managers.eKSValidation.All);
+                            return ProgramAssetGroupOfferController.Add((KalturaProgramAssetGroupOffer) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("programAssetGroupOffer", "delete", WebAPI.Managers.eKSValidation.All);
+                            return ProgramAssetGroupOfferController.Delete((long) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("programAssetGroupOffer", "list", WebAPI.Managers.eKSValidation.All);
+                            return ProgramAssetGroupOfferController.List((KalturaProgramAssetGroupOfferFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("programAssetGroupOffer", "update", WebAPI.Managers.eKSValidation.All);
+                            return ProgramAssetGroupOfferController.Update((long) methodParams[0], (KalturaProgramAssetGroupOffer) methodParams[1]);
                             
                     }
                     break;
@@ -20632,6 +20716,64 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaProductPriceFilter),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "programassetgroupoffer":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("programAssetGroupOffer", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaProgramAssetGroupOffer),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaProgramAssetGroupOfferFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "programAssetGroupOffer", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
+                                },
+                            });
+                            ret.Add("programAssetGroupOffer", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaProgramAssetGroupOffer),
                             });
                             return ret;
                             

@@ -166,6 +166,9 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType PURCHASE_PASSED_ENTITLEMENT_FAILED = new ClientExceptionType(eResponseStatus.PurchasePassedEntitlementFailed, "purchase passed but entitlement failed", "purchase passed but entitlement failed");
         public static ClientExceptionType PURCHASE_FAILED = new ClientExceptionType(eResponseStatus.PurchaseFailed, "purchase failed", "purchase failed");
         public static ClientExceptionType PROGRAM_START_OVER_NOT_ENABLED = new ClientExceptionType(eResponseStatus.ProgramStartOverNotEnabled, "Program Start Over Not Enabled", "This program does not support start-over");
+        public static ClientExceptionType COLLECTION_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.CollectionNotExist, "The collection does not exist", "The collection does not exist");
+        public static ClientExceptionType PAGO_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.ProgramAssetGroupOfferDoesNotExist, "The programAssetGroupOffer does not exist", "The programAssetGroupOffer does not exist");
+        public static ClientExceptionType EXTERNAL_OFFER_ID_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.ExternalOfferIdAlreadyExists, "External offer id already exists", "The external offer Id you are trying to add / update already exists");
 
         #endregion
 

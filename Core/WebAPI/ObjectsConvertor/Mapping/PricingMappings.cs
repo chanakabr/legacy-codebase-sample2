@@ -785,6 +785,63 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.IsApplied, opt => opt.MapFrom(src => src.IsApplied));
+
+            cfg.CreateMap<KalturaProgramAssetGroupOffer, ProgramAssetGroupOffer>()
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => ConvertLanguagedictionary(src.Description)))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate.HasValue ? DateTimeOffset.FromUnixTimeSeconds(src.EndDate.Value).DateTime : (DateTime?)null))
+                .ForMember(dest => dest.ExpiryDate, opt => opt.MapFrom(src => src.ExpiryDate.HasValue ? DateTimeOffset.FromUnixTimeSeconds(src.ExpiryDate.Value).DateTime : (DateTime?)null))
+                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
+                .ForMember(dest => dest.ExternalOfferId, opt => opt.MapFrom(src => src.ExternalOfferId))
+                .ForMember(dest => dest.FileTypeIds, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.FileTypesIds) ? src.GetItemsIn<List<long>, long>(src.FileTypesIds, "KalturaProgramAssetGroupOffer.FileTypesIds", true) : null))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => ConvertLanguagedictionary(src.Name)))
+                .ForMember(dest => dest.PriceDetailsId, opt => opt.MapFrom(src => src.PriceDetailsId))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate.HasValue ? DateTimeOffset.FromUnixTimeSeconds(src.StartDate.Value).DateTime : (DateTime?)null))
+                .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId))
+                .ForMember(dest => dest.NullableProperties, opt => opt.MapFrom(src => src.NullableProperties))
+                .ForMember(dest => dest.__updated, opt => opt.Ignore())
+                .ForMember(dest => dest.LastUpdaterId, opt => opt.Ignore())
+                .AfterMap((src, dest) => dest.FileTypeIds = src.FileTypesIds != null ? dest.FileTypeIds : null)
+                .AfterMap((src, dest) => dest.Name = src.Name != null ? dest.Name : null)
+                .AfterMap((src, dest) => dest.Description = src.Description != null ? dest.Description : null)
+                .AfterMap((src, dest) => dest.IsActive = src.IsActive != null ? dest.IsActive : null)
+               ;
+
+            cfg.CreateMap<ProgramAssetGroupOffer, KalturaProgramAssetGroupOffer>()
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CreateDate)))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Description)))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.EndDate)))
+                .ForMember(dest => dest.ExpiryDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.ExpiryDate)))
+                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
+                .ForMember(dest => dest.ExternalOfferId, opt => opt.MapFrom(src => src.ExternalOfferId))
+                .ForMember(dest => dest.FileTypesIds, opt => opt.MapFrom(src => src.FileTypeIds != null ? string.Join(",", src.FileTypeIds) : string.Empty))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Name)))
+                .ForMember(dest => dest.PriceDetailsId, opt => opt.MapFrom(src => src.PriceDetailsId))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.StartDate)))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)))
+                .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId))                
+                ;
+
+            cfg.CreateMap<KalturaProgramAssetGroupOfferOrderBy, ProgramAssetGroupOfferOrderBy>()
+               .ConvertUsing(type =>
+               {
+                   switch (type)
+                   {
+                       case KalturaProgramAssetGroupOfferOrderBy.NAME_ASC:
+                           return ProgramAssetGroupOfferOrderBy.NameAsc;
+                       case KalturaProgramAssetGroupOfferOrderBy.NAME_DESC:
+                           return ProgramAssetGroupOfferOrderBy.NameDesc;
+                       case KalturaProgramAssetGroupOfferOrderBy.UPDATE_DATE_ASC:
+                           return ProgramAssetGroupOfferOrderBy.UpdateDateAsc;
+                       case KalturaProgramAssetGroupOfferOrderBy.UPDATE_DATE_DESC:
+                           return ProgramAssetGroupOfferOrderBy.UpdateDateDesc;
+                       default:
+                           throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown ProgramAssetGroupOfferOrderBy value : {type}");
+                   }
+               });
         }
 
         private static KalturaSubscriptionSetType ConvertSetType(SubscriptionSetType subscriptionSetType)
@@ -1516,5 +1573,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return list;
         }
 
+        private static Dictionary<string, string> ConvertLanguagedictionary(KalturaMultilingualString multilingualString)
+        {
+            Dictionary<string, string> languages = new Dictionary<string, string>();
+
+            multilingualString.Values.ForEach(val =>
+            {
+                languages.Add(val.Language, val.Value);
+            });
+
+            return languages;
+        }
     }
 }
