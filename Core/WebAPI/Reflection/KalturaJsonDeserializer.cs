@@ -20408,7 +20408,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = true,
+            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
@@ -20564,10 +20564,6 @@ namespace WebAPI.Models.Catalog
                     {
                         DynamicData = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
                     }
-                }
-                if (parameters.ContainsKey("updateDate__null") && parameters["updateDate__null"] != null)
-                {
-                    this.AddNullableProperty("updateDate");
                 }
                 if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
                 {

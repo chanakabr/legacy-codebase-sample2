@@ -24817,7 +24817,7 @@ namespace WebAPI.Models.Catalog
                 propertyValue = "[" + String.Join(", ", UnifiedChannels.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("unifiedChannels", "\"unifiedChannels\": " + propertyValue);
             }
-            if(UpdateDate.HasValue && (retrievedProperties == null || retrievedProperties.Contains("updateDate")))
+            if((retrievedProperties == null || retrievedProperties.Contains("updateDate")))
             {
                 ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
             }
@@ -24889,7 +24889,7 @@ namespace WebAPI.Models.Catalog
                 propertyValue = UnifiedChannels.Count > 0 ? "<item>" + String.Join("</item><item>", UnifiedChannels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("unifiedChannels", "<unifiedChannels>" + propertyValue + "</unifiedChannels>");
             }
-            if(UpdateDate.HasValue && (retrievedProperties == null || retrievedProperties.Contains("updateDate")))
+            if((retrievedProperties == null || retrievedProperties.Contains("updateDate")))
             {
                 ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
             }
