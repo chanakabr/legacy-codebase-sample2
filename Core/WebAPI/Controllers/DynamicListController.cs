@@ -150,12 +150,11 @@ namespace WebAPI.Controllers
             Func<GenericListResponse<DynamicList>> listFunc = () =>
                 DynamicListManager.Instance.GetDynamicListsByIds(contextData, coreFilter);
 
-            KalturaGenericListResponse<KalturaDynamicList> triggerCampaignResponse =
-               ClientUtils.GetResponseListFromWS<KalturaDynamicList, DynamicList>(listFunc);
+            var listResponse = ClientUtils.GetResponseListFromWS<KalturaDynamicList, DynamicList>(listFunc);
 
             var response = new KalturaGenericListResponse<KalturaDynamicList>();
-            response.Objects.AddRange(triggerCampaignResponse.Objects);
-            response.TotalCount = triggerCampaignResponse.TotalCount;
+            response.Objects.AddRange(listResponse.Objects);
+            response.TotalCount = listResponse.TotalCount;
             return response;
         }
 
@@ -166,12 +165,11 @@ namespace WebAPI.Controllers
             Func<GenericListResponse<DynamicList>> listFunc = () =>
                 DynamicListManager.Instance.SearchDynamicLists(contextData, coreFilter, pager);
 
-            KalturaGenericListResponse<KalturaDynamicList> triggerCampaignResponse =
-               ClientUtils.GetResponseListFromWS<KalturaDynamicList, DynamicList>(listFunc);
+            var listResponse = ClientUtils.GetResponseListFromWS<KalturaDynamicList, DynamicList>(listFunc);
 
             var response = new KalturaGenericListResponse<KalturaDynamicList>();
-            response.Objects.AddRange(triggerCampaignResponse.Objects);
-            response.TotalCount = triggerCampaignResponse.TotalCount;
+            response.Objects.AddRange(listResponse.Objects);
+            response.TotalCount = listResponse.TotalCount;
             return response;
         }
 
