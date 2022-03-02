@@ -7,7 +7,8 @@ namespace WebAPI.ObjectsConvertor.Extensions
     {
         public static HashSet<long> GetFileTypesIds(this KalturaFilterFileByFileTypeIdAction model)
         {
-            return model.GetItemsIn<HashSet<long>, long>(model.FileTypeIdIn, "fileTypeIdIn", true);
+            var types = Utils.Utils.ParseCommaSeparatedValues<HashSet<long>, long>(model.FileTypeIdIn, "fileTypeIdIn", true);
+            return types;
         }
     }
 }

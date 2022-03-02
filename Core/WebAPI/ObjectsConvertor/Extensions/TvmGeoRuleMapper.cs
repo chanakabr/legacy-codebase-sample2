@@ -7,7 +7,6 @@ namespace WebAPI.ObjectsConvertor.Extensions
     {
         public static HashSet<int> GetCountryIds(this KalturaTvmGeoRule model)
         {
-            return model.GetItemsIn<HashSet<int>, int>(model.CountryIds, "KalturaTvmGeoRule.countryIds");
-        }
+            return Utils.Utils.ParseCommaSeparatedValues<HashSet<int>, int>(model.CountryIds, "KalturaTvmGeoRule.countryIds");        }
     }
 }

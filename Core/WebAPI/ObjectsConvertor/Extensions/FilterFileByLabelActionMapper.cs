@@ -7,7 +7,8 @@ namespace WebAPI.ObjectsConvertor.Extensions
     {
         public static List<string> GetLabels(this KalturaFilterFileByLabelAction model)
         {
-            return model.GetItemsIn<List<string>, string>(model.LabelIn, "labelIn", true);
+            var types = Utils.Utils.ParseCommaSeparatedValues<List<string>, string>(model.LabelIn, "labelIn", true);
+            return types;        
         }
     }
 }

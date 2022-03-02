@@ -22,6 +22,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Xml;
+using ApiLogic.Api.Managers.Rule;
 using ApiLogic.Catalog;
 using ApiObjects.SearchPriorityGroups;
 using Tvinci.Core.DAL;
@@ -3570,7 +3571,8 @@ namespace Core.Catalog.CatalogManagement
 
             ksqlBuilder.Append(")");
 
-            var searchResult = Utils.SearchAssets(groupId, searchContext, ksqlBuilder.ToString());
+            var filterQuery = FilterAsset.Instance.UpdateKsql(ksqlBuilder.ToString(), (int)groupId, searchContext.SessionCharacteristicKey);
+            var searchResult = Utils.SearchAssets(groupId, searchContext, filterQuery);
             var assetsRequestQuery = searchResult.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, long.Parse(x.AssetId)));
             var assets = GetAssets((int)groupId, assetsRequestQuery.ToList(), searchContext.IsAllowedToViewInactiveAssets) ?? Enumerable.Empty<Asset>();
 

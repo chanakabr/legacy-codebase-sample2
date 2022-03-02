@@ -10,64 +10,65 @@ namespace WebAPI.ModelsValidators
     {
         public static void ValidateForAdd(this KalturaCollection model)
         {
-            if (!string.IsNullOrEmpty(model.ChannelsIds))
-            {
-                _ = model.GetItemsIn<List<long>, long>(model.ChannelsIds, "channelsIds", true);
-            }
+           if (!string.IsNullOrEmpty(model.ChannelsIds))
+           {
+               _ = WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(model.ChannelsIds, "channelsIds", true);
+           }
 
-            if (model.CouponGroups?.Count > 0)
-            {
-                model.CouponGroups.ForEach(x => x.Validate());
-            }
+           if (model.CouponGroups?.Count > 0)
+           {
+               model.CouponGroups.ForEach(x => x.Validate());
+           }
 
-            if (model.Name == null || model.Name.Values == null || model.Name.Values.Count == 0)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
-            }
-            model.Name.Validate("multilingualName");
+           if (model.Name == null || model.Name.Values == null || model.Name.Values.Count == 0)
+           {
+               throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
+           }
+           model.Name.Validate("multilingualName");
 
-            if (model.Description != null)
-            {
-                model.Description.Validate("multilingualDescription");
-            }
+           if (model.Description != null)
+           {
+               model.Description.Validate("multilingualDescription");
+           }
 
-            if (model.StartDate.HasValue && model.EndDate.HasValue && model.StartDate > model.EndDate)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "startDate", "endDate");
-            }
+           if (model.StartDate.HasValue && model.EndDate.HasValue && model.StartDate > model.EndDate)
+           {
+               throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "startDate", "endDate");
+           }
 
-            if (model.UsageModuleId == null)
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "usageModuleId");
 
-            if (model.PriceDetailsId == null)
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "PriceDetailsId");
+           if (model.UsageModuleId == null)
+               throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "usageModuleId");
 
-            if (model.ProductCodes?.Count > 1)
-            {
-                List<string> res = new List<string>();
+           if (model.PriceDetailsId == null)
+               throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "PriceDetailsId");
 
-                foreach (var item in model.ProductCodes)
-                {
-                    if (res.Contains(item.InappProvider))
-                    {
-                        throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "KalturaProductCode.InappProvider");
-                    }
+           if (model.ProductCodes?.Count > 1)
+           {
+               List<string> res = new List<string>();
 
-                    if (!Enum.TryParse(item.InappProvider, out VerificationPaymentGateway tmp))
-                    {
-                        throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE, "KalturaProductCode.InappProvider", item.InappProvider);
-                    }
+               foreach (var item in model.ProductCodes)
+               {
+                   if (res.Contains(item.InappProvider))
+                   {
+                       throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "KalturaProductCode.InappProvider");
+                   }
 
-                    res.Add(item.InappProvider);
-                }
-            }
+                   if (!Enum.TryParse(item.InappProvider, out VerificationPaymentGateway tmp))
+                   {
+                       throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE, "KalturaProductCode.InappProvider", item.InappProvider);
+                   }
+
+                   res.Add(item.InappProvider);
+               }
+           }
         }
         
         internal static void ValidateForUpdate(this KalturaCollection model)
         {
             if (!string.IsNullOrEmpty(model.ChannelsIds))
             {
-                _ = model.GetItemsIn<List<long>, long>(model.ChannelsIds, "channelsIds", true);
+                _ = WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(model.ChannelsIds, "channelsIds", true);
             }
 
             if (model.CouponGroups?.Count > 0)

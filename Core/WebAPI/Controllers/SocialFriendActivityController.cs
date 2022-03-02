@@ -7,6 +7,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Social;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -44,7 +45,7 @@ namespace WebAPI.Controllers
              try
              {
                  response = ClientsManager.SocialClient().GetFriendsActions(groupId, KS.GetFromRequest().UserId, filter.AssetIdEqual.HasValue ? filter.AssetIdEqual.Value : 0, 
-                     filter.AssetTypeEqual.HasValue ? filter.AssetTypeEqual.Value : 0, filter.GetActionTypeIn(), pager.getPageSize(), pager.getPageIndex());
+                     filter.AssetTypeEqual.HasValue ? filter.AssetTypeEqual.Value : 0, filter.GetActionTypeIn(), pager.PageSize.Value, pager.GetRealPageIndex());
              }
              catch (ClientException ex)
              {

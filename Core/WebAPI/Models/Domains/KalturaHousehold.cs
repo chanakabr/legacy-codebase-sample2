@@ -234,9 +234,4 @@ namespace WebAPI.Models.Domains
             return Id.HasValue ? (long)Id : 0;
         }
     }
-
-    public partial class KalturaHouseholdListResponse : KalturaListResponse<KalturaHousehold>
-    {
-        public KalturaHouseholdListResponse() : base() { }
-    }
 }

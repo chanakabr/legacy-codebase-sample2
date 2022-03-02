@@ -143,4 +143,12 @@ namespace ApiObjects.Pricing
         UpdateDataAsc,
         UpdateDataDesc
     }
+
+    public enum ProgramAssetGroupOfferOrderBy
+    {
+        NameAsc,
+        NameDesc,
+        UpdateDateAsc,
+        UpdateDateDesc,
+    }
 }

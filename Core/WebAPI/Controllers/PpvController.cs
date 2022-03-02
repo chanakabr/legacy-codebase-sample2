@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using ApiLogic.Pricing.Handlers;
+﻿using ApiLogic.Pricing.Handlers;
 using ApiObjects.Pricing;
 using ApiObjects.Response;
 using Core.Pricing;
+using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Clients;
-using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -61,7 +60,7 @@ namespace WebAPI.Controllers
             Func<GenericListResponse<PPVModule>> getListFunc = () =>
                 PpvManager.Instance.GetPPVModules(groupId, filter?.GetIdIn(), false, filter.CouponGroupIdEqual,
                     filter.AlsoInactive.HasValue ? filter.AlsoInactive.Value : false, coreFilter.OrderBy,
-                    pager.getPageIndex(), pager.getPageSize(), false);
+                    pager.GetRealPageIndex(), pager.PageSize.Value, false);
             KalturaGenericListResponse<KalturaPpv> response =
                 ClientUtils.GetResponseListFromWS<KalturaPpv, PPVModule>(getListFunc);
 

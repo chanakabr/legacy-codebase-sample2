@@ -6,6 +6,7 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog.SearchPriorityGroup;
 using WebAPI.Models.Catalog.SearchPriorityGroup.Validators;
 using WebAPI.Models.General;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.Controllers
 {
@@ -98,7 +99,7 @@ namespace WebAPI.Controllers
             var groupId = KS.GetFromRequest().GroupId;
             var language = Utils.Utils.GetLanguageFromRequest();
             var defaultLanguage = Utils.Utils.GetDefaultLanguage();
-            var query = new SearchPriorityGroupQuery(filter.IdEqual, filter.ActiveOnly, (SearchPriorityGroupOrderBy)filter.OrderBy, language, defaultLanguage, pager.getPageIndex(), pager.getPageSize());
+            var query = new SearchPriorityGroupQuery(filter.IdEqual, filter.ActiveOnly, (SearchPriorityGroupOrderBy)filter.OrderBy, language, defaultLanguage, pager.GetRealPageIndex(), pager.PageSize.Value);
 
             var response = ClientsManager.CatalogClient().ListSearchPriorityGroups(groupId, query);
 

@@ -6,6 +6,7 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Models.Notification;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -36,7 +37,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.NotificationClient().GetUserFeedList(groupId, userID, pager.getPageSize(), pager.getPageIndex(), filter.OrderBy);
+                response = ClientsManager.NotificationClient().GetUserFeedList(groupId, userID, pager.PageSize.Value, pager.GetRealPageIndex(), filter.OrderBy);
             }
             catch (ClientException ex)
             {
@@ -70,7 +71,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.NotificationClient().GetUserFeeder(groupId, userID, pager.getPageSize(), pager.getPageIndex(), order_by);
+                response = ClientsManager.NotificationClient().GetUserFeeder(groupId, userID, pager.PageSize.Value, pager.GetRealPageIndex(), order_by);
             }
             catch (ClientException ex)
             {

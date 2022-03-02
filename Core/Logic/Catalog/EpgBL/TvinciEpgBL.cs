@@ -876,6 +876,9 @@ namespace EpgBL
                                     pictureItem = new EpgPicture();
                                     pictureItem.Ratio = pict.Ratio;
 
+                                    //BEO-11508
+                                    pictureItem.ImageTypeId = pict.ImageTypeId;
+
                                     // build image URL. 
                                     // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>
                                     // Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10

@@ -17,6 +17,15 @@ namespace WebAPI.Models.Pricing
     public partial class KalturaPrice : KalturaOTTObject
     {
         /// <summary>
+        /// Currency ID
+        /// </summary>
+        [DataMember(Name = "currencyId")]
+        [JsonProperty("currencyId")]
+        [XmlElement(ElementName = "currencyId")]
+        [SchemeProperty(ReadOnly = true, IsNullable = true)]
+        public long? CurrencyId { get; set; }
+        
+        /// <summary>
         ///Price
         /// </summary>
         [DataMember(Name = "amount")]

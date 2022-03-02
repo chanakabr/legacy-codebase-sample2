@@ -30,14 +30,11 @@ namespace WebAPI.ObjectsConvertor.Extensions
             if (model.Values != null)
             {
                 languageContainer = new List<LanguageContainer>();
-                if (string.IsNullOrEmpty(model.GroupDefaultLanguageCode))
-                {
-                    model.GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
-                }
+                var GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
 
                 foreach (KalturaTranslationToken token in model.Values)
                 {
-                    if (token.Language != model.GroupDefaultLanguageCode)
+                    if (token.Language != GroupDefaultLanguageCode)
                     {
                         LanguageContainer lng = new LanguageContainer(token.Language, token.Value);
                         languageContainer.Add(lng);
@@ -50,14 +47,10 @@ namespace WebAPI.ObjectsConvertor.Extensions
 
         public static string GetDefaultLanugageValue(this KalturaMultilingualString model)
         {
-            if (string.IsNullOrEmpty(model.GroupDefaultLanguageCode))
-            {
-                model.GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
-            }
-
+            var GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
             if (model.Values != null)
             {
-                KalturaTranslationToken token = model.Values.FirstOrDefault(x => x.Language == model.GroupDefaultLanguageCode);
+                KalturaTranslationToken token = model.Values.FirstOrDefault(x => x.Language == GroupDefaultLanguageCode);
                 if (token != null)
                 {
                     return token.Value;
@@ -71,7 +64,7 @@ namespace WebAPI.ObjectsConvertor.Extensions
         {
             if (values != null)
             {
-                return MultilengualStringFactory.Create(values).ToString();
+                return MultilingualStringFactory.Create(values).ToString();
             }
 
             return value;
@@ -82,19 +75,21 @@ namespace WebAPI.ObjectsConvertor.Extensions
             return string.Format("multilingual{0}{1}", name.Substring(0, 1).ToUpper(), name.Substring(1)); ;
         }
 
-        public static string ToString(this KalturaMultilingualString model)
+        public static string ToString(KalturaMultilingualString model)
         {
             if (model.Values != null && model.Values.Count > 0)
             {
-                KalturaTranslationToken token = model.Values.FirstOrDefault(translation => translation.Language.Equals(model.RequestLanguageCode));
+                var RequestLanguageCode = Utils.Utils.GetLanguageFromRequest();
+                KalturaTranslationToken token = model.Values.FirstOrDefault(translation => translation.Language.Equals(RequestLanguageCode));
                 if (token != null)
                 {
                     return token.Value;
                 }
 
-                if (model.GroupDefaultLanguageCode != null && !model.GroupDefaultLanguageCode.Equals(model.RequestLanguageCode))
+                var GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
+                if (GroupDefaultLanguageCode != null && !GroupDefaultLanguageCode.Equals(RequestLanguageCode))
                 {
-                    token = model.Values.FirstOrDefault(translation => translation.Language.Equals(model.GroupDefaultLanguageCode));
+                    token = model.Values.FirstOrDefault(translation => translation.Language.Equals(GroupDefaultLanguageCode));
                     if (token != null)
                     {
                         return token.Value;
@@ -108,10 +103,10 @@ namespace WebAPI.ObjectsConvertor.Extensions
         public static string ToCustomJson(this KalturaMultilingualString model, Version currentVersion, bool omitObsolete, string propertyName)
         {
             string ret = null;
-            string value = model.ToString();
+            string value = MultilingualStringMapper.ToString(model);
             if (value != null)
             {
-                ret = "\"" + propertyName + "\": \"" + model.EscapeJson(model.ToString()) + "\"";
+                ret = "\"" + propertyName + "\": \"" + model.EscapeJson(value) + "\"";
             }
 
             string language = Utils.Utils.GetLanguageFromRequest();
@@ -130,10 +125,10 @@ namespace WebAPI.ObjectsConvertor.Extensions
         public static string ToCustomXml(this KalturaMultilingualString model, Version currentVersion, bool omitObsolete, string propertyName)
         {
             string ret = "";
-            string value = model.ToString();
+            string value = MultilingualStringMapper.ToString(model);
             if (value != null)
             {
-                ret = "<" + propertyName + ">" + model.EscapeXml(model.ToString()) + "</" + propertyName + ">";
+                ret = "<" + propertyName + ">" + model.EscapeXml(value) + "</" + propertyName + ">";
             }
 
             string language = Utils.Utils.GetLanguageFromRequest();

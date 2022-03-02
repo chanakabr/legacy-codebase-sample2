@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
@@ -10,9 +10,6 @@ namespace WebAPI.Models.General
     /// </summary>
     public partial class KalturaMultilingualString : KalturaOTTObject
     {
-        public string RequestLanguageCode;
-        public string GroupDefaultLanguageCode;
-
         /// <summary>
         /// All values in different languages
         /// </summary>

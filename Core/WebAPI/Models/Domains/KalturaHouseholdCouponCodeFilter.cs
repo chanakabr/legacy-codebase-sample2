@@ -14,9 +14,4 @@ namespace WebAPI.Models.Domains
             return KalturaHouseoldCouponCodeOrderBy.NONE;
         }
     }
-    
-    public enum KalturaHouseoldCouponCodeOrderBy
-    {
-        NONE
-    }
 }

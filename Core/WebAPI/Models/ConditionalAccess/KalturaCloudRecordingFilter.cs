@@ -1,21 +1,22 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects;
+using ApiObjects.Base;
+using ApiObjects.Response;
+using Core.Catalog;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Managers.Scheme;
-using WebAPI.Models.General;
-using System.Collections.Generic;
-using WebAPI.ClientManagers.Client;
-using ApiObjects.Base;
-using ApiObjects;
-using System.Linq;
 using TVinciShared;
-using Core.Catalog.Response;
-using ApiObjects.Response;
-using Core.Catalog.Request;
 using WebAPI.ClientManagers;
-using Core.Catalog;
+using WebAPI.ClientManagers.Client;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.General;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.Models.ConditionalAccess
 {
@@ -45,7 +46,7 @@ namespace WebAPI.Models.ConditionalAccess
             }
 
             var response = ClientsManager.ConditionalAccessClient().SearchCloudRecordings(contextData.GroupId, contextData.UserId.Value.ToString(), contextData.DomainId.Value,
-                adapterData, this.ConvertStatusIn(), pager.getPageIndex(), pager.PageSize);
+                adapterData, this.ConvertStatusIn(), pager.GetRealPageIndex(), pager.PageSize);
 
             var responseProfile = Utils.Utils.GetResponseProfileFromRequest();
             if (response.Objects != null && response.Objects.Count > 0 && responseProfile != null && responseProfile is KalturaDetachedResponseProfile detachedResponseProfile)

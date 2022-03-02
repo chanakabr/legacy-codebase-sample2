@@ -2162,23 +2162,20 @@ namespace Core.Catalog
         {
             var orderByFields = _sortingAdapter.ResolveOrdering(search);
             var singleGroupByWithDistinct = search.groupBy?.Count == 1
-                && search.groupBy.Single().Key == search.distinctGroup.Key
-                && orderByFields.Count == 1
-                && orderByFields.Single() is EsOrderByField;
-
+                && search.groupBy.Single().Key == search.distinctGroup.Key;
             if (!singleGroupByWithDistinct)
             {
                 throw new NotSupportedException($"Method should be used for single group.");
             }
 
-            if (orderByFields.Count != 1 || !(orderByFields.Single() is EsOrderByField orderByField))
+            if (orderByFields.Count != 1)
             {
                 throw new NotSupportedException($"Method should be used for case with primary sorting set only.");
             }
 
-            var groupBySearch =
-                IndexManagerCommonHelpers.GetStrategy(orderByField.OrderByField) ??
-                throw new NotSupportedException($"Not supported group by with {orderByField} order");
+            var orderByField = orderByFields.Single();
+            var groupBySearch = _sortingService.GetGroupBySortingStrategy(orderByField)
+                ?? throw new NotSupportedException($"Not supported group by with provided ordering.");
 
             // save original page and size, will be mutated later :(
             var pageSize = search.pageSize;

@@ -117,31 +117,5 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "discountId", IsNullable = true)]
         [SchemeProperty(MinInteger = 1)]
         public long? DiscountId { get; set; }
-
-        public void Validate()
-        {
-            if (StartDate.HasValue && EndDate.HasValue && StartDate > EndDate)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "startDate", "endDate");
-            }
-        }
     }
-
-    /// <summary>
-    /// Coupons group list
-    /// </summary>
-    [DataContract(Name = "KalturaCouponsGroupListResponse", Namespace = "")]
-    [XmlRoot("KalturaCouponsGroupListResponse")]
-    public partial class KalturaCouponsGroupListResponse : KalturaListResponse
-    {
-        /// <summary>
-        /// A list of coupons groups
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty("objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaCouponsGroup> couponsGroups { get; set; }
-    }
-
 }

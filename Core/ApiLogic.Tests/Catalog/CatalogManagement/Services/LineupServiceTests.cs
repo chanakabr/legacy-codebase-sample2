@@ -59,6 +59,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
         [Test]
         public void GetLineupChannelAssets_RegionDefinedAndGetLinearChannelsError_ReturnsExpectedResponse()
         {
+            var searchContext = GetUserSearchContext();
             _regionManagerMock
                 .Setup(x => x.GetRegion(10, 11))
                 .Returns(new GenericResponse<Region>(Status.Ok, GetFakeRegion()));
@@ -66,13 +67,13 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                 .Setup(x => x.GetLinearChannels(
                     10,
                     It.Is<IEnumerable<long>>(_ => _.SequenceEqual(new List<long> { 106, 102, 107, 101, 108, 104, 103, 105 })),
-                    It.Is<UserSearchContext>(_ => _.DomainId == 12 && _.UserId == 0 && _.LanguageId == 0 && _.Udid == null && _.UserIp == null && _.IgnoreEndDate && _.UseStartDate && _.UseFinal && _.GetOnlyActiveAssets && _.IsAllowedToViewInactiveAssets)))
+                    searchContext))
                 .Returns(new GenericListResponse<Asset>(new Status(3, "Custom Asset Error"), null));
             _loggerMock
-                .Setup(x => x.Error("GetLinearChannels with parameters searchContext:{DomainId:12, UserId:0, LanguageId:0, Udid:, UserIp:, IgnoreEndDate:True, UseStartDate:True, UseFinal:True, GetOnlyActiveAssets:True, IsAllowedToViewInactiveAssets:True} completed with status {3 - Custom Asset Error}.", null, It.IsAny<string>()));
+                .Setup(x => x.Error("GetLinearChannels with parameters searchContext:{DomainId:12, UserId:13, LanguageId:14, Udid:udid, UserIp:ip, IgnoreEndDate:True, UseStartDate:True, UseFinal:True, GetOnlyActiveAssets:True, IsAllowedToViewInactiveAssets:True, SessionCharacteristicKey:sessionCharacteristicKey} completed with status {3 - Custom Asset Error}.", null, It.IsAny<string>()));
             var service = new LineupService(_regionManagerMock.Object, _assetManagerMock.Object, _loggerMock.Object, _publisher.Object);
 
-            var result = service.GetLineupChannelAssets(10, 11, GetUserSearchContext(), 1, 3);
+            var result = service.GetLineupChannelAssets(10, 11, searchContext, 1, 3);
 
             result.Should().NotBeNull();
             result.Status.Should().Be(new Status(3, "Custom Asset Error"));
@@ -82,6 +83,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
         [Test]
         public void GetLineupChannelAssets_RegionDefinedAndValidParameters_ReturnsExpectedResponse()
         {
+            var searchContext = GetUserSearchContext();
             _regionManagerMock
                 .Setup(x => x.GetRegion(10, 11))
                 .Returns(new GenericResponse<Region>(Status.Ok, GetFakeRegion()));
@@ -89,11 +91,11 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                 .Setup(x => x.GetLinearChannels(
                     10,
                     It.Is<IEnumerable<long>>(_ => _.SequenceEqual(new List<long> { 106, 102, 107, 101, 108, 104, 103, 105 })),
-                    It.Is<UserSearchContext>(_ => _.DomainId == 12 && _.UserId == 0 && _.LanguageId == 0 && _.Udid == null && _.UserIp == null && _.IgnoreEndDate && _.UseStartDate && _.UseFinal && _.GetOnlyActiveAssets && _.IsAllowedToViewInactiveAssets)))
+                    searchContext))
                 .Returns(new GenericListResponse<Asset>(Status.Ok, GetFakeAssets()));
             var service = new LineupService(_regionManagerMock.Object, _assetManagerMock.Object, _loggerMock.Object, _publisher.Object);
 
-            var result = service.GetLineupChannelAssets(10, 11, GetUserSearchContext(), 1, 3);
+            var result = service.GetLineupChannelAssets(10, 11, searchContext, 1, 3);
 
             result.Should().NotBeNull();
             result.Status.Should().Be(Status.Ok);
@@ -111,6 +113,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
         [TestCase(-1)]
         public void GetLineupChannelAssets_RegionNotDefinedAndDefaultRegionNotDefinedAndGetLinearChannelsError_ReturnsExpectedResponse(long regionId)
         {
+            var searchContext = GetUserSearchContext();
             _regionManagerMock
                 .Setup(x => x.GetDefaultRegionId(10))
                 .Returns(new int?());
@@ -118,13 +121,13 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                 .Setup(x => x.GetLinearChannels(
                     10,
                     It.Is<IEnumerable<long>>(_ => !_.Any()),
-                    It.Is<UserSearchContext>(_ => _.DomainId == 12 && _.UserId == 0 && _.LanguageId == 0 && _.Udid == null && _.UserIp == null && _.IgnoreEndDate && _.UseStartDate && _.UseFinal && _.GetOnlyActiveAssets && _.IsAllowedToViewInactiveAssets)))
+                    searchContext))
                 .Returns(new GenericListResponse<Asset>(new Status(3, "Custom Asset Error"), null));
             _loggerMock
-                .Setup(x => x.Error("GetLinearChannels with parameters searchContext:{DomainId:12, UserId:0, LanguageId:0, Udid:, UserIp:, IgnoreEndDate:True, UseStartDate:True, UseFinal:True, GetOnlyActiveAssets:True, IsAllowedToViewInactiveAssets:True} completed with status {3 - Custom Asset Error}.", null, It.IsAny<string>()));
+                .Setup(x => x.Error("GetLinearChannels with parameters searchContext:{DomainId:12, UserId:13, LanguageId:14, Udid:udid, UserIp:ip, IgnoreEndDate:True, UseStartDate:True, UseFinal:True, GetOnlyActiveAssets:True, IsAllowedToViewInactiveAssets:True, SessionCharacteristicKey:sessionCharacteristicKey} completed with status {3 - Custom Asset Error}.", null, It.IsAny<string>()));
             var service = new LineupService(_regionManagerMock.Object, _assetManagerMock.Object, _loggerMock.Object, _publisher.Object);
 
-            var result = service.GetLineupChannelAssets(10, regionId, GetUserSearchContext(), 1, 3);
+            var result = service.GetLineupChannelAssets(10, regionId, searchContext, 1, 3);
 
             result.Should().NotBeNull();
             result.Status.Should().Be(new Status(3, "Custom Asset Error"));
@@ -135,6 +138,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
         [TestCase(-1)]
         public void GetLineupChannelAssets_RegionNotDefinedAndDefaultRegionNotDefinedAndValidParameters_ReturnsExpectedResponse(long regionId)
         {
+            var searchContext = GetUserSearchContext();
             _regionManagerMock
                 .Setup(x => x.GetDefaultRegionId(10))
                 .Returns(new int?());
@@ -142,11 +146,11 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                 .Setup(x => x.GetLinearChannels(
                     10,
                     It.Is<IEnumerable<long>>(_ => !_.Any()),
-                    It.Is<UserSearchContext>(_ => _.DomainId == 12 && _.UserId == 0 && _.LanguageId == 0 && _.Udid == null && _.UserIp == null && _.IgnoreEndDate && _.UseStartDate && _.UseFinal && _.GetOnlyActiveAssets && _.IsAllowedToViewInactiveAssets)))
+                    searchContext))
                 .Returns(new GenericListResponse<Asset>(Status.Ok, GetFakeAssets()));
             var service = new LineupService(_regionManagerMock.Object, _assetManagerMock.Object, _loggerMock.Object, _publisher.Object);
 
-            var result = service.GetLineupChannelAssets(10, regionId, GetUserSearchContext(), 1, 3);
+            var result = service.GetLineupChannelAssets(10, regionId, searchContext, 1, 3);
 
             result.Should().NotBeNull();
             result.Status.Should().Be(Status.Ok);
@@ -164,6 +168,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
         [TestCase(-1)]
         public void GetLineupChannelAssets_RegionNotDefinedAndDefaultRegionDefinedAndValidParameters_ReturnsExpectedResponse(long regionId)
         {
+            var searchContext = GetUserSearchContext();
             _regionManagerMock
                 .Setup(x => x.GetDefaultRegionId(10))
                 .Returns(11);
@@ -174,11 +179,11 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                 .Setup(x => x.GetLinearChannels(
                     10,
                     It.Is<IEnumerable<long>>(_ => _.SequenceEqual(new List<long> { 106, 102, 107, 101, 108, 104, 103, 105 })),
-                    It.Is<UserSearchContext>(_ => _.DomainId == 12 && _.UserId == 0 && _.LanguageId == 0 && _.Udid == null && _.UserIp == null && _.IgnoreEndDate && _.UseStartDate && _.UseFinal && _.GetOnlyActiveAssets && _.IsAllowedToViewInactiveAssets)))
+                    searchContext))
                 .Returns(new GenericListResponse<Asset>(Status.Ok, GetFakeAssets()));
             var service = new LineupService(_regionManagerMock.Object, _assetManagerMock.Object, _loggerMock.Object, _publisher.Object);
 
-            var result = service.GetLineupChannelAssets(10, regionId, GetUserSearchContext(), 1, 3);
+            var result = service.GetLineupChannelAssets(10, regionId, searchContext, 1, 3);
 
             result.Should().NotBeNull();
             result.Status.Should().Be(Status.Ok);
@@ -194,7 +199,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
 
         private UserSearchContext GetUserSearchContext()
         {
-            return new UserSearchContext(12, 13, 14, "udid", "ip", true, true, true, true, true);
+            return new UserSearchContext(12, 13, 14, "udid", "ip", true, true, true, true, true, "sessionCharacteristicKey");
         }
 
         private Region GetFakeRegion()

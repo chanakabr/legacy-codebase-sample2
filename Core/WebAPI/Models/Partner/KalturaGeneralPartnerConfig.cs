@@ -179,16 +179,16 @@ namespace WebAPI.Models.Partner
 
         internal List<int> GetSecondaryLanguagesIds()
         {
-            return GetItemsIn<List<int>, int>(SecondaryLanguages, "KalturaGeneralPartnerConfig.secondaryLanguages", false, false);
+            return Utils.Utils.ParseCommaSeparatedValues<List<int>, int>(SecondaryLanguages, "KalturaGeneralPartnerConfig.secondaryLanguages", false, false);
         }
 
         internal List<int> GetSecondaryCurrenciesIds()
         {
-            return GetItemsIn<List<int>, int>(SecondaryCurrencies, "KalturaGeneralPartnerConfig.secondaryCurrencies", false, false);
+            return Utils.Utils.ParseCommaSeparatedValues<List<int>, int>(SecondaryCurrencies, "KalturaGeneralPartnerConfig.secondaryCurrencies", false, false);
         }
         internal List<int> GetDowngradePriorityFamilyIds()
         {
-            return GetItemsIn<List<int>, int>(DowngradePriorityFamilyIds, "KalturaRollingDeviceRemovalData.DowngradePriorityFamilyIds", false, false);
+            return Utils.Utils.ParseCommaSeparatedValues<List<int>, int>(DowngradePriorityFamilyIds, "KalturaRollingDeviceRemovalData.DowngradePriorityFamilyIds", false, false);
         }
 
         internal override bool Update(int groupId)

@@ -7,6 +7,7 @@ using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.Models.Catalog
 {
@@ -55,7 +56,7 @@ namespace WebAPI.Models.Catalog
                 domainId,
                 contextData.Udid,
                 contextData.Language,
-                pager.getPageIndex(),
+                pager.GetRealPageIndex(),
                 pager.PageSize,
                 deviceType,
                 UtcOffsetEqual.ToString(),

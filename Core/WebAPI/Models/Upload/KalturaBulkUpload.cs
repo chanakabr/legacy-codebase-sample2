@@ -106,24 +106,4 @@ namespace WebAPI.Models.Upload
         [SchemeProperty(ReadOnly = true)]
         public List<KalturaMessage> Errors { get; set; }
     }
-
-    public enum KalturaBulkUploadJobStatus
-    {
-        Pending = 1,
-        Uploaded = 2,
-        Queued = 3,
-        Parsing = 4,
-        Processing = 5,
-        Processed = 6,
-        Success = 7,
-        Partial = 8,
-        Failed = 9,
-        Fatal = 10
-    }
-
-    public enum KalturaBulkUploadJobAction
-    {
-        Upsert = 1,
-        Delete = 2
-    }
 }

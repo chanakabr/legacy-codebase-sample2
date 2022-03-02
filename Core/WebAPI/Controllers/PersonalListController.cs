@@ -45,8 +45,7 @@ namespace WebAPI.Controllers
                     throw new ClientException((int)eResponseStatus.InvalidUser, "Invalid userId");
                 }
 
-                response = ClientsManager.ApiClient().GetPersonalListItems(groupId, userId, pager.PageSize.Value, pager.PageIndex.Value, filter.OrderBy,
-                    filter.GetPartnerListTypeIn());
+                response = ClientsManager.ApiClient().GetPersonalListItems(groupId, userId, pager.PageSize.Value, pager.GetRealPageIndex(), filter.OrderBy, filter.GetPartnerListTypeIn());
             }
             catch (ClientException ex)
             {

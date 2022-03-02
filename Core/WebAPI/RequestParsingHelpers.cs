@@ -14,6 +14,8 @@ using WebAPI.Models.MultiRequest;
 using WebAPI.Reflection;
 using WebAPI.ModelsValidators;
 using WebAPI.ObjectsConvertor.Extensions;
+using WebAPI.Utils;
+using WebAPI.ClientManagers.Client;
 
 namespace WebAPI
 {
@@ -128,7 +130,7 @@ namespace WebAPI
                             }
                         }
 
-                        res.AfterRequestParsed(service, action, language, groupId, userId, deviceId, jObject);
+                        AfterRequestParsed(jObject, res, service, action, language, userId, deviceId, groupId);
 
                         value = res;
                     }
@@ -151,11 +153,11 @@ namespace WebAPI
                     {
                         if (typeof(JArray).IsAssignableFrom(reqParams[name].GetType()))
                         {
-                            value = KalturaOTTObject.buildList(methodArg.GenericType, (JArray)reqParams[name]);
+                            value = OTTObjectBuilder.buildList(methodArg.GenericType, (JArray)reqParams[name]);
                         }
                         else if (reqParams[name].GetType().IsArray)
                         {
-                            value = KalturaOTTObject.buildList(methodArg.GenericType, reqParams[name] as object[]);
+                            value = OTTObjectBuilder.buildList(methodArg.GenericType, reqParams[name] as object[]);
                         }
                     }
 
@@ -170,7 +172,7 @@ namespace WebAPI
                         {
                             param = (Dictionary<string, object>)reqParams[name];
                         }
-                        value = KalturaOTTObject.buildDictionary(methodArg.Type, param);
+                        value = OTTObjectBuilder.buildDictionary(methodArg.Type, param);
                     }
 
                     else if (reqParams[name] != null)
@@ -217,6 +219,19 @@ namespace WebAPI
             }
 
             return methodParams;
+        }
+
+        private static void AfterRequestParsed(JObject json, IKalturaOTTObject ottObject, string service, string action, string language, string userId, string deviceId, int groupId)
+        {
+            switch (ottObject)
+            {
+                case IKalturaPersistedFilter c:
+                    if (!string.IsNullOrEmpty(c.Name))
+                    {
+                        ClientsManager.ApiClient().SaveSearchHistory(c.Name, service, action, language, groupId, userId, deviceId, json);
+                    }
+                    break;
+            }
         }
 
         public static List<object> BuildMultirequestActions(IDictionary<string, object> requestParams)

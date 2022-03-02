@@ -656,5 +656,16 @@ namespace Core.Pricing
 
             return LayeredCache.Instance.InvalidateKeys(keys);
         }
+
+        public bool InvalidatePago(long groupId, long pagoId = 0)
+        {
+            List<string> keys = new List<string>() { LayeredCacheKeys.GetPagoIdsInvalidationKey(groupId) };
+            if (pagoId > 0)
+            {
+                keys.Add(LayeredCacheKeys.GetPagoInvalidationKey(groupId, pagoId));
+            }
+
+            return LayeredCache.Instance.InvalidateKeys(keys);
+        }
     }
 }

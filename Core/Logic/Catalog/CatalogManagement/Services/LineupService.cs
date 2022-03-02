@@ -47,13 +47,10 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
                     regionId = defaultRegionId.Value;
                 }
             }
-
-            // TODO: Currently AssetUserRule and GeoBlockRule are ignored so we use this UserSearchContext
-            var searchContextWithoutRules = new UserSearchContext(searchContext.DomainId, 0, 0, null, null, searchContext.IgnoreEndDate, searchContext.UseStartDate, searchContext.UseFinal, searchContext.GetOnlyActiveAssets, searchContext.IsAllowedToViewInactiveAssets);
-
+            
             var result = regionId > 0
-                ? GetRegionLineup(groupId, regionId, searchContextWithoutRules, pageIndex, pageSize)
-                : GetNonRegionLineup(groupId, searchContextWithoutRules, pageIndex, pageSize);
+                ? GetRegionLineup(groupId, regionId, searchContext, pageIndex, pageSize)
+                : GetNonRegionLineup(groupId, searchContext, pageIndex, pageSize);
 
             return result;
         }

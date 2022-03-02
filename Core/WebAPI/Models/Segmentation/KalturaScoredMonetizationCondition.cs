@@ -67,7 +67,7 @@ namespace WebAPI.Models.Segmentation
 
         internal List<int> GetBusinessModuleIdIn()
         {
-            return this.GetItemsIn<List<int>, int>(BusinessModuleIdIn, "KalturaMonetizationCondition.businessModuleIdIn");
+            return Utils.Utils.ParseCommaSeparatedValues<List<int>, int>(BusinessModuleIdIn, "KalturaMonetizationCondition.businessModuleIdIn");
         }
     }
 }

@@ -57,9 +57,4 @@ namespace WebAPI.Models.Pricing
         [SchemeProperty(ReadOnly = true)]
         public string CouponCode { get; set; }
     }
-    
-    [ListResponse("Coupons")]
-    public partial class KalturaCouponListResponse : KalturaListResponse<KalturaCoupon>
-    {
-    }
 }

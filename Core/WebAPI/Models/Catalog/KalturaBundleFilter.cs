@@ -1,14 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.Xml.Serialization;
-using ApiLogic.Api.Managers.Rule;
+﻿using ApiLogic.Api.Managers.Rule;
 using ApiObjects.Base;
 using ApiObjects.SearchObjects;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
 using WebAPI.ClientManagers.Client;
 using WebAPI.InternalModels;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.Models.Catalog
 {
@@ -41,7 +42,7 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "bundleTypeEqual")]
         public KalturaBundleType BundleTypeEqual { get; set; }
 
-        private List<int> getTypeIn() => GetItemsIn<List<int>, int>(TypeIn, "KalturaBundleFilter.typeIn");
+        private List<int> getTypeIn() => WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<int>, int>(TypeIn, "KalturaBundleFilter.typeIn");
 
         internal override KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
         {
@@ -59,7 +60,7 @@ namespace WebAPI.Models.Catalog
                 DomainId = domainId,
                 Udid = contextData.Udid,
                 Language = contextData.Language,
-                PageIndex = pager.getPageIndex(),
+                PageIndex = pager.GetRealPageIndex(),
                 PageSize = pager.PageSize,
                 AssetTypes = getTypeIn(),
                 IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,

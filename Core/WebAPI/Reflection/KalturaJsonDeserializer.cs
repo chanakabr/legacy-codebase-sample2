@@ -22,10 +22,12 @@ using WebAPI.Exceptions;
 using WebAPI.ModelsValidators;
 using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.ModelsFactory;
+using WebAPI.Utils;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Social;
 using WebAPI.Models.General;
 using WebAPI.Models.API;
+using WebAPI.Models.IngestStatus;
 using WebAPI.Models.MultiRequest;
 using WebAPI.Models.Notifications;
 using WebAPI.Models.Notification;
@@ -48,7 +50,6 @@ using WebAPI.Models.ConditionalAccess.FilterActions.Assets;
 using WebAPI.Models.ConditionalAccess.FilterActions.Files;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
-using WebAPI.Models.IngestStatus;
 using WebAPI.Models.Api;
 using WebAPI.Models.Catalog.SearchPriorityGroup;
 
@@ -86,6 +87,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaAdsSource":
                     return new KalturaAdsSource(parameters, true);
+                    
+                case "KalturaAggregatedIngestInfo":
+                    return new KalturaAggregatedIngestInfo(parameters, true);
                     
                 case "KalturaAggregatedPropertySkipCondition":
                     return new KalturaAggregatedPropertySkipCondition(parameters, true);
@@ -576,6 +580,9 @@ namespace WebAPI.Reflection
                 case "KalturaChannel":
                     return new KalturaChannel(parameters, true);
                     
+                case "KalturaChannelAggregatedIngestInfo":
+                    return new KalturaChannelAggregatedIngestInfo(parameters, true);
+                    
                 case "KalturaChannelDynamicOrder":
                     return new KalturaChannelDynamicOrder(parameters, true);
                     
@@ -750,9 +757,6 @@ namespace WebAPI.Reflection
                 case "KalturaCredentialsProvider":
                     return new KalturaCredentialsProvider(parameters, true);
                     
-                case "KalturaCrudObject":
-                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
-                    
                 case "KalturaCurrency":
                     return new KalturaCurrency(parameters, true);
                     
@@ -770,6 +774,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaDataEncryption":
                     return new KalturaDataEncryption(parameters, true);
+                    
+                case "KalturaDateAggregatedIngestInfo":
+                    return new KalturaDateAggregatedIngestInfo(parameters, true);
                     
                 case "KalturaDateCondition":
                     return new KalturaDateCondition(parameters, true);
@@ -992,6 +999,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaEpgFilter":
                     return new KalturaEpgFilter(parameters, true);
+                    
+                case "KalturaEpgIngestErrorMessage":
+                    return new KalturaEpgIngestErrorMessage(parameters, true);
                     
                 case "KalturaEpgListResponse":
                     return new KalturaEpgListResponse(parameters, true);
@@ -1335,17 +1345,47 @@ namespace WebAPI.Reflection
                 case "KalturaIngestEpg":
                     return new KalturaIngestEpg(parameters, true);
                     
+                case "KalturaIngestEpgDetails":
+                    return new KalturaIngestEpgDetails(parameters, true);
+                    
+                case "KalturaIngestEpgDetailsAggregation":
+                    return new KalturaIngestEpgDetailsAggregation(parameters, true);
+                    
+                case "KalturaIngestEpgProgramResult":
+                    return new KalturaIngestEpgProgramResult(parameters, true);
+                    
+                case "KalturaIngestEpgProgramResultFilter":
+                    return new KalturaIngestEpgProgramResultFilter(parameters, true);
+                    
                 case "KalturaIngestProfile":
                     return new KalturaIngestProfile(parameters, true);
                     
                 case "KalturaIngestProfileListResponse":
                     return new KalturaIngestProfileListResponse(parameters, true);
                     
+                case "KalturaIngestProgramResultsByCombinedFieldsFilter":
+                    return new KalturaIngestProgramResultsByCombinedFieldsFilter(parameters, true);
+                    
+                case "KalturaIngestProgramResultsByCompoundFilter":
+                    return new KalturaIngestProgramResultsByCompoundFilter(parameters, true);
+                    
+                case "KalturaIngestProgramResultsByExternalIdsFilter":
+                    return new KalturaIngestProgramResultsByExternalIdsFilter(parameters, true);
+                    
+                case "KalturaIngestProgramResultsByProgramIdsFilter":
+                    return new KalturaIngestProgramResultsByProgramIdsFilter(parameters, true);
+                    
+                case "KalturaIngestProgramResultsByRefineFilter":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
                 case "KalturaIngestStatusEpgConfiguration":
                     return new KalturaIngestStatusEpgConfiguration(parameters, true);
                     
                 case "KalturaIngestStatusEpgListResponse":
                     return new KalturaIngestStatusEpgListResponse(parameters, true);
+                    
+                case "KalturaIngestStatusEpgProgramResultListResponse":
+                    return new KalturaIngestStatusEpgProgramResultListResponse(parameters, true);
                     
                 case "KalturaIngestStatusPartnerConfiguration":
                     return new KalturaIngestStatusPartnerConfiguration(parameters, true);
@@ -1892,6 +1932,18 @@ namespace WebAPI.Reflection
                     
                 case "KalturaProgramAssetEvent":
                     return new KalturaProgramAssetEvent(parameters, true);
+                    
+                case "KalturaProgramAssetGroupOffer":
+                    return new KalturaProgramAssetGroupOffer(parameters, true);
+                    
+                case "KalturaProgramAssetGroupOfferFilter":
+                    return new KalturaProgramAssetGroupOfferFilter(parameters, true);
+                    
+                case "KalturaProgramAssetGroupOfferIdInFilter":
+                    return new KalturaProgramAssetGroupOfferIdInFilter(parameters, true);
+                    
+                case "KalturaProgramAssetGroupOfferListResponse":
+                    return new KalturaProgramAssetGroupOfferListResponse(parameters, true);
                     
                 case "KalturaPromotion":
                     return new KalturaPromotion(parameters, true);
@@ -2592,11 +2644,11 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     if (parameters["sources"] is JArray)
                     {
-                        Sources = buildList<KalturaAdsSource>(typeof(KalturaAdsSource), (JArray) parameters["sources"]);
+                        Sources = OTTObjectBuilder.buildList<KalturaAdsSource>(typeof(KalturaAdsSource), (JArray) parameters["sources"]);
                     }
                     else if (parameters["sources"] is IList)
                     {
-                        Sources = buildList(typeof(KalturaAdsSource), parameters["sources"] as object[]);
+                        Sources = OTTObjectBuilder.buildList(typeof(KalturaAdsSource), parameters["sources"] as object[]);
                     }
                 }
             }
@@ -3384,11 +3436,11 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        transactions = buildList<KalturaBillingTransaction>(typeof(KalturaBillingTransaction), (JArray) parameters["objects"]);
+                        transactions = OTTObjectBuilder.buildList<KalturaBillingTransaction>(typeof(KalturaBillingTransaction), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        transactions = buildList(typeof(KalturaBillingTransaction), parameters["objects"] as object[]);
+                        transactions = OTTObjectBuilder.buildList(typeof(KalturaBillingTransaction), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -3517,7 +3569,7 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     if (parameters["settings"] is JObject)
                     {
-                        Settings = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["settings"]).ToObject<Dictionary<string, object>>());
+                        Settings = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["settings"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("externalIdentifier") && parameters["externalIdentifier"] != null)
@@ -3559,11 +3611,11 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaCDVRAdapterProfile>(typeof(KalturaCDVRAdapterProfile), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaCDVRAdapterProfile>(typeof(KalturaCDVRAdapterProfile), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaCDVRAdapterProfile), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaCDVRAdapterProfile), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -3579,7 +3631,7 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     if (parameters["adapterData"] is JObject)
                     {
-                        AdapterData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["adapterData"]).ToObject<Dictionary<string, object>>());
+                        AdapterData = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["adapterData"]).ToObject<Dictionary<string, object>>());
                     }
                 }
             }
@@ -3595,7 +3647,7 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     if (parameters["adapterData"] is JObject)
                     {
-                        AdapterData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["adapterData"]).ToObject<Dictionary<string, object>>());
+                        AdapterData = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["adapterData"]).ToObject<Dictionary<string, object>>());
                     }
                 }
             }
@@ -3828,7 +3880,7 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     if (parameters["dynamicData"] is JObject)
                     {
-                        DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
+                        DynamicData = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
                     }
                 }
             }
@@ -4675,11 +4727,11 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Entitlements = buildList<KalturaEntitlement>(typeof(KalturaEntitlement), (JArray) parameters["objects"]);
+                        Entitlements = OTTObjectBuilder.buildList<KalturaEntitlement>(typeof(KalturaEntitlement), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Entitlements = buildList(typeof(KalturaEntitlement), parameters["objects"] as object[]);
+                        Entitlements = OTTObjectBuilder.buildList(typeof(KalturaEntitlement), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -4736,11 +4788,11 @@ namespace WebAPI.Models.ConditionalAccess
                     DiscountDetailsSchemaProperty.Validate("discountDetails", parameters["discountDetails"]);
                     if (parameters["discountDetails"] is JArray)
                     {
-                        DiscountDetails = buildList<KalturaEntitlementDiscountDetails>(typeof(KalturaEntitlementDiscountDetails), (JArray) parameters["discountDetails"]);
+                        DiscountDetails = OTTObjectBuilder.buildList<KalturaEntitlementDiscountDetails>(typeof(KalturaEntitlementDiscountDetails), (JArray) parameters["discountDetails"]);
                     }
                     else if (parameters["discountDetails"] is IList)
                     {
-                        DiscountDetails = buildList(typeof(KalturaEntitlementDiscountDetails), parameters["discountDetails"] as object[]);
+                        DiscountDetails = OTTObjectBuilder.buildList(typeof(KalturaEntitlementDiscountDetails), parameters["discountDetails"] as object[]);
                     }
                 }
             }
@@ -4930,7 +4982,7 @@ namespace WebAPI.Models.ConditionalAccess
                     MetaDataSchemaProperty.Validate("metaData", parameters["metaData"]);
                     if (parameters["metaData"] is JObject)
                     {
-                        MetaData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["metaData"]).ToObject<Dictionary<string, object>>());
+                        MetaData = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["metaData"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("expiryDate") && parameters["expiryDate"] != null)
@@ -4951,7 +5003,7 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     if (parameters["metaData"] is JObject)
                     {
-                        MetaData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["metaData"]).ToObject<Dictionary<string, object>>());
+                        MetaData = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["metaData"]).ToObject<Dictionary<string, object>>());
                     }
                 }
             }
@@ -4973,7 +5025,7 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     if (parameters["metaData"] is JObject)
                     {
-                        MetaData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["metaData"]).ToObject<Dictionary<string, object>>());
+                        MetaData = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["metaData"]).ToObject<Dictionary<string, object>>());
                     }
                 }
             }
@@ -5008,11 +5060,11 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        PremiumServices = buildList<KalturaHouseholdPremiumService>(typeof(KalturaHouseholdPremiumService), (JArray) parameters["objects"]);
+                        PremiumServices = OTTObjectBuilder.buildList<KalturaHouseholdPremiumService>(typeof(KalturaHouseholdPremiumService), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        PremiumServices = buildList(typeof(KalturaHouseholdPremiumService), parameters["objects"] as object[]);
+                        PremiumServices = OTTObjectBuilder.buildList(typeof(KalturaHouseholdPremiumService), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -5240,11 +5292,11 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        PremiumServices = buildList<KalturaPartnerPremiumService>(typeof(KalturaPartnerPremiumService), (JArray) parameters["objects"]);
+                        PremiumServices = OTTObjectBuilder.buildList<KalturaPartnerPremiumService>(typeof(KalturaPartnerPremiumService), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        PremiumServices = buildList(typeof(KalturaPartnerPremiumService), parameters["objects"] as object[]);
+                        PremiumServices = OTTObjectBuilder.buildList(typeof(KalturaPartnerPremiumService), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -5260,55 +5312,55 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     if (parameters["sources"] is JArray)
                     {
-                        Sources = buildList<KalturaPlaybackSource>(typeof(KalturaPlaybackSource), (JArray) parameters["sources"]);
+                        Sources = OTTObjectBuilder.buildList<KalturaPlaybackSource>(typeof(KalturaPlaybackSource), (JArray) parameters["sources"]);
                     }
                     else if (parameters["sources"] is IList)
                     {
-                        Sources = buildList(typeof(KalturaPlaybackSource), parameters["sources"] as object[]);
+                        Sources = OTTObjectBuilder.buildList(typeof(KalturaPlaybackSource), parameters["sources"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("actions") && parameters["actions"] != null)
                 {
                     if (parameters["actions"] is JArray)
                     {
-                        Actions = buildList<KalturaRuleAction>(typeof(KalturaRuleAction), (JArray) parameters["actions"]);
+                        Actions = OTTObjectBuilder.buildList<KalturaRuleAction>(typeof(KalturaRuleAction), (JArray) parameters["actions"]);
                     }
                     else if (parameters["actions"] is IList)
                     {
-                        Actions = buildList(typeof(KalturaRuleAction), parameters["actions"] as object[]);
+                        Actions = OTTObjectBuilder.buildList(typeof(KalturaRuleAction), parameters["actions"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("messages") && parameters["messages"] != null)
                 {
                     if (parameters["messages"] is JArray)
                     {
-                        Messages = buildList<KalturaAccessControlMessage>(typeof(KalturaAccessControlMessage), (JArray) parameters["messages"]);
+                        Messages = OTTObjectBuilder.buildList<KalturaAccessControlMessage>(typeof(KalturaAccessControlMessage), (JArray) parameters["messages"]);
                     }
                     else if (parameters["messages"] is IList)
                     {
-                        Messages = buildList(typeof(KalturaAccessControlMessage), parameters["messages"] as object[]);
+                        Messages = OTTObjectBuilder.buildList(typeof(KalturaAccessControlMessage), parameters["messages"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("playbackCaptions") && parameters["playbackCaptions"] != null)
                 {
                     if (parameters["playbackCaptions"] is JArray)
                     {
-                        PlaybackCaptions = buildList<KalturaCaptionPlaybackPluginData>(typeof(KalturaCaptionPlaybackPluginData), (JArray) parameters["playbackCaptions"]);
+                        PlaybackCaptions = OTTObjectBuilder.buildList<KalturaCaptionPlaybackPluginData>(typeof(KalturaCaptionPlaybackPluginData), (JArray) parameters["playbackCaptions"]);
                     }
                     else if (parameters["playbackCaptions"] is IList)
                     {
-                        PlaybackCaptions = buildList(typeof(KalturaCaptionPlaybackPluginData), parameters["playbackCaptions"] as object[]);
+                        PlaybackCaptions = OTTObjectBuilder.buildList(typeof(KalturaCaptionPlaybackPluginData), parameters["playbackCaptions"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("plugins") && parameters["plugins"] != null)
                 {
                     if (parameters["plugins"] is JArray)
                     {
-                        Plugins = buildList<KalturaPlaybackPluginData>(typeof(KalturaPlaybackPluginData), (JArray) parameters["plugins"]);
+                        Plugins = OTTObjectBuilder.buildList<KalturaPlaybackPluginData>(typeof(KalturaPlaybackPluginData), (JArray) parameters["plugins"]);
                     }
                     else if (parameters["plugins"] is IList)
                     {
-                        Plugins = buildList(typeof(KalturaPlaybackPluginData), parameters["plugins"] as object[]);
+                        Plugins = OTTObjectBuilder.buildList(typeof(KalturaPlaybackPluginData), parameters["plugins"] as object[]);
                     }
                 }
             }
@@ -5353,7 +5405,7 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     if (parameters["adapterData"] is JObject)
                     {
-                        AdapterData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["adapterData"]).ToObject<Dictionary<string, object>>());
+                        AdapterData = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["adapterData"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("context") && parameters["context"] != null)
@@ -5439,11 +5491,11 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     if (parameters["drm"] is JArray)
                     {
-                        Drm = buildList<KalturaDrmPlaybackPluginData>(typeof(KalturaDrmPlaybackPluginData), (JArray) parameters["drm"]);
+                        Drm = OTTObjectBuilder.buildList<KalturaDrmPlaybackPluginData>(typeof(KalturaDrmPlaybackPluginData), (JArray) parameters["drm"]);
                     }
                     else if (parameters["drm"] is IList)
                     {
-                        Drm = buildList(typeof(KalturaDrmPlaybackPluginData), parameters["drm"] as object[]);
+                        Drm = OTTObjectBuilder.buildList(typeof(KalturaDrmPlaybackPluginData), parameters["drm"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("adsPolicy") && parameters["adsPolicy"] != null)
@@ -5599,44 +5651,44 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     if (parameters["subscriptionsIds"] is JArray)
                     {
-                        SubscriptionsIds = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["subscriptionsIds"]);
+                        SubscriptionsIds = OTTObjectBuilder.buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["subscriptionsIds"]);
                     }
                     else if (parameters["subscriptionsIds"] is IList)
                     {
-                        SubscriptionsIds = buildList(typeof(KalturaIntegerValue), parameters["subscriptionsIds"] as object[]);
+                        SubscriptionsIds = OTTObjectBuilder.buildList(typeof(KalturaIntegerValue), parameters["subscriptionsIds"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("subscriptions_ids") && parameters["subscriptions_ids"] != null && isOldVersion)
                 {
                     if (parameters["subscriptions_ids"] is JArray)
                     {
-                        SubscriptionsIds = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["subscriptions_ids"]);
+                        SubscriptionsIds = OTTObjectBuilder.buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["subscriptions_ids"]);
                     }
                     else if (parameters["subscriptions_ids"] is IList)
                     {
-                        SubscriptionsIds = buildList(typeof(KalturaIntegerValue), parameters["subscriptions_ids"] as object[]);
+                        SubscriptionsIds = OTTObjectBuilder.buildList(typeof(KalturaIntegerValue), parameters["subscriptions_ids"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("filesIds") && parameters["filesIds"] != null)
                 {
                     if (parameters["filesIds"] is JArray)
                     {
-                        FilesIds = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["filesIds"]);
+                        FilesIds = OTTObjectBuilder.buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["filesIds"]);
                     }
                     else if (parameters["filesIds"] is IList)
                     {
-                        FilesIds = buildList(typeof(KalturaIntegerValue), parameters["filesIds"] as object[]);
+                        FilesIds = OTTObjectBuilder.buildList(typeof(KalturaIntegerValue), parameters["filesIds"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("files_ids") && parameters["files_ids"] != null && isOldVersion)
                 {
                     if (parameters["files_ids"] is JArray)
                     {
-                        FilesIds = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["files_ids"]);
+                        FilesIds = OTTObjectBuilder.buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["files_ids"]);
                     }
                     else if (parameters["files_ids"] is IList)
                     {
-                        FilesIds = buildList(typeof(KalturaIntegerValue), parameters["files_ids"] as object[]);
+                        FilesIds = OTTObjectBuilder.buildList(typeof(KalturaIntegerValue), parameters["files_ids"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("shouldGetOnlyLowest") && parameters["shouldGetOnlyLowest"] != null)
@@ -6021,11 +6073,11 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaRecordingContext>(typeof(KalturaRecordingContext), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaRecordingContext>(typeof(KalturaRecordingContext), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaRecordingContext), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaRecordingContext), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -6111,11 +6163,11 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaRecording>(typeof(KalturaRecording), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaRecording>(typeof(KalturaRecording), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaRecording), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaRecording), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -6274,11 +6326,11 @@ namespace WebAPI.Models.ConditionalAccess
                     ExcludedSeasonsSchemaProperty.Validate("excludedSeasons", parameters["excludedSeasons"]);
                     if (parameters["excludedSeasons"] is JArray)
                     {
-                        ExcludedSeasons = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["excludedSeasons"]);
+                        ExcludedSeasons = OTTObjectBuilder.buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["excludedSeasons"]);
                     }
                     else if (parameters["excludedSeasons"] is IList)
                     {
-                        ExcludedSeasons = buildList(typeof(KalturaIntegerValue), parameters["excludedSeasons"] as object[]);
+                        ExcludedSeasons = OTTObjectBuilder.buildList(typeof(KalturaIntegerValue), parameters["excludedSeasons"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("seriesRecordingOption") && parameters["seriesRecordingOption"] != null)
@@ -6311,11 +6363,11 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaSeriesRecording>(typeof(KalturaSeriesRecording), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaSeriesRecording>(typeof(KalturaSeriesRecording), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaSeriesRecording), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaSeriesRecording), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -6720,11 +6772,11 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("startDateGreaterThanOrEqual") && parameters["startDateGreaterThanOrEqual"] != null)
                 {
-                    StartDateGreaterThanOrEqual = longToDateTime((long) parameters["startDateGreaterThanOrEqual"]);
+                    StartDateGreaterThanOrEqual = OTTObjectBuilder.longToDateTime((long) parameters["startDateGreaterThanOrEqual"]);
                 }
                 if (parameters.ContainsKey("endDateLessThanOrEqual") && parameters["endDateLessThanOrEqual"] != null)
                 {
-                    EndDateLessThanOrEqual = longToDateTime((long) parameters["endDateLessThanOrEqual"]);
+                    EndDateLessThanOrEqual = OTTObjectBuilder.longToDateTime((long) parameters["endDateLessThanOrEqual"]);
                 }
                 if (parameters.ContainsKey("entitlementIdEqual") && parameters["entitlementIdEqual"] != null)
                 {
@@ -6789,19 +6841,19 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
                 {
-                    StartDate = longToDateTime((long) parameters["startDate"]);
+                    StartDate = OTTObjectBuilder.longToDateTime((long) parameters["startDate"]);
                 }
                 if (parameters.ContainsKey("start_date") && parameters["start_date"] != null && isOldVersion)
                 {
-                    StartDate = longToDateTime((long) parameters["start_date"]);
+                    StartDate = OTTObjectBuilder.longToDateTime((long) parameters["start_date"]);
                 }
                 if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
                 {
-                    EndDate = longToDateTime((long) parameters["endDate"]);
+                    EndDate = OTTObjectBuilder.longToDateTime((long) parameters["endDate"]);
                 }
                 if (parameters.ContainsKey("end_date") && parameters["end_date"] != null && isOldVersion)
                 {
-                    EndDate = longToDateTime((long) parameters["end_date"]);
+                    EndDate = OTTObjectBuilder.longToDateTime((long) parameters["end_date"]);
                 }
             }
         }
@@ -6874,11 +6926,11 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     if (parameters["entitlements"] is JArray)
                     {
-                        Entitlements = buildList<KalturaEntitlementRenewalBase>(typeof(KalturaEntitlementRenewalBase), (JArray) parameters["entitlements"]);
+                        Entitlements = OTTObjectBuilder.buildList<KalturaEntitlementRenewalBase>(typeof(KalturaEntitlementRenewalBase), (JArray) parameters["entitlements"]);
                     }
                     else if (parameters["entitlements"] is IList)
                     {
-                        Entitlements = buildList(typeof(KalturaEntitlementRenewalBase), parameters["entitlements"] as object[]);
+                        Entitlements = OTTObjectBuilder.buildList(typeof(KalturaEntitlementRenewalBase), parameters["entitlements"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("userId") && parameters["userId"] != null)
@@ -7073,11 +7125,11 @@ namespace WebAPI.Models.Social
                 {
                     if (parameters["comments"] is JArray)
                     {
-                        Comments = buildList<KalturaSocialNetworkComment>(typeof(KalturaSocialNetworkComment), (JArray) parameters["comments"]);
+                        Comments = OTTObjectBuilder.buildList<KalturaSocialNetworkComment>(typeof(KalturaSocialNetworkComment), (JArray) parameters["comments"]);
                     }
                     else if (parameters["comments"] is IList)
                     {
-                        Comments = buildList(typeof(KalturaSocialNetworkComment), parameters["comments"] as object[]);
+                        Comments = OTTObjectBuilder.buildList(typeof(KalturaSocialNetworkComment), parameters["comments"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("link") && parameters["link"] != null)
@@ -7347,11 +7399,11 @@ namespace WebAPI.Models.Social
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaSocialAction>(typeof(KalturaSocialAction), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaSocialAction>(typeof(KalturaSocialAction), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaSocialAction), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaSocialAction), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -7450,11 +7502,11 @@ namespace WebAPI.Models.Social
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaSocialComment>(typeof(KalturaSocialComment), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaSocialComment>(typeof(KalturaSocialComment), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaSocialComment), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaSocialComment), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -7558,11 +7610,11 @@ namespace WebAPI.Models.Social
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaSocialFriendActivity>(typeof(KalturaSocialFriendActivity), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaSocialFriendActivity>(typeof(KalturaSocialFriendActivity), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaSocialFriendActivity), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaSocialFriendActivity), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -7731,11 +7783,11 @@ namespace WebAPI.Models.Social
                 {
                     if (parameters["actionPermissionItems"] is JArray)
                     {
-                        PermissionItems = buildList<KalturaActionPermissionItem>(typeof(KalturaActionPermissionItem), (JArray) parameters["actionPermissionItems"]);
+                        PermissionItems = OTTObjectBuilder.buildList<KalturaActionPermissionItem>(typeof(KalturaActionPermissionItem), (JArray) parameters["actionPermissionItems"]);
                     }
                     else if (parameters["actionPermissionItems"] is IList)
                     {
-                        PermissionItems = buildList(typeof(KalturaActionPermissionItem), parameters["actionPermissionItems"] as object[]);
+                        PermissionItems = OTTObjectBuilder.buildList(typeof(KalturaActionPermissionItem), parameters["actionPermissionItems"] as object[]);
                     }
                 }
             }
@@ -7768,11 +7820,11 @@ namespace WebAPI.Models.Social
                 {
                     if (parameters["failStatus"] is JArray)
                     {
-                        NetworkStatus = buildList<KalturaNetworkActionStatus>(typeof(KalturaNetworkActionStatus), (JArray) parameters["failStatus"]);
+                        NetworkStatus = OTTObjectBuilder.buildList<KalturaNetworkActionStatus>(typeof(KalturaNetworkActionStatus), (JArray) parameters["failStatus"]);
                     }
                     else if (parameters["failStatus"] is IList)
                     {
-                        NetworkStatus = buildList(typeof(KalturaNetworkActionStatus), parameters["failStatus"] as object[]);
+                        NetworkStatus = OTTObjectBuilder.buildList(typeof(KalturaNetworkActionStatus), parameters["failStatus"] as object[]);
                     }
                 }
             }
@@ -8179,12 +8231,6 @@ namespace WebAPI.Models.General
             }
         }
     }
-    public partial class KalturaCrudObject<ICrudHandeledObject, IdentifierT>
-    {
-        public KalturaCrudObject(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
-        {
-        }
-    }
     public partial class KalturaDetachedResponseProfile
     {
         public KalturaDetachedResponseProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
@@ -8210,11 +8256,11 @@ namespace WebAPI.Models.General
                 {
                     if (parameters["relatedProfiles"] is JArray)
                     {
-                        RelatedProfiles = buildList<KalturaDetachedResponseProfile>(typeof(KalturaDetachedResponseProfile), (JArray) parameters["relatedProfiles"]);
+                        RelatedProfiles = OTTObjectBuilder.buildList<KalturaDetachedResponseProfile>(typeof(KalturaDetachedResponseProfile), (JArray) parameters["relatedProfiles"]);
                     }
                     else if (parameters["relatedProfiles"] is IList)
                     {
-                        RelatedProfiles = buildList(typeof(KalturaDetachedResponseProfile), parameters["relatedProfiles"] as object[]);
+                        RelatedProfiles = OTTObjectBuilder.buildList(typeof(KalturaDetachedResponseProfile), parameters["relatedProfiles"] as object[]);
                     }
                 }
             }
@@ -8305,11 +8351,11 @@ namespace WebAPI.Models.General
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaDuration>(typeof(KalturaDuration), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaDuration>(typeof(KalturaDuration), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaDuration), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaDuration), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -8423,6 +8469,20 @@ namespace WebAPI.Models.General
     {
         public KalturaDynamicListListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = OTTObjectBuilder.buildList<KalturaDynamicList>(typeof(KalturaDynamicList), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaDynamicList), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaDynamicListSearchFilter
@@ -8498,16 +8558,51 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaFilterPager
     {
+        private static RuntimeSchemePropertyAttribute PageSizeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFilterPager")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MaxInteger = 500,
+            MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            Default = 30,
+        };
+        private static RuntimeSchemePropertyAttribute PageIndexSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFilterPager")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            Default = 1,
+        };
         public KalturaFilterPager(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("pageSize") && parameters["pageSize"] != null)
                 {
+                    PageSizeSchemaProperty.Validate("pageSize", parameters["pageSize"]);
                     PageSize = (Int32) Convert.ChangeType(parameters["pageSize"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("pageIndex") && parameters["pageIndex"] != null)
                 {
+                    PageIndexSchemaProperty.Validate("pageIndex", parameters["pageIndex"]);
                     PageIndex = (Int32) Convert.ChangeType(parameters["pageIndex"], typeof(Int32));
                 }
             }
@@ -8592,11 +8687,11 @@ namespace WebAPI.Models.General
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Values = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["objects"]);
+                        Values = OTTObjectBuilder.buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Values = buildList(typeof(KalturaIntegerValue), parameters["objects"] as object[]);
+                        Values = OTTObjectBuilder.buildList(typeof(KalturaIntegerValue), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -8632,30 +8727,6 @@ namespace WebAPI.Models.General
             }
         }
     }
-    public partial class KalturaListResponse<KalturaT>
-    {
-        public KalturaListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("totalCount") && parameters["totalCount"] != null)
-                {
-                    TotalCount = (Int32) Convert.ChangeType(parameters["totalCount"], typeof(Int32));
-                }
-                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
-                {
-                    if (parameters["objects"] is JArray)
-                    {
-                        Objects = buildList<KalturaT>(typeof(KalturaT), (JArray) parameters["objects"]);
-                    }
-                    else if (parameters["objects"] is IList)
-                    {
-                        Objects = buildList(typeof(KalturaT), parameters["objects"] as object[]);
-                    }
-                }
-            }
-        }
-    }
     public partial class KalturaLongValue
     {
         public KalturaLongValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
@@ -8687,7 +8758,7 @@ namespace WebAPI.Models.General
                 {
                     if (parameters["args"] is JObject)
                     {
-                        Args = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["args"]).ToObject<Dictionary<string, object>>());
+                        Args = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["args"]).ToObject<Dictionary<string, object>>());
                     }
                 }
             }
@@ -8703,11 +8774,11 @@ namespace WebAPI.Models.General
                 {
                     if (parameters["values"] is JArray)
                     {
-                        Values = buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["values"]);
+                        Values = OTTObjectBuilder.buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["values"]);
                     }
                     else if (parameters["values"] is IList)
                     {
-                        Values = buildList(typeof(KalturaTranslationToken), parameters["values"] as object[]);
+                        Values = OTTObjectBuilder.buildList(typeof(KalturaTranslationToken), parameters["values"] as object[]);
                     }
                 }
             }
@@ -8723,11 +8794,11 @@ namespace WebAPI.Models.General
                 {
                     if (parameters["multilingualValue"] is JArray)
                     {
-                        value = MultilengualStringFactory.Create((JArray) parameters["multilingualValue"]);
+                        value = MultilingualStringFactory.Create((JArray) parameters["multilingualValue"]);
                     }
                     else if (parameters["multilingualValue"] is IList)
                     {
-                        value = MultilengualStringFactory.Create((List<object>) parameters["multilingualValue"]);
+                        value = MultilingualStringFactory.Create((List<object>) parameters["multilingualValue"]);
                     }
                 }
             }
@@ -8743,11 +8814,11 @@ namespace WebAPI.Models.General
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaMultilingualStringValue>(typeof(KalturaMultilingualStringValue), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaMultilingualStringValue>(typeof(KalturaMultilingualStringValue), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaMultilingualStringValue), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaMultilingualStringValue), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -8982,11 +9053,11 @@ namespace WebAPI.Models.General
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Values = buildList<KalturaLongValue>(typeof(KalturaLongValue), (JArray) parameters["objects"]);
+                        Values = OTTObjectBuilder.buildList<KalturaLongValue>(typeof(KalturaLongValue), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Values = buildList(typeof(KalturaLongValue), parameters["objects"] as object[]);
+                        Values = OTTObjectBuilder.buildList(typeof(KalturaLongValue), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -9031,11 +9102,11 @@ namespace WebAPI.Models.General
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaReport>(typeof(KalturaReport), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaReport>(typeof(KalturaReport), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaReport), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaReport), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -9123,11 +9194,11 @@ namespace WebAPI.Models.General
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaStringValue), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaStringValue), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -9250,11 +9321,11 @@ namespace WebAPI.Models.API
                     ConditionsSchemaProperty.Validate("conditions", parameters["conditions"]);
                     if (parameters["conditions"] is JArray)
                     {
-                        Conditions = buildList<KalturaCondition>(typeof(KalturaCondition), (JArray) parameters["conditions"]);
+                        Conditions = OTTObjectBuilder.buildList<KalturaCondition>(typeof(KalturaCondition), (JArray) parameters["conditions"]);
                     }
                     else if (parameters["conditions"] is IList)
                     {
-                        Conditions = buildList(typeof(KalturaCondition), parameters["conditions"] as object[]);
+                        Conditions = OTTObjectBuilder.buildList(typeof(KalturaCondition), parameters["conditions"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("actions") && parameters["actions"] != null)
@@ -9262,11 +9333,11 @@ namespace WebAPI.Models.API
                     ActionsSchemaProperty.Validate("actions", parameters["actions"]);
                     if (parameters["actions"] is JArray)
                     {
-                        Actions = buildList<KalturaAssetRuleAction>(typeof(KalturaAssetRuleAction), (JArray) parameters["actions"]);
+                        Actions = OTTObjectBuilder.buildList<KalturaAssetRuleAction>(typeof(KalturaAssetRuleAction), (JArray) parameters["actions"]);
                     }
                     else if (parameters["actions"] is IList)
                     {
-                        Actions = buildList(typeof(KalturaAssetRuleAction), parameters["actions"] as object[]);
+                        Actions = OTTObjectBuilder.buildList(typeof(KalturaAssetRuleAction), parameters["actions"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
@@ -9372,11 +9443,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaAssetRule>(typeof(KalturaAssetRule), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaAssetRule>(typeof(KalturaAssetRule), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaAssetRule), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaAssetRule), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -9398,22 +9469,22 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["conditions"] is JArray)
                     {
-                        Conditions = buildList<KalturaAssetCondition>(typeof(KalturaAssetCondition), (JArray) parameters["conditions"]);
+                        Conditions = OTTObjectBuilder.buildList<KalturaAssetCondition>(typeof(KalturaAssetCondition), (JArray) parameters["conditions"]);
                     }
                     else if (parameters["conditions"] is IList)
                     {
-                        Conditions = buildList(typeof(KalturaAssetCondition), parameters["conditions"] as object[]);
+                        Conditions = OTTObjectBuilder.buildList(typeof(KalturaAssetCondition), parameters["conditions"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("actions") && parameters["actions"] != null)
                 {
                     if (parameters["actions"] is JArray)
                     {
-                        Actions = buildList<KalturaAssetUserRuleAction>(typeof(KalturaAssetUserRuleAction), (JArray) parameters["actions"]);
+                        Actions = OTTObjectBuilder.buildList<KalturaAssetUserRuleAction>(typeof(KalturaAssetUserRuleAction), (JArray) parameters["actions"]);
                     }
                     else if (parameters["actions"] is IList)
                     {
-                        Actions = buildList(typeof(KalturaAssetUserRuleAction), parameters["actions"] as object[]);
+                        Actions = OTTObjectBuilder.buildList(typeof(KalturaAssetUserRuleAction), parameters["actions"] as object[]);
                     }
                 }
             }
@@ -9456,11 +9527,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaAssetUserRule>(typeof(KalturaAssetUserRule), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaAssetUserRule>(typeof(KalturaAssetUserRule), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaAssetUserRule), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaAssetUserRule), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -9501,18 +9572,18 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("populationConditions__null") && parameters["populationConditions__null"] != null)
                 {
-                    AddNullableProperty("populationConditions");
+                    this.AddNullableProperty("populationConditions");
                 }
                 if (parameters.ContainsKey("populationConditions") && parameters["populationConditions"] != null)
                 {
                     PopulationConditionsSchemaProperty.Validate("populationConditions", parameters["populationConditions"]);
                     if (parameters["populationConditions"] is JArray)
                     {
-                        PopulationConditions = buildList<KalturaCondition>(typeof(KalturaCondition), (JArray) parameters["populationConditions"]);
+                        PopulationConditions = OTTObjectBuilder.buildList<KalturaCondition>(typeof(KalturaCondition), (JArray) parameters["populationConditions"]);
                     }
                     else if (parameters["populationConditions"] is IList)
                     {
-                        PopulationConditions = buildList(typeof(KalturaCondition), parameters["populationConditions"] as object[]);
+                        PopulationConditions = OTTObjectBuilder.buildList(typeof(KalturaCondition), parameters["populationConditions"] as object[]);
                     }
                 }
             }
@@ -9589,22 +9660,22 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["conditions"] is JArray)
                     {
-                        Conditions = buildList<KalturaCondition>(typeof(KalturaCondition), (JArray) parameters["conditions"]);
+                        Conditions = OTTObjectBuilder.buildList<KalturaCondition>(typeof(KalturaCondition), (JArray) parameters["conditions"]);
                     }
                     else if (parameters["conditions"] is IList)
                     {
-                        Conditions = buildList(typeof(KalturaCondition), parameters["conditions"] as object[]);
+                        Conditions = OTTObjectBuilder.buildList(typeof(KalturaCondition), parameters["conditions"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("actions") && parameters["actions"] != null)
                 {
                     if (parameters["actions"] is JArray)
                     {
-                        Actions = buildList<KalturaBusinessModuleRuleAction>(typeof(KalturaBusinessModuleRuleAction), (JArray) parameters["actions"]);
+                        Actions = OTTObjectBuilder.buildList<KalturaBusinessModuleRuleAction>(typeof(KalturaBusinessModuleRuleAction), (JArray) parameters["actions"]);
                     }
                     else if (parameters["actions"] is IList)
                     {
-                        Actions = buildList(typeof(KalturaBusinessModuleRuleAction), parameters["actions"] as object[]);
+                        Actions = OTTObjectBuilder.buildList(typeof(KalturaBusinessModuleRuleAction), parameters["actions"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
@@ -9675,11 +9746,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaBusinessModuleRule>(typeof(KalturaBusinessModuleRule), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaBusinessModuleRule>(typeof(KalturaBusinessModuleRule), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaBusinessModuleRule), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaBusinessModuleRule), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -9874,7 +9945,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("description__null") && parameters["description__null"] != null)
                 {
-                    AddNullableProperty("description");
+                    this.AddNullableProperty("description");
                 }
                 if (parameters.ContainsKey("description") && parameters["description"] != null)
                 {
@@ -9898,7 +9969,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("promotion__null") && parameters["promotion__null"] != null)
                 {
-                    AddNullableProperty("promotion");
+                    this.AddNullableProperty("promotion");
                 }
                 if (parameters.ContainsKey("promotion") && parameters["promotion"] != null)
                 {
@@ -9919,7 +9990,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("collectionIdIn__null") && parameters["collectionIdIn__null"] != null)
                 {
-                    AddNullableProperty("collectionIdIn");
+                    this.AddNullableProperty("collectionIdIn");
                 }
                 if (parameters.ContainsKey("collectionIdIn") && parameters["collectionIdIn"] != null)
                 {
@@ -9958,11 +10029,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaCampaign>(typeof(KalturaCampaign), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaCampaign>(typeof(KalturaCampaign), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaCampaign), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaCampaign), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -10062,7 +10133,7 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["settings"] is JObject)
                     {
-                        Settings = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["settings"]).ToObject<Dictionary<string, object>>());
+                        Settings = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["settings"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("systemName") && parameters["systemName"] != null)
@@ -10087,11 +10158,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Adapters = buildList<KalturaCDNAdapterProfile>(typeof(KalturaCDNAdapterProfile), (JArray) parameters["objects"]);
+                        Adapters = OTTObjectBuilder.buildList<KalturaCDNAdapterProfile>(typeof(KalturaCDNAdapterProfile), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Adapters = buildList(typeof(KalturaCDNAdapterProfile), parameters["objects"] as object[]);
+                        Adapters = OTTObjectBuilder.buildList(typeof(KalturaCDNAdapterProfile), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -10209,22 +10280,22 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["assetTypes"] is JArray)
                     {
-                        AssetTypes = buildNativeList<int>(typeof(int), (JArray) parameters["assetTypes"]);
+                        AssetTypes = OTTObjectBuilder.buildNativeList<int>(typeof(int), (JArray) parameters["assetTypes"]);
                     }
                     else if (parameters["assetTypes"] is IList)
                     {
-                        AssetTypes = buildNativeList(typeof(int), parameters["assetTypes"] as object[]);
+                        AssetTypes = OTTObjectBuilder.buildNativeList(typeof(int), parameters["assetTypes"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("asset_types") && parameters["asset_types"] != null && isOldVersion)
                 {
                     if (parameters["asset_types"] is JArray)
                     {
-                        AssetTypes = buildNativeList<int>(typeof(int), (JArray) parameters["asset_types"]);
+                        AssetTypes = OTTObjectBuilder.buildNativeList<int>(typeof(int), (JArray) parameters["asset_types"]);
                     }
                     else if (parameters["asset_types"] is IList)
                     {
-                        AssetTypes = buildNativeList(typeof(int), parameters["asset_types"] as object[]);
+                        AssetTypes = OTTObjectBuilder.buildNativeList(typeof(int), parameters["asset_types"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("order") && parameters["order"] != null)
@@ -10415,11 +10486,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaCountry>(typeof(KalturaCountry), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaCountry>(typeof(KalturaCountry), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaCountry), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaCountry), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -10501,11 +10572,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaCurrency>(typeof(KalturaCurrency), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaCurrency>(typeof(KalturaCurrency), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaCurrency), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaCurrency), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -10574,11 +10645,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaDeviceBrand>(typeof(KalturaDeviceBrand), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaDeviceBrand>(typeof(KalturaDeviceBrand), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaDeviceBrand), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaDeviceBrand), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -10673,11 +10744,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaDeviceFamily>(typeof(KalturaDeviceFamily), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaDeviceFamily>(typeof(KalturaDeviceFamily), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaDeviceFamily), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaDeviceFamily), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -10831,11 +10902,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Adapters = buildList<KalturaDrmProfile>(typeof(KalturaDrmProfile), (JArray) parameters["objects"]);
+                        Adapters = OTTObjectBuilder.buildList<KalturaDrmProfile>(typeof(KalturaDrmProfile), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Adapters = buildList(typeof(KalturaDrmProfile), parameters["objects"] as object[]);
+                        Adapters = OTTObjectBuilder.buildList(typeof(KalturaDrmProfile), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -11027,6 +11098,20 @@ namespace WebAPI.Models.API
     {
         public KalturaEventNotificationListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = OTTObjectBuilder.buildList<KalturaEventNotification>(typeof(KalturaEventNotification), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaEventNotification), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaEventNotificationObjectScope
@@ -11071,11 +11156,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["ids"] is JArray)
                     {
-                        ids = buildList<KalturaLongValue>(typeof(KalturaLongValue), (JArray) parameters["ids"]);
+                        ids = OTTObjectBuilder.buildList<KalturaLongValue>(typeof(KalturaLongValue), (JArray) parameters["ids"]);
                     }
                     else if (parameters["ids"] is IList)
                     {
-                        ids = buildList(typeof(KalturaLongValue), parameters["ids"] as object[]);
+                        ids = OTTObjectBuilder.buildList(typeof(KalturaLongValue), parameters["ids"] as object[]);
                     }
                 }
             }
@@ -11192,22 +11277,22 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["vodTypes"] is JArray)
                     {
-                        VodTypes = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["vodTypes"]);
+                        VodTypes = OTTObjectBuilder.buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["vodTypes"]);
                     }
                     else if (parameters["vodTypes"] is IList)
                     {
-                        VodTypes = buildList(typeof(KalturaIntegerValue), parameters["vodTypes"] as object[]);
+                        VodTypes = OTTObjectBuilder.buildList(typeof(KalturaIntegerValue), parameters["vodTypes"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("vod_types") && parameters["vod_types"] != null && isOldVersion)
                 {
                     if (parameters["vod_types"] is JArray)
                     {
-                        VodTypes = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["vod_types"]);
+                        VodTypes = OTTObjectBuilder.buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["vod_types"]);
                     }
                     else if (parameters["vod_types"] is IList)
                     {
-                        VodTypes = buildList(typeof(KalturaIntegerValue), parameters["vod_types"] as object[]);
+                        VodTypes = OTTObjectBuilder.buildList(typeof(KalturaIntegerValue), parameters["vod_types"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("isActive") && parameters["isActive"] != null)
@@ -11244,11 +11329,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaExportTask>(typeof(KalturaExportTask), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaExportTask>(typeof(KalturaExportTask), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaExportTask), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaExportTask), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -11333,11 +11418,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["enrichments"] is JArray)
                     {
-                        Enrichments = buildList<KalturaChannelEnrichmentHolder>(typeof(KalturaChannelEnrichmentHolder), (JArray) parameters["enrichments"]);
+                        Enrichments = OTTObjectBuilder.buildList<KalturaChannelEnrichmentHolder>(typeof(KalturaChannelEnrichmentHolder), (JArray) parameters["enrichments"]);
                     }
                     else if (parameters["enrichments"] is IList)
                     {
-                        Enrichments = buildList(typeof(KalturaChannelEnrichmentHolder), parameters["enrichments"] as object[]);
+                        Enrichments = OTTObjectBuilder.buildList(typeof(KalturaChannelEnrichmentHolder), parameters["enrichments"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("assetUserRuleId") && parameters["assetUserRuleId"] != null)
@@ -11349,7 +11434,7 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["metaData"] is JObject)
                     {
-                        MetaData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["metaData"]).ToObject<Dictionary<string, object>>());
+                        MetaData = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["metaData"]).ToObject<Dictionary<string, object>>());
                     }
                 }
             }
@@ -11384,11 +11469,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaExternalChannelProfile>(typeof(KalturaExternalChannelProfile), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaExternalChannelProfile>(typeof(KalturaExternalChannelProfile), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaExternalChannelProfile), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaExternalChannelProfile), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -11482,11 +11567,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        GenericRules = buildList<KalturaGenericRule>(typeof(KalturaGenericRule), (JArray) parameters["objects"]);
+                        GenericRules = OTTObjectBuilder.buildList<KalturaGenericRule>(typeof(KalturaGenericRule), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        GenericRules = buildList(typeof(KalturaGenericRule), parameters["objects"] as object[]);
+                        GenericRules = OTTObjectBuilder.buildList(typeof(KalturaGenericRule), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -11569,7 +11654,7 @@ namespace WebAPI.Models.API
                     SettingsSchemaProperty.Validate("transformationAdapterSettings", parameters["transformationAdapterSettings"]);
                     if (parameters["transformationAdapterSettings"] is JObject)
                     {
-                        Settings = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["transformationAdapterSettings"]).ToObject<Dictionary<string, object>>());
+                        Settings = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["transformationAdapterSettings"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("transformationAdapterSharedSecret") && parameters["transformationAdapterSharedSecret"] != null)
@@ -11621,11 +11706,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaIngestProfile>(typeof(KalturaIngestProfile), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaIngestProfile>(typeof(KalturaIngestProfile), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaIngestProfile), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaIngestProfile), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -11762,6 +11847,20 @@ namespace WebAPI.Models.API
     {
         public KalturaIotListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = OTTObjectBuilder.buildList<KalturaIot>(typeof(KalturaIot), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaIot), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaIotProfile
@@ -11839,6 +11938,20 @@ namespace WebAPI.Models.API
     {
         public KalturaIotProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = OTTObjectBuilder.buildList<KalturaIotProfile>(typeof(KalturaIotProfile), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaIotProfile), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaIpRangeCondition
@@ -11918,11 +12031,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaLanguage>(typeof(KalturaLanguage), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaLanguage>(typeof(KalturaLanguage), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaLanguage), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaLanguage), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -11973,11 +12086,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaMediaConcurrencyRule>(typeof(KalturaMediaConcurrencyRule), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaMediaConcurrencyRule>(typeof(KalturaMediaConcurrencyRule), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaMediaConcurrencyRule), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaMediaConcurrencyRule), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -12144,11 +12257,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["multilingualName"] is JArray)
                     {
-                        Name = MultilengualStringFactory.Create((JArray) parameters["multilingualName"]);
+                        Name = MultilingualStringFactory.Create((JArray) parameters["multilingualName"]);
                     }
                     else if (parameters["multilingualName"] is IList)
                     {
-                        Name = MultilengualStringFactory.Create((List<object>) parameters["multilingualName"]);
+                        Name = MultilingualStringFactory.Create((List<object>) parameters["multilingualName"]);
                     }
                 }
                 if (parameters.ContainsKey("systemName") && parameters["systemName"] != null)
@@ -12257,7 +12370,7 @@ namespace WebAPI.Models.API
                     DynamicDataSchemaProperty.Validate("dynamicData", parameters["dynamicData"]);
                     if (parameters["dynamicData"] is JObject)
                     {
-                        DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
+                        DynamicData = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
                     }
                 }
             }
@@ -12400,11 +12513,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Metas = buildList<KalturaMeta>(typeof(KalturaMeta), (JArray) parameters["objects"]);
+                        Metas = OTTObjectBuilder.buildList<KalturaMeta>(typeof(KalturaMeta), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Metas = buildList(typeof(KalturaMeta), parameters["objects"] as object[]);
+                        Metas = OTTObjectBuilder.buildList(typeof(KalturaMeta), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -12456,11 +12569,11 @@ namespace WebAPI.Models.API
                     ConditionsSchemaProperty.Validate("conditions", parameters["conditions"]);
                     if (parameters["conditions"] is JArray)
                     {
-                        Conditions = buildList<KalturaCondition>(typeof(KalturaCondition), (JArray) parameters["conditions"]);
+                        Conditions = OTTObjectBuilder.buildList<KalturaCondition>(typeof(KalturaCondition), (JArray) parameters["conditions"]);
                     }
                     else if (parameters["conditions"] is IList)
                     {
-                        Conditions = buildList(typeof(KalturaCondition), parameters["conditions"] as object[]);
+                        Conditions = OTTObjectBuilder.buildList(typeof(KalturaCondition), parameters["conditions"] as object[]);
                     }
                 }
             }
@@ -12540,14 +12653,14 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["ossAdapterSettings"] is JObject)
                     {
-                        Settings = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["ossAdapterSettings"]).ToObject<Dictionary<string, object>>());
+                        Settings = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["ossAdapterSettings"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("oss_adapter_settings") && parameters["oss_adapter_settings"] != null && isOldVersion)
                 {
                     if (parameters["oss_adapter_settings"] is JObject)
                     {
-                        Settings = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["oss_adapter_settings"]).ToObject<Dictionary<string, object>>());
+                        Settings = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["oss_adapter_settings"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("externalIdentifier") && parameters["externalIdentifier"] != null)
@@ -12581,11 +12694,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        OSSAdapterProfiles = buildList<KalturaOSSAdapterProfile>(typeof(KalturaOSSAdapterProfile), (JArray) parameters["objects"]);
+                        OSSAdapterProfiles = OTTObjectBuilder.buildList<KalturaOSSAdapterProfile>(typeof(KalturaOSSAdapterProfile), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        OSSAdapterProfiles = buildList(typeof(KalturaOSSAdapterProfile), parameters["objects"] as object[]);
+                        OSSAdapterProfiles = OTTObjectBuilder.buildList(typeof(KalturaOSSAdapterProfile), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -12879,11 +12992,11 @@ namespace WebAPI.Models.API
                     mediaTagValuesSchemaProperty.Validate("mediaTagValues", parameters["mediaTagValues"]);
                     if (parameters["mediaTagValues"] is JArray)
                     {
-                        mediaTagValues = buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["mediaTagValues"]);
+                        mediaTagValues = OTTObjectBuilder.buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["mediaTagValues"]);
                     }
                     else if (parameters["mediaTagValues"] is IList)
                     {
-                        mediaTagValues = buildList(typeof(KalturaStringValue), parameters["mediaTagValues"] as object[]);
+                        mediaTagValues = OTTObjectBuilder.buildList(typeof(KalturaStringValue), parameters["mediaTagValues"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("media_tag_values") && parameters["media_tag_values"] != null && isOldVersion)
@@ -12891,11 +13004,11 @@ namespace WebAPI.Models.API
                     mediaTagValuesSchemaProperty.Validate("media_tag_values", parameters["media_tag_values"]);
                     if (parameters["media_tag_values"] is JArray)
                     {
-                        mediaTagValues = buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["media_tag_values"]);
+                        mediaTagValues = OTTObjectBuilder.buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["media_tag_values"]);
                     }
                     else if (parameters["media_tag_values"] is IList)
                     {
-                        mediaTagValues = buildList(typeof(KalturaStringValue), parameters["media_tag_values"] as object[]);
+                        mediaTagValues = OTTObjectBuilder.buildList(typeof(KalturaStringValue), parameters["media_tag_values"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("epgTagValues") && parameters["epgTagValues"] != null)
@@ -12903,11 +13016,11 @@ namespace WebAPI.Models.API
                     epgTagValuesSchemaProperty.Validate("epgTagValues", parameters["epgTagValues"]);
                     if (parameters["epgTagValues"] is JArray)
                     {
-                        epgTagValues = buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["epgTagValues"]);
+                        epgTagValues = OTTObjectBuilder.buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["epgTagValues"]);
                     }
                     else if (parameters["epgTagValues"] is IList)
                     {
-                        epgTagValues = buildList(typeof(KalturaStringValue), parameters["epgTagValues"] as object[]);
+                        epgTagValues = OTTObjectBuilder.buildList(typeof(KalturaStringValue), parameters["epgTagValues"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("epg_tag_values") && parameters["epg_tag_values"] != null && isOldVersion)
@@ -12915,11 +13028,11 @@ namespace WebAPI.Models.API
                     epgTagValuesSchemaProperty.Validate("epg_tag_values", parameters["epg_tag_values"]);
                     if (parameters["epg_tag_values"] is JArray)
                     {
-                        epgTagValues = buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["epg_tag_values"]);
+                        epgTagValues = OTTObjectBuilder.buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["epg_tag_values"]);
                     }
                     else if (parameters["epg_tag_values"] is IList)
                     {
-                        epgTagValues = buildList(typeof(KalturaStringValue), parameters["epg_tag_values"] as object[]);
+                        epgTagValues = OTTObjectBuilder.buildList(typeof(KalturaStringValue), parameters["epg_tag_values"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("isDefault") && parameters["isDefault"] != null)
@@ -12998,11 +13111,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        ParentalRule = buildList<KalturaParentalRule>(typeof(KalturaParentalRule), (JArray) parameters["objects"]);
+                        ParentalRule = OTTObjectBuilder.buildList<KalturaParentalRule>(typeof(KalturaParentalRule), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        ParentalRule = buildList(typeof(KalturaParentalRule), parameters["objects"] as object[]);
+                        ParentalRule = OTTObjectBuilder.buildList(typeof(KalturaParentalRule), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -13234,6 +13347,20 @@ namespace WebAPI.Models.API
     {
         public KalturaPermissionItemListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = OTTObjectBuilder.buildList<KalturaPermissionItem>(typeof(KalturaPermissionItem), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaPermissionItem), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaPermissionListResponse
@@ -13246,11 +13373,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Permissions = buildList<KalturaPermission>(typeof(KalturaPermission), (JArray) parameters["objects"]);
+                        Permissions = OTTObjectBuilder.buildList<KalturaPermission>(typeof(KalturaPermission), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Permissions = buildList(typeof(KalturaPermission), parameters["objects"] as object[]);
+                        Permissions = OTTObjectBuilder.buildList(typeof(KalturaPermission), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -13264,7 +13391,7 @@ namespace WebAPI.Models.API
             {
                 if (parameters.ContainsKey("pin") && parameters["pin"] != null)
                 {
-                    Pin = (String) Convert.ChangeType(parameters["pin"], typeof(String));
+                    PIN = (String) Convert.ChangeType(parameters["pin"], typeof(String));
                 }
                 if (parameters.ContainsKey("origin") && parameters["origin"] != null)
                 {
@@ -13305,7 +13432,7 @@ namespace WebAPI.Models.API
             {
                 if (parameters.ContainsKey("pin") && parameters["pin"] != null)
                 {
-                    Pin = (String) Convert.ChangeType(parameters["pin"], typeof(String));
+                    PIN = (String) Convert.ChangeType(parameters["pin"], typeof(String));
                 }
                 if (parameters.ContainsKey("origin") && parameters["origin"] != null)
                 {
@@ -13428,11 +13555,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        PlaybackProfiles = buildList<KalturaPlaybackProfile>(typeof(KalturaPlaybackProfile), (JArray) parameters["objects"]);
+                        PlaybackProfiles = OTTObjectBuilder.buildList<KalturaPlaybackProfile>(typeof(KalturaPlaybackProfile), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        PlaybackProfiles = buildList(typeof(KalturaPlaybackProfile), parameters["objects"] as object[]);
+                        PlaybackProfiles = OTTObjectBuilder.buildList(typeof(KalturaPlaybackProfile), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -13469,11 +13596,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["conditions"] is JArray)
                     {
-                        Conditions = buildList<KalturaCondition>(typeof(KalturaCondition), (JArray) parameters["conditions"]);
+                        Conditions = OTTObjectBuilder.buildList<KalturaCondition>(typeof(KalturaCondition), (JArray) parameters["conditions"]);
                     }
                     else if (parameters["conditions"] is IList)
                     {
-                        Conditions = buildList(typeof(KalturaCondition), parameters["conditions"] as object[]);
+                        Conditions = OTTObjectBuilder.buildList(typeof(KalturaCondition), parameters["conditions"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("numberOfRecurring") && parameters["numberOfRecurring"] != null)
@@ -13608,14 +13735,14 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["recommendationEngineSettings"] is JObject)
                     {
-                        Settings = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["recommendationEngineSettings"]).ToObject<Dictionary<string, object>>());
+                        Settings = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["recommendationEngineSettings"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("recommendation_engine_settings") && parameters["recommendation_engine_settings"] != null && isOldVersion)
                 {
                     if (parameters["recommendation_engine_settings"] is JObject)
                     {
-                        Settings = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["recommendation_engine_settings"]).ToObject<Dictionary<string, object>>());
+                        Settings = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["recommendation_engine_settings"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("externalIdentifier") && parameters["externalIdentifier"] != null)
@@ -13649,11 +13776,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        RecommendationProfiles = buildList<KalturaRecommendationProfile>(typeof(KalturaRecommendationProfile), (JArray) parameters["objects"]);
+                        RecommendationProfiles = OTTObjectBuilder.buildList<KalturaRecommendationProfile>(typeof(KalturaRecommendationProfile), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        RecommendationProfiles = buildList(typeof(KalturaRecommendationProfile), parameters["objects"] as object[]);
+                        RecommendationProfiles = OTTObjectBuilder.buildList(typeof(KalturaRecommendationProfile), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -13743,11 +13870,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["linearChannels"] is JArray)
                     {
-                        RegionalChannels = buildList<KalturaRegionalChannel>(typeof(KalturaRegionalChannel), (JArray) parameters["linearChannels"]);
+                        RegionalChannels = OTTObjectBuilder.buildList<KalturaRegionalChannel>(typeof(KalturaRegionalChannel), (JArray) parameters["linearChannels"]);
                     }
                     else if (parameters["linearChannels"] is IList)
                     {
-                        RegionalChannels = buildList(typeof(KalturaRegionalChannel), parameters["linearChannels"] as object[]);
+                        RegionalChannels = OTTObjectBuilder.buildList(typeof(KalturaRegionalChannel), parameters["linearChannels"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("parentId") && parameters["parentId"] != null)
@@ -13861,11 +13988,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Regions = buildList<KalturaRegion>(typeof(KalturaRegion), (JArray) parameters["objects"]);
+                        Regions = OTTObjectBuilder.buildList<KalturaRegion>(typeof(KalturaRegion), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Regions = buildList(typeof(KalturaRegion), parameters["objects"] as object[]);
+                        Regions = OTTObjectBuilder.buildList(typeof(KalturaRegion), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -13898,11 +14025,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        RegistrySettings = buildList<KalturaRegistrySettings>(typeof(KalturaRegistrySettings), (JArray) parameters["objects"]);
+                        RegistrySettings = OTTObjectBuilder.buildList<KalturaRegistrySettings>(typeof(KalturaRegistrySettings), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        RegistrySettings = buildList(typeof(KalturaRegistrySettings), parameters["objects"] as object[]);
+                        RegistrySettings = OTTObjectBuilder.buildList(typeof(KalturaRegistrySettings), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -13953,7 +14080,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("description__null") && parameters["description__null"] != null)
                 {
-                    AddNullableProperty("description");
+                    this.AddNullableProperty("description");
                 }
                 if (parameters.ContainsKey("description") && parameters["description"] != null)
                 {
@@ -14161,11 +14288,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaSearchHistory>(typeof(KalturaSearchHistory), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaSearchHistory>(typeof(KalturaSearchHistory), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaSearchHistory), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaSearchHistory), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -14332,6 +14459,20 @@ namespace WebAPI.Models.API
             MinItems = -1,
             MaxItems = -1,
         };
+        private static RuntimeSchemePropertyAttribute DefaultQuotaSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
         public KalturaTimeShiftedTvPartnerSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
@@ -14485,6 +14626,11 @@ namespace WebAPI.Models.API
                 {
                     PrivateCopyEnabled = (Boolean) Convert.ChangeType(parameters["privateCopyEnabled"], typeof(Boolean));
                 }
+                if (parameters.ContainsKey("defaultQuota") && parameters["defaultQuota"] != null)
+                {
+                    DefaultQuotaSchemaProperty.Validate("defaultQuota", parameters["defaultQuota"]);
+                    DefaultQuota = (Int32) Convert.ChangeType(parameters["defaultQuota"], typeof(Int32));
+                }
             }
         }
     }
@@ -14539,18 +14685,18 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("triggerConditions__null") && parameters["triggerConditions__null"] != null)
                 {
-                    AddNullableProperty("triggerConditions");
+                    this.AddNullableProperty("triggerConditions");
                 }
                 if (parameters.ContainsKey("triggerConditions") && parameters["triggerConditions"] != null)
                 {
                     TriggerConditionsSchemaProperty.Validate("triggerConditions", parameters["triggerConditions"]);
                     if (parameters["triggerConditions"] is JArray)
                     {
-                        TriggerConditions = buildList<KalturaCondition>(typeof(KalturaCondition), (JArray) parameters["triggerConditions"]);
+                        TriggerConditions = OTTObjectBuilder.buildList<KalturaCondition>(typeof(KalturaCondition), (JArray) parameters["triggerConditions"]);
                     }
                     else if (parameters["triggerConditions"] is IList)
                     {
-                        TriggerConditions = buildList(typeof(KalturaCondition), parameters["triggerConditions"] as object[]);
+                        TriggerConditions = OTTObjectBuilder.buildList(typeof(KalturaCondition), parameters["triggerConditions"] as object[]);
                     }
                 }
             }
@@ -14702,11 +14848,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaTvmRule>(typeof(KalturaTvmRule), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaTvmRule>(typeof(KalturaTvmRule), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaTvmRule), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaTvmRule), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -14820,11 +14966,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Rules = buildList<KalturaUserAssetRule>(typeof(KalturaUserAssetRule), (JArray) parameters["objects"]);
+                        Rules = OTTObjectBuilder.buildList<KalturaUserAssetRule>(typeof(KalturaUserAssetRule), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Rules = buildList(typeof(KalturaUserAssetRule), parameters["objects"] as object[]);
+                        Rules = OTTObjectBuilder.buildList(typeof(KalturaUserAssetRule), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -14877,11 +15023,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["permissions"] is JArray)
                     {
-                        Permissions = buildList<KalturaPermission>(typeof(KalturaPermission), (JArray) parameters["permissions"]);
+                        Permissions = OTTObjectBuilder.buildList<KalturaPermission>(typeof(KalturaPermission), (JArray) parameters["permissions"]);
                     }
                     else if (parameters["permissions"] is IList)
                     {
-                        Permissions = buildList(typeof(KalturaPermission), parameters["permissions"] as object[]);
+                        Permissions = OTTObjectBuilder.buildList(typeof(KalturaPermission), parameters["permissions"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("permissionNames") && parameters["permissionNames"] != null)
@@ -14964,11 +15110,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["ids"] is JArray)
                     {
-                        Ids = buildList<KalturaLongValue>(typeof(KalturaLongValue), (JArray) parameters["ids"]);
+                        Ids = OTTObjectBuilder.buildList<KalturaLongValue>(typeof(KalturaLongValue), (JArray) parameters["ids"]);
                     }
                     else if (parameters["ids"] is IList)
                     {
-                        Ids = buildList(typeof(KalturaLongValue), parameters["ids"] as object[]);
+                        Ids = OTTObjectBuilder.buildList(typeof(KalturaLongValue), parameters["ids"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
@@ -15020,11 +15166,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        UserRoles = buildList<KalturaUserRole>(typeof(KalturaUserRole), (JArray) parameters["objects"]);
+                        UserRoles = OTTObjectBuilder.buildList<KalturaUserRole>(typeof(KalturaUserRole), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        UserRoles = buildList(typeof(KalturaUserRole), parameters["objects"] as object[]);
+                        UserRoles = OTTObjectBuilder.buildList(typeof(KalturaUserRole), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -15064,6 +15210,819 @@ namespace WebAPI.Models.API
     {
         public KalturaUserSubscriptionCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+        }
+    }
+}
+
+namespace WebAPI.Models.IngestStatus
+{
+    public partial class KalturaAggregatedIngestInfo
+    {
+        public KalturaAggregatedIngestInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("resultsCount") && parameters["resultsCount"] != null)
+                {
+                    ResultsCount = (Int64) Convert.ChangeType(parameters["resultsCount"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("totalFailureCount") && parameters["totalFailureCount"] != null)
+                {
+                    TotalFailureCount = (Int64) Convert.ChangeType(parameters["totalFailureCount"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("partialFailureCount") && parameters["partialFailureCount"] != null)
+                {
+                    PartialFailureCount = (Int64) Convert.ChangeType(parameters["partialFailureCount"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("warningsCount") && parameters["warningsCount"] != null)
+                {
+                    WarningCount = (Int64) Convert.ChangeType(parameters["warningsCount"], typeof(Int64));
+                }
+            }
+        }
+    }
+    public partial class KalturaChannelAggregatedIngestInfo
+    {
+        public KalturaChannelAggregatedIngestInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("linearChannelId") && parameters["linearChannelId"] != null)
+                {
+                    LinearChannelId = (Int64) Convert.ChangeType(parameters["linearChannelId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("aggregatedErrors") && parameters["aggregatedErrors"] != null)
+                {
+                    if (parameters["aggregatedErrors"] is JObject)
+                    {
+                        AggregatedErrors = (KalturaAggregatedIngestInfo) Deserializer.deserialize(typeof(KalturaAggregatedIngestInfo), ((JObject) parameters["aggregatedErrors"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["aggregatedErrors"] is IDictionary)
+                    {
+                        AggregatedErrors = (KalturaAggregatedIngestInfo) Deserializer.deserialize(typeof(KalturaAggregatedIngestInfo), (Dictionary<string, object>) parameters["aggregatedErrors"]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaDateAggregatedIngestInfo
+    {
+        public KalturaDateAggregatedIngestInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("date") && parameters["date"] != null)
+                {
+                    Date = (Int64) Convert.ChangeType(parameters["date"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("aggregatedErrors") && parameters["aggregatedErrors"] != null)
+                {
+                    if (parameters["aggregatedErrors"] is JObject)
+                    {
+                        AggregatedErrors = (KalturaAggregatedIngestInfo) Deserializer.deserialize(typeof(KalturaAggregatedIngestInfo), ((JObject) parameters["aggregatedErrors"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["aggregatedErrors"] is IDictionary)
+                    {
+                        AggregatedErrors = (KalturaAggregatedIngestInfo) Deserializer.deserialize(typeof(KalturaAggregatedIngestInfo), (Dictionary<string, object>) parameters["aggregatedErrors"]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaEpgIngestErrorMessage
+    {
+        public KalturaEpgIngestErrorMessage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("message") && parameters["message"] != null)
+                {
+                    Message = (String) Convert.ChangeType(parameters["message"], typeof(String));
+                }
+                if (parameters.ContainsKey("code") && parameters["code"] != null)
+                {
+                    Code = (String) Convert.ChangeType(parameters["code"], typeof(String));
+                }
+                if (parameters.ContainsKey("args") && parameters["args"] != null)
+                {
+                    if (parameters["args"] is JObject)
+                    {
+                        Args = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["args"]).ToObject<Dictionary<string, object>>());
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaIngestByCompoundFilter
+    {
+        private static RuntimeSchemePropertyAttribute IngestNameContainsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByCompoundFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            Pattern = @"^(?!\s*$).+",
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute IngestedByUserIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByCompoundFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            Pattern = @"^\d+(\s*,\s*\d+){0,19}$",
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute IngestStatusInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByCompoundFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute CreatedDateGreaterThanSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByCompoundFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute CreatedDateSmallerThanSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByCompoundFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaIngestByCompoundFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("ingestNameContains") && parameters["ingestNameContains"] != null)
+                {
+                    IngestNameContainsSchemaProperty.Validate("ingestNameContains", parameters["ingestNameContains"]);
+                    IngestNameContains = (String) Convert.ChangeType(parameters["ingestNameContains"], typeof(String));
+                }
+                if (parameters.ContainsKey("ingestedByUserIdIn") && parameters["ingestedByUserIdIn"] != null)
+                {
+                    IngestedByUserIdInSchemaProperty.Validate("ingestedByUserIdIn", parameters["ingestedByUserIdIn"]);
+                    IngestedByUserIdIn = (String) Convert.ChangeType(parameters["ingestedByUserIdIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("ingestStatusIn") && parameters["ingestStatusIn"] != null)
+                {
+                    IngestStatusInSchemaProperty.Validate("ingestStatusIn", parameters["ingestStatusIn"]);
+                    IngestStatusIn = (String) Convert.ChangeType(parameters["ingestStatusIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("createdDateGreaterThan") && parameters["createdDateGreaterThan"] != null)
+                {
+                    CreatedDateGreaterThanSchemaProperty.Validate("createdDateGreaterThan", parameters["createdDateGreaterThan"]);
+                    CreatedDateGreaterThan = (Int64) Convert.ChangeType(parameters["createdDateGreaterThan"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("createdDateSmallerThan") && parameters["createdDateSmallerThan"] != null)
+                {
+                    CreatedDateSmallerThanSchemaProperty.Validate("createdDateSmallerThan", parameters["createdDateSmallerThan"]);
+                    CreatedDateSmallerThan = (Int64) Convert.ChangeType(parameters["createdDateSmallerThan"], typeof(Int64));
+                }
+            }
+        }
+    }
+    public partial class KalturaIngestByIdsFilter
+    {
+        private static RuntimeSchemePropertyAttribute IngestIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByIdsFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            Pattern = @"^\d+(\s*,\s*\d+){0,19}$",
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaIngestByIdsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("ingestIdIn") && parameters["ingestIdIn"] != null)
+                {
+                    IngestIdInSchemaProperty.Validate("ingestIdIn", parameters["ingestIdIn"]);
+                    IngestIdIn = (String) Convert.ChangeType(parameters["ingestIdIn"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaIngestEpg
+    {
+        private static RuntimeSchemePropertyAttribute IngestIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestEpg")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinLong = 0,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute IngestNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestEpg")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = 0,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute IngestFilenameExtensionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestEpg")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = 0,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute CompletedDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestEpg")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute IngestProfileIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestEpg")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaIngestEpg(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("ingestId") && parameters["ingestId"] != null)
+                {
+                    IngestIdSchemaProperty.Validate("ingestId", parameters["ingestId"]);
+                    IngestId = (Int64) Convert.ChangeType(parameters["ingestId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("ingestName") && parameters["ingestName"] != null)
+                {
+                    IngestNameSchemaProperty.Validate("ingestName", parameters["ingestName"]);
+                    IngestName = (String) Convert.ChangeType(parameters["ingestName"], typeof(String));
+                }
+                if (parameters.ContainsKey("ingestFilenameExtension") && parameters["ingestFilenameExtension"] != null)
+                {
+                    IngestFilenameExtensionSchemaProperty.Validate("ingestFilenameExtension", parameters["ingestFilenameExtension"]);
+                    IngestFilenameExtension = (String) Convert.ChangeType(parameters["ingestFilenameExtension"], typeof(String));
+                }
+                if (parameters.ContainsKey("createdDate") && parameters["createdDate"] != null)
+                {
+                    CreatedDate = (Int64) Convert.ChangeType(parameters["createdDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("ingestedByUserId") && parameters["ingestedByUserId"] != null)
+                {
+                    IngestedByUserId = (Int64) Convert.ChangeType(parameters["ingestedByUserId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("completedDate") && parameters["completedDate"] != null)
+                {
+                    CompletedDateSchemaProperty.Validate("completedDate", parameters["completedDate"]);
+                    CompletedDate = (Int64) Convert.ChangeType(parameters["completedDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("ingestProfileId") && parameters["ingestProfileId"] != null)
+                {
+                    IngestProfileIdSchemaProperty.Validate("ingestProfileId", parameters["ingestProfileId"]);
+                    IngestProfileId = (Int64) Convert.ChangeType(parameters["ingestProfileId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("status") && parameters["status"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["status"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "status");
+                    }
+
+                    Status = (KalturaIngestStatus) Enum.Parse(typeof(KalturaIngestStatus), parameters["status"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaIngestStatus), Status))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Status, typeof(KalturaIngestStatus)));
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaIngestEpgDetails
+    {
+        public KalturaIngestEpgDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("errors") && parameters["errors"] != null)
+                {
+                    if (parameters["errors"] is JArray)
+                    {
+                        Errors = OTTObjectBuilder.buildList<KalturaEpgIngestErrorMessage>(typeof(KalturaEpgIngestErrorMessage), (JArray) parameters["errors"]);
+                    }
+                    else if (parameters["errors"] is IList)
+                    {
+                        Errors = OTTObjectBuilder.buildList(typeof(KalturaEpgIngestErrorMessage), parameters["errors"] as object[]);
+                    }
+                }
+                if (parameters.ContainsKey("aggregations") && parameters["aggregations"] != null)
+                {
+                    if (parameters["aggregations"] is JObject)
+                    {
+                        Aggregations = (KalturaIngestEpgDetailsAggregation) Deserializer.deserialize(typeof(KalturaIngestEpgDetailsAggregation), ((JObject) parameters["aggregations"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["aggregations"] is IDictionary)
+                    {
+                        Aggregations = (KalturaIngestEpgDetailsAggregation) Deserializer.deserialize(typeof(KalturaIngestEpgDetailsAggregation), (Dictionary<string, object>) parameters["aggregations"]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaIngestEpgDetailsAggregation
+    {
+        public KalturaIngestEpgDetailsAggregation(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("linearChannels") && parameters["linearChannels"] != null)
+                {
+                    if (parameters["linearChannels"] is JArray)
+                    {
+                        LinearChannels = OTTObjectBuilder.buildList<KalturaChannelAggregatedIngestInfo>(typeof(KalturaChannelAggregatedIngestInfo), (JArray) parameters["linearChannels"]);
+                    }
+                    else if (parameters["linearChannels"] is IList)
+                    {
+                        LinearChannels = OTTObjectBuilder.buildList(typeof(KalturaChannelAggregatedIngestInfo), parameters["linearChannels"] as object[]);
+                    }
+                }
+                if (parameters.ContainsKey("dates") && parameters["dates"] != null)
+                {
+                    if (parameters["dates"] is JArray)
+                    {
+                        Dates = OTTObjectBuilder.buildList<KalturaDateAggregatedIngestInfo>(typeof(KalturaDateAggregatedIngestInfo), (JArray) parameters["dates"]);
+                    }
+                    else if (parameters["dates"] is IList)
+                    {
+                        Dates = OTTObjectBuilder.buildList(typeof(KalturaDateAggregatedIngestInfo), parameters["dates"] as object[]);
+                    }
+                }
+                if (parameters.ContainsKey("all") && parameters["all"] != null)
+                {
+                    if (parameters["all"] is JObject)
+                    {
+                        All = (KalturaAggregatedIngestInfo) Deserializer.deserialize(typeof(KalturaAggregatedIngestInfo), ((JObject) parameters["all"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["all"] is IDictionary)
+                    {
+                        All = (KalturaAggregatedIngestInfo) Deserializer.deserialize(typeof(KalturaAggregatedIngestInfo), (Dictionary<string, object>) parameters["all"]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaIngestEpgProgramResult
+    {
+        public KalturaIngestEpgProgramResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("programId") && parameters["programId"] != null)
+                {
+                    ProgramId = (Int64) Convert.ChangeType(parameters["programId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("externalProgramId") && parameters["externalProgramId"] != null)
+                {
+                    ExternalProgramId = (String) Convert.ChangeType(parameters["externalProgramId"], typeof(String));
+                }
+                if (parameters.ContainsKey("linearChannelId") && parameters["linearChannelId"] != null)
+                {
+                    LinearChannelId = (Int64) Convert.ChangeType(parameters["linearChannelId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("indexInFile") && parameters["indexInFile"] != null)
+                {
+                    IndexInFile = (Int64) Convert.ChangeType(parameters["indexInFile"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
+                {
+                    StartDate = (Int64) Convert.ChangeType(parameters["startDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
+                {
+                    EndDate = (Int64) Convert.ChangeType(parameters["endDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("status") && parameters["status"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["status"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "status");
+                    }
+
+                    Status = (KalturaIngestEpgProgramStatus) Enum.Parse(typeof(KalturaIngestEpgProgramStatus), parameters["status"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaIngestEpgProgramStatus), Status))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Status, typeof(KalturaIngestEpgProgramStatus)));
+                    }
+                }
+                if (parameters.ContainsKey("errors") && parameters["errors"] != null)
+                {
+                    if (parameters["errors"] is JArray)
+                    {
+                        Errors = OTTObjectBuilder.buildList<KalturaEpgIngestErrorMessage>(typeof(KalturaEpgIngestErrorMessage), (JArray) parameters["errors"]);
+                    }
+                    else if (parameters["errors"] is IList)
+                    {
+                        Errors = OTTObjectBuilder.buildList(typeof(KalturaEpgIngestErrorMessage), parameters["errors"] as object[]);
+                    }
+                }
+                if (parameters.ContainsKey("warnings") && parameters["warnings"] != null)
+                {
+                    if (parameters["warnings"] is JArray)
+                    {
+                        Warnings = OTTObjectBuilder.buildList<KalturaMessage>(typeof(KalturaMessage), (JArray) parameters["warnings"]);
+                    }
+                    else if (parameters["warnings"] is IList)
+                    {
+                        Warnings = OTTObjectBuilder.buildList(typeof(KalturaMessage), parameters["warnings"] as object[]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaIngestEpgProgramResultFilter
+    {
+        public KalturaIngestEpgProgramResultFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaIngestProgramResultsByCombinedFieldsFilter
+    {
+        private static RuntimeSchemePropertyAttribute CombinedFieldsValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestProgramResultsByCombinedFieldsFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaIngestProgramResultsByCombinedFieldsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("combinedFieldsValue") && parameters["combinedFieldsValue"] != null)
+                {
+                    CombinedFieldsValueSchemaProperty.Validate("combinedFieldsValue", parameters["combinedFieldsValue"]);
+                    CombinedFieldsValue = (String) Convert.ChangeType(parameters["combinedFieldsValue"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaIngestProgramResultsByCompoundFilter
+    {
+        private static RuntimeSchemePropertyAttribute LinearChannelIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestProgramResultsByCompoundFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaIngestProgramResultsByCompoundFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("linearChannelIdIn") && parameters["linearChannelIdIn"] != null)
+                {
+                    LinearChannelIdInSchemaProperty.Validate("linearChannelIdIn", parameters["linearChannelIdIn"]);
+                    LinearChannelIdIn = (String) Convert.ChangeType(parameters["linearChannelIdIn"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaIngestProgramResultsByExternalIdsFilter
+    {
+        private static RuntimeSchemePropertyAttribute ExternalProgramIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestProgramResultsByExternalIdsFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaIngestProgramResultsByExternalIdsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("externalProgramIdIn") && parameters["externalProgramIdIn"] != null)
+                {
+                    ExternalProgramIdInSchemaProperty.Validate("externalProgramIdIn", parameters["externalProgramIdIn"]);
+                    ExternalProgramIdIn = (String) Convert.ChangeType(parameters["externalProgramIdIn"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaIngestProgramResultsByProgramIdsFilter
+    {
+        private static RuntimeSchemePropertyAttribute ProgramIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestProgramResultsByProgramIdsFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaIngestProgramResultsByProgramIdsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("programIdIn") && parameters["programIdIn"] != null)
+                {
+                    ProgramIdInSchemaProperty.Validate("programIdIn", parameters["programIdIn"]);
+                    ProgramIdIn = (String) Convert.ChangeType(parameters["programIdIn"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaIngestProgramResultsByRefineFilter
+    {
+        private static RuntimeSchemePropertyAttribute IngestStatusIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestProgramResultsByRefineFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute StartDateGreaterThanSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestProgramResultsByRefineFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute StartDateSmallerThanSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestProgramResultsByRefineFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaIngestProgramResultsByRefineFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("ingestStatusIn") && parameters["ingestStatusIn"] != null)
+                {
+                    IngestStatusIdInSchemaProperty.Validate("ingestStatusIn", parameters["ingestStatusIn"]);
+                    IngestStatusIdIn = (String) Convert.ChangeType(parameters["ingestStatusIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("startDateGreaterThan") && parameters["startDateGreaterThan"] != null)
+                {
+                    StartDateGreaterThanSchemaProperty.Validate("startDateGreaterThan", parameters["startDateGreaterThan"]);
+                    StartDateGreaterThan = (Int64) Convert.ChangeType(parameters["startDateGreaterThan"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("startDateSmallerThan") && parameters["startDateSmallerThan"] != null)
+                {
+                    StartDateSmallerThanSchemaProperty.Validate("startDateSmallerThan", parameters["startDateSmallerThan"]);
+                    StartDateSmallerThan = (Int64) Convert.ChangeType(parameters["startDateSmallerThan"], typeof(Int64));
+                }
+            }
+        }
+    }
+    public partial class KalturaIngestStatusEpgConfiguration
+    {
+        private static RuntimeSchemePropertyAttribute IsSupportedSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestStatusEpgConfiguration")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute RetainingPeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestStatusEpgConfiguration")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaIngestStatusEpgConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("isSupported") && parameters["isSupported"] != null)
+                {
+                    IsSupportedSchemaProperty.Validate("isSupported", parameters["isSupported"]);
+                    IsSupported = (Boolean) Convert.ChangeType(parameters["isSupported"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("retainingPeriod") && parameters["retainingPeriod"] != null)
+                {
+                    RetainingPeriodSchemaProperty.Validate("retainingPeriod", parameters["retainingPeriod"]);
+                    RetainingPeriod = (Int64) Convert.ChangeType(parameters["retainingPeriod"], typeof(Int64));
+                }
+            }
+        }
+    }
+    public partial class KalturaIngestStatusEpgListResponse
+    {
+        public KalturaIngestStatusEpgListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = OTTObjectBuilder.buildList<KalturaIngestEpg>(typeof(KalturaIngestEpg), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaIngestEpg), parameters["objects"] as object[]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaIngestStatusEpgProgramResultListResponse
+    {
+        public KalturaIngestStatusEpgProgramResultListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = OTTObjectBuilder.buildList<KalturaIngestEpgProgramResult>(typeof(KalturaIngestEpgProgramResult), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaIngestEpgProgramResult), parameters["objects"] as object[]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaIngestStatusPartnerConfiguration
+    {
+        private static RuntimeSchemePropertyAttribute EpgSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestStatusPartnerConfiguration")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaIngestStatusPartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("epg") && parameters["epg"] != null)
+                {
+                    EpgSchemaProperty.Validate("epg", parameters["epg"]);
+                    if (parameters["epg"] is JObject)
+                    {
+                        Epg = (KalturaIngestStatusEpgConfiguration) Deserializer.deserialize(typeof(KalturaIngestStatusEpgConfiguration), ((JObject) parameters["epg"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["epg"] is IDictionary)
+                    {
+                        Epg = (KalturaIngestStatusEpgConfiguration) Deserializer.deserialize(typeof(KalturaIngestStatusEpgConfiguration), (Dictionary<string, object>) parameters["epg"]);
+                    }
+                }
+            }
         }
     }
 }
@@ -15617,11 +16576,11 @@ namespace WebAPI.Models.Notifications
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaTopicNotification>(typeof(KalturaTopicNotification), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaTopicNotification>(typeof(KalturaTopicNotification), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaTopicNotification), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaTopicNotification), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -15708,11 +16667,11 @@ namespace WebAPI.Models.Notifications
                 {
                     if (parameters["dispatchers"] is JArray)
                     {
-                        Dispatchers = buildList<KalturaDispatcher>(typeof(KalturaDispatcher), (JArray) parameters["dispatchers"]);
+                        Dispatchers = OTTObjectBuilder.buildList<KalturaDispatcher>(typeof(KalturaDispatcher), (JArray) parameters["dispatchers"]);
                     }
                     else if (parameters["dispatchers"] is IList)
                     {
-                        Dispatchers = buildList(typeof(KalturaDispatcher), parameters["dispatchers"] as object[]);
+                        Dispatchers = OTTObjectBuilder.buildList(typeof(KalturaDispatcher), parameters["dispatchers"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
@@ -15756,11 +16715,11 @@ namespace WebAPI.Models.Notifications
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaTopicNotificationMessage>(typeof(KalturaTopicNotificationMessage), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaTopicNotificationMessage>(typeof(KalturaTopicNotificationMessage), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaTopicNotificationMessage), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaTopicNotificationMessage), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -15799,11 +16758,11 @@ namespace WebAPI.Models.Notification
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Announcements = buildList<KalturaAnnouncement>(typeof(KalturaAnnouncement), (JArray) parameters["objects"]);
+                        Announcements = OTTObjectBuilder.buildList<KalturaAnnouncement>(typeof(KalturaAnnouncement), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Announcements = buildList(typeof(KalturaAnnouncement), parameters["objects"] as object[]);
+                        Announcements = OTTObjectBuilder.buildList(typeof(KalturaAnnouncement), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -16126,11 +17085,11 @@ namespace WebAPI.Models.Notification
                 {
                     if (parameters["extraParameters"] is JArray)
                     {
-                        ExtraParameters = buildList<KalturaKeyValue>(typeof(KalturaKeyValue), (JArray) parameters["extraParameters"]);
+                        ExtraParameters = OTTObjectBuilder.buildList<KalturaKeyValue>(typeof(KalturaKeyValue), (JArray) parameters["extraParameters"]);
                     }
                     else if (parameters["extraParameters"] is IList)
                     {
-                        ExtraParameters = buildList(typeof(KalturaKeyValue), parameters["extraParameters"] as object[]);
+                        ExtraParameters = OTTObjectBuilder.buildList(typeof(KalturaKeyValue), parameters["extraParameters"] as object[]);
                     }
                 }
             }
@@ -16258,7 +17217,7 @@ namespace WebAPI.Models.Notification
                 {
                     if (parameters["engagementAdapterSettings"] is JObject)
                     {
-                        Settings = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["engagementAdapterSettings"]).ToObject<Dictionary<string, object>>());
+                        Settings = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["engagementAdapterSettings"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("sharedSecret") && parameters["sharedSecret"] != null)
@@ -16312,11 +17271,11 @@ namespace WebAPI.Models.Notification
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        EngagementAdapters = buildList<KalturaEngagementAdapter>(typeof(KalturaEngagementAdapter), (JArray) parameters["objects"]);
+                        EngagementAdapters = OTTObjectBuilder.buildList<KalturaEngagementAdapter>(typeof(KalturaEngagementAdapter), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        EngagementAdapters = buildList(typeof(KalturaEngagementAdapter), parameters["objects"] as object[]);
+                        EngagementAdapters = OTTObjectBuilder.buildList(typeof(KalturaEngagementAdapter), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -16349,11 +17308,11 @@ namespace WebAPI.Models.Notification
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Engagements = buildList<KalturaEngagement>(typeof(KalturaEngagement), (JArray) parameters["objects"]);
+                        Engagements = OTTObjectBuilder.buildList<KalturaEngagement>(typeof(KalturaEngagement), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Engagements = buildList(typeof(KalturaEngagement), parameters["objects"] as object[]);
+                        Engagements = OTTObjectBuilder.buildList(typeof(KalturaEngagement), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -16632,11 +17591,11 @@ namespace WebAPI.Models.Notification
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        FollowDataList = buildList<KalturaFollowTvSeries>(typeof(KalturaFollowTvSeries), (JArray) parameters["objects"]);
+                        FollowDataList = OTTObjectBuilder.buildList<KalturaFollowTvSeries>(typeof(KalturaFollowTvSeries), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        FollowDataList = buildList(typeof(KalturaFollowTvSeries), parameters["objects"] as object[]);
+                        FollowDataList = OTTObjectBuilder.buildList(typeof(KalturaFollowTvSeries), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -16788,11 +17747,11 @@ namespace WebAPI.Models.Notification
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        InboxMessages = buildList<KalturaInboxMessage>(typeof(KalturaInboxMessage), (JArray) parameters["objects"]);
+                        InboxMessages = OTTObjectBuilder.buildList<KalturaInboxMessage>(typeof(KalturaInboxMessage), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        InboxMessages = buildList(typeof(KalturaInboxMessage), parameters["objects"] as object[]);
+                        InboxMessages = OTTObjectBuilder.buildList(typeof(KalturaInboxMessage), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -16808,11 +17767,11 @@ namespace WebAPI.Models.Notification
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        InboxMessages = buildList<KalturaInboxMessage>(typeof(KalturaInboxMessage), (JArray) parameters["objects"]);
+                        InboxMessages = OTTObjectBuilder.buildList<KalturaInboxMessage>(typeof(KalturaInboxMessage), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        InboxMessages = buildList(typeof(KalturaInboxMessage), parameters["objects"] as object[]);
+                        InboxMessages = OTTObjectBuilder.buildList(typeof(KalturaInboxMessage), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -16864,11 +17823,11 @@ namespace WebAPI.Models.Notification
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        FollowDataList = buildList<KalturaFollowDataTvSeries>(typeof(KalturaFollowDataTvSeries), (JArray) parameters["objects"]);
+                        FollowDataList = OTTObjectBuilder.buildList<KalturaFollowDataTvSeries>(typeof(KalturaFollowDataTvSeries), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        FollowDataList = buildList(typeof(KalturaFollowDataTvSeries), parameters["objects"] as object[]);
+                        FollowDataList = OTTObjectBuilder.buildList(typeof(KalturaFollowDataTvSeries), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -16884,11 +17843,11 @@ namespace WebAPI.Models.Notification
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Announcements = buildList<KalturaAnnouncement>(typeof(KalturaAnnouncement), (JArray) parameters["objects"]);
+                        Announcements = OTTObjectBuilder.buildList<KalturaAnnouncement>(typeof(KalturaAnnouncement), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Announcements = buildList(typeof(KalturaAnnouncement), parameters["objects"] as object[]);
+                        Announcements = OTTObjectBuilder.buildList(typeof(KalturaAnnouncement), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -17239,11 +18198,11 @@ namespace WebAPI.Models.Notification
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        PersonalFollowFeed = buildList<KalturaPersonalFeed>(typeof(KalturaPersonalFeed), (JArray) parameters["objects"]);
+                        PersonalFollowFeed = OTTObjectBuilder.buildList<KalturaPersonalFeed>(typeof(KalturaPersonalFeed), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        PersonalFollowFeed = buildList(typeof(KalturaPersonalFeed), parameters["objects"] as object[]);
+                        PersonalFollowFeed = OTTObjectBuilder.buildList(typeof(KalturaPersonalFeed), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -17265,11 +18224,11 @@ namespace WebAPI.Models.Notification
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        PersonalFollowFeed = buildList<KalturaPersonalFollowFeed>(typeof(KalturaPersonalFollowFeed), (JArray) parameters["objects"]);
+                        PersonalFollowFeed = OTTObjectBuilder.buildList<KalturaPersonalFollowFeed>(typeof(KalturaPersonalFollowFeed), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        PersonalFollowFeed = buildList(typeof(KalturaPersonalFollowFeed), parameters["objects"] as object[]);
+                        PersonalFollowFeed = OTTObjectBuilder.buildList(typeof(KalturaPersonalFollowFeed), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -17412,11 +18371,11 @@ namespace WebAPI.Models.Notification
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Reminders = buildList<KalturaReminder>(typeof(KalturaReminder), (JArray) parameters["objects"]);
+                        Reminders = OTTObjectBuilder.buildList<KalturaReminder>(typeof(KalturaReminder), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Reminders = buildList(typeof(KalturaReminder), parameters["objects"] as object[]);
+                        Reminders = OTTObjectBuilder.buildList(typeof(KalturaReminder), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -17530,7 +18489,7 @@ namespace WebAPI.Models.Notification
                 {
                     if (parameters["settings"] is JObject)
                     {
-                        Settings = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["settings"]).ToObject<Dictionary<string, object>>());
+                        Settings = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["settings"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("externalIdentifier") && parameters["externalIdentifier"] != null)
@@ -17560,11 +18519,11 @@ namespace WebAPI.Models.Notification
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaSmsAdapterProfile>(typeof(KalturaSmsAdapterProfile), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaSmsAdapterProfile>(typeof(KalturaSmsAdapterProfile), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaSmsAdapterProfile), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaSmsAdapterProfile), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -17641,11 +18600,11 @@ namespace WebAPI.Models.Notification
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Topics = buildList<KalturaTopic>(typeof(KalturaTopic), (JArray) parameters["objects"]);
+                        Topics = OTTObjectBuilder.buildList<KalturaTopic>(typeof(KalturaTopic), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Topics = buildList(typeof(KalturaTopic), parameters["objects"] as object[]);
+                        Topics = OTTObjectBuilder.buildList(typeof(KalturaTopic), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -17661,11 +18620,11 @@ namespace WebAPI.Models.Notification
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Topics = buildList<KalturaTopic>(typeof(KalturaTopic), (JArray) parameters["objects"]);
+                        Topics = OTTObjectBuilder.buildList<KalturaTopic>(typeof(KalturaTopic), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Topics = buildList(typeof(KalturaTopic), parameters["objects"] as object[]);
+                        Topics = OTTObjectBuilder.buildList(typeof(KalturaTopic), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -17936,22 +18895,22 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["multilingualName"] is JArray)
                     {
-                        Name = MultilengualStringFactory.Create((JArray) parameters["multilingualName"]);
+                        Name = MultilingualStringFactory.Create((JArray) parameters["multilingualName"]);
                     }
                     else if (parameters["multilingualName"] is IList)
                     {
-                        Name = MultilengualStringFactory.Create((List<object>) parameters["multilingualName"]);
+                        Name = MultilingualStringFactory.Create((List<object>) parameters["multilingualName"]);
                     }
                 }
                 if (parameters.ContainsKey("multilingualDescription") && parameters["multilingualDescription"] != null)
                 {
                     if (parameters["multilingualDescription"] is JArray)
                     {
-                        Description = MultilengualStringFactory.Create((JArray) parameters["multilingualDescription"]);
+                        Description = MultilingualStringFactory.Create((JArray) parameters["multilingualDescription"]);
                     }
                     else if (parameters["multilingualDescription"] is IList)
                     {
-                        Description = MultilengualStringFactory.Create((List<object>) parameters["multilingualDescription"]);
+                        Description = MultilingualStringFactory.Create((List<object>) parameters["multilingualDescription"]);
                     }
                 }
                 if (parameters.ContainsKey("images") && parameters["images"] != null)
@@ -17959,11 +18918,11 @@ namespace WebAPI.Models.Catalog
                     ImagesSchemaProperty.Validate("images", parameters["images"]);
                     if (parameters["images"] is JArray)
                     {
-                        Images = buildList<KalturaMediaImage>(typeof(KalturaMediaImage), (JArray) parameters["images"]);
+                        Images = OTTObjectBuilder.buildList<KalturaMediaImage>(typeof(KalturaMediaImage), (JArray) parameters["images"]);
                     }
                     else if (parameters["images"] is IList)
                     {
-                        Images = buildList(typeof(KalturaMediaImage), parameters["images"] as object[]);
+                        Images = OTTObjectBuilder.buildList(typeof(KalturaMediaImage), parameters["images"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("mediaFiles") && parameters["mediaFiles"] != null)
@@ -17971,11 +18930,11 @@ namespace WebAPI.Models.Catalog
                     MediaFilesSchemaProperty.Validate("mediaFiles", parameters["mediaFiles"]);
                     if (parameters["mediaFiles"] is JArray)
                     {
-                        MediaFiles = buildList<KalturaMediaFile>(typeof(KalturaMediaFile), (JArray) parameters["mediaFiles"]);
+                        MediaFiles = OTTObjectBuilder.buildList<KalturaMediaFile>(typeof(KalturaMediaFile), (JArray) parameters["mediaFiles"]);
                     }
                     else if (parameters["mediaFiles"] is IList)
                     {
-                        MediaFiles = buildList(typeof(KalturaMediaFile), parameters["mediaFiles"] as object[]);
+                        MediaFiles = OTTObjectBuilder.buildList(typeof(KalturaMediaFile), parameters["mediaFiles"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("stats") && parameters["stats"] != null)
@@ -17994,7 +18953,7 @@ namespace WebAPI.Models.Catalog
                     MetasSchemaProperty.Validate("metas", parameters["metas"]);
                     if (parameters["metas"] is JObject)
                     {
-                        Metas = buildDictionary<KalturaValue>(typeof(KalturaValue), ((JObject) parameters["metas"]).ToObject<Dictionary<string, object>>());
+                        Metas = OTTObjectBuilder.buildDictionary<KalturaValue>(typeof(KalturaValue), ((JObject) parameters["metas"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("tags") && parameters["tags"] != null)
@@ -18002,7 +18961,7 @@ namespace WebAPI.Models.Catalog
                     TagsSchemaProperty.Validate("tags", parameters["tags"]);
                     if (parameters["tags"] is JObject)
                     {
-                        Tags = buildDictionary<KalturaMultilingualStringValueArray>(typeof(KalturaMultilingualStringValueArray), ((JObject) parameters["tags"]).ToObject<Dictionary<string, object>>());
+                        Tags = OTTObjectBuilder.buildDictionary<KalturaMultilingualStringValueArray>(typeof(KalturaMultilingualStringValueArray), ((JObject) parameters["tags"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("relatedEntities") && parameters["relatedEntities"] != null)
@@ -18010,7 +18969,7 @@ namespace WebAPI.Models.Catalog
                     RelatedEntitiesSchemaProperty.Validate("relatedEntities", parameters["relatedEntities"]);
                     if (parameters["relatedEntities"] is JObject)
                     {
-                        RelatedEntities = buildDictionary<KalturaRelatedEntityArray>(typeof(KalturaRelatedEntityArray), ((JObject) parameters["relatedEntities"]).ToObject<Dictionary<string, object>>());
+                        RelatedEntities = OTTObjectBuilder.buildDictionary<KalturaRelatedEntityArray>(typeof(KalturaRelatedEntityArray), ((JObject) parameters["relatedEntities"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
@@ -18143,11 +19102,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Bookmarks = buildList<KalturaAssetBookmark>(typeof(KalturaAssetBookmark), (JArray) parameters["objects"]);
+                        Bookmarks = OTTObjectBuilder.buildList<KalturaAssetBookmark>(typeof(KalturaAssetBookmark), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Bookmarks = buildList(typeof(KalturaAssetBookmark), parameters["objects"] as object[]);
+                        Bookmarks = OTTObjectBuilder.buildList(typeof(KalturaAssetBookmark), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -18259,11 +19218,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaAssetComment>(typeof(KalturaAssetComment), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaAssetComment>(typeof(KalturaAssetComment), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaAssetComment), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaAssetComment), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -18287,11 +19246,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["subs"] is JArray)
                     {
-                        SubCounts = buildList<KalturaAssetsCount>(typeof(KalturaAssetsCount), (JArray) parameters["subs"]);
+                        SubCounts = OTTObjectBuilder.buildList<KalturaAssetsCount>(typeof(KalturaAssetsCount), (JArray) parameters["subs"]);
                     }
                     else if (parameters["subs"] is IList)
                     {
-                        SubCounts = buildList(typeof(KalturaAssetsCount), parameters["subs"] as object[]);
+                        SubCounts = OTTObjectBuilder.buildList(typeof(KalturaAssetsCount), parameters["subs"] as object[]);
                     }
                 }
             }
@@ -18311,11 +19270,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaAssetsCount>(typeof(KalturaAssetsCount), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaAssetsCount>(typeof(KalturaAssetsCount), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaAssetsCount), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaAssetsCount), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -18449,11 +19408,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["orderingParameters"] is JArray)
                     {
-                        OrderParameters = buildList<KalturaBaseAssetOrder>(typeof(KalturaBaseAssetOrder), (JArray) parameters["orderingParameters"]);
+                        OrderParameters = OTTObjectBuilder.buildList<KalturaBaseAssetOrder>(typeof(KalturaBaseAssetOrder), (JArray) parameters["orderingParameters"]);
                     }
                     else if (parameters["orderingParameters"] is IList)
                     {
-                        OrderParameters = buildList(typeof(KalturaBaseAssetOrder), parameters["orderingParameters"] as object[]);
+                        OrderParameters = OTTObjectBuilder.buildList(typeof(KalturaBaseAssetOrder), parameters["orderingParameters"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("trendingDaysEqual") && parameters["trendingDaysEqual"] != null)
@@ -18616,22 +19575,22 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["filterTypes"] is JArray)
                     {
-                        filterTypes = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["filterTypes"]);
+                        filterTypes = OTTObjectBuilder.buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["filterTypes"]);
                     }
                     else if (parameters["filterTypes"] is IList)
                     {
-                        filterTypes = buildList(typeof(KalturaIntegerValue), parameters["filterTypes"] as object[]);
+                        filterTypes = OTTObjectBuilder.buildList(typeof(KalturaIntegerValue), parameters["filterTypes"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("filter_types") && parameters["filter_types"] != null && isOldVersion)
                 {
                     if (parameters["filter_types"] is JArray)
                     {
-                        filterTypes = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["filter_types"]);
+                        filterTypes = OTTObjectBuilder.buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["filter_types"]);
                     }
                     else if (parameters["filter_types"] is IList)
                     {
-                        filterTypes = buildList(typeof(KalturaIntegerValue), parameters["filter_types"] as object[]);
+                        filterTypes = OTTObjectBuilder.buildList(typeof(KalturaIntegerValue), parameters["filter_types"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("typeIn") && parameters["typeIn"] != null)
@@ -18682,11 +19641,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["with"] is JArray)
                     {
-                        with = buildList<KalturaCatalogWithHolder>(typeof(KalturaCatalogWithHolder), (JArray) parameters["with"]);
+                        with = OTTObjectBuilder.buildList<KalturaCatalogWithHolder>(typeof(KalturaCatalogWithHolder), (JArray) parameters["with"]);
                     }
                     else if (parameters["with"] is IList)
                     {
-                        with = buildList(typeof(KalturaCatalogWithHolder), parameters["with"] as object[]);
+                        with = OTTObjectBuilder.buildList(typeof(KalturaCatalogWithHolder), parameters["with"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("kSql") && parameters["kSql"] != null)
@@ -18706,11 +19665,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaAssetHistory>(typeof(KalturaAssetHistory), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaAssetHistory>(typeof(KalturaAssetHistory), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaAssetHistory), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaAssetHistory), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -18740,14 +19699,14 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["metas"] is JObject)
                     {
-                        Metas = buildDictionary<KalturaValue>(typeof(KalturaValue), ((JObject) parameters["metas"]).ToObject<Dictionary<string, object>>());
+                        Metas = OTTObjectBuilder.buildDictionary<KalturaValue>(typeof(KalturaValue), ((JObject) parameters["metas"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("tags") && parameters["tags"] != null)
                 {
                     if (parameters["tags"] is JObject)
                     {
-                        Tags = buildDictionary<KalturaMultilingualStringValueArray>(typeof(KalturaMultilingualStringValueArray), ((JObject) parameters["tags"]).ToObject<Dictionary<string, object>>());
+                        Tags = OTTObjectBuilder.buildDictionary<KalturaMultilingualStringValueArray>(typeof(KalturaMultilingualStringValueArray), ((JObject) parameters["tags"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
@@ -18770,14 +19729,14 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["extraParams"] is JObject)
                     {
-                        ExtraParams = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["extraParams"]).ToObject<Dictionary<string, object>>());
+                        ExtraParams = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["extraParams"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("extra_params") && parameters["extra_params"] != null && isOldVersion)
                 {
                     if (parameters["extra_params"] is JObject)
                     {
-                        ExtraParams = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["extra_params"]).ToObject<Dictionary<string, object>>());
+                        ExtraParams = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["extra_params"]).ToObject<Dictionary<string, object>>());
                     }
                 }
             }
@@ -18795,11 +19754,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["ids"] is JArray)
                     {
-                        IDs = buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["ids"]);
+                        IDs = OTTObjectBuilder.buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["ids"]);
                     }
                     else if (parameters["ids"] is IList)
                     {
-                        IDs = buildList(typeof(KalturaStringValue), parameters["ids"] as object[]);
+                        IDs = OTTObjectBuilder.buildList(typeof(KalturaStringValue), parameters["ids"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("referenceType") && parameters["referenceType"] != null)
@@ -18834,7 +19793,7 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["filter_tags"] is JObject)
                     {
-                        FilterTags = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["filter_tags"]).ToObject<Dictionary<string, object>>());
+                        FilterTags = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["filter_tags"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("cut_with") && parameters["cut_with"] != null)
@@ -18866,11 +19825,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaAssetInfo>(typeof(KalturaAssetInfo), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaAssetInfo>(typeof(KalturaAssetInfo), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaAssetInfo), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaAssetInfo), parameters["objects"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("requestId") && parameters["requestId"] != null)
@@ -18894,11 +19853,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaAsset>(typeof(KalturaAsset), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaAsset>(typeof(KalturaAsset), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaAsset), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaAsset), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -18950,11 +19909,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        AssetsBookmarks = buildList<KalturaAssetBookmarks>(typeof(KalturaAssetBookmarks), (JArray) parameters["objects"]);
+                        AssetsBookmarks = OTTObjectBuilder.buildList<KalturaAssetBookmarks>(typeof(KalturaAssetBookmarks), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        AssetsBookmarks = buildList(typeof(KalturaAssetBookmarks), parameters["objects"] as object[]);
+                        AssetsBookmarks = OTTObjectBuilder.buildList(typeof(KalturaAssetBookmarks), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -18974,11 +19933,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaAssetCount>(typeof(KalturaAssetCount), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaAssetCount>(typeof(KalturaAssetCount), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaAssetCount), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaAssetCount), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -18996,22 +19955,22 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["assets"] is JArray)
                     {
-                        Assets = buildList<KalturaSlimAsset>(typeof(KalturaSlimAsset), (JArray) parameters["assets"]);
+                        Assets = OTTObjectBuilder.buildList<KalturaSlimAsset>(typeof(KalturaSlimAsset), (JArray) parameters["assets"]);
                     }
                     else if (parameters["assets"] is IList)
                     {
-                        Assets = buildList(typeof(KalturaSlimAsset), parameters["assets"] as object[]);
+                        Assets = OTTObjectBuilder.buildList(typeof(KalturaSlimAsset), parameters["assets"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("Assets") && parameters["Assets"] != null && isOldVersion)
                 {
                     if (parameters["Assets"] is JArray)
                     {
-                        Assets = buildList<KalturaSlimAsset>(typeof(KalturaSlimAsset), (JArray) parameters["Assets"]);
+                        Assets = OTTObjectBuilder.buildList<KalturaSlimAsset>(typeof(KalturaSlimAsset), (JArray) parameters["Assets"]);
                     }
                     else if (parameters["Assets"] is IList)
                     {
-                        Assets = buildList(typeof(KalturaSlimAsset), parameters["Assets"] as object[]);
+                        Assets = OTTObjectBuilder.buildList(typeof(KalturaSlimAsset), parameters["Assets"] as object[]);
                     }
                 }
             }
@@ -19088,11 +20047,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        AssetsStatistics = buildList<KalturaAssetStatistics>(typeof(KalturaAssetStatistics), (JArray) parameters["objects"]);
+                        AssetsStatistics = OTTObjectBuilder.buildList<KalturaAssetStatistics>(typeof(KalturaAssetStatistics), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        AssetsStatistics = buildList(typeof(KalturaAssetStatistics), parameters["objects"] as object[]);
+                        AssetsStatistics = OTTObjectBuilder.buildList(typeof(KalturaAssetStatistics), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -19313,11 +20272,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["multilingualName"] is JArray)
                     {
-                        Name = MultilengualStringFactory.Create((JArray) parameters["multilingualName"]);
+                        Name = MultilingualStringFactory.Create((JArray) parameters["multilingualName"]);
                     }
                     else if (parameters["multilingualName"] is IList)
                     {
-                        Name = MultilengualStringFactory.Create((List<object>) parameters["multilingualName"]);
+                        Name = MultilingualStringFactory.Create((List<object>) parameters["multilingualName"]);
                     }
                 }
                 if (parameters.ContainsKey("systemName") && parameters["systemName"] != null)
@@ -19372,7 +20331,7 @@ namespace WebAPI.Models.Catalog
                     DynamicDataSchemaProperty.Validate("dynamicData", parameters["dynamicData"]);
                     if (parameters["dynamicData"] is JObject)
                     {
-                        DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
+                        DynamicData = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
                     }
                 }
             }
@@ -19455,11 +20414,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        AssetStructs = buildList<KalturaAssetStruct>(typeof(KalturaAssetStruct), (JArray) parameters["objects"]);
+                        AssetStructs = OTTObjectBuilder.buildList<KalturaAssetStruct>(typeof(KalturaAssetStruct), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        AssetStructs = buildList(typeof(KalturaAssetStruct), parameters["objects"] as object[]);
+                        AssetStructs = OTTObjectBuilder.buildList(typeof(KalturaAssetStruct), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -19734,11 +20693,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        AssetStructMetas = buildList<KalturaAssetStructMeta>(typeof(KalturaAssetStructMeta), (JArray) parameters["objects"]);
+                        AssetStructMetas = OTTObjectBuilder.buildList<KalturaAssetStructMeta>(typeof(KalturaAssetStructMeta), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        AssetStructMetas = buildList(typeof(KalturaAssetStructMeta), parameters["objects"] as object[]);
+                        AssetStructMetas = OTTObjectBuilder.buildList(typeof(KalturaAssetStructMeta), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -19786,33 +20745,33 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["images"] is JArray)
                     {
-                        Images = buildList<KalturaMediaImage>(typeof(KalturaMediaImage), (JArray) parameters["images"]);
+                        Images = OTTObjectBuilder.buildList<KalturaMediaImage>(typeof(KalturaMediaImage), (JArray) parameters["images"]);
                     }
                     else if (parameters["images"] is IList)
                     {
-                        Images = buildList(typeof(KalturaMediaImage), parameters["images"] as object[]);
+                        Images = OTTObjectBuilder.buildList(typeof(KalturaMediaImage), parameters["images"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("mediaFiles") && parameters["mediaFiles"] != null)
                 {
                     if (parameters["mediaFiles"] is JArray)
                     {
-                        MediaFiles = buildList<KalturaMediaFile>(typeof(KalturaMediaFile), (JArray) parameters["mediaFiles"]);
+                        MediaFiles = OTTObjectBuilder.buildList<KalturaMediaFile>(typeof(KalturaMediaFile), (JArray) parameters["mediaFiles"]);
                     }
                     else if (parameters["mediaFiles"] is IList)
                     {
-                        MediaFiles = buildList(typeof(KalturaMediaFile), parameters["mediaFiles"] as object[]);
+                        MediaFiles = OTTObjectBuilder.buildList(typeof(KalturaMediaFile), parameters["mediaFiles"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("media_files") && parameters["media_files"] != null && isOldVersion)
                 {
                     if (parameters["media_files"] is JArray)
                     {
-                        MediaFiles = buildList<KalturaMediaFile>(typeof(KalturaMediaFile), (JArray) parameters["media_files"]);
+                        MediaFiles = OTTObjectBuilder.buildList<KalturaMediaFile>(typeof(KalturaMediaFile), (JArray) parameters["media_files"]);
                     }
                     else if (parameters["media_files"] is IList)
                     {
-                        MediaFiles = buildList(typeof(KalturaMediaFile), parameters["media_files"] as object[]);
+                        MediaFiles = OTTObjectBuilder.buildList(typeof(KalturaMediaFile), parameters["media_files"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("stats") && parameters["stats"] != null)
@@ -19884,11 +20843,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["groupBy"] is JArray)
                     {
-                        GroupBy = buildList<KalturaAssetGroupBy>(typeof(KalturaAssetGroupBy), (JArray) parameters["groupBy"]);
+                        GroupBy = OTTObjectBuilder.buildList<KalturaAssetGroupBy>(typeof(KalturaAssetGroupBy), (JArray) parameters["groupBy"]);
                     }
                     else if (parameters["groupBy"] is IList)
                     {
-                        GroupBy = buildList(typeof(KalturaAssetGroupBy), parameters["groupBy"] as object[]);
+                        GroupBy = OTTObjectBuilder.buildList(typeof(KalturaAssetGroupBy), parameters["groupBy"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("groupOrderBy") && parameters["groupOrderBy"] != null)
@@ -20055,11 +21014,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["assetIn"] is JArray)
                     {
-                        AssetIn = buildList<KalturaSlimAsset>(typeof(KalturaSlimAsset), (JArray) parameters["assetIn"]);
+                        AssetIn = OTTObjectBuilder.buildList<KalturaSlimAsset>(typeof(KalturaSlimAsset), (JArray) parameters["assetIn"]);
                     }
                     else if (parameters["assetIn"] is IList)
                     {
-                        AssetIn = buildList(typeof(KalturaSlimAsset), parameters["assetIn"] as object[]);
+                        AssetIn = OTTObjectBuilder.buildList(typeof(KalturaSlimAsset), parameters["assetIn"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("assetIdIn") && parameters["assetIdIn"] != null)
@@ -20093,11 +21052,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        AssetsBookmarks = buildList<KalturaBookmark>(typeof(KalturaBookmark), (JArray) parameters["objects"]);
+                        AssetsBookmarks = OTTObjectBuilder.buildList<KalturaBookmark>(typeof(KalturaBookmark), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        AssetsBookmarks = buildList(typeof(KalturaBookmark), parameters["objects"] as object[]);
+                        AssetsBookmarks = OTTObjectBuilder.buildList(typeof(KalturaBookmark), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -20335,7 +21294,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = true,
+            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
@@ -20448,11 +21407,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["multilingualName"] is JArray)
                     {
-                        Name = MultilengualStringFactory.Create((JArray) parameters["multilingualName"]);
+                        Name = MultilingualStringFactory.Create((JArray) parameters["multilingualName"]);
                     }
                     else if (parameters["multilingualName"] is IList)
                     {
-                        Name = MultilengualStringFactory.Create((List<object>) parameters["multilingualName"]);
+                        Name = MultilingualStringFactory.Create((List<object>) parameters["multilingualName"]);
                     }
                 }
                 if (parameters.ContainsKey("parentId") && parameters["parentId"] != null)
@@ -20466,35 +21425,31 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("unifiedChannels__null") && parameters["unifiedChannels__null"] != null)
                 {
-                    AddNullableProperty("unifiedChannels");
+                    this.AddNullableProperty("unifiedChannels");
                 }
                 if (parameters.ContainsKey("unifiedChannels") && parameters["unifiedChannels"] != null)
                 {
                     UnifiedChannelsSchemaProperty.Validate("unifiedChannels", parameters["unifiedChannels"]);
                     if (parameters["unifiedChannels"] is JArray)
                     {
-                        UnifiedChannels = buildList<KalturaUnifiedChannel>(typeof(KalturaUnifiedChannel), (JArray) parameters["unifiedChannels"]);
+                        UnifiedChannels = OTTObjectBuilder.buildList<KalturaUnifiedChannel>(typeof(KalturaUnifiedChannel), (JArray) parameters["unifiedChannels"]);
                     }
                     else if (parameters["unifiedChannels"] is IList)
                     {
-                        UnifiedChannels = buildList(typeof(KalturaUnifiedChannel), parameters["unifiedChannels"] as object[]);
+                        UnifiedChannels = OTTObjectBuilder.buildList(typeof(KalturaUnifiedChannel), parameters["unifiedChannels"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("dynamicData__null") && parameters["dynamicData__null"] != null)
                 {
-                    AddNullableProperty("dynamicData");
+                    this.AddNullableProperty("dynamicData");
                 }
                 if (parameters.ContainsKey("dynamicData") && parameters["dynamicData"] != null)
                 {
                     DynamicDataSchemaProperty.Validate("dynamicData", parameters["dynamicData"]);
                     if (parameters["dynamicData"] is JObject)
                     {
-                        DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
+                        DynamicData = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
                     }
-                }
-                if (parameters.ContainsKey("updateDate__null") && parameters["updateDate__null"] != null)
-                {
-                    AddNullableProperty("updateDate");
                 }
                 if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
                 {
@@ -20503,7 +21458,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("isActive__null") && parameters["isActive__null"] != null)
                 {
-                    AddNullableProperty("isActive");
+                    this.AddNullableProperty("isActive");
                 }
                 if (parameters.ContainsKey("isActive") && parameters["isActive"] != null)
                 {
@@ -20512,7 +21467,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("startDateInSeconds__null") && parameters["startDateInSeconds__null"] != null)
                 {
-                    AddNullableProperty("startDateInSeconds");
+                    this.AddNullableProperty("startDateInSeconds");
                 }
                 if (parameters.ContainsKey("startDateInSeconds") && parameters["startDateInSeconds"] != null)
                 {
@@ -20521,7 +21476,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("endDateInSeconds__null") && parameters["endDateInSeconds__null"] != null)
                 {
-                    AddNullableProperty("endDateInSeconds");
+                    this.AddNullableProperty("endDateInSeconds");
                 }
                 if (parameters.ContainsKey("endDateInSeconds") && parameters["endDateInSeconds"] != null)
                 {
@@ -20545,7 +21500,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("referenceId__null") && parameters["referenceId__null"] != null)
                 {
-                    AddNullableProperty("referenceId");
+                    this.AddNullableProperty("referenceId");
                 }
                 if (parameters.ContainsKey("referenceId") && parameters["referenceId"] != null)
                 {
@@ -20614,11 +21569,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaCategoryItem>(typeof(KalturaCategoryItem), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaCategoryItem>(typeof(KalturaCategoryItem), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaCategoryItem), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaCategoryItem), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -20807,11 +21762,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["multilingualName"] is JArray)
                     {
-                        Name = MultilengualStringFactory.Create((JArray) parameters["multilingualName"]);
+                        Name = MultilingualStringFactory.Create((JArray) parameters["multilingualName"]);
                     }
                     else if (parameters["multilingualName"] is IList)
                     {
-                        Name = MultilengualStringFactory.Create((List<object>) parameters["multilingualName"]);
+                        Name = MultilingualStringFactory.Create((List<object>) parameters["multilingualName"]);
                     }
                 }
                 if (parameters.ContainsKey("children") && parameters["children"] != null)
@@ -20819,11 +21774,11 @@ namespace WebAPI.Models.Catalog
                     ChildrenSchemaProperty.Validate("children", parameters["children"]);
                     if (parameters["children"] is JArray)
                     {
-                        Children = buildList<KalturaCategoryTree>(typeof(KalturaCategoryTree), (JArray) parameters["children"]);
+                        Children = OTTObjectBuilder.buildList<KalturaCategoryTree>(typeof(KalturaCategoryTree), (JArray) parameters["children"]);
                     }
                     else if (parameters["children"] is IList)
                     {
-                        Children = buildList(typeof(KalturaCategoryTree), parameters["children"] as object[]);
+                        Children = OTTObjectBuilder.buildList(typeof(KalturaCategoryTree), parameters["children"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("unifiedChannels") && parameters["unifiedChannels"] != null)
@@ -20831,11 +21786,11 @@ namespace WebAPI.Models.Catalog
                     UnifiedChannelsSchemaProperty.Validate("unifiedChannels", parameters["unifiedChannels"]);
                     if (parameters["unifiedChannels"] is JArray)
                     {
-                        UnifiedChannels = buildList<KalturaUnifiedChannelInfo>(typeof(KalturaUnifiedChannelInfo), (JArray) parameters["unifiedChannels"]);
+                        UnifiedChannels = OTTObjectBuilder.buildList<KalturaUnifiedChannelInfo>(typeof(KalturaUnifiedChannelInfo), (JArray) parameters["unifiedChannels"]);
                     }
                     else if (parameters["unifiedChannels"] is IList)
                     {
-                        UnifiedChannels = buildList(typeof(KalturaUnifiedChannelInfo), parameters["unifiedChannels"] as object[]);
+                        UnifiedChannels = OTTObjectBuilder.buildList(typeof(KalturaUnifiedChannelInfo), parameters["unifiedChannels"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("dynamicData") && parameters["dynamicData"] != null)
@@ -20843,18 +21798,18 @@ namespace WebAPI.Models.Catalog
                     DynamicDataSchemaProperty.Validate("dynamicData", parameters["dynamicData"]);
                     if (parameters["dynamicData"] is JObject)
                     {
-                        DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
+                        DynamicData = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("images") && parameters["images"] != null)
                 {
                     if (parameters["images"] is JArray)
                     {
-                        Images = buildList<KalturaImage>(typeof(KalturaImage), (JArray) parameters["images"]);
+                        Images = OTTObjectBuilder.buildList<KalturaImage>(typeof(KalturaImage), (JArray) parameters["images"]);
                     }
                     else if (parameters["images"] is IList)
                     {
-                        Images = buildList(typeof(KalturaImage), parameters["images"] as object[]);
+                        Images = OTTObjectBuilder.buildList(typeof(KalturaImage), parameters["images"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("isActive") && parameters["isActive"] != null)
@@ -21175,11 +22130,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaCategoryVersion>(typeof(KalturaCategoryVersion), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaCategoryVersion>(typeof(KalturaCategoryVersion), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaCategoryVersion), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaCategoryVersion), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -21332,11 +22287,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["multilingualName"] is JArray)
                     {
-                        Name = MultilengualStringFactory.Create((JArray) parameters["multilingualName"]);
+                        Name = MultilingualStringFactory.Create((JArray) parameters["multilingualName"]);
                     }
                     else if (parameters["multilingualName"] is IList)
                     {
-                        Name = MultilengualStringFactory.Create((List<object>) parameters["multilingualName"]);
+                        Name = MultilingualStringFactory.Create((List<object>) parameters["multilingualName"]);
                     }
                 }
                 if (parameters.ContainsKey("oldName") && parameters["oldName"] != null)
@@ -21355,11 +22310,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["multilingualDescription"] is JArray)
                     {
-                        Description = MultilengualStringFactory.Create((JArray) parameters["multilingualDescription"]);
+                        Description = MultilingualStringFactory.Create((JArray) parameters["multilingualDescription"]);
                     }
                     else if (parameters["multilingualDescription"] is IList)
                     {
-                        Description = MultilengualStringFactory.Create((List<object>) parameters["multilingualDescription"]);
+                        Description = MultilingualStringFactory.Create((List<object>) parameters["multilingualDescription"]);
                     }
                 }
                 if (parameters.ContainsKey("oldDescription") && parameters["oldDescription"] != null)
@@ -21375,44 +22330,44 @@ namespace WebAPI.Models.Catalog
                     ImagesSchemaProperty.Validate("images", parameters["images"]);
                     if (parameters["images"] is JArray)
                     {
-                        Images = buildList<KalturaMediaImage>(typeof(KalturaMediaImage), (JArray) parameters["images"]);
+                        Images = OTTObjectBuilder.buildList<KalturaMediaImage>(typeof(KalturaMediaImage), (JArray) parameters["images"]);
                     }
                     else if (parameters["images"] is IList)
                     {
-                        Images = buildList(typeof(KalturaMediaImage), parameters["images"] as object[]);
+                        Images = OTTObjectBuilder.buildList(typeof(KalturaMediaImage), parameters["images"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("assetTypes") && parameters["assetTypes"] != null)
                 {
                     if (parameters["assetTypes"] is JArray)
                     {
-                        AssetTypes = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["assetTypes"]);
+                        AssetTypes = OTTObjectBuilder.buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["assetTypes"]);
                     }
                     else if (parameters["assetTypes"] is IList)
                     {
-                        AssetTypes = buildList(typeof(KalturaIntegerValue), parameters["assetTypes"] as object[]);
+                        AssetTypes = OTTObjectBuilder.buildList(typeof(KalturaIntegerValue), parameters["assetTypes"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("asset_types") && parameters["asset_types"] != null && isOldVersion)
                 {
                     if (parameters["asset_types"] is JArray)
                     {
-                        AssetTypes = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["asset_types"]);
+                        AssetTypes = OTTObjectBuilder.buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["asset_types"]);
                     }
                     else if (parameters["asset_types"] is IList)
                     {
-                        AssetTypes = buildList(typeof(KalturaIntegerValue), parameters["asset_types"] as object[]);
+                        AssetTypes = OTTObjectBuilder.buildList(typeof(KalturaIntegerValue), parameters["asset_types"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("media_types") && parameters["media_types"] != null)
                 {
                     if (parameters["media_types"] is JArray)
                     {
-                        MediaTypes = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["media_types"]);
+                        MediaTypes = OTTObjectBuilder.buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["media_types"]);
                     }
                     else if (parameters["media_types"] is IList)
                     {
-                        MediaTypes = buildList(typeof(KalturaIntegerValue), parameters["media_types"] as object[]);
+                        MediaTypes = OTTObjectBuilder.buildList(typeof(KalturaIntegerValue), parameters["media_types"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("filterExpression") && parameters["filterExpression"] != null)
@@ -21425,7 +22380,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("isActive__null") && parameters["isActive__null"] != null)
                 {
-                    AddNullableProperty("isActive");
+                    this.AddNullableProperty("isActive");
                 }
                 if (parameters.ContainsKey("isActive") && parameters["isActive"] != null)
                 {
@@ -21459,7 +22414,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("orderBy__null") && parameters["orderBy__null"] != null)
                 {
-                    AddNullableProperty("orderBy");
+                    this.AddNullableProperty("orderBy");
                 }
                 if (parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
                 {
@@ -21477,11 +22432,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["orderingParametersEqual"] is JArray)
                     {
-                        OrderingParameters = buildList<KalturaBaseChannelOrder>(typeof(KalturaBaseChannelOrder), (JArray) parameters["orderingParametersEqual"]);
+                        OrderingParameters = OTTObjectBuilder.buildList<KalturaBaseChannelOrder>(typeof(KalturaBaseChannelOrder), (JArray) parameters["orderingParametersEqual"]);
                     }
                     else if (parameters["orderingParametersEqual"] is IList)
                     {
-                        OrderingParameters = buildList(typeof(KalturaBaseChannelOrder), parameters["orderingParametersEqual"] as object[]);
+                        OrderingParameters = OTTObjectBuilder.buildList(typeof(KalturaBaseChannelOrder), parameters["orderingParametersEqual"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
@@ -21501,7 +22456,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("assetUserRuleId__null") && parameters["assetUserRuleId__null"] != null)
                 {
-                    AddNullableProperty("assetUserRuleId");
+                    this.AddNullableProperty("assetUserRuleId");
                 }
                 if (parameters.ContainsKey("assetUserRuleId") && parameters["assetUserRuleId"] != null)
                 {
@@ -21510,14 +22465,14 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("metaData__null") && parameters["metaData__null"] != null)
                 {
-                    AddNullableProperty("metaData");
+                    this.AddNullableProperty("metaData");
                 }
                 if (parameters.ContainsKey("metaData") && parameters["metaData"] != null)
                 {
                     MetaDataSchemaProperty.Validate("metaData", parameters["metaData"]);
                     if (parameters["metaData"] is JObject)
                     {
-                        MetaData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["metaData"]).ToObject<Dictionary<string, object>>());
+                        MetaData = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["metaData"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("virtualAssetId") && parameters["virtualAssetId"] != null)
@@ -21626,11 +22581,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Channels = buildList<KalturaChannel>(typeof(KalturaChannel), (JArray) parameters["objects"]);
+                        Channels = OTTObjectBuilder.buildList<KalturaChannel>(typeof(KalturaChannel), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Channels = buildList(typeof(KalturaChannel), parameters["objects"] as object[]);
+                        Channels = OTTObjectBuilder.buildList(typeof(KalturaChannel), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -21881,7 +22836,7 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("kSql__null") && parameters["kSql__null"] != null)
                 {
-                    AddNullableProperty("kSql");
+                    this.AddNullableProperty("kSql");
                 }
                 if (parameters.ContainsKey("kSql") && parameters["kSql"] != null)
                 {
@@ -21890,23 +22845,23 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("assetTypes__null") && parameters["assetTypes__null"] != null)
                 {
-                    AddNullableProperty("assetTypes");
+                    this.AddNullableProperty("assetTypes");
                 }
                 if (parameters.ContainsKey("assetTypes") && parameters["assetTypes"] != null)
                 {
                     AssetTypesSchemaProperty.Validate("assetTypes", parameters["assetTypes"]);
                     if (parameters["assetTypes"] is JArray)
                     {
-                        AssetTypes = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["assetTypes"]);
+                        AssetTypes = OTTObjectBuilder.buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["assetTypes"]);
                     }
                     else if (parameters["assetTypes"] is IList)
                     {
-                        AssetTypes = buildList(typeof(KalturaIntegerValue), parameters["assetTypes"] as object[]);
+                        AssetTypes = OTTObjectBuilder.buildList(typeof(KalturaIntegerValue), parameters["assetTypes"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("groupBy__null") && parameters["groupBy__null"] != null)
                 {
-                    AddNullableProperty("groupBy");
+                    this.AddNullableProperty("groupBy");
                 }
                 if (parameters.ContainsKey("groupBy") && parameters["groupBy"] != null)
                 {
@@ -21992,11 +22947,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Assets = buildList<KalturaAssetInfo>(typeof(KalturaAssetInfo), (JArray) parameters["objects"]);
+                        Assets = OTTObjectBuilder.buildList<KalturaAssetInfo>(typeof(KalturaAssetInfo), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Assets = buildList(typeof(KalturaAssetInfo), parameters["objects"] as object[]);
+                        Assets = OTTObjectBuilder.buildList(typeof(KalturaAssetInfo), parameters["objects"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("channelId") && parameters["channelId"] != null)
@@ -22022,22 +22977,22 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Channels = buildList<KalturaEPGChannelAssets>(typeof(KalturaEPGChannelAssets), (JArray) parameters["objects"]);
+                        Channels = OTTObjectBuilder.buildList<KalturaEPGChannelAssets>(typeof(KalturaEPGChannelAssets), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Channels = buildList(typeof(KalturaEPGChannelAssets), parameters["objects"] as object[]);
+                        Channels = OTTObjectBuilder.buildList(typeof(KalturaEPGChannelAssets), parameters["objects"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("assets") && parameters["assets"] != null && isOldVersion)
                 {
                     if (parameters["assets"] is JArray)
                     {
-                        Channels = buildList<KalturaEPGChannelAssets>(typeof(KalturaEPGChannelAssets), (JArray) parameters["assets"]);
+                        Channels = OTTObjectBuilder.buildList<KalturaEPGChannelAssets>(typeof(KalturaEPGChannelAssets), (JArray) parameters["assets"]);
                     }
                     else if (parameters["assets"] is IList)
                     {
-                        Channels = buildList(typeof(KalturaEPGChannelAssets), parameters["assets"] as object[]);
+                        Channels = OTTObjectBuilder.buildList(typeof(KalturaEPGChannelAssets), parameters["assets"] as object[]);
                     }
                 }
             }
@@ -22055,11 +23010,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["ids"] is JArray)
                     {
-                        IDs = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["ids"]);
+                        IDs = OTTObjectBuilder.buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["ids"]);
                     }
                     else if (parameters["ids"] is IList)
                     {
-                        IDs = buildList(typeof(KalturaIntegerValue), parameters["ids"] as object[]);
+                        IDs = OTTObjectBuilder.buildList(typeof(KalturaIntegerValue), parameters["ids"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("startTime") && parameters["startTime"] != null)
@@ -22332,11 +23287,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Images = buildList<KalturaImage>(typeof(KalturaImage), (JArray) parameters["objects"]);
+                        Images = OTTObjectBuilder.buildList<KalturaImage>(typeof(KalturaImage), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Images = buildList(typeof(KalturaImage), parameters["objects"] as object[]);
+                        Images = OTTObjectBuilder.buildList(typeof(KalturaImage), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -22527,11 +23482,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        ImageTypes = buildList<KalturaImageType>(typeof(KalturaImageType), (JArray) parameters["objects"]);
+                        ImageTypes = OTTObjectBuilder.buildList<KalturaImageType>(typeof(KalturaImageType), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        ImageTypes = buildList(typeof(KalturaImageType), parameters["objects"] as object[]);
+                        ImageTypes = OTTObjectBuilder.buildList(typeof(KalturaImageType), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -22643,11 +23598,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Labels = buildList<KalturaLabel>(typeof(KalturaLabel), (JArray) parameters["objects"]);
+                        Labels = OTTObjectBuilder.buildList<KalturaLabel>(typeof(KalturaLabel), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Labels = buildList(typeof(KalturaLabel), parameters["objects"] as object[]);
+                        Labels = OTTObjectBuilder.buildList(typeof(KalturaLabel), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -22694,11 +23649,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["ids"] is JArray)
                     {
-                        Ids = buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["ids"]);
+                        Ids = OTTObjectBuilder.buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["ids"]);
                     }
                     else if (parameters["ids"] is IList)
                     {
-                        Ids = buildList(typeof(KalturaStringValue), parameters["ids"] as object[]);
+                        Ids = OTTObjectBuilder.buildList(typeof(KalturaStringValue), parameters["ids"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
@@ -22742,11 +23697,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        LastPositions = buildList<KalturaLastPosition>(typeof(KalturaLastPosition), (JArray) parameters["objects"]);
+                        LastPositions = OTTObjectBuilder.buildList<KalturaLastPosition>(typeof(KalturaLastPosition), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        LastPositions = buildList(typeof(KalturaLastPosition), parameters["objects"] as object[]);
+                        LastPositions = OTTObjectBuilder.buildList(typeof(KalturaLastPosition), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -22791,6 +23746,20 @@ namespace WebAPI.Models.Catalog
     {
         public KalturaLineupChannelAssetListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = OTTObjectBuilder.buildList<KalturaLineupChannelAsset>(typeof(KalturaLineupChannelAsset), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaLineupChannelAsset), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaLiveAsset
@@ -23188,11 +24157,11 @@ namespace WebAPI.Models.Catalog
                     AssetsSchemaProperty.Validate("assets", parameters["assets"]);
                     if (parameters["assets"] is JArray)
                     {
-                        Assets = buildList<KalturaManualCollectionAsset>(typeof(KalturaManualCollectionAsset), (JArray) parameters["assets"]);
+                        Assets = OTTObjectBuilder.buildList<KalturaManualCollectionAsset>(typeof(KalturaManualCollectionAsset), (JArray) parameters["assets"]);
                     }
                     else if (parameters["assets"] is IList)
                     {
-                        Assets = buildList(typeof(KalturaManualCollectionAsset), parameters["assets"] as object[]);
+                        Assets = OTTObjectBuilder.buildList(typeof(KalturaManualCollectionAsset), parameters["assets"] as object[]);
                     }
                 }
             }
@@ -23663,11 +24632,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Files = buildList<KalturaMediaFile>(typeof(KalturaMediaFile), (JArray) parameters["objects"]);
+                        Files = OTTObjectBuilder.buildList<KalturaMediaFile>(typeof(KalturaMediaFile), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Files = buildList(typeof(KalturaMediaFile), parameters["objects"] as object[]);
+                        Files = OTTObjectBuilder.buildList(typeof(KalturaMediaFile), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -23931,11 +24900,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Types = buildList<KalturaMediaFileType>(typeof(KalturaMediaFileType), (JArray) parameters["objects"]);
+                        Types = OTTObjectBuilder.buildList<KalturaMediaFileType>(typeof(KalturaMediaFileType), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Types = buildList(typeof(KalturaMediaFileType), parameters["objects"] as object[]);
+                        Types = OTTObjectBuilder.buildList(typeof(KalturaMediaFileType), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -24048,44 +25017,44 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["childCategories"] is JArray)
                     {
-                        ChildCategories = buildList<KalturaOTTCategory>(typeof(KalturaOTTCategory), (JArray) parameters["childCategories"]);
+                        ChildCategories = OTTObjectBuilder.buildList<KalturaOTTCategory>(typeof(KalturaOTTCategory), (JArray) parameters["childCategories"]);
                     }
                     else if (parameters["childCategories"] is IList)
                     {
-                        ChildCategories = buildList(typeof(KalturaOTTCategory), parameters["childCategories"] as object[]);
+                        ChildCategories = OTTObjectBuilder.buildList(typeof(KalturaOTTCategory), parameters["childCategories"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("child_categories") && parameters["child_categories"] != null && isOldVersion)
                 {
                     if (parameters["child_categories"] is JArray)
                     {
-                        ChildCategories = buildList<KalturaOTTCategory>(typeof(KalturaOTTCategory), (JArray) parameters["child_categories"]);
+                        ChildCategories = OTTObjectBuilder.buildList<KalturaOTTCategory>(typeof(KalturaOTTCategory), (JArray) parameters["child_categories"]);
                     }
                     else if (parameters["child_categories"] is IList)
                     {
-                        ChildCategories = buildList(typeof(KalturaOTTCategory), parameters["child_categories"] as object[]);
+                        ChildCategories = OTTObjectBuilder.buildList(typeof(KalturaOTTCategory), parameters["child_categories"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("channels") && parameters["channels"] != null)
                 {
                     if (parameters["channels"] is JArray)
                     {
-                        Channels = buildList<KalturaChannel>(typeof(KalturaChannel), (JArray) parameters["channels"]);
+                        Channels = OTTObjectBuilder.buildList<KalturaChannel>(typeof(KalturaChannel), (JArray) parameters["channels"]);
                     }
                     else if (parameters["channels"] is IList)
                     {
-                        Channels = buildList(typeof(KalturaChannel), parameters["channels"] as object[]);
+                        Channels = OTTObjectBuilder.buildList(typeof(KalturaChannel), parameters["channels"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("images") && parameters["images"] != null)
                 {
                     if (parameters["images"] is JArray)
                     {
-                        Images = buildList<KalturaMediaImage>(typeof(KalturaMediaImage), (JArray) parameters["images"]);
+                        Images = OTTObjectBuilder.buildList<KalturaMediaImage>(typeof(KalturaMediaImage), (JArray) parameters["images"]);
                     }
                     else if (parameters["images"] is IList)
                     {
-                        Images = buildList(typeof(KalturaMediaImage), parameters["images"] as object[]);
+                        Images = OTTObjectBuilder.buildList(typeof(KalturaMediaImage), parameters["images"] as object[]);
                     }
                 }
             }
@@ -24119,22 +25088,22 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["bookmarks"] is JArray)
                     {
-                        Bookmarks = buildList<KalturaAssetBookmark>(typeof(KalturaAssetBookmark), (JArray) parameters["bookmarks"]);
+                        Bookmarks = OTTObjectBuilder.buildList<KalturaAssetBookmark>(typeof(KalturaAssetBookmark), (JArray) parameters["bookmarks"]);
                     }
                     else if (parameters["bookmarks"] is IList)
                     {
-                        Bookmarks = buildList(typeof(KalturaAssetBookmark), parameters["bookmarks"] as object[]);
+                        Bookmarks = OTTObjectBuilder.buildList(typeof(KalturaAssetBookmark), parameters["bookmarks"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("files") && parameters["files"] != null)
                 {
                     if (parameters["files"] is JArray)
                     {
-                        Files = buildList<KalturaItemPrice>(typeof(KalturaItemPrice), (JArray) parameters["files"]);
+                        Files = OTTObjectBuilder.buildList<KalturaItemPrice>(typeof(KalturaItemPrice), (JArray) parameters["files"]);
                     }
                     else if (parameters["files"] is IList)
                     {
-                        Files = buildList(typeof(KalturaItemPrice), parameters["files"] as object[]);
+                        Files = OTTObjectBuilder.buildList(typeof(KalturaItemPrice), parameters["files"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("following") && parameters["following"] != null)
@@ -24154,11 +25123,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaPersonalAsset>(typeof(KalturaPersonalAsset), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaPersonalAsset>(typeof(KalturaPersonalAsset), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaPersonalAsset), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaPersonalAsset), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -24194,22 +25163,22 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["fileIds"] is JArray)
                     {
-                        FileIds = buildNativeList<long>(typeof(long), (JArray) parameters["fileIds"]);
+                        FileIds = OTTObjectBuilder.buildNativeList<long>(typeof(long), (JArray) parameters["fileIds"]);
                     }
                     else if (parameters["fileIds"] is IList)
                     {
-                        FileIds = buildNativeList(typeof(long), parameters["fileIds"] as object[]);
+                        FileIds = OTTObjectBuilder.buildNativeList(typeof(long), parameters["fileIds"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("file_ids") && parameters["file_ids"] != null && isOldVersion)
                 {
                     if (parameters["file_ids"] is JArray)
                     {
-                        FileIds = buildNativeList<long>(typeof(long), (JArray) parameters["file_ids"]);
+                        FileIds = OTTObjectBuilder.buildNativeList<long>(typeof(long), (JArray) parameters["file_ids"]);
                     }
                     else if (parameters["file_ids"] is IList)
                     {
-                        FileIds = buildNativeList(typeof(long), parameters["file_ids"] as object[]);
+                        FileIds = OTTObjectBuilder.buildNativeList(typeof(long), parameters["file_ids"] as object[]);
                     }
                 }
             }
@@ -24544,11 +25513,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Ratios = buildList<KalturaRatio>(typeof(KalturaRatio), (JArray) parameters["objects"]);
+                        Ratios = OTTObjectBuilder.buildList<KalturaRatio>(typeof(KalturaRatio), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Ratios = buildList(typeof(KalturaRatio), parameters["objects"] as object[]);
+                        Ratios = OTTObjectBuilder.buildList(typeof(KalturaRatio), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -24622,11 +25591,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaRelatedEntity>(typeof(KalturaRelatedEntity), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaRelatedEntity>(typeof(KalturaRelatedEntity), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaRelatedEntity), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaRelatedEntity), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -24900,11 +25869,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaBaseAssetInfo>(typeof(KalturaBaseAssetInfo), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaBaseAssetInfo>(typeof(KalturaBaseAssetInfo), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaBaseAssetInfo), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaBaseAssetInfo), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -25015,11 +25984,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaStreamingDevice>(typeof(KalturaStreamingDevice), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaStreamingDevice>(typeof(KalturaStreamingDevice), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaStreamingDevice), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaStreamingDevice), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -25074,11 +26043,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["multilingualTag"] is JArray)
                     {
-                        Tag = MultilengualStringFactory.Create((JArray) parameters["multilingualTag"]);
+                        Tag = MultilingualStringFactory.Create((JArray) parameters["multilingualTag"]);
                     }
                     else if (parameters["multilingualTag"] is IList)
                     {
-                        Tag = MultilengualStringFactory.Create((List<object>) parameters["multilingualTag"]);
+                        Tag = MultilingualStringFactory.Create((List<object>) parameters["multilingualTag"]);
                     }
                 }
             }
@@ -25140,11 +26109,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Tags = buildList<KalturaTag>(typeof(KalturaTag), (JArray) parameters["objects"]);
+                        Tags = OTTObjectBuilder.buildList<KalturaTag>(typeof(KalturaTag), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Tags = buildList(typeof(KalturaTag), parameters["objects"] as object[]);
+                        Tags = OTTObjectBuilder.buildList(typeof(KalturaTag), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -25234,7 +26203,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("startDateInSeconds__null") && parameters["startDateInSeconds__null"] != null)
                 {
-                    AddNullableProperty("startDateInSeconds");
+                    this.AddNullableProperty("startDateInSeconds");
                 }
                 if (parameters.ContainsKey("startDateInSeconds") && parameters["startDateInSeconds"] != null)
                 {
@@ -25243,7 +26212,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("endDateInSeconds__null") && parameters["endDateInSeconds__null"] != null)
                 {
-                    AddNullableProperty("endDateInSeconds");
+                    this.AddNullableProperty("endDateInSeconds");
                 }
                 if (parameters.ContainsKey("endDateInSeconds") && parameters["endDateInSeconds"] != null)
                 {
@@ -25335,11 +26304,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaWatchHistoryAsset>(typeof(KalturaWatchHistoryAsset), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaWatchHistoryAsset>(typeof(KalturaWatchHistoryAsset), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaWatchHistoryAsset), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaWatchHistoryAsset), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -25393,7 +26362,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("startDate__null") && parameters["startDate__null"] != null)
                 {
-                    AddNullableProperty("startDate");
+                    this.AddNullableProperty("startDate");
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
                 {
@@ -25402,7 +26371,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("endDate__null") && parameters["endDate__null"] != null)
                 {
-                    AddNullableProperty("endDate");
+                    this.AddNullableProperty("endDate");
                 }
                 if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
                 {
@@ -25471,11 +26440,11 @@ namespace WebAPI.Models.Pricing
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        AssetFilesPpvs = buildList<KalturaAssetFilePpv>(typeof(KalturaAssetFilePpv), (JArray) parameters["objects"]);
+                        AssetFilesPpvs = OTTObjectBuilder.buildList<KalturaAssetFilePpv>(typeof(KalturaAssetFilePpv), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        AssetFilesPpvs = buildList(typeof(KalturaAssetFilePpv), parameters["objects"] as object[]);
+                        AssetFilesPpvs = OTTObjectBuilder.buildList(typeof(KalturaAssetFilePpv), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -25509,11 +26478,11 @@ namespace WebAPI.Models.Pricing
                 {
                     if (parameters["file_prices"] is JArray)
                     {
-                        FilePrices = buildList<KalturaItemPrice>(typeof(KalturaItemPrice), (JArray) parameters["file_prices"]);
+                        FilePrices = OTTObjectBuilder.buildList<KalturaItemPrice>(typeof(KalturaItemPrice), (JArray) parameters["file_prices"]);
                     }
                     else if (parameters["file_prices"] is IList)
                     {
-                        FilePrices = buildList(typeof(KalturaItemPrice), parameters["file_prices"] as object[]);
+                        FilePrices = OTTObjectBuilder.buildList(typeof(KalturaItemPrice), parameters["file_prices"] as object[]);
                     }
                 }
             }
@@ -25783,23 +26752,23 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("channels__null") && parameters["channels__null"] != null)
                 {
-                    AddNullableProperty("channels");
+                    this.AddNullableProperty("channels");
                 }
                 if (parameters.ContainsKey("channels") && parameters["channels"] != null)
                 {
                     ChannelsSchemaProperty.Validate("channels", parameters["channels"]);
                     if (parameters["channels"] is JArray)
                     {
-                        Channels = buildList<KalturaBaseChannel>(typeof(KalturaBaseChannel), (JArray) parameters["channels"]);
+                        Channels = OTTObjectBuilder.buildList<KalturaBaseChannel>(typeof(KalturaBaseChannel), (JArray) parameters["channels"]);
                     }
                     else if (parameters["channels"] is IList)
                     {
-                        Channels = buildList(typeof(KalturaBaseChannel), parameters["channels"] as object[]);
+                        Channels = OTTObjectBuilder.buildList(typeof(KalturaBaseChannel), parameters["channels"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("channelsIds__null") && parameters["channelsIds__null"] != null)
                 {
-                    AddNullableProperty("channelsIds");
+                    this.AddNullableProperty("channelsIds");
                 }
                 if (parameters.ContainsKey("channelsIds") && parameters["channelsIds"] != null)
                 {
@@ -25808,7 +26777,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("startDate__null") && parameters["startDate__null"] != null)
                 {
-                    AddNullableProperty("startDate");
+                    this.AddNullableProperty("startDate");
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
                 {
@@ -25817,7 +26786,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("endDate__null") && parameters["endDate__null"] != null)
                 {
-                    AddNullableProperty("endDate");
+                    this.AddNullableProperty("endDate");
                 }
                 if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
                 {
@@ -25826,7 +26795,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("discountModule__null") && parameters["discountModule__null"] != null)
                 {
-                    AddNullableProperty("discountModule");
+                    this.AddNullableProperty("discountModule");
                 }
                 if (parameters.ContainsKey("discountModule") && parameters["discountModule"] != null)
                 {
@@ -25854,7 +26823,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("discountModuleId__null") && parameters["discountModuleId__null"] != null)
                 {
-                    AddNullableProperty("discountModuleId");
+                    this.AddNullableProperty("discountModuleId");
                 }
                 if (parameters.ContainsKey("discountModuleId") && parameters["discountModuleId"] != null)
                 {
@@ -25863,39 +26832,39 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("multilingualName__null") && parameters["multilingualName__null"] != null)
                 {
-                    AddNullableProperty("multilingualName");
+                    this.AddNullableProperty("multilingualName");
                 }
                 if (parameters.ContainsKey("multilingualName") && parameters["multilingualName"] != null)
                 {
                     NameSchemaProperty.Validate("multilingualName", parameters["multilingualName"]);
                     if (parameters["multilingualName"] is JArray)
                     {
-                        Name = MultilengualStringFactory.Create((JArray) parameters["multilingualName"]);
+                        Name = MultilingualStringFactory.Create((JArray) parameters["multilingualName"]);
                     }
                     else if (parameters["multilingualName"] is IList)
                     {
-                        Name = MultilengualStringFactory.Create((List<object>) parameters["multilingualName"]);
+                        Name = MultilingualStringFactory.Create((List<object>) parameters["multilingualName"]);
                     }
                 }
                 if (parameters.ContainsKey("multilingualDescription__null") && parameters["multilingualDescription__null"] != null)
                 {
-                    AddNullableProperty("multilingualDescription");
+                    this.AddNullableProperty("multilingualDescription");
                 }
                 if (parameters.ContainsKey("multilingualDescription") && parameters["multilingualDescription"] != null)
                 {
                     DescriptionSchemaProperty.Validate("multilingualDescription", parameters["multilingualDescription"]);
                     if (parameters["multilingualDescription"] is JArray)
                     {
-                        Description = MultilengualStringFactory.Create((JArray) parameters["multilingualDescription"]);
+                        Description = MultilingualStringFactory.Create((JArray) parameters["multilingualDescription"]);
                     }
                     else if (parameters["multilingualDescription"] is IList)
                     {
-                        Description = MultilengualStringFactory.Create((List<object>) parameters["multilingualDescription"]);
+                        Description = MultilingualStringFactory.Create((List<object>) parameters["multilingualDescription"]);
                     }
                 }
                 if (parameters.ContainsKey("usageModule__null") && parameters["usageModule__null"] != null)
                 {
-                    AddNullableProperty("usageModule");
+                    this.AddNullableProperty("usageModule");
                 }
                 if (parameters.ContainsKey("usageModule") && parameters["usageModule"] != null)
                 {
@@ -25911,7 +26880,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("usageModuleId__null") && parameters["usageModuleId__null"] != null)
                 {
-                    AddNullableProperty("usageModuleId");
+                    this.AddNullableProperty("usageModuleId");
                 }
                 if (parameters.ContainsKey("usageModuleId") && parameters["usageModuleId"] != null)
                 {
@@ -25920,39 +26889,39 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("couponsGroups__null") && parameters["couponsGroups__null"] != null)
                 {
-                    AddNullableProperty("couponsGroups");
+                    this.AddNullableProperty("couponsGroups");
                 }
                 if (parameters.ContainsKey("couponsGroups") && parameters["couponsGroups"] != null)
                 {
                     CouponGroupsSchemaProperty.Validate("couponsGroups", parameters["couponsGroups"]);
                     if (parameters["couponsGroups"] is JArray)
                     {
-                        CouponGroups = buildList<KalturaCouponsGroup>(typeof(KalturaCouponsGroup), (JArray) parameters["couponsGroups"]);
+                        CouponGroups = OTTObjectBuilder.buildList<KalturaCouponsGroup>(typeof(KalturaCouponsGroup), (JArray) parameters["couponsGroups"]);
                     }
                     else if (parameters["couponsGroups"] is IList)
                     {
-                        CouponGroups = buildList(typeof(KalturaCouponsGroup), parameters["couponsGroups"] as object[]);
+                        CouponGroups = OTTObjectBuilder.buildList(typeof(KalturaCouponsGroup), parameters["couponsGroups"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("collectionCouponGroup__null") && parameters["collectionCouponGroup__null"] != null)
                 {
-                    AddNullableProperty("collectionCouponGroup");
+                    this.AddNullableProperty("collectionCouponGroup");
                 }
                 if (parameters.ContainsKey("collectionCouponGroup") && parameters["collectionCouponGroup"] != null)
                 {
                     CollectionCouponGroupSchemaProperty.Validate("collectionCouponGroup", parameters["collectionCouponGroup"]);
                     if (parameters["collectionCouponGroup"] is JArray)
                     {
-                        CollectionCouponGroup = buildList<KalturaCollectionCouponGroup>(typeof(KalturaCollectionCouponGroup), (JArray) parameters["collectionCouponGroup"]);
+                        CollectionCouponGroup = OTTObjectBuilder.buildList<KalturaCollectionCouponGroup>(typeof(KalturaCollectionCouponGroup), (JArray) parameters["collectionCouponGroup"]);
                     }
                     else if (parameters["collectionCouponGroup"] is IList)
                     {
-                        CollectionCouponGroup = buildList(typeof(KalturaCollectionCouponGroup), parameters["collectionCouponGroup"] as object[]);
+                        CollectionCouponGroup = OTTObjectBuilder.buildList(typeof(KalturaCollectionCouponGroup), parameters["collectionCouponGroup"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("externalId__null") && parameters["externalId__null"] != null)
                 {
-                    AddNullableProperty("externalId");
+                    this.AddNullableProperty("externalId");
                 }
                 if (parameters.ContainsKey("externalId") && parameters["externalId"] != null)
                 {
@@ -25961,18 +26930,18 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("productCodes__null") && parameters["productCodes__null"] != null)
                 {
-                    AddNullableProperty("productCodes");
+                    this.AddNullableProperty("productCodes");
                 }
                 if (parameters.ContainsKey("productCodes") && parameters["productCodes"] != null)
                 {
                     ProductCodesSchemaProperty.Validate("productCodes", parameters["productCodes"]);
                     if (parameters["productCodes"] is JArray)
                     {
-                        ProductCodes = buildList<KalturaProductCode>(typeof(KalturaProductCode), (JArray) parameters["productCodes"]);
+                        ProductCodes = OTTObjectBuilder.buildList<KalturaProductCode>(typeof(KalturaProductCode), (JArray) parameters["productCodes"]);
                     }
                     else if (parameters["productCodes"] is IList)
                     {
-                        ProductCodes = buildList(typeof(KalturaProductCode), parameters["productCodes"] as object[]);
+                        ProductCodes = OTTObjectBuilder.buildList(typeof(KalturaProductCode), parameters["productCodes"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("priceDetailsId") && parameters["priceDetailsId"] != null)
@@ -26149,11 +27118,11 @@ namespace WebAPI.Models.Pricing
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Collections = buildList<KalturaCollection>(typeof(KalturaCollection), (JArray) parameters["objects"]);
+                        Collections = OTTObjectBuilder.buildList<KalturaCollection>(typeof(KalturaCollection), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Collections = buildList(typeof(KalturaCollection), parameters["objects"] as object[]);
+                        Collections = OTTObjectBuilder.buildList(typeof(KalturaCollection), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -26318,6 +27287,20 @@ namespace WebAPI.Models.Pricing
     {
         public KalturaCouponListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = OTTObjectBuilder.buildList<KalturaCoupon>(typeof(KalturaCoupon), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaCoupon), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaCouponsGroup
@@ -26463,11 +27446,11 @@ namespace WebAPI.Models.Pricing
                 {
                     if (parameters["descriptions"] is JArray)
                     {
-                        Descriptions = buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["descriptions"]);
+                        Descriptions = OTTObjectBuilder.buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["descriptions"]);
                     }
                     else if (parameters["descriptions"] is IList)
                     {
-                        Descriptions = buildList(typeof(KalturaTranslationToken), parameters["descriptions"] as object[]);
+                        Descriptions = OTTObjectBuilder.buildList(typeof(KalturaTranslationToken), parameters["descriptions"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
@@ -26553,11 +27536,11 @@ namespace WebAPI.Models.Pricing
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        couponsGroups = buildList<KalturaCouponsGroup>(typeof(KalturaCouponsGroup), (JArray) parameters["objects"]);
+                        couponsGroups = OTTObjectBuilder.buildList<KalturaCouponsGroup>(typeof(KalturaCouponsGroup), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        couponsGroups = buildList(typeof(KalturaCouponsGroup), parameters["objects"] as object[]);
+                        couponsGroups = OTTObjectBuilder.buildList(typeof(KalturaCouponsGroup), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -26694,11 +27677,11 @@ namespace WebAPI.Models.Pricing
                     MultiCurrencyDiscountSchemaProperty.Validate("multiCurrencyDiscount", parameters["multiCurrencyDiscount"]);
                     if (parameters["multiCurrencyDiscount"] is JArray)
                     {
-                        MultiCurrencyDiscount = buildList<KalturaDiscount>(typeof(KalturaDiscount), (JArray) parameters["multiCurrencyDiscount"]);
+                        MultiCurrencyDiscount = OTTObjectBuilder.buildList<KalturaDiscount>(typeof(KalturaDiscount), (JArray) parameters["multiCurrencyDiscount"]);
                     }
                     else if (parameters["multiCurrencyDiscount"] is IList)
                     {
-                        MultiCurrencyDiscount = buildList(typeof(KalturaDiscount), parameters["multiCurrencyDiscount"] as object[]);
+                        MultiCurrencyDiscount = OTTObjectBuilder.buildList(typeof(KalturaDiscount), parameters["multiCurrencyDiscount"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
@@ -26764,11 +27747,11 @@ namespace WebAPI.Models.Pricing
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Discounts = buildList<KalturaDiscountDetails>(typeof(KalturaDiscountDetails), (JArray) parameters["objects"]);
+                        Discounts = OTTObjectBuilder.buildList<KalturaDiscountDetails>(typeof(KalturaDiscountDetails), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Discounts = buildList(typeof(KalturaDiscountDetails), parameters["objects"] as object[]);
+                        Discounts = OTTObjectBuilder.buildList(typeof(KalturaDiscountDetails), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -26887,22 +27870,22 @@ namespace WebAPI.Models.Pricing
                 {
                     if (parameters["ppvPriceDetails"] is JArray)
                     {
-                        PPVPriceDetails = buildList<KalturaPPVItemPriceDetails>(typeof(KalturaPPVItemPriceDetails), (JArray) parameters["ppvPriceDetails"]);
+                        PPVPriceDetails = OTTObjectBuilder.buildList<KalturaPPVItemPriceDetails>(typeof(KalturaPPVItemPriceDetails), (JArray) parameters["ppvPriceDetails"]);
                     }
                     else if (parameters["ppvPriceDetails"] is IList)
                     {
-                        PPVPriceDetails = buildList(typeof(KalturaPPVItemPriceDetails), parameters["ppvPriceDetails"] as object[]);
+                        PPVPriceDetails = OTTObjectBuilder.buildList(typeof(KalturaPPVItemPriceDetails), parameters["ppvPriceDetails"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("ppv_price_details") && parameters["ppv_price_details"] != null && isOldVersion)
                 {
                     if (parameters["ppv_price_details"] is JArray)
                     {
-                        PPVPriceDetails = buildList<KalturaPPVItemPriceDetails>(typeof(KalturaPPVItemPriceDetails), (JArray) parameters["ppv_price_details"]);
+                        PPVPriceDetails = OTTObjectBuilder.buildList<KalturaPPVItemPriceDetails>(typeof(KalturaPPVItemPriceDetails), (JArray) parameters["ppv_price_details"]);
                     }
                     else if (parameters["ppv_price_details"] is IList)
                     {
-                        PPVPriceDetails = buildList(typeof(KalturaPPVItemPriceDetails), parameters["ppv_price_details"] as object[]);
+                        PPVPriceDetails = OTTObjectBuilder.buildList(typeof(KalturaPPVItemPriceDetails), parameters["ppv_price_details"] as object[]);
                     }
                 }
             }
@@ -26918,11 +27901,11 @@ namespace WebAPI.Models.Pricing
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        ItemPrice = buildList<KalturaItemPrice>(typeof(KalturaItemPrice), (JArray) parameters["objects"]);
+                        ItemPrice = OTTObjectBuilder.buildList<KalturaItemPrice>(typeof(KalturaItemPrice), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        ItemPrice = buildList(typeof(KalturaItemPrice), parameters["objects"] as object[]);
+                        ItemPrice = OTTObjectBuilder.buildList(typeof(KalturaItemPrice), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -27213,11 +28196,11 @@ namespace WebAPI.Models.Pricing
                     FileTypesSchemaProperty.Validate("fileTypes", parameters["fileTypes"]);
                     if (parameters["fileTypes"] is JArray)
                     {
-                        FileTypes = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["fileTypes"]);
+                        FileTypes = OTTObjectBuilder.buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["fileTypes"]);
                     }
                     else if (parameters["fileTypes"] is IList)
                     {
-                        FileTypes = buildList(typeof(KalturaIntegerValue), parameters["fileTypes"] as object[]);
+                        FileTypes = OTTObjectBuilder.buildList(typeof(KalturaIntegerValue), parameters["fileTypes"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("fileTypesIds") && parameters["fileTypesIds"] != null)
@@ -27264,11 +28247,11 @@ namespace WebAPI.Models.Pricing
                     DescriptionsSchemaProperty.Validate("descriptions", parameters["descriptions"]);
                     if (parameters["descriptions"] is JArray)
                     {
-                        Descriptions = buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["descriptions"]);
+                        Descriptions = OTTObjectBuilder.buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["descriptions"]);
                     }
                     else if (parameters["descriptions"] is IList)
                     {
-                        Descriptions = buildList(typeof(KalturaTranslationToken), parameters["descriptions"] as object[]);
+                        Descriptions = OTTObjectBuilder.buildList(typeof(KalturaTranslationToken), parameters["descriptions"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("productCode") && parameters["productCode"] != null)
@@ -27491,22 +28474,22 @@ namespace WebAPI.Models.Pricing
                 {
                     if (parameters["ppvDescriptions"] is JArray)
                     {
-                        PPVDescriptions = buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["ppvDescriptions"]);
+                        PPVDescriptions = OTTObjectBuilder.buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["ppvDescriptions"]);
                     }
                     else if (parameters["ppvDescriptions"] is IList)
                     {
-                        PPVDescriptions = buildList(typeof(KalturaTranslationToken), parameters["ppvDescriptions"] as object[]);
+                        PPVDescriptions = OTTObjectBuilder.buildList(typeof(KalturaTranslationToken), parameters["ppvDescriptions"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("ppv_descriptions") && parameters["ppv_descriptions"] != null && isOldVersion)
                 {
                     if (parameters["ppv_descriptions"] is JArray)
                     {
-                        PPVDescriptions = buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["ppv_descriptions"]);
+                        PPVDescriptions = OTTObjectBuilder.buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["ppv_descriptions"]);
                     }
                     else if (parameters["ppv_descriptions"] is IList)
                     {
-                        PPVDescriptions = buildList(typeof(KalturaTranslationToken), parameters["ppv_descriptions"] as object[]);
+                        PPVDescriptions = OTTObjectBuilder.buildList(typeof(KalturaTranslationToken), parameters["ppv_descriptions"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("purchaseUserId") && parameters["purchaseUserId"] != null)
@@ -27529,22 +28512,22 @@ namespace WebAPI.Models.Pricing
                 {
                     if (parameters["relatedMediaFileIds"] is JArray)
                     {
-                        RelatedMediaFileIds = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["relatedMediaFileIds"]);
+                        RelatedMediaFileIds = OTTObjectBuilder.buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["relatedMediaFileIds"]);
                     }
                     else if (parameters["relatedMediaFileIds"] is IList)
                     {
-                        RelatedMediaFileIds = buildList(typeof(KalturaIntegerValue), parameters["relatedMediaFileIds"] as object[]);
+                        RelatedMediaFileIds = OTTObjectBuilder.buildList(typeof(KalturaIntegerValue), parameters["relatedMediaFileIds"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("related_media_file_ids") && parameters["related_media_file_ids"] != null && isOldVersion)
                 {
                     if (parameters["related_media_file_ids"] is JArray)
                     {
-                        RelatedMediaFileIds = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["related_media_file_ids"]);
+                        RelatedMediaFileIds = OTTObjectBuilder.buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["related_media_file_ids"]);
                     }
                     else if (parameters["related_media_file_ids"] is IList)
                     {
-                        RelatedMediaFileIds = buildList(typeof(KalturaIntegerValue), parameters["related_media_file_ids"] as object[]);
+                        RelatedMediaFileIds = OTTObjectBuilder.buildList(typeof(KalturaIntegerValue), parameters["related_media_file_ids"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
@@ -27608,11 +28591,11 @@ namespace WebAPI.Models.Pricing
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Ppvs = buildList<KalturaPpv>(typeof(KalturaPpv), (JArray) parameters["objects"]);
+                        Ppvs = OTTObjectBuilder.buildList<KalturaPpv>(typeof(KalturaPpv), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Ppvs = buildList(typeof(KalturaPpv), parameters["objects"] as object[]);
+                        Ppvs = OTTObjectBuilder.buildList(typeof(KalturaPpv), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -27652,11 +28635,11 @@ namespace WebAPI.Models.Pricing
                 {
                     if (parameters["ppvDescriptions"] is JArray)
                     {
-                        PPVDescriptions = buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["ppvDescriptions"]);
+                        PPVDescriptions = OTTObjectBuilder.buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["ppvDescriptions"]);
                     }
                     else if (parameters["ppvDescriptions"] is IList)
                     {
-                        PPVDescriptions = buildList(typeof(KalturaTranslationToken), parameters["ppvDescriptions"] as object[]);
+                        PPVDescriptions = OTTObjectBuilder.buildList(typeof(KalturaTranslationToken), parameters["ppvDescriptions"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("purchaseUserId") && parameters["purchaseUserId"] != null)
@@ -27671,11 +28654,11 @@ namespace WebAPI.Models.Pricing
                 {
                     if (parameters["relatedMediaFileIds"] is JArray)
                     {
-                        RelatedMediaFileIds = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["relatedMediaFileIds"]);
+                        RelatedMediaFileIds = OTTObjectBuilder.buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["relatedMediaFileIds"]);
                     }
                     else if (parameters["relatedMediaFileIds"] is IList)
                     {
-                        RelatedMediaFileIds = buildList(typeof(KalturaIntegerValue), parameters["relatedMediaFileIds"] as object[]);
+                        RelatedMediaFileIds = OTTObjectBuilder.buildList(typeof(KalturaIntegerValue), parameters["relatedMediaFileIds"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
@@ -27840,11 +28823,11 @@ namespace WebAPI.Models.Pricing
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        PreviewModule = buildList<KalturaPreviewModule>(typeof(KalturaPreviewModule), (JArray) parameters["objects"]);
+                        PreviewModule = OTTObjectBuilder.buildList<KalturaPreviewModule>(typeof(KalturaPreviewModule), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        PreviewModule = buildList(typeof(KalturaPreviewModule), parameters["objects"] as object[]);
+                        PreviewModule = OTTObjectBuilder.buildList(typeof(KalturaPreviewModule), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -27852,6 +28835,19 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaPrice
     {
+        private static RuntimeSchemePropertyAttribute CurrencyIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPrice")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
         private static RuntimeSchemePropertyAttribute AmountSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPrice")
         {
             ReadOnly = false,
@@ -27884,6 +28880,11 @@ namespace WebAPI.Models.Pricing
             {
                 Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("currencyId") && parameters["currencyId"] != null)
+                {
+                    CurrencyIdSchemaProperty.Validate("currencyId", parameters["currencyId"]);
+                    CurrencyId = (Int64) Convert.ChangeType(parameters["currencyId"], typeof(Int64));
+                }
                 if (parameters.ContainsKey("amount") && parameters["amount"] != null)
                 {
                     AmountSchemaProperty.Validate("amount", parameters["amount"]);
@@ -27996,22 +28997,22 @@ namespace WebAPI.Models.Pricing
                     MultiCurrencyPriceSchemaProperty.Validate("multiCurrencyPrice", parameters["multiCurrencyPrice"]);
                     if (parameters["multiCurrencyPrice"] is JArray)
                     {
-                        MultiCurrencyPrice = buildList<KalturaPrice>(typeof(KalturaPrice), (JArray) parameters["multiCurrencyPrice"]);
+                        MultiCurrencyPrice = OTTObjectBuilder.buildList<KalturaPrice>(typeof(KalturaPrice), (JArray) parameters["multiCurrencyPrice"]);
                     }
                     else if (parameters["multiCurrencyPrice"] is IList)
                     {
-                        MultiCurrencyPrice = buildList(typeof(KalturaPrice), parameters["multiCurrencyPrice"] as object[]);
+                        MultiCurrencyPrice = OTTObjectBuilder.buildList(typeof(KalturaPrice), parameters["multiCurrencyPrice"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("descriptions") && parameters["descriptions"] != null)
                 {
                     if (parameters["descriptions"] is JArray)
                     {
-                        Descriptions = buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["descriptions"]);
+                        Descriptions = OTTObjectBuilder.buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["descriptions"]);
                     }
                     else if (parameters["descriptions"] is IList)
                     {
-                        Descriptions = buildList(typeof(KalturaTranslationToken), parameters["descriptions"] as object[]);
+                        Descriptions = OTTObjectBuilder.buildList(typeof(KalturaTranslationToken), parameters["descriptions"] as object[]);
                     }
                 }
             }
@@ -28057,11 +29058,11 @@ namespace WebAPI.Models.Pricing
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Prices = buildList<KalturaPriceDetails>(typeof(KalturaPriceDetails), (JArray) parameters["objects"]);
+                        Prices = OTTObjectBuilder.buildList<KalturaPriceDetails>(typeof(KalturaPriceDetails), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Prices = buildList(typeof(KalturaPriceDetails), parameters["objects"] as object[]);
+                        Prices = OTTObjectBuilder.buildList(typeof(KalturaPriceDetails), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -28231,11 +29232,11 @@ namespace WebAPI.Models.Pricing
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        PricePlans = buildList<KalturaPricePlan>(typeof(KalturaPricePlan), (JArray) parameters["objects"]);
+                        PricePlans = OTTObjectBuilder.buildList<KalturaPricePlan>(typeof(KalturaPricePlan), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        PricePlans = buildList(typeof(KalturaPricePlan), parameters["objects"] as object[]);
+                        PricePlans = OTTObjectBuilder.buildList(typeof(KalturaPricePlan), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -28420,11 +29421,11 @@ namespace WebAPI.Models.Pricing
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        ProductsPrices = buildList<KalturaProductPrice>(typeof(KalturaProductPrice), (JArray) parameters["objects"]);
+                        ProductsPrices = OTTObjectBuilder.buildList<KalturaProductPrice>(typeof(KalturaProductPrice), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        ProductsPrices = buildList(typeof(KalturaProductPrice), parameters["objects"] as object[]);
+                        ProductsPrices = OTTObjectBuilder.buildList(typeof(KalturaProductPrice), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -28440,11 +29441,371 @@ namespace WebAPI.Models.Pricing
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        ProductsPrices = buildList<KalturaProductPrice>(typeof(KalturaProductPrice), (JArray) parameters["objects"]);
+                        ProductsPrices = OTTObjectBuilder.buildList<KalturaProductPrice>(typeof(KalturaProductPrice), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        ProductsPrices = buildList(typeof(KalturaProductPrice), parameters["objects"] as object[]);
+                        ProductsPrices = OTTObjectBuilder.buildList(typeof(KalturaProductPrice), parameters["objects"] as object[]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaProgramAssetGroupOffer
+    {
+        private static RuntimeSchemePropertyAttribute PriceDetailsIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProgramAssetGroupOffer")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute FileTypesIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProgramAssetGroupOffer")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute DescriptionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProgramAssetGroupOffer")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute VirtualAssetIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProgramAssetGroupOffer")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute IsActiveSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProgramAssetGroupOffer")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 7,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProgramAssetGroupOffer")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProgramAssetGroupOffer")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute StartDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProgramAssetGroupOffer")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute EndDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProgramAssetGroupOffer")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute ExpiryDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProgramAssetGroupOffer")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute ExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProgramAssetGroupOffer")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute ExternalOfferIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProgramAssetGroupOffer")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaProgramAssetGroupOffer(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("multilingualName") && parameters["multilingualName"] != null)
+                {
+                    if (parameters["multilingualName"] is JArray)
+                    {
+                        Name = MultilingualStringFactory.Create((JArray) parameters["multilingualName"]);
+                    }
+                    else if (parameters["multilingualName"] is IList)
+                    {
+                        Name = MultilingualStringFactory.Create((List<object>) parameters["multilingualName"]);
+                    }
+                }
+                if (parameters.ContainsKey("priceDetailsId__null") && parameters["priceDetailsId__null"] != null)
+                {
+                    this.AddNullableProperty("priceDetailsId");
+                }
+                if (parameters.ContainsKey("priceDetailsId") && parameters["priceDetailsId"] != null)
+                {
+                    PriceDetailsIdSchemaProperty.Validate("priceDetailsId", parameters["priceDetailsId"]);
+                    PriceDetailsId = (Int64) Convert.ChangeType(parameters["priceDetailsId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("fileTypesIds__null") && parameters["fileTypesIds__null"] != null)
+                {
+                    this.AddNullableProperty("fileTypesIds");
+                }
+                if (parameters.ContainsKey("fileTypesIds") && parameters["fileTypesIds"] != null)
+                {
+                    FileTypesIdsSchemaProperty.Validate("fileTypesIds", parameters["fileTypesIds"]);
+                    FileTypesIds = (String) Convert.ChangeType(parameters["fileTypesIds"], typeof(String));
+                }
+                if (parameters.ContainsKey("multilingualDescription__null") && parameters["multilingualDescription__null"] != null)
+                {
+                    this.AddNullableProperty("multilingualDescription");
+                }
+                if (parameters.ContainsKey("multilingualDescription") && parameters["multilingualDescription"] != null)
+                {
+                    DescriptionSchemaProperty.Validate("multilingualDescription", parameters["multilingualDescription"]);
+                    if (parameters["multilingualDescription"] is JArray)
+                    {
+                        Description = MultilingualStringFactory.Create((JArray) parameters["multilingualDescription"]);
+                    }
+                    else if (parameters["multilingualDescription"] is IList)
+                    {
+                        Description = MultilingualStringFactory.Create((List<object>) parameters["multilingualDescription"]);
+                    }
+                }
+                if (parameters.ContainsKey("virtualAssetId") && parameters["virtualAssetId"] != null)
+                {
+                    VirtualAssetIdSchemaProperty.Validate("virtualAssetId", parameters["virtualAssetId"]);
+                    VirtualAssetId = (Int64) Convert.ChangeType(parameters["virtualAssetId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("isActive") && parameters["isActive"] != null)
+                {
+                    IsActiveSchemaProperty.Validate("isActive", parameters["isActive"]);
+                    IsActive = (Boolean) Convert.ChangeType(parameters["isActive"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
+                {
+                    CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
+                    CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
+                {
+                    UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
+                    UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("startDate__null") && parameters["startDate__null"] != null)
+                {
+                    this.AddNullableProperty("startDate");
+                }
+                if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
+                {
+                    StartDateSchemaProperty.Validate("startDate", parameters["startDate"]);
+                    StartDate = (Int64) Convert.ChangeType(parameters["startDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("endDate__null") && parameters["endDate__null"] != null)
+                {
+                    this.AddNullableProperty("endDate");
+                }
+                if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
+                {
+                    EndDateSchemaProperty.Validate("endDate", parameters["endDate"]);
+                    EndDate = (Int64) Convert.ChangeType(parameters["endDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("expiryDate__null") && parameters["expiryDate__null"] != null)
+                {
+                    this.AddNullableProperty("expiryDate");
+                }
+                if (parameters.ContainsKey("expiryDate") && parameters["expiryDate"] != null)
+                {
+                    ExpiryDateSchemaProperty.Validate("expiryDate", parameters["expiryDate"]);
+                    ExpiryDate = (Int64) Convert.ChangeType(parameters["expiryDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("externalId__null") && parameters["externalId__null"] != null)
+                {
+                    this.AddNullableProperty("externalId");
+                }
+                if (parameters.ContainsKey("externalId") && parameters["externalId"] != null)
+                {
+                    ExternalIdSchemaProperty.Validate("externalId", parameters["externalId"]);
+                    ExternalId = (String) Convert.ChangeType(parameters["externalId"], typeof(String));
+                }
+                if (parameters.ContainsKey("externalOfferId__null") && parameters["externalOfferId__null"] != null)
+                {
+                    this.AddNullableProperty("externalOfferId");
+                }
+                if (parameters.ContainsKey("externalOfferId") && parameters["externalOfferId"] != null)
+                {
+                    ExternalOfferIdSchemaProperty.Validate("externalOfferId", parameters["externalOfferId"]);
+                    ExternalOfferId = (String) Convert.ChangeType(parameters["externalOfferId"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaProgramAssetGroupOfferFilter
+    {
+        private static RuntimeSchemePropertyAttribute AlsoInactiveSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProgramAssetGroupOfferFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 1,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaProgramAssetGroupOfferFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("alsoInactive") && parameters["alsoInactive"] != null)
+                {
+                    AlsoInactiveSchemaProperty.Validate("alsoInactive", parameters["alsoInactive"]);
+                    AlsoInactive = (Boolean) Convert.ChangeType(parameters["alsoInactive"], typeof(Boolean));
+                }
+            }
+        }
+    }
+    public partial class KalturaProgramAssetGroupOfferIdInFilter
+    {
+        private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProgramAssetGroupOfferIdInFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            DynamicMinInt = 1,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaProgramAssetGroupOfferIdInFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
+                {
+                    IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
+                    IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaProgramAssetGroupOfferListResponse
+    {
+        public KalturaProgramAssetGroupOfferListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = OTTObjectBuilder.buildList<KalturaProgramAssetGroupOffer>(typeof(KalturaProgramAssetGroupOffer), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaProgramAssetGroupOffer), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -28934,23 +30295,23 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("channels__null") && parameters["channels__null"] != null)
                 {
-                    AddNullableProperty("channels");
+                    this.AddNullableProperty("channels");
                 }
                 if (parameters.ContainsKey("channels") && parameters["channels"] != null)
                 {
                     ChannelsSchemaProperty.Validate("channels", parameters["channels"]);
                     if (parameters["channels"] is JArray)
                     {
-                        Channels = buildList<KalturaBaseChannel>(typeof(KalturaBaseChannel), (JArray) parameters["channels"]);
+                        Channels = OTTObjectBuilder.buildList<KalturaBaseChannel>(typeof(KalturaBaseChannel), (JArray) parameters["channels"]);
                     }
                     else if (parameters["channels"] is IList)
                     {
-                        Channels = buildList(typeof(KalturaBaseChannel), parameters["channels"] as object[]);
+                        Channels = OTTObjectBuilder.buildList(typeof(KalturaBaseChannel), parameters["channels"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("channelsIds__null") && parameters["channelsIds__null"] != null)
                 {
-                    AddNullableProperty("channelsIds");
+                    this.AddNullableProperty("channelsIds");
                 }
                 if (parameters.ContainsKey("channelsIds") && parameters["channelsIds"] != null)
                 {
@@ -28959,7 +30320,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("startDate__null") && parameters["startDate__null"] != null)
                 {
-                    AddNullableProperty("startDate");
+                    this.AddNullableProperty("startDate");
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
                 {
@@ -28973,7 +30334,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("endDate__null") && parameters["endDate__null"] != null)
                 {
-                    AddNullableProperty("endDate");
+                    this.AddNullableProperty("endDate");
                 }
                 if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
                 {
@@ -28987,18 +30348,18 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("fileTypes__null") && parameters["fileTypes__null"] != null)
                 {
-                    AddNullableProperty("fileTypes");
+                    this.AddNullableProperty("fileTypes");
                 }
                 if (parameters.ContainsKey("fileTypes") && parameters["fileTypes"] != null)
                 {
                     FileTypesSchemaProperty.Validate("fileTypes", parameters["fileTypes"]);
                     if (parameters["fileTypes"] is JArray)
                     {
-                        FileTypes = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["fileTypes"]);
+                        FileTypes = OTTObjectBuilder.buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["fileTypes"]);
                     }
                     else if (parameters["fileTypes"] is IList)
                     {
-                        FileTypes = buildList(typeof(KalturaIntegerValue), parameters["fileTypes"] as object[]);
+                        FileTypes = OTTObjectBuilder.buildList(typeof(KalturaIntegerValue), parameters["fileTypes"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("file_types") && parameters["file_types"] != null && isOldVersion)
@@ -29006,16 +30367,16 @@ namespace WebAPI.Models.Pricing
                     FileTypesSchemaProperty.Validate("file_types", parameters["file_types"]);
                     if (parameters["file_types"] is JArray)
                     {
-                        FileTypes = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["file_types"]);
+                        FileTypes = OTTObjectBuilder.buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["file_types"]);
                     }
                     else if (parameters["file_types"] is IList)
                     {
-                        FileTypes = buildList(typeof(KalturaIntegerValue), parameters["file_types"] as object[]);
+                        FileTypes = OTTObjectBuilder.buildList(typeof(KalturaIntegerValue), parameters["file_types"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("fileTypesIds__null") && parameters["fileTypesIds__null"] != null)
                 {
-                    AddNullableProperty("fileTypesIds");
+                    this.AddNullableProperty("fileTypesIds");
                 }
                 if (parameters.ContainsKey("fileTypesIds") && parameters["fileTypesIds"] != null)
                 {
@@ -29024,7 +30385,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("isRenewable__null") && parameters["isRenewable__null"] != null)
                 {
-                    AddNullableProperty("isRenewable");
+                    this.AddNullableProperty("isRenewable");
                 }
                 if (parameters.ContainsKey("isRenewable") && parameters["isRenewable"] != null)
                 {
@@ -29038,7 +30399,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("renewalsNumber__null") && parameters["renewalsNumber__null"] != null)
                 {
-                    AddNullableProperty("renewalsNumber");
+                    this.AddNullableProperty("renewalsNumber");
                 }
                 if (parameters.ContainsKey("renewalsNumber") && parameters["renewalsNumber"] != null)
                 {
@@ -29052,7 +30413,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("isInfiniteRenewal__null") && parameters["isInfiniteRenewal__null"] != null)
                 {
-                    AddNullableProperty("isInfiniteRenewal");
+                    this.AddNullableProperty("isInfiniteRenewal");
                 }
                 if (parameters.ContainsKey("isInfiniteRenewal") && parameters["isInfiniteRenewal"] != null)
                 {
@@ -29066,7 +30427,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("price__null") && parameters["price__null"] != null)
                 {
-                    AddNullableProperty("price");
+                    this.AddNullableProperty("price");
                 }
                 if (parameters.ContainsKey("price") && parameters["price"] != null)
                 {
@@ -29082,7 +30443,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("discountModule__null") && parameters["discountModule__null"] != null)
                 {
-                    AddNullableProperty("discountModule");
+                    this.AddNullableProperty("discountModule");
                 }
                 if (parameters.ContainsKey("discountModule") && parameters["discountModule"] != null)
                 {
@@ -29110,7 +30471,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("internalDiscountModuleId__null") && parameters["internalDiscountModuleId__null"] != null)
                 {
-                    AddNullableProperty("internalDiscountModuleId");
+                    this.AddNullableProperty("internalDiscountModuleId");
                 }
                 if (parameters.ContainsKey("internalDiscountModuleId") && parameters["internalDiscountModuleId"] != null)
                 {
@@ -29143,54 +30504,54 @@ namespace WebAPI.Models.Pricing
                 {
                     if (parameters["multilingualName"] is JArray)
                     {
-                        Name = MultilengualStringFactory.Create((JArray) parameters["multilingualName"]);
+                        Name = MultilingualStringFactory.Create((JArray) parameters["multilingualName"]);
                     }
                     else if (parameters["multilingualName"] is IList)
                     {
-                        Name = MultilengualStringFactory.Create((List<object>) parameters["multilingualName"]);
+                        Name = MultilingualStringFactory.Create((List<object>) parameters["multilingualName"]);
                     }
                 }
                 if (parameters.ContainsKey("names") && parameters["names"] != null)
                 {
                     if (parameters["names"] is JArray)
                     {
-                        Names = buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["names"]);
+                        Names = OTTObjectBuilder.buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["names"]);
                     }
                     else if (parameters["names"] is IList)
                     {
-                        Names = buildList(typeof(KalturaTranslationToken), parameters["names"] as object[]);
+                        Names = OTTObjectBuilder.buildList(typeof(KalturaTranslationToken), parameters["names"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("multilingualDescription__null") && parameters["multilingualDescription__null"] != null)
                 {
-                    AddNullableProperty("multilingualDescription");
+                    this.AddNullableProperty("multilingualDescription");
                 }
                 if (parameters.ContainsKey("multilingualDescription") && parameters["multilingualDescription"] != null)
                 {
                     DescriptionSchemaProperty.Validate("multilingualDescription", parameters["multilingualDescription"]);
                     if (parameters["multilingualDescription"] is JArray)
                     {
-                        Description = MultilengualStringFactory.Create((JArray) parameters["multilingualDescription"]);
+                        Description = MultilingualStringFactory.Create((JArray) parameters["multilingualDescription"]);
                     }
                     else if (parameters["multilingualDescription"] is IList)
                     {
-                        Description = MultilengualStringFactory.Create((List<object>) parameters["multilingualDescription"]);
+                        Description = MultilingualStringFactory.Create((List<object>) parameters["multilingualDescription"]);
                     }
                 }
                 if (parameters.ContainsKey("descriptions") && parameters["descriptions"] != null)
                 {
                     if (parameters["descriptions"] is JArray)
                     {
-                        Descriptions = buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["descriptions"]);
+                        Descriptions = OTTObjectBuilder.buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["descriptions"]);
                     }
                     else if (parameters["descriptions"] is IList)
                     {
-                        Descriptions = buildList(typeof(KalturaTranslationToken), parameters["descriptions"] as object[]);
+                        Descriptions = OTTObjectBuilder.buildList(typeof(KalturaTranslationToken), parameters["descriptions"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("mediaId__null") && parameters["mediaId__null"] != null)
                 {
-                    AddNullableProperty("mediaId");
+                    this.AddNullableProperty("mediaId");
                 }
                 if (parameters.ContainsKey("mediaId") && parameters["mediaId"] != null)
                 {
@@ -29204,7 +30565,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("prorityInOrder__null") && parameters["prorityInOrder__null"] != null)
                 {
-                    AddNullableProperty("prorityInOrder");
+                    this.AddNullableProperty("prorityInOrder");
                 }
                 if (parameters.ContainsKey("prorityInOrder") && parameters["prorityInOrder"] != null)
                 {
@@ -29228,27 +30589,27 @@ namespace WebAPI.Models.Pricing
                 {
                     if (parameters["pricePlans"] is JArray)
                     {
-                        PricePlans = buildList<KalturaPricePlan>(typeof(KalturaPricePlan), (JArray) parameters["pricePlans"]);
+                        PricePlans = OTTObjectBuilder.buildList<KalturaPricePlan>(typeof(KalturaPricePlan), (JArray) parameters["pricePlans"]);
                     }
                     else if (parameters["pricePlans"] is IList)
                     {
-                        PricePlans = buildList(typeof(KalturaPricePlan), parameters["pricePlans"] as object[]);
+                        PricePlans = OTTObjectBuilder.buildList(typeof(KalturaPricePlan), parameters["pricePlans"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("price_plans") && parameters["price_plans"] != null && isOldVersion)
                 {
                     if (parameters["price_plans"] is JArray)
                     {
-                        PricePlans = buildList<KalturaPricePlan>(typeof(KalturaPricePlan), (JArray) parameters["price_plans"]);
+                        PricePlans = OTTObjectBuilder.buildList<KalturaPricePlan>(typeof(KalturaPricePlan), (JArray) parameters["price_plans"]);
                     }
                     else if (parameters["price_plans"] is IList)
                     {
-                        PricePlans = buildList(typeof(KalturaPricePlan), parameters["price_plans"] as object[]);
+                        PricePlans = OTTObjectBuilder.buildList(typeof(KalturaPricePlan), parameters["price_plans"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("pricePlanIds__null") && parameters["pricePlanIds__null"] != null)
                 {
-                    AddNullableProperty("pricePlanIds");
+                    this.AddNullableProperty("pricePlanIds");
                 }
                 if (parameters.ContainsKey("pricePlanIds") && parameters["pricePlanIds"] != null)
                 {
@@ -29257,7 +30618,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("previewModule__null") && parameters["previewModule__null"] != null)
                 {
-                    AddNullableProperty("previewModule");
+                    this.AddNullableProperty("previewModule");
                 }
                 if (parameters.ContainsKey("previewModule") && parameters["previewModule"] != null)
                 {
@@ -29285,7 +30646,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("previewModuleId__null") && parameters["previewModuleId__null"] != null)
                 {
-                    AddNullableProperty("previewModuleId");
+                    this.AddNullableProperty("previewModuleId");
                 }
                 if (parameters.ContainsKey("previewModuleId") && parameters["previewModuleId"] != null)
                 {
@@ -29294,7 +30655,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("householdLimitationsId__null") && parameters["householdLimitationsId__null"] != null)
                 {
-                    AddNullableProperty("householdLimitationsId");
+                    this.AddNullableProperty("householdLimitationsId");
                 }
                 if (parameters.ContainsKey("householdLimitationsId") && parameters["householdLimitationsId"] != null)
                 {
@@ -29308,7 +30669,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("gracePeriodMinutes__null") && parameters["gracePeriodMinutes__null"] != null)
                 {
-                    AddNullableProperty("gracePeriodMinutes");
+                    this.AddNullableProperty("gracePeriodMinutes");
                 }
                 if (parameters.ContainsKey("gracePeriodMinutes") && parameters["gracePeriodMinutes"] != null)
                 {
@@ -29322,18 +30683,18 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("premiumServices__null") && parameters["premiumServices__null"] != null)
                 {
-                    AddNullableProperty("premiumServices");
+                    this.AddNullableProperty("premiumServices");
                 }
                 if (parameters.ContainsKey("premiumServices") && parameters["premiumServices"] != null)
                 {
                     PremiumServicesSchemaProperty.Validate("premiumServices", parameters["premiumServices"]);
                     if (parameters["premiumServices"] is JArray)
                     {
-                        PremiumServices = buildList<KalturaPremiumService>(typeof(KalturaPremiumService), (JArray) parameters["premiumServices"]);
+                        PremiumServices = OTTObjectBuilder.buildList<KalturaPremiumService>(typeof(KalturaPremiumService), (JArray) parameters["premiumServices"]);
                     }
                     else if (parameters["premiumServices"] is IList)
                     {
-                        PremiumServices = buildList(typeof(KalturaPremiumService), parameters["premiumServices"] as object[]);
+                        PremiumServices = OTTObjectBuilder.buildList(typeof(KalturaPremiumService), parameters["premiumServices"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("premium_services") && parameters["premium_services"] != null && isOldVersion)
@@ -29341,16 +30702,16 @@ namespace WebAPI.Models.Pricing
                     PremiumServicesSchemaProperty.Validate("premium_services", parameters["premium_services"]);
                     if (parameters["premium_services"] is JArray)
                     {
-                        PremiumServices = buildList<KalturaPremiumService>(typeof(KalturaPremiumService), (JArray) parameters["premium_services"]);
+                        PremiumServices = OTTObjectBuilder.buildList<KalturaPremiumService>(typeof(KalturaPremiumService), (JArray) parameters["premium_services"]);
                     }
                     else if (parameters["premium_services"] is IList)
                     {
-                        PremiumServices = buildList(typeof(KalturaPremiumService), parameters["premium_services"] as object[]);
+                        PremiumServices = OTTObjectBuilder.buildList(typeof(KalturaPremiumService), parameters["premium_services"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("maxViewsNumber__null") && parameters["maxViewsNumber__null"] != null)
                 {
-                    AddNullableProperty("maxViewsNumber");
+                    this.AddNullableProperty("maxViewsNumber");
                 }
                 if (parameters.ContainsKey("maxViewsNumber") && parameters["maxViewsNumber"] != null)
                 {
@@ -29364,7 +30725,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("viewLifeCycle__null") && parameters["viewLifeCycle__null"] != null)
                 {
-                    AddNullableProperty("viewLifeCycle");
+                    this.AddNullableProperty("viewLifeCycle");
                 }
                 if (parameters.ContainsKey("viewLifeCycle") && parameters["viewLifeCycle"] != null)
                 {
@@ -29378,7 +30739,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("waiverPeriod__null") && parameters["waiverPeriod__null"] != null)
                 {
-                    AddNullableProperty("waiverPeriod");
+                    this.AddNullableProperty("waiverPeriod");
                 }
                 if (parameters.ContainsKey("waiverPeriod") && parameters["waiverPeriod"] != null)
                 {
@@ -29392,7 +30753,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("isWaiverEnabled__null") && parameters["isWaiverEnabled__null"] != null)
                 {
-                    AddNullableProperty("isWaiverEnabled");
+                    this.AddNullableProperty("isWaiverEnabled");
                 }
                 if (parameters.ContainsKey("isWaiverEnabled") && parameters["isWaiverEnabled"] != null)
                 {
@@ -29406,18 +30767,18 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("userTypes__null") && parameters["userTypes__null"] != null)
                 {
-                    AddNullableProperty("userTypes");
+                    this.AddNullableProperty("userTypes");
                 }
                 if (parameters.ContainsKey("userTypes") && parameters["userTypes"] != null)
                 {
                     UserTypesSchemaProperty.Validate("userTypes", parameters["userTypes"]);
                     if (parameters["userTypes"] is JArray)
                     {
-                        UserTypes = buildList<KalturaOTTUserType>(typeof(KalturaOTTUserType), (JArray) parameters["userTypes"]);
+                        UserTypes = OTTObjectBuilder.buildList<KalturaOTTUserType>(typeof(KalturaOTTUserType), (JArray) parameters["userTypes"]);
                     }
                     else if (parameters["userTypes"] is IList)
                     {
-                        UserTypes = buildList(typeof(KalturaOTTUserType), parameters["userTypes"] as object[]);
+                        UserTypes = OTTObjectBuilder.buildList(typeof(KalturaOTTUserType), parameters["userTypes"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("user_types") && parameters["user_types"] != null && isOldVersion)
@@ -29425,59 +30786,59 @@ namespace WebAPI.Models.Pricing
                     UserTypesSchemaProperty.Validate("user_types", parameters["user_types"]);
                     if (parameters["user_types"] is JArray)
                     {
-                        UserTypes = buildList<KalturaOTTUserType>(typeof(KalturaOTTUserType), (JArray) parameters["user_types"]);
+                        UserTypes = OTTObjectBuilder.buildList<KalturaOTTUserType>(typeof(KalturaOTTUserType), (JArray) parameters["user_types"]);
                     }
                     else if (parameters["user_types"] is IList)
                     {
-                        UserTypes = buildList(typeof(KalturaOTTUserType), parameters["user_types"] as object[]);
+                        UserTypes = OTTObjectBuilder.buildList(typeof(KalturaOTTUserType), parameters["user_types"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("couponsGroups__null") && parameters["couponsGroups__null"] != null)
                 {
-                    AddNullableProperty("couponsGroups");
+                    this.AddNullableProperty("couponsGroups");
                 }
                 if (parameters.ContainsKey("couponsGroups") && parameters["couponsGroups"] != null)
                 {
                     CouponGroupsSchemaProperty.Validate("couponsGroups", parameters["couponsGroups"]);
                     if (parameters["couponsGroups"] is JArray)
                     {
-                        CouponGroups = buildList<KalturaCouponsGroup>(typeof(KalturaCouponsGroup), (JArray) parameters["couponsGroups"]);
+                        CouponGroups = OTTObjectBuilder.buildList<KalturaCouponsGroup>(typeof(KalturaCouponsGroup), (JArray) parameters["couponsGroups"]);
                     }
                     else if (parameters["couponsGroups"] is IList)
                     {
-                        CouponGroups = buildList(typeof(KalturaCouponsGroup), parameters["couponsGroups"] as object[]);
+                        CouponGroups = OTTObjectBuilder.buildList(typeof(KalturaCouponsGroup), parameters["couponsGroups"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("subscriptionCouponGroup__null") && parameters["subscriptionCouponGroup__null"] != null)
                 {
-                    AddNullableProperty("subscriptionCouponGroup");
+                    this.AddNullableProperty("subscriptionCouponGroup");
                 }
                 if (parameters.ContainsKey("subscriptionCouponGroup") && parameters["subscriptionCouponGroup"] != null)
                 {
                     SubscriptionCouponGroupSchemaProperty.Validate("subscriptionCouponGroup", parameters["subscriptionCouponGroup"]);
                     if (parameters["subscriptionCouponGroup"] is JArray)
                     {
-                        SubscriptionCouponGroup = buildList<KalturaSubscriptionCouponGroup>(typeof(KalturaSubscriptionCouponGroup), (JArray) parameters["subscriptionCouponGroup"]);
+                        SubscriptionCouponGroup = OTTObjectBuilder.buildList<KalturaSubscriptionCouponGroup>(typeof(KalturaSubscriptionCouponGroup), (JArray) parameters["subscriptionCouponGroup"]);
                     }
                     else if (parameters["subscriptionCouponGroup"] is IList)
                     {
-                        SubscriptionCouponGroup = buildList(typeof(KalturaSubscriptionCouponGroup), parameters["subscriptionCouponGroup"] as object[]);
+                        SubscriptionCouponGroup = OTTObjectBuilder.buildList(typeof(KalturaSubscriptionCouponGroup), parameters["subscriptionCouponGroup"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("productCodes__null") && parameters["productCodes__null"] != null)
                 {
-                    AddNullableProperty("productCodes");
+                    this.AddNullableProperty("productCodes");
                 }
                 if (parameters.ContainsKey("productCodes") && parameters["productCodes"] != null)
                 {
                     ProductCodesSchemaProperty.Validate("productCodes", parameters["productCodes"]);
                     if (parameters["productCodes"] is JArray)
                     {
-                        ProductCodes = buildList<KalturaProductCode>(typeof(KalturaProductCode), (JArray) parameters["productCodes"]);
+                        ProductCodes = OTTObjectBuilder.buildList<KalturaProductCode>(typeof(KalturaProductCode), (JArray) parameters["productCodes"]);
                     }
                     else if (parameters["productCodes"] is IList)
                     {
-                        ProductCodes = buildList(typeof(KalturaProductCode), parameters["productCodes"] as object[]);
+                        ProductCodes = OTTObjectBuilder.buildList(typeof(KalturaProductCode), parameters["productCodes"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("dependencyType") && parameters["dependencyType"] != null)
@@ -29504,7 +30865,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("preSaleDate__null") && parameters["preSaleDate__null"] != null)
                 {
-                    AddNullableProperty("preSaleDate");
+                    this.AddNullableProperty("preSaleDate");
                 }
                 if (parameters.ContainsKey("preSaleDate") && parameters["preSaleDate"] != null)
                 {
@@ -29741,11 +31102,11 @@ namespace WebAPI.Models.Pricing
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Subscriptions = buildList<KalturaSubscription>(typeof(KalturaSubscription), (JArray) parameters["objects"]);
+                        Subscriptions = OTTObjectBuilder.buildList<KalturaSubscription>(typeof(KalturaSubscription), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Subscriptions = buildList(typeof(KalturaSubscription), parameters["objects"] as object[]);
+                        Subscriptions = OTTObjectBuilder.buildList(typeof(KalturaSubscription), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -29911,11 +31272,11 @@ namespace WebAPI.Models.Pricing
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        SubscriptionSets = buildList<KalturaSubscriptionSet>(typeof(KalturaSubscriptionSet), (JArray) parameters["objects"]);
+                        SubscriptionSets = OTTObjectBuilder.buildList<KalturaSubscriptionSet>(typeof(KalturaSubscriptionSet), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        SubscriptionSets = buildList(typeof(KalturaSubscriptionSet), parameters["objects"] as object[]);
+                        SubscriptionSets = OTTObjectBuilder.buildList(typeof(KalturaSubscriptionSet), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -29931,11 +31292,11 @@ namespace WebAPI.Models.Pricing
                 {
                     if (parameters["ids"] is JArray)
                     {
-                        Ids = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["ids"]);
+                        Ids = OTTObjectBuilder.buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["ids"]);
                     }
                     else if (parameters["ids"] is IList)
                     {
-                        Ids = buildList(typeof(KalturaIntegerValue), parameters["ids"] as object[]);
+                        Ids = OTTObjectBuilder.buildList(typeof(KalturaIntegerValue), parameters["ids"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("by") && parameters["by"] != null)
@@ -30167,11 +31528,11 @@ namespace WebAPI.Models.Pricing
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        UsageModules = buildList<KalturaUsageModule>(typeof(KalturaUsageModule), (JArray) parameters["objects"]);
+                        UsageModules = OTTObjectBuilder.buildList<KalturaUsageModule>(typeof(KalturaUsageModule), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        UsageModules = buildList(typeof(KalturaUsageModule), parameters["objects"] as object[]);
+                        UsageModules = OTTObjectBuilder.buildList(typeof(KalturaUsageModule), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -30195,11 +31556,11 @@ namespace WebAPI.Models.Segmentation
                 {
                     if (parameters["values"] is JArray)
                     {
-                        Values = buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["values"]);
+                        Values = OTTObjectBuilder.buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["values"]);
                     }
                     else if (parameters["values"] is IList)
                     {
-                        Values = buildList(typeof(KalturaStringValue), parameters["values"] as object[]);
+                        Values = OTTObjectBuilder.buildList(typeof(KalturaStringValue), parameters["values"] as object[]);
                     }
                 }
             }
@@ -30449,11 +31810,11 @@ namespace WebAPI.Models.Segmentation
                     ValuesSchemaProperty.Validate("values", parameters["values"]);
                     if (parameters["values"] is JArray)
                     {
-                        Values = buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["values"]);
+                        Values = OTTObjectBuilder.buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["values"]);
                     }
                     else if (parameters["values"] is IList)
                     {
-                        Values = buildList(typeof(KalturaStringValue), parameters["values"] as object[]);
+                        Values = OTTObjectBuilder.buildList(typeof(KalturaStringValue), parameters["values"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("actions") && parameters["actions"] != null)
@@ -30461,11 +31822,11 @@ namespace WebAPI.Models.Segmentation
                     ActionsSchemaProperty.Validate("actions", parameters["actions"]);
                     if (parameters["actions"] is JArray)
                     {
-                        Actions = buildList<KalturaContentActionCondition>(typeof(KalturaContentActionCondition), (JArray) parameters["actions"]);
+                        Actions = OTTObjectBuilder.buildList<KalturaContentActionCondition>(typeof(KalturaContentActionCondition), (JArray) parameters["actions"]);
                     }
                     else if (parameters["actions"] is IList)
                     {
-                        Actions = buildList(typeof(KalturaContentActionCondition), parameters["actions"] as object[]);
+                        Actions = OTTObjectBuilder.buildList(typeof(KalturaContentActionCondition), parameters["actions"] as object[]);
                     }
                 }
             }
@@ -30551,6 +31912,20 @@ namespace WebAPI.Models.Segmentation
     {
         public KalturaHouseholdSegmentListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = OTTObjectBuilder.buildList<KalturaHouseholdSegment>(typeof(KalturaHouseholdSegment), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaHouseholdSegment), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaKsqlSegmentAction
@@ -30901,22 +32276,22 @@ namespace WebAPI.Models.Segmentation
                 {
                     if (parameters["conditions"] is JArray)
                     {
-                        Conditions = buildList<KalturaBaseSegmentCondition>(typeof(KalturaBaseSegmentCondition), (JArray) parameters["conditions"]);
+                        Conditions = OTTObjectBuilder.buildList<KalturaBaseSegmentCondition>(typeof(KalturaBaseSegmentCondition), (JArray) parameters["conditions"]);
                     }
                     else if (parameters["conditions"] is IList)
                     {
-                        Conditions = buildList(typeof(KalturaBaseSegmentCondition), parameters["conditions"] as object[]);
+                        Conditions = OTTObjectBuilder.buildList(typeof(KalturaBaseSegmentCondition), parameters["conditions"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("actions") && parameters["actions"] != null)
                 {
                     if (parameters["actions"] is JArray)
                     {
-                        Actions = buildList<KalturaBaseSegmentAction>(typeof(KalturaBaseSegmentAction), (JArray) parameters["actions"]);
+                        Actions = OTTObjectBuilder.buildList<KalturaBaseSegmentAction>(typeof(KalturaBaseSegmentAction), (JArray) parameters["actions"]);
                     }
                     else if (parameters["actions"] is IList)
                     {
-                        Actions = buildList(typeof(KalturaBaseSegmentAction), parameters["actions"] as object[]);
+                        Actions = OTTObjectBuilder.buildList(typeof(KalturaBaseSegmentAction), parameters["actions"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("value") && parameters["value"] != null)
@@ -30986,11 +32361,11 @@ namespace WebAPI.Models.Segmentation
                     SegmentationTypesSchemaProperty.Validate("objects", parameters["objects"]);
                     if (parameters["objects"] is JArray)
                     {
-                        SegmentationTypes = buildList<KalturaSegmentationType>(typeof(KalturaSegmentationType), (JArray) parameters["objects"]);
+                        SegmentationTypes = OTTObjectBuilder.buildList<KalturaSegmentationType>(typeof(KalturaSegmentationType), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        SegmentationTypes = buildList(typeof(KalturaSegmentationType), parameters["objects"] as object[]);
+                        SegmentationTypes = OTTObjectBuilder.buildList(typeof(KalturaSegmentationType), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -31220,11 +32595,11 @@ namespace WebAPI.Models.Segmentation
                     RangesSchemaProperty.Validate("ranges", parameters["ranges"]);
                     if (parameters["ranges"] is JArray)
                     {
-                        Ranges = buildList<KalturaSegmentRange>(typeof(KalturaSegmentRange), (JArray) parameters["ranges"]);
+                        Ranges = OTTObjectBuilder.buildList<KalturaSegmentRange>(typeof(KalturaSegmentRange), (JArray) parameters["ranges"]);
                     }
                     else if (parameters["ranges"] is IList)
                     {
-                        Ranges = buildList(typeof(KalturaSegmentRange), parameters["ranges"] as object[]);
+                        Ranges = OTTObjectBuilder.buildList(typeof(KalturaSegmentRange), parameters["ranges"] as object[]);
                     }
                 }
             }
@@ -31383,11 +32758,11 @@ namespace WebAPI.Models.Segmentation
                     ValuesSchemaProperty.Validate("values", parameters["values"]);
                     if (parameters["values"] is JArray)
                     {
-                        Values = buildList<KalturaSegmentValue>(typeof(KalturaSegmentValue), (JArray) parameters["values"]);
+                        Values = OTTObjectBuilder.buildList<KalturaSegmentValue>(typeof(KalturaSegmentValue), (JArray) parameters["values"]);
                     }
                     else if (parameters["values"] is IList)
                     {
-                        Values = buildList(typeof(KalturaSegmentValue), parameters["values"] as object[]);
+                        Values = OTTObjectBuilder.buildList(typeof(KalturaSegmentValue), parameters["values"] as object[]);
                     }
                 }
             }
@@ -31622,11 +32997,11 @@ namespace WebAPI.Models.Segmentation
                     SegmentsSchemaProperty.Validate("objects", parameters["objects"]);
                     if (parameters["objects"] is JArray)
                     {
-                        Segments = buildList<KalturaUserSegment>(typeof(KalturaUserSegment), (JArray) parameters["objects"]);
+                        Segments = OTTObjectBuilder.buildList<KalturaUserSegment>(typeof(KalturaUserSegment), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Segments = buildList(typeof(KalturaUserSegment), parameters["objects"] as object[]);
+                        Segments = OTTObjectBuilder.buildList(typeof(KalturaUserSegment), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -31954,7 +33329,7 @@ namespace WebAPI.Models.Users
                 }
                 if (parameters.ContainsKey("name__null") && parameters["name__null"] != null)
                 {
-                    AddNullableProperty("name");
+                    this.AddNullableProperty("name");
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
@@ -32001,6 +33376,20 @@ namespace WebAPI.Models.Users
     {
         public KalturaDeviceReferenceDataListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = OTTObjectBuilder.buildList<KalturaDeviceReferenceData>(typeof(KalturaDeviceReferenceData), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaDeviceReferenceData), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaDynamicData
@@ -32107,11 +33496,11 @@ namespace WebAPI.Models.Users
                 {
                     if (parameters["media_ids"] is JArray)
                     {
-                        MediaIds = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["media_ids"]);
+                        MediaIds = OTTObjectBuilder.buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["media_ids"]);
                     }
                     else if (parameters["media_ids"] is IList)
                     {
-                        MediaIds = buildList(typeof(KalturaIntegerValue), parameters["media_ids"] as object[]);
+                        MediaIds = OTTObjectBuilder.buildList(typeof(KalturaIntegerValue), parameters["media_ids"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("mediaIdIn") && parameters["mediaIdIn"] != null)
@@ -32135,11 +33524,11 @@ namespace WebAPI.Models.Users
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Favorites = buildList<KalturaFavorite>(typeof(KalturaFavorite), (JArray) parameters["objects"]);
+                        Favorites = OTTObjectBuilder.buildList<KalturaFavorite>(typeof(KalturaFavorite), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Favorites = buildList(typeof(KalturaFavorite), parameters["objects"] as object[]);
+                        Favorites = OTTObjectBuilder.buildList(typeof(KalturaFavorite), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -32495,14 +33884,14 @@ namespace WebAPI.Models.Users
                 {
                     if (parameters["dynamicData"] is JObject)
                     {
-                        DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
+                        DynamicData = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("dynamic_data") && parameters["dynamic_data"] != null && isOldVersion)
                 {
                     if (parameters["dynamic_data"] is JObject)
                     {
-                        DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamic_data"]).ToObject<Dictionary<string, object>>());
+                        DynamicData = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamic_data"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("isHouseholdMaster") && parameters["isHouseholdMaster"] != null)
@@ -32692,7 +34081,7 @@ namespace WebAPI.Models.Users
                 {
                     if (parameters["dynamicData"] is JObject)
                     {
-                        DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
+                        DynamicData = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
                     }
                 }
             }
@@ -32810,11 +34199,11 @@ namespace WebAPI.Models.Users
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Users = buildList<KalturaOTTUser>(typeof(KalturaOTTUser), (JArray) parameters["objects"]);
+                        Users = OTTObjectBuilder.buildList<KalturaOTTUser>(typeof(KalturaOTTUser), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Users = buildList(typeof(KalturaOTTUser), parameters["objects"] as object[]);
+                        Users = OTTObjectBuilder.buildList(typeof(KalturaOTTUser), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -32948,11 +34337,11 @@ namespace WebAPI.Models.Users
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Partners = buildList<KalturaPartner>(typeof(KalturaPartner), (JArray) parameters["objects"]);
+                        Partners = OTTObjectBuilder.buildList<KalturaPartner>(typeof(KalturaPartner), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Partners = buildList(typeof(KalturaPartner), parameters["objects"] as object[]);
+                        Partners = OTTObjectBuilder.buildList(typeof(KalturaPartner), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -33091,11 +34480,11 @@ namespace WebAPI.Models.Users
                 {
                     if (parameters["complexities"] is JArray)
                     {
-                        Complexities = buildList<KalturaRegexExpression>(typeof(KalturaRegexExpression), (JArray) parameters["complexities"]);
+                        Complexities = OTTObjectBuilder.buildList<KalturaRegexExpression>(typeof(KalturaRegexExpression), (JArray) parameters["complexities"]);
                     }
                     else if (parameters["complexities"] is IList)
                     {
-                        Complexities = buildList(typeof(KalturaRegexExpression), parameters["complexities"] as object[]);
+                        Complexities = OTTObjectBuilder.buildList(typeof(KalturaRegexExpression), parameters["complexities"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("lockoutFailuresCount") && parameters["lockoutFailuresCount"] != null)
@@ -33139,6 +34528,20 @@ namespace WebAPI.Models.Users
     {
         public KalturaPasswordPolicyListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = OTTObjectBuilder.buildList<KalturaPasswordPolicy>(typeof(KalturaPasswordPolicy), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaPasswordPolicy), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaSession
@@ -33357,7 +34760,7 @@ namespace WebAPI.Models.Users
                 {
                     if (parameters["settings"] is JObject)
                     {
-                        Settings = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["settings"]).ToObject<Dictionary<string, object>>());
+                        Settings = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["settings"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("externalIdentifier") && parameters["externalIdentifier"] != null)
@@ -33381,7 +34784,7 @@ namespace WebAPI.Models.Users
                 {
                     if (parameters["adapterData"] is JObject)
                     {
-                        AdapterData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["adapterData"]).ToObject<Dictionary<string, object>>());
+                        AdapterData = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["adapterData"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("code") && parameters["code"] != null)
@@ -33405,11 +34808,11 @@ namespace WebAPI.Models.Users
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        SSOAdapters = buildList<KalturaSSOAdapterProfile>(typeof(KalturaSSOAdapterProfile), (JArray) parameters["objects"]);
+                        SSOAdapters = OTTObjectBuilder.buildList<KalturaSSOAdapterProfile>(typeof(KalturaSSOAdapterProfile), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        SSOAdapters = buildList(typeof(KalturaSSOAdapterProfile), parameters["objects"] as object[]);
+                        SSOAdapters = OTTObjectBuilder.buildList(typeof(KalturaSSOAdapterProfile), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -33427,11 +34830,11 @@ namespace WebAPI.Models.Users
                 {
                     if (parameters["list"] is JArray)
                     {
-                        List = buildList<KalturaUserAssetsListItem>(typeof(KalturaUserAssetsListItem), (JArray) parameters["list"]);
+                        List = OTTObjectBuilder.buildList<KalturaUserAssetsListItem>(typeof(KalturaUserAssetsListItem), (JArray) parameters["list"]);
                     }
                     else if (parameters["list"] is IList)
                     {
-                        List = buildList(typeof(KalturaUserAssetsListItem), parameters["list"] as object[]);
+                        List = OTTObjectBuilder.buildList(typeof(KalturaUserAssetsListItem), parameters["list"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("listType") && parameters["listType"] != null)
@@ -33684,11 +35087,11 @@ namespace WebAPI.Models.Users
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        UserInterests = buildList<KalturaUserInterest>(typeof(KalturaUserInterest), (JArray) parameters["objects"]);
+                        UserInterests = OTTObjectBuilder.buildList<KalturaUserInterest>(typeof(KalturaUserInterest), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        UserInterests = buildList(typeof(KalturaUserInterest), parameters["objects"] as object[]);
+                        UserInterests = OTTObjectBuilder.buildList(typeof(KalturaUserInterest), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -34138,7 +35541,7 @@ namespace WebAPI.Models.Partner
                     DeviceFamilyToCategoryTreeSchemaProperty.Validate("deviceFamilyToCategoryTree", parameters["deviceFamilyToCategoryTree"]);
                     if (parameters["deviceFamilyToCategoryTree"] is JObject)
                     {
-                        DeviceFamilyToCategoryTree = buildDictionary<KalturaLongValue>(typeof(KalturaLongValue), ((JObject) parameters["deviceFamilyToCategoryTree"]).ToObject<Dictionary<string, object>>());
+                        DeviceFamilyToCategoryTree = OTTObjectBuilder.buildDictionary<KalturaLongValue>(typeof(KalturaLongValue), ((JObject) parameters["deviceFamilyToCategoryTree"]).ToObject<Dictionary<string, object>>());
                     }
                 }
             }
@@ -34169,11 +35572,11 @@ namespace WebAPI.Models.Partner
                 {
                     if (parameters["bookmarkEventThresholds"] is JArray)
                     {
-                        BookmarkEventThresholds = buildList<KalturaBookmarkEventThreshold>(typeof(KalturaBookmarkEventThreshold), (JArray) parameters["bookmarkEventThresholds"]);
+                        BookmarkEventThresholds = OTTObjectBuilder.buildList<KalturaBookmarkEventThreshold>(typeof(KalturaBookmarkEventThreshold), (JArray) parameters["bookmarkEventThresholds"]);
                     }
                     else if (parameters["bookmarkEventThresholds"] is IList)
                     {
-                        BookmarkEventThresholds = buildList(typeof(KalturaBookmarkEventThreshold), parameters["bookmarkEventThresholds"] as object[]);
+                        BookmarkEventThresholds = OTTObjectBuilder.buildList(typeof(KalturaBookmarkEventThreshold), parameters["bookmarkEventThresholds"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("keepSubscriptionAddOns") && parameters["keepSubscriptionAddOns"] != null)
@@ -34804,7 +36207,7 @@ namespace WebAPI.Models.Partner
                 {
                     if (parameters["extendedTypes"] is JObject)
                     {
-                        ExtendedTypes = buildDictionary<KalturaLongValue>(typeof(KalturaLongValue), ((JObject) parameters["extendedTypes"]).ToObject<Dictionary<string, object>>());
+                        ExtendedTypes = OTTObjectBuilder.buildDictionary<KalturaLongValue>(typeof(KalturaLongValue), ((JObject) parameters["extendedTypes"]).ToObject<Dictionary<string, object>>());
                     }
                 }
             }
@@ -34820,11 +36223,11 @@ namespace WebAPI.Models.Partner
                 {
                     if (parameters["objectVirtualAssets"] is JArray)
                     {
-                        ObjectVirtualAssets = buildList<KalturaObjectVirtualAssetInfo>(typeof(KalturaObjectVirtualAssetInfo), (JArray) parameters["objectVirtualAssets"]);
+                        ObjectVirtualAssets = OTTObjectBuilder.buildList<KalturaObjectVirtualAssetInfo>(typeof(KalturaObjectVirtualAssetInfo), (JArray) parameters["objectVirtualAssets"]);
                     }
                     else if (parameters["objectVirtualAssets"] is IList)
                     {
-                        ObjectVirtualAssets = buildList(typeof(KalturaObjectVirtualAssetInfo), parameters["objectVirtualAssets"] as object[]);
+                        ObjectVirtualAssets = OTTObjectBuilder.buildList(typeof(KalturaObjectVirtualAssetInfo), parameters["objectVirtualAssets"] as object[]);
                     }
                 }
             }
@@ -34912,11 +36315,11 @@ namespace WebAPI.Models.Partner
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaPartnerConfiguration>(typeof(KalturaPartnerConfiguration), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaPartnerConfiguration>(typeof(KalturaPartnerConfiguration), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaPartnerConfiguration), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaPartnerConfiguration), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -34932,11 +36335,11 @@ namespace WebAPI.Models.Partner
                 {
                     if (parameters["unifiedBillingCycles"] is JArray)
                     {
-                        UnifiedBillingCycles = buildList<KalturaUnifiedBillingCycle>(typeof(KalturaUnifiedBillingCycle), (JArray) parameters["unifiedBillingCycles"]);
+                        UnifiedBillingCycles = OTTObjectBuilder.buildList<KalturaUnifiedBillingCycle>(typeof(KalturaUnifiedBillingCycle), (JArray) parameters["unifiedBillingCycles"]);
                     }
                     else if (parameters["unifiedBillingCycles"] is IList)
                     {
-                        UnifiedBillingCycles = buildList(typeof(KalturaUnifiedBillingCycle), parameters["unifiedBillingCycles"] as object[]);
+                        UnifiedBillingCycles = OTTObjectBuilder.buildList(typeof(KalturaUnifiedBillingCycle), parameters["unifiedBillingCycles"] as object[]);
                     }
                 }
             }
@@ -34976,11 +36379,11 @@ namespace WebAPI.Models.Partner
                 {
                     if (parameters["templates"] is JArray)
                     {
-                        Templates = buildList<KalturaResetPasswordPartnerConfigTemplate>(typeof(KalturaResetPasswordPartnerConfigTemplate), (JArray) parameters["templates"]);
+                        Templates = OTTObjectBuilder.buildList<KalturaResetPasswordPartnerConfigTemplate>(typeof(KalturaResetPasswordPartnerConfigTemplate), (JArray) parameters["templates"]);
                     }
                     else if (parameters["templates"] is IList)
                     {
-                        Templates = buildList(typeof(KalturaResetPasswordPartnerConfigTemplate), parameters["templates"] as object[]);
+                        Templates = OTTObjectBuilder.buildList(typeof(KalturaResetPasswordPartnerConfigTemplate), parameters["templates"] as object[]);
                     }
                 }
             }
@@ -35356,11 +36759,11 @@ namespace WebAPI.Models.Upload
                     ResultsSchemaProperty.Validate("results", parameters["results"]);
                     if (parameters["results"] is JArray)
                     {
-                        Results = buildList<KalturaBulkUploadResult>(typeof(KalturaBulkUploadResult), (JArray) parameters["results"]);
+                        Results = OTTObjectBuilder.buildList<KalturaBulkUploadResult>(typeof(KalturaBulkUploadResult), (JArray) parameters["results"]);
                     }
                     else if (parameters["results"] is IList)
                     {
-                        Results = buildList(typeof(KalturaBulkUploadResult), parameters["results"] as object[]);
+                        Results = OTTObjectBuilder.buildList(typeof(KalturaBulkUploadResult), parameters["results"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("errors") && parameters["errors"] != null)
@@ -35368,11 +36771,11 @@ namespace WebAPI.Models.Upload
                     ErrorsSchemaProperty.Validate("errors", parameters["errors"]);
                     if (parameters["errors"] is JArray)
                     {
-                        Errors = buildList<KalturaMessage>(typeof(KalturaMessage), (JArray) parameters["errors"]);
+                        Errors = OTTObjectBuilder.buildList<KalturaMessage>(typeof(KalturaMessage), (JArray) parameters["errors"]);
                     }
                     else if (parameters["errors"] is IList)
                     {
-                        Errors = buildList(typeof(KalturaMessage), parameters["errors"] as object[]);
+                        Errors = OTTObjectBuilder.buildList(typeof(KalturaMessage), parameters["errors"] as object[]);
                     }
                 }
             }
@@ -35589,11 +36992,11 @@ namespace WebAPI.Models.Upload
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaBulkUpload>(typeof(KalturaBulkUpload), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaBulkUpload>(typeof(KalturaBulkUpload), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaBulkUpload), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaBulkUpload), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -35821,11 +37224,11 @@ namespace WebAPI.Models.Upload
                     ErrorsSchemaProperty.Validate("errors", parameters["errors"]);
                     if (parameters["errors"] is JArray)
                     {
-                        Errors = buildList<KalturaMessage>(typeof(KalturaMessage), (JArray) parameters["errors"]);
+                        Errors = OTTObjectBuilder.buildList<KalturaMessage>(typeof(KalturaMessage), (JArray) parameters["errors"]);
                     }
                     else if (parameters["errors"] is IList)
                     {
-                        Errors = buildList(typeof(KalturaMessage), parameters["errors"] as object[]);
+                        Errors = OTTObjectBuilder.buildList(typeof(KalturaMessage), parameters["errors"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("warnings") && parameters["warnings"] != null)
@@ -35833,11 +37236,11 @@ namespace WebAPI.Models.Upload
                     WarningsSchemaProperty.Validate("warnings", parameters["warnings"]);
                     if (parameters["warnings"] is JArray)
                     {
-                        Warnings = buildList<KalturaMessage>(typeof(KalturaMessage), (JArray) parameters["warnings"]);
+                        Warnings = OTTObjectBuilder.buildList<KalturaMessage>(typeof(KalturaMessage), (JArray) parameters["warnings"]);
                     }
                     else if (parameters["warnings"] is IList)
                     {
-                        Warnings = buildList(typeof(KalturaMessage), parameters["warnings"] as object[]);
+                        Warnings = OTTObjectBuilder.buildList(typeof(KalturaMessage), parameters["warnings"] as object[]);
                     }
                 }
             }
@@ -36047,7 +37450,7 @@ namespace WebAPI.Models.CanaryDeployment.Microservices
                 {
                     if (parameters["routingConfiguration"] is JObject)
                     {
-                        RoutingConfiguration = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["routingConfiguration"]).ToObject<Dictionary<string, object>>());
+                        RoutingConfiguration = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["routingConfiguration"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("migrationEvents") && parameters["migrationEvents"] != null)
@@ -36235,11 +37638,11 @@ namespace WebAPI.Models.DMS
                     TagsSchemaProperty.Validate("tags", parameters["tags"]);
                     if (parameters["tags"] is JArray)
                     {
-                        Tags = buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["tags"]);
+                        Tags = OTTObjectBuilder.buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["tags"]);
                     }
                     else if (parameters["tags"] is IList)
                     {
-                        Tags = buildList(typeof(KalturaStringValue), parameters["tags"] as object[]);
+                        Tags = OTTObjectBuilder.buildList(typeof(KalturaStringValue), parameters["tags"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("numberOfDevices") && parameters["numberOfDevices"] != null)
@@ -36252,11 +37655,11 @@ namespace WebAPI.Models.DMS
                     ConfigurationIdentifiersSchemaProperty.Validate("configurationIdentifiers", parameters["configurationIdentifiers"]);
                     if (parameters["configurationIdentifiers"] is JArray)
                     {
-                        ConfigurationIdentifiers = buildList<KalturaConfigurationIdentifier>(typeof(KalturaConfigurationIdentifier), (JArray) parameters["configurationIdentifiers"]);
+                        ConfigurationIdentifiers = OTTObjectBuilder.buildList<KalturaConfigurationIdentifier>(typeof(KalturaConfigurationIdentifier), (JArray) parameters["configurationIdentifiers"]);
                     }
                     else if (parameters["configurationIdentifiers"] is IList)
                     {
-                        ConfigurationIdentifiers = buildList(typeof(KalturaConfigurationIdentifier), parameters["configurationIdentifiers"] as object[]);
+                        ConfigurationIdentifiers = OTTObjectBuilder.buildList(typeof(KalturaConfigurationIdentifier), parameters["configurationIdentifiers"] as object[]);
                     }
                 }
             }
@@ -36322,11 +37725,11 @@ namespace WebAPI.Models.DMS
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaConfigurationGroupDevice>(typeof(KalturaConfigurationGroupDevice), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaConfigurationGroupDevice>(typeof(KalturaConfigurationGroupDevice), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaConfigurationGroupDevice), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaConfigurationGroupDevice), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -36342,11 +37745,11 @@ namespace WebAPI.Models.DMS
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaConfigurationGroup>(typeof(KalturaConfigurationGroup), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaConfigurationGroup>(typeof(KalturaConfigurationGroup), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaConfigurationGroup), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaConfigurationGroup), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -36412,11 +37815,11 @@ namespace WebAPI.Models.DMS
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaConfigurationGroupTag>(typeof(KalturaConfigurationGroupTag), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaConfigurationGroupTag>(typeof(KalturaConfigurationGroupTag), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaConfigurationGroupTag), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaConfigurationGroupTag), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -36547,11 +37950,11 @@ namespace WebAPI.Models.DMS
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaConfigurations>(typeof(KalturaConfigurations), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaConfigurations>(typeof(KalturaConfigurations), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaConfigurations), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaConfigurations), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -36728,11 +38131,11 @@ namespace WebAPI.Models.Domains
                 {
                     if (parameters["devices"] is JArray)
                     {
-                        Devices = buildList<KalturaDevice>(typeof(KalturaDevice), (JArray) parameters["devices"]);
+                        Devices = OTTObjectBuilder.buildList<KalturaDevice>(typeof(KalturaDevice), (JArray) parameters["devices"]);
                     }
                     else if (parameters["devices"] is IList)
                     {
-                        Devices = buildList(typeof(KalturaDevice), parameters["devices"] as object[]);
+                        Devices = OTTObjectBuilder.buildList(typeof(KalturaDevice), parameters["devices"] as object[]);
                     }
                 }
             }
@@ -36897,11 +38300,11 @@ namespace WebAPI.Models.Domains
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaHomeNetwork>(typeof(KalturaHomeNetwork), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaHomeNetwork>(typeof(KalturaHomeNetwork), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaHomeNetwork), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaHomeNetwork), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -37177,77 +38580,77 @@ namespace WebAPI.Models.Domains
                 {
                     if (parameters["users"] is JArray)
                     {
-                        Users = buildList<KalturaBaseOTTUser>(typeof(KalturaBaseOTTUser), (JArray) parameters["users"]);
+                        Users = OTTObjectBuilder.buildList<KalturaBaseOTTUser>(typeof(KalturaBaseOTTUser), (JArray) parameters["users"]);
                     }
                     else if (parameters["users"] is IList)
                     {
-                        Users = buildList(typeof(KalturaBaseOTTUser), parameters["users"] as object[]);
+                        Users = OTTObjectBuilder.buildList(typeof(KalturaBaseOTTUser), parameters["users"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("masterUsers") && parameters["masterUsers"] != null)
                 {
                     if (parameters["masterUsers"] is JArray)
                     {
-                        MasterUsers = buildList<KalturaBaseOTTUser>(typeof(KalturaBaseOTTUser), (JArray) parameters["masterUsers"]);
+                        MasterUsers = OTTObjectBuilder.buildList<KalturaBaseOTTUser>(typeof(KalturaBaseOTTUser), (JArray) parameters["masterUsers"]);
                     }
                     else if (parameters["masterUsers"] is IList)
                     {
-                        MasterUsers = buildList(typeof(KalturaBaseOTTUser), parameters["masterUsers"] as object[]);
+                        MasterUsers = OTTObjectBuilder.buildList(typeof(KalturaBaseOTTUser), parameters["masterUsers"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("master_users") && parameters["master_users"] != null && isOldVersion)
                 {
                     if (parameters["master_users"] is JArray)
                     {
-                        MasterUsers = buildList<KalturaBaseOTTUser>(typeof(KalturaBaseOTTUser), (JArray) parameters["master_users"]);
+                        MasterUsers = OTTObjectBuilder.buildList<KalturaBaseOTTUser>(typeof(KalturaBaseOTTUser), (JArray) parameters["master_users"]);
                     }
                     else if (parameters["master_users"] is IList)
                     {
-                        MasterUsers = buildList(typeof(KalturaBaseOTTUser), parameters["master_users"] as object[]);
+                        MasterUsers = OTTObjectBuilder.buildList(typeof(KalturaBaseOTTUser), parameters["master_users"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("defaultUsers") && parameters["defaultUsers"] != null)
                 {
                     if (parameters["defaultUsers"] is JArray)
                     {
-                        DefaultUsers = buildList<KalturaBaseOTTUser>(typeof(KalturaBaseOTTUser), (JArray) parameters["defaultUsers"]);
+                        DefaultUsers = OTTObjectBuilder.buildList<KalturaBaseOTTUser>(typeof(KalturaBaseOTTUser), (JArray) parameters["defaultUsers"]);
                     }
                     else if (parameters["defaultUsers"] is IList)
                     {
-                        DefaultUsers = buildList(typeof(KalturaBaseOTTUser), parameters["defaultUsers"] as object[]);
+                        DefaultUsers = OTTObjectBuilder.buildList(typeof(KalturaBaseOTTUser), parameters["defaultUsers"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("default_users") && parameters["default_users"] != null && isOldVersion)
                 {
                     if (parameters["default_users"] is JArray)
                     {
-                        DefaultUsers = buildList<KalturaBaseOTTUser>(typeof(KalturaBaseOTTUser), (JArray) parameters["default_users"]);
+                        DefaultUsers = OTTObjectBuilder.buildList<KalturaBaseOTTUser>(typeof(KalturaBaseOTTUser), (JArray) parameters["default_users"]);
                     }
                     else if (parameters["default_users"] is IList)
                     {
-                        DefaultUsers = buildList(typeof(KalturaBaseOTTUser), parameters["default_users"] as object[]);
+                        DefaultUsers = OTTObjectBuilder.buildList(typeof(KalturaBaseOTTUser), parameters["default_users"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("pendingUsers") && parameters["pendingUsers"] != null)
                 {
                     if (parameters["pendingUsers"] is JArray)
                     {
-                        PendingUsers = buildList<KalturaBaseOTTUser>(typeof(KalturaBaseOTTUser), (JArray) parameters["pendingUsers"]);
+                        PendingUsers = OTTObjectBuilder.buildList<KalturaBaseOTTUser>(typeof(KalturaBaseOTTUser), (JArray) parameters["pendingUsers"]);
                     }
                     else if (parameters["pendingUsers"] is IList)
                     {
-                        PendingUsers = buildList(typeof(KalturaBaseOTTUser), parameters["pendingUsers"] as object[]);
+                        PendingUsers = OTTObjectBuilder.buildList(typeof(KalturaBaseOTTUser), parameters["pendingUsers"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("pending_users") && parameters["pending_users"] != null && isOldVersion)
                 {
                     if (parameters["pending_users"] is JArray)
                     {
-                        PendingUsers = buildList<KalturaBaseOTTUser>(typeof(KalturaBaseOTTUser), (JArray) parameters["pending_users"]);
+                        PendingUsers = OTTObjectBuilder.buildList<KalturaBaseOTTUser>(typeof(KalturaBaseOTTUser), (JArray) parameters["pending_users"]);
                     }
                     else if (parameters["pending_users"] is IList)
                     {
-                        PendingUsers = buildList(typeof(KalturaBaseOTTUser), parameters["pending_users"] as object[]);
+                        PendingUsers = OTTObjectBuilder.buildList(typeof(KalturaBaseOTTUser), parameters["pending_users"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("regionId") && parameters["regionId"] != null)
@@ -37324,22 +38727,22 @@ namespace WebAPI.Models.Domains
                 {
                     if (parameters["deviceFamilies"] is JArray)
                     {
-                        DeviceFamilies = buildList<KalturaDeviceFamily>(typeof(KalturaDeviceFamily), (JArray) parameters["deviceFamilies"]);
+                        DeviceFamilies = OTTObjectBuilder.buildList<KalturaDeviceFamily>(typeof(KalturaDeviceFamily), (JArray) parameters["deviceFamilies"]);
                     }
                     else if (parameters["deviceFamilies"] is IList)
                     {
-                        DeviceFamilies = buildList(typeof(KalturaDeviceFamily), parameters["deviceFamilies"] as object[]);
+                        DeviceFamilies = OTTObjectBuilder.buildList(typeof(KalturaDeviceFamily), parameters["deviceFamilies"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("device_families") && parameters["device_families"] != null && isOldVersion)
                 {
                     if (parameters["device_families"] is JArray)
                     {
-                        DeviceFamilies = buildList<KalturaDeviceFamily>(typeof(KalturaDeviceFamily), (JArray) parameters["device_families"]);
+                        DeviceFamilies = OTTObjectBuilder.buildList<KalturaDeviceFamily>(typeof(KalturaDeviceFamily), (JArray) parameters["device_families"]);
                     }
                     else if (parameters["device_families"] is IList)
                     {
-                        DeviceFamilies = buildList(typeof(KalturaDeviceFamily), parameters["device_families"] as object[]);
+                        DeviceFamilies = OTTObjectBuilder.buildList(typeof(KalturaDeviceFamily), parameters["device_families"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("roleId") && parameters["roleId"] != null)
@@ -37463,6 +38866,20 @@ namespace WebAPI.Models.Domains
     {
         public KalturaHouseholdCouponListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = OTTObjectBuilder.buildList<KalturaHouseholdCoupon>(typeof(KalturaHouseholdCoupon), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaHouseholdCoupon), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaHouseholdDevice
@@ -37725,7 +39142,7 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("externalId__null") && parameters["externalId__null"] != null)
                 {
-                    AddNullableProperty("externalId");
+                    this.AddNullableProperty("externalId");
                 }
                 if (parameters.ContainsKey("externalId") && parameters["externalId"] != null)
                 {
@@ -37734,7 +39151,7 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("macAddress__null") && parameters["macAddress__null"] != null)
                 {
-                    AddNullableProperty("macAddress");
+                    this.AddNullableProperty("macAddress");
                 }
                 if (parameters.ContainsKey("macAddress") && parameters["macAddress"] != null)
                 {
@@ -37743,19 +39160,19 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("dynamicData__null") && parameters["dynamicData__null"] != null)
                 {
-                    AddNullableProperty("dynamicData");
+                    this.AddNullableProperty("dynamicData");
                 }
                 if (parameters.ContainsKey("dynamicData") && parameters["dynamicData"] != null)
                 {
                     DynamicDataSchemaProperty.Validate("dynamicData", parameters["dynamicData"]);
                     if (parameters["dynamicData"] is JObject)
                     {
-                        DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
+                        DynamicData = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("model__null") && parameters["model__null"] != null)
                 {
-                    AddNullableProperty("model");
+                    this.AddNullableProperty("model");
                 }
                 if (parameters.ContainsKey("model") && parameters["model"] != null)
                 {
@@ -37764,7 +39181,7 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("manufacturer__null") && parameters["manufacturer__null"] != null)
                 {
-                    AddNullableProperty("manufacturer");
+                    this.AddNullableProperty("manufacturer");
                 }
                 if (parameters.ContainsKey("manufacturer") && parameters["manufacturer"] != null)
                 {
@@ -37773,7 +39190,7 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("manufacturerId__null") && parameters["manufacturerId__null"] != null)
                 {
-                    AddNullableProperty("manufacturerId");
+                    this.AddNullableProperty("manufacturerId");
                 }
                 if (parameters.ContainsKey("manufacturerId") && parameters["manufacturerId"] != null)
                 {
@@ -37782,7 +39199,7 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("lastActivityTime__null") && parameters["lastActivityTime__null"] != null)
                 {
-                    AddNullableProperty("lastActivityTime");
+                    this.AddNullableProperty("lastActivityTime");
                 }
                 if (parameters.ContainsKey("lastActivityTime") && parameters["lastActivityTime"] != null)
                 {
@@ -37950,11 +39367,11 @@ namespace WebAPI.Models.Domains
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaHouseholdDevice>(typeof(KalturaHouseholdDevice), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaHouseholdDevice>(typeof(KalturaHouseholdDevice), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaHouseholdDevice), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaHouseholdDevice), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -38231,11 +39648,11 @@ namespace WebAPI.Models.Domains
                     DeviceFamiliesLimitationsSchemaProperty.Validate("deviceFamiliesLimitations", parameters["deviceFamiliesLimitations"]);
                     if (parameters["deviceFamiliesLimitations"] is JArray)
                     {
-                        DeviceFamiliesLimitations = buildList<KalturaHouseholdDeviceFamilyLimitations>(typeof(KalturaHouseholdDeviceFamilyLimitations), (JArray) parameters["deviceFamiliesLimitations"]);
+                        DeviceFamiliesLimitations = OTTObjectBuilder.buildList<KalturaHouseholdDeviceFamilyLimitations>(typeof(KalturaHouseholdDeviceFamilyLimitations), (JArray) parameters["deviceFamiliesLimitations"]);
                     }
                     else if (parameters["deviceFamiliesLimitations"] is IList)
                     {
-                        DeviceFamiliesLimitations = buildList(typeof(KalturaHouseholdDeviceFamilyLimitations), parameters["deviceFamiliesLimitations"] as object[]);
+                        DeviceFamiliesLimitations = OTTObjectBuilder.buildList(typeof(KalturaHouseholdDeviceFamilyLimitations), parameters["deviceFamiliesLimitations"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("device_families_limitations") && parameters["device_families_limitations"] != null && isOldVersion)
@@ -38243,11 +39660,11 @@ namespace WebAPI.Models.Domains
                     DeviceFamiliesLimitationsSchemaProperty.Validate("device_families_limitations", parameters["device_families_limitations"]);
                     if (parameters["device_families_limitations"] is JArray)
                     {
-                        DeviceFamiliesLimitations = buildList<KalturaHouseholdDeviceFamilyLimitations>(typeof(KalturaHouseholdDeviceFamilyLimitations), (JArray) parameters["device_families_limitations"]);
+                        DeviceFamiliesLimitations = OTTObjectBuilder.buildList<KalturaHouseholdDeviceFamilyLimitations>(typeof(KalturaHouseholdDeviceFamilyLimitations), (JArray) parameters["device_families_limitations"]);
                     }
                     else if (parameters["device_families_limitations"] is IList)
                     {
-                        DeviceFamiliesLimitations = buildList(typeof(KalturaHouseholdDeviceFamilyLimitations), parameters["device_families_limitations"] as object[]);
+                        DeviceFamiliesLimitations = OTTObjectBuilder.buildList(typeof(KalturaHouseholdDeviceFamilyLimitations), parameters["device_families_limitations"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("description") && parameters["description"] != null)
@@ -38283,11 +39700,11 @@ namespace WebAPI.Models.Domains
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaHouseholdLimitations>(typeof(KalturaHouseholdLimitations), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaHouseholdLimitations>(typeof(KalturaHouseholdLimitations), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaHouseholdLimitations), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaHouseholdLimitations), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -38297,6 +39714,20 @@ namespace WebAPI.Models.Domains
     {
         public KalturaHouseholdListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = OTTObjectBuilder.buildList<KalturaHousehold>(typeof(KalturaHousehold), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaHousehold), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaHouseholdUser
@@ -38453,11 +39884,11 @@ namespace WebAPI.Models.Domains
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaHouseholdUser>(typeof(KalturaHouseholdUser), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaHouseholdUser>(typeof(KalturaHouseholdUser), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaHouseholdUser), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaHouseholdUser), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -38554,11 +39985,11 @@ namespace WebAPI.Controllers
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaEpg>(typeof(KalturaEpg), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaEpg>(typeof(KalturaEpg), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaEpg), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaEpg), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -38645,11 +40076,11 @@ namespace WebAPI.Models.Users.UserSessionProfile
                     ExpressionsSchemaProperty.Validate("expressions", parameters["expressions"]);
                     if (parameters["expressions"] is JArray)
                     {
-                        Expressions = buildList<KalturaUserSessionProfileExpression>(typeof(KalturaUserSessionProfileExpression), (JArray) parameters["expressions"]);
+                        Expressions = OTTObjectBuilder.buildList<KalturaUserSessionProfileExpression>(typeof(KalturaUserSessionProfileExpression), (JArray) parameters["expressions"]);
                     }
                     else if (parameters["expressions"] is IList)
                     {
-                        Expressions = buildList(typeof(KalturaUserSessionProfileExpression), parameters["expressions"] as object[]);
+                        Expressions = OTTObjectBuilder.buildList(typeof(KalturaUserSessionProfileExpression), parameters["expressions"] as object[]);
                     }
                 }
             }
@@ -38701,11 +40132,11 @@ namespace WebAPI.Models.Users.UserSessionProfile
                     ExpressionsSchemaProperty.Validate("expressions", parameters["expressions"]);
                     if (parameters["expressions"] is JArray)
                     {
-                        Expressions = buildList<KalturaUserSessionProfileExpression>(typeof(KalturaUserSessionProfileExpression), (JArray) parameters["expressions"]);
+                        Expressions = OTTObjectBuilder.buildList<KalturaUserSessionProfileExpression>(typeof(KalturaUserSessionProfileExpression), (JArray) parameters["expressions"]);
                     }
                     else if (parameters["expressions"] is IList)
                     {
-                        Expressions = buildList(typeof(KalturaUserSessionProfileExpression), parameters["expressions"] as object[]);
+                        Expressions = OTTObjectBuilder.buildList(typeof(KalturaUserSessionProfileExpression), parameters["expressions"] as object[]);
                     }
                 }
             }
@@ -38836,11 +40267,11 @@ namespace WebAPI.Models.Users.UserSessionProfile
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaUserSessionProfile>(typeof(KalturaUserSessionProfile), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaUserSessionProfile>(typeof(KalturaUserSessionProfile), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaUserSessionProfile), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaUserSessionProfile), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -39334,11 +40765,11 @@ namespace WebAPI.Models.Billing
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaHouseholdPaymentGateway>(typeof(KalturaHouseholdPaymentGateway), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaHouseholdPaymentGateway>(typeof(KalturaHouseholdPaymentGateway), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaHouseholdPaymentGateway), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaHouseholdPaymentGateway), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -39443,11 +40874,11 @@ namespace WebAPI.Models.Billing
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaHouseholdPaymentMethod>(typeof(KalturaHouseholdPaymentMethod), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaHouseholdPaymentMethod>(typeof(KalturaHouseholdPaymentMethod), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaHouseholdPaymentMethod), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaHouseholdPaymentMethod), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -39587,22 +41018,22 @@ namespace WebAPI.Models.Billing
                 {
                     if (parameters["paymentMethods"] is JArray)
                     {
-                        PaymentMethods = buildList<KalturaPaymentMethod>(typeof(KalturaPaymentMethod), (JArray) parameters["paymentMethods"]);
+                        PaymentMethods = OTTObjectBuilder.buildList<KalturaPaymentMethod>(typeof(KalturaPaymentMethod), (JArray) parameters["paymentMethods"]);
                     }
                     else if (parameters["paymentMethods"] is IList)
                     {
-                        PaymentMethods = buildList(typeof(KalturaPaymentMethod), parameters["paymentMethods"] as object[]);
+                        PaymentMethods = OTTObjectBuilder.buildList(typeof(KalturaPaymentMethod), parameters["paymentMethods"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("payment_methods") && parameters["payment_methods"] != null && isOldVersion)
                 {
                     if (parameters["payment_methods"] is JArray)
                     {
-                        PaymentMethods = buildList<KalturaPaymentMethod>(typeof(KalturaPaymentMethod), (JArray) parameters["payment_methods"]);
+                        PaymentMethods = OTTObjectBuilder.buildList<KalturaPaymentMethod>(typeof(KalturaPaymentMethod), (JArray) parameters["payment_methods"]);
                     }
                     else if (parameters["payment_methods"] is IList)
                     {
-                        PaymentMethods = buildList(typeof(KalturaPaymentMethod), parameters["payment_methods"] as object[]);
+                        PaymentMethods = OTTObjectBuilder.buildList(typeof(KalturaPaymentMethod), parameters["payment_methods"] as object[]);
                     }
                 }
             }
@@ -39620,22 +41051,22 @@ namespace WebAPI.Models.Billing
                 {
                     if (parameters["paymentGatewayConfiguration"] is JArray)
                     {
-                        Configuration = buildList<KalturaKeyValue>(typeof(KalturaKeyValue), (JArray) parameters["paymentGatewayConfiguration"]);
+                        Configuration = OTTObjectBuilder.buildList<KalturaKeyValue>(typeof(KalturaKeyValue), (JArray) parameters["paymentGatewayConfiguration"]);
                     }
                     else if (parameters["paymentGatewayConfiguration"] is IList)
                     {
-                        Configuration = buildList(typeof(KalturaKeyValue), parameters["paymentGatewayConfiguration"] as object[]);
+                        Configuration = OTTObjectBuilder.buildList(typeof(KalturaKeyValue), parameters["paymentGatewayConfiguration"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("payment_gatewaye_configuration") && parameters["payment_gatewaye_configuration"] != null && isOldVersion)
                 {
                     if (parameters["payment_gatewaye_configuration"] is JArray)
                     {
-                        Configuration = buildList<KalturaKeyValue>(typeof(KalturaKeyValue), (JArray) parameters["payment_gatewaye_configuration"]);
+                        Configuration = OTTObjectBuilder.buildList<KalturaKeyValue>(typeof(KalturaKeyValue), (JArray) parameters["payment_gatewaye_configuration"]);
                     }
                     else if (parameters["payment_gatewaye_configuration"] is IList)
                     {
-                        Configuration = buildList(typeof(KalturaKeyValue), parameters["payment_gatewaye_configuration"] as object[]);
+                        Configuration = OTTObjectBuilder.buildList(typeof(KalturaKeyValue), parameters["payment_gatewaye_configuration"] as object[]);
                     }
                 }
             }
@@ -39774,7 +41205,7 @@ namespace WebAPI.Models.Billing
                     SettingsSchemaProperty.Validate("paymentGatewaySettings", parameters["paymentGatewaySettings"]);
                     if (parameters["paymentGatewaySettings"] is JObject)
                     {
-                        Settings = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["paymentGatewaySettings"]).ToObject<Dictionary<string, object>>());
+                        Settings = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["paymentGatewaySettings"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("payment_gateway_settings") && parameters["payment_gateway_settings"] != null && isOldVersion)
@@ -39782,7 +41213,7 @@ namespace WebAPI.Models.Billing
                     SettingsSchemaProperty.Validate("payment_gateway_settings", parameters["payment_gateway_settings"]);
                     if (parameters["payment_gateway_settings"] is JObject)
                     {
-                        Settings = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["payment_gateway_settings"]).ToObject<Dictionary<string, object>>());
+                        Settings = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["payment_gateway_settings"]).ToObject<Dictionary<string, object>>());
                     }
                 }
                 if (parameters.ContainsKey("externalIdentifier") && parameters["externalIdentifier"] != null)
@@ -39862,11 +41293,11 @@ namespace WebAPI.Models.Billing
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        PaymentGatewayProfiles = buildList<KalturaPaymentGatewayProfile>(typeof(KalturaPaymentGatewayProfile), (JArray) parameters["objects"]);
+                        PaymentGatewayProfiles = OTTObjectBuilder.buildList<KalturaPaymentGatewayProfile>(typeof(KalturaPaymentGatewayProfile), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        PaymentGatewayProfiles = buildList(typeof(KalturaPaymentGatewayProfile), parameters["objects"] as object[]);
+                        PaymentGatewayProfiles = OTTObjectBuilder.buildList(typeof(KalturaPaymentGatewayProfile), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -39900,22 +41331,22 @@ namespace WebAPI.Models.Billing
                 {
                     if (parameters["householdPaymentMethods"] is JArray)
                     {
-                        HouseholdPaymentMethods = buildList<KalturaHouseholdPaymentMethod>(typeof(KalturaHouseholdPaymentMethod), (JArray) parameters["householdPaymentMethods"]);
+                        HouseholdPaymentMethods = OTTObjectBuilder.buildList<KalturaHouseholdPaymentMethod>(typeof(KalturaHouseholdPaymentMethod), (JArray) parameters["householdPaymentMethods"]);
                     }
                     else if (parameters["householdPaymentMethods"] is IList)
                     {
-                        HouseholdPaymentMethods = buildList(typeof(KalturaHouseholdPaymentMethod), parameters["householdPaymentMethods"] as object[]);
+                        HouseholdPaymentMethods = OTTObjectBuilder.buildList(typeof(KalturaHouseholdPaymentMethod), parameters["householdPaymentMethods"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("household_payment_methods") && parameters["household_payment_methods"] != null && isOldVersion)
                 {
                     if (parameters["household_payment_methods"] is JArray)
                     {
-                        HouseholdPaymentMethods = buildList<KalturaHouseholdPaymentMethod>(typeof(KalturaHouseholdPaymentMethod), (JArray) parameters["household_payment_methods"]);
+                        HouseholdPaymentMethods = OTTObjectBuilder.buildList<KalturaHouseholdPaymentMethod>(typeof(KalturaHouseholdPaymentMethod), (JArray) parameters["household_payment_methods"]);
                     }
                     else if (parameters["household_payment_methods"] is IList)
                     {
-                        HouseholdPaymentMethods = buildList(typeof(KalturaHouseholdPaymentMethod), parameters["household_payment_methods"] as object[]);
+                        HouseholdPaymentMethods = OTTObjectBuilder.buildList(typeof(KalturaHouseholdPaymentMethod), parameters["household_payment_methods"] as object[]);
                     }
                 }
             }
@@ -39989,11 +41420,11 @@ namespace WebAPI.Models.Billing
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        PaymentMethodProfiles = buildList<KalturaPaymentMethodProfile>(typeof(KalturaPaymentMethodProfile), (JArray) parameters["objects"]);
+                        PaymentMethodProfiles = OTTObjectBuilder.buildList<KalturaPaymentMethodProfile>(typeof(KalturaPaymentMethodProfile), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        PaymentMethodProfiles = buildList(typeof(KalturaPaymentMethodProfile), parameters["objects"] as object[]);
+                        PaymentMethodProfiles = OTTObjectBuilder.buildList(typeof(KalturaPaymentMethodProfile), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -40024,354 +41455,6 @@ namespace WebAPI.EventNotifications
     {
         public KalturaHttpNotification(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
-        }
-    }
-}
-
-namespace WebAPI.Models.IngestStatus
-{
-    public partial class KalturaIngestByCompoundFilter
-    {
-        private static RuntimeSchemePropertyAttribute IngestNameContainsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByCompoundFilter")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = true,
-            ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
-            MinItems = -1,
-            MaxItems = -1,
-        };
-        private static RuntimeSchemePropertyAttribute IngestedByUserIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByCompoundFilter")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = true,
-            ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
-            MinItems = -1,
-            MaxItems = -1,
-        };
-        private static RuntimeSchemePropertyAttribute IngestStatusInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByCompoundFilter")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = true,
-            ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
-            MinItems = -1,
-            MaxItems = -1,
-        };
-        private static RuntimeSchemePropertyAttribute CreatedDateGreaterThanSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByCompoundFilter")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = true,
-            ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
-            MinItems = -1,
-            MaxItems = -1,
-        };
-        private static RuntimeSchemePropertyAttribute CreatedDateSmallerThanSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByCompoundFilter")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = true,
-            ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
-            MinItems = -1,
-            MaxItems = -1,
-        };
-        public KalturaIngestByCompoundFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
-                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-                if (parameters.ContainsKey("ingestNameContains") && parameters["ingestNameContains"] != null)
-                {
-                    IngestNameContainsSchemaProperty.Validate("ingestNameContains", parameters["ingestNameContains"]);
-                    IngestNameContains = (String) Convert.ChangeType(parameters["ingestNameContains"], typeof(String));
-                }
-                if (parameters.ContainsKey("ingestedByUserIdIn") && parameters["ingestedByUserIdIn"] != null)
-                {
-                    IngestedByUserIdInSchemaProperty.Validate("ingestedByUserIdIn", parameters["ingestedByUserIdIn"]);
-                    IngestedByUserIdIn = (String) Convert.ChangeType(parameters["ingestedByUserIdIn"], typeof(String));
-                }
-                if (parameters.ContainsKey("ingestStatusIn") && parameters["ingestStatusIn"] != null)
-                {
-                    IngestStatusInSchemaProperty.Validate("ingestStatusIn", parameters["ingestStatusIn"]);
-                    IngestStatusIn = (String) Convert.ChangeType(parameters["ingestStatusIn"], typeof(String));
-                }
-                if (parameters.ContainsKey("createdDateGreaterThan") && parameters["createdDateGreaterThan"] != null)
-                {
-                    CreatedDateGreaterThanSchemaProperty.Validate("createdDateGreaterThan", parameters["createdDateGreaterThan"]);
-                    CreatedDateGreaterThan = (Int64) Convert.ChangeType(parameters["createdDateGreaterThan"], typeof(Int64));
-                }
-                if (parameters.ContainsKey("createdDateSmallerThan") && parameters["createdDateSmallerThan"] != null)
-                {
-                    CreatedDateSmallerThanSchemaProperty.Validate("createdDateSmallerThan", parameters["createdDateSmallerThan"]);
-                    CreatedDateSmallerThan = (Int64) Convert.ChangeType(parameters["createdDateSmallerThan"], typeof(Int64));
-                }
-            }
-        }
-    }
-    public partial class KalturaIngestByIdsFilter
-    {
-        private static RuntimeSchemePropertyAttribute IngestIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByIdsFilter")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = true,
-            ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
-            MinItems = -1,
-            MaxItems = -1,
-        };
-        public KalturaIngestByIdsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
-                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-                if (parameters.ContainsKey("ingestIdIn") && parameters["ingestIdIn"] != null)
-                {
-                    IngestIdInSchemaProperty.Validate("ingestIdIn", parameters["ingestIdIn"]);
-                    IngestIdIn = (String) Convert.ChangeType(parameters["ingestIdIn"], typeof(String));
-                }
-            }
-        }
-    }
-    public partial class KalturaIngestEpg
-    {
-        private static RuntimeSchemePropertyAttribute IngestIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestEpg")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
-            MinLong = 0,
-            MinItems = -1,
-            MaxItems = -1,
-        };
-        private static RuntimeSchemePropertyAttribute IngestNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestEpg")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = 0,
-            MinItems = -1,
-            MaxItems = -1,
-        };
-        private static RuntimeSchemePropertyAttribute IngestFilenameExtensionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestEpg")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = 0,
-            MinItems = -1,
-            MaxItems = -1,
-        };
-        private static RuntimeSchemePropertyAttribute CompletedDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestEpg")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = true,
-            ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
-            MinItems = -1,
-            MaxItems = -1,
-        };
-        private static RuntimeSchemePropertyAttribute IngestProfileIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestEpg")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = true,
-            ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
-            MinItems = -1,
-            MaxItems = -1,
-        };
-        public KalturaIngestEpg(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
-                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-                if (parameters.ContainsKey("ingestId") && parameters["ingestId"] != null)
-                {
-                    IngestIdSchemaProperty.Validate("ingestId", parameters["ingestId"]);
-                    IngestId = (Int64) Convert.ChangeType(parameters["ingestId"], typeof(Int64));
-                }
-                if (parameters.ContainsKey("ingestName") && parameters["ingestName"] != null)
-                {
-                    IngestNameSchemaProperty.Validate("ingestName", parameters["ingestName"]);
-                    IngestName = (String) Convert.ChangeType(parameters["ingestName"], typeof(String));
-                }
-                if (parameters.ContainsKey("ingestFilenameExtension") && parameters["ingestFilenameExtension"] != null)
-                {
-                    IngestFilenameExtensionSchemaProperty.Validate("ingestFilenameExtension", parameters["ingestFilenameExtension"]);
-                    IngestFilenameExtension = (String) Convert.ChangeType(parameters["ingestFilenameExtension"], typeof(String));
-                }
-                if (parameters.ContainsKey("createdDate") && parameters["createdDate"] != null)
-                {
-                    CreatedDate = (Int64) Convert.ChangeType(parameters["createdDate"], typeof(Int64));
-                }
-                if (parameters.ContainsKey("ingestedByUserId") && parameters["ingestedByUserId"] != null)
-                {
-                    IngestedByUserId = (Int64) Convert.ChangeType(parameters["ingestedByUserId"], typeof(Int64));
-                }
-                if (parameters.ContainsKey("completedDate") && parameters["completedDate"] != null)
-                {
-                    CompletedDateSchemaProperty.Validate("completedDate", parameters["completedDate"]);
-                    CompletedDate = (Int64) Convert.ChangeType(parameters["completedDate"], typeof(Int64));
-                }
-                if (parameters.ContainsKey("ingestProfileId") && parameters["ingestProfileId"] != null)
-                {
-                    IngestProfileIdSchemaProperty.Validate("ingestProfileId", parameters["ingestProfileId"]);
-                    IngestProfileId = (Int64) Convert.ChangeType(parameters["ingestProfileId"], typeof(Int64));
-                }
-                if (parameters.ContainsKey("status") && parameters["status"] != null)
-                {
-                    if(string.IsNullOrEmpty(parameters["status"].ToString()))
-                    {
-                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "status");
-                    }
-
-                    Status = (KalturaIngestStatus) Enum.Parse(typeof(KalturaIngestStatus), parameters["status"].ToString(), true);
-
-                    if (!Enum.IsDefined(typeof(KalturaIngestStatus), Status))
-                    {
-                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Status, typeof(KalturaIngestStatus)));
-                    }
-                }
-            }
-        }
-    }
-    public partial class KalturaIngestStatusEpgConfiguration
-    {
-        private static RuntimeSchemePropertyAttribute IsSupportedSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestStatusEpgConfiguration")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = true,
-            ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
-            MinItems = -1,
-            MaxItems = -1,
-        };
-        private static RuntimeSchemePropertyAttribute RetainingPeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestStatusEpgConfiguration")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = true,
-            ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
-            MinInteger = 0,
-            MinItems = -1,
-            MaxItems = -1,
-        };
-        public KalturaIngestStatusEpgConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
-                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-                if (parameters.ContainsKey("isSupported") && parameters["isSupported"] != null)
-                {
-                    IsSupportedSchemaProperty.Validate("isSupported", parameters["isSupported"]);
-                    IsSupported = (Boolean) Convert.ChangeType(parameters["isSupported"], typeof(Boolean));
-                }
-                if (parameters.ContainsKey("retainingPeriod") && parameters["retainingPeriod"] != null)
-                {
-                    RetainingPeriodSchemaProperty.Validate("retainingPeriod", parameters["retainingPeriod"]);
-                    RetainingPeriod = (Int32) Convert.ChangeType(parameters["retainingPeriod"], typeof(Int32));
-                }
-            }
-        }
-    }
-    public partial class KalturaIngestStatusEpgListResponse
-    {
-        public KalturaIngestStatusEpgListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
-        {
-        }
-    }
-    public partial class KalturaIngestStatusPartnerConfiguration
-    {
-        private static RuntimeSchemePropertyAttribute EpgSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestStatusPartnerConfiguration")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = true,
-            ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
-            MinItems = -1,
-            MaxItems = -1,
-        };
-        public KalturaIngestStatusPartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
-                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-                if (parameters.ContainsKey("epg") && parameters["epg"] != null)
-                {
-                    EpgSchemaProperty.Validate("epg", parameters["epg"]);
-                    if (parameters["epg"] is JObject)
-                    {
-                        Epg = (KalturaIngestStatusEpgConfiguration) Deserializer.deserialize(typeof(KalturaIngestStatusEpgConfiguration), ((JObject) parameters["epg"]).ToObject<Dictionary<string, object>>());
-                    }
-                    else if (parameters["epg"] is IDictionary)
-                    {
-                        Epg = (KalturaIngestStatusEpgConfiguration) Deserializer.deserialize(typeof(KalturaIngestStatusEpgConfiguration), (Dictionary<string, object>) parameters["epg"]);
-                    }
-                }
-            }
         }
     }
 }
@@ -40488,11 +41571,11 @@ namespace WebAPI.Models.Api
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        PersonalListList = buildList<KalturaPersonalList>(typeof(KalturaPersonalList), (JArray) parameters["objects"]);
+                        PersonalListList = OTTObjectBuilder.buildList<KalturaPersonalList>(typeof(KalturaPersonalList), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        PersonalListList = buildList(typeof(KalturaPersonalList), parameters["objects"] as object[]);
+                        PersonalListList = OTTObjectBuilder.buildList(typeof(KalturaPersonalList), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -40559,11 +41642,11 @@ namespace WebAPI.Models.Catalog.SearchPriorityGroup
                 {
                     if (parameters["multilingualName"] is JArray)
                     {
-                        Name = MultilengualStringFactory.Create((JArray) parameters["multilingualName"]);
+                        Name = MultilingualStringFactory.Create((JArray) parameters["multilingualName"]);
                     }
                     else if (parameters["multilingualName"] is IList)
                     {
-                        Name = MultilengualStringFactory.Create((List<object>) parameters["multilingualName"]);
+                        Name = MultilingualStringFactory.Create((List<object>) parameters["multilingualName"]);
                     }
                 }
                 if (parameters.ContainsKey("criteria") && parameters["criteria"] != null)
@@ -40607,11 +41690,11 @@ namespace WebAPI.Models.Catalog.SearchPriorityGroup
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaSearchPriorityGroup>(typeof(KalturaSearchPriorityGroup), (JArray) parameters["objects"]);
+                        Objects = OTTObjectBuilder.buildList<KalturaSearchPriorityGroup>(typeof(KalturaSearchPriorityGroup), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaSearchPriorityGroup), parameters["objects"] as object[]);
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaSearchPriorityGroup), parameters["objects"] as object[]);
                     }
                 }
             }

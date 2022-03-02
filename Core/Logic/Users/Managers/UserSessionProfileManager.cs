@@ -1,6 +1,7 @@
 using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Response;
+using ApiObjects.Rules;
 using ApiObjects.User.SessionProfile;
 using CachingProvider.LayeredCache;
 using Core.Api.Managers;
@@ -98,8 +99,14 @@ namespace ApiLogic.Users.Managers
             var allAssetRules = _assetRuleManager.GetAssetRules(RuleConditionType.UserSessionProfile, contextData.GroupId);
             if (allAssetRules.HasObjects())
             {
-                return new Status(eResponseStatus.CannotDeleteUserSessionProfile, 
-                    $"UserSessionProfile {userSessionProfileId} cannot be deleted if becuase AssetRule {string.Join(", ", allAssetRules.Objects.Select(x => x.Id))} refers to it.");
+                //BEO-11467
+                var assetRules = allAssetRules.Objects.Where(x => x.Conditions.OfType<UserSessionProfileCondition>().Any(c => c.Id == userSessionProfileId)).ToList();
+
+                if (assetRules.Count > 0)
+                {
+                    return new Status(eResponseStatus.CannotDeleteUserSessionProfile,
+                    $"UserSessionProfile {userSessionProfileId} cannot be deleted if becuase AssetRule {string.Join(", ", assetRules.Select(x => x.Id))} refers to it.");
+                }
             }
 
             if (!_repository.DeleteUserSessionProfile(contextData.GroupId, contextData.UserId.Value, userSessionProfileId))

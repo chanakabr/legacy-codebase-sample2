@@ -15,8 +15,5 @@ namespace WebAPI.Models.Catalog
         }
     }
 
-    public enum KalturaAssetHistorySuppressFilterOrderBy
-    {
-        NONE
-    }
+    
 }

@@ -9,7 +9,7 @@ namespace WebAPI.ObjectsConvertor.Extensions
     {
         public static List<StreamerType> GetStreamerTypes(this KalturaFilterFileByStreamerTypeAction model)
         {
-            var streamerTypes = model.GetItemsIn<List<KalturaMediaFileStreamerType>, KalturaMediaFileStreamerType>(model.StreamerTypeIn, "streamerTypeIn", true, true);
+            var streamerTypes = Utils.Utils.ParseCommaSeparatedValues<List<KalturaMediaFileStreamerType>, KalturaMediaFileStreamerType>(model.StreamerTypeIn, "streamerTypeIn", true, true);
             return AutoMapper.Mapper.Map<List<StreamerType>>(streamerTypes);
         }
     }

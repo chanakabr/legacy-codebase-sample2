@@ -7,7 +7,6 @@ namespace WebAPI.ObjectsConvertor.Extensions
     {
         public static HashSet<int> GetDeviceBrandIds(this KalturaTvmDeviceRule model)
         {
-            return model.GetItemsIn<HashSet<int>, int>(model.DeviceBrandIds, "KalturaTvmDeviceRule.deviceBrandIds");
-        }
+            return Utils.Utils.ParseCommaSeparatedValues<HashSet<int>, int>(model.DeviceBrandIds, "KalturaTvmDeviceRule.deviceBrandIds");        }
     }
 }

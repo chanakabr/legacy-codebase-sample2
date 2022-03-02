@@ -91,6 +91,6 @@ namespace WebAPI.Models.Catalog
         }
 
         private List<long> GetAssetStructIds()
-            => GetItemsIn<List<long>, long>(IdIn, "KalturaAssetStructFilter.idIn", checkDuplicate: true, ignoreDefaultValueValidation: true);
+            => WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(IdIn, "KalturaAssetStructFilter.idIn", checkDuplicate: true, ignoreDefaultValueValidation: true);
     }
 }

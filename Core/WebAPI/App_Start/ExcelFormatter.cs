@@ -1,8 +1,14 @@
-﻿using ApiObjects.BulkUpload;
+﻿using ApiLogic.Api.Managers;
+using ApiObjects;
+using ApiObjects.BulkUpload;
 using ApiObjects.Response;
+using AutoMapper;
+using Core.Catalog;
+using KalturaRequestContext;
 using Newtonsoft.Json;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
+using Phx.Lib.Log;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,6 +16,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Web;
@@ -19,10 +26,8 @@ using WebAPI.Filters;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Models.API;
+using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
-using KalturaRequestContext;
-using Phx.Lib.Log;
-using System.Net.Http;
 
 namespace WebAPI.App_Start
 {
@@ -130,8 +135,7 @@ namespace WebAPI.App_Start
             }
         }
 
-        private static DataTable GetDataTableByObjects(int groupId, List<IKalturaExcelableObject> objects,
-            Dictionary<string, ApiObjects.BulkUpload.ExcelColumn> columns)
+        private static DataTable GetDataTableByObjects(int groupId, IEnumerable<object> objects, Dictionary<string, ApiObjects.BulkUpload.ExcelColumn> columns)
         {
             DataTable dataTable = new DataTable();
             if (columns != null && columns.Count > 0)
@@ -141,13 +145,24 @@ namespace WebAPI.App_Start
                 {
                     dataTable.Columns.Add(col.Key, defaultType);
                 }
-                if (objects != null && objects.Count > 0)
+
+                if (objects != null)
                 {
                     foreach (var excelObject in objects)
                     {
                         try
                         {
-                            var excelValues = excelObject.GetExcelValues(groupId);
+                            Dictionary<string, object> excelValues = null;
+                            switch (excelObject)
+                            {
+                                case KalturaUdidDynamicList c:
+                                    excelValues = GetExcelValuesFromUdidDynamicList(groupId, c);
+                                    break;
+                                case KalturaAsset c:
+                                    excelValues = GetExcelValuesFromAsset(groupId, c);
+                                    break;
+                            }
+
                             if (excelValues != null && excelValues.Count > 0)
                             {
                                 if (excelValues.Count == 1 && excelValues.First().Value is IEnumerable)
@@ -213,33 +228,15 @@ namespace WebAPI.App_Start
                     var restResultWrapper = value as StatusWrapper;
                     if (restResultWrapper != null && restResultWrapper.Result != null && !(restResultWrapper.Result is KalturaAPIExceptionWrapper))
                     {
-                        if (!(restResultWrapper.Result is IKalturaExcelStructureManager))
-                        {
-                            throw new BadRequestException(BadRequestException.FORMAT_NOT_SUPPORTED, KalturaResponseType.EXCEL, (int)KalturaResponseType.EXCEL);
-                        }
                         int? groupId;
                         string fileName;
                         if (!TryGetDataFromRequest(out groupId, out fileName))
                         {
                             throw new BadRequestException(BadRequestException.INVALID_ACTION_PARAMETERS);
                         }
-                        var kalturaExcelStructure = restResultWrapper.Result as IKalturaExcelStructureManager;
-                        if (kalturaExcelStructure == null)
-                        {
-                            throw new ClientException((int)eResponseStatus.InvalidBulkUploadStructure, "Invalid BulkUpload Structure");
-                        }
-                        var excelStructure = kalturaExcelStructure.GetExcelStructure(groupId.Value);
-                        if (excelStructure == null)
-                        {
-                            log.ErrorFormat("excelStructure is null for groupId:{0}, value:{1}", groupId.Value, JsonConvert.SerializeObject(value));
-                            throw new ClientException((int)eResponseStatus.InvalidBulkUploadStructure, "Invalid BulkUpload Structure");
-                        }
-                        DataTable fullDataTable = null;
-                        var excelableListResponse = restResultWrapper.Result as IKalturaExcelableListResponse;
-                        if (excelableListResponse != null)
-                        {
-                            fullDataTable = GetDataTableByObjects(groupId.Value, excelableListResponse.GetObjects(), excelStructure.ExcelColumns);
-                        }
+
+                        ExcelStructure excelStructure = GetExcelStructureFromResult(value, restResultWrapper, groupId.Value);
+                        DataTable fullDataTable = GetDataTableFromResult(groupId.Value, restResultWrapper.Result, excelStructure.ExcelColumns);
                         HttpContext.Current.Response.ContentType = ExcelFormatterConsts.EXCEL_CONTENT_TYPE;
                         HttpContext.Current.Response.Headers.Add("Content-Disposition", "attachment; filename=" + fileName);
                         CreateExcel(writeStream, fileName, fullDataTable, excelStructure);
@@ -268,6 +265,87 @@ namespace WebAPI.App_Start
             }
         }
 
+        private ExcelStructure GetExcelStructureFromResult(object value, StatusWrapper restResultWrapper, int groupId)
+        {
+            ExcelStructure excelStructure = null;
+            switch (restResultWrapper.Result)
+            {
+                case KalturaDynamicListListResponse c:
+                    excelStructure = GetExcelStructureFromDynamicListListResponse(groupId, c);
+                    break;
+                case KalturaAssetListResponse c:
+                    excelStructure = GetExcelStructureFromAssetListResponse(groupId, c);
+                    break;
+                case KalturaAssetStruct c:
+                    excelStructure = GetExcelStructureFromAssetStruct(groupId, c);
+                    break;
+                default:
+                    throw new BadRequestException(BadRequestException.FORMAT_NOT_SUPPORTED, KalturaResponseType.EXCEL, (int)KalturaResponseType.EXCEL);
+            }
+
+            if (excelStructure == null)
+            {
+                log.ErrorFormat("excelStructure is null for groupId:{0}, value:{1}", groupId, JsonConvert.SerializeObject(value));
+                throw new ClientException((int)eResponseStatus.InvalidBulkUploadStructure, "Invalid BulkUpload Structure");
+            }
+
+            return excelStructure;
+        }
+
+        private ExcelStructure GetExcelStructureFromDynamicListListResponse(int groupId, KalturaDynamicListListResponse listResponse)
+        {
+            //Matan: Temp removal
+            //var featureEnabled = FeatureFlag.PhoenixFeatureFlagInstance.Get().IsUdidDynamicListAsExcelEnabled(groupId);
+
+            //if (!featureEnabled)
+            //{
+            //    throw new BadRequestException(BadRequestException.FORMAT_NOT_SUPPORTED, "Enable feature: [dynamicList.format]");
+            //}
+
+            var _objects = GetObjectsFromDynamicListListResponse(listResponse);
+            if (_objects.Count > 1)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER,
+                                              $"KalturaDynamicList.id: {_objects[0].Id}",
+                                              $"KalturaDynamicList.id: {_objects[1].Id}");
+            }
+
+            var _item = Mapper.Map<UdidDynamicList>(_objects.First());
+            var excelStructure = _item.GetExcelStructure(groupId, _item.GetType());
+            return excelStructure;
+        }
+
+        private ExcelStructure GetExcelStructureFromAssetListResponse(int groupId, KalturaAssetListResponse listResponse)
+        {
+            if (listResponse.Objects == null || listResponse.Objects.Count == 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "KalturaAssetListResponse.objects");
+            }
+
+            var duplicates = listResponse.Objects.GroupBy(x => x.getType()).Select(x => x.Key).ToList();
+            if (duplicates.Count > 1)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER,
+                                              "KalturaAsset.type:" + duplicates[0].ToString(),
+                                              "KalturaAsset.type:" + duplicates[1].ToString());
+            }
+
+            var kalturaAssetStruct = new KalturaAssetStruct()
+            {
+                Id = duplicates[0]
+            };
+
+            ExcelStructure excelStructer = GetExcelStructureFromAssetStruct(groupId, kalturaAssetStruct);
+            return excelStructer;
+        }
+
+        private ExcelStructure GetExcelStructureFromAssetStruct(int groupId, KalturaAssetStruct assetStruct)
+        {
+            var excelStructureManager = Mapper.Map<AssetStruct>(assetStruct);
+            var excelStructure = excelStructureManager.GetExcelStructure(groupId);
+            return excelStructure;
+        }
+
         /// <summary>
         /// This method is used for the .net core version of phoenix and will serialize the object async
         /// </summary>
@@ -275,6 +353,51 @@ namespace WebAPI.App_Start
         {
             // TODO: find a way to return and serialize 
             throw new NotImplementedException("Excel Format is not yet supported under .net core");
+        }
+
+        private DataTable GetDataTableFromResult(int groupId, object result, Dictionary<string, ApiObjects.BulkUpload.ExcelColumn> excelColumns)
+        {
+            DataTable dataTable = null;
+            switch (result)
+            {
+                case KalturaDynamicListListResponse c: 
+                    dataTable = GetDataTableByObjects(groupId, GetObjectsFromDynamicListListResponse(c), excelColumns);
+                    break;
+                case KalturaAssetListResponse c:
+                    dataTable = GetDataTableByObjects(groupId, GetObjectsFromAssetListResponse(c), excelColumns);
+                    break;
+            }
+
+            return dataTable;
+        }
+
+        private List<KalturaDynamicList> GetObjectsFromDynamicListListResponse(KalturaDynamicListListResponse listResponse)
+        {
+            if (listResponse.Objects == null || !listResponse.Objects.Any())
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "KalturaDynamicListListResponse.objects");
+            }
+
+            return listResponse.Objects;
+        }
+
+        private List<KalturaAsset> GetObjectsFromAssetListResponse(KalturaAssetListResponse listResponse)
+        {
+            return listResponse.Objects;
+        }
+
+        private static Dictionary<string, object> GetExcelValuesFromUdidDynamicList(int groupId, KalturaUdidDynamicList udidDynamicList)
+        {
+            //udid (column name): List<udid>
+            var columnNameToUdids = DynamicListManager.Instance.GetUdidsFromDynamicListById(groupId, udidDynamicList.Id);
+            return columnNameToUdids;
+        }
+
+        private static Dictionary<string, object> GetExcelValuesFromAsset(int groupId, KalturaAsset asset)
+        {
+            var excelableObject = Mapper.Map<Asset>(asset);
+            Dictionary<string, object> excelValues  = excelableObject.GetExcelValues(groupId);
+            return excelValues;
         }
     }
 }

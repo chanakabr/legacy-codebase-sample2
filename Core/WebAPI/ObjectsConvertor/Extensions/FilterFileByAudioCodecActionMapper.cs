@@ -7,7 +7,8 @@ namespace WebAPI.ObjectsConvertor.Extensions
     {
         public static List<string> GetAudioCodecs(this KalturaFilterFileByAudioCodecAction model)
         {
-            return model.GetItemsIn<List<string>, string>(model.AudioCodecIn, "audioCodecIn", true);
+            var types = Utils.Utils.ParseCommaSeparatedValues<List<string>, string>(model.AudioCodecIn, "audioCodecIn", true);
+            return types;
         }
     }
 }

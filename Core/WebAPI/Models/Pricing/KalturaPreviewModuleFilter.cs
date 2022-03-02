@@ -29,7 +29,7 @@ namespace WebAPI.Models.Pricing
 
         internal List<long> GetIdIn()
         {
-            return this.GetItemsIn<List<long>, long>(IdIn, "KalturaPreviewModuleFilter.IdIn", true);
+            return Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(IdIn, "KalturaPreviewModuleFilter.IdIn", true);
         }
     }
 

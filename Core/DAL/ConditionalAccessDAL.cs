@@ -2643,6 +2643,33 @@ namespace DAL
 
             return sp.ExecuteReturnValue<int>() * 60;
         }
+        
+        public static int GetDefaultQuotaByModuleIdInSeconds(int groupID, int quotaModuleId)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_QuotaInMinutesByModuleId");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@QuotaModuleId", quotaModuleId);
+            DataTable dt = null;
+            dt = sp.Execute();
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                return Utils.GetIntSafeVal(dt.Rows[0], "quota_in_minutes") * 60;
+            }
+
+            return 0;
+        }
+        
+        public static void SetDefaultQuotaInSeconds(int id, int quotaSeconds)
+        {
+            StoredProcedure sp = new StoredProcedure("Set_QuotaSeconds");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@ID", id);
+            sp.AddParameter("@QuotaInSeconds ", quotaSeconds);
+
+            sp.Execute();
+        }
 
         public static int GetTimeShiftedTVAdapterId(int groupId)
         {

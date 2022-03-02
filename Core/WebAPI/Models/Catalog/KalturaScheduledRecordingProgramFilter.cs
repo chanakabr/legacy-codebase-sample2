@@ -1,12 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects.Base;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Managers.Scheme;
-using WebAPI.Models.General;
-using ApiObjects.Base;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.Models.Catalog
 {
@@ -55,10 +56,10 @@ namespace WebAPI.Models.Catalog
         public string SeriesIdsIn { get; set; }
 
         private List<long> ConvertChannelsIn()
-            => GetItemsIn<List<long>, long>(ChannelsIn, "KalturaScheduledRecordingProgramFilter.ChannelsIn");
+            => WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(ChannelsIn, "KalturaScheduledRecordingProgramFilter.ChannelsIn");
 
         private List<string> ConvertSeriesIdsIn()
-            => GetItemsIn<List<string>, string>(SeriesIdsIn, "KalturaScheduledRecordingProgramFilter.SeriesIdsIn");
+            => WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<string>, string>(SeriesIdsIn, "KalturaScheduledRecordingProgramFilter.SeriesIdsIn");
 
         internal override void Validate()
         {
@@ -85,8 +86,8 @@ namespace WebAPI.Models.Catalog
                 contextData.Udid,
                 contextData.Language,
                 ConvertChannelsIn(),
-                pager.getPageIndex(),
-                pager.getPageSize(),
+                pager.GetRealPageIndex(),
+                pager.PageSize.Value,
                 StartDateGreaterThanOrNull,
                 EndDateLessThanOrNull,
                 Orderings,

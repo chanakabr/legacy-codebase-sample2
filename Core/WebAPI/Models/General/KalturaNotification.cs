@@ -107,19 +107,4 @@ namespace WebAPI.Models.General
         [SchemeProperty(ReadOnly = true)]
         public long CreateDate { get; set; }
     }
-
-    [Serializable]
-    public enum KalturaEventAction
-    {
-        None,
-        Added,
-        Changed,
-        Copied,
-        Created,
-        Deleted,
-        Erased,
-        Saved,
-        Updated,
-        Replaced
-    }
 }

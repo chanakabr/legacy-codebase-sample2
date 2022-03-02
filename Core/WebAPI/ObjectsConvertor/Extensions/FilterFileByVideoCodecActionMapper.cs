@@ -7,7 +7,7 @@ namespace WebAPI.ObjectsConvertor.Extensions
     {
         public static List<string> GetVideoCodecs(this KalturaFilterFileByVideoCodecAction model)
         {
-            return model.GetItemsIn<List<string>, string>(model.VideoCodecIn, "videoCodecIn", true);
+            return Utils.Utils.ParseCommaSeparatedValues<List<string>, string>(model.VideoCodecIn, "videoCodecIn", true);
         }
     }
 }

@@ -9,7 +9,7 @@ namespace WebAPI.ObjectsConvertor.Extensions
     {
         public static List<MediaFileTypeQuality> GetQualities(this KalturaFilterFileByQualityAction model)
         {
-            var types = model.GetItemsIn<List<KalturaMediaFileTypeQuality>, KalturaMediaFileTypeQuality>(model.QualityIn, "qualityIn", true, true);
+            var types = Utils.Utils.ParseCommaSeparatedValues<List<KalturaMediaFileTypeQuality>, KalturaMediaFileTypeQuality>(model.QualityIn, "qualityIn", true, true);
             return AutoMapper.Mapper.Map<List<MediaFileTypeQuality>>(types);
         }
     }

@@ -14,7 +14,7 @@ namespace WebAPI.Models.IngestStatus
         [DataMember(Name = "ingestNameContains")]
         [JsonProperty("ingestNameContains")]
         [XmlElement(ElementName = "ingestNameContains")]
-        [SchemeProperty(IsNullable = true)]
+        [SchemeProperty(IsNullable = true, Pattern = SchemeInputAttribute.NOT_EMPTY_PATTERN)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string IngestNameContains { get; set; }
 
@@ -24,7 +24,7 @@ namespace WebAPI.Models.IngestStatus
         [DataMember(Name = "ingestedByUserIdIn")]
         [JsonProperty("ingestedByUserIdIn")]
         [XmlElement(ElementName = "ingestedByUserIdIn", IsNullable = true)]
-        [SchemeProperty(IsNullable = true)]
+        [SchemeProperty(IsNullable = true, Pattern = @"^\d+(\s*,\s*\d+){0,19}$")]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string IngestedByUserIdIn { get; set; }
 
@@ -44,7 +44,7 @@ namespace WebAPI.Models.IngestStatus
         [DataMember(Name = "createdDateGreaterThan")]
         [JsonProperty("createdDateGreaterThan")]
         [XmlElement(ElementName = "createdDateGreaterThan", IsNullable = true)]
-        [SchemeProperty(IsNullable = true)]
+        [SchemeProperty(IsNullable = true, MinLong = 1)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public long? CreatedDateGreaterThan { get; set; }
 
@@ -54,7 +54,7 @@ namespace WebAPI.Models.IngestStatus
         [DataMember(Name = "createdDateSmallerThan")]
         [JsonProperty("createdDateSmallerThan")]
         [XmlElement(ElementName = "createdDateSmallerThan", IsNullable = true)]
-        [SchemeProperty(IsNullable = true)]
+        [SchemeProperty(IsNullable = true, MinLong = 1)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public long? CreatedDateSmallerThan { get; set; }
 

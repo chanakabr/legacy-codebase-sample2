@@ -149,12 +149,12 @@ namespace WebAPI.Models.Users
 
         internal List<string> GetIdIn()
         {
-            return this.GetItemsIn<List<string>, string>(IdIn, "KalturaOTTUserFilter.idIn");
+            return Utils.Utils.ParseCommaSeparatedValues<List<string>, string>(IdIn, "KalturaOTTUserFilter.idIn");
         }
 
         internal HashSet<long> GetRoleIdsIn()
         {
-            return this.GetItemsIn<HashSet<long>, long>(RoleIdsIn, "KalturaOTTUserFilter.roleIdsIn");
+            return Utils.Utils.ParseCommaSeparatedValues<HashSet<long>, long>(RoleIdsIn, "KalturaOTTUserFilter.roleIdsIn");
         }
 
         public override KalturaOTTUserOrderBy GetDefaultOrderByValue()

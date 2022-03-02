@@ -6,6 +6,7 @@ using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
@@ -20,6 +21,7 @@ namespace WebAPI.Controllers
     public class LineupController : IKalturaController
     {
         private static readonly ILineupRequestValidator _lineupRequestValidator = LineupRequestValidator.Instance;
+        private static readonly IMediaFileFilter _mediaFileFilter = MediaFileFilter.Instance;
 
         /// <summary>
         /// Return regional lineup (list of lineup channel asset objects) based on the requester session characteristics and his region.
@@ -65,10 +67,15 @@ namespace WebAPI.Controllers
             var userIp = Utils.Utils.GetClientIP();
             var isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userId.ToString(), true);
             var group = GroupsManager.Instance.GetGroup(groupId);
+            var sessionCharacteristicKey = KSUtils.ExtractKSPayload(KS.GetFromRequest()).SessionCharacteristicKey;
 
-            var searchContext = new UserSearchContext(domainId, userId, languageId, udid, userIp, false, group.UseStartDate, false, group.GetOnlyActiveAssets, isAllowedToViewInactiveAssets);
+            var searchContext = new UserSearchContext(domainId, userId, languageId, udid, userIp, false, group.UseStartDate, false, group.GetOnlyActiveAssets, isAllowedToViewInactiveAssets, sessionCharacteristicKey);
 
             var response = ClientsManager.CatalogClient().GetLineup(groupId, regionId, searchContext, pageIndex.Value - 1, pageSize.Value);
+            if (response.Objects.Count > 0)
+            {
+                _mediaFileFilter.FilterAssetFiles(response.Objects, groupId, sessionCharacteristicKey);
+            }
 
             return response;
         }

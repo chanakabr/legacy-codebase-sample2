@@ -583,7 +583,9 @@ namespace ApiObjects.Response
         PartnerDoesNotExist = 9040,
         PpvModuleNotExist = 9041,
         UsageModuleExistInPpv = 9042,
-        
+        ProgramAssetGroupOfferDoesNotExist = 9043,
+        ExternalOfferIdAlreadyExists = 9044,
+
         #endregion
 
         #region Adapters 10000-10999

@@ -65,12 +65,12 @@ namespace WebAPI.Models.ConditionalAccess
 
         internal List<int> getFileIdIn()
         {
-            return this.GetItemsIn<List<int>, int>(FileIdIn, "KalturaProductPriceFilter.fileIdIn");
+            return Utils.Utils.ParseCommaSeparatedValues<List<int>, int>(FileIdIn, "KalturaProductPriceFilter.fileIdIn");
         }
 
         internal List<int> getSubscriptionIdIn()
         {
-            return this.GetItemsIn<List<int>, int>(SubscriptionIdIn, "KalturaProductPriceFilter.subscriptionIdIn");
+            return Utils.Utils.ParseCommaSeparatedValues<List<int>, int>(SubscriptionIdIn, "KalturaProductPriceFilter.subscriptionIdIn");
         }
 
         internal string[] getCollectionIdIn()

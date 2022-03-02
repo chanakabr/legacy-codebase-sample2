@@ -5,12 +5,12 @@ using ApiObjects.CDNAdapter;
 using ApiObjects.MediaMarks;
 using ApiObjects.Roles;
 using ApiObjects.Rules;
-using Phx.Lib.Appconfig;
 using CouchbaseManager;
 using DAL.Api;
-using Phx.Lib.Log;
 using Newtonsoft.Json;
 using ODBCWrapper;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -3751,6 +3751,7 @@ namespace DAL
                 }
 
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@EnablePrivateCopy", settings.IsPrivateCopyEnabled);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@QuotaInSeconds", settings.DefaultQuota);
                 isUpdated = spUpdateTimeShiftedTvPartnerSettings.ExecuteReturnValue<bool>();
             }
 

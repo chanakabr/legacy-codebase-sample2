@@ -1,14 +1,8 @@
 ﻿using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
-using ApiLogic.Users.Managers;
-using ApiLogic.Base;
-using ApiObjects;
 
 namespace WebAPI.Models.API
 {

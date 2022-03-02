@@ -1,135 +1,323 @@
-def GIT_COMMIT=""
-def FULL_VERSION=""
-pipeline {
-    agent {
-        label 'Linux'
-    }
-    options {
-        buildDiscarder(logRotator(numToKeepStr:'10'))
-        skipDefaultCheckout true
-    }
-    parameters{
-        string(name: 'BRANCH_NAME', defaultValue: 'master', description: 'Branch Name')
-    }
-    environment{
-        AWS_REGION="us-west-2"
-        ECR_URL ='870777418594.dkr.ecr.us-west-2.amazonaws.com'
-    }
-    stages {
-        stage('Checkout'){
-            steps{
-                script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
-                dir('core'){ git(url: 'https://github.com/kaltura/Core.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
-                dir('tvpapi_rest') { git(url: 'https://github.com/kaltura/Phoenix.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
+library identifier: 'ott-lib-jenkins@master', retriever: modernSCM([$class: 'GitSCMSource', credentialsId: 'github-ott-ci-cd', remote: 'https://github.com/kaltura/ott-lib-jenkins'])
+stage('Unified-CI'){
+    node('Linux'){  
+        AWS_REGION = 'us-west-2'
+        ECR_URL = '870777418594.dkr.ecr.us-west-2.amazonaws.com'
+        component = env.JOB_NAME
+        //ECR_REPOSITORY = "${ECR_URL}/${REPOSITORY_NAME}"
+        STAGE = 'build'
+        PIPECLI = cd.get_pipecli()
+        //currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME} - ${committerEmail}"
 
-                script{
-                    dir("tvpapi_rest"){ 
-                        GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim() 
-                        FULL_VERSION = sh(script: '../core/get-version-tag.sh', , returnStdout: true).trim()
+        properties([
+            [$class: 'BuildDiscarderProperty', strategy: [$class: 'LogRotator', artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '50']],
+            disableConcurrentBuilds()
+            //buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '50')),
+            //skipDefaultCheckout()
+            //quietPeriod(50)
+        ])
+        skipDefaultCheckout()
+        //currentBuild.rawBuild.getParent().setQuietPeriod(50)
+
+        parallel(
+            "Linux" : {
+                node('Linux'){   
+                    try{                        
+                        stage('Checkout'){
+                            git branch: "${BRANCH_NAME}", credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend'
+                            script {
+                                committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim() 
+                            }
+                        }
+                        stage('Test')
+                        {
+                            ansiColor('xterm') {
+                                runTests()
+                            }
+                        }
+                        stage ('ECR Login') {
+                            sh(label: "ECR Login", script: "login=\$(aws ecr get-login --no-include-email --region ${AWS_REGION}) && \${login}")
+                        }
+                        stage('Build Docker Images'){                
+                            buildDockerAndPushToEcr("phoenix","Phoenix.Dockerfile")
+                            buildDockerAndPushToEcr("tvpapi","Tvpapi.Dockerfile")
+                            buildDockerAndPushToEcr("wsingest","WSIngest.Dockerfile")
+                            buildDockerAndPushToEcr("ingesthandlers","IngestHandlers.Dockerfile")
+                            buildDockerAndPushToEcr("opc-migration","OPC_Migration.Dockerfile")
+                        }
+                        // stage("Trigger Release Candidate"){
+                        //     steps{
+                        //         script {
+                        //             SHORT_JOB_NAME = sh (script: "echo ${JOB_NAME} | cut -f1 -d'/'", returnStdout: true).trim()  
+                        //         }
+                        //         build (
+                        //             job: "OTT-BE-Create-Release-Candidate", 
+                        //             wait: false,
+                        //             parameters: [
+                        //                 [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
+                        //                 [$class: 'StringParameterValue', name: 'callingjob', value: "${SHORT_JOB_NAME}"],
+                        //             ]
+                        //         )
+                        //         script {
+                        //             component = "${env.JOB_NAME}"
+                        //         }
+                        //     }
+                        // }
+                        stage("Trigger Sonar Scan"){
+                            if (BRANCH_NAME == "master") {
+                                build (
+                                    wait: false, 
+                                    job: 'OTT-BE-Sonar-Scan', 
+                                    parameters: [
+                                        string(name: 'BRANCH_NAME', value: "${BRANCH_NAME}"), 
+                                        string(name: 'PROJECT', value: 'ott-backend-netcore')
+                                        ]
+                                )
+                            }
+                        }
+                    } catch (e){
+                        throw e
+                    } finally{
+                            report()
+                            sleep 10
                     }
                 }
-            }
-        }
-        stage ('ECR Login') {
-            steps{
-                sh(label: "ECR Login", script: "login=\$(aws ecr get-login --no-include-email --region ${AWS_REGION}) && \${login}")
-            }
-        }
-        stage('Build Phoenix Rest Docker'){
-            environment{
-                REPOSITORY_NAME="${BRANCH_NAME.toLowerCase()}/phoenix"
-                ECR_REPOSITORY="${ECR_URL}/${REPOSITORY_NAME}"
-                ECR_CORE_REPOSITORY="${ECR_URL}/${BRANCH_NAME.toLowerCase()}/core"
-            }
-            steps{
-                dir("tvpapi_rest"){
-                    sh(label: "ECR Login", script: "login=\$(aws ecr get-login --no-include-email --region ${AWS_REGION}) && \${login}")
+            },
+            "Windows" : {
+                node('Windows'){
+                    //STAGE = "build"
+                    //AWS_REGION="us-west-2"
+                    //PIPECLI = cd.get_pipecli()
+                    def msbuild = tool name: 'default', type:'hudson.plugins.msbuild.MsBuildInstallation'
+                    try{
+                        withEnv(['MSBUILD=msbuild', "component=${env.JOB_NAME}"]){
+                                stage('Clean') {
+                                    sh label: 'clean bin and obj folders', script: 'find . -iname \'bin\' -o -iname \'obj\' | xargs rm -rf'
+                                    sh label: 'clean published folder', script: 'rm -rf ./published'
+                                }
+                                stage('Checkout'){
+                                    git branch: "${BRANCH_NAME}", credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend'
+                                    committerEmail = sh (returnStdout: true, script: 'git --no-pager show -s --format=\'%ae\'').trim()
 
-                    sh(label: "Validate we have latest core docker image", script: "docker pull ${ECR_CORE_REPOSITORY}:build")
-                    sh(
-                        label: "Docker build ${REPOSITORY_NAME}", 
-                        script: "docker build "+
-                        "-t ${ECR_REPOSITORY}:build  "+
-                        "-t ${ECR_REPOSITORY}:${GIT_COMMIT} "+
-                        "--build-arg BRANCH=${BRANCH_NAME} "+
-                        "--build-arg CORE_IMAGE=${ECR_CORE_REPOSITORY} "+
-                        "--build-arg CORE_BUILD_TAG=build "+
-                        "--label 'version=${FULL_VERSION}' "+
-                        "--label 'commit=${GIT_COMMIT}' "+
-                        "--label 'build=${env.BUILD_NUMBER}' ."
-                    )
-                }
-                // Push to ecr - should be reusable. currently it is copy-paste so changes to this part should be applied on next stage as well
-                sh(
-                    label: "Verify ECR Repository Exist", 
-                    script: "aws ecr describe-repositories --repository-names ${REPOSITORY_NAME} --region ${AWS_REGION} || "+
-                            "aws ecr create-repository --repository-name ${REPOSITORY_NAME} --region ${AWS_REGION}"
-                )
-                sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:build")
-                sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:${GIT_COMMIT}")
-            }
-        }
-        stage('Build Phoenix Web Services Docker'){
-            environment{
-                REPOSITORY_NAME="${BRANCH_NAME.toLowerCase()}/phoenix-webservices"
-                ECR_REPOSITORY="${ECR_URL}/${REPOSITORY_NAME}"
-                ECR_CORE_REPOSITORY="${ECR_URL}/${BRANCH_NAME.toLowerCase()}/core"
-            }
-            steps{
-                dir("tvpapi_rest"){
-                    sh(label: "ECR Login", script: "login=\$(aws ecr get-login --no-include-email --region ${AWS_REGION}) && \${login}")
-
-                    sh(label: "Validate we have latest core docker image", script: "docker pull ${ECR_CORE_REPOSITORY}:build")
-                    sh(
-                        label: "Docker build ${REPOSITORY_NAME}", 
-                        script: "docker build "+
-                        "-f WebServices.Dockerfile " +
-                        "-t ${ECR_REPOSITORY}:build  "+
-                        "-t ${ECR_REPOSITORY}:${GIT_COMMIT} "+
-                        "--build-arg BRANCH=${BRANCH_NAME} "+
-                        "--build-arg CORE_IMAGE=${ECR_CORE_REPOSITORY} "+
-                        "--build-arg CORE_BUILD_TAG=build "+
-                        "--label 'version=${FULL_VERSION}' "+
-                        "--label 'commit=${GIT_COMMIT}' "+
-                        "--label 'build=${env.BUILD_NUMBER}' ."
-                    )
-                }
-
-                // Push to ecr - should be reusable. currently it is copy-paste so changes to this part should be applied on previous stage as well
-                sh(
-                    label: "Verify ECR Repository Exist", 
-                    script: "aws ecr describe-repositories --repository-names ${REPOSITORY_NAME} --region ${AWS_REGION} || "+
-                            "aws ecr create-repository --repository-name ${REPOSITORY_NAME} --region ${AWS_REGION}"
-                )
-                sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:build")
-                sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:${GIT_COMMIT}")
-            }
-        }
-        stage("Trigger Release Candidate"){
-            when { expression { params.TRIGGER_RC == true } }
-            steps{
-                build (
-                    job: "OTT-BE-Create-Release-Candidate", 
-                    wait: false,
-                    parameters: [
-                        [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
-                    ]
-                )
-            }
+                                }
+                                stage("Version Patch"){
+                                    dir('Core') { bat 'sh DllVersioning.Core.sh .' }
+                                    dir('phoenix') { bat 'sh ../Core/DllVersioning.Core.sh .' }
+                                    dir('RemoteTasks') { bat 'sh ../Core/DllVersioning.Core.sh .' }
+                                    dir('tvpapi') { bat 'sh ../Core/DllVersioning.Core.sh .' }
+                                    dir("WS_Ingest") { bat "sh ../Core/DllVersioning.Core.sh ."}
+                                    dir("tvmapps") { bat "sh ../Core/DllVersioning.Core.sh ."}
+                                }
+                                stage("Nuget Restore"){
+                                    dir("Core"){ bat ("nuget restore") }
+                                    dir("phoenix"){ bat ("nuget restore") }
+                                    dir("tvpapi"){ bat ("nuget restore") }
+                                    dir("WS_Ingest"){ bat ("nuget restore") }
+                                    dir("RemoteTasks"){ bat ("nuget restore") }
+                                    dir("tvmapps"){ bat ("nuget restore") }
+                                }
+                                stage("Build"){
+                                    dir("phoenix"){ buildMsProject("Phoenix.Legacy/Phoenix.Legacy.csproj","published/kaltura_ott_api/phoenix/", "phoenix-win") }
+                                    dir("RemoteTasks"){ buildMsProject("RemoteTasksService/RemoteTasksService.csproj","published/kaltura_ott_api/remotetasks/", "remotetasks-win") }
+                                    dir("tvpapi"){ buildMsProject("TVPApi.Legacy/TVPApi.Legacy.csproj","published/kaltura_ott_api/tvpapi/", "tvpapi-win") }
+                                    dir("WS_Ingest"){ buildMsProject("Ingest/Ingest.csproj","published/kaltura_ott_api/wsingest/", "wsingest-win") }
+                                    dir("tvmapps"){ buildMsProject("\"Web Sites/TVM/TVM.csproj\"","published/kaltura_ott_api/tvmapps/", "tvm-win") }
+                                }
+                                stage("Generate KalturaClient.xml"){
+                                    dir("phoenix/Generator"){
+                                        bat (label: 'Build Generator', script: "\"${MSBUILD}\" -p:Configuration=Release -m:4 -nr:False -t:Restore,Build")
+                                        dir("bin/Release/netcoreapp3.1"){
+                                            bat (label:"Generate KalturaClient.xml", script:"dotnet Generator.dll")
+                                            bat (label:"Copy KalturaClient.xml to clientlib folder", script:"xcopy KalturaClient.xml ${WORKSPACE}\\published\\kaltura_ott_api\\phoenix\\clientlibs\\")
+                                            sh (label:"upload to s3", script:"aws s3 cp KalturaClient.xml s3://clientlibs/${BRANCH_NAME}/kalturaxml/")
+                                        } 
+                                    }
+                                }
+                                stage("Zip and Publish"){
+                                    withEnv(['RELEASE_FULL_VERSION = sh(label:"Extract Full Verion Tag", script: \'Core/get-version-tag.sh\', , returnStdout: true).trim()',
+                                            'RELEASE_MAIN_VERSION = sh(label:"Extract Main Version Tag", script: "echo $version | sed -e \'s/\\.[0-9]*\$//g\'", , returnStdout: true).trim()']){
+                                    dir("published/kaltura_ott_api/phoenix/"){
+                                        sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 
+                                        bat (label:"Zip Artifacts", script:"7z.exe a -r phoenix.zip *")
+                                        sh (label:"upload to s3", script:"aws s3 cp phoenix.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/phoenix.zip")
+                                        }
+                                    dir("published/kaltura_ott_api/remotetasks/"){
+                                        sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 
+                                        bat (label:"Zip Artifacts", script:"7z.exe a -r remote-tasks.zip *")
+                                        sh (label:"upload to s3", script:"aws s3 cp remote-tasks.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/remote-tasks.zip")
+                                        }
+                                    dir("published/kaltura_ott_api/tvpapi/"){
+                                        sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 
+                                        bat (label:"Zip Artifacts", script:"7z.exe a -r tvpapi.zip *")
+                                        sh (label:"upload to s3", script:"aws s3 cp tvpapi.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/tvpapi.zip")
+                                        }
+                                    dir("published/kaltura_ott_api/wsingest/"){
+                                        sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 
+                                        bat (label:"Zip Artifacts", script:"7z.exe a -r ws-ingest.zip *")
+                                        sh (label:"upload to s3", script:"aws s3 cp ws-ingest.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/ws-ingest.zip")
+                                        }
+                                    dir("published/kaltura_ott_api/tvmapps/"){
+                                        sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 
+                                        bat (label:"Zip Artifacts", script:"7z.exe a -r tvm.zip *")
+                                        sh (label:"upload to s3", script:"aws s3 cp tvm.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/tvm.zip")
+                                        }   
+                                    }
+                                }
+                                // stage("Trigger Release Candidate"){
+                                //     SHORT_JOB_NAME = sh (script: "echo ${JOB_NAME} | cut -f1 -d'/'", returnStdout: true).trim()
+                                //     build (
+                                //         wait: false, 
+                                //         job: 'OTT-BE-Create-Release-Candidate', 
+                                //         parameters: [
+                                //             string(name: 'BRANCH_NAME', value: "${BRANCH_NAME}"), 
+                                //             string(name: 'callingjob', value: "${SHORT_JOB_NAME}")
+                                //         ]
+                                //     )
+                                //     component = "${env.JOB_NAME}"
+                                // }
+                                stage("Trigger Sonar Scan"){
+                                    if (BRANCH_NAME == "master") {
+                                        build (
+                                            wait: false, 
+                                            job: 'OTT-BE-Sonar-Scan', 
+                                            parameters: [
+                                                string(name: 'BRANCH_NAME', value: "${BRANCH_NAME}"), 
+                                                string(name: 'PROJECT', value: 'ott-backend-netframework')
+                                                ]
+                                        )
+                                    }
+                                }
+                        }
+                    } catch (e){
+                        throw e
+                    } finally{
+                            report()
+                            sleep 10
+                    }
+                }       
+            },
+            failFast: true)
+        stage('Trigger Wrapper'){
+            triggerWrapper()
         }
     }
-    post {
-        always {
-            report()
-        }
-    }
-
-   
 }
 
+//linux funcs
+def runTests(){
+    def testProjects = findDirectoriesWithTests()
+    runTestInDocker(testProjects)
+}
+
+def findDirectoriesWithTests() {
+    sh (script: "set +x;ls -d -- **/*.Tests", returnStdout: true).trim().split("\\r?\\n")
+}
+
+def runTestInDocker(testProjects){
+    def GREEN="\u001B[32m"
+    def RED="\u001B[31m"
+    def ANSI_END="\u001B[0m"
+    def BLUE="\u001B[34m"
+    def CYAN="\u001B[36m"
+    def testFailed=false
+    for(project in testProjects) { 
+        if (testFailed) {
+            sh "exit 1"
+        } 
+        echo "${GREEN}------------------------------------------- Starting Tests: ${project} -------------------------------------------${ANSI_END}"
+        withTestbed(['DOTNET_CLI_HOME=/tmp/DOTNET_CLI_HOME'], "mcr.microsoft.com/dotnet/core/sdk:3.1-alpine", project) {
+            def testStatus = sh ( script: "dotnet test ${project} --logger \"junit;LogFilePath=./test-results.xml\"", returnStatus: true)
+            if(testStatus != 0) {
+                echo "${RED}------------------------------------------- Test: ${project} FAILED!!! -------------------------------------------${ANSI_END}"
+                currentBuild.result = 'FAILURE'
+                testFailed=true
+            }
+            junit "**/test-results.xml"
+        }
+    }
+    if (currentBuild.result == 'SUCCESS') {
+        echo "${GREEN}------------------------------------------- Finished All Tests!!! -------------------------------------------${ANSI_END}"
+    }
+}
+
+def buildDockerAndPushToEcr(componentName, dockerfile){
+    component = componentName
+    def REPOSITORY_NAME="${BRANCH_NAME.toLowerCase()}/${componentName}"
+    def ECR_REPOSITORY="${ECR_URL}/${REPOSITORY_NAME}"
+    def GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim() 
+    def FULL_VERSION = sh(script: './Core/get-version-tag.sh', returnStdout: true).trim()
+    sh(
+        label: "Docker build ${REPOSITORY_NAME}", 
+        script: "docker build "+
+        "-f ${dockerfile} "+
+        "-t ${ECR_REPOSITORY}:build  "+
+        "-t ${ECR_REPOSITORY}:${GIT_COMMIT} "+
+        "-t ${ECR_REPOSITORY}:${FULL_VERSION} "+
+        "--build-arg BRANCH=${BRANCH_NAME} "+
+        "--label 'version=${FULL_VERSION}' "+
+        "--label 'commit=${GIT_COMMIT}' "+
+        "--label 'build=${env.BUILD_NUMBER}' ."
+    )
+
+    sh(
+        label: "Verify ECR Repository Exist", 
+        script: "aws ecr describe-repositories --repository-names ${REPOSITORY_NAME} --region ${AWS_REGION} || "+
+                "aws ecr create-repository --image-scanning-configuration scanOnPush=true --repository-name ${REPOSITORY_NAME} --region ${AWS_REGION}"
+    )
+
+    if (BRANCH_NAME =~ /\d+\d+\d+.*_/ || BRANCH_NAME =~ /\d+\d+\d+.*-/){
+        sleep 5
+        def is_exist = sh(script: "aws ecr get-lifecycle-policy --repository-name ${REPOSITORY_NAME} --region ${AWS_REGION}", returnStatus: true)
+        if (is_exist != "0"){
+            configFileProvider([configFile(fileId: '5ea8a9af-3adb-48ae-9929-3d93de8ff641', targetLocation: 'ECR-create-lifecycle.sh')]) {}
+            sh( label: "Create ECR Repository Lifecycle Policy",
+            script: "chmod +x ECR-create-lifecycle.sh && ./ECR-create-lifecycle.sh ${AWS_REGION} ${REPOSITORY_NAME}")
+        }
+    }
+    
+    sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:build")
+    sh(label: "Remove Image", script: "docker rmi -f ${ECR_REPOSITORY}:build || true")
+    sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:${GIT_COMMIT}")
+    sh(label: "Remove Image", script: "docker rmi -f ${ECR_REPOSITORY}:${GIT_COMMIT} || true")
+    sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:${FULL_VERSION}")
+    sh(label: "Remove Image", script: "docker rmi -f ${ECR_REPOSITORY}:${FULL_VERSION} || true")
+    echo "Docker build image: ${ECR_REPOSITORY}:${FULL_VERSION}"
+}
+
+//windows funcs
+def buildMsProject(projectFilePath, outputPath, component){
+    bat (label:"Buil ${projectFilePath}" , script:"\"${MSBUILD}\" ${projectFilePath} -m:4 -nr:False -t:Restore,Build,WebPublish"
+            + " -p:Configuration=Release"
+            + " -p:DeployOnBuild=True"
+            + " -p:WebPublishMethod=FileSystem"
+            + " -p:DeleteExistingFiles=True"
+            + " -p:publishUrl=\"${WORKSPACE}/${outputPath}"
+    )               
+}
+
+//unified-report
 def report(){
-    configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
-    def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "cd tvpapi_rest && git rev-parse HEAD", returnStdout: true).trim();
-    def reportout = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult} ${GIT_COMMIT} NA", returnStdout: true)
-    echo "${reportout}"
+    def committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
+    echo "${committerEmail}"
+    def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "git rev-parse HEAD", returnStdout: true).trim()
+    echo "${GIT_COMMIT}"
+    node('Linux'){
+        sh "\$(aws ecr get-login --no-include-email --region ${AWS_REGION})"
+        // def reportout = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult} ${GIT_COMMIT} NA ${committerEmail}", returnStdout: true)
+        // echo "${reportout}"
+        def report = sh (script: "${PIPECLI} report job -b ${BRANCH_NAME} -s ${STAGE} --buildnum ${env.BUILD_NUMBER} --job ${env.JOB_NAME} --type build --buildstatus ${currentBuild.currentResult} --gitcommit ${GIT_COMMIT} --ecr NA --commiter ${committerEmail}", returnStdout: true)
+        echo "${report}"
+    } 
 }
+
+//Trigger Wrapper
+def triggerWrapper(){
+    build job: 'OTT-BE-Sanity-Wrapper', parameters: [
+                                                string(name: 'BRANCH', value: "${BRANCH_NAME}"),
+                                                string(name: 'AUTOKILL', value: "true"),
+                                                string(name: 'Linux', value: "true")
+                                                ], wait: false
+}
+
+
+

@@ -161,16 +161,20 @@ namespace Core.ConditionalAccess
 
                 if (assetType == eAssetTypes.EPG && program != null)
                 {
-                    var tstvSettings = Utils.GetTimeShiftedTvPartnerSettings(groupId);
-
-                    response.Status =  Utils.ValidateEpgForCatchUp(tstvSettings, program);
-                    if(response.Status.Code != (int)eResponseStatus.OK)
+                    if (context == PlayContextType.StartOver)
                     {
-                        return response;
+                        response.Status = Utils.ValidateEpgForStartOver(program);
+
+                        if (response.Status.Code != (int)eResponseStatus.OK)
+                        {
+                            return response;
+                        }
                     }
 
-                    response.Status =  Utils.ValidateEpgForStartOver(program);
-                    if(response.Status.Code != (int)eResponseStatus.OK)
+                    var tstvSettings = Utils.GetTimeShiftedTvPartnerSettings(groupId);
+                    response.Status = Utils.ValidateEpgForCatchUp(tstvSettings, program);
+
+                    if (response.Status.Code != (int)eResponseStatus.OK)
                     {
                         return response;
                     }

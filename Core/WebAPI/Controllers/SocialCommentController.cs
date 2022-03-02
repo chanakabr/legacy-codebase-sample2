@@ -7,6 +7,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Social;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -39,7 +40,7 @@ namespace WebAPI.Controllers
             try
             {
                 response = ClientsManager.SocialClient().GetSocialFeed(groupId, KS.GetFromRequest().UserId, filter.AssetIdEqual, filter.AssetTypeEqual, filter.SocialPlatformEqual,
-                    pager.getPageSize(), pager.getPageIndex(), filter.CreateDateGreaterThan, filter.OrderBy);
+                    pager.PageSize.Value, pager.GetRealPageIndex(), filter.CreateDateGreaterThan, filter.OrderBy);
             }
             catch (ClientException ex)
             {

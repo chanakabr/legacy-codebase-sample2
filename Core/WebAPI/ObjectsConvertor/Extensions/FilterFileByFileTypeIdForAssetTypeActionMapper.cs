@@ -9,7 +9,7 @@ namespace WebAPI.ObjectsConvertor.Extensions
     {
         public static List<eAssetTypes> GetAssetTypes(this KalturaFilterFileByFileTypeIdForAssetTypeAction model)
         {
-            var types = model.GetItemsIn<List<KalturaAssetType>, KalturaAssetType>(model.AssetTypeIn, "assetTypeIn", true, true);
+            var types = Utils.Utils.ParseCommaSeparatedValues<List<KalturaAssetType>, KalturaAssetType>(model.AssetTypeIn, "assetTypeIn", true, true);
             var mapped = AutoMapper.Mapper.Map<List<eAssetTypes>>(types);
             return mapped;
         }

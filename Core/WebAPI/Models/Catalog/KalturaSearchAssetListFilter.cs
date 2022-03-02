@@ -1,15 +1,16 @@
-﻿using System.Runtime.Serialization;
-using System.Xml.Serialization;
-using ApiLogic.Api.Managers.Rule;
+﻿using ApiLogic.Api.Managers.Rule;
 using ApiObjects.Base;
 using ApiObjects.SearchObjects;
 using Newtonsoft.Json;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.InternalModels;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.Models.Catalog
 {
@@ -53,7 +54,7 @@ namespace WebAPI.Models.Catalog
                 DomainId = domainId,
                 Udid = contextData.Udid,
                 Language = contextData.Language,
-                PageIndex = pager.getPageIndex(),
+                PageIndex = pager.GetRealPageIndex(),
                 PageSize = pager.PageSize,
                 Filter = ksqlFilter,
                 AssetTypes = getTypeIn(),

@@ -1,10 +1,6 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Reactive.Joins;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -18,7 +14,7 @@ namespace WebAPI.Models.IngestStatus
         [DataMember(Name = "ingestIdIn")]
         [JsonProperty("ingestIdIn")]
         [XmlElement(ElementName = "ingestIdIn")]
-        [SchemeProperty(IsNullable = true)]
+        [SchemeProperty(IsNullable = true, Pattern = @"^\d+(\s*,\s*\d+){0,19}$")]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string IngestIdIn { get; set; }
 

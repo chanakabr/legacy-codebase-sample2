@@ -7,6 +7,7 @@ using System.Xml.Serialization;
 using ApiObjects.Response;
 using WebAPI.Models.General;
 using ApiObjects.MediaMarks;
+using WebAPI.Utils;
 
 namespace WebAPI.Models.Catalog
 {

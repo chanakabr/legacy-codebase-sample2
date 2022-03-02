@@ -866,9 +866,9 @@ namespace DAL
             return res;
         }
 
-        public static ApiObjects.Response.GenericResponse<DeviceReferenceData> InsertDeviceReferenceData(ContextData contextData, DeviceReferenceData coreObject, long utcNow)
+        public static ApiObjects.Response.GenericResponse<T> InsertDeviceReferenceData<T>(ContextData contextData, T coreObject, long utcNow) where T : DeviceReferenceData
         {
-            var response = new ApiObjects.Response.GenericResponse<DeviceReferenceData>();
+            var response = new ApiObjects.Response.GenericResponse<T>();
             var sp = new StoredProcedure("Insert_DeviceReferenceData");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@groupID", contextData.GroupId);

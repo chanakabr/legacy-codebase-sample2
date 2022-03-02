@@ -1,17 +1,18 @@
-﻿using System;
+﻿using ApiLogic.Api.Managers.Rule;
+using ApiObjects.Base;
+using ApiObjects.SearchObjects;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using ApiObjects.Base;
-using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using ApiLogic.Api.Managers.Rule;
-using ApiObjects.SearchObjects;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.InternalModels;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.ObjectsConvertor.Ordering;
 
 namespace WebAPI.Models.Catalog
@@ -89,7 +90,7 @@ namespace WebAPI.Models.Catalog
                 DomainId = domainId,
                 Udid = contextData.Udid,
                 Language = contextData.Language,
-                PageIndex = pager.getPageIndex(),
+                PageIndex = pager.GetRealPageIndex(),
                 PageSize = pager.PageSize,
                 Filter = FilterAsset.Instance.UpdateKsql(null, contextData.GroupId, contextData.SessionCharacteristicKey),
                 AssetTypes = null,
@@ -207,7 +208,7 @@ namespace WebAPI.Models.Catalog
 
         protected static void ValidateForExcludeWatched(ContextData contextData, KalturaFilterPager pager)
         {
-            if (pager.getPageIndex() > 0)
+            if (pager.GetRealPageIndex() > 0)
             {
                 throw new BadRequestException(
                     BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER,

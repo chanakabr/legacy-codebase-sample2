@@ -8,11 +8,6 @@ using Newtonsoft.Json.Linq;
 
 namespace WebAPI.Models.General
 {
-    public interface IKalturaPersistedFilter
-    {
-        string Name { get; set; }
-    }
-
     public abstract partial class KalturaPersistedFilter<KalturaT> : KalturaFilter<KalturaT>, IKalturaPersistedFilter where KalturaT : struct, IComparable, IFormattable, IConvertible
     {
         /// <summary>
@@ -26,14 +21,6 @@ namespace WebAPI.Models.General
         {
             get;
             set;
-        }
-
-        public override void AfterRequestParsed(string service, string action, string language, int groupId, string userId, string deviceId, JObject json = null)
-        {
-            if (!string.IsNullOrEmpty(Name))
-            {
-                ClientsManager.ApiClient().SaveSearchHistory(this.Name, service, action, language, groupId, userId, deviceId, json);
-            }
         }
     }
 }

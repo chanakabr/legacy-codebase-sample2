@@ -1,14 +1,8 @@
-﻿using ApiLogic.Base;
-using ApiObjects;
-using WebAPI.Models.General;
-using ApiObjects.Response;
-using ApiObjects.Base;
+﻿using Newtonsoft.Json;
 using System;
-using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Managers.Scheme;
-using System.Collections.Generic;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
@@ -56,63 +50,5 @@ namespace WebAPI.Models.API
         [JsonProperty(PropertyName = "topics")]
         [XmlElement(ElementName = "topics")]
         public string Topics { get; set; }
-    }
-
-    public partial class KalturaCredentialsProvider : KalturaOTTObject
-    {
-        /// <summary>
-        /// KalturaCognitoIdentity
-        /// </summary>
-        [DataMember(Name = "cognitoIdentity")]
-        [JsonProperty(PropertyName = "cognitoIdentity")]
-        [XmlElement(ElementName = "cognitoIdentity")]
-        public KalturaCognitoIdentity CognitoIdentity { get; set; }
-    }
-
-    public partial class KalturaCognitoIdentity : KalturaOTTObject
-    {
-        /// <summary>
-        /// Default
-        /// </summary>
-        [DataMember(Name = "iotDefault")]
-        [JsonProperty(PropertyName = "iotDefault")]
-        [XmlElement(ElementName = "iotDefault")]
-        public KalturaIotDefault IotDefault { get; set; }
-    }
-
-    public partial class KalturaCognitoUserPool : KalturaOTTObject
-    {
-        /// <summary>
-        /// Default
-        /// </summary>
-        [DataMember(Name = "iotDefault")]
-        [JsonProperty(PropertyName = "iotDefault")]
-        [XmlElement(ElementName = "iotDefault")]
-        public KalturaIotDefault IotDefault { get; set; }
-    }
-
-    public partial class KalturaIotDefault : KalturaOTTObject
-    {
-        /// <summary>
-        /// PoolId
-        /// </summary>
-        [DataMember(Name = "poolId")]
-        [JsonProperty(PropertyName = "poolId")]
-        [XmlElement(ElementName = "poolId")]
-        public string PoolId { get; set; }
-        /// <summary>
-        /// Region
-        /// </summary>
-        [DataMember(Name = "region")]
-        [JsonProperty(PropertyName = "region")]
-        [XmlElement(ElementName = "region")]
-        public string Region { get; set; }
-        /// <summary>
-        /// AppClientId
-        /// </summary>
-        [DataMember(Name = "appClientId")]
-        [JsonProperty(PropertyName = "appClientId")]
-        [XmlElement(ElementName = "appClientId")]
-        public string AppClientId { get; set; }
     }
 }

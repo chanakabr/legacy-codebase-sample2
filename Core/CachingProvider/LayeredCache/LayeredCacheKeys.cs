@@ -842,6 +842,11 @@ namespace CachingProvider.LayeredCache
             return $"domain_subcription_purchase_v1_{domainId}_{subscriptionId}";
         }
 
+        public static string GetPagoKey(long groupId, long pagoId)
+        {
+            return $"Pago_groupId_{groupId}_Id_{pagoId}";
+        }
+
         public static string GetCollectionKey(int groupId, long collId)
         {
             return $"Collection_groupId_{groupId}_Id_{collId}";
@@ -1223,6 +1228,17 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKeyPricePlan_groupId_{0}", groupId);
         }
+
+
+        public static string GetPagoIdsInvalidationKey(long groupId)
+        {
+            return string.Format("invalidationKeyPagoIds_groupId_{0}", groupId);
+        }
+        public static string GetPagoInvalidationKey(long groupId, long pagoId)
+        {
+            return string.Format("invalidationKey_Pago_groupId_{0}_Id_{1}", groupId, pagoId);
+        }
+
         public static string GetCollectionsIdsInvalidationKey(int groupId)
         {
             return string.Format("invalidationKeyCollectionsIds_groupId_{0}", groupId);

@@ -1,12 +1,7 @@
-﻿using ApiObjects.Base;
-using WebAPI.Managers.Scheme;
+﻿using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.General
 {
-    enum KalturaDummyOrderBy
-    {
-    }
-
     /// <summary>
     /// Define KalturaRelatedObjectFilter
     /// </summary>
