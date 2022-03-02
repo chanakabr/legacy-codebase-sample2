@@ -2,17 +2,11 @@
 using System;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
 {
-    public enum KalturaAssetFilePpvOrderBy
-    {
-        NONE
-    }
-
     /// <summary>
     /// Filtering Asset Struct Metas
     /// </summary>
@@ -40,19 +34,6 @@ namespace WebAPI.Models.Pricing
         public override KalturaAssetFilePpvOrderBy GetDefaultOrderByValue()
         {
             return KalturaAssetFilePpvOrderBy.NONE;
-        }
-
-        internal void Validate()
-        {
-            if (!AssetFileIdEqual.HasValue && !AssetIdEqual.HasValue)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "AssetFileIdEqual, AssetIdEqual");
-            }
-
-            if (AssetFileIdEqual.HasValue && AssetIdEqual.HasValue)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaAssetFilePpvFilter.AssetFileIdEqual", "KalturaAssetFilePpvFilter.AssetIdEqual");
-            }
-        }        
+        }      
     }
 }

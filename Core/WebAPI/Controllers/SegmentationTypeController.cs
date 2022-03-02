@@ -1,13 +1,17 @@
-﻿using Phx.Lib.Log;
-using System;
-using System.Reflection;
+﻿using ApiObjects;
 using ApiObjects.Response;
+using Phx.Lib.Log;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Segmentation;
+using WebAPI.ModelsValidators;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -131,7 +135,12 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 long userId = Utils.Utils.GetUserIdFromKs();
 
-                response = filter.GetSegmentationTypes(groupId, userId, pager);
+                switch (filter)
+                {
+                    case KalturaSegmentationTypeFilter f: response = ListBySegmentationTypeFilter(groupId, userId, pager, f); break;
+                    case KalturaSegmentValueFilter f: response = ListBySegmentValueFilter(groupId, userId, pager, f); break;
+                    default: throw new NotImplementedException($"List for {filter.objectType} is not implemented");
+                }
             }
 
             catch (ClientException ex)
@@ -140,6 +149,33 @@ namespace WebAPI.Controllers
             }
 
             return response;
-        }        
+        }
+
+        private static KalturaSegmentationTypeListResponse ListBySegmentationTypeFilter(int groupId, long userId, KalturaFilterPager pager, KalturaSegmentationTypeFilter filter)
+        {
+            HashSet<long> ids = null;
+            bool isAllowedToViewInactiveAssets = false;
+
+            if (string.IsNullOrEmpty(filter.Ksql))
+            {
+                ids = filter.GetIdIn();
+            }
+            else
+            {
+                isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userId.ToString(), true);
+            }
+
+            return ClientsManager.ApiClient().ListSegmentationTypes(groupId, ids, pager.GetRealPageIndex(), pager.PageSize.Value,
+                new AssetSearchDefinition() { Filter = filter.Ksql, UserId = userId, IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets });
+        }
+
+        private static KalturaSegmentationTypeListResponse ListBySegmentValueFilter(int groupId, long userId, KalturaFilterPager pager, KalturaSegmentValueFilter filter)
+        {
+            bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userId.ToString(), true);
+
+            return ClientsManager.ApiClient().GetSegmentationTypesBySegmentIds(groupId, filter.GetIdIn(),
+                new AssetSearchDefinition() { UserId = userId, IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets },
+                pager.GetRealPageIndex(), pager.PageSize.Value);
+        }
     }
 }

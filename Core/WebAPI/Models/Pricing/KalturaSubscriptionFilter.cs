@@ -139,7 +139,7 @@ namespace WebAPI.Models.Pricing
 
             if (!string.IsNullOrEmpty(SubscriptionIdIn))
             {
-                GetItemsIn<List<long>, long>(this.SubscriptionIdIn, "subscriptionIdIn", true);
+                Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(this.SubscriptionIdIn, "subscriptionIdIn", true);
             }
         }
 
@@ -148,7 +148,7 @@ namespace WebAPI.Models.Pricing
             if (string.IsNullOrEmpty(SubscriptionIdIn))
                 return null;
 
-            return GetItemsIn<List<long>, long>(this.SubscriptionIdIn, "subscriptionIdIn", true);
+            return Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(this.SubscriptionIdIn, "subscriptionIdIn", true);
         }
 
         internal List<string> getExternalIdIn()

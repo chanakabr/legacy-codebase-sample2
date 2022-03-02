@@ -1,10 +1,10 @@
 ﻿using ApiLogic.Api.Managers.Rule;
-using ApiLogic.Catalog;
 using ApiLogic.Users.Managers;
 using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Response;
 using ApiObjects.Rules;
+using ApiObjects.SearchObjects;
 using AutoMapper;
 using Core.Catalog.CatalogManagement;
 using Phx.Lib.Log;
@@ -13,7 +13,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Web;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -24,9 +23,10 @@ using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.Models.Upload;
-using WebAPI.Utils;
-using ApiObjects.SearchObjects;
+using WebAPI.ModelsValidators;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.ObjectsConvertor.Ordering;
+using WebAPI.Utils;
 using SearchAssetsFilter = WebAPI.InternalModels.SearchAssetsFilter;
 using WebAPI.Managers;
 
@@ -92,7 +92,7 @@ namespace WebAPI.Controllers
 
 
                             response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, udid, language,
-                                pager.getPageIndex(), pager.PageSize, ids, with.Select(x => x.type).ToList());
+                                pager.GetRealPageIndex(), pager.PageSize, ids, with.Select(x => x.type).ToList());
                         }
                         break;
                     case KalturaCatalogReferenceBy.EPG_INTERNAL:
@@ -107,7 +107,7 @@ namespace WebAPI.Controllers
                             }
 
                             response = ClientsManager.CatalogClient().GetEPGByInternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), udid, language,
-                               pager.getPageIndex(), pager.PageSize, ids, with.Select(x => x.type).ToList());
+                               pager.GetRealPageIndex(), pager.PageSize, ids, with.Select(x => x.type).ToList());
 
                             // if no response - return not found status 
                             if (response == null || response.Objects == null || response.Objects.Count == 0)
@@ -120,7 +120,7 @@ namespace WebAPI.Controllers
                     case KalturaCatalogReferenceBy.EPG_EXTERNAL:
                         {
                             response = ClientsManager.CatalogClient().GetEPGByExternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), udid, language,
-                                  pager.getPageIndex(), pager.PageSize, filter.IDs.Select(id => id.value).ToList(), with.Select(x => x.type).ToList());
+                                  pager.GetRealPageIndex(), pager.PageSize, filter.IDs.Select(id => id.value).ToList(), with.Select(x => x.type).ToList());
 
                             // if no response - return not found status 
                             if (response == null || response.Objects == null || response.Objects.Count == 0)
@@ -139,7 +139,7 @@ namespace WebAPI.Controllers
 
                             var withList = with.Select(x => x.type).ToList();
                             response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), udid, language,
-                            pager.getPageIndex(), pager.PageSize, withList, channelID, order_by, string.Empty, false);
+                            pager.GetRealPageIndex(), pager.PageSize, withList, channelID, order_by, string.Empty, false);
                         }
                         break;
                 }
@@ -563,7 +563,7 @@ namespace WebAPI.Controllers
             {
                 // call client
                 response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language,
-                pager.getPageIndex(), pager.PageSize, filter, order_by, filter_types.Select(x => x.value).ToList(),
+                pager.GetRealPageIndex(), pager.PageSize, filter, order_by, filter_types.Select(x => x.value).ToList(),
                 request_id,
                 with.Select(x => x.type).ToList(), false);
             }
@@ -661,7 +661,7 @@ namespace WebAPI.Controllers
                 string language = Utils.Utils.GetLanguageFromRequest();
 
                 response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), udid,
-                    language, pager.getPageIndex(), pager.PageSize, media_id, filter, filter_types.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
+                    language, pager.GetRealPageIndex(), pager.PageSize, media_id, filter, filter_types.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
             }
             catch (ClientException ex)
             {
@@ -701,7 +701,7 @@ namespace WebAPI.Controllers
                 filter_type_ids = new List<KalturaIntegerValue>();
 
             if (pager == null)
-                pager = new KalturaFilterPager() { PageIndex = 0, PageSize = 5 };
+                pager = new KalturaFilterPager() { PageIndex = 1, PageSize = 5 };
 
             string udid = KSUtils.ExtractKSPayload(KS.GetFromRequest()).UDID;
 
@@ -710,7 +710,7 @@ namespace WebAPI.Controllers
                 string userID = KS.GetFromRequest().UserId;
 
                 response = ClientsManager.CatalogClient().GetRelatedMediaExternal(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), udid,
-                    language, pager.getPageIndex(), pager.PageSize, asset_id, filter_type_ids.Select(x => x.value).ToList(), utc_offset, with.Select(x => x.type).ToList(), free_param);
+                    language, pager.GetRealPageIndex(), pager.PageSize, asset_id, filter_type_ids.Select(x => x.value).ToList(), utc_offset, with.Select(x => x.type).ToList(), free_param);
             }
             catch (ClientException ex)
             {
@@ -749,7 +749,7 @@ namespace WebAPI.Controllers
                 filter_type_ids = new List<KalturaIntegerValue>();
 
             if (pager == null)
-                pager = new KalturaFilterPager() { PageIndex = 0, PageSize = 5 };
+                pager = new KalturaFilterPager() { PageIndex = 1, PageSize = 5 };
 
             string udid = KSUtils.ExtractKSPayload(KS.GetFromRequest()).UDID;
 
@@ -759,7 +759,7 @@ namespace WebAPI.Controllers
                 string language = Utils.Utils.GetLanguageFromRequest();
 
                 response = ClientsManager.CatalogClient().GetSearchMediaExternal(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), udid,
-                    language, pager.getPageIndex(), pager.PageSize, query, filter_type_ids.Select(x => x.value).ToList(), utc_offset, with.Select(x => x.type).ToList());
+                    language, pager.GetRealPageIndex(), pager.PageSize, query, filter_type_ids.Select(x => x.value).ToList(), utc_offset, with.Select(x => x.type).ToList());
             }
             catch (ClientException ex)
             {
@@ -825,7 +825,7 @@ namespace WebAPI.Controllers
 
                 var withList = with.Select(x => x.type).ToList();
                 response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), udid, language,
-                    pager.getPageIndex(), pager.PageSize, withList, id, order_by, filter_query, false);
+                    pager.GetRealPageIndex(), pager.PageSize, withList, id, order_by, filter_query, false);
             }
             catch (ClientException ex)
             {
@@ -888,7 +888,7 @@ namespace WebAPI.Controllers
                 string deviceType = System.Web.HttpContext.Current.Request.GetUserAgentString();
                 string str_utc_offset = utc_offset.HasValue ? utc_offset.Value.ToString() : null;
                 response = ClientsManager.CatalogClient().GetExternalChannelAssets(groupId, id.ToString(), userID, (int)HouseholdUtils.GetHouseholdIDByKS(), udid,
-                    language, pager.getPageIndex(), pager.PageSize, order_by, convertedWith, deviceType, str_utc_offset, free_param);
+                    language, pager.GetRealPageIndex(), pager.PageSize, order_by, convertedWith, deviceType, str_utc_offset, free_param);
             }
             catch (ClientException ex)
             {

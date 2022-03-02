@@ -1,13 +1,14 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects.Base;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
-using ApiObjects.Base;
-using WebAPI.ClientManagers.Client;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.Models.Catalog
 {
@@ -83,7 +84,7 @@ namespace WebAPI.Models.Catalog
 
         internal List<string> convertQueryToList()
         {
-            return this.GetItemsIn<List<string>, string>(Query, "KalturaSearchExternalFilter.query");
+            return Utils.Utils.ParseCommaSeparatedValues<List<string>, string>(Query, "KalturaSearchExternalFilter.query");
         }
 
         // Search for assets via external service (e.g. external recommendation engine). 
@@ -101,7 +102,7 @@ namespace WebAPI.Models.Catalog
                     domainId,
                     contextData.Udid,
                     contextData.Language,
-                    pager.getPageIndex(),
+                    pager.GetRealPageIndex(),
                     pager.PageSize,
                     convertQueryToList())
                 : ClientsManager.CatalogClient().GetSearchMediaExternal(
@@ -110,7 +111,7 @@ namespace WebAPI.Models.Catalog
                     domainId,
                     contextData.Udid,
                     contextData.Language,
-                    pager.getPageIndex(),
+                    pager.GetRealPageIndex(),
                     pager.PageSize,
                     Query,
                     typeIn,

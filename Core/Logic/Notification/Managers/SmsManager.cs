@@ -1,21 +1,20 @@
-﻿using Phx.Lib.Log;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using APILogic.SmsAdapterService;
-using System.Linq;
-using TVinciShared;
+﻿using APILogic.SmsAdapterService;
 using ApiObjects;
 using ApiObjects.Base;
+using ApiObjects.Notification;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using Core.Notification;
-using ApiObjects.Notification;
-using ApiLogic.Base;
+using Phx.Lib.Log;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using TVinciShared;
 
 namespace ApiLogic.Notification.Managers
 {
-    public class SmsManager : ICrudHandler<SmsAdapterProfile, long>
+    public class SmsManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private ServiceClient _AdapterClient;

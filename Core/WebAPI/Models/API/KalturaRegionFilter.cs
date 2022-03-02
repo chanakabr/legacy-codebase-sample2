@@ -9,6 +9,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.Models.API
 {
@@ -104,7 +105,7 @@ namespace WebAPI.Models.API
         internal override KalturaRegionListResponse GetRegions(int groupId, KalturaFilterPager pager, KalturaBaseResponseProfile responseProfile = null)
         {
             RegionFilter wsFilter = AutoMapper.Mapper.Map<RegionFilter>(this);
-            var response = ClientsManager.ApiClient().GetRegions(groupId, wsFilter, pager.getPageIndex(), pager.getPageSize());
+            var response = ClientsManager.ApiClient().GetRegions(groupId, wsFilter, pager.GetRealPageIndex(), pager.PageSize.Value);
 
             KalturaRegionListResponse result = new KalturaRegionListResponse
             {

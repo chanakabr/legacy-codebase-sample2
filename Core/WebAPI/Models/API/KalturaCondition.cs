@@ -143,7 +143,7 @@ namespace WebAPI.Models.API
 
         public List<int> getCountries()
         {
-            return this.GetItemsIn<List<int>, int>(Countries, "KalturaCountryCondition.countries");
+            return Utils.Utils.ParseCommaSeparatedValues<List<int>, int>(Countries, "KalturaCountryCondition.countries");
         }
 
         public override void Validate(HashSet<KalturaRuleConditionType> types = null)
@@ -343,7 +343,7 @@ namespace WebAPI.Models.API
 
         public List<int> getSegmentsIds()
         {
-            return this.GetItemsIn<List<int>, int>(SegmentsIds, "segmentsIds", true);
+            return Utils.Utils.ParseCommaSeparatedValues<List<int>, int>(SegmentsIds, "segmentsIds", true);
         }
 
         public override void Validate(HashSet<KalturaRuleConditionType> types = null)
@@ -529,7 +529,7 @@ namespace WebAPI.Models.API
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaDeviceBrandCondition.idIn");
             }
 
-            var items = GetItemsIn<List<long>, long>(this.IdIn, "idIn", true);
+            var items = WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(this.IdIn, "idIn", true);
             if (items.Count > 10)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_MAX_ITEMS_CROSSED, "KalturaDeviceBrandCondition.idIn", 10);
@@ -539,7 +539,7 @@ namespace WebAPI.Models.API
         internal List<int>  GetDeviceBrandIds()
         {
             return !string.IsNullOrEmpty(this.IdIn)
-                ? this.GetItemsIn<List<int>, int>(this.IdIn, "KalturaDeviceBrandCondition.IdIn", true) : null;
+                ? Utils.Utils.ParseCommaSeparatedValues<List<int>, int>(this.IdIn, "KalturaDeviceBrandCondition.IdIn", true) : null;
         }
     }
 
@@ -567,7 +567,7 @@ namespace WebAPI.Models.API
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaDeviceFamilyCondition.idIn");
             }
 
-            var items = GetItemsIn<List<long>, long>(this.IdIn, "idIn", true);
+            var items = WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(this.IdIn, "idIn", true);
             if (items.Count > 10)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_MAX_ITEMS_CROSSED, "KalturaDeviceFamilyCondition.idIn", 10);
@@ -577,7 +577,7 @@ namespace WebAPI.Models.API
         internal List<int> GetDeviceFamilyIds()
         {
             return !string.IsNullOrEmpty(this.IdIn)
-                ? this.GetItemsIn<List<int>, int>(this.IdIn, "KalturaDeviceFamilyCondition.IdIn", true) : null;
+                ? Utils.Utils.ParseCommaSeparatedValues<List<int>, int>(this.IdIn, "KalturaDeviceFamilyCondition.IdIn", true) : null;
         }
     }
 
@@ -605,7 +605,7 @@ namespace WebAPI.Models.API
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaDeviceManufacturerCondition.idIn");
             }
 
-            var items = GetItemsIn<List<long>, long>(this.IdIn, "idIn", true);
+            var items = WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(this.IdIn, "idIn", true);
             if (items.Count > 10)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_MAX_ITEMS_CROSSED, "KalturaDeviceManufacturerCondition.idIn", 10);
@@ -615,7 +615,7 @@ namespace WebAPI.Models.API
         internal List<int> GetDeviceManufacturerIds()
         {
             return !string.IsNullOrEmpty(this.IdIn)
-                ? this.GetItemsIn<List<int>, int>(this.IdIn, "KalturaDeviceManufacturerCondition.IdIn", true) : null;
+                ? Utils.Utils.ParseCommaSeparatedValues<List<int>, int>(this.IdIn, "KalturaDeviceManufacturerCondition.IdIn", true) : null;
         }
     }
 
@@ -706,7 +706,7 @@ namespace WebAPI.Models.API
         internal List<string> GetValues()
         {
             return !string.IsNullOrWhiteSpace(Values)
-                ? GetItemsIn<List<string>, string>(Values, "KalturaDynamicKeysCondition.values", true)
+                ? WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<string>, string>(Values, "KalturaDynamicKeysCondition.values", true)
                 : null;
         }
 

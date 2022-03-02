@@ -1,6 +1,6 @@
 ﻿using ApiObjects.Response;
-using System;
 using ApiObjects.User;
+using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -8,6 +8,7 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Models.Notification;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -37,7 +38,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.NotificationClient().ListUserTvSeriesFollows(groupId, userID, pager.PageSize.Value, pager.PageIndex.Value, filter.OrderBy);
+                response = ClientsManager.NotificationClient().ListUserTvSeriesFollows(groupId, userID, pager.PageSize.Value, pager.GetRealPageIndex(), filter.OrderBy);
             }
             catch (ClientException ex)
             {
@@ -70,7 +71,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.NotificationClient().GetUserTvSeriesFollows(groupId, userID, pager.PageSize.Value, pager.PageIndex.Value, order_by);
+                response = ClientsManager.NotificationClient().GetUserTvSeriesFollows(groupId, userID, pager.PageSize.Value, pager.GetRealPageIndex(), order_by);
             }
             catch (ClientException ex)
             {

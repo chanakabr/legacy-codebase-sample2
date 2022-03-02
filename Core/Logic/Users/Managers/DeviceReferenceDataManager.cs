@@ -1,15 +1,14 @@
-﻿using ApiLogic.Base;
-using ApiObjects;
+﻿using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Response;
-using Phx.Lib.Log;
-using System;
-using System.Reflection;
 using CachingProvider.LayeredCache;
-using System.Collections.Generic;
-using System.Linq;
 using DAL;
 using Newtonsoft.Json;
+using Phx.Lib.Log;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace ApiLogic.Users.Managers
 {
@@ -18,7 +17,7 @@ namespace ApiLogic.Users.Managers
         GenericListResponse<DeviceReferenceData> ListByManufacturer(ContextData contextData, DeviceManufacturersReferenceDataFilter filter, CorePager pager = null);
     }
 
-    public class DeviceReferenceDataManager : ICrudHandler<DeviceReferenceData, long>, IDeviceReferenceDataManager
+    public class DeviceReferenceDataManager : IDeviceReferenceDataManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly Lazy<DeviceReferenceDataManager> lazy = new Lazy<DeviceReferenceDataManager>(() => new DeviceReferenceDataManager());
@@ -64,9 +63,9 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        public GenericResponse<DeviceReferenceData> Add<T>(ContextData contextData, T coreObject) where T : DeviceReferenceData
+        public GenericResponse<T> Add<T>(ContextData contextData, T coreObject) where T : DeviceReferenceData
         {
-            var response = new GenericResponse<DeviceReferenceData>();
+            var response = new GenericResponse<T>();
 
             try
             {
@@ -90,9 +89,9 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        public GenericResponse<DeviceReferenceData> Update<T>(ContextData contextData, T coreObject) where T : DeviceReferenceData
+        public GenericResponse<T> Update<T>(ContextData contextData, T coreObject) where T : DeviceReferenceData
         {
-            var response = new GenericResponse<DeviceReferenceData>();
+            var response = new GenericResponse<T>();
 
             try
             {
@@ -109,7 +108,12 @@ namespace ApiLogic.Users.Managers
                 if (_response.IsOkStatusCode())
                 {
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDeviceReferenceDataInvalidationKey(contextData.GroupId));
-                    response.Object = List(contextData, filter).Objects.FirstOrDefault();
+                    var updatedObject = List(contextData, filter).Objects.FirstOrDefault();
+                    if (updatedObject != null)
+                    {
+                        response.Object = updatedObject as T;
+                    }
+                    
                     response.SetStatus(eResponseStatus.OK);
                 }
                 else

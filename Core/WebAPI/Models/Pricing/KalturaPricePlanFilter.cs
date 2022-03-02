@@ -22,7 +22,7 @@ namespace WebAPI.Models.Pricing
                 
         internal List<long> GetIdIn()
         {
-            return this.GetItemsIn<List<long>, long>(IdIn, "KalturaPricePlanFilter.IdIn");
+            return Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(IdIn, "KalturaPricePlanFilter.IdIn");
         }
         public override KalturaPricePlanOrderBy GetDefaultOrderByValue()
         {

@@ -7,10 +7,6 @@ using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.General
 {
-    public interface IKalturaFilter : IKalturaOTTObject
-    {
-    }
-
     /// <summary>
     /// Base filter
     /// </summary>

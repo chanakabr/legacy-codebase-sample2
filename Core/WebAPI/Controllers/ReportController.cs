@@ -5,6 +5,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.DMS;
 using WebAPI.Models.General;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -73,7 +74,7 @@ namespace WebAPI.Controllers
                 int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
-                response = DMSClient.GetDevicesReport(partnerId, deviceReportFilter.LastAccessDateGreaterThanOrEqual, pager.getPageIndex() + 1, pager.getPageSize());
+                response = DMSClient.GetDevicesReport(partnerId, deviceReportFilter.LastAccessDateGreaterThanOrEqual, pager.GetRealPageIndex() + 1, pager.PageSize.Value);
             }
             catch (ClientException ex)
             {

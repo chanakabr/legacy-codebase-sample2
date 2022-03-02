@@ -51,17 +51,17 @@ namespace WebAPI.Controllers
                 if (!string.IsNullOrEmpty(filter.IdIn))
                 {
                     var idIn = Utils.Utils.ParseCommaSeparatedValues<long>(filter.IdIn, $"{nameof(filter)}.idIn", checkDuplicate: true, ignoreDefaultValueValidation: true);
-                    response = ClientsManager.CatalogClient().GetTags(groupId, idIn.ToList(), pager.getPageIndex(), pager.getPageSize());
+                    response = ClientsManager.CatalogClient().GetTags(groupId, idIn.ToList(), pager.GetRealPageIndex(), pager.PageSize.Value);
                 }
                 else if (!string.IsNullOrEmpty(filter.TagEqual))
                 {
                     //search using tag
-                    response = ClientsManager.CatalogClient().SearchTags(groupId, true, filter.TagEqual, filter.TypeEqual.Value, filter.LanguageEqual, pager.getPageIndex(), pager.getPageSize());
+                    response = ClientsManager.CatalogClient().SearchTags(groupId, true, filter.TagEqual, filter.TypeEqual.Value, filter.LanguageEqual, pager.GetRealPageIndex(), pager.PageSize.Value);
                 }
                 else
                 {
                     //search using TagStartsWith
-                    response = ClientsManager.CatalogClient().SearchTags(groupId, false, filter.TagStartsWith, filter.TypeEqual.Value, filter.LanguageEqual, pager.getPageIndex(), pager.getPageSize());
+                    response = ClientsManager.CatalogClient().SearchTags(groupId, false, filter.TagStartsWith, filter.TypeEqual.Value, filter.LanguageEqual, pager.GetRealPageIndex(), pager.PageSize.Value);
                 }
             }
             catch (ClientException ex)

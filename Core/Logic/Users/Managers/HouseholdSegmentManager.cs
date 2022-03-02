@@ -1,5 +1,4 @@
-﻿using ApiLogic.Base;
-using ApiObjects;
+﻿using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Response;
 using ApiObjects.Segmentation;
@@ -12,7 +11,7 @@ using System.Reflection;
 
 namespace ApiLogic.Users.Managers
 {
-    public class HouseholdSegmentManager : ICrudHandler<HouseholdSegment, long>
+    public class HouseholdSegmentManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 

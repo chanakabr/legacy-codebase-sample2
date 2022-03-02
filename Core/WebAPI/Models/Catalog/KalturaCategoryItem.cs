@@ -72,9 +72,9 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "updateDate")]
         [JsonProperty("updateDate")]
-        [XmlElement(ElementName = "updateDate", IsNullable = true)]
-        [SchemeProperty(ReadOnly = true, IsNullable = true)]
-        public long? UpdateDate { get; set; }
+        [XmlElement(ElementName = "updateDate")]
+        [SchemeProperty(ReadOnly = true)]
+        public long UpdateDate { get; set; }
 
         /// <summary>
         /// Category active status

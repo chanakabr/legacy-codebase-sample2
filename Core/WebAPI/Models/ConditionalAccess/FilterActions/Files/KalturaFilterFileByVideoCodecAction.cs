@@ -26,7 +26,7 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
 
         public List<string> GetVideoCodecs()
         {
-            return this.GetItemsIn<List<string>, string>(VideoCodecIn, "videoCodecIn", true);
+            return Utils.Utils.ParseCommaSeparatedValues<List<string>, string>(VideoCodecIn, "videoCodecIn", true);
         }
     }
     

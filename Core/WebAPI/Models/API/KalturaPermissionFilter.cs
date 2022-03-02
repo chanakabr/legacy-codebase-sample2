@@ -11,6 +11,7 @@ using WebAPI.Clients;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
+using WebAPI.Utils;
 
 namespace WebAPI.Models.API
 {

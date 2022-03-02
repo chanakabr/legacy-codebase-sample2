@@ -29,7 +29,7 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
 
         public List<StreamerType> GetStreamerTypes()
         {
-            var streamerTypes = this.GetItemsIn<List<KalturaMediaFileStreamerType>, KalturaMediaFileStreamerType>(StreamerTypeIn, "streamerTypeIn", true, true);
+            var streamerTypes = Utils.Utils.ParseCommaSeparatedValues<List<KalturaMediaFileStreamerType>, KalturaMediaFileStreamerType>(StreamerTypeIn, "streamerTypeIn", true, true);
             return AutoMapper.Mapper.Map<List<StreamerType>>(streamerTypes);
         }
     }

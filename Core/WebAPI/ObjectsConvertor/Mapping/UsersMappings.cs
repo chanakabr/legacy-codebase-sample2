@@ -256,7 +256,7 @@ namespace ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaPasswordPolicy, PasswordPolicy>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.UserRoleIds, opt => opt.MapFrom(src => src.GetItemsIn<List<long>, long>(src.UserRoleIds, "KalturaPasswordPolicy.UserRoleIds", true, false)))
+                .ForMember(dest => dest.UserRoleIds, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(src.UserRoleIds, "KalturaPasswordPolicy.UserRoleIds", true, false)))
                 .ForMember(dest => dest.HistoryCount, opt => opt.MapFrom(src => src.HistoryCount))
                 .ForMember(dest => dest.Expiration, opt => opt.MapFrom(src => src.Expiration))
                 .ForMember(dest => dest.Complexities, opt => opt.MapFrom(src => src.Complexities))
@@ -280,7 +280,7 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
             cfg.CreateMap<KalturaPasswordPolicyFilter, PasswordPolicyFilter>()
-            .ForMember(dest => dest.RoleIdsIn, opt => opt.MapFrom(src => src.GetItemsIn<List<long>, long>(src.UserRoleIdIn, "KalturaPasswordPolicy.UserRoleIds", true, false)));
+            .ForMember(dest => dest.RoleIdsIn, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(src.UserRoleIdIn, "KalturaPasswordPolicy.UserRoleIds", true, false)));
 
             cfg.CreateMap<PasswordPolicyFilter, KalturaPasswordPolicyFilter>()
             .ForMember(dest => dest.UserRoleIdIn, opt => opt.MapFrom(src => string.Join(",", src.RoleIdsIn)));
@@ -327,7 +327,7 @@ namespace ObjectsConvertor.Mapping
             ;
 
             cfg.CreateMap<KalturaDeviceReferenceDataFilter, DeviceReferenceDataFilter>()
-               .ForMember(dest => dest.IdsIn, opt => opt.MapFrom(src => src.GetItemsIn<List<long>, long>(src.IdIn, "KalturaDeviceReferenceDataFilter.IdIn", true, false)))
+               .ForMember(dest => dest.IdsIn, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(src.IdIn, "KalturaDeviceReferenceDataFilter.IdIn", true, false)))
             ;
 
             cfg.CreateMap<KalturaDeviceManufacturersReferenceDataFilter, DeviceManufacturersReferenceDataFilter>()

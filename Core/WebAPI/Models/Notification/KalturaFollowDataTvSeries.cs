@@ -1,7 +1,4 @@
-﻿using ApiLogic.Base;
-using ApiObjects.Notification;
-using Core.Notification;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;

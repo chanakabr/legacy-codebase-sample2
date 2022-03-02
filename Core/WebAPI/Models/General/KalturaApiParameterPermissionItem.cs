@@ -5,15 +5,6 @@ using WebAPI.Models.API;
 
 namespace WebAPI.Models.General
 {
-    public enum KalturaApiParameterPermissionItemAction
-    {
-        READ = 1,
-        INSERT = 2,
-	    UPDATE = 4,
-        WRITE = 6,
-	    ALL = 7
-    }
-
     public partial class KalturaApiParameterPermissionItem : KalturaPermissionItem
     {
         /// <summary>

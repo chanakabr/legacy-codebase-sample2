@@ -1,16 +1,17 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Xml.Serialization;
-using ApiLogic.Api.Managers.Rule;
+﻿using ApiLogic.Api.Managers.Rule;
 using ApiLogic.IndexManager.Helpers;
 using ApiObjects.Base;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
+using WebAPI.ObjectsConvertor.Extensions;
 using static WebAPI.Exceptions.ApiException;
 
 namespace WebAPI.Models.Catalog
@@ -110,7 +111,7 @@ namespace WebAPI.Models.Catalog
                     domainId,
                     contextData.Udid,
                     contextData.Language,
-                    pager.getPageIndex(),
+                    pager.GetRealPageIndex(),
                     pager.PageSize,
                     IdEqual,
                     Orderings,
@@ -130,7 +131,7 @@ namespace WebAPI.Models.Catalog
                 domainId,
                 contextData.Udid,
                 contextData.Language,
-                pager.getPageIndex(),
+                pager.GetRealPageIndex(),
                 pager.PageSize,
                 IdEqual,
                 Orderings,

@@ -7,6 +7,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Segmentation;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -55,7 +56,7 @@ namespace WebAPI.Controllers
             {
                 // call client
                 response = ClientsManager.ApiClient().GetUserSegments(groupId, userId,
-                    new AssetSearchDefinition() { Filter = filter.Ksql, UserId = long.Parse(userId), IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets }, pager.getPageIndex(), pager.getPageSize());
+                    new AssetSearchDefinition() { Filter = filter.Ksql, UserId = long.Parse(userId), IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets }, pager.GetRealPageIndex(), pager.PageSize.Value);
             }
             catch (ClientException ex)
             {

@@ -21,10 +21,5 @@ namespace WebAPI.Models.General
             base.Init();
             Objects = new List<KalturaStringValue>();
         }
-
-        internal bool HasObjects()
-        {
-            return Objects != null && Objects.Count > 0;
-        }
     }
 }

@@ -8,13 +8,6 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Upload
 {
-    public enum KalturaBulkUploadResultStatus
-    {
-        Error = 1,
-        Ok = 2,
-        InProgress = 3
-    }
-
     /// <summary>
     /// Bulk Upload Result
     /// </summary>
@@ -76,88 +69,5 @@ namespace WebAPI.Models.Upload
         [XmlArrayItem(ElementName = "item")]
         [SchemeProperty(ReadOnly = true)]
         public List<KalturaMessage> Warnings { get; set; }
-    }
-
-    [Serializable]
-    public abstract partial class KalturaBulkUploadAssetResult : KalturaBulkUploadResult
-    {
-        /// <summary>
-        /// Identifies the asset type (EPG, Recording, Movie, TV Series, etc). 
-        /// Possible values: 0 – EPG linear programs, 1 - Recording; or any asset type ID according to the asset types IDs defined in the system.
-        /// </summary>
-        [DataMember(Name = "type")]
-        [JsonProperty(PropertyName = "type")]
-        [XmlElement(ElementName = "type", IsNullable = true)]
-        [SchemeProperty(ReadOnly = true)]
-        public int? Type { get; set; }
-
-        /// <summary>
-        /// External identifier for the asset
-        /// </summary>
-        [DataMember(Name = "externalId")]
-        [JsonProperty(PropertyName = "externalId")]
-        [XmlElement(ElementName = "externalId")]
-        [SchemeProperty(ReadOnly = true)]
-        public string ExternalId { get; set; }
-    }
-
-    [Serializable]
-    public partial class KalturaBulkUploadMediaAssetResult : KalturaBulkUploadAssetResult
-    {
-    }
-
-    [Serializable]
-    public partial class KalturaBulkUploadLiveAssetResult : KalturaBulkUploadMediaAssetResult
-    {
-    }
-
-    [Serializable]
-    public partial class KalturaBulkUploadProgramAssetResult : KalturaBulkUploadResult
-    {
-        /// <summary>
-        /// The programID that was created
-        /// </summary>
-        [DataMember(Name = "programId")]
-        [JsonProperty(PropertyName = "programId")]
-        [XmlElement(ElementName = "programId")]
-        [SchemeProperty(ReadOnly = true)]
-        public int? ProgramId { get; set; }
-
-        /// <summary>
-        /// The external program Id as was sent in the bulk xml file
-        /// </summary>
-        [DataMember(Name = "programExternalId")]
-        [JsonProperty(PropertyName = "programExternalId")]
-        [XmlElement(ElementName = "programExternalId")]
-        [SchemeProperty(ReadOnly = true)]
-        public string ProgramExternalId { get; set; }
-
-        /// <summary>
-        /// The  live asset Id that was identified according liveAssetExternalId that was sent in bulk xml file
-        /// </summary>
-        [DataMember(Name = "liveAssetId")]
-        [JsonProperty(PropertyName = "liveAssetId")]
-        [XmlElement(ElementName = "liveAssetId")]
-        [SchemeProperty(ReadOnly = true)]
-        public int LiveAssetId { get; set; }
-
-    }
-
-    [Serializable]
-    public abstract partial class KalturaBulkUploadDynamicListResult : KalturaBulkUploadResult
-    {
-    }
-
-    [Serializable]
-    public partial class KalturaBulkUploadUdidDynamicListResult : KalturaBulkUploadDynamicListResult
-    {
-        /// <summary>
-        /// The udid from the excel to add to DynamicLis values
-        /// </summary>
-        [DataMember(Name = "udid")]
-        [JsonProperty(PropertyName = "udid")]
-        [XmlElement(ElementName = "udid")]
-        [SchemeProperty(ReadOnly = true)]
-        public string Udid { get; set; }
     }
 }

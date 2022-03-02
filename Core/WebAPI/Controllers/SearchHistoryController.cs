@@ -3,11 +3,12 @@ using System;
 using System.Reflection;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Utils;
 using WebAPI.Managers.Models;
-using WebAPI.Models.General;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
+using WebAPI.Models.General;
+using WebAPI.ObjectsConvertor.Extensions;
+using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
@@ -56,7 +57,7 @@ namespace WebAPI.Controllers
             {
                 // call client
                 response = ClientsManager.ApiClient().GetSearchHistory(groupId, userId.ToString(), udid,
-                    language, pager.getPageIndex(), pager.PageSize);
+                    language, pager.GetRealPageIndex(), pager.PageSize);
             }
             catch (ClientException ex)
             {

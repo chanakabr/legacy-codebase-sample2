@@ -9,6 +9,7 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.ModelsValidators;
+using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
@@ -161,7 +162,7 @@ namespace WebAPI.Controllers
 
         private static KalturaGenericListResponse<KalturaCategoryItem> ListByCategoryItemAncestorsFilter(ContextData contextData, CorePager pager, KalturaCategoryItemAncestorsFilter filter)
         {
-            var coreFilter = AutoMapper.Mapper.Map<CategoryItemSearchFilter>(filter);
+            var coreFilter = AutoMapper.Mapper.Map<CategoryItemAncestorsFilter>(filter);
 
             Func<GenericListResponse<CategoryItem>> listFunc = () =>
                 CategoryItemHandler.Instance.List(contextData, coreFilter, pager);
@@ -174,7 +175,7 @@ namespace WebAPI.Controllers
 
         private static KalturaGenericListResponse<KalturaCategoryItem> ListByCategoryItemByIdInFilter(ContextData contextData, CorePager pager, KalturaCategoryItemByIdInFilter filter)
         {
-            var coreFilter = AutoMapper.Mapper.Map<CategoryItemSearchFilter>(filter);
+            var coreFilter = AutoMapper.Mapper.Map<CategoryItemByIdInFilter>(filter);
 
             Func<GenericListResponse<CategoryItem>> listFunc = () =>
                 CategoryItemHandler.Instance.List(contextData, coreFilter, pager);

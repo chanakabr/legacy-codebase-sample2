@@ -216,7 +216,7 @@ namespace WebAPI.Models.Pricing
             }
             else
             {
-                return GetItemsIn<List<int>, int>(FileTypesIds, "KalturaSubscription.FileTypesIds", true);
+                return Utils.Utils.ParseCommaSeparatedValues<List<int>, int>(FileTypesIds, "KalturaSubscription.FileTypesIds", true);
             }
         }
         

@@ -28,25 +28,6 @@ namespace Validator.Managers.Scheme
             return service.Name;
         }
 
-        public static bool IsCrudController(Type controller, out Dictionary<string, CrudActionAttribute> crudActionAttributes, out Dictionary<string, MethodInfo> crudActions)
-        {
-            crudActionAttributes = null;
-            crudActions = null;
-            if (controller.BaseType != null && controller.BaseType.IsGenericType && controller.BaseType.GetGenericTypeDefinition() == typeof(KalturaCrudController<,,,,>))
-            {
-                var actionAttributes = controller.GetCustomAttributes<CrudActionAttribute>(true).ToDictionary(x => x.GetName(), x => x);
-
-                if (actionAttributes != null && actionAttributes.Count > 0)
-                {
-                    crudActionAttributes = actionAttributes;
-                    crudActions = controller.BaseType.GetMethods().ToDictionary(x => x.Name.ToLower(), x => x);
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         public static bool? IsParameterOptional(ParameterInfo parameter, Dictionary<string, bool> optionalParameters)
         {
             bool? isParamOptional = null;
@@ -108,70 +89,6 @@ namespace Validator.Managers.Scheme
             }
 
             return classNode[0].InnerText.Trim();
-        }
-
-        public static KalturaActionDetails GetCrudActionDetails(CrudActionAttribute actionAttribute, MethodInfo method)
-        {
-            var crudActionDetails = new KalturaActionDetails()
-            {
-                LoweredName = actionAttribute.GetName(),
-                RealName = method.Name,
-                Description = actionAttribute.Summary,
-                IsGenericMethod = false,
-                IsDeprecated = false,
-                IsSessionRequired = true,
-            };
-
-            var parameters = method.GetParameters();
-            foreach (var parameter in parameters)
-            {
-                var crudPrameter = GetCrudPrameterDetails(parameter, method, actionAttribute);
-                if (crudPrameter != null)
-                {
-                    crudActionDetails.Prameters.Add(crudPrameter);
-                }
-            }
-
-            if (method.ReturnType != typeof(void))
-            {
-                crudActionDetails.ReturnedTypes = GetParameterTypes(method.ReturnType);
-            }
-
-            // write throws
-            if (actionAttribute.ApiThrows != null && actionAttribute.ApiThrows.Length > 0)
-            {
-                crudActionDetails.ApiThrows.AddRange(actionAttribute.ApiThrows);
-            }
-
-            if ((actionAttribute.ClientThrows != null && actionAttribute.ClientThrows.Length > 0))
-            {
-                crudActionDetails.ClientThrows.AddRange(actionAttribute.ClientThrows);
-            }
-
-            return crudActionDetails;
-        }
-
-        private static KalturaPrameterDetails GetCrudPrameterDetails(ParameterInfo parameter, MethodInfo method, CrudActionAttribute actionAttribute)
-        {
-            var isOptional = SchemeManager.IsParameterOptional(parameter, actionAttribute.GetOptionalParameters());
-            if (!isOptional.HasValue) { return null; } // parameter does not exist
-
-            var prameterDetails = new KalturaPrameterDetails()
-            {
-                ParameterType = parameter.ParameterType,
-                Name = parameter.Name,
-                ParameterTypes = GetParameterTypes(parameter.ParameterType),
-                IsOptional = isOptional.Value,
-                Description = actionAttribute.GetDescription(parameter.Name),
-                Position = parameter.Position
-            };
-
-            if (prameterDetails.IsOptional)
-            {
-                prameterDetails.DefaultValue = SchemeManager.VarToString(parameter.DefaultValue);
-            }
-
-            return prameterDetails;
         }
 
         public static Dictionary<string, string> GetParameterTypes(Type type)
@@ -254,22 +171,6 @@ namespace Validator.Managers.Scheme
             Regex regex = new Regex("^[^`]+");
             Match match = regex.Match(type.Name);
             return match.Value;
-        }
-
-        public static bool IsGenericListResponse(Type type, out ListResponseAttribute listResponseAttribute, out PropertyInfo objectsProperty)
-        {
-            bool isGenericListResponse = false;
-            listResponseAttribute = null;
-            objectsProperty = null;
-
-            if (type.BaseType != null && type.BaseType.IsGenericType && type.BaseType.GetGenericTypeDefinition() == typeof(KalturaListResponse<>))
-            {
-                isGenericListResponse = true;
-                listResponseAttribute = type.GetCustomAttribute<ListResponseAttribute>(true);
-                objectsProperty = type.BaseType.GetProperty("Objects");
-            }
-
-            return isGenericListResponse;
         }
     }
 }

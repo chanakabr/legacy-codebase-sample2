@@ -9,6 +9,8 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Users.UserSessionProfile;
+using WebAPI.ObjectsConvertor.Extensions;
+using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
@@ -45,7 +47,7 @@ namespace WebAPI.Controllers
 
             var result = new KalturaUserSessionProfileListResponse()
             {
-                Objects = response.Objects.OrderBy(x => x.Id).Skip(pager.PageSize.Value * pager.PageIndex.Value).Take(pager.PageSize.Value).ToList(),
+                Objects = response.Objects.OrderBy(x => x.Id).Skip(pager.PageSize.Value * pager.GetRealPageIndex()).Take(pager.PageSize.Value).ToList(),
                 TotalCount = response.TotalCount
             };
 

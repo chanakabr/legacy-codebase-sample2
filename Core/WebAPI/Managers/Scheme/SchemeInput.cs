@@ -44,7 +44,7 @@ namespace WebAPI.Managers.Scheme
         /// Unlike JSON Schema, the value MUST conform to the defined type for the Schema Object defined at the same level. 
         /// For example, if type is string, then default can be "foo" but cannot be 1
         /// </summary>
-        public string Default { get; set; }
+        public object Default { get; set; }
 
         public SchemeInputAttribute()
         {

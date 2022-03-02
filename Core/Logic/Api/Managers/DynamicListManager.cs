@@ -1,20 +1,19 @@
-﻿using ApiLogic.Base;
+﻿using ApiObjects;
 using ApiObjects.Base;
+using ApiObjects.BulkUpload;
 using ApiObjects.Response;
+using CachingProvider.LayeredCache;
+using DAL;
 using Phx.Lib.Log;
 using System;
-using System.Reflection;
-using ApiObjects;
-using DAL;
-using TVinciShared;
-using ApiObjects.BulkUpload;
-using System.Linq;
-using CachingProvider.LayeredCache;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using TVinciShared;
 
 namespace ApiLogic.Api.Managers
 {
-    public class DynamicListManager : ICrudHandler<DynamicList, long>
+    public class DynamicListManager
     {
         private const int MAX_DYNAMIC_LIST = 100;
 
@@ -141,9 +140,9 @@ namespace ApiLogic.Api.Managers
             return response;
         }
 
-        public GenericResponse<DynamicList> AddDynamicList(ContextData contextData, UdidDynamicList dynamicList)
+        public GenericResponse<UdidDynamicList> AddUdidDynamicList(ContextData contextData, UdidDynamicList dynamicList)
         {
-            var response = new GenericResponse<DynamicList>();
+            var response = new GenericResponse<UdidDynamicList>();
 
             try
             {
@@ -186,9 +185,9 @@ namespace ApiLogic.Api.Managers
             return response;
         }
 
-        public GenericResponse<DynamicList> UpdateDynamicList(ContextData contextData, DynamicList dynamicList)
+        public GenericResponse<UdidDynamicList> UpdateUdidDynamicList(ContextData contextData, UdidDynamicList dynamicList)
         {
-            var response = new GenericResponse<DynamicList>();
+            var response = new GenericResponse<UdidDynamicList>();
             try
             {
                 var oldDynamicListResponse = Get(contextData, dynamicList.Id);

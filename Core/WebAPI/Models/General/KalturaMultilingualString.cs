@@ -10,9 +10,6 @@ namespace WebAPI.Models.General
     /// </summary>
     public partial class KalturaMultilingualString : KalturaOTTObject
     {
-        public string RequestLanguageCode;
-        public string GroupDefaultLanguageCode;
-
         /// <summary>
         /// All values in different languages
         /// </summary>
