@@ -10,7 +10,7 @@ using System.Linq;
 namespace WebAPI.ModelsValidators
 {
     using ConditionsMap = ILookup<KalturaRuleConditionType, KalturaCondition>;
-    public static class AssetRuleActionValidator
+    public static class AssetRuleValidator
     {
         private static readonly Dictionary<KalturaRuleConditionType, Func<ConditionsMap, HashSet<KalturaRuleActionType>>> 
             AllowedConditionsToRelationValidationsFunc = new Dictionary<KalturaRuleConditionType, Func<ConditionsMap, HashSet<KalturaRuleActionType>>>()
