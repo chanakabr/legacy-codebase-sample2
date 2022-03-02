@@ -31,6 +31,8 @@ namespace ApiObjects.TimeShiftedTv
         public ProtectionPolicy? ProtectionPolicy { get; set; }
         public int? RecoveryGracePeriod { get; set; }
         public bool? IsPrivateCopyEnabled { get; set; }
+        
+        public int? DefaultQuota { get; set; }
 
         public TimeShiftedTvPartnerSettings()
         {
@@ -40,7 +42,7 @@ namespace ApiObjects.TimeShiftedTv
             long? catchUpBufferLength, long? trickPlayBufferLength, long? recordingScheduleWindowBuffer, long? paddingAfterProgramEnds, long? paddingBeforeProgramStarts,
             bool? isProtectionEnabled, int? protectionPeriod, int? protectionQuotaPercentage, int? recordingLifetimePeriod, int? cleanupNoticePeroid, bool? isSeriesRecordingEnabled,
             bool? isRecordingPlaybackNonEntitledEnabled, bool? isRecordingPlaybackNonExistingEnabled, int? quotaOveragePolicy, int? protectionPolicy, int? recoveryGracePeriod,
-            bool? isPrivateCopyEnabled)
+            bool? isPrivateCopyEnabled, int? defaultQuota)
         {
             this.IsCatchUpEnabled = isCatchUpEnabled;
             this.IsCdvrEnabled = isCdvrEnabled;
@@ -62,6 +64,7 @@ namespace ApiObjects.TimeShiftedTv
             this.IsRecordingPlaybackNonExistingChannelEnabled = isRecordingPlaybackNonExistingEnabled;
             this.RecoveryGracePeriod = recoveryGracePeriod;
             this.IsPrivateCopyEnabled = isPrivateCopyEnabled;
+            this.DefaultQuota = defaultQuota;
 
             if (quotaOveragePolicy.HasValue)
             {
@@ -99,6 +102,7 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("ProtectionPolicy: {0}, ", ProtectionPolicy.HasValue ? ProtectionPolicy.Value.ToString() : "Null"));
             sb.Append(string.Format("RecoveryGracePeriod: {0}, ", RecoveryGracePeriod.HasValue ? RecoveryGracePeriod.Value.ToString() : "Null"));
             sb.Append(string.Format("IsPrivateCopyEnabled: {0}, ", IsPrivateCopyEnabled.HasValue ? IsPrivateCopyEnabled.Value.ToString() : "Null"));
+            sb.Append(string.Format("DefaultQuota: {0}, ", DefaultQuota.HasValue ? DefaultQuota.Value.ToString() : "Null"));
 
             return sb.ToString();
         }

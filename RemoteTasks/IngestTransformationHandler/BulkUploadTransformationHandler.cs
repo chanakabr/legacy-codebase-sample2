@@ -80,6 +80,7 @@ namespace IngestTransformationHandler
                 {
                     // failed to parse, update status to failed, and compete
                     _bulUpload.Results.ForEach(r => r.Status = BulkUploadResultStatus.Error);
+                    SendIngestPartCompleted();
                     UpdateBulkUpload(BulkUploadJobStatus.Failed);
                     return Task.CompletedTask;
                 }
@@ -112,6 +113,7 @@ namespace IngestTransformationHandler
                 {
                     _bulUpload.AddError(eResponseStatus.Error, "error while trying to calculate required changes to Epg, see results for more information");
                     _bulUpload.Results.ForEach(r => r.Status = BulkUploadResultStatus.Error);
+                    SendIngestPartCompleted();
                     UpdateBulkUpload(BulkUploadJobStatus.Failed);
                     Unlock();
                     return Task.CompletedTask;
@@ -546,6 +548,39 @@ namespace IngestTransformationHandler
             var result = BulkUploadManager.UpdateBulkUpload(_bulUpload, newStatus);
             if (result.IsOkStatusCode()) TrySendIngestCompleted(newStatus);
         }
+
+        private void SendIngestPartCompleted()
+        {
+            if (_bulUpload.Results == null || !_bulUpload.Results.Any())
+            {
+                return;
+            }
+
+            var parametersList = _bulUpload
+                .Results
+                .Where(x => x.Object is EpgProgramBulkUploadObject)
+                .GroupBy(x => NamingHelper.Instance.GetDailyEpgIndexName(_bulUpload.GroupId, ((EpgProgramBulkUploadObject)x.Object).StartDate))
+                .Select(x => x.Cast<BulkUploadProgramAssetResult>())
+                .Select(MapToEpgIngestPartCompletedParameters)
+                .ToList();
+
+            if (parametersList.Count > 0)
+            {
+                parametersList.Last().HasMoreEpgToIngest = false;
+            }
+
+            _epgIngestMessaging.EpgIngestPartCompleted(parametersList);
+        }
+
+        private EpgIngestPartCompletedParameters MapToEpgIngestPartCompletedParameters(IEnumerable<BulkUploadProgramAssetResult> results)
+            => new EpgIngestPartCompletedParameters
+            {
+                BulkUploadId = _bulUpload.Id,
+                GroupId = _bulUpload.GroupId,
+                HasMoreEpgToIngest = true,
+                UserId = _bulUpload.UpdaterId,
+                Results = results
+            };
         
         private GenericResponse<BulkUpload> UpdateBulkUploadStatusAndErrors(BulkUploadJobStatus newStatus)
         {

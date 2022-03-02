@@ -64,7 +64,7 @@ namespace WebAPI.ObjectsConvertor.Extensions
         {
             if (values != null)
             {
-                return MultilengualStringFactory.Create(values).ToString();
+                return MultilingualStringFactory.Create(values).ToString();
             }
 
             return value;

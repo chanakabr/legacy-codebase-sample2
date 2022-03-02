@@ -24,6 +24,7 @@ namespace ApiObjects.BulkUpload
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class BulkUploadProgramAssetResult : BulkUploadResult
     {
+        [Obsolete("Use ObjectId instead of ProgramId. ProgramId is always null.")]
         public int? ProgramId { get; set; }
         public long LiveAssetId { get; set; }
         public int ChannelId { get; set; }
@@ -38,7 +39,7 @@ namespace ApiObjects.BulkUpload
             var baseStr = base.ToString();
             return currentStr + baseStr;
         }
-        
+
         private string PrettyFormatDateRange(DateTime start, DateTime end)
         {
             var startStr = $"{start:yyyy-MM-dd HH:mm}";

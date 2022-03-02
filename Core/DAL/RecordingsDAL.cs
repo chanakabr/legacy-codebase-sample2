@@ -969,7 +969,7 @@ namespace DAL
                                 if (quotaObj.GetType() == typeof(Int64))
                                 {
                                     int availableQuota = JsonConvert.DeserializeObject<int>(quotaObj.ToString());
-
+                                    
                                     quota = new DomainQuota(0, defaultTotal - availableQuota, true);
                                     result = SetDomainQuota(domainId, quota); // insert to cb total quota + used as OBJECT
                                 }
@@ -1497,7 +1497,7 @@ namespace DAL
                         return true;
                     }
                     else if (status == CouchbaseManager.eResultStatus.KEY_NOT_EXIST
-                        && (shouldForceUpdate || defaultQuota >= quota))
+                        && (shouldForceUpdate || defaultQuota == -1 || defaultQuota >= quota))
                     {
                         domainQuota = new DomainQuota(0, Math.Max(quota, 0), true);
                         result = cbClient.SetWithVersion<DomainQuota>(domainQuotaKey, domainQuota, 0);

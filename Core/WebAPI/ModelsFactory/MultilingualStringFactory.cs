@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using MoreLinq;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.ModelsFactory
 {
-    public class MultilengualStringFactory
+    public class MultilingualStringFactory
     {
         public static KalturaMultilingualString Create(LanguageContainer[] values)
         {
@@ -27,7 +28,6 @@ namespace WebAPI.ModelsFactory
         public static KalturaMultilingualString Create(List<LanguageContainer> values, string defaultLanguageValue)
         {
             var multilingualString = new KalturaMultilingualString(null);
-            var RequestLanguageCode = Utils.Utils.GetLanguageFromRequest();
             var GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
 
             List<LanguageContainer> tempValuesList = values != null ? new List<LanguageContainer>(values) : new List<LanguageContainer>();
@@ -63,6 +63,30 @@ namespace WebAPI.ModelsFactory
             List<LanguageContainer> tempValuesList = new List<LanguageContainer>();
             tempValuesList.Add(new LanguageContainer(GroupDefaultLanguageCode, defaultLanguageValue, true));
             multilingualString.Values = AutoMapper.Mapper.Map<List<KalturaTranslationToken>>(tempValuesList);
+            return multilingualString;
+        }
+
+        public static KalturaMultilingualString Create(Dictionary<string, string> values)
+        {
+            var multilingualString = new KalturaMultilingualString(null);
+            var GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
+
+            List<LanguageContainer> languageContainerList = new List<LanguageContainer>();
+            if (values == null || values.Count == 0)
+            {
+                languageContainerList.Add(new LanguageContainer(GroupDefaultLanguageCode, string.Empty, true));
+                multilingualString.Values = AutoMapper.Mapper.Map<List<KalturaTranslationToken>>(languageContainerList);
+            }
+            else
+            {
+                values.ForEach(val =>
+                {
+                    languageContainerList.Add(new LanguageContainer(val.Key, val.Value));
+                });
+
+                multilingualString.Values = AutoMapper.Mapper.Map<List<KalturaTranslationToken>>(languageContainerList.ToArray());
+            }
+
             return multilingualString;
         }
     }

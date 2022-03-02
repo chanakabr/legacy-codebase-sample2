@@ -19,6 +19,7 @@ namespace Core.Catalog.CatalogManagement.Services
         void EpgIngestStarted(EpgIngestStartedParameters parameters);
         void EpgIngestCompleted(EpgIngestCompletedParameters parameters);
         void EpgIngestPartCompleted(EpgIngestPartCompletedParameters parameters);
+        void EpgIngestPartCompleted(IEnumerable<EpgIngestPartCompletedParameters> parameters);
     }
 
     public class EpgIngestMessaging : IEpgIngestMessaging
@@ -74,7 +75,11 @@ namespace Core.Catalog.CatalogManagement.Services
 
         public void EpgIngestPartCompleted(EpgIngestPartCompletedParameters parameters)
         {
-            var e = new EpgIngestPartCompleted
+            PublishToKafka(MapToEpgIngestPartCompletedEvent(parameters));
+        }
+
+        private static EpgIngestPartCompleted MapToEpgIngestPartCompletedEvent(EpgIngestPartCompletedParameters parameters)
+            => new EpgIngestPartCompleted
             {
                 RequestId = KLogger.GetRequestId(),
                 UserId = parameters.UserId,
@@ -84,7 +89,9 @@ namespace Core.Catalog.CatalogManagement.Services
                 Results = parameters.Results.Select(MapToEpgIngestResult).ToArray()
             };
 
-            PublishToKafka(e);
+        public void EpgIngestPartCompleted(IEnumerable<EpgIngestPartCompletedParameters> parameters)
+        {
+            PublishToKafka(parameters.Select(MapToEpgIngestPartCompletedEvent));
         }
 
         private void PublishToKafka(ServiceEvent e)
@@ -93,20 +100,34 @@ namespace Core.Catalog.CatalogManagement.Services
             _kafkaPublisher.Publish(e);
         }
 
-        private static EpgIngestResult MapToEpgIngestResult(BulkUploadProgramAssetResult source)
-            => new EpgIngestResult
+        private void PublishToKafka(IEnumerable<ServiceEvent> events)
+        {
+            foreach (var e in events)
             {
-                StartDate = source.StartDate.ToUtcUnixTimestampSeconds(),
-                EndDate = source.EndDate.ToUtcUnixTimestampSeconds(),
+                PublishToKafka(e);
+            }
+        }
+
+        private static EpgIngestResult MapToEpgIngestResult(BulkUploadProgramAssetResult source)
+        {
+            var program = source.Object as EpgProgramBulkUploadObject;
+            var programStartDate = program?.StartDate ?? source.StartDate;
+            var programEndDateDate = program?.EndDate ?? source.EndDate;
+
+            return new EpgIngestResult
+            {
+                StartDate = programStartDate.ToUtcUnixTimestampSeconds(),
+                EndDate = programEndDateDate.ToUtcUnixTimestampSeconds(),
                 LinearChannelId = source.LiveAssetId,
                 Status = MapStatus(source),
                 IndexInFile = source.Index,
                 ExternalProgramId = source.ProgramExternalId,
-                ProgramId = source.ProgramId,
+                ProgramId = source.ObjectId,
                 Errors = source.Errors,
                 Warnings = source.Warnings
             };
 
+        }
         private static EpgIngestCompletionStatus ToCompletionStatus(BulkUploadJobStatus status, IEnumerable<BulkUploadResult> results)
         {
             if (status == BulkUploadJobStatus.Success

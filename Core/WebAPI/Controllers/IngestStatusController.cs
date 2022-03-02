@@ -52,7 +52,34 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        static public KalturaIngestStatusEpgListResponse GetEpgList(KalturaIngestByIdsFilter idsFilter = null, KalturaIngestByCompoundFilter filter = null, KalturaFilterPager pager = null)
+        public static KalturaIngestStatusEpgListResponse GetEpgList(KalturaIngestByIdsFilter idsFilter = null, KalturaIngestByCompoundFilter filter = null, KalturaFilterPager pager = null)
+        {
+            throw new NotImplementedException("call should go to Ingest status service instead of Phoenix");
+        }
+
+        /// <summary>
+        /// Returns information about specific Ingest job
+        /// </summary>
+        /// <param name="ingestId">The id of the requested ingest job</param>
+        /// <returns></returns>
+        [Action("getEpgDetails")]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public static KalturaIngestEpgDetails GetEpgDetails(long ingestId)
+        {
+            throw new NotImplementedException("call should go to Ingest status service instead of Phoenix");
+        }
+
+        /// <summary>
+        /// Get as input ingest job id, filter and pager and response with page of filtered detailed ingest job results.
+        /// </summary>
+        /// <param name="ingestId">The id of the requested ingest job</param>
+        /// <param name="filter">Filter for Ingest program, results</param>
+        /// <param name="pager">Paging the request</param>
+        [Action("getEpgProgramResultList")]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public static KalturaIngestStatusEpgProgramResultListResponse GetEpgProgramResultList(long ingestId, KalturaIngestEpgProgramResultFilter filter = null, KalturaFilterPager pager = null)
         {
             throw new NotImplementedException("call should go to Ingest status service instead of Phoenix");
         }

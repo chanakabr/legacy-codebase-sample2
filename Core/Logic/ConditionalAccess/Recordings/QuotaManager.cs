@@ -142,6 +142,10 @@ namespace Core.Recordings
             int defaultQuota = 0;
             DomainQuota domainQuota = GetDomainQuota(groupId, domainId, ref defaultQuota);
             used = GetDomainUsedQuota(groupId, domainId);
+            if (domainQuota.Total == -1)
+            {
+                return domainQuota.Total;
+            }
             return domainQuota.Total - used;
         }
 

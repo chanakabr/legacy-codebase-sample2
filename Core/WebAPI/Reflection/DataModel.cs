@@ -36,6 +36,7 @@ using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Social;
 using WebAPI.Models.General;
 using WebAPI.Models.API;
+using WebAPI.Models.IngestStatus;
 using WebAPI.Models.MultiRequest;
 using WebAPI.Models.Notifications;
 using WebAPI.Models.Notification;
@@ -59,7 +60,6 @@ using WebAPI.Models.ConditionalAccess.FilterActions.Assets;
 using WebAPI.Models.ConditionalAccess.FilterActions.Files;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
-using WebAPI.Models.IngestStatus;
 using WebAPI.Models.Api;
 using WebAPI.Models.Catalog.SearchPriorityGroup;
 
@@ -124,6 +124,20 @@ namespace WebAPI.Reflection
                             return "id";
                         case "Type":
                             return "type";
+                    }
+                    break;
+                    
+                case "KalturaAggregatedIngestInfo":
+                    switch(property.Name)
+                    {
+                        case "PartialFailureCount":
+                            return "partialFailureCount";
+                        case "ResultsCount":
+                            return "resultsCount";
+                        case "TotalFailureCount":
+                            return "totalFailureCount";
+                        case "WarningCount":
+                            return "warningsCount";
                     }
                     break;
                     
@@ -1727,6 +1741,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaChannelAggregatedIngestInfo":
+                    switch(property.Name)
+                    {
+                        case "AggregatedErrors":
+                            return "aggregatedErrors";
+                        case "LinearChannelId":
+                            return "linearChannelId";
+                    }
+                    break;
+                    
                 case "KalturaChannelDynamicOrder":
                     switch(property.Name)
                     {
@@ -2412,6 +2436,16 @@ namespace WebAPI.Reflection
                     {
                         case "Username":
                             return "username";
+                    }
+                    break;
+                    
+                case "KalturaDateAggregatedIngestInfo":
+                    switch(property.Name)
+                    {
+                        case "AggregatedErrors":
+                            return "aggregatedErrors";
+                        case "Date":
+                            return "date";
                     }
                     break;
                     
@@ -3174,6 +3208,18 @@ namespace WebAPI.Reflection
                             return "dateEqual";
                         case "LiveAssetId":
                             return "liveAssetIdEqual";
+                    }
+                    break;
+                    
+                case "KalturaEpgIngestErrorMessage":
+                    switch(property.Name)
+                    {
+                        case "Args":
+                            return "args";
+                        case "Code":
+                            return "code";
+                        case "Message":
+                            return "message";
                     }
                     break;
                     
@@ -4257,6 +4303,52 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaIngestEpgDetails":
+                    switch(property.Name)
+                    {
+                        case "Aggregations":
+                            return "aggregations";
+                        case "Errors":
+                            return "errors";
+                    }
+                    break;
+                    
+                case "KalturaIngestEpgDetailsAggregation":
+                    switch(property.Name)
+                    {
+                        case "All":
+                            return "all";
+                        case "Dates":
+                            return "dates";
+                        case "LinearChannels":
+                            return "linearChannels";
+                    }
+                    break;
+                    
+                case "KalturaIngestEpgProgramResult":
+                    switch(property.Name)
+                    {
+                        case "EndDate":
+                            return "endDate";
+                        case "Errors":
+                            return "errors";
+                        case "ExternalProgramId":
+                            return "externalProgramId";
+                        case "IndexInFile":
+                            return "indexInFile";
+                        case "LinearChannelId":
+                            return "linearChannelId";
+                        case "ProgramId":
+                            return "programId";
+                        case "StartDate":
+                            return "startDate";
+                        case "Status":
+                            return "status";
+                        case "Warnings":
+                            return "warnings";
+                    }
+                    break;
+                    
                 case "KalturaIngestProfile":
                     switch(property.Name)
                     {
@@ -4291,6 +4383,50 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaIngestProgramResultsByCombinedFieldsFilter":
+                    switch(property.Name)
+                    {
+                        case "CombinedFieldsValue":
+                            return "combinedFieldsValue";
+                    }
+                    break;
+                    
+                case "KalturaIngestProgramResultsByCompoundFilter":
+                    switch(property.Name)
+                    {
+                        case "LinearChannelIdIn":
+                            return "linearChannelIdIn";
+                    }
+                    break;
+                    
+                case "KalturaIngestProgramResultsByExternalIdsFilter":
+                    switch(property.Name)
+                    {
+                        case "ExternalProgramIdIn":
+                            return "externalProgramIdIn";
+                    }
+                    break;
+                    
+                case "KalturaIngestProgramResultsByProgramIdsFilter":
+                    switch(property.Name)
+                    {
+                        case "ProgramIdIn":
+                            return "programIdIn";
+                    }
+                    break;
+                    
+                case "KalturaIngestProgramResultsByRefineFilter":
+                    switch(property.Name)
+                    {
+                        case "IngestStatusIdIn":
+                            return "ingestStatusIn";
+                        case "StartDateGreaterThan":
+                            return "startDateGreaterThan";
+                        case "StartDateSmallerThan":
+                            return "startDateSmallerThan";
+                    }
+                    break;
+                    
                 case "KalturaIngestStatusEpgConfiguration":
                     switch(property.Name)
                     {
@@ -4302,6 +4438,14 @@ namespace WebAPI.Reflection
                     break;
                     
                 case "KalturaIngestStatusEpgListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaIngestStatusEpgProgramResultListResponse":
                     switch(property.Name)
                     {
                         case "Objects":
@@ -5962,7 +6106,7 @@ namespace WebAPI.Reflection
                     {
                         case "Origin":
                             return "origin";
-                        case "Pin":
+                        case "PIN":
                             return "pin";
                         case "Type":
                             return "type";
@@ -5974,7 +6118,7 @@ namespace WebAPI.Reflection
                     {
                         case "Origin":
                             return "origin";
-                        case "Pin":
+                        case "PIN":
                             return "pin";
                         case "Type":
                             return "type";
@@ -6300,6 +6444,8 @@ namespace WebAPI.Reflection
                             return "countryId";
                         case "Currency":
                             return "currency";
+                        case "CurrencyId":
+                            return "currencyId";
                         case "CurrencySign":
                             return "currencySign";
                     }
@@ -6478,6 +6624,64 @@ namespace WebAPI.Reflection
                     {
                         case "LiveAssetId":
                             return "liveAssetId";
+                    }
+                    break;
+                    
+                case "KalturaProgramAssetGroupOffer":
+                    switch(property.Name)
+                    {
+                        case "CreateDate":
+                            return "createDate";
+                        case "Description":
+                            return "description";
+                        case "EndDate":
+                            return "endDate";
+                        case "ExpiryDate":
+                            return "expiryDate";
+                        case "ExternalId":
+                            return "externalId";
+                        case "ExternalOfferId":
+                            return "externalOfferId";
+                        case "FileTypesIds":
+                            return "fileTypesIds";
+                        case "Id":
+                            return "id";
+                        case "IsActive":
+                            return "isActive";
+                        case "Name":
+                            return "name";
+                        case "PriceDetailsId":
+                            return "priceDetailsId";
+                        case "StartDate":
+                            return "startDate";
+                        case "UpdateDate":
+                            return "updateDate";
+                        case "VirtualAssetId":
+                            return "virtualAssetId";
+                    }
+                    break;
+                    
+                case "KalturaProgramAssetGroupOfferFilter":
+                    switch(property.Name)
+                    {
+                        case "AlsoInactive":
+                            return "alsoInactive";
+                    }
+                    break;
+                    
+                case "KalturaProgramAssetGroupOfferIdInFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                    }
+                    break;
+                    
+                case "KalturaProgramAssetGroupOfferListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
                     }
                     break;
                     
@@ -8076,6 +8280,8 @@ namespace WebAPI.Reflection
                             return "cdvrEnabled";
                         case "CleanupNoticePeriod":
                             return "cleanupNoticePeriod";
+                        case "DefaultQuota":
+                            return "defaultQuota";
                         case "NonEntitledChannelPlaybackEnabled":
                             return "nonEntitledChannelPlaybackEnabled";
                         case "NonExistingChannelPlaybackEnabled":
@@ -10710,8 +10916,16 @@ namespace WebAPI.Reflection
                 case "ingeststatus":
                     switch(action)
                     {
+                        case "getepgdetails":
+                            RolesManager.ValidateActionPermitted("ingestStatus", "getEpgDetails", WebAPI.Managers.eKSValidation.All);
+                            return IngestStatusController.GetEpgDetails((long) methodParams[0]);
+                            
                         case "getepglist":
                             return IngestStatusController.GetEpgList((KalturaIngestByIdsFilter) methodParams[0], (KalturaIngestByCompoundFilter) methodParams[1], (KalturaFilterPager) methodParams[2]);
+                            
+                        case "getepgprogramresultlist":
+                            RolesManager.ValidateActionPermitted("ingestStatus", "getEpgProgramResultList", WebAPI.Managers.eKSValidation.All);
+                            return IngestStatusController.GetEpgProgramResultList((long) methodParams[0], (KalturaIngestEpgProgramResultFilter) methodParams[1], (KalturaFilterPager) methodParams[2]);
                             
                         case "getpartnerconfiguration":
                             RolesManager.ValidateActionPermitted("ingestStatus", "getPartnerConfiguration", WebAPI.Managers.eKSValidation.All);
@@ -11900,6 +12114,28 @@ namespace WebAPI.Reflection
                         case "list":
                             RolesManager.ValidateActionPermitted("productPrice", "list", WebAPI.Managers.eKSValidation.Expiration);
                             return ProductPriceController.List((KalturaProductPriceFilter) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "programassetgroupoffer":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("programAssetGroupOffer", "add", WebAPI.Managers.eKSValidation.All);
+                            return ProgramAssetGroupOfferController.Add((KalturaProgramAssetGroupOffer) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("programAssetGroupOffer", "delete", WebAPI.Managers.eKSValidation.All);
+                            return ProgramAssetGroupOfferController.Delete((long) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("programAssetGroupOffer", "list", WebAPI.Managers.eKSValidation.All);
+                            return ProgramAssetGroupOfferController.List((KalturaProgramAssetGroupOfferFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("programAssetGroupOffer", "update", WebAPI.Managers.eKSValidation.All);
+                            return ProgramAssetGroupOfferController.Update((long) methodParams[0], (KalturaProgramAssetGroupOffer) methodParams[1]);
                             
                     }
                     break;
@@ -18125,6 +18361,13 @@ namespace WebAPI.Reflection
                 case "ingeststatus":
                     switch(action)
                     {
+                        case "getepgdetails":
+                            ret.Add("ingestId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
                         case "getepglist":
                             ret.Add("idsFilter", new MethodParam(){
                                 NewName = newParamName,
@@ -18139,6 +18382,27 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaIngestByCompoundFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "getepgprogramresultlist":
+                            ret.Add("ingestId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaIngestEpgProgramResultFilter),
                             });
                             ret.Add("pager", new MethodParam(){
                                 NewName = newParamName,
@@ -20714,6 +20978,64 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaProductPriceFilter),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "programassetgroupoffer":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("programAssetGroupOffer", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaProgramAssetGroupOffer),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaProgramAssetGroupOfferFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "programAssetGroupOffer", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
+                                },
+                            });
+                            ret.Add("programAssetGroupOffer", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaProgramAssetGroupOffer),
                             });
                             return ret;
                             

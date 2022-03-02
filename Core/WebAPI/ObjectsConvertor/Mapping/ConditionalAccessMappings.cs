@@ -368,7 +368,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<Price, KalturaPrice>()
               .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.m_dPrice))
               .ForMember(dest => dest.Currency, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencyCD3))
-              .ForMember(dest => dest.CurrencySign, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencySign));
+              .ForMember(dest => dest.CurrencySign, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencySign))
+              .ForMember(dest => dest.CurrencyId, opt => opt.MapFrom(src => src.m_oCurrency.m_nCurrencyID));
             #endregion
 
             // BillingResponse

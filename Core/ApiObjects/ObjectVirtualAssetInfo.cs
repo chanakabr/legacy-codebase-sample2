@@ -14,7 +14,7 @@ namespace ApiObjects
         public Dictionary<string, long> ExtendedTypes { get; set; }
     }
 
-    public enum ObjectVirtualAssetInfoType { Subscription = 0, Segment = 1, Category = 2, Tvod = 3, Boxset = 4 }
+    public enum ObjectVirtualAssetInfoType { Subscription = 0, Segment = 1, Category = 2, Tvod = 3, Boxset = 4, PAGO = 5 }
 
     public enum ObjectVirtualAssetFilterStatus { None = 0, Results = 1, Error = 2 }
 

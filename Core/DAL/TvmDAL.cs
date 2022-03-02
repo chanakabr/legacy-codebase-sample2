@@ -1127,6 +1127,43 @@ namespace DAL
             return idFromTable;
         }
 
+        public static bool UpdateQuataInSeconds(int groupID)
+        {
+            int idFromTable = 0;
+            DataTable dt = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure spGetTimeShiftedTvPartnerSettings = new ODBCWrapper.StoredProcedure("GetTimeShiftedTvPartnerSettings");
+                spGetTimeShiftedTvPartnerSettings.SetConnectionKey("MAIN_CONNECTION_STRING");
+                spGetTimeShiftedTvPartnerSettings.AddParameter("@GroupID", groupID);
+
+                dt = spGetTimeShiftedTvPartnerSettings.Execute();
+
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    int quotaModuleId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "quota_module_id", 0);
+                    int defaultQuota = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "quota_in_seconds", 0);
+                            
+                    if (defaultQuota == 0 && quotaModuleId != 0)
+                    {
+                        int id = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "id", 0);
+                        defaultQuota =  ConditionalAccessDAL.GetDefaultQuotaByModuleIdInSeconds(groupID, quotaModuleId);
+                        if (defaultQuota != 0)
+                        {
+                            ConditionalAccessDAL.SetDefaultQuotaInSeconds(id, defaultQuota);
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("Failed getting id from table on GetTimeShiftedTVSettingsID", ex);
+            }
+
+            return false;
+        }
         public static DataSet GetSubscriptionPossibleChannels(int groupId, long subscriptionId)
         {
             StoredProcedure sp_GetSubscriptionPossibleChannels = new StoredProcedure("GetSubscriptionPossibleChannels");

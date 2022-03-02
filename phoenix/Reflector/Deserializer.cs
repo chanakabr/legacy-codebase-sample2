@@ -158,11 +158,11 @@ namespace Reflector
             {
                 file.WriteLine("                    if (parameters[\"" + apiName + "\"] is JArray)");
                 file.WriteLine("                    {");
-                file.WriteLine("                        " + property.Name + " = MultilengualStringFactory.Create((JArray) parameters[\"" + apiName + "\"]);");
+                file.WriteLine("                        " + property.Name + " = MultilingualStringFactory.Create((JArray) parameters[\"" + apiName + "\"]);");
                 file.WriteLine("                    }");
                 file.WriteLine("                    else if (parameters[\"" + apiName + "\"] is IList)");
                 file.WriteLine("                    {");
-                file.WriteLine("                        " + property.Name + " = MultilengualStringFactory.Create((List<object>) parameters[\"" + apiName + "\"]);");
+                file.WriteLine("                        " + property.Name + " = MultilingualStringFactory.Create((List<object>) parameters[\"" + apiName + "\"]);");
                 file.WriteLine("                    }");
             }
             else // object

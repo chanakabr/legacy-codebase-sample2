@@ -5,11 +5,9 @@ using System.Threading;
 using ApiLogic.IndexManager.QueryBuilders;
 using ApiLogic.IndexManager.Sorting;
 using ApiObjects.SearchObjects;
-using Phx.Lib.Appconfig;
 using ElasticSearch.Common;
 using ElasticSearch.Searcher;
-using TVinciShared;
-using OrderDir = ApiObjects.SearchObjects.OrderDir;
+using Phx.Lib.Appconfig;
 
 namespace ApiLogic.Catalog.IndexManager.GroupBy
 {
@@ -28,16 +26,20 @@ namespace ApiLogic.Catalog.IndexManager.GroupBy
     internal class GroupByWithOrderByNonNumericField : IGroupBySearch
     {
         private static readonly Lazy<IGroupBySearch> LazyInstance = new Lazy<IGroupBySearch>(
-            () => new GroupByWithOrderByNonNumericField(SortingAdapter.Instance),
+            () => new GroupByWithOrderByNonNumericField(SortingAdapter.Instance, SortingByBasicFieldsService.Instance),
             LazyThreadSafetyMode.PublicationOnly);
 
         public static IGroupBySearch Instance => LazyInstance.Value;
 
         private readonly ISortingAdapter _sortingAdapter;
+        private readonly ISortingByBasicFieldsService _sortingByBasicFieldsService;
 
-        public GroupByWithOrderByNonNumericField(ISortingAdapter sortingAdapter)
+        public GroupByWithOrderByNonNumericField(
+            ISortingAdapter sortingAdapter,
+            ISortingByBasicFieldsService sortingByBasicFieldsService)
         {
             _sortingAdapter = sortingAdapter ?? throw new ArgumentNullException(nameof(sortingAdapter));
+            _sortingByBasicFieldsService = sortingByBasicFieldsService ?? throw new ArgumentNullException(nameof(sortingByBasicFieldsService));
         }
 
         public void SetQueryPaging(UnifiedSearchDefinitions unifiedSearchDefinitions, ESUnifiedQueryBuilder queryBuilder)
@@ -62,14 +64,7 @@ namespace ApiLogic.Catalog.IndexManager.GroupBy
             if (elasticAggregation.Aggregations == null) throw new Exception("Unable to parse Elasticsearch response");
 
             var groupBy = search.groupBy.Single(); // key - original field name; value - field name how it's stored in ES
-            var buckets = elasticAggregation.Aggregations[groupBy.Key].buckets;
-
-            var orderByField = extraFields != null
-                ? new Func<ElasticSearchApi.ESAssetDocument, string>(_ => _.extraReturnFields?.GetValueOrDefault(extraFields.Single()))
-                : new Func<ElasticSearchApi.ESAssetDocument, string>(_ => _.name);
-
-            buckets.Sort(CompareByStringField(orderByField, esOrderByField.OrderByDirection));
-
+            var buckets = GetOrderedBuckets(elasticAggregation, groupBy, esOrderByField);
             var from = Math.Min(fromIndex, buckets.Count);
             var count = Math.Min(pageSize, buckets.Count - from);
             elasticAggregation.Aggregations[groupBy.Key].buckets = buckets.GetRange(from, count);
@@ -77,25 +72,34 @@ namespace ApiLogic.Catalog.IndexManager.GroupBy
             return elasticAggregation;
         }
 
-        private static Comparison<ESAggregationBucket> CompareByStringField(Func<ElasticSearchApi.ESAssetDocument, string> fieldGetter, OrderDir orderDirection)
+        private List<ESAggregationBucket> GetOrderedBuckets(
+            ESAggregationsResult elasticAggregation,
+            GroupByDefinition groupBy,
+            IEsOrderByField esOrderByField)
         {
-            return new Comparison<ESAggregationBucket>((x, y) => {
-                var xName = GetFieldValue(x, fieldGetter);
-                var yName = GetFieldValue(y, fieldGetter);
-                return orderDirection == OrderDir.ASC
-                    ? StringComparer.InvariantCultureIgnoreCase.Compare(xName, yName)
-                    : StringComparer.InvariantCultureIgnoreCase.Compare(yName, xName);
-            });
-        }
+            var emptyBuckets = new List<ESAggregationBucket>();
+            var assetIdToBucket = new Dictionary<long, ESAggregationBucket>();
+            var assetsToReorder = new List<ElasticSearchApi.ESAssetDocument>();
+            foreach (var bucket in elasticAggregation.Aggregations[groupBy.Key].buckets)
+            {
+                var hits = bucket.Aggregations[ESTopHitsAggregation.DEFAULT_NAME].hits?.hits;
+                if (hits?.Count != 1)
+                {
+                    emptyBuckets.Add(bucket);
+                    continue;
+                }
 
-        private static string GetFieldValue(ESAggregationBucket bucket, Func<ElasticSearchApi.ESAssetDocument, string> fieldGetter)
-        {
-            var hits = bucket.Aggregations[ESTopHitsAggregation.DEFAULT_NAME].hits?.hits;
-            if (hits!=null && hits.Count > 1)
-                return null;
-            
-            var document = hits.SingleOrDefault();
-            return document == null ? null : fieldGetter(document);
+                var document = hits.Single();
+                assetIdToBucket[document.asset_id] = bucket;
+                assetsToReorder.Add(document);
+            }
+
+            var resultBuckets = _sortingByBasicFieldsService
+                .ListOrderedIdsWithSortValues(assetsToReorder, esOrderByField)
+                .Select(x => assetIdToBucket[x.id]).ToList();
+            resultBuckets.AddRange(emptyBuckets);
+
+            return resultBuckets;
         }
     }
 }

@@ -57,7 +57,7 @@ namespace Core.Pricing
                 AdsParam = oldPPVModule.AdsParam;
             }
             
-            if (!string.IsNullOrEmpty(ProductCode) && !string.Equals(ProductCode, oldPPVModule.m_Product_Code))
+            if (ProductCode != null && !string.Equals(ProductCode, oldPPVModule.m_Product_Code))
             {
                 shouldUpdate = true;
             }

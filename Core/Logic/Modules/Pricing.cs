@@ -43,7 +43,12 @@ namespace Core.Pricing
         GenericListResponse<PPVModule> GetPPVModuleList(int groupId, int? couponGroupIdEqual = null);
     }
 
-    public class Module : IPricingModule, IPPVModuleManager
+    public interface IPagoModule
+    {
+        void InvalidateProgramAssetGroupOffer(long groupId, long pagoId = 0);
+    }
+
+    public class Module : IPricingModule, IPPVModuleManager, IPagoModule
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -2023,6 +2028,11 @@ namespace Core.Pricing
         public void InvalidateCollection(int groupId, long coll = 0)
         {
             PricingCache.Instance.InvalidateCollection(groupId, coll);
+        }
+
+        public void InvalidateProgramAssetGroupOffer(long groupId, long pagoId = 0)
+        {
+            PricingCache.Instance.InvalidatePago(groupId, pagoId);
         }
     }
 }

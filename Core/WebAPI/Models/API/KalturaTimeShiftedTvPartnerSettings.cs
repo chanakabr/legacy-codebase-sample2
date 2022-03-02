@@ -198,6 +198,15 @@ namespace WebAPI.Models.API
         [JsonProperty("privateCopyEnabled")]
         [XmlElement(ElementName = "privateCopyEnabled", IsNullable = true)]
         public bool? PrivateCopyEnabled { get; set; }
+        
+        /// <summary>
+        /// Quota in seconds 
+        /// </summary>
+        [DataMember(Name = "defaultQuota")]
+        [JsonProperty("defaultQuota")]
+        [XmlElement(ElementName = "defaultQuota", IsNullable = true)]
+        [SchemeProperty(MinInteger = -1)]
+        public int? DefaultQuota { get; set; }
     }
 
 

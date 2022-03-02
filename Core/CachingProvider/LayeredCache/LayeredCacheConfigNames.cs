@@ -110,6 +110,7 @@
         public const string GET_USER_ROLES_TO_PASSWORD_POLICY = "GetUserRolesToPasswordPolicy";
         public const string GET_GROUP_REGIONS = "GetGroupRegions";
         public const string GET_GENERAL_PARTNER_CONFIG = "GetGeneralPartnerConfig";
+        public const string GET_GROUP_PROGRAM_ASSET_GROUP_OFFERS = "GetProgramAssetGroupOffersIds";
         public const string GET_GROUP_COLLECTIONS = "GetCollectionsIds";
         public const string GET_GROUP_SUBSCRIPTION = "GetSubscriptionIds";
         public const string GET_OBJECT_VIRTUAL_ASSET_PARTNER_CONFIG = "GetObjectVirtualAssetPartnerConfig";
@@ -155,6 +156,9 @@
         public const string GET_ELASTICSEARCH_CANARY_CONFIGURATION = "GetElasticsearchCanaryConfiguration";
 
         public const string GET_EPG_V2_PARTNER_CONFIGURATION = "GetEpgV2PartnerConfiguration";
+
+        public const string GET_PROGRAM_ASSET_GROUP_OFFERS = "GetProgramAssetGroupOffers";
+
         #endregion
 
         #region Constant Invalidation Keys
