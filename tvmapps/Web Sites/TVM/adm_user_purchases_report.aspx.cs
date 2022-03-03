@@ -1,5 +1,6 @@
 ﻿using Phx.Lib.Appconfig;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using TVinciShared;
 
@@ -155,7 +156,7 @@ public partial class adm_user_purchases_report : System.Web.UI.Page
             transactionsResponse = casResponse.transactions;
         }
 
-        TVM.ca_ws.PermittedSubscriptionContainer[] permittedSubscriptions = p.GetUserPermittedSubscriptions(sWSUserName, sWSPass, user);
+        Dictionary<string, TVM.ca_ws.PermittedSubscriptionContainer> userSubs = null;
 
         DataTable d = new DataTable();
         Int32 n = 0;
@@ -175,86 +176,104 @@ public partial class adm_user_purchases_report : System.Web.UI.Page
         d.Columns.Add(PageUtils.GetColumn("BasePurchasedID", n));
         d.Columns.Add(PageUtils.GetColumn("Canrenew", n));
 
-        Int32 countTransactions = transactionsResponse.m_nTransactionsCount;
-        
-        var transactions = transactionsResponse.m_Transactions;
-
-        for (int i = 0; i < countTransactions; i++)
+        if (transactionsResponse.m_Transactions?.Length > 0)
         {
-            var currentTransaction = transactions[i];
-
-            System.Data.DataRow tmpRow = null;
-            tmpRow = d.NewRow();
-            tmpRow["ID"] = int.Parse(currentTransaction.m_sRecieptCode);
-            tmpRow["Type"] = transactions[i].m_eItemType.ToString();
-            tmpRow["PurchasedItemCode"] = currentTransaction.m_sPurchasedItemCode.ToString();
-            tmpRow["BasePurchasedID"] = currentTransaction.m_nPurchaseID;
-
-            tmpRow["Item Name"] = currentTransaction.m_sPurchasedItemName + " (" + currentTransaction.m_sPurchasedItemCode + ")";
-            try
+            foreach (var currentTransaction in transactionsResponse.m_Transactions)
             {
-                tmpRow["Paid"] = String.Format("{0:0.##}", currentTransaction.m_Price.m_dPrice) + transactions[i].m_Price.m_oCurrency.m_sCurrencySign + " (" + currentTransaction.m_ePaymentMethod.ToString();
-            }
-            catch
-            {
-                tmpRow["Paid"] = "";
-            }
-            if (currentTransaction.m_sPaymentMethodExtraDetails != "")
-            {
-                tmpRow["Paid"] += " - ";
-                if (currentTransaction.m_ePaymentMethod == TVM.ca_ws.ePaymentMethod.CreditCard ||
-                    currentTransaction.m_ePaymentMethod == TVM.ca_ws.ePaymentMethod.DebitCard)
-                    tmpRow["Paid"] += "****";
-                tmpRow["Paid"] += currentTransaction.m_sPaymentMethodExtraDetails;
-            }
-            if (tmpRow["Paid"].ToString() != "")
-                tmpRow["Paid"] += ")";
-            tmpRow["Remarks"] = currentTransaction.m_sRemarks;
-            tmpRow["Action"] = currentTransaction.m_eBillingAction.ToString();
-            tmpRow["Action Date"] = currentTransaction.m_dtActionDate.ToString("MM/dd/yyyy HH:mm");
-            if (currentTransaction.m_eItemType == TVM.ca_ws.BillingItemsType.Subscription &&
-                (currentTransaction.m_eBillingAction == TVM.ca_ws.BillingAction.Purchase ||
-                currentTransaction.m_eBillingAction == TVM.ca_ws.BillingAction.RenewPayment))
-            {
-                tmpRow["Canstrech"] = "1";
-                tmpRow["Validity"] = currentTransaction.m_dtStartDate.ToString("MM/dd/yyyy HH:mm") + "-" + currentTransaction.m_dtEndDate.ToString("MM/dd/yyyy HH:mm");
-            }
-            else
-            {
-                tmpRow["Canstrech"] = "0";
-                tmpRow["Validity"] = "";
-            }
-            if (currentTransaction.m_eItemType == TVM.ca_ws.BillingItemsType.Subscription)
-            {
-                bool bSubExist = false;
-                bool bSubRenewable = false;
-                bool bIsRecurring = false;
-                if (permittedSubscriptions != null)
+                if (currentTransaction == null) //BEO-11393
                 {
-                    for (int j = 0; j < permittedSubscriptions.Length; j++)
+                    continue;
+                }
+
+                try
+                {
+                    System.Data.DataRow tmpRow = null;
+                    tmpRow = d.NewRow();
+                    tmpRow["ID"] = int.Parse(currentTransaction.m_sRecieptCode);
+                    tmpRow["Type"] = currentTransaction.m_eItemType.ToString();
+                    tmpRow["PurchasedItemCode"] = currentTransaction.m_sPurchasedItemCode.ToString();
+                    tmpRow["BasePurchasedID"] = currentTransaction.m_nPurchaseID;
+
+                    tmpRow["Item Name"] = currentTransaction.m_sPurchasedItemName + " (" + currentTransaction.m_sPurchasedItemCode + ")";
+                    try
                     {
-                        if (permittedSubscriptions[j].m_sSubscriptionCode == currentTransaction.m_sPurchasedItemCode)
+                        tmpRow["Paid"] = String.Format("{0:0.##}", currentTransaction.m_Price.m_dPrice) + currentTransaction.m_Price.m_oCurrency.m_sCurrencySign + " (" + currentTransaction.m_ePaymentMethod.ToString();
+                    }
+                    catch
+                    {
+                        tmpRow["Paid"] = "";
+                    }
+                    if (currentTransaction.m_sPaymentMethodExtraDetails != "")
+                    {
+                        tmpRow["Paid"] += " - ";
+                        if (currentTransaction.m_ePaymentMethod == TVM.ca_ws.ePaymentMethod.CreditCard ||
+                            currentTransaction.m_ePaymentMethod == TVM.ca_ws.ePaymentMethod.DebitCard)
+                            tmpRow["Paid"] += "****";
+                        tmpRow["Paid"] += currentTransaction.m_sPaymentMethodExtraDetails;
+                    }
+                    if (tmpRow["Paid"].ToString() != "")
+                        tmpRow["Paid"] += ")";
+                    tmpRow["Remarks"] = currentTransaction.m_sRemarks;
+                    tmpRow["Action"] = currentTransaction.m_eBillingAction.ToString();
+                    tmpRow["Action Date"] = currentTransaction.m_dtActionDate.ToString("MM/dd/yyyy HH:mm");
+                    if (currentTransaction.m_eItemType == TVM.ca_ws.BillingItemsType.Subscription &&
+                        (currentTransaction.m_eBillingAction == TVM.ca_ws.BillingAction.Purchase ||
+                        currentTransaction.m_eBillingAction == TVM.ca_ws.BillingAction.RenewPayment))
+                    {
+                        tmpRow["Canstrech"] = "1";
+                        tmpRow["Validity"] = currentTransaction.m_dtStartDate.ToString("MM/dd/yyyy HH:mm") + "-" + currentTransaction.m_dtEndDate.ToString("MM/dd/yyyy HH:mm");
+                    }
+                    else
+                    {
+                        tmpRow["Canstrech"] = "0";
+                        tmpRow["Validity"] = "";
+                    }
+                    if (currentTransaction.m_eItemType == TVM.ca_ws.BillingItemsType.Subscription)
+                    {
+                        if (userSubs == null)
+                        {
+                            userSubs = new Dictionary<string, TVM.ca_ws.PermittedSubscriptionContainer>();
+                            var permittedSubscriptions = p.GetUserPermittedSubscriptions(sWSUserName, sWSPass, user);
+
+                            if (permittedSubscriptions?.Length > 0)
+                            {
+                                foreach (var pi in permittedSubscriptions)
+                                {
+                                    userSubs.TryAdd(pi.m_sSubscriptionCode, pi);
+                                }
+                            }
+                        }
+
+                        bool bSubExist = false;
+                        bool bSubRenewable = false;
+                        bool bIsRecurring = false;
+                        if (userSubs != null && userSubs.ContainsKey(currentTransaction.m_sPurchasedItemCode))
                         {
                             bSubExist = true;
-                            bSubRenewable = permittedSubscriptions[j].m_bRecurringStatus;
-                            bIsRecurring = permittedSubscriptions[j].m_bIsSubRenewable;
+                            bSubRenewable = userSubs[currentTransaction.m_sPurchasedItemCode].m_bRecurringStatus;
+                            bIsRecurring = userSubs[currentTransaction.m_sPurchasedItemCode].m_bIsSubRenewable;
                         }
+                        if (bIsRecurring == true && currentTransaction.m_dtEndDate > DateTime.UtcNow && bSubRenewable == true && bSubExist == true)
+                            tmpRow["Cancancel"] = "1";
+                        else
+                            tmpRow["Cancancel"] = "0";
+
+                        if (bIsRecurring == true && currentTransaction.m_dtEndDate > DateTime.UtcNow && bSubRenewable == false && bSubExist == true)
+                            tmpRow["Canrenew"] = "1";
+                        else
+                            tmpRow["Canrenew"] = "0";
                     }
+
+                    d.Rows.InsertAt(tmpRow, d.Rows.Count);
+                    d.AcceptChanges();
                 }
-                if (bIsRecurring == true && currentTransaction.m_dtEndDate > DateTime.UtcNow && bSubRenewable == true && bSubExist == true)
-                    tmpRow["Cancancel"] = "1";
-                else
-                    tmpRow["Cancancel"] = "0";
+                catch (Exception ex)
+                {
 
-                if (bIsRecurring == true && currentTransaction.m_dtEndDate > DateTime.UtcNow && bSubRenewable == false && bSubExist == true)
-                    tmpRow["Canrenew"] = "1";
-                else
-                    tmpRow["Canrenew"] = "0";
+                }
             }
-
-            d.Rows.InsertAt(tmpRow, d.Rows.Count);
-            d.AcceptChanges();
         }
+
         theTable.FillDataTable(d.Copy());
         theTable.AddHiddenField("Cancancel");
         theTable.AddHiddenField("PurchasedItemCode");
