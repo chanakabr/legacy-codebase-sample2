@@ -7777,31 +7777,33 @@ namespace Core.ConditionalAccess
                 {
                     res.m_eItemType = BillingItemsType.Subscription;
 
-
                     Subscription theSub = null;
                     theSub = Pricing.Module.Instance.GetSubscriptionData(m_nGroupID, sSubscriptionCode, string.Empty, string.Empty, string.Empty, true);
 
-                    string sMainLang = string.Empty;
-                    string sMainLangCode = string.Empty;
-                    GetMainLang(ref sMainLang, ref sMainLangCode, m_nGroupID);
-                    if (theSub.m_sName != null)
+                    if (theSub != null) //BEO-11393
                     {
-                        Int32 nNameLangLength = theSub.m_sName.Length;
-                        for (int j = 0; j < nNameLangLength; j++)
+                        string sMainLang = string.Empty;
+                        string sMainLangCode = string.Empty;
+                        GetMainLang(ref sMainLang, ref sMainLangCode, m_nGroupID);
+                        if (theSub.m_sName != null)
                         {
-                            string sLang = theSub.m_sName[j].m_sLanguageCode3;
-                            string sVal = theSub.m_sName[j].m_sValue;
-
-                            if (sLang == sMainLangCode)
+                            Int32 nNameLangLength = theSub.m_sName.Length;
+                            for (int j = 0; j < nNameLangLength; j++)
                             {
-                                res.m_sPurchasedItemName = sVal;
+                                string sLang = theSub.m_sName[j].m_sLanguageCode3;
+                                string sVal = theSub.m_sName[j].m_sValue;
+
+                                if (sLang == sMainLangCode)
+                                {
+                                    res.m_sPurchasedItemName = sVal;
+                                }
                             }
                         }
+
+                        res.m_bIsRecurring = theSub.m_bIsRecurring;
                     }
 
                     res.m_sPurchasedItemCode = sSubscriptionCode;
-
-                    res.m_bIsRecurring = theSub.m_bIsRecurring;
                 }
 
                 // check if transaction is a collection type
