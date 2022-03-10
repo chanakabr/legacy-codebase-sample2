@@ -1,9 +1,5 @@
 ﻿namespace WebAPI.Models.General
 {
-    public enum KalturaReportOrderBy
-    {
-        NONE
-    }
     /// <summary>
     /// Report filter
     /// </summary>

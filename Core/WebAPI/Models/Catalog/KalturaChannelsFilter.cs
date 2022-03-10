@@ -13,6 +13,7 @@ using WebAPI.Clients;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.ObjectsConvertor.Mapping;
 
 namespace WebAPI.Models.Catalog
@@ -184,8 +185,8 @@ namespace WebAPI.Models.Catalog
 
             if (MediaIdEqual > 0)
             {
-                getListFunc = () => ChannelManager.Instance.GetChannelsContainingMedia(contextData.GroupId, MediaIdEqual, pager.getPageIndex(),
-                                                            pager.getPageSize(), orderBy, orderDirection, isAllowedToViewInactiveAssets, contextData.UserId.Value);
+                getListFunc = () => ChannelManager.Instance.GetChannelsContainingMedia(contextData.GroupId, MediaIdEqual, pager.GetRealPageIndex(),
+                                                            pager.PageSize.Value, orderBy, orderDirection, isAllowedToViewInactiveAssets, contextData.UserId.Value);
             }
             else if (IdEqual > 0)
             {
@@ -199,8 +200,8 @@ namespace WebAPI.Models.Catalog
             }
             else if (!string.IsNullOrEmpty(NameEqual))
             {
-                getListFunc = () => ChannelManager.Instance.SearchChannels(contextData.GroupId, true, NameEqual, null, pager.getPageIndex(),
-                                                            pager.getPageSize(), orderBy, orderDirection, isAllowedToViewInactiveAssets, contextData.UserId.Value);
+                getListFunc = () => ChannelManager.Instance.SearchChannels(contextData.GroupId, true, NameEqual, null, pager.GetRealPageIndex(),
+                                                            pager.PageSize.Value, orderBy, orderDirection, isAllowedToViewInactiveAssets, contextData.UserId.Value);
             }
             else if (!string.IsNullOrEmpty(IdIn))
             {
@@ -209,8 +210,8 @@ namespace WebAPI.Models.Catalog
             else
             {
                 //search using ChannelLike
-                getListFunc = () => ChannelManager.Instance.SearchChannels(contextData.GroupId, false, NameStartsWith, null, pager.getPageIndex(),
-                                                            pager.getPageSize(), orderBy, orderDirection, isAllowedToViewInactiveAssets, contextData.UserId.Value);
+                getListFunc = () => ChannelManager.Instance.SearchChannels(contextData.GroupId, false, NameStartsWith, null, pager.GetRealPageIndex(),
+                                                            pager.PageSize.Value, orderBy, orderDirection, isAllowedToViewInactiveAssets, contextData.UserId.Value);
             }
 
             response = ClientUtils.GetGenericListResponseFromWS<GroupsCacheManager.Channel>(getListFunc);
@@ -266,7 +267,7 @@ namespace WebAPI.Models.Catalog
             CatalogMappings.ConvertChannelsOrderBy(OrderBy, out ChannelOrderBy orderBy, out ApiObjects.SearchObjects.OrderDir orderDirection);
 
             Func<GenericListResponse<GroupsCacheManager.Channel>> getListFunc = () =>
-              ChannelManager.Instance.GetChannels(contextData.GroupId, assetSearchDefinition, channelType, pager.getPageIndex(), pager.PageSize.Value, orderBy, orderDirection);
+              ChannelManager.Instance.GetChannels(contextData.GroupId, assetSearchDefinition, channelType, pager.GetRealPageIndex(), pager.PageSize.Value, orderBy, orderDirection);
             GenericListResponse<GroupsCacheManager.Channel> response = ClientUtils.GetGenericListResponseFromWS<GroupsCacheManager.Channel>(getListFunc);
 
             if (response.TotalItems > 0)

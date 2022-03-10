@@ -1,18 +1,7 @@
-﻿using ApiLogic.Base;
-using ApiObjects.Base;
-using ApiObjects.Pricing;
-using ApiObjects.Response;
-using Core.Pricing.Handlers;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Web;
 using System.Xml.Serialization;
-using WebAPI.Exceptions;
-using WebAPI.Filters;
-using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
@@ -21,7 +10,7 @@ using WebAPI.Models.Pricing;
 namespace WebAPI.Models.Domains
 {
     [Serializable]
-    public partial class KalturaHouseholdCouponFilter : KalturaCrudFilter<KalturaHouseholdCouponOrderBy, CouponWallet>
+    public partial class KalturaHouseholdCouponFilter : KalturaFilter<KalturaHouseholdCouponOrderBy>
     {
         /// <summary>
         /// Indicates which household coupons list to return by their business module type.
@@ -60,43 +49,9 @@ namespace WebAPI.Models.Domains
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public KalturaCouponStatus? Status { get; set; }
 
-        private static readonly Type relatedObjectFilterType = typeof(KalturaHouseholdCouponCodeFilter);
-
-        public override Type RelatedObjectFilterType
-        {
-            get
-            {
-                return relatedObjectFilterType;
-            }
-        }
-
         public override KalturaHouseholdCouponOrderBy GetDefaultOrderByValue()
         {
             return KalturaHouseholdCouponOrderBy.NONE;
         }
-
-        public override void Validate(ContextData contextData)
-        {
-            if (BusinessModuleIdEqual == 0 && string.IsNullOrEmpty(CouponCode) && Status == null)
-            {
-                var filterName = "KalturaHouseholdCouponFilter";
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, $"{filterName}.businessModuleIdEqual, {filterName}.couponCode, {filterName}.status");
-            }
-        }
-
-        public override GenericListResponse<CouponWallet> List(ContextData contextData, CorePager pager)
-        {
-            var coreFilter = AutoMapper.Mapper.Map<CouponWalletFilter>(this);
-            return CouponWalletHandler.Instance.List(contextData, coreFilter);
-        }
-
-        public KalturaHouseholdCouponFilter() : base()
-        {
-        }
-    }
-
-    public enum KalturaHouseholdCouponOrderBy
-    {
-        NONE
     }
 }

@@ -13,6 +13,7 @@ using WebAPI.Models.General;
 using ApiObjects.SearchObjects;
 using TVinciShared;
 using WebAPI.InternalModels;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.Models.Catalog
 {
@@ -98,7 +99,7 @@ namespace WebAPI.Models.Catalog
                 DomainId = domainId,
                 Udid = contextData.Udid,
                 Language = contextData.Language,
-                PageIndex = pager.getPageIndex(),
+                PageIndex = pager.GetRealPageIndex(),
                 PageSize = pager.PageSize,
                 Filter = ksqlFilter,
                 AssetTypes = getTypeIn(),
@@ -120,7 +121,7 @@ namespace WebAPI.Models.Catalog
             var response = ClientsManager.CatalogClient().SearchAssets(searchAssetFilter);
             if (pager.PageIndex.HasValue && pager.PageSize.HasValue && searchAssetFilter.GroupByType == GroupingOption.Include)
             {
-                response.Objects = response.Objects.Skip(pager.PageIndex.Value * pager.PageSize.Value)?.Take(pager.PageSize.Value).ToList();
+                response.Objects = response.Objects.Skip(pager.GetRealPageIndex() * pager.PageSize.Value)?.Take(pager.PageSize.Value).ToList();
             }
 
             return response;

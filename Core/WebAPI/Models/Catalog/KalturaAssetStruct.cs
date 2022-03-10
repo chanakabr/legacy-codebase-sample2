@@ -13,7 +13,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public partial class KalturaAssetStruct : KalturaOTTObject, IKalturaExcelStructureManager
+    public partial class KalturaAssetStruct : KalturaOTTObject
     {
         /// <summary>
         /// Asset Struct id 
@@ -128,12 +128,6 @@ namespace WebAPI.Models.Catalog
         [SchemeProperty(IsNullable = true)]
         [XmlArrayItem("item")]
         public SerializableDictionary<string, KalturaStringValue> DynamicData { get; set; }
-
-        public ExcelStructure GetExcelStructure(int groupId)
-        {
-            var excelStructure = ClientManagers.Client.ClientsManager.CatalogClient().GetExcelStructure(groupId, this);
-            return excelStructure;
-        }
 
         public bool Validate()
         {

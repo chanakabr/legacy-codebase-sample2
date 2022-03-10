@@ -8,18 +8,9 @@ namespace WebAPI.Models.General
     [SchemeBase(typeof(KalturaRelatedObjectFilter))]
     public partial class KalturaAggregationCountFilter : KalturaFilter<KalturaAggregationCountOrderBy>, KalturaRelatedObjectFilter
     {
-        internal virtual void Validate()
-        {
-        }
-
         public override KalturaAggregationCountOrderBy GetDefaultOrderByValue()
         {
             return KalturaAggregationCountOrderBy.NONE;
         }
-    }
-
-    public enum KalturaAggregationCountOrderBy
-    {
-        NONE
     }
 }

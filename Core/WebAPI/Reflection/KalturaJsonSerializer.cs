@@ -18,6 +18,8 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Filters;
 using WebAPI.Managers;
 using WebAPI.Utils;
+using WebAPI.ModelsValidators;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Social;
 using WebAPI.Models.General;
@@ -7411,66 +7413,6 @@ namespace WebAPI.Models.General
             return ret;
         }
     }
-    public partial class KalturaCrudFilter<KalturaOrderByT, ICrudHandeledObject>
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
-            string propertyValue = null;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
-            string propertyValue;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            return ret;
-        }
-    }
-    public partial class KalturaCrudObject<ICrudHandeledObject, IdentifierT>
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
-            string propertyValue = null;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
-            string propertyValue;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            return ret;
-        }
-    }
     public partial class KalturaDetachedResponseProfile
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -7802,6 +7744,11 @@ namespace WebAPI.Models.General
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -7816,6 +7763,11 @@ namespace WebAPI.Models.General
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
             return ret;
         }
     }
@@ -8021,46 +7973,6 @@ namespace WebAPI.Models.General
             if(PageSize.HasValue && (retrievedProperties == null || retrievedProperties.Contains("pageSize")))
             {
                 ret.Add("pageSize", "<pageSize>" + PageSize + "</pageSize>");
-            }
-            return ret;
-        }
-    }
-    public partial class KalturaGenericListResponse<KalturaT>
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
-            string propertyValue = null;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            if(Objects != null)
-            {
-                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
-                ret.Add("objects", "\"objects\": " + propertyValue);
-            }
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
-            string propertyValue;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            if(Objects != null)
-            {
-                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
-                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
         }
@@ -8291,48 +8203,6 @@ namespace WebAPI.Models.General
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
             string propertyValue;
 
-            ret.Add("totalCount", "<totalCount>" + TotalCount + "</totalCount>");
-            return ret;
-        }
-    }
-    public partial class KalturaListResponse<KalturaT>
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
-            string propertyValue = null;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            if(Objects != null && (retrievedProperties == null || retrievedProperties.Contains("objects")))
-            {
-                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
-                ret.Add("objects", "\"objects\": " + propertyValue);
-            }
-            ret.Add("totalCount", "\"totalCount\": " + TotalCount);
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
-            string propertyValue;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            if(Objects != null && (retrievedProperties == null || retrievedProperties.Contains("objects")))
-            {
-                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
-                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
-            }
             ret.Add("totalCount", "<totalCount>" + TotalCount + "</totalCount>");
             return ret;
         }
@@ -10328,6 +10198,11 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -10342,6 +10217,11 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
             return ret;
         }
     }
@@ -11926,6 +11806,11 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -11940,6 +11825,11 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
             return ret;
         }
     }
@@ -13226,6 +13116,11 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -13240,6 +13135,11 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
             return ret;
         }
     }
@@ -13428,6 +13328,11 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -13442,6 +13347,11 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
             return ret;
         }
     }
@@ -15059,6 +14969,11 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -15073,6 +14988,11 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
             return ret;
         }
     }
@@ -18525,6 +18445,11 @@ namespace WebAPI.Models.IngestStatus
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -18539,6 +18464,11 @@ namespace WebAPI.Models.IngestStatus
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
             return ret;
         }
     }
@@ -18555,6 +18485,11 @@ namespace WebAPI.Models.IngestStatus
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -18569,6 +18504,11 @@ namespace WebAPI.Models.IngestStatus
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
             return ret;
         }
     }
@@ -22351,6 +22291,11 @@ namespace WebAPI.Models.Notification
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -22365,6 +22310,11 @@ namespace WebAPI.Models.Notification
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
             return ret;
         }
     }
@@ -26119,6 +26069,11 @@ namespace WebAPI.Models.Catalog
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -26133,6 +26088,11 @@ namespace WebAPI.Models.Catalog
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
             return ret;
         }
     }
@@ -26543,6 +26503,11 @@ namespace WebAPI.Models.Catalog
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -26557,6 +26522,11 @@ namespace WebAPI.Models.Catalog
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
             return ret;
         }
     }
@@ -28285,6 +28255,11 @@ namespace WebAPI.Models.Catalog
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -28299,6 +28274,11 @@ namespace WebAPI.Models.Catalog
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
             return ret;
         }
     }
@@ -32052,6 +32032,11 @@ namespace WebAPI.Models.Pricing
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -32066,6 +32051,11 @@ namespace WebAPI.Models.Pricing
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
             return ret;
         }
     }
@@ -34845,7 +34835,7 @@ namespace WebAPI.Models.Pricing
                     ret.Add("preview_module", "\"preview_module\": " + propertyValue);
                 }
             }
-            if((retrievedProperties == null || retrievedProperties.Contains("previewModuleId")))
+            if(PreviewModuleId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("previewModuleId")))
             {
                 ret.Add("previewModuleId", "\"previewModuleId\": " + PreviewModuleId);
             }
@@ -35137,7 +35127,7 @@ namespace WebAPI.Models.Pricing
                 ret.Add("preview_module", "<preview_module>" + propertyValue + "</preview_module>");
                 }
             }
-            if((retrievedProperties == null || retrievedProperties.Contains("previewModuleId")))
+            if(PreviewModuleId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("previewModuleId")))
             {
                 ret.Add("previewModuleId", "<previewModuleId>" + PreviewModuleId + "</previewModuleId>");
             }
@@ -36522,6 +36512,11 @@ namespace WebAPI.Models.Segmentation
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -36536,6 +36531,11 @@ namespace WebAPI.Models.Segmentation
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
             return ret;
         }
     }
@@ -38220,6 +38220,11 @@ namespace WebAPI.Models.Users
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -38234,6 +38239,11 @@ namespace WebAPI.Models.Users
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
             return ret;
         }
     }
@@ -39518,6 +39528,11 @@ namespace WebAPI.Models.Users
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -39532,6 +39547,11 @@ namespace WebAPI.Models.Users
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
             return ret;
         }
     }
@@ -44737,6 +44757,11 @@ namespace WebAPI.Models.Domains
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -44751,6 +44776,11 @@ namespace WebAPI.Models.Domains
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
             return ret;
         }
     }
@@ -45437,6 +45467,11 @@ namespace WebAPI.Models.Domains
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -45451,6 +45486,11 @@ namespace WebAPI.Models.Domains
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
             return ret;
         }
     }

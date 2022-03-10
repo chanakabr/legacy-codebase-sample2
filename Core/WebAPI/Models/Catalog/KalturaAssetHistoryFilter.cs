@@ -1,20 +1,13 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public enum KalturaAssetHistoryOrderBy
-    {
-        NONE
-    }
-
     public partial class KalturaAssetHistoryFilter : KalturaFilter<KalturaAssetHistoryOrderBy>
     {
         public override KalturaAssetHistoryOrderBy GetDefaultOrderByValue()
@@ -92,44 +85,5 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "kSql")]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string Ksql { get; set; }
-
-        internal int getDaysLessThanOrEqual()
-        {
-            return DaysLessThanOrEqual.HasValue ? DaysLessThanOrEqual.Value : 0;
-        }
-
-        internal List<int> getTypeIn()
-        {
-            if (filterTypes != null)
-                return filterTypes.Select(x => x.value).ToList();
-
-            if (string.IsNullOrEmpty(TypeIn))
-                return null;
-
-            List<int> values = new List<int>();
-            string[] stringValues = TypeIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string stringValue in stringValues)
-            {
-                int value;
-                if (int.TryParse(stringValue, out value))
-                {
-                    values.Add(value);
-                }
-                else
-                {
-                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetHistoryFilter.typeIn");
-                }
-            }
-
-            return values;
-        }
-
-        internal List<string> getAssetIdIn()
-        {
-            if (AssetIdIn == null)
-                return null;
-
-            return AssetIdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-        }
     }
 }

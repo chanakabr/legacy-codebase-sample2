@@ -21,22 +21,9 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "couponCodesIn")]
         public string CouponCodesIn { get; set; }
 
-        internal List<string> getCouponCodesIn()
-        {
-            if (string.IsNullOrEmpty(CouponCodesIn))
-                return null;
-
-            return CouponCodesIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-        }
-
         public override KalturaCouponFilterOrderBy GetDefaultOrderByValue()
         {
             return KalturaCouponFilterOrderBy.NONE;
         }
-    }
-
-    public enum KalturaCouponFilterOrderBy
-    {
-        NONE
     }
 }

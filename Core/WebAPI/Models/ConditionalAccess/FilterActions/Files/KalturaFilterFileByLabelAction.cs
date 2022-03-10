@@ -26,7 +26,7 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
 
         public List<string> GetLabels()
         {
-            var types = this.GetItemsIn<List<string>, string>(LabelIn, "labelIn", true);
+            var types = Utils.Utils.ParseCommaSeparatedValues<List<string>, string>(LabelIn, "labelIn", true);
             return types;
         }
     }

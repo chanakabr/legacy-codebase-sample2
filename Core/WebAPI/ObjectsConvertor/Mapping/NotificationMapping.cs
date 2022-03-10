@@ -14,6 +14,7 @@ using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Models.Notifications;
 using KeyValuePair = ApiObjects.KeyValuePair;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -288,7 +289,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 });
 
             cfg.CreateMap<KalturaAnnouncementFilter, MessageAnnouncementFilter>()
-                 .ForMember(dest => dest.MessageAnnouncementIds, opt => opt.MapFrom(src => src.GetItemsIn<List<long>, long>(src.IdIn, "KalturaAnnouncementFilter.idIn", true, true)));
+                 .ForMember(dest => dest.MessageAnnouncementIds, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(src.IdIn, "KalturaAnnouncementFilter.idIn", true, true)));
 
             //MessageTemplate to KalturaMessageTemplate
             cfg.CreateMap<MessageTemplate, KalturaMessageTemplate>()

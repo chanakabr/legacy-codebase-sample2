@@ -28,7 +28,7 @@ namespace WebAPI.Models.API
 
         public HashSet<int> GetDeviceBrandIds()
         {
-            return this.GetItemsIn<HashSet<int>, int>(DeviceBrandIds, "KalturaTvmDeviceRule.deviceBrandIds");
+            return Utils.Utils.ParseCommaSeparatedValues<HashSet<int>, int>(DeviceBrandIds, "KalturaTvmDeviceRule.deviceBrandIds");
         }
     }
 }

@@ -12,35 +12,11 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Iot settings filter
     /// </summary>
-    public partial class KalturaIotProfileFilter : KalturaCrudFilter<KalturaIotProfileOrderBy, IotProfile>
+    public partial class KalturaIotProfileFilter : KalturaFilter<KalturaIotProfileOrderBy>
     {
-        public KalturaIotProfileFilter()
-        {
-
-        }
         public override KalturaIotProfileOrderBy GetDefaultOrderByValue()
         {
             throw new NotImplementedException();
         }
-
-        public override GenericListResponse<IotProfile> List(ContextData contextData, CorePager pager)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Validate(ContextData contextData)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task RegisterDevice()
-        {
-
-        }
-    }
-
-    public enum KalturaIotProfileOrderBy
-    {
-        NONE
     }
 }

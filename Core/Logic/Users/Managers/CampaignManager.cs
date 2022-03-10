@@ -1,29 +1,26 @@
-﻿using ApiLogic.Base;
-using ApiObjects;
+﻿using ApiObjects;
 using ApiObjects.Base;
+using ApiObjects.Notification;
 using ApiObjects.Response;
-using Phx.Lib.Log;
-using System;
-using System.Reflection;
-using Campaign = ApiObjects.Campaign;
-using DAL;
-using System.Linq;
-using ApiObjects.EventBus;
-using TVinciShared;
-using System.Collections.Generic;
 using CachingProvider.LayeredCache;
 using Core.Catalog.CatalogManagement;
-using GroupsCacheManager;
-using Core.Catalog;
-using System.Threading.Tasks;
-using System.Threading;
 using Core.Pricing;
+using DAL;
 using EventBus.Abstraction;
-using ApiObjects.Notification;
+using GroupsCacheManager;
+using Phx.Lib.Log;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+using TVinciShared;
+using Campaign = ApiObjects.Campaign;
 
 namespace ApiLogic.Users.Managers
 {
-    public class CampaignManager : ICrudHandler<Campaign, long>
+    public class CampaignManager
     {
         private const int MAX_TRIGGER_CAMPAIGNS = 100;
         private const int MAX_BATCH_CAMPAIGNS = 100;
@@ -306,9 +303,9 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        public GenericResponse<Campaign> AddCampaign<T>(ContextData contextData, T campaignToAdd) where T : Campaign, new()
+        public GenericResponse<T> AddCampaign<T>(ContextData contextData, T campaignToAdd) where T : Campaign, new()
         {
-            var response = new GenericResponse<Campaign>();
+            var response = new GenericResponse<T>();
 
             try
             {
@@ -343,9 +340,9 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        public GenericResponse<Campaign> UpdateTriggerCampaign(ContextData contextData, TriggerCampaign campaignToUpdate)
+        public GenericResponse<TriggerCampaign> UpdateTriggerCampaign(ContextData contextData, TriggerCampaign campaignToUpdate)
         {
-            var response = new GenericResponse<Campaign>();
+            var response = new GenericResponse<TriggerCampaign>();
             try
             {
                 var oldTriggerCampaignResponse = Get(contextData, campaignToUpdate.Id, true);
@@ -401,9 +398,9 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        public GenericResponse<Campaign> UpdateBatchCampaign(ContextData contextData, BatchCampaign campaignToUpdate)
+        public GenericResponse<BatchCampaign> UpdateBatchCampaign(ContextData contextData, BatchCampaign campaignToUpdate)
         {
-            var response = new GenericResponse<Campaign>();
+            var response = new GenericResponse<BatchCampaign>();
             try
             {
                 var oldBatchCampaignResponse = Get(contextData, campaignToUpdate.Id, true);

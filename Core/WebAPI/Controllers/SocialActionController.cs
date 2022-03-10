@@ -1,12 +1,13 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
-using ApiObjects.Response;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Social;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -85,7 +86,7 @@ namespace WebAPI.Controllers
             try
             {                
                 // call client
-                response = ClientsManager.SocialClient().GetUserSocialActions(groupId, userId, filter.getAssetIdIn(), filter.AssetTypeEqual, filter.GetActionTypeIn(), pager.getPageIndex(), pager.PageSize, filter.OrderBy);
+                response = ClientsManager.SocialClient().GetUserSocialActions(groupId, userId, filter.getAssetIdIn(), filter.AssetTypeEqual, filter.GetActionTypeIn(), pager.GetRealPageIndex(), pager.PageSize, filter.OrderBy);
             }
             catch (ClientException ex)
             {

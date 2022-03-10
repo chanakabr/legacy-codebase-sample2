@@ -68,7 +68,7 @@ namespace WebAPI.Models.API
 
         public HashSet<int> GetCountryIds()
         {
-            return this.GetItemsIn<HashSet<int>, int>(CountryIds, "KalturaTvmGeoRule.countryIds");
+            return Utils.Utils.ParseCommaSeparatedValues<HashSet<int>, int>(CountryIds, "KalturaTvmGeoRule.countryIds");
         }
     }
 }

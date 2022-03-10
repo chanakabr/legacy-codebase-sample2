@@ -26,7 +26,7 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
 
         public List<string> GetAudioCodecs()
         {
-            var types = this.GetItemsIn<List<string>, string>(AudioCodecIn, "audioCodecIn", true);
+            var types = Utils.Utils.ParseCommaSeparatedValues<List<string>, string>(AudioCodecIn, "audioCodecIn", true);
             return types;
         }
     }

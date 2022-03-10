@@ -1,5 +1,4 @@
-﻿using ApiLogic.Base;
-using ApiObjects.Base;
+﻿using ApiObjects.Base;
 using ApiObjects.Catalog;
 using ApiObjects.Response;
 using Phx.Lib.Log;
@@ -12,7 +11,7 @@ using TVinciShared;
 namespace Core.Catalog.CatalogManagement
 {
     // validate to objects and logic
-    public class CategoryVersionHandler : ICrudHandler<CategoryVersion, long>
+    public class CategoryVersionHandler
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 

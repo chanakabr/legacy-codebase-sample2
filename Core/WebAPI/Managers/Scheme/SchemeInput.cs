@@ -39,6 +39,13 @@ namespace WebAPI.Managers.Scheme
         /// </summary>
         public int MaxItems { get; set; }
 
+        /// <summary>
+        /// the default value represents what would be assumed by the consumer of the input as the value of the schema if one is not provided. 
+        /// Unlike JSON Schema, the value MUST conform to the defined type for the Schema Object defined at the same level. 
+        /// For example, if type is string, then default can be "foo" but cannot be 1
+        /// </summary>
+        public object Default { get; set; }
+
         public SchemeInputAttribute()
         {
             MaxLength = -1;

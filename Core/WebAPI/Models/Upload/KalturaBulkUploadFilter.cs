@@ -9,20 +9,11 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Upload
 {
-    public enum KalturaBulkUploadOrderBy
-    {
-        NONE,
-        UPDATE_DATE_ASC,
-        UPDATE_DATE_DESC,
-    }
-
     /// <summary>
     /// Bulk Upload Filter
     /// </summary>
     public partial class KalturaBulkUploadFilter : KalturaFilter<KalturaBulkUploadOrderBy>
     {
-        private const double MIN_RECORD_DAYS_TO_WATCH = 60;
-
         /// <summary>
         /// bulk objects Type name (must be type of KalturaOTTObject)
         /// </summary>
@@ -60,39 +51,6 @@ namespace WebAPI.Models.Upload
         public override KalturaBulkUploadOrderBy GetDefaultOrderByValue()
         {
             return KalturaBulkUploadOrderBy.NONE;
-        }
-
-        internal void Validate()
-        {
-            if (string.IsNullOrEmpty(BulkObjectTypeEqual))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "bulkObjectTypeEqual");
-            }
-
-            if (CreateDateGreaterThanOrEqual.HasValue)
-            {
-                var createDate = DateUtils.UtcUnixTimestampSecondsToDateTime(this.CreateDateGreaterThanOrEqual.Value);
-                if (createDate.AddDays(MIN_RECORD_DAYS_TO_WATCH) < DateTime.UtcNow)
-                {
-                    var minCreateDate = DateTime.UtcNow.AddDays(-MIN_RECORD_DAYS_TO_WATCH).ToUtcUnixTimestampSeconds();
-                    throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, "createDateGreaterThanOrEqual", minCreateDate);
-                }
-            }
-        }
-
-        internal DateTime GetCreateDate()
-        {
-            DateTime createDate;
-            if (CreateDateGreaterThanOrEqual.HasValue)
-            {
-                createDate = DateUtils.UtcUnixTimestampSecondsToDateTime(this.CreateDateGreaterThanOrEqual.Value);
-            }
-            else
-            {
-                createDate = DateTime.UtcNow.AddDays(-MIN_RECORD_DAYS_TO_WATCH);
-            }
-
-            return createDate;
         }
     }
 }

@@ -2,17 +2,16 @@
 using ApiObjects.Pricing;
 using ApiObjects.Response;
 using Core.Pricing;
-using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using WebAPI.Clients;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -67,7 +66,7 @@ namespace WebAPI.Controllers
                 if (!string.IsNullOrEmpty(filter.CollectionIdIn))
                 {
                     getListFunc = () =>
-                    CollectionManager.Instance.GetCollectionsData(groupId, filter.getCollectionIdIn(), string.Empty, language, udid, pager.getPageIndex(), pager.PageSize.Value, false, 
+                    CollectionManager.Instance.GetCollectionsData(groupId, filter.getCollectionIdIn(), string.Empty, language, udid, pager.GetRealPageIndex(), pager.PageSize.Value, false, 
                                                                   filter.CouponGroupIdEqual, inactiveAssets, orderBy);
                     result = ClientUtils.GetResponseListFromWS<KalturaCollection, Collection>(getListFunc);
                 }
@@ -86,14 +85,14 @@ namespace WebAPI.Controllers
                     if (collectionsIds != null && collectionsIds.Count > 0)
                     {
                         getListFunc = () =>
-                        CollectionManager.Instance.GetCollectionsData(groupId, collectionsIds.Select(id => id.ToString()).ToArray(), string.Empty, language, udid, pager.getPageIndex(), pager.PageSize.Value, false, filter.CouponGroupIdEqual);
+                        CollectionManager.Instance.GetCollectionsData(groupId, collectionsIds.Select(id => id.ToString()).ToArray(), string.Empty, language, udid, pager.GetRealPageIndex(), pager.PageSize.Value, false, filter.CouponGroupIdEqual);
                         result = ClientUtils.GetResponseListFromWS<KalturaCollection, Collection>(getListFunc);
                     }
                 }
                 else
                 {
                     getListFunc = () =>
-                       CollectionManager.Instance.GetCollectionsData(groupId, string.Empty, language, udid, pager.getPageIndex(), pager.PageSize.Value, false, filter.CouponGroupIdEqual, 
+                       CollectionManager.Instance.GetCollectionsData(groupId, string.Empty, language, udid, pager.GetRealPageIndex(), pager.PageSize.Value, false, filter.CouponGroupIdEqual, 
                        inactiveAssets, orderBy);
                     result = ClientUtils.GetResponseListFromWS<KalturaCollection, Collection>(getListFunc);
                 }

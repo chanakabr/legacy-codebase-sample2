@@ -10,6 +10,7 @@ using System.Xml.Serialization;
 using WebAPI.Clients;
 using WebAPI.Exceptions;
 using WebAPI.Models.General;
+using WebAPI.Utils;
 
 namespace WebAPI.Models.API
 {

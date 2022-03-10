@@ -10,6 +10,7 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Models.Notifications;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -160,18 +161,18 @@ namespace WebAPI.Controllers
                 {
                     KalturaSeasonsReminderFilter seasonsReminderFilter = filter as KalturaSeasonsReminderFilter;
                     response = ClientsManager.NotificationClient().GetSeriesReminders(groupId, userId, new List<string>() { seasonsReminderFilter.SeriesIdEqual },
-                        seasonsReminderFilter.GetSeasonNumberIn(), seasonsReminderFilter.EpgChannelIdEqual, pager.getPageSize(), pager.getPageIndex());
+                        seasonsReminderFilter.GetSeasonNumberIn(), seasonsReminderFilter.EpgChannelIdEqual, pager.PageSize.Value, pager.GetRealPageIndex());
                 }
                 else if (filter is KalturaSeriesReminderFilter)
                 {
                     KalturaSeriesReminderFilter seriesReminderFilter = filter as KalturaSeriesReminderFilter;
                     response = ClientsManager.NotificationClient().GetSeriesReminders(groupId, userId, seriesReminderFilter.GetSeriesIdIn(), null, seriesReminderFilter.EpgChannelIdEqual,
-                        pager.getPageSize(), pager.getPageIndex());
+                        pager.PageSize.Value, pager.GetRealPageIndex());
                 }
                 else if (filter is KalturaAssetReminderFilter || filter is KalturaReminderFilter<KalturaAssetReminderOrderBy>)
                 {
                     KalturaAssetReminderFilter assetReminderFilter = filter as KalturaAssetReminderFilter;
-                    response = ClientsManager.NotificationClient().GetReminders(groupId, userId, filter.KSql, pager.getPageSize(), pager.getPageIndex(), assetReminderFilter.OrderBy);
+                    response = ClientsManager.NotificationClient().GetReminders(groupId, userId, filter.KSql, pager.PageSize.Value, pager.GetRealPageIndex(), assetReminderFilter.OrderBy);
                 }
             }
 

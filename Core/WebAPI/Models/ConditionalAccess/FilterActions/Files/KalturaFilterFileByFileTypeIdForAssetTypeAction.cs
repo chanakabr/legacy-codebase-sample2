@@ -27,7 +27,7 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
 
         public List<eAssetTypes> GetAssetTypes()
         {
-            var types = this.GetItemsIn<List<KalturaAssetType>, KalturaAssetType>(AssetTypeIn, "assetTypeIn", true, true);
+            var types = Utils.Utils.ParseCommaSeparatedValues<List<KalturaAssetType>, KalturaAssetType>(AssetTypeIn, "assetTypeIn", true, true);
             var mapped = AutoMapper.Mapper.Map<List<eAssetTypes>>(types);
             return mapped;
         }

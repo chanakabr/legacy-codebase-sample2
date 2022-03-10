@@ -6,6 +6,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Models.DMS;
 using WebAPI.Models.General;
 using AutoMapper.Configuration;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {

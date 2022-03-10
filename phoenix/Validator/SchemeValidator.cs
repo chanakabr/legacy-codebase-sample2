@@ -350,20 +350,6 @@ namespace Validator.Managers.Scheme
                     logError("Error", controller, string.Format("Action {0}.{1} ({2}) returned type is {3}, expected {4}", serviceId, actionId, controller.Name, method.ReturnType.Name, expectedResponseType));
                     valid = false;
                 }
-                else
-                {
-                    var isNewListResponse = SchemeManager.IsGenericListResponse(method.ReturnType, out var _, out PropertyInfo objectsProperty);
-                    if (!isNewListResponse)
-                    {
-                        objectsProperty = getObjectsProperty(method.ReturnType);
-                    }
-                    Type arrayType = objectsProperty.PropertyType.GetGenericArguments()[0];
-                    if (arrayType.Name.ToLower() != expectedObjectType.ToLower())
-                    {
-                        logError("Error", controller, string.Format("Action {0}.{1} ({2}) returned list-response contains array of {3}, expected {4}", serviceId, actionId, controller.Name, arrayType.Name, expectedObjectType));
-                        valid = false;
-                    }
-                }
             }
 
             // description
@@ -418,18 +404,13 @@ namespace Validator.Managers.Scheme
             ListResponseAttribute listResponseAttribute = null;
             if (type != kalturaListResponseType && type.Name.EndsWith("ListResponse"))
             {
-                var isNewListResponse = SchemeManager.IsGenericListResponse(type, out listResponseAttribute, out PropertyInfo objectsProperty);
-                if (!type.IsSubclassOf(kalturaListResponseType) && !isNewListResponse)
+                if (!type.IsSubclassOf(kalturaListResponseType))
                 {
                     logError("Error", type, string.Format("List response {0} must inherit KalturaListResponse", type.Name));
                     valid = false;
                 }
 
-                if (!isNewListResponse)
-                {
-                    objectsProperty = getObjectsProperty(type);
-                }
-
+                var objectsProperty = getObjectsProperty(type);
                 if (objectsProperty == null)
                 {
                     logError("Error", type, string.Format("List response {0} must implement objects attribute", type.Name));
@@ -476,7 +457,6 @@ namespace Validator.Managers.Scheme
         private bool ValidateProperty(PropertyInfo property, bool strict, ListResponseAttribute listResponseAttribute)
         {
             bool valid = true;
-            if (property.DeclaringType != null && property.DeclaringType == typeof(KalturaCrudFilter<,>)) { return valid; }
 
             if (property.Name.Contains('_'))
             {
@@ -575,7 +555,6 @@ namespace Validator.Managers.Scheme
         private bool ValidateFilter(Type type, bool strict)
         {
             bool valid = true;
-            if (type == typeof(KalturaCrudFilter<,>)) { return valid; };
 
             foreach (PropertyInfo property in type.GetProperties().Where(x => x.DeclaringType == type && !hasValidationException(x, SchemeValidationType.FILTER_SUFFIX)))
             {
@@ -658,45 +637,7 @@ namespace Validator.Managers.Scheme
                 };
             }
 
-            if (SchemeManager.IsCrudController(controller, out Dictionary<string, CrudActionAttribute> crudActionAttributes, out Dictionary<string, MethodInfo> crudActions))
-            {
-                foreach (var crudActionAttribute in crudActionAttributes)
-                {
-                    if (crudActions.ContainsKey(crudActionAttribute.Key))
-                    {
-                        var crudAction = SchemeManager.GetCrudActionDetails(crudActionAttribute.Value, crudActions[crudActionAttribute.Key]);
-                        hasValidActions = ValidateCrudMethod(crudAction, controller) || hasValidActions;
-                    }
-                }
-            }
-
             return valid && hasValidActions;
-        }
-
-        private bool ValidateCrudMethod(KalturaActionDetails crudAction, Type controller)
-        {
-            if (crudAction.Prameters.Count > 1)
-            {
-                var prevIsOptional = false;
-                string optionalParameter = string.Empty;
-                for (int i = 1; i < crudAction.Prameters.Count; i++)
-                {
-                    if (crudAction.Prameters[i - 1].IsOptional)
-                    {
-                        prevIsOptional = true;
-                        optionalParameter = crudAction.Prameters[i - 1].Name;
-                    }
-
-                    if (!crudAction.Prameters[i].IsOptional && prevIsOptional)
-                    {
-                        logError("Error", controller, $"Action {controller.Name}.{crudAction.LoweredName} has optional parameter [{optionalParameter}] before required parameter [{crudAction.Prameters[i].Name}].");
-
-                        return false;
-                    }
-                }
-            }
-
-            return true;
         }
 
         private bool ValidateParameter(MethodInfo action, ParameterInfo param, bool strict)

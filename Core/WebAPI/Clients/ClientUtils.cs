@@ -13,7 +13,6 @@ using WebAPI.Utils;
 
 namespace WebAPI.Clients
 {
-    // TODO - DELETE ClientUtils WHEN ALL CNTROLLERS WILL USE CRUD
     public static class ClientUtils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());

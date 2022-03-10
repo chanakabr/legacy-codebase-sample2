@@ -9,6 +9,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Utils;
+using WebAPI.ModelsValidators;
 
 namespace WebAPI.Controllers
 {

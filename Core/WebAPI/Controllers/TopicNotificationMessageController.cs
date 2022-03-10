@@ -8,6 +8,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Notifications;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -127,7 +128,7 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-                response = ClientsManager.NotificationClient().GetTopicNotificationMessages(groupId, filter.TopicNotificationIdEqual, pager.getPageSize(), pager.getPageIndex());
+                response = ClientsManager.NotificationClient().GetTopicNotificationMessages(groupId, filter.TopicNotificationIdEqual, pager.PageSize.Value, pager.GetRealPageIndex());
             }
 
             catch (ClientException ex)

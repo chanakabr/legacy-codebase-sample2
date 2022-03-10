@@ -28,7 +28,7 @@ namespace WebAPI.Models.Partner
         
         internal List<int> GetRollingDeviceRemovalFamilyIds()
         {
-            return GetItemsIn<List<int>, int>(RollingDeviceRemovalFamilyIds, "KalturaRollingDeviceRemovalData.RollingDeviceRemovalFamilyIds", false, false);
+            return Utils.Utils.ParseCommaSeparatedValues<List<int>, int>(RollingDeviceRemovalFamilyIds, "KalturaRollingDeviceRemovalData.RollingDeviceRemovalFamilyIds", false, false);
         }
     }
 }

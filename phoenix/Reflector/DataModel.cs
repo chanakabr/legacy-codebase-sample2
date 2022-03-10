@@ -63,7 +63,9 @@ namespace Reflector
             file.WriteLine("using WebAPI.Models.MultiRequest;");
             file.WriteLine("using TVinciShared;");
             file.WriteLine("using KalturaRequestContext;");
-            
+            file.WriteLine("using WebAPI.ModelsValidators;");
+            file.WriteLine("using WebAPI.ObjectsConvertor.Extensions;");
+
             types.GroupBy(type => type.Namespace)
                  .Select(group => group.First().Namespace)
                  .ToList()
@@ -272,19 +274,6 @@ namespace Reflector
                     if (actionAttribute == null) { continue; }
 
                     WriteActionParams(actionAttribute, action, schemeArgumentProperties, serviceAttribute);
-                }
-
-                if (SchemeManager.IsCrudController(controller, out Dictionary<string, CrudActionAttribute> crudActionAttributes, out Dictionary<string, MethodInfo> crudActions))
-                {
-                    foreach (var crudActionAttribute in crudActionAttributes)
-                    {
-                        if (crudActions.ContainsKey(crudActionAttribute.Key))
-                        {
-                            var crudAction = crudActions[crudActionAttribute.Key];
-                            var actionAttribute = crudAction.GetCustomAttribute<ActionAttribute>(true);
-                            WriteActionParams(actionAttribute, crudAction, schemeArgumentProperties, serviceAttribute, crudActionAttribute.Value.GetOptionalParameters());
-                        }
-                    }
                 }
 
                 file.WriteLine("                    }");
@@ -646,18 +635,6 @@ namespace Reflector
                     file.WriteLine("                            ");
                 }
 
-                if (SchemeManager.IsCrudController(controller, out Dictionary<string, CrudActionAttribute> crudActionAttributes, out Dictionary<string, MethodInfo> crudActions))
-                {
-                    foreach (var crudActionAttribute in crudActionAttributes)
-                    {
-                        if (crudActions.ContainsKey(crudActionAttribute.Key))
-                        {
-                            var crudAction = SchemeManager.GetCrudActionDetails(crudActionAttribute.Value, crudActions[crudActionAttribute.Key]);
-                            WriteCrudAction(crudAction, controller, serviceName);
-                        }
-                    }
-                }
-
                 file.WriteLine("                    }");
                 file.WriteLine("                    break;");
                 file.WriteLine("                    ");
@@ -668,31 +645,6 @@ namespace Reflector
             file.WriteLine("            throw new RequestParserException(RequestParserException.INVALID_ACTION, service, action);");
             file.WriteLine("        }");
             file.WriteLine("        ");
-        }
-
-        private void WriteCrudAction(KalturaActionDetails crudAction, Type controller, string serviceName)
-        {
-            file.WriteLine("                        case \"" + crudAction.LoweredName + "\":");
-            file.WriteLine("                            RolesManager.ValidateActionPermitted(\"" + serviceName + "\", \"" + crudAction.LoweredName + "\");");
-
-            string args = String.Join(", ", crudAction.Prameters.Select(param => 
-                "(" + GetTypeName(param.ParameterType, true) + ") methodParams[" + param.Position + "]"));
-
-            if (crudAction.IsGenericMethod)
-            {
-                file.WriteLine("                            return ServiceController.ExecGeneric(typeof(" + controller.Name + ").GetMethod(\"" + crudAction.RealName + "\"), methodParams);");
-            }
-            else if (crudAction.ReturnedTypes.Count == 0)
-            {
-                file.WriteLine("                            " + controller.Name + "." + crudAction.RealName + "(" + args + ");");
-                file.WriteLine("                            return null;");
-            }
-            else
-            {
-                file.WriteLine("                            return " + controller.Name + "." + crudAction.RealName + "(" + args + ");");
-            }
-            
-            file.WriteLine("                            ");
         }
 
         private void wrtiePropertyApiName()

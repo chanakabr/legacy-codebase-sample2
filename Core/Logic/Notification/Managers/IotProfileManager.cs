@@ -1,18 +1,16 @@
-﻿using System;
-using ApiLogic.Base;
-using ApiObjects;
+﻿using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Response;
-using Phx.Lib.Appconfig;
 using Core.Notification;
 using DAL;
+using Phx.Lib.Appconfig;
 using Phx.Lib.Log;
-using Newtonsoft.Json;
+using System;
 using TVinciShared;
 
 namespace ApiLogic.Notification
 {
-    public class IotProfileManager : ICrudHandler<IotProfile, long>
+    public class IotProfileManager
     {
         private static readonly KLogger log = new KLogger(nameof(IotProfileManager));
         private static readonly Lazy<IotProfileManager> lazy = new Lazy<IotProfileManager>(()

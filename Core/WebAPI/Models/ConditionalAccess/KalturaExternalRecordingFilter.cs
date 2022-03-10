@@ -4,10 +4,11 @@ using System;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
-using TVinciShared;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.Models.ConditionalAccess
 {
@@ -43,7 +44,7 @@ namespace WebAPI.Models.ConditionalAccess
             var metaDataFilter = this.MetaData.ToDictionary(x => x.Key.ToLower(), x => x.Value.value.ToLowerOrNull());
 
             var response = ClientsManager.ConditionalAccessClient().SearchRecordings(contextData.GroupId, contextData.UserId.Value.ToString(), contextData.DomainId.Value,
-                this.ConvertStatusIn(), this.Ksql, this.GetExternalRecordingIds(), pager.getPageIndex(), pager.PageSize, this.OrderBy, metaDataFilter);
+                this.ConvertStatusIn(), this.Ksql, this.GetExternalRecordingIds(), pager.GetRealPageIndex(), pager.PageSize, this.OrderBy, metaDataFilter);
 
             return response;
         }

@@ -10,7 +10,8 @@ using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
-
+using WebAPI.ModelsValidators;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.Models.Pricing
 {
@@ -258,7 +259,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("previewModuleId")]
         [XmlElement(ElementName = "previewModuleId", IsNullable = true)]
         [SchemeProperty(IsNullable = true, MinLong = 1)]
-        public long PreviewModuleId { get; set; }
+        public long? PreviewModuleId { get; set; }
 
         /// <summary>
         /// The household limitation module identifier associated with this subscription
@@ -455,7 +456,7 @@ namespace WebAPI.Models.Pricing
         {
             if (!string.IsNullOrEmpty(ChannelsIds))
             {
-                _ = GetItemsIn<List<long>, long>(ChannelsIds, "channelsIds", true);
+                _ = WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(ChannelsIds, "channelsIds", true);
             }
 
             if (CouponGroups?.Count > 0)
@@ -486,7 +487,7 @@ namespace WebAPI.Models.Pricing
 
             if (!string.IsNullOrEmpty(FileTypesIds))
             {
-                _ = GetItemsIn<List<long>, long>(FileTypesIds, "fileTypesIds", true);
+                _ = WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(FileTypesIds, "fileTypesIds", true);
             }
 
             if (ProductCodes?.Count > 1)

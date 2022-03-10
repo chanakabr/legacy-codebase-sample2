@@ -1,13 +1,14 @@
-﻿using ApiObjects.Base;
+﻿using ApiLogic.Api.Managers.Rule;
+using ApiObjects.Base;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using ApiLogic.Api.Managers.Rule;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.Models.Catalog
 {
@@ -43,7 +44,7 @@ namespace WebAPI.Models.Catalog
 
         public int GetMediaId => IdEqual.Value;
 
-        internal List<int> GetTypeIn => GetItemsIn<List<int>, int>(TypeIn, "KalturaRelatedFilter.typeIn");
+        internal List<int> GetTypeIn => WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<int>, int>(TypeIn, "KalturaRelatedFilter.typeIn");
 
         internal override void Validate()
         {
@@ -75,7 +76,7 @@ namespace WebAPI.Models.Catalog
                     domainId,
                     contextData.Udid,
                     contextData.Language,
-                    pager.getPageIndex(),
+                    pager.GetRealPageIndex(),
                     pager.PageSize,
                     GetMediaId,
                     ksqlFilter,
@@ -94,7 +95,7 @@ namespace WebAPI.Models.Catalog
                 domainId,
                 contextData.Udid,
                 contextData.Language,
-                pager.getPageIndex(),
+                pager.GetRealPageIndex(),
                 pager.PageSize,
                 GetMediaId,
                 ksqlFilter,

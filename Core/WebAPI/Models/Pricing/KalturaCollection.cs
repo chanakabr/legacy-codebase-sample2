@@ -8,6 +8,8 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
+using WebAPI.ObjectsConvertor.Extensions;
+using WebAPI.ModelsValidators;
 
 namespace WebAPI.Models.Pricing
 {
@@ -209,7 +211,7 @@ namespace WebAPI.Models.Pricing
         {
             if (!string.IsNullOrEmpty(ChannelsIds))
             {
-                _ = GetItemsIn<List<long>, long>(ChannelsIds, "channelsIds", true);
+                _ = WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(ChannelsIds, "channelsIds", true);
             }
 
             if (CouponGroups?.Count > 0)
@@ -265,7 +267,7 @@ namespace WebAPI.Models.Pricing
         {
             if (!string.IsNullOrEmpty(ChannelsIds))
             {
-                _ = GetItemsIn<List<long>, long>(ChannelsIds, "channelsIds", true);
+                _ = WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(ChannelsIds, "channelsIds", true);
             }
 
             if (CouponGroups?.Count > 0)

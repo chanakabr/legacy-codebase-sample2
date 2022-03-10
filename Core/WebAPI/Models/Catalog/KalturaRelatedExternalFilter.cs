@@ -1,11 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects.Base;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Managers.Scheme;
-using ApiObjects.Base;
-using WebAPI.Models.General;
 using WebAPI.ClientManagers.Client;
+using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.Models.Catalog
 {
@@ -49,7 +50,7 @@ namespace WebAPI.Models.Catalog
   
         internal List<int> getTypeIn()
         {
-            return this.GetItemsIn<List<int>, int>(TypeIn, "KalturaRelatedExternalFilter.typeIn");
+            return Utils.Utils.ParseCommaSeparatedValues<List<int>, int>(TypeIn, "KalturaRelatedExternalFilter.typeIn");
         }
 
         //Return list of assets that are related to a provided asset ID. Returned assets can be within multi asset types or be of same type as the provided asset. 
@@ -69,7 +70,7 @@ namespace WebAPI.Models.Catalog
                 domainId,
                 contextData.Udid,
                 contextData.Language,
-                pager.getPageIndex(),
+                pager.GetRealPageIndex(),
                 pager.PageSize,
                 IdEqual,
                 getTypeIn(),

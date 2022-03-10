@@ -81,35 +81,4 @@ namespace WebAPI.Models.Segmentation
         [SchemeProperty(ReadOnly = true)]
         public long Version { get; set; }
     }
-
-    public enum KalturaContentAction
-    {
-        watch_linear,
-        watch_vod,
-        catchup,
-        npvr,
-        favorite,
-        recording,
-        social_action
-    }
-    
-    public enum KalturaMonetizationType
-    {
-        ppv,
-        subscription,
-        boxset
-    }
-
-    public enum KalturaMathemticalOperatorType
-    {
-        count,
-        sum,
-        avg
-    }
-
-    public enum KalturaContentActionConditionLengthType
-    {
-        minutes,
-        percentage
-    }
 }

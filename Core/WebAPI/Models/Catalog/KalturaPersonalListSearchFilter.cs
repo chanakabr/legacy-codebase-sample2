@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.Xml.Serialization;
-using ApiLogic.Api.Managers.Rule;
+﻿using ApiLogic.Api.Managers.Rule;
 using ApiObjects.Base;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.Models.Catalog
 {
@@ -23,7 +24,7 @@ namespace WebAPI.Models.Catalog
         public string PartnerListTypeIn { get; set; }
 
         private HashSet<int> GetPartnerListTypeIn()
-            => GetItemsIn<HashSet<int>, int>(PartnerListTypeIn, "KalturaPersonalListSearchFilter.PartnerListTypeIn", false, true);
+            => WebAPI.Utils.Utils.ParseCommaSeparatedValues<HashSet<int>, int>(PartnerListTypeIn, "KalturaPersonalListSearchFilter.PartnerListTypeIn", false, true);
 
         internal override KalturaAssetListResponse GetAssets(
             ContextData contextData,
@@ -42,8 +43,8 @@ namespace WebAPI.Models.Catalog
                 ksqlFilter, 
                 Orderings,
                 getGroupByValue(),
-                pager.getPageIndex(),
-                pager.getPageSize(),
+                pager.GetRealPageIndex(),
+                pager.PageSize.Value,
                 GetPartnerListTypeIn(),
                 responseProfile,
                 ShouldApplyPriorityGroupsEqual ?? false);

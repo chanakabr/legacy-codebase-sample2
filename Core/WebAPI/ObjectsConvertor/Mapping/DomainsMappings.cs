@@ -12,6 +12,7 @@ using WebAPI.Models.API;
 using System.Linq;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.Mapping.ObjectsConvertor
 {

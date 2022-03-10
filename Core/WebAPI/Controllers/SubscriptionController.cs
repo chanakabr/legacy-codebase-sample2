@@ -16,11 +16,12 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
-using WebAPI.Utils; 
+using WebAPI.ObjectsConvertor.Extensions;
+using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-	
+
     [Service("subscription")]
     public class SubscriptionController : IKalturaController
     {
@@ -81,7 +82,7 @@ namespace WebAPI.Controllers
                     {
                         getListFunc = () =>
                             SubscriptionManager.Instance.GetSubscriptionsData(groupId, new HashSet<long>(subscriptionsIds.Select(t => (long)t).ToList()),
-                                        udid, language, coreFilter.OrderBy, assetSearchDefinition, pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
+                                        udid, language, coreFilter.OrderBy, assetSearchDefinition, pager.GetRealPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
 
                         result = ClientUtils.GetResponseListFromWS<KalturaSubscription, Subscription>(getListFunc);
                     }
@@ -90,7 +91,7 @@ namespace WebAPI.Controllers
                 {
                     getListFunc = () =>
                         SubscriptionManager.Instance.GetSubscriptionsData(groupId, new HashSet<long>(filter.getSubscriptionIdIn()),
-                                    udid, language, coreFilter.OrderBy, assetSearchDefinition, pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
+                                    udid, language, coreFilter.OrderBy, assetSearchDefinition, pager.GetRealPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
 
                     result = ClientUtils.GetResponseListFromWS<KalturaSubscription, Subscription>(getListFunc);
                 }
@@ -105,7 +106,7 @@ namespace WebAPI.Controllers
                 {
                     getListFunc = () =>
                        SubscriptionManager.Instance.GetSubscriptionsData(groupId, null, udid, language, coreFilter.OrderBy, assetSearchDefinition,
-                            pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
+                            pager.GetRealPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
 
                     result = ClientUtils.GetResponseListFromWS<KalturaSubscription, Subscription>(getListFunc);
                 }
@@ -118,7 +119,7 @@ namespace WebAPI.Controllers
                     }
                        
                     getListFunc = () =>
-                      SubscriptionManager.Instance.GetSubscriptionsData(groupId, udid, language, coreFilter.OrderBy, pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual, 
+                      SubscriptionManager.Instance.GetSubscriptionsData(groupId, udid, language, coreFilter.OrderBy, pager.GetRealPageIndex(), pager.PageSize, filter.CouponGroupIdEqual, 
                                                                         inactiveAssets, filter.PreviewModuleIdEqual, filter.PricePlanIdEqual, filter.ChannelIdEqual);
 
                     result = ClientUtils.GetResponseListFromWS<KalturaSubscription, Subscription>(getListFunc);

@@ -8,7 +8,7 @@ namespace WebAPI.ObjectsConvertor.Extensions
         public static List<long> GetProgramAssetGroupOfferIds(this KalturaProgramAssetGroupOfferIdInFilter model)
         {
             if (model.IdIn == null) { return null; }
-            return model.GetItemsIn<List<long>, long>(model.IdIn, "idIn");
+            return WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(model.IdIn, "idIn");
         }
     }
 }

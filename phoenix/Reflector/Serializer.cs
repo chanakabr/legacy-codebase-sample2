@@ -15,6 +15,7 @@ using System.Text.RegularExpressions;
 using WebAPI.Models.Renderers;
 using WebAPI.Managers.Models;
 using Validator.Managers.Scheme;
+using System.Runtime.CompilerServices;
 
 namespace Reflector
 {
@@ -78,7 +79,8 @@ namespace Reflector
             file.WriteLine("using WebAPI.Filters;");
             file.WriteLine("using WebAPI.Managers;");
             file.WriteLine("using WebAPI.Utils;");
-
+            file.WriteLine("using WebAPI.ModelsValidators;");
+            file.WriteLine("using WebAPI.ObjectsConvertor.Extensions;");
         }
 
         protected override void writeBody()
@@ -258,9 +260,19 @@ namespace Reflector
                 if (typeof(IKalturaSerializable).IsAssignableFrom(property.PropertyType))
                 {
                     propertyType = PropertyType.OBJECT;
-                    if ((serializeType == SerializeType.JSON && property.PropertyType.GetMethod("ToCustomJson") != null) || (serializeType == SerializeType.XML && property.PropertyType.GetMethod("ToCustomXml") != null))
+                    if ((serializeType == SerializeType.JSON && property.PropertyType.GetMethod("ToCustomJson") != null) || 
+                        (serializeType == SerializeType.XML && property.PropertyType.GetMethod("ToCustomXml") != null))
                     {
                         propertyType = PropertyType.CUSTOM;
+                    }
+                    else
+                    {
+                        var extensionMethods = GetExtensionMethods(property.PropertyType.Assembly, property.PropertyType);
+                        if ((serializeType == SerializeType.JSON && extensionMethods.Any(x => x.Name == "ToCustomJson")) ||
+                            (serializeType == SerializeType.XML && extensionMethods.Any(x => x.Name == "ToCustomXml")))
+                        {
+                            propertyType = PropertyType.CUSTOM;
+                        }
                     }
                 }
                 else if (property.PropertyType == typeof(string))
@@ -543,6 +555,26 @@ namespace Reflector
                     file.WriteLine("            }");
                 }
             }
+        }
+
+        private IEnumerable<MethodInfo> GetExtensionMethods(Assembly assembly, Type extendedType)
+        {
+            var extension_methods = new List<MethodInfo>();
+
+            foreach (Type t in assembly.GetTypes())
+            {
+                if (t.IsDefined(typeof(ExtensionAttribute), false))
+                {
+                    foreach (MethodInfo mi in t.GetMethods())
+                    {
+                        if (mi.IsDefined(typeof(ExtensionAttribute), false) && mi.GetParameters()[0].ParameterType == extendedType)
+                        {
+                            extension_methods.Add(mi);
+                        }
+                    }
+                }
+            }
+            return extension_methods;
         }
     }
 }

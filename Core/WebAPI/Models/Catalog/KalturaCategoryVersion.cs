@@ -1,9 +1,4 @@
-﻿using ApiLogic.Base;
-using ApiObjects.Base;
-using ApiObjects.Catalog;
-using ApiObjects.Response;
-using Core.Catalog.CatalogManagement;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
@@ -16,7 +11,7 @@ namespace WebAPI.Models.Catalog
     /// Category details
     /// </summary>
     [Serializable]
-    public partial class KalturaCategoryVersion : KalturaCrudObject<CategoryVersion, long>
+    public partial class KalturaCategoryVersion : KalturaOTTObjectSupportNullable
     {
         /// <summary>
         /// Unique identifier for the category version
@@ -86,7 +81,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "updaterId")]
         [JsonProperty("updaterId")]
-        [XmlElement(ElementName = "updaterId", IsNullable = true)]
+        [XmlElement(ElementName = "updaterId")]
         [SchemeProperty(ReadOnly = true)]
         public long UpdaterId { get; set; }
 
@@ -116,54 +111,5 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "updateDate")]
         [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
-
-        internal override ICrudHandler<CategoryVersion, long> Handler
-        {
-            get
-            {
-                return CategoryVersionHandler.Instance;
-            }
-        }
-
-        internal override void SetId(long id)
-        {
-            this.Id = id;
-        }
-
-        public override void ValidateForAdd()
-        {
-            if (string.IsNullOrEmpty(this.Name))
-            {
-                throw new Exceptions.BadRequestException(Exceptions.BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
-            }
-        }
-
-        internal override void ValidateForUpdate()
-        {
-        }
-
-        public KalturaCategoryVersion() : base() { }
-
-        internal override GenericResponse<CategoryVersion> Add(ContextData contextData)
-        {
-            var coreObject = AutoMapper.Mapper.Map<CategoryVersion>(this);
-            return CategoryVersionHandler.Instance.Add(contextData, coreObject);
-        }
-
-        internal override GenericResponse<CategoryVersion> Update(ContextData contextData)
-        {
-            var coreObject = AutoMapper.Mapper.Map<CategoryVersion>(this);
-            return CategoryVersionHandler.Instance.Update(contextData, coreObject);
-        }
-    }
-
-    public partial class KalturaCategoryVersionListResponse : KalturaListResponse<KalturaCategoryVersion>
-    {
-        public KalturaCategoryVersionListResponse() : base() { }
-    }
-
-    public enum KalturaCategoryVersionState
-    {
-        DRAFT = 0, DEFAULT = 1, RELEASED = 2
     }
 }

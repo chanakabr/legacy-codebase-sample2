@@ -1,11 +1,12 @@
-﻿using System;
-using ApiObjects.Response;
+﻿using ApiObjects.Response;
+using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Notification;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -66,7 +67,7 @@ namespace WebAPI.Controllers
                     pager = new KalturaFilterPager();
 
                 // call client                
-                response = ClientsManager.NotificationClient().GetTopicsList(groupId, pager.getPageSize(), pager.getPageIndex());
+                response = ClientsManager.NotificationClient().GetTopicsList(groupId, pager.PageSize.Value, pager.GetRealPageIndex());
             }
             catch (ClientException ex)
             {
@@ -99,7 +100,7 @@ namespace WebAPI.Controllers
                     pager = new KalturaFilterPager();
 
                 // call client                
-                response = ClientsManager.NotificationClient().GetTopics(groupId, pager.getPageSize(), pager.getPageIndex());
+                response = ClientsManager.NotificationClient().GetTopics(groupId, pager.PageSize.Value, pager.GetRealPageIndex());
             }
             catch (ClientException ex)
             {

@@ -1,6 +1,8 @@
-﻿using System;
-using System.Reflection;
+﻿using ApiObjects.Response;
 using Phx.Lib.Log;
+using System;
+using System.Reflection;
+using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -8,9 +10,8 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Models.Notifications;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
-using ApiObjects.Response;
-using TVinciShared;
 
 namespace WebAPI.Controllers
 {
@@ -299,7 +300,7 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-                response = ClientsManager.NotificationClient().GetAnnouncements(groupId, pager.getPageSize(), pager.getPageIndex(), filter);
+                response = ClientsManager.NotificationClient().GetAnnouncements(groupId, pager.PageSize.Value, pager.GetRealPageIndex(), filter);
             }
 
             catch (ClientException ex)
@@ -331,7 +332,7 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-                response = ClientsManager.NotificationClient().GetAllAnnouncements(groupId, pager.getPageSize(), pager.getPageIndex());
+                response = ClientsManager.NotificationClient().GetAllAnnouncements(groupId, pager.PageSize.Value, pager.GetRealPageIndex());
             }
 
             catch (ClientException ex)
