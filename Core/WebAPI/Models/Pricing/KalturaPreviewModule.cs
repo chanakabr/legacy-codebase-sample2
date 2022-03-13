@@ -50,15 +50,5 @@ namespace WebAPI.Models.Pricing
         [OldStandardProperty("non_renewable_period")]
         [SchemeProperty(IsNullable = true, MinInteger = 1)]
         public int? NonRenewablePeriod { get; set; }
-
-        public void ValidateForAdd()
-        {
-            if (string.IsNullOrWhiteSpace(Name))
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
-            if (!NonRenewablePeriod.HasValue)
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "nonRenewablePeriod");
-            if (!LifeCycle.HasValue)
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "lifeCycle");
-        }
     }
 }

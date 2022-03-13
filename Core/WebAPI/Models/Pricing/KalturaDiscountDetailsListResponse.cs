@@ -9,7 +9,7 @@ namespace WebAPI.Models.Pricing
     public partial class KalturaDiscountDetailsListResponse : KalturaListResponse
     {
         /// <summary>
-        /// A list of price details
+        /// A list of discount details
         /// </summary>
         [DataMember(Name = "objects")]
         [JsonProperty("objects")]
