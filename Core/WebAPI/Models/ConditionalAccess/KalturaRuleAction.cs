@@ -26,7 +26,5 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("description")]
         [XmlElement(ElementName = "description")]
         public string Description { get; set; }
-
-        public virtual void Validate() { }
     }
 }
