@@ -59,32 +59,5 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "countryId")]
         [SchemeProperty(RequiresPermission = (int)RequestType.READ, IsNullable = true)]
         public long? CountryId { get; set; }
-        
-        protected bool Equals(KalturaPrice other)
-        {
-            return Currency == other.Currency && 
-                   CountryId == other.CountryId;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((KalturaPrice)obj);
-        }
-    }
-
-    class PriceEqualityComparer : IEqualityComparer<KalturaPrice>
-    {
-        public bool Equals(KalturaPrice x, KalturaPrice y)
-        {
-            return x.Equals(y);
-        }
-
-        public int GetHashCode(KalturaPrice obj)
-        {
-            return this.GetHashCode();
-        }
     }
 }

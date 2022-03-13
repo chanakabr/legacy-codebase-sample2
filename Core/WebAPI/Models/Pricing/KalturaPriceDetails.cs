@@ -98,4 +98,17 @@ namespace WebAPI.Models.Pricing
             }
         }
     }
+    
+    class PriceEqualityComparer : IEqualityComparer<KalturaPrice>
+    {
+        public bool Equals(KalturaPrice x, KalturaPrice y)
+        {
+            return x.IsEquals(y);
+        }
+
+        public int GetHashCode(KalturaPrice obj)
+        {
+            return this.GetHashCode();
+        }
+    }
 }

@@ -42,5 +42,11 @@ namespace WebAPI.ModelsValidators
             if (model.Amount == 0 && model.Percentage == 0)
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "amount, Percentage");
         }
+        
+        public static bool IsEquals(this KalturaPrice model, KalturaPrice other)
+        {
+            return model.Currency == other.Currency && 
+                   model.CountryId == other.CountryId;
+        }
     }
 }

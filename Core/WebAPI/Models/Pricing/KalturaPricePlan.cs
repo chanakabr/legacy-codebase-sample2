@@ -63,7 +63,5 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "priceDetailsId")]
         [SchemeProperty(MinLong = 1, IsNullable = true)]
         public long? PriceDetailsId { get; set; }
-
-        
     }
 }
