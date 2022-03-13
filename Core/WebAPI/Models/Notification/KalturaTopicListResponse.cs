@@ -7,14 +7,14 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Notification
 {
     /// <summary>
-    /// List of inbox message.
+    /// List of Topics.
     /// </summary>
     [DataContract(Name = "KalturaTopicListResponse", Namespace = "")]
     [XmlRoot("KalturaTopicListResponse")]
     public partial class KalturaTopicListResponse : KalturaListResponse
     {
         /// <summary>
-        /// Follow data list
+        /// Topic list
         /// </summary>
         [DataMember(Name = "objects")]
         [JsonProperty("objects")]

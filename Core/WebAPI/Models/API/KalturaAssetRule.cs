@@ -11,7 +11,6 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
-    using ConditionsMap = ILookup<KalturaRuleConditionType, KalturaCondition>;
     /// <summary>
     /// Asset rule
     /// </summary>

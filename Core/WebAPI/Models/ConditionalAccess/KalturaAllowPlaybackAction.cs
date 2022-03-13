@@ -5,11 +5,6 @@ namespace WebAPI.Models.ConditionalAccess
     [Serializable]
     public partial class KalturaAllowPlaybackAction : KalturaAssetRuleAction
     {
-        public KalturaAllowPlaybackAction()
-        {
-            this.Type = KalturaRuleActionType.ALLOW_PLAYBACK;
-        }
-
         protected override void Init()
         {
             base.Init();
