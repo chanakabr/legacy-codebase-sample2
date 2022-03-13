@@ -14,7 +14,7 @@ namespace WebAPI.Models.Notification
     public partial class KalturaTopicListResponse : KalturaListResponse
     {
         /// <summary>
-        /// Topic list
+        /// List of Topics
         /// </summary>
         [DataMember(Name = "objects")]
         [JsonProperty("objects")]

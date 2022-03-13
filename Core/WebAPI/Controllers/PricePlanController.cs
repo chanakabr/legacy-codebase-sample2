@@ -12,6 +12,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
+using WebAPI.ModelsValidators;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers

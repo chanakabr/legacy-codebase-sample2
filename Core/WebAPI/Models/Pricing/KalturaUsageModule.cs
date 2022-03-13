@@ -97,17 +97,5 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "isOfflinePlayback", IsNullable = true)]
         [OldStandardProperty("is_offline_playback")]
         public bool? IsOfflinePlayback { get; set; }
-
-        internal void ValidateForAdd()
-        {
-            if (string.IsNullOrEmpty(Name))
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
-
-            if (!FullLifeCycle.HasValue)
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "fullLifeCycle");
-
-            if (!ViewLifeCycle.HasValue)
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "viewLifeCycle");
-        }
     }
 }

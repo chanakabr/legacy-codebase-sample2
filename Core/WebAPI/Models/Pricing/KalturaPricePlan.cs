@@ -64,14 +64,6 @@ namespace WebAPI.Models.Pricing
         [SchemeProperty(MinLong = 1, IsNullable = true)]
         public long? PriceDetailsId { get; set; }
 
-        internal void ValidateForAdd()
-        {
-            base.ValidateForAdd();
-
-            if (!PriceDetailsId.HasValue)
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "priceDetailsId");
-            if (!RenewalsNumber.HasValue)
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "renewalsNumber");
-        }
+        
     }
 }
