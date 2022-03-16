@@ -23,31 +23,5 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
         [XmlElement(ElementName = "fileTypeIdIn")]
         [SchemeProperty(MinLength = 1, Pattern = SchemePropertyAttribute.NOT_EMPTY_PATTERN)]
         public string FileTypeIdIn { get; set; }
-
-        public HashSet<long> GetFileTypesIds()
-        {
-            var types = Utils.Utils.ParseCommaSeparatedValues<HashSet<long>, long>(FileTypeIdIn, "fileTypeIdIn", true);
-            return types;
-        }
-    }
-    
-    [Serializable]
-    public partial class KalturaFilterFileByFileTypeIdInDiscoveryAction : KalturaFilterFileByFileTypeIdAction, IKalturaFilterFileInDiscovery
-    {
-        protected override void Init()
-        {
-            base.Init();
-            this.Type = KalturaRuleActionType.FilterFileByFileTypeIdInDiscovery;
-        }
-    }
-
-    [Serializable]
-    public partial class KalturaFilterFileByFileTypeIdInPlaybackAction : KalturaFilterFileByFileTypeIdAction, IKalturaFilterFileInPlayback
-    {
-        protected override void Init()
-        {
-            base.Init();
-            this.Type = KalturaRuleActionType.FilterFileByFileTypeIdInPlayback;
-        }
     }
 }

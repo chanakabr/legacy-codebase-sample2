@@ -9,6 +9,7 @@ using WebAPI.Utils;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using ApiObjects.Response;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.Controllers
 {

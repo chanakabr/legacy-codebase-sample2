@@ -65,10 +65,5 @@ namespace WebAPI.Models.API
             base.Init();
             this.RuleType = KalturaTvmRuleType.Geo;
         }
-
-        public HashSet<int> GetCountryIds()
-        {
-            return Utils.Utils.ParseCommaSeparatedValues<HashSet<int>, int>(CountryIds, "KalturaTvmGeoRule.countryIds");
-        }
     }
 }

@@ -67,15 +67,4 @@ namespace WebAPI.Models.Pricing
         [SchemeProperty(IsNullable = true)]
         public KalturaPromotionInfo PromotionInfo { get; set; }
     }
-
-    public partial class KalturaPromotionInfo : KalturaOTTObject
-    {
-        /// <summary>
-        /// Campaign Id
-        /// </summary>
-        [DataMember(Name = "campaignId")]
-        [JsonProperty("campaignId")]
-        [XmlElement(ElementName = "campaignId")]
-        public long? CampaignId { get; set; }
-    } 
 }

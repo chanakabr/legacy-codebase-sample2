@@ -8,6 +8,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
+using WebAPI.ModelsValidators;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -123,7 +124,7 @@ namespace WebAPI.Controllers
                     throw new ClientException((int)eResponseStatus.AssetRuleStatusNotWritable, "Cannot update or delete asset rule when in progress");
                 }
                 // before updating AssetRule fill properties in case they are empty so it will be possible to validate the new properties
-                assetRule.FillEmpty(oldAssetRule);
+                FillEmpty(oldAssetRule, assetRule);
                 assetRule.Validate();
                 
                 response = ClientsManager.ApiClient().UpdateAssetRule(groupId, id, assetRule);
@@ -160,6 +161,40 @@ namespace WebAPI.Controllers
             }
 
             return response;
+        }
+        
+        /// <summary>
+        /// Fill current AssetRule data members with givven assetRule only if they are empty\null
+        /// </summary>
+        /// <param name="oldAssetRule">givven assetRule to fill with</param>
+        private static void FillEmpty(KalturaAssetRule oldAssetRule, KalturaAssetRule newAssetRule)
+        {
+            if (oldAssetRule != null)
+            {
+                if (string.IsNullOrEmpty(newAssetRule.Name) || string.IsNullOrWhiteSpace(newAssetRule.Name))
+                {
+                    newAssetRule.Name = oldAssetRule.Name;
+                }
+
+                if (newAssetRule.NullableProperties != null && newAssetRule.NullableProperties.Contains("description"))
+                {
+                    newAssetRule.Description = string.Empty;
+                }
+                else if (string.IsNullOrEmpty(newAssetRule.Description) || string.IsNullOrWhiteSpace(newAssetRule.Description))
+                {
+                    newAssetRule.Description = oldAssetRule.Description;
+                }
+
+                if (newAssetRule.Actions == null || newAssetRule.Actions.Count == 0)
+                {
+                    newAssetRule.Actions = oldAssetRule.Actions;
+                }
+
+                if (newAssetRule.Conditions == null || newAssetRule.Conditions.Count == 0)
+                {
+                    newAssetRule.Conditions = oldAssetRule.Conditions;
+                }
+            }
         }
     }
 }

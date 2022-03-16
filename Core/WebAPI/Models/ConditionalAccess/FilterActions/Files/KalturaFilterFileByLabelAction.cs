@@ -23,31 +23,5 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
         [XmlElement(ElementName = "labelIn")]
         [SchemeProperty(MinLength = 1, Pattern = SchemePropertyAttribute.NOT_EMPTY_PATTERN)]
         public string LabelIn { get; set; }
-
-        public List<string> GetLabels()
-        {
-            var types = Utils.Utils.ParseCommaSeparatedValues<List<string>, string>(LabelIn, "labelIn", true);
-            return types;
-        }
-    }
-    
-    [Serializable]
-    public partial class KalturaFilterFileByLabelInDiscoveryAction : KalturaFilterFileByLabelAction, IKalturaFilterFileInDiscovery
-    {
-        protected override void Init()
-        {
-            base.Init();
-            this.Type = KalturaRuleActionType.FilterFileByLabelInDiscovery;
-        }
-    }
-
-    [Serializable]
-    public partial class KalturaFilterFileByLabelInPlaybackAction : KalturaFilterFileByLabelAction, IKalturaFilterFileInPlayback
-    {
-        protected override void Init()
-        {
-            base.Init();
-            this.Type = KalturaRuleActionType.FilterFileByLabelInPlayback;
-        }
     }
 }

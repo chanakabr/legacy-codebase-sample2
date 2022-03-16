@@ -35,16 +35,5 @@ namespace WebAPI.Models.Notifications
         [JsonProperty(PropertyName = "type")]
         [XmlElement(ElementName = "type")]
         public KalturaReminderType Type { get; set; }
-
-        internal int getId()
-        {
-            return Id.HasValue ? (int)Id : 0;
-        }
-    }
-
-    public enum KalturaReminderType
-    {
-        ASSET,
-        SERIES
     }
 }

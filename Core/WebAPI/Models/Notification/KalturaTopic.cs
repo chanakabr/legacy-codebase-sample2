@@ -6,22 +6,8 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Notification
 {
-    public enum KalturaTopicOrderBy
-    {
-        NONE
-    }
-
-    public partial class KalturaTopicFilter : KalturaFilter<KalturaTopicOrderBy>
-    {
-        public override KalturaTopicOrderBy GetDefaultOrderByValue()
-        {
-            return KalturaTopicOrderBy.NONE;
-        }
-    }
-
     public partial class KalturaTopic : KalturaOTTObject
     {
-
         /// <summary>
         /// message id
         /// </summary>
@@ -62,6 +48,5 @@ namespace WebAPI.Models.Notification
         [JsonProperty("lastMessageSentDateSec")]
         [XmlElement(ElementName = "lastMessageSentDateSec")]
         public long LastMessageSentDateSec { get; set; }
-
     }
 }

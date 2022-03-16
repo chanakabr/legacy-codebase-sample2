@@ -26,31 +26,5 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
         [XmlElement(ElementName = "streamerTypeIn")]
         [SchemeProperty(DynamicType = typeof(KalturaMediaFileStreamerType), MinLength = 1)]
         public string StreamerTypeIn { get; set; }
-
-        public List<StreamerType> GetStreamerTypes()
-        {
-            var streamerTypes = Utils.Utils.ParseCommaSeparatedValues<List<KalturaMediaFileStreamerType>, KalturaMediaFileStreamerType>(StreamerTypeIn, "streamerTypeIn", true, true);
-            return AutoMapper.Mapper.Map<List<StreamerType>>(streamerTypes);
-        }
-    }
-    
-    [Serializable]
-    public partial class KalturaFilterFileByStreamerTypeInDiscovery : KalturaFilterFileByStreamerTypeAction, IKalturaFilterFileInDiscovery
-    {
-        protected override void Init()
-        {
-            base.Init();
-            this.Type = KalturaRuleActionType.FilterFileByStreamerTypeInDiscovery;
-        }
-    }
-
-    [Serializable]
-    public partial class KalturaFilterFileByStreamerTypeInPlayback : KalturaFilterFileByStreamerTypeAction, IKalturaFilterFileInPlayback
-    {
-        protected override void Init()
-        {
-            base.Init();
-            this.Type = KalturaRuleActionType.FilterFileByStreamerTypeInPlayback;
-        }
     }
 }

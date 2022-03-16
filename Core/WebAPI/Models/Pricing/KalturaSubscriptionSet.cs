@@ -54,33 +54,5 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("subscriptionIds")]
         [XmlElement(ElementName = "subscriptionIds", IsNullable = true)]
         public string SubscriptionIds { get; set; }
-
-        public List<long> GetSubscriptionIds()
-        {
-            List<long> list = new List<long>();
-            if (!string.IsNullOrEmpty(SubscriptionIds))
-            {
-                string[] stringValues = SubscriptionIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string stringValue in stringValues)
-                {
-                    long value;
-                    if (!long.TryParse(stringValue, out value) || value < 1)
-                    {
-                        throw new BadRequestException(BadRequestException.ARGUMENT_STRING_CONTAINED_MIN_VALUE_CROSSED, "KalturaSubscriptionSet.subscriptions", 1);
-                    }
-                    else
-                    {
-                        list.Add(value);
-                    }
-                }
-            }
-            else
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaSubscriptionSet.subscriptions");
-            }
-
-            return list;
-        }
-
     }
 }

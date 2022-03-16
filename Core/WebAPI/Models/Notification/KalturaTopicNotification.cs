@@ -45,16 +45,4 @@ namespace WebAPI.Models.Notifications
         [XmlElement(ElementName = "subscribeReference")]
         public KalturaSubscribeReference SubscribeReference { get; set; }
     }
-
-    public partial class KalturaTopicNotificationListResponse : KalturaListResponse
-    {
-        /// <summary>
-        /// Topic notifications
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty(PropertyName = "objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaTopicNotification> Objects { get; set; }
-    }
 }

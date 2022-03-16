@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Pricing;
+using WebAPI.ModelsValidators;
 
 namespace WebAPI.Tests.Models.Pricing
 {

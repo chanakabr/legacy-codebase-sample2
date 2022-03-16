@@ -6,6 +6,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using System.Linq;
+using WebAPI.ModelsValidators;
 
 namespace WebAPI.Models.Pricing
 {
@@ -97,16 +98,17 @@ namespace WebAPI.Models.Pricing
             }
         }
     }
-
-    public partial class KalturaPriceDetailsListResponse : KalturaListResponse
+    
+    class PriceEqualityComparer : IEqualityComparer<KalturaPrice>
     {
-        /// <summary>
-        /// A list of price details
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty("objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaPriceDetails> Prices { get; set; }
+        public bool Equals(KalturaPrice x, KalturaPrice y)
+        {
+            return x.IsEquals(y);
+        }
+
+        public int GetHashCode(KalturaPrice obj)
+        {
+            return this.GetHashCode();
+        }
     }
 }
