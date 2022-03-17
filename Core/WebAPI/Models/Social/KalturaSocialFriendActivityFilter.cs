@@ -34,54 +34,10 @@ namespace WebAPI.Models.Social
         [JsonProperty("actionTypeIn")]
         [XmlElement(ElementName = "actionTypeIn")]
         public string ActionTypeIn { get; set; }
-
-        public List<KalturaSocialActionType> GetActionTypeIn()
-        {
-            List<KalturaSocialActionType> actions = new List<KalturaSocialActionType>();
-            if (!string.IsNullOrEmpty(ActionTypeIn))
-            {
-                string[] splitActions = ActionTypeIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string action in splitActions)
-                {
-                    KalturaSocialActionType parsedAction;
-                    if (Enum.TryParse(action, true, out parsedAction) && 
-                        (parsedAction == KalturaSocialActionType.LIKE || parsedAction == KalturaSocialActionType.RATE || parsedAction == KalturaSocialActionType.WATCH))
-                    {
-                        actions.Add(parsedAction);
-                    }
-                    else
-                    {
-                        throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "KalturaSocialFriendActivityFilter.actionTypeIn", action);
-                    }
-                }
-            }
-
-            return actions;
-
-        }
-
-        internal void validate()
-        {
-            if (AssetIdEqual.HasValue && AssetIdEqual.Value > 0 && !AssetTypeEqual.HasValue)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaSocialFriendActivityFilter.assetTypeEqual");
-            }
-
-            if (AssetTypeEqual.HasValue && AssetTypeEqual.Value != KalturaAssetType.media)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "KalturaSocialFriendActivityFilter.assetTypeEqual", AssetTypeEqual.Value);
-            }
-        }
-
+        
         public override KalturaSocialFriendActivityOrderBy GetDefaultOrderByValue()
         {
             return KalturaSocialFriendActivityOrderBy.UPDATE_DATE_DESC;
         }
-    }
-
-    public enum KalturaSocialFriendActivityOrderBy
-    {
-        NONE,
-        UPDATE_DATE_DESC
     }
 }

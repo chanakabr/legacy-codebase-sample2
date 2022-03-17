@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
@@ -96,17 +95,5 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "isDefault", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
         public bool? IsDefault { get; set; }
-    }
-
-    public partial class KalturaImageListResponse : KalturaListResponse
-    {
-        /// <summary>
-        /// A list of images
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty("objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]
-        public List<KalturaImage> Images { get; set; }
     }
 }

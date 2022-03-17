@@ -52,49 +52,9 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "idIn", IsNullable = true)]
         public string IdIn { get; set; }
 
-        internal void Validate()
-        {
-            if (!string.IsNullOrEmpty(IdIn))
-            {
-                if (!string.IsNullOrEmpty(TagEqual))
-                {
-                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaTagFilter.idIn", "KalturaTagFilter.tagEqual");
-                }
-
-                if (!string.IsNullOrEmpty(TagStartsWith))
-                {
-                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaTagFilter.idIn", "KalturaTagFilter.tagStartsWith");
-                }
-            }
-
-            if (string.IsNullOrEmpty(IdIn) && (!TypeEqual.HasValue || TypeEqual <= 0))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaTagFilter.typeEqual");
-            }
-
-            if (!string.IsNullOrEmpty(TagEqual) && !string.IsNullOrEmpty(TagStartsWith))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaTagFilter.tagEqual", "KalturaTagFilter.tagStartsWith");
-            }
-
-            if (!string.IsNullOrEmpty(LanguageEqual))
-            {
-                HashSet<string> groupLanguageCodes = Utils.Utils.GetGroupLanguageCodes();
-                if (!groupLanguageCodes.Contains(LanguageEqual))
-                {
-                    throw new BadRequestException(ApiException.GROUP_DOES_NOT_CONTAIN_LANGUAGE, LanguageEqual);
-                }
-            }
-        }
-
         public override KalturaTagOrderBy GetDefaultOrderByValue()
         {
             return KalturaTagOrderBy.NONE;
         }
-    }
-
-    public enum KalturaTagOrderBy
-    {
-        NONE
     }
 }

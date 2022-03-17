@@ -15,10 +15,5 @@ namespace WebAPI.Models.Catalog.SearchPriorityGroup
         [JsonProperty("priorityGroupIds")]
         [XmlElement(ElementName = "priorityGroupIds")]
         public string PriorityGroupIds { get; set; }
-
-        public IEnumerable<long> GetPriorityGroupIds()
-        {
-            return Utils.Utils.ParseCommaSeparatedValues<long>(PriorityGroupIds, "priorityGroupIds");
-        }
     }
 }

@@ -7,18 +7,8 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Notification
 {
-    public enum KalturaInboxMessageOrderBy
-    {
-        NONE
-    }
-
     public partial class KalturaInboxMessageFilter : KalturaFilter<KalturaInboxMessageOrderBy>
     {
-        public override KalturaInboxMessageOrderBy GetDefaultOrderByValue()
-        {
-            return KalturaInboxMessageOrderBy.NONE;
-        }
-
         /// <summary>
         /// List of inbox message types to search within.
         /// </summary>
@@ -42,24 +32,9 @@ namespace WebAPI.Models.Notification
         [JsonProperty(PropertyName = "createdAtLessThanOrEqual")]
         [XmlElement(ElementName = "createdAtLessThanOrEqual", IsNullable = true)]
         public long? CreatedAtLessThanOrEqual { get; set; }
-
-
-        internal List<KalturaInboxMessageType> getTypeIn()
+        public override KalturaInboxMessageOrderBy GetDefaultOrderByValue()
         {
-            List<KalturaInboxMessageType> values = new List<KalturaInboxMessageType>();
-
-            if (string.IsNullOrEmpty(TypeIn))
-                return values;
-
-            string[] stringValues = TypeIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-            Type enumType = typeof(KalturaInboxMessageType);
-            foreach (string value in stringValues)
-            {
-                KalturaInboxMessageType type = (KalturaInboxMessageType) Enum.Parse(enumType, value, true);
-                values.Add(type);
-            }
-
-            return values;
+            return KalturaInboxMessageOrderBy.NONE;
         }
     }
 }

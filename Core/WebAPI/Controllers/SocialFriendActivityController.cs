@@ -7,6 +7,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Social;
+using WebAPI.ModelsValidators;
 using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 
@@ -39,7 +40,7 @@ namespace WebAPI.Controllers
                  pager = new KalturaFilterPager();
              }
 
-             filter.validate();
+             filter.Validate();
              int groupId = KS.GetFromRequest().GroupId;
 
              try

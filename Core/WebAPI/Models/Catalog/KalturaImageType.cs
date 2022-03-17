@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
@@ -68,17 +67,5 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "defaultImageId", IsNullable = true)]
         [SchemeProperty(MinLong = 1, IsNullable = true)]
         public long? DefaultImageId { get; set; }
-    }
-
-    public partial class KalturaImageTypeListResponse : KalturaListResponse
-    {
-        /// <summary>
-        /// A list of partner image types
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty("objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]
-        public List<KalturaImageType> ImageTypes { get; set; }
     }
 }

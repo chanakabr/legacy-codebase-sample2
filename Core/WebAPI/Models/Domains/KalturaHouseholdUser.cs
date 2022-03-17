@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
@@ -7,21 +6,6 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Domains
 {
-    /// <summary>
-    /// Household users list
-    /// </summary>
-    public partial class KalturaHouseholdUserListResponse : KalturaListResponse
-    {
-        /// <summary>
-        /// Household users
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty(PropertyName = "objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaHouseholdUser> Objects { get; set; }
-    }
-
     /// <summary>
     /// Household user 
     /// </summary>
@@ -79,10 +63,5 @@ namespace WebAPI.Models.Domains
         [XmlElement(ElementName = "isDefault")]
         [SchemeProperty(ReadOnly = true)]
         public bool? IsDefault { get; set; }
-
-        internal bool getIsMaster()
-        {
-            return IsMaster.HasValue ? (bool)IsMaster : false;
-        }
     }
 }

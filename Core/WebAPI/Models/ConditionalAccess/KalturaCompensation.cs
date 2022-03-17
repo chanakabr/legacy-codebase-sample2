@@ -72,22 +72,5 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("purchaseId")]
         [XmlElement(ElementName = "purchaseId")]
         public int PurchaseId { get; set; }
-
-        public void Validate()
-        {
-            if (CompensationType == KalturaCompensationType.PERCENTAGE && Amount > 100)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_MAX_VALUE_CROSSED, "KalturaCompensation.amount", 100);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Compensation type
-    /// </summary>
-    public enum KalturaCompensationType
-    {
-        PERCENTAGE = 0,
-        FIXED_AMOUNT = 1
     }
 }

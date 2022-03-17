@@ -1,0 +1,45 @@
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using Newtonsoft.Json;
+using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
+
+namespace WebAPI.Models.Notification
+{
+    public partial class KalturaNotificationsSettings : KalturaOTTObject
+    {
+        /// <summary>
+        /// Specify if the user want to receive push notifications or not
+        /// </summary>
+        [DataMember(Name = "pushNotificationEnabled")]
+        [JsonProperty("pushNotificationEnabled")]
+        [XmlElement(ElementName = "pushNotificationEnabled", IsNullable = true)]
+        [OldStandardProperty("push_notification_enabled")]
+        public bool? PushNotificationEnabled { get; set; }
+
+        /// <summary>
+        /// Specify if the user will be notified for followed content via push. (requires push_notification_enabled to be enabled)
+        /// </summary>
+        [DataMember(Name = "pushFollowEnabled")]
+        [JsonProperty("pushFollowEnabled")]
+        [XmlElement(ElementName = "pushFollowEnabled", IsNullable = true)]
+        [OldStandardProperty("push_follow_enabled")]
+        public bool? PushFollowEnabled { get; set; }
+
+        /// <summary>
+        /// Specify if the user wants to receive mail notifications or not
+        /// </summary>
+        [DataMember(Name = "mailEnabled")]
+        [JsonProperty("mailEnabled")]
+        [XmlElement(ElementName = "mailEnabled", IsNullable = true)]        
+        public bool? MailEnabled { get; set; }
+
+        /// <summary>
+        /// Specify if the user wants to receive SMS notifications or not
+        /// </summary>
+        [DataMember(Name = "smsEnabled")]
+        [JsonProperty("smsEnabled")]
+        [XmlElement(ElementName = "smsEnabled", IsNullable = true)]
+        public bool? SmsEnabled { get; set; }
+    }
+}

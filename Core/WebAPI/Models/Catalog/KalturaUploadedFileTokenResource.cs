@@ -14,11 +14,5 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "token")]
         [XmlElement(ElementName = "token")]
         public string Token { get; set; }
-
-        public override string GetUrl(int groupId)
-        {
-            var ut = UploadTokenManager.GetUploadToken(Token, groupId);
-            return ut.FileUrl;
-        }
     }
 }

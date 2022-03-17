@@ -9,32 +9,6 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
-
-    /// <summary>
-    /// 0 - reject input with holes
-    /// 1 - autofill holes
-    /// 2 - keep holes and don’t autofill
-    /// </summary>
-    public enum KalturaIngestProfileAutofillPolicy
-    {
-        REJECT = 0,
-        AUTOFILL = 1,
-        KEEP_HOLES = 2
-    }
-
-    /// <summary>
-    /// indicates how overlaps in EPG should be managed
-    /// (a setting per liniar media id will also be avaiable)
-    /// 0 - reject input with overlap
-    /// 1 - cut source
-    /// 2 - cut target
-    /// </summary>
-    public enum KalturaIngestProfileOverlapPolicy
-    {
-        REJECT = 0,
-        CUT_SOURCE = 1,
-        CUT_TARGET = 2
-    }
     /// <summary>
     /// Ingest profile
     /// </summary>
@@ -122,28 +96,5 @@ namespace WebAPI.Models.API
         [JsonProperty("overlapChannels")]
         [XmlElement("overlapChannels")]
         public string OverlapChannels { get; set; }
-
-        public List<int> GetOverlapChannels()
-        {
-            List<int> list = new List<int>();
-
-            if (!string.IsNullOrEmpty(OverlapChannels))
-            {
-                string[] stringValues = OverlapChannels.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string value in stringValues)
-                {
-                    if (!string.IsNullOrEmpty(value))
-                    {
-                        list.Add(int.Parse(value));
-                    }
-                    else
-                    {
-                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaLanguageFilter.OverlapChannels");
-                    }
-                }
-            }
-
-            return list;
-        }
     }
 }

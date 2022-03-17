@@ -5,10 +5,6 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.DMS
 {
-    public enum KalturaConfigurationGroupTagOrderBy
-    {
-        NONE
-    }
     /// <summary>
     /// Configuration group tag filter
     /// </summary>

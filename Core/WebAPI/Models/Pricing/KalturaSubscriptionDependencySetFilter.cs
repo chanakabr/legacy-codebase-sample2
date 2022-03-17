@@ -18,30 +18,5 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "baseSubscriptionIdIn", IsNullable = true)]
         [SchemeProperty(DynamicMinInt = 1)]
         public string BaseSubscriptionIdIn { get; set; }
-
-
-        public List<long> GetBaseSubscriptionIdContains()
-        {
-            List<long> list = new List<long>();
-            if (!string.IsNullOrEmpty(BaseSubscriptionIdIn))
-            {
-                string[] stringValues = BaseSubscriptionIdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string stringValue in stringValues)
-                {
-                    long value;
-                    if (long.TryParse(stringValue, out value))
-                    {
-                        list.Add(value);
-                    }
-                    else
-                    {
-                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaSubscriptionDependencySetFilter.BaseSubscriptionIdIn");
-                    }
-                }
-            }
-
-            return list;
-        }
-
     }
 }

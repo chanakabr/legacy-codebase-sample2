@@ -159,25 +159,4 @@ namespace WebAPI.Models.API
         public long UpdateDate { get; set; }
 
     }
-
-    /// <summary>
-    /// Rule type – Movies, TV series or both
-    /// </summary>
-    public enum KalturaParentalRuleType
-    {
-        ALL = 0,
-        MOVIES = 1,
-        TV_SERIES = 2
-    }
-
-    /// <summary>
-    /// Distinction if rule was defined at account, household or user level
-    /// </summary>
-    public enum KalturaRuleLevel
-    {
-        invalid = 0,
-        user = 1,
-        household = 2,
-        account = 3
-    }
 }

@@ -36,35 +36,5 @@ namespace WebAPI.Models.API
         {
             return KalturaLanguageOrderBy.SYSTEM_NAME_ASC;
         }
-
-        public List<string> GetCodeIn()
-        {
-            List<string> list = new List<string>();
-            if (!string.IsNullOrEmpty(CodeIn))
-            {
-                string[] stringValues = CodeIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string languageCode in stringValues)
-                {
-                    if (!string.IsNullOrEmpty(languageCode))
-                    {
-                        list.Add(languageCode);
-                    }
-                    else
-                    {
-                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaLanguageFilter.CodeIn");
-                    }
-                }
-            }
-
-            return list;
-        }
-
-        internal void Validate()
-        {
-            if (!string.IsNullOrEmpty(CodeIn) && ExcludePartner.HasValue)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaLanguageFilter.codeIn", "KalturaLanguageFilter.excludePartner");
-            }
-        }
     }
 }

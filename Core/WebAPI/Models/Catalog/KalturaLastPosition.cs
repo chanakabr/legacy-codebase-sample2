@@ -1,27 +1,11 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    /// <summary>
-    /// List of last positions
-    /// </summary>
-    [Obsolete]
-    [DataContract(Name = "LastPosition", Namespace = "")]
-    [XmlRoot("LastPosition")]
-    public partial class KalturaLastPositionListResponse : KalturaListResponse
-    {
-        [DataMember(Name = "objects")]
-        [JsonProperty("objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]
-        public List<KalturaLastPosition> LastPositions { get; set; }
-    }
-
     /// <summary>
     /// Representing the last position in a media or nPVR asset until which a user watched   
     /// </summary>
@@ -52,42 +36,5 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("position_owner")]
         [XmlElement(ElementName = "position_owner", IsNullable = true)]
         public KalturaPositionOwner PositionOwner { get; set; }
-    }
-
-    [Obsolete]
-    public enum KalturaLastPositionAssetType
-    {
-        media,
-        recording
-    }
-
-    [Serializable]
-    [Obsolete]
-    public partial class KalturaLastPositionFilter : KalturaOTTObject
-    {
-        /// <summary>
-        /// Assets identifier
-        /// </summary>
-        [DataMember(Name = "ids")]
-        [JsonProperty(PropertyName = "ids")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]
-        public List<KalturaStringValue> Ids { get; set; }
-
-        /// <summary>
-        /// Assets type
-        /// </summary>
-        [DataMember(Name = "type")]
-        [JsonProperty(PropertyName = "type")]
-        [XmlElement(ElementName = "type")]
-        public KalturaLastPositionAssetType Type { get; set; }
-
-        /// <summary>
-        /// Reference type to filter by
-        /// </summary>
-        [DataMember(Name = "by")]
-        [JsonProperty("by")]
-        [XmlElement(ElementName = "by")]
-        public KalturaEntityReferenceBy By { get; set; }
     }
 }

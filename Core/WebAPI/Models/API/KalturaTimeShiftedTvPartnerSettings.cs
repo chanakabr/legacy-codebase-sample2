@@ -208,17 +208,4 @@ namespace WebAPI.Models.API
         [SchemeProperty(MinInteger = -1)]
         public int? DefaultQuota { get; set; }
     }
-
-
-    public enum KalturaQuotaOveragePolicy
-    {
-        StopAtQuota = 0,
-        FIFOAutoDelete = 1
-    }
-
-    public enum KalturaProtectionPolicy
-    {
-        ExtendingRecordingLifetime = 0,
-        LimitedByRecordingLifetime = 1
-    }
 }

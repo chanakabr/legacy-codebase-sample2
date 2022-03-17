@@ -38,13 +38,5 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "endDate", IsNullable = true)]
         [SchemeProperty(IsNullable = true)]
         public long? EndDate { get; set; }
-
-        public void Validate()
-        {
-            if (StartDate.HasValue && EndDate.HasValue && StartDate > EndDate)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "startDate", "endDate");
-            }
-        }
     }
 }

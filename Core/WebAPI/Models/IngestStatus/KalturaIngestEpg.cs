@@ -81,14 +81,6 @@ namespace WebAPI.Models.IngestStatus
         [XmlElement(ElementName = "status")]
         public KalturaIngestStatus Status { get; set; }
     }
-    public enum KalturaIngestStatus
-    {
-        TOTAL_FAILURE,
-        PARTIAL_FAILURE,
-        WARNING,
-        IN_PROGRESS,
-        SUCCESS
-    }
 }
 
 

@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Models.General;
@@ -31,17 +30,5 @@ namespace WebAPI.Models.Social
         [JsonProperty("socialAction")]
         [XmlElement(ElementName = "socialAction")]
         public KalturaSocialAction SocialAction { get; set; }
-    }
-
-    public partial class KalturaSocialFriendActivityListResponse: KalturaListResponse
-    {
-        /// <summary>
-        /// Social friends activity
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty(PropertyName = "objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaSocialFriendActivity> Objects { get; set; }
     }
 }

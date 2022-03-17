@@ -10,6 +10,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 using WebAPI.ObjectsConvertor.Extensions;
 

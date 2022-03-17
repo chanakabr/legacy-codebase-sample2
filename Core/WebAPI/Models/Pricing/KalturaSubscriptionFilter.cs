@@ -10,18 +10,6 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
 {
-    public enum KalturaSubscriptionOrderBy
-    {
-        START_DATE_ASC,
-        START_DATE_DESC,
-        CREATE_DATE_ASC,
-        CREATE_DATE_DESC,
-        UPDATE_DATE_ASC,
-        UPDATE_DATE_DESC,
-        NAME_ASC,
-        NAME_DESC
-    }
-
     public partial class KalturaSubscriptionFilter : KalturaFilter<KalturaSubscriptionOrderBy>
     {
         /// <summary>
@@ -103,60 +91,6 @@ namespace WebAPI.Models.Pricing
         public override KalturaSubscriptionOrderBy GetDefaultOrderByValue()
         {
             return KalturaSubscriptionOrderBy.NAME_ASC;
-        }
-
-        internal void Validate()
-        {
-            if (string.IsNullOrEmpty(Ksql))
-            {
-                if (MediaFileIdEqual.HasValue && (!string.IsNullOrEmpty(SubscriptionIdIn) || !string.IsNullOrEmpty(ExternalIdIn) || AlsoInactive.HasValue || 
-                                                  PreviewModuleIdEqual.HasValue || PricePlanIdEqual.HasValue || ChannelIdEqual.HasValue))
-                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.mediaFileIdEqual", "KalturaSubscriptionFilter");
-
-                if (!string.IsNullOrEmpty(SubscriptionIdIn) && (MediaFileIdEqual.HasValue || !string.IsNullOrEmpty(ExternalIdIn) || 
-                                                                AlsoInactive.HasValue || PreviewModuleIdEqual.HasValue || PricePlanIdEqual.HasValue || ChannelIdEqual.HasValue))
-                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.subscriptionIdIn", "KalturaSubscriptionFilter");
-
-                if (!string.IsNullOrEmpty(ExternalIdIn) && (MediaFileIdEqual.HasValue || !string.IsNullOrEmpty(SubscriptionIdIn) || AlsoInactive.HasValue ||
-                                                            PreviewModuleIdEqual.HasValue || PricePlanIdEqual.HasValue || ChannelIdEqual.HasValue))
-                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.productCodeIn", "KalturaSubscriptionFilter");
-
-                if (CouponGroupIdEqual.HasValue && (PreviewModuleIdEqual.HasValue || PricePlanIdEqual.HasValue || ChannelIdEqual.HasValue))
-                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.couponGroupIdEqual", "KalturaSubscriptionFilter");
-                if (PreviewModuleIdEqual.HasValue && (PricePlanIdEqual.HasValue || ChannelIdEqual.HasValue))
-                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.PreviewModuleIdEqual", "KalturaSubscriptionFilter");
-                if(PricePlanIdEqual.HasValue && ChannelIdEqual.HasValue)
-                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.PricePlanIdEqual", "KalturaSubscriptionFilter.ChannelIdEqual");
-            }
-            else
-            {
-                if (MediaFileIdEqual.HasValue || !string.IsNullOrEmpty(SubscriptionIdIn) || !string.IsNullOrEmpty(ExternalIdIn) ||  AlsoInactive.HasValue ||
-                    PreviewModuleIdEqual.HasValue || PricePlanIdEqual.HasValue || ChannelIdEqual.HasValue)
-                {
-                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.Ksql", "KalturaSubscriptionFilter");
-                }
-            }
-
-            if (!string.IsNullOrEmpty(SubscriptionIdIn))
-            {
-                Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(this.SubscriptionIdIn, "subscriptionIdIn", true);
-            }
-        }
-
-        internal List<long> getSubscriptionIdIn()
-        {
-            if (string.IsNullOrEmpty(SubscriptionIdIn))
-                return null;
-
-            return Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(this.SubscriptionIdIn, "subscriptionIdIn", true);
-        }
-
-        internal List<string> getExternalIdIn()
-        {
-            if (string.IsNullOrEmpty(ExternalIdIn))
-                return null;
-
-            return ExternalIdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
         }
     }
 }

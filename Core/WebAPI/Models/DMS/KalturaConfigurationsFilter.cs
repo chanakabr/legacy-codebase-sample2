@@ -5,10 +5,6 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.DMS
 {
-    public enum KalturaConfigurationsOrderBy
-    {
-        NONE
-    }
     /// <summary>
     /// Configuration filter
     /// </summary>

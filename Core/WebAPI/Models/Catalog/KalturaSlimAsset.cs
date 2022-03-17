@@ -31,24 +31,4 @@ namespace WebAPI.Models.Catalog
         [SchemeProperty(InsertOnly = true)]
         public KalturaAssetType Type { get; set; }
     }
-
-    [Serializable]
-    public partial class KalturaManualCollectionAsset : KalturaOTTObject
-    {
-        /// <summary>
-        /// Internal identifier of the asset
-        /// </summary>
-        [DataMember(Name = "id")]
-        [JsonProperty(PropertyName = "id")]
-        [XmlElement(ElementName = "id")]
-        public string Id { get; set; }
-
-        /// <summary>
-        /// The type of the asset. Possible values: media, epg
-        /// </summary>
-        [DataMember(Name = "type")]
-        [JsonProperty(PropertyName = "type")]
-        [XmlElement(ElementName = "type")]
-        public KalturaManualCollectionAssetType Type { get; set; }
-    }
 }

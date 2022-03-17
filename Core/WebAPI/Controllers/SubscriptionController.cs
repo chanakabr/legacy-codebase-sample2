@@ -16,6 +16,7 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
+using WebAPI.ModelsValidators;
 using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 
@@ -326,7 +327,6 @@ namespace WebAPI.Controllers
             KalturaSubscription result = null;
 
             var contextData = KS.GetContextData();
-            subscription.ValidateForUpdate();
 
             try
             {

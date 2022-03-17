@@ -7,6 +7,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using ApiObjects.Response;
+using WebAPI.ModelsValidators;
 
 namespace WebAPI.Controllers
 {

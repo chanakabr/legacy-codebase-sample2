@@ -6,6 +6,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Domains;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers

@@ -22,9 +22,4 @@ namespace WebAPI.Models.Domains
             return KalturaHouseholdUserOrderBy.NONE;
         }
     }
-
-    public enum KalturaHouseholdUserOrderBy
-    {
-        NONE
-    }
 }

@@ -1,4 +1,4 @@
-﻿using WebAPI.Models.General;
+using WebAPI.Models.General;
 
 namespace WebAPI.ObjectsConvertor.Extensions
 {

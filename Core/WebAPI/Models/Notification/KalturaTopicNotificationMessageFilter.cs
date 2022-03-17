@@ -22,10 +22,4 @@ namespace WebAPI.Models.Notifications
             return KalturaTopicNotificationMessageOrderBy.NONE;
         }
     }
-
-    public enum KalturaTopicNotificationMessageOrderBy
-    {
-        NONE
-    }
-
 }

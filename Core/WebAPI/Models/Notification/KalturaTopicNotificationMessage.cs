@@ -71,16 +71,4 @@ namespace WebAPI.Models.Notifications
         [SchemeProperty(ReadOnly = true)]
         public KalturaAnnouncementStatus Status { get; set; }
     }
-
-    public partial class KalturaTopicNotificationMessageListResponse : KalturaListResponse
-    {
-        /// <summary>
-        /// Topic notification messages
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty(PropertyName = "objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaTopicNotificationMessage> Objects { get; set; }
-    }
 }

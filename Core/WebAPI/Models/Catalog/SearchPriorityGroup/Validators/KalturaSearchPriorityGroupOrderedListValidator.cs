@@ -1,5 +1,6 @@
 using System.Linq;
 using WebAPI.Exceptions;
+using WebAPI.ObjectsConvertor.Extensions;
 using static WebAPI.Exceptions.BadRequestException;
 
 namespace WebAPI.Models.Catalog.SearchPriorityGroup.Validators
