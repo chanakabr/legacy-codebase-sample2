@@ -9,6 +9,10 @@ using WebAPI.Filters;
 using Core.Middleware;
 using HealthCheck;
 using Phoenix.Rest.Middleware.Metrics;
+using OpenTracing;
+using OpenTracing.Contrib.NetCore.CoreFx;
+using OTT.Lib.Tracing;
+using IKTracer = OTT.Lib.Tracing.IKTracer;
 
 namespace Phoenix.Rest.Middleware
 {
@@ -17,7 +21,7 @@ namespace Phoenix.Rest.Middleware
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         /// <summary>
-        /// Adding required services to use the Phoenix middleware
+        ///     Adding required services to use the Phoenix middleware
         /// </summary>
         public static IServiceCollection ConfigurePhoenix(this IServiceCollection services)
         {
@@ -27,13 +31,18 @@ namespace Phoenix.Rest.Middleware
             services.AddStaticHttpContextAccessor();
             services.AddSingleton<IResponseFromatterProvider, ResponseFromatterProvider>();
             services.AddApiExceptionHandler<PhoenixExceptionHandler>();
+            services.AddOpenTracing();
+            var tracer = JaegerManager.GetTracer(null);
+            // Adds the Jaeger Tracer.
+            services.AddSingleton(serviceProvider => tracer);
+            KMonitor.ConfigureTracer(() => new JaegerManager(tracer));
             EpgAssetManager.InitProgramAssetCrudMessageService(WebKafkaContextProvider.Instance);
 
             return services;
         }
 
         /// <summary>
-        /// Using custom middleware for Phoenix Api convention
+        ///     Using custom middleware for Phoenix Api convention
         /// </summary>
         public static IApplicationBuilder UsePhoenix(this IApplicationBuilder app)
         {
@@ -43,16 +52,15 @@ namespace Phoenix.Rest.Middleware
             app.UseRequestResponseLogger();
             app.UseHealthCheck("/api_v3/service/system/action/health");
             app.UseCoreConcurrencyLimiter();
-            
+
             app.UseHttpPrometheusMetrics();
-            
+
             app.UseApiExceptionHandler();
             app.UseKloggerSessionIdBuilder();
             app.UseRequestLogger();
             app.EnablePublicCors();
             app.UseMiddleware<PhoenixRequestContextBuilder>();
             app.UseMiddleware<PhoenixRequestExecutor>();
-
             return app;
         }
     }

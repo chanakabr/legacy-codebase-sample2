@@ -30,9 +30,12 @@ namespace WebAPI.Utils
             if (userID == "0")
                 return 0;
 
-            var domainId = KSUtils.ExtractKSPayload().DomainId;
-            if (domainId > 0)
-                return domainId;
+            if (!RequestContextUtilsInstance.Get().IsPartnerRequest())
+            {
+                var domainId = KSUtils.ExtractKSPayload().DomainId;
+                if (domainId > 0)
+                    return domainId;
+            }
 
             KalturaHousehold domain = GetHouseholdFromRequest();
             if (domain == null)
@@ -87,7 +90,7 @@ namespace WebAPI.Utils
             if (withPending && domain.PendingUsers != null && domain.PendingUsers.Count > 0)
                 userIds.AddRange(domain.PendingUsers.Select(u => u.Id));
 
-            return userIds;
+            return userIds.Distinct().ToList();
         }
 
         public static KalturaHousehold GetHouseholdFromRequest()

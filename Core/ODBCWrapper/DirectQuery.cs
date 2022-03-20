@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Reflection;
 using Phx.Lib.Log;
@@ -44,7 +45,7 @@ namespace ODBCWrapper
                 command.Connection = con;
 
                 SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() })
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString(), TraceData = new Dictionary<string, object>(){{"Parameters", command.CommandText}} })
                 {
                     command.ExecuteNonQuery();
                 }
@@ -79,7 +80,7 @@ namespace ODBCWrapper
                     command.Connection = con;
 
                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() })
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString(), TraceData = new Dictionary<string, object>(){{"Parameters", command.CommandText}} })
                     {
                         command.ExecuteNonQuery();
                     }
@@ -118,7 +119,7 @@ namespace ODBCWrapper
                         command.Connection = con;
 
                         SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() })
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString(), TraceData = new Dictionary<string, object>(){{"Parameters", command.CommandText}} })
                         {
                             result = command.ExecuteNonQuery();
                         }

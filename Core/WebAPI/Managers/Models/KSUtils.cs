@@ -97,12 +97,11 @@ namespace WebAPI.Managers.Models
             pl.TryGetValue(PAYLOAD_SESSION_CHARACTERISTIC_KEY, out var sessionCharacteristicKey);
 
             int domainId = 0;
-            if (!pl.ContainsKey(PAYLOAD_DOMAINID) || !int.TryParse(pl[PAYLOAD_DOMAINID], out domainId) || domainId <= 0)
+            if (pl.ContainsKey(PAYLOAD_DOMAINID))
             {
-                var domain = HouseholdUtils.GetHouseholdFromRequest();
-                domainId = domain != null ? (int) domain.getId() : 0;
+                int.TryParse(pl[PAYLOAD_DOMAINID], out domainId);
             }
-            
+
             var signature = string.Empty;
             if (pl.ContainsKey(PAYLOAD_SIGNATURE))
             {

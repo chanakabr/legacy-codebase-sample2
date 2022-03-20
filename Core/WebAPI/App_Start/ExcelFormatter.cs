@@ -240,6 +240,7 @@ namespace WebAPI.App_Start
                         HttpContext.Current.Response.ContentType = ExcelFormatterConsts.EXCEL_CONTENT_TYPE;
                         HttpContext.Current.Response.Headers.Add("Content-Disposition", "attachment; filename=" + fileName);
                         CreateExcel(writeStream, fileName, fullDataTable, excelStructure);
+                        return;
                     }
                 }
                 catch (ApiException ex)

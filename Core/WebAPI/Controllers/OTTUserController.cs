@@ -926,11 +926,31 @@ namespace WebAPI.Controllers
 
                 if (!string.IsNullOrEmpty(filter.UsernameEqual))
                 {
-                    response = ClientsManager.UsersClient().GetUserByName(groupId, filter.UsernameEqual);
+                    if (isPartnerRequest)  //BEO-11707
+                    {
+                        response = ClientsManager.UsersClient().GetUserByName(groupId, filter.UsernameEqual);
+                    }
+                    else // for master get only if user in HH
+                    {
+                        var householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId);
+                        response = GetUsersData(groupId, householdUserIds);
+                        response.Users = response.Users.Where(u => u.Username.ToLower() == filter.UsernameEqual.ToLower()).ToList();
+                        response.TotalCount = response.Users.Count;
+                    }
                 }
                 else if (!string.IsNullOrEmpty(filter.ExternalIdEqual))
                 {
-                    response = ClientsManager.UsersClient().GetUserByExternalID(groupId, filter.ExternalIdEqual);
+                    if (isPartnerRequest)  //BEO-11707
+                    {
+                        response = ClientsManager.UsersClient().GetUserByExternalID(groupId, filter.ExternalIdEqual);
+                    }
+                    else // for master get only if user in HH
+                    {
+                        var householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId);
+                        response = GetUsersData(groupId, householdUserIds);
+                        response.Users = response.Users.Where(u => u.ExternalId.ToLower() == filter.ExternalIdEqual.ToLower()).ToList();
+                        response.TotalCount = response.Users.Count;
+                    }
                 }
                 else if (!string.IsNullOrEmpty(filter.EmailEqual))
                 {

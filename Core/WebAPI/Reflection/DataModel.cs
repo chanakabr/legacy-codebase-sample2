@@ -1994,6 +1994,10 @@ namespace WebAPI.Reflection
                             return "bookmarkEventThresholds";
                         case "KeepSubscriptionAddOns":
                             return "keepSubscriptionAddOns";
+                        case "ProgramAssetEntitlementPaddingEnd":
+                            return "programAssetEntitlementPaddingEnd";
+                        case "ProgramAssetEntitlementPaddingStart":
+                            return "programAssetEntitlementPaddingStart";
                     }
                     break;
                     

@@ -222,11 +222,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaCommercePartnerConfig, CommercePartnerConfig>()
                 .ForMember(dest => dest.BookmarkEventThresholds, opt => opt.MapFrom(src => src.GetBookmarkEventThresholds()))
                 .ForMember(dest => dest.KeepSubscriptionAddOns, opt => opt.MapFrom(src => src.KeepSubscriptionAddOns))
+                .ForMember(dest => dest.ProgramAssetEntitlementPaddingStart, opt => opt.MapFrom(src => src.ProgramAssetEntitlementPaddingStart))
+                .ForMember(dest => dest.ProgramAssetEntitlementPaddingEnd, opt => opt.MapFrom(src => src.ProgramAssetEntitlementPaddingEnd))
                 ;
 
             cfg.CreateMap<CommercePartnerConfig, KalturaCommercePartnerConfig>()
                 .ForMember(dest => dest.BookmarkEventThresholds, opt => opt.MapFrom(src => src.BookmarkEventThresholds))
                 .ForMember(dest => dest.KeepSubscriptionAddOns, opt => opt.MapFrom(src => src.KeepSubscriptionAddOns))
+                .ForMember(dest => dest.ProgramAssetEntitlementPaddingStart, opt => opt.MapFrom(src => src.ProgramAssetEntitlementPaddingStart))
+                .ForMember(dest => dest.ProgramAssetEntitlementPaddingEnd, opt => opt.MapFrom(src => src.ProgramAssetEntitlementPaddingEnd))
                 ;
 
             cfg.CreateMap<KeyValuePair<eTransactionType, int>, KalturaBookmarkEventThreshold>()

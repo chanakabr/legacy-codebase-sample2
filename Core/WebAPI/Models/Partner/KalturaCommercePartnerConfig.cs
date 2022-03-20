@@ -36,6 +36,24 @@ namespace WebAPI.Models.Partner
         [SchemeProperty(IsNullable = true)]
         public bool? KeepSubscriptionAddOns { get; set; }
 
+        /// <summary>
+        /// configuration for asset start entitlement padding e.g. asset start time - padding still relevant for asset 
+        /// </summary>
+        [DataMember(Name = "programAssetEntitlementPaddingStart")]
+        [JsonProperty("programAssetEntitlementPaddingStart")]
+        [XmlElement(ElementName = "programAssetEntitlementPaddingStart")]
+        [SchemeProperty(MinInteger = 0, MaxInteger = 7200)]
+        public int? ProgramAssetEntitlementPaddingStart { get; set; }
+
+        /// <summary>
+        /// configuration for asset end entitlement padding e.g. asset end time + padding still relevant for asset
+        /// </summary>
+        [DataMember(Name = "programAssetEntitlementPaddingEnd")]
+        [JsonProperty("programAssetEntitlementPaddingEnd")]
+        [XmlElement(ElementName = "programAssetEntitlementPaddingEnd")]
+        [SchemeProperty(MinInteger = 0, MaxInteger = 7200)]
+        public int? ProgramAssetEntitlementPaddingEnd { get; set; }
+
         internal override bool Update(int groupId)
         {
             Func<CommercePartnerConfig, Status> commercePartnerConfigFunc =

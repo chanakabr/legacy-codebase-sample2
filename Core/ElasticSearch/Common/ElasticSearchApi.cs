@@ -1434,7 +1434,11 @@ namespace ElasticSearch.Common
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_ELASTIC, null, null, null, null)
                 {
                     Database = url,
-                    Table = requestGuid
+                    Table = requestGuid,
+                    TraceData = new Dictionary<string, object>()
+                    {
+                        {"Parameters", parameters}
+                    }
                 })
                 {
                     HttpResponseMessage response = null;
@@ -1533,7 +1537,11 @@ namespace ElasticSearch.Common
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_ELASTIC, null, null, null, null)
                 {
                     Database = url,
-                    Table = requestGuid
+                    Table = requestGuid,
+                    TraceData = new Dictionary<string, object>()
+                    {
+                        {"Parameters", parameters}
+                    }
                 })
                 {
                     HttpRequestMessage request = new HttpRequestMessage

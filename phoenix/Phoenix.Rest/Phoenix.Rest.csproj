@@ -39,6 +39,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="OpenTracing.Contrib.NetCore" Version="0.5.0" />
+    <PackageReference Include="OTT.Lib.Tracing" Version="1.0.0.15-alpha" />
+    <PackageReference Include="Phx.Lib.Log" Version="1.2.3.49-alpha" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
   </ItemGroup>

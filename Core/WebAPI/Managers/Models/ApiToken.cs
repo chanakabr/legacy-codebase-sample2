@@ -181,6 +181,7 @@ namespace WebAPI.Managers.Models
             UserSegments = payload.UserSegments;
             UserRoles = payload.UserRoles;
             SessionCharacteristicKey = payload.SessionCharacteristicKey;
+            DomainId = payload.DomainId;
         }
     }
 }

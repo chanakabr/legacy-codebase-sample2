@@ -35562,6 +35562,36 @@ namespace WebAPI.Models.Partner
             MinItems = -1,
             MaxItems = -1,
         };
+        private static RuntimeSchemePropertyAttribute ProgramAssetEntitlementPaddingStartSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCommercePartnerConfig")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MaxInteger = 7200,
+            MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute ProgramAssetEntitlementPaddingEndSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCommercePartnerConfig")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MaxInteger = 7200,
+            MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
+        };
         public KalturaCommercePartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
@@ -35583,6 +35613,16 @@ namespace WebAPI.Models.Partner
                 {
                     KeepSubscriptionAddOnsSchemaProperty.Validate("keepSubscriptionAddOns", parameters["keepSubscriptionAddOns"]);
                     KeepSubscriptionAddOns = (Boolean) Convert.ChangeType(parameters["keepSubscriptionAddOns"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("programAssetEntitlementPaddingStart") && parameters["programAssetEntitlementPaddingStart"] != null)
+                {
+                    ProgramAssetEntitlementPaddingStartSchemaProperty.Validate("programAssetEntitlementPaddingStart", parameters["programAssetEntitlementPaddingStart"]);
+                    ProgramAssetEntitlementPaddingStart = (Int32) Convert.ChangeType(parameters["programAssetEntitlementPaddingStart"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("programAssetEntitlementPaddingEnd") && parameters["programAssetEntitlementPaddingEnd"] != null)
+                {
+                    ProgramAssetEntitlementPaddingEndSchemaProperty.Validate("programAssetEntitlementPaddingEnd", parameters["programAssetEntitlementPaddingEnd"]);
+                    ProgramAssetEntitlementPaddingEnd = (Int32) Convert.ChangeType(parameters["programAssetEntitlementPaddingEnd"], typeof(Int32));
                 }
             }
         }

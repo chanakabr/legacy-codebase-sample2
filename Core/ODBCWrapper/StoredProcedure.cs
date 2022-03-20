@@ -336,7 +336,7 @@ namespace ODBCWrapper
 
                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
                     using (KMonitor km = new KMonitor(Phx.Lib.Log.Events.eEvent.EVENT_DATABASE, null, null, null, null) { 
-                        Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (isRoutedToPrimary).ToString() })
+                        Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (isRoutedToPrimary).ToString(), TraceData = new Dictionary<string, object>(){{"Parameters", string.Join(Environment.NewLine, m_Parameters)}}})
                     {
                         using (SqlDataReader reader = command.ExecuteReader())
                         {
@@ -400,7 +400,7 @@ namespace ODBCWrapper
                 try
                 {
                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                    using (KMonitor km = new KMonitor(Phx.Lib.Log.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() })
+                    using (KMonitor km = new KMonitor(Phx.Lib.Log.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString(), TraceData = new Dictionary<string, object>(){{"Parameters", string.Join(Environment.NewLine, m_Parameters)}} })
                     {
                         con.Open();
                         SetLockTimeOut(con);
@@ -483,7 +483,7 @@ namespace ODBCWrapper
                 try
                 {
                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                    using (KMonitor km = new KMonitor(Phx.Lib.Log.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() })
+                    using (KMonitor km = new KMonitor(Phx.Lib.Log.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString(), TraceData = new Dictionary<string, object>(){{"Parameters", string.Join(Environment.NewLine, m_Parameters)}} })
                     {
                         con.Open();
                         SetLockTimeOut(con);
@@ -544,7 +544,7 @@ namespace ODBCWrapper
                 try
                 {
                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                    using (KMonitor km = new KMonitor(Phx.Lib.Log.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() })
+                    using (KMonitor km = new KMonitor(Phx.Lib.Log.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString(), TraceData = new Dictionary<string, object>(){{"Parameters", string.Join(Environment.NewLine, m_Parameters)}} })
                     {
                         con.Open();
                         SetLockTimeOut(con);
@@ -598,7 +598,7 @@ namespace ODBCWrapper
                 try
                 {
                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                    using (KMonitor km = new KMonitor(Phx.Lib.Log.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() })
+                    using (KMonitor km = new KMonitor(Phx.Lib.Log.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() , TraceData = new Dictionary<string, object>(){{"Parameters", string.Join(Environment.NewLine, m_Parameters)}}})
                     {
                         con.Open();
                         SetLockTimeOut(con);
@@ -665,7 +665,7 @@ namespace ODBCWrapper
                 try
                 {
                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                    using (KMonitor km = new KMonitor(Phx.Lib.Log.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() })
+                    using (KMonitor km = new KMonitor(Phx.Lib.Log.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString(), TraceData = new Dictionary<string, object>(){{"Parameters", string.Join(Environment.NewLine, m_Parameters)}} })
                     {
                         con.Open();
                         SetLockTimeOut(con);
@@ -736,7 +736,7 @@ namespace ODBCWrapper
                 try
                 {
                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                    using (KMonitor km = new KMonitor(Phx.Lib.Log.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() })
+                    using (KMonitor km = new KMonitor(Phx.Lib.Log.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString(), TraceData = new Dictionary<string, object>(){{"Parameters", string.Join(Environment.NewLine, m_Parameters)}} })
                     {
                         con.Open();
                         SetLockTimeOut(con);

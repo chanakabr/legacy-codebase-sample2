@@ -53,7 +53,7 @@ namespace Core.Metrics.Internals
 
             return false;
         }
-
+        
         private bool TryExtractMetric(string metricSetup, out RuntimeMetric metric)
         {
             var level = CaptureLevel.Counters;

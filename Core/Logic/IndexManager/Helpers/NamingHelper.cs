@@ -56,8 +56,8 @@ namespace ApiLogic.IndexManager.Helpers
 
         public static INamingHelper Instance => _lazy.Value;
 
-        public static string GetEpgFutureIndexName(int groupId) => $"{groupId}_epg_v2_{EPG_V2_PAST_INDEX_NAME_SUFFIX}";
-        public static string GetEpgPastIndexName(int groupId) => $"{groupId}_epg_v2_{EPG_V2_FUTURE_INDEX_NAME_SUFFIX}";
+        public static string GetEpgFutureIndexName(int groupId) => $"{groupId}_epg_v2_{EPG_V2_FUTURE_INDEX_NAME_SUFFIX}";
+        public static string GetEpgPastIndexName(int groupId) => $"{groupId}_epg_v2_{EPG_V2_PAST_INDEX_NAME_SUFFIX}";
         public static string GetEpgIndexAlias(int groupId)
         {
             return $"{groupId}_epg";

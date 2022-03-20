@@ -40721,6 +40721,14 @@ namespace WebAPI.Models.Partner
             {
                 ret.Add("keepSubscriptionAddOns", "\"keepSubscriptionAddOns\": " + KeepSubscriptionAddOns.ToString().ToLower());
             }
+            if(ProgramAssetEntitlementPaddingEnd.HasValue && (retrievedProperties == null || retrievedProperties.Contains("programAssetEntitlementPaddingEnd")))
+            {
+                ret.Add("programAssetEntitlementPaddingEnd", "\"programAssetEntitlementPaddingEnd\": " + ProgramAssetEntitlementPaddingEnd);
+            }
+            if(ProgramAssetEntitlementPaddingStart.HasValue && (retrievedProperties == null || retrievedProperties.Contains("programAssetEntitlementPaddingStart")))
+            {
+                ret.Add("programAssetEntitlementPaddingStart", "\"programAssetEntitlementPaddingStart\": " + ProgramAssetEntitlementPaddingStart);
+            }
             return ret;
         }
         
@@ -40743,6 +40751,14 @@ namespace WebAPI.Models.Partner
             if(KeepSubscriptionAddOns.HasValue && (retrievedProperties == null || retrievedProperties.Contains("keepSubscriptionAddOns")))
             {
                 ret.Add("keepSubscriptionAddOns", "<keepSubscriptionAddOns>" + KeepSubscriptionAddOns.ToString().ToLower() + "</keepSubscriptionAddOns>");
+            }
+            if(ProgramAssetEntitlementPaddingEnd.HasValue && (retrievedProperties == null || retrievedProperties.Contains("programAssetEntitlementPaddingEnd")))
+            {
+                ret.Add("programAssetEntitlementPaddingEnd", "<programAssetEntitlementPaddingEnd>" + ProgramAssetEntitlementPaddingEnd + "</programAssetEntitlementPaddingEnd>");
+            }
+            if(ProgramAssetEntitlementPaddingStart.HasValue && (retrievedProperties == null || retrievedProperties.Contains("programAssetEntitlementPaddingStart")))
+            {
+                ret.Add("programAssetEntitlementPaddingStart", "<programAssetEntitlementPaddingStart>" + ProgramAssetEntitlementPaddingStart + "</programAssetEntitlementPaddingStart>");
             }
             return ret;
         }

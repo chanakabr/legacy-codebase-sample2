@@ -424,6 +424,7 @@ namespace WebAPI.Controllers
         /// <param name="filter">Household devices filter</param>
         [Action("list")]
         [ApiAuthorize(eKSValidation.Expiration)]
+        [Throws(eResponseStatus.DomainNotExists)]
         static public KalturaHouseholdDeviceListResponse List(KalturaHouseholdDeviceFilter filter = null)
         {
             KalturaHouseholdDeviceListResponse response = null;
@@ -439,7 +440,25 @@ namespace WebAPI.Controllers
 
                 if (filter.HouseholdIdEqual.HasValue && filter.HouseholdIdEqual.Value > 0)
                 {
-                    household = ClientsManager.DomainsClient().GetDomainInfo(groupId, filter.HouseholdIdEqual.Value);
+                    bool isPartnerRequest = RequestContextUtilsInstance.Get().IsPartnerRequest();
+
+                    if (isPartnerRequest)  //BEO-11707
+                    {
+                        household = ClientsManager.DomainsClient().GetDomainInfo(groupId, filter.HouseholdIdEqual.Value);
+                    }
+                    else
+                    {
+                        var userHousehold = HouseholdUtils.GetHouseholdFromRequest();
+                        if (userHousehold != null && userHousehold.Id.Value == filter.HouseholdIdEqual.Value)
+                        {
+                            household = userHousehold;
+                        }
+                        else
+                        {
+                            var status = new ApiObjects.Response.Status(eResponseStatus.DomainNotExists, "Household does not exist");
+                            throw new ClientException(status);
+                        }
+                    }
                 }
                 else
                 {

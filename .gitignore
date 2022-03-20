@@ -356,3 +356,6 @@ MigrationBackup/
 */.sonarqube
 
 phoenix/Validator/separate_kaltura_models.xlsx
+
+# Ignore Mac DS_Store files
+**/.DS_Store

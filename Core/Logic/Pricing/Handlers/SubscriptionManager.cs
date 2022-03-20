@@ -495,7 +495,7 @@ namespace ApiLogic.Pricing.Handlers
                     return response;
                 }
 
-                if (subscriptionToUpdate.Names[0].m_sValue != subscription.m_sName[0].m_sValue)
+                if (subscriptionToUpdate.Names[0].m_sValue != subscription.m_sObjectVirtualName)
                 {
                     virtualAssetInfo = new VirtualAssetInfo()
                     {

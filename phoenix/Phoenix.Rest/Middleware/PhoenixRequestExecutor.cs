@@ -14,6 +14,8 @@ using WebAPI.Controllers;
 using WebAPI.Managers.Models;
 using WebAPI.Reflection;
 using WebAPI.Utils;
+using OpenTracing;
+using OTT.Lib.Tracing;
 
 namespace Phoenix.Rest.Middleware
 {
@@ -23,25 +25,31 @@ namespace Phoenix.Rest.Middleware
 
         private readonly RequestDelegate _Next;
         private readonly IResponseFromatterProvider _FormatterProvider;
+        private readonly ITracer _Tracer;
         private static readonly ServiceController _ServiceController = new ServiceController();
 
-        public PhoenixRequestExecutor(RequestDelegate next, IResponseFromatterProvider formatterProvider)
+        public PhoenixRequestExecutor(RequestDelegate next, IResponseFromatterProvider formatterProvider, ITracer tracer)
         {
             _Next = next;
             _FormatterProvider = formatterProvider;
+            _Tracer = tracer;
         }
 
         public async Task InvokeAsync(HttpContext context)
         {
             var phoenixContext = context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] as PhoenixRequestContext;
-            if (phoenixContext == null)
-            {
-                throw new Exception("Phoenix Context was lost on the way :/ this should never happen. if you see this message... hopefully...");
-            }
+            if (phoenixContext == null) { throw new Exception("Phoenix Context was lost on the way :/ this should never happen. if you see this message... hopefully..."); }
 
-            object response = phoenixContext.IsMultiRequest
-                ? await _ServiceController.Multirequest(phoenixContext.RouteData.Service)
-                : await _ServiceController.Action(phoenixContext.RouteData.Service, phoenixContext.RouteData.Action);
+            object response = null;
+            using (var jm = JaegerManager.TraceScope(_Tracer, phoenixContext.IsMultiRequest
+                ? $"{phoenixContext.RouteData.Service}"
+                : $"{phoenixContext.RouteData.Service}/{phoenixContext.RouteData.Action}"))
+            {
+                response = phoenixContext.IsMultiRequest
+                    ? await _ServiceController.Multirequest(phoenixContext.RouteData.Service)
+                    : await _ServiceController.Action(phoenixContext.RouteData.Service,
+                        phoenixContext.RouteData.Action);
+            }
 
             phoenixContext.Response = response;
             PhoenixResponseContext phoenixResponseContext = new PhoenixResponseContext { StatusCode = context.Response.StatusCode };
