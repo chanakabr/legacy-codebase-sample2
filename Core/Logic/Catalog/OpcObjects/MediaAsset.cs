@@ -40,7 +40,7 @@ namespace Core.Catalog
         [JsonProperty("MediaType")]
         public MediaType MediaType { get; set; }
 
-        [ExcelColumn(ExcelColumnType.Basic, AssetManager.ENTRY_ID_META_SYSTEM_NAME, IsMandatory = true)]
+        [ExcelColumn(ExcelColumnType.Basic, AssetManager.ENTRY_ID_META_SYSTEM_NAME)]
         [JsonProperty("EntryId")]
         public string EntryId { get; set; }
 
@@ -256,7 +256,7 @@ namespace Core.Catalog
 
             if (!string.IsNullOrEmpty(this.EntryId))
             {
-                var excelColumn = ExcelColumn.GetFullColumnName(AssetManager.ENTRY_ID_META_SYSTEM_NAME, null, null, true);
+                var excelColumn = ExcelColumn.GetFullColumnName(AssetManager.ENTRY_ID_META_SYSTEM_NAME, null, null, false);
                 excelValues.TryAdd(excelColumn, this.EntryId);
             }
 
@@ -450,7 +450,7 @@ namespace Core.Catalog
             }
 
             // ENTRY_ID
-            var entryIdColumnName = ExcelColumn.GetFullColumnName(AssetManager.ENTRY_ID_META_SYSTEM_NAME, null, null, true);
+            var entryIdColumnName = ExcelColumn.GetFullColumnName(AssetManager.ENTRY_ID_META_SYSTEM_NAME, null, null, false);
             if (columnValue.Key.Equals(entryIdColumnName))
             {
                 this.EntryId = columnValue.Value.ToString();

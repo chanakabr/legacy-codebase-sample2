@@ -62,7 +62,7 @@ namespace IngestTransformationHandler
             try
             {
                 _logger.Debug($"Starting ingest transformation handler requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}]");
-                _indexCompactionManager.RunEpgIndexCompactionIfRequired(serviceEvent.GroupId);
+                _indexCompactionManager.RunEpgIndexCompactionIfRequired(serviceEvent.GroupId, serviceEvent.BulkUploadId);
                 
                 InitHandlerProperties(serviceEvent);
                 UpdateBulkUpload(BulkUploadJobStatus.Parsing);
@@ -173,7 +173,11 @@ namespace IngestTransformationHandler
         private void InitHandlerProperties(BulkUploadTransformationEvent serviceEvent)
         {
             _eventData = serviceEvent;
-            _locker = new DistributedLock(serviceEvent.GroupId);
+            var lockerMetadata = new Dictionary<string, string>
+            {
+                { "BulkUploadId", serviceEvent.BulkUploadId.ToString() }
+            };
+            _locker = new DistributedLock(serviceEvent.GroupId, lockerMetadata);
 
             _bulUpload = BulkUploadMethods.GetBulkUploadData(serviceEvent.GroupId, serviceEvent.BulkUploadId);
 

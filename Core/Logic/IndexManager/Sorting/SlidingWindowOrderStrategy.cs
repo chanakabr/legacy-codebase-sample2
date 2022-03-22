@@ -35,8 +35,15 @@ namespace ApiLogic.IndexManager.Sorting
                 return assetIds.Select(x => (x, (++increment).ToString()));
             }
 
-            var timeWindowEnd = DateTime.UtcNow;
-            var timeWindowStart = timeWindowEnd.AddMinutes(-esOrderByField.SlidingWindowPeriod);
+            DateTime? timeWindowEnd = null;
+            DateTime? timeWindowStart = null;
+
+            if (esOrderByField.SlidingWindowPeriod > 0)
+            {
+                timeWindowEnd = DateTime.UtcNow;
+                timeWindowStart = timeWindowEnd.Value.AddMinutes(-esOrderByField.SlidingWindowPeriod);
+            }
+
             return _statisticsSortStrategy.SortAssetsByStatsWithSortValues(
                 assetIds,
                 esOrderByField.OrderByField,

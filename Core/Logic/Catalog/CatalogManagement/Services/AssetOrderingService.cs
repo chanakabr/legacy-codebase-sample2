@@ -34,17 +34,6 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
             Channel channel,
             AssetListEsOrderingCommonInput input)
         {
-            var isGroupBySpecified = request.searchGroupBy?.groupBy?.Count > 0;
-            var shouldSortWithSlidingWindow = channel.OrderingParameters?.Count(x => x is AssetSlidingWindowOrder) > 0
-                || (channel.m_OrderObject?.m_bIsSlidingWindowField == true
-                    && IndexManagerCommonHelpers.IsSlidingWindowSupported(channel.m_OrderObject.m_eOrderBy));
-
-            // order by with sliding window is top priority
-            if (!isGroupBySpecified && shouldSortWithSlidingWindow)
-            {
-                return GetOrderingResult(channel.m_OrderObject, channel.OrderingParameters, input);
-            }
-
             var (orderingParameters, sourceOrder) = GetResolvedChannelOrdering(request, channel);
             var shouldSortById = orderingParameters?.Count == 1 && orderingParameters.Single().Field == OrderBy.ID
                 || sourceOrder?.m_eOrderBy == OrderBy.ID;

@@ -438,7 +438,7 @@ namespace WebAPI.Managers.Models
             return CreateKSFromEncoded(encryptedData, groupId, adminSecret, ks, KSVersion.V2, fallbackSecret);
         }
 
-        public static ContextData GetContextData()
+        public static ContextData GetContextData(bool skipDomain = false)
         {
             var ks = GetFromRequest();
             if (ks == null)
@@ -450,7 +450,7 @@ namespace WebAPI.Managers.Models
 
             return new ContextData(ks.GroupId)
             {
-                DomainId = payload?.DomainId,
+                DomainId = GetDomainId(skipDomain),
                 UserId = Utils.Utils.GetUserIdFromKs(ks),
                 Udid = payload?.UDID,
                 UserIp = Utils.Utils.GetClientIP(),
@@ -467,6 +467,23 @@ namespace WebAPI.Managers.Models
             try
             {
                 return KSUtils.ExtractKSPayload();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+        
+        private static long? GetDomainId(bool skipDomain)
+        {
+            if (skipDomain)
+            {
+                return null;
+            }
+
+            try
+            {
+                return HouseholdUtils.GetHouseholdIDByKS();
             }
             catch (Exception)
             {

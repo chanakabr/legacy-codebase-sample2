@@ -215,8 +215,6 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                 expectedResult.Order,
                 opts => opts.Excluding(x => x.m_dSlidingWindowStartTimeField));
         }
-
-        [TestCaseSource(nameof(SlidingWindowChannelData))]
         public void MapToChannelEsOrderByFields_OrderBySlidingWindow(
             Channel channel,
             ChannelEsOrderingResult expectedResult)
@@ -648,63 +646,6 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                     }
                 });
         }
-
-        private static IEnumerable<TestCaseData> SlidingWindowChannelData()
-        {
-            var slidingWindowOrderBy = new[] { OrderBy.VIEWS, OrderBy.RATING, OrderBy.VOTES_COUNT, OrderBy.LIKE_COUNTER };
-            const int slidingWindow = 10;
-            foreach (var orderBy in slidingWindowOrderBy)
-            {
-                var expectedResult = new ChannelEsOrderingResult
-                {
-                    Order = new OrderObj
-                    {
-                        m_eOrderBy = orderBy, m_eOrderDir = OrderDir.DESC, m_bIsSlidingWindowField = true, lu_min_period_id = slidingWindow
-                    },
-                    EsOrderByFields = new[] { new EsOrderBySlidingWindow(orderBy, OrderDir.DESC, slidingWindow) }
-                };
-
-                yield return new TestCaseData(
-                    new Channel
-                    {
-                        m_OrderObject = new OrderObj
-                        {
-                            m_eOrderBy = orderBy, m_eOrderDir = OrderDir.DESC, m_bIsSlidingWindowField = true, lu_min_period_id = slidingWindow
-                        }
-                    },
-                    expectedResult);
-
-                yield return new TestCaseData(
-                    new Channel
-                    {
-                        OrderingParameters = new List<AssetOrder>
-                        {
-                            new AssetSlidingWindowOrder { Direction = OrderDir.DESC, Field = orderBy, SlidingWindowPeriod = slidingWindow }
-                        }
-                    },
-                    expectedResult);
-
-                yield return new TestCaseData(
-                    new Channel
-                    {
-                        OrderingParameters = new List<AssetOrder>
-                        {
-                            new AssetOrder { Field = OrderBy.START_DATE, Direction = OrderDir.ASC },
-                            new AssetSlidingWindowOrder { Direction = OrderDir.DESC, Field = orderBy, SlidingWindowPeriod = slidingWindow },
-                        },
-                    },
-                    new ChannelEsOrderingResult
-                    {
-                        Order = new OrderObj { m_eOrderBy = OrderBy.START_DATE, m_eOrderDir = OrderDir.ASC },
-                        EsOrderByFields = new IEsOrderByField[]
-                        {
-                            new EsOrderByField(OrderBy.START_DATE, OrderDir.ASC),
-                            new EsOrderBySlidingWindow(orderBy, OrderDir.DESC, slidingWindow)
-                        }
-                    });
-            }
-        }
-
         private static IEnumerable<TestCaseData> ManualChannelData()
         {
             yield return new TestCaseData(

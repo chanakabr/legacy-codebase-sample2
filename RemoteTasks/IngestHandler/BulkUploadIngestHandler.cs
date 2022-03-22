@@ -94,7 +94,12 @@ namespace IngestHandler
             {
                 // unlock this day since it was refreshed and ingested
                 var lockKeyOfThisDay = BulkUploadMethods.GetIngestLockKey(serviceEvent.TargetIndexName);
-                var locker = new DistributedLock(serviceEvent.GroupId);
+                var lockerMetadata = new Dictionary<string, string>
+                {
+                    { "BulkUploadId", serviceEvent.BulkUploadId.ToString() },
+                    { "TargetIndexName", serviceEvent.TargetIndexName}
+                };
+                var locker = new DistributedLock(serviceEvent.GroupId, lockerMetadata);
                 _logger.Info($"HandleIngestCrudOperations completed, unlocking current TargetIndexName:[{serviceEvent.TargetIndexName}], BulkUploadId: [{_eventData.BulkUploadId}]");
                 locker.Unlock(new[] { lockKeyOfThisDay });
             }

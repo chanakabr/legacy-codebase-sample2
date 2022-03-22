@@ -20,7 +20,7 @@ namespace IngestTransformationHandler.Managers
 {
     public interface IIndexCompactionManager
     {
-        void RunEpgIndexCompactionIfRequired(int partnerId);
+        void RunEpgIndexCompactionIfRequired(int partnerId, long bulkUploadId = 0);
     }
     
     public class IndexCompactionManager : IIndexCompactionManager
@@ -42,7 +42,7 @@ namespace IngestTransformationHandler.Managers
         /// once the compaction was completed and the lock was released they will find out that the last runn date
         /// has updated and they dont need to run so they can continue with ingest
         /// </summary>
-        public void RunEpgIndexCompactionIfRequired(int partnerId)
+        public void RunEpgIndexCompactionIfRequired(int partnerId, long bulkUploadId = 0)
         {
             var epgV2PartnerConfig = EpgV2PartnerConfigurationManager.Instance.GetConfiguration(partnerId);
             if (!epgV2PartnerConfig.IsIndexCompactionEnabled)
@@ -51,7 +51,8 @@ namespace IngestTransformationHandler.Managers
                 return;
             }
             
-            var locker = new DistributedLock(partnerId);
+            var lockerMetadata = GenerateLockerMetadata(bulkUploadId);
+            var locker = new DistributedLock(partnerId, lockerMetadata);
             try
             {
                 if (IsRunIntervalForCompactionPassed(partnerId))
@@ -110,6 +111,16 @@ namespace IngestTransformationHandler.Managers
         private IEnumerable<string> GetGlobalEpgIngestLockKey(int partnerId)
         {
             return new[] { $"epg_v2_index_compaction_lock_{partnerId}" };
+        }
+
+        private static IReadOnlyDictionary<string, string> GenerateLockerMetadata(long bulkUploadId)
+        {
+            return bulkUploadId == 0
+                ? new Dictionary<string, string>()
+                : new Dictionary<string, string>
+                {
+                    { "BulkUploadId", bulkUploadId.ToString() }
+                };
         }
     }
 }

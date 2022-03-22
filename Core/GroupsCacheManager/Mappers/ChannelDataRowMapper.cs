@@ -41,7 +41,6 @@ namespace GroupsCacheManager.Mappers
                 ? (OrderBy)Enum.ToObject(typeof(OrderBy), orderByInt)
                 : OrderBy.META;
 
-            AssetOrder channelOrder;
             switch (orderBy)
             {
                 case OrderBy.NAME:
@@ -49,34 +48,31 @@ namespace GroupsCacheManager.Mappers
                 case OrderBy.CREATE_DATE:
                 case OrderBy.RELATED:
                 case OrderBy.ID:
-                    channelOrder = new AssetOrder { Field = orderBy, Direction = orderDir };
-                    break;
+                    return new AssetOrder { Field = orderBy, Direction = orderDir };
                 case OrderBy.META:
-                    channelOrder = new AssetOrderByMeta { Field = orderBy, Direction = orderDir, MetaName = orderByValue };
-                    break;
+                    return new AssetOrderByMeta { Field = orderBy, Direction = orderDir, MetaName = orderByValue };
                 case OrderBy.LIKE_COUNTER:
                 case OrderBy.RATING:
                 case OrderBy.VOTES_COUNT:
                 case OrderBy.VIEWS:
-                    var slidingWindowPeriod = ODBCWrapper.Utils.GetIntSafeVal(dr["SlidingWindowPeriod"]);
-                    channelOrder = new AssetSlidingWindowOrder { Field = orderBy, Direction = orderDir, SlidingWindowPeriod = slidingWindowPeriod };
-                    break;
+                    var isSlidingWindow = ODBCWrapper.Utils.GetIntSafeVal(dr["IsSlidingWindow"]) == 1;
+                    var slidingWindowPeriod = 0;
+                    if (isSlidingWindow)
+                    {
+                        slidingWindowPeriod = ODBCWrapper.Utils.GetIntSafeVal(dr["SlidingWindowPeriod"]);
+                    }
+
+                    return new AssetSlidingWindowOrder { Field = orderBy, Direction = orderDir, SlidingWindowPeriod = slidingWindowPeriod };
                 default:
                     if (orderByInt >= (int)MetasEnum.META1_STR && orderByInt <= (int)MetasEnum.META10_DOUBLE)
                     {
                         // TVM account. MetaName will be updated by ChannelRepository.
-                        channelOrder = new AssetOrderByMeta { Field = OrderBy.META, Direction = orderDir };
-                    }
-                    else
-                    {
-                        Log.Warn($"{nameof(AssetOrder)} can not be determined: {nameof(orderBy)}={orderBy}. The default channel order has been created.");
-                        channelOrder = new AssetOrder { Field = OrderBy.CREATE_DATE, Direction = OrderDir.DESC };
+                        return new AssetOrderByMeta { Field = OrderBy.META, Direction = orderDir };
                     }
 
-                    break;
+                    Log.Warn($"{nameof(AssetOrder)} can not be determined: {nameof(orderBy)}={orderBy}. The default channel order has been created.");
+                    return new AssetOrder { Field = OrderBy.CREATE_DATE, Direction = OrderDir.DESC };
             }
-
-            return channelOrder;
         }
 
         public static OrderObj BuildOrderObj(AssetOrder channelOrder)
