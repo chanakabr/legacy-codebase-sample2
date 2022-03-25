@@ -549,7 +549,7 @@ namespace WebAPI.Controllers
                 // remove users, devices and household
                 ClientsManager.DomainsClient().RemoveDomain(groupId, id.Value, false);
 
-                AuthorizationManager.RevokeHouseholdSessions(groupId, null, householdUserIds);
+                AuthorizationManager.RevokeHouseholdSessions(groupId, id.Value, null, householdUserIds);
 
             }
             catch (ClientException ex)

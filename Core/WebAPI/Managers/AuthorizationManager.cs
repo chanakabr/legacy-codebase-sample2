@@ -1086,13 +1086,13 @@ namespace WebAPI.Managers
             return loginSession;
         }
 
-        public static void RevokeHouseholdSessions(int groupId, string udid = null, List<string> householdUserIds = null, long domainId = 0)
+        public static void RevokeHouseholdSessions(int groupId, long domainId, string udid = null, List<string> householdUserIds = null)
         {
             try
             {
                 if (householdUserIds == null)
                 {
-                    householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId, true);
+                    householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId, true, (int)domainId);
 
                     if (householdUserIds == null)
                     {

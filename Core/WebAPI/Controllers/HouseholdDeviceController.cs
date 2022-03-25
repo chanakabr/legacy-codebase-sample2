@@ -3,7 +3,6 @@ using ApiObjects.Base;
 using ApiObjects.Response;
 using ApiObjects.User;
 using KalturaRequestContext;
-using ObjectsConvertor.Mapping;
 using System;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
@@ -38,23 +37,23 @@ namespace WebAPI.Controllers
             bool res = false;
             KS ks = KS.GetFromRequest();
             int groupId = ks.GroupId;
-            var householdId = (int)HouseholdUtils.GetHouseholdIDByKS();
+            var householdId = HouseholdUtils.GetHouseholdIDByKS();
 
             try
             {
                 var userRoles = RolesManager.GetRoleIds(ks);
-                long domainId = 0;
                 if (userRoles.Contains(RolesManager.OPERATOR_ROLE_ID) || userRoles.Contains(RolesManager.MANAGER_ROLE_ID) || userRoles.Contains(RolesManager.ADMINISTRATOR_ROLE_ID))
                 {
-                    res = ClientsManager.DomainsClient().DeleteDevice(groupId, udid, out domainId);
+                    res = ClientsManager.DomainsClient().DeleteDevice(groupId, udid, out var domainId);
+                    householdId = domainId;
                 }
                 else
                 {
-                    res = ClientsManager.DomainsClient().RemoveDeviceFromDomain(groupId, householdId, udid);
+                    res = ClientsManager.DomainsClient().RemoveDeviceFromDomain(groupId, (int)householdId, udid);
                 }
 
                 DeviceRemovalPolicyHandler.Instance.DeleteDomainDeviceUsageDate(udid, groupId);
-                AuthorizationManager.RevokeHouseholdSessions(groupId, udid, null, domainId);
+                AuthorizationManager.RevokeHouseholdSessions(groupId, householdId, udid, null);
             }
             catch (ClientException ex)
             {
