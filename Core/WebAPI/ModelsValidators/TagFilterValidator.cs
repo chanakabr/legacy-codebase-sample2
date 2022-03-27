@@ -38,7 +38,7 @@ namespace WebAPI.ModelsValidators
                 HashSet<string> groupLanguageCodes = Utils.Utils.GetGroupLanguageCodes();
                 if (!groupLanguageCodes.Contains(model.LanguageEqual))
                 {
-                    throw new BadRequestException(ApiException.GROUP_DOES_NOT_CONTAIN_LANGUAGE, model.LanguageEqual);
+                    throw new BadRequestException(BadRequestException.GROUP_DOES_NOT_CONTAIN_LANGUAGE, model.LanguageEqual);
                 }
             }
         }

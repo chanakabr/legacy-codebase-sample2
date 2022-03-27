@@ -178,7 +178,7 @@ namespace WebAPI.Models.API
                     {
                         if (regex.IsMatch(feature))
                         {
-                            throw new BadRequestException(ApiException.INVALID_VALUE_FOR_FEATURE, feature);
+                            throw new BadRequestException(BadRequestException.INVALID_VALUE_FOR_FEATURE, feature);
                         }
                     }
                 }

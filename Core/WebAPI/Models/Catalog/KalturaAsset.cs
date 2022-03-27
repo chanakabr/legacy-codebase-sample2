@@ -320,7 +320,7 @@ namespace WebAPI.Models.Catalog
                             List<ApiObjects.LanguageContainer> noneDefaultLanugageContainer = item.value.GetNoneDefaultLanugageContainer();
                             if (noneDefaultLanugageContainer != null && noneDefaultLanugageContainer.Count > 0)
                             {
-                                throw new BadRequestException(ApiException.TAG_TRANSLATION_NOT_ALLOWED);
+                                throw new BadRequestException(BadRequestException.TAG_TRANSLATION_NOT_ALLOWED);
                             }
                         }
                     }

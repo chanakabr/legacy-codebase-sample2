@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ApiObjects.Response;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
@@ -46,6 +47,12 @@ namespace Validator.Managers.Scheme
             "MatchAnd",
             "NotContains",
             "Empty"
+        };
+
+        private static readonly HashSet<eResponseStatus> mismatchEnums = new HashSet<eResponseStatus>() {
+            eResponseStatus.OK,
+            eResponseStatus.GroupDoesNotContainLanguage, 
+            eResponseStatus.InvalidArgumentValue 
         };
 
         private static readonly Type kalturaListResponseType = typeof(KalturaListResponse);
@@ -372,7 +379,8 @@ namespace Validator.Managers.Scheme
             bool valid = true;
 
             Dictionary<int, string> codes = new Dictionary<int, string>();
-            foreach (Type exception in this.Holder.Exceptions.OrderBy(exception => exception.Name))
+            var orderedErrors = this.Holder.Exceptions.OrderBy(exception => exception.Name).ToList();
+            foreach (Type exception in orderedErrors)
             {
                 FieldInfo[] fields = exception.GetFields();
                 foreach (FieldInfo field in fields)
@@ -391,9 +399,38 @@ namespace Validator.Managers.Scheme
                             codes.Add(type.statusCode, error);
                         }
                     }
+                    else if (field.FieldType == typeof(ApiException.ClientExceptionType))
+                    {
+                        var type = (ApiException.ClientExceptionType)field.GetValue(null);
+                        string error = string.Format("{0}.{1}", exception.Name, field.Name);
+                        if (codes.ContainsKey((int)type.statusCode))
+                        {
+                            logError("Error", exception, string.Format("Error code {0} appears both in error {1} and error {2}", type.statusCode, error, codes[(int)type.statusCode]));
+                            valid = false;
+                        }
+                        else
+                        {
+                            codes.Add((int)type.statusCode, error);
+                        }
+                    }
                 }
             }
 
+            var eResponseStatusType = typeof(eResponseStatus);
+            var values = ((eResponseStatus[])Enum.GetValues(eResponseStatusType));
+            foreach (var enumValue in values)
+            {
+                if (mismatchEnums.Contains(enumValue))
+                {
+                    continue;
+                }
+
+                if (!codes.ContainsKey((int)enumValue))
+                {
+                    logError("Error", eResponseStatusType, string.Format("Error code {0} does not exist as ClientExceptionType in ApiExceptionErrors.cs", enumValue));
+                }
+            }
+            
             return valid;
         }
 

@@ -160,7 +160,7 @@ namespace WebAPI.Models.API
                 }
                 else if (DataTypeEqual.Value == KalturaMetaDataType.STRING && !MultipleValueEqual.HasValue)
                 {
-                    throw new BadRequestException(ApiException.MULTI_VALUE_NOT_SENT_FOR_META_DATA_TYPE_STRING);
+                    throw new BadRequestException(BadRequestException.MULTI_VALUE_NOT_SENT_FOR_META_DATA_TYPE_STRING);
                 }
             }
         }

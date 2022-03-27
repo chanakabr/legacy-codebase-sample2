@@ -70,7 +70,7 @@ namespace WebAPI.Clients
             {
                 if (userResponse.Status.Code == (int)eResponseStatus.UserExternalError)
                 {
-                    throw new ClientExternalException(ApiException.EXTERNAL_ERROR, userResponse.Status.Code, userResponse.Status.Message, userResponse.Object.ExternalCode, userResponse.Object.ExternalMessage);
+                    throw new ClientExternalException(BadRequestException.EXTERNAL_ERROR, userResponse.Status.Code, userResponse.Status.Message, userResponse.Object.ExternalCode, userResponse.Object.ExternalMessage);
                 }
                 else
                 {
@@ -115,7 +115,7 @@ namespace WebAPI.Clients
                 if (signUpResponse.Status.Code == (int)eResponseStatus.UserExternalError)
                 {
                     throw new ClientExternalException(
-                        ApiException.EXTERNAL_ERROR,
+                        BadRequestException.EXTERNAL_ERROR,
                         signUpResponse.Status.Code,
                         signUpResponse.Status.Message,
                         signUpResponse.Object.ExternalCode,

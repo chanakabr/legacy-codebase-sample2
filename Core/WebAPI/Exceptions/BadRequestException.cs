@@ -46,6 +46,15 @@ namespace WebAPI.Exceptions
         public static ApiExceptionType ARGUMENTS_VALUES_CONFLICT_EACH_OTHER = new ApiExceptionType(StatusCode.ArgumentsConflictEachOther, StatusCode.BadRequest, "Argument [@argument1@] value conflicts Argument [@argument2@] value", "argument1", "argument2");
         public static ApiExceptionType ARGUMENTS_VALUES_DUPLICATED = new ApiExceptionType(StatusCode.ArgumentsDuplicate, StatusCode.BadRequest, "Argument [@argument@] can not appear twice", "argument");
         public static ApiExceptionType INVALID_AGRUMENT_VALUE = new ApiExceptionType(StatusCode.InvalidArgumentValue, StatusCode.BadRequest, "Argument [@argument@] value must be of type [@value@]", "argument", "value");
+
+        public static ApiExceptionType DUPLICATE_LANGUAGE_SENT = new ApiExceptionType(StatusCode.DuplicateLanguageSent, "languageCode: @lngCode@ has been sent more than once", "lngCode");
+        public static ApiExceptionType INVALID_VALUE_FOR_FEATURE = new ApiExceptionType(StatusCode.InvalidValueForFeature, "Invalid value for feature: @feature@. feature can only contain alphanumeric values and/or underscore up until 64 characters", "feature");
+        public static ApiExceptionType DEFUALT_LANGUAGE_MUST_BE_SENT = new ApiExceptionType(StatusCode.DefaultLanguageMustBeSent, "Default language must be one of the values sent for @object@", "object");
+        public static ApiExceptionType GROUP_DOES_NOT_CONTAIN_LANGUAGE = new ApiExceptionType(StatusCode.GroupDoesNotContainLanguage, "language: @lng@ is not part of group supported languages", "lng");
+        public static ApiExceptionType GLOBAL_LANGUAGE_MUST_BE_ASTERISK_FOR_WRITE_ACTIONS = new ApiExceptionType(StatusCode.GlobalLanguageParameterMustBeAsterisk, "Global language parameter must be asterisk for write actions of multilingualName");
+        public static ApiExceptionType MULTI_VALUE_NOT_SENT_FOR_META_DATA_TYPE_STRING = new ApiExceptionType(StatusCode.MultiValueWasNotSentForMetaDataTypeString, "multipleValue property must have a value when KalturaMetaDataType equals STRING");
+        public static ApiExceptionType TAG_TRANSLATION_NOT_ALLOWED = new ApiExceptionType(StatusCode.TagTranslationNotAllowed, "Tag translations are not allowed using asset controller, please use tag controller");
+
         public static ApiExceptionType BOTH_ARGUMENTS_MUST_HAVE_VALUE = new ApiExceptionType(StatusCode.OneOfArgumentsCannotBeEmpty, StatusCode.BadRequest, "Argument [@argument1@] cannot be empty if [@argument2@] not empty", "argument1", "argument2");
         public static ApiExceptionType TYPE_NOT_SUPPORTED = new ApiExceptionType(StatusCode.TypeNotSupported, StatusCode.BadRequest, "Type [@value@] is not supported for argument [@argument@]", "argument", "value");
         public static ApiExceptionType FORMAT_NOT_SUPPORTED = new ApiExceptionType(StatusCode.FormatNotSupported, StatusCode.BadRequest, "Format @formatName@(@format@) is not supported.", "formatName", "format");
@@ -56,6 +65,7 @@ namespace WebAPI.Exceptions
         public static ApiExceptionType DUPLICATE_ASSET = new ApiExceptionType(StatusCode.DuplicateAsset, StatusCode.BadRequest, "Duplicate asset: id [@id@] type = [@type@]", "id", "type");
         public static ApiExceptionType DUPLICATE_FILE = new ApiExceptionType(StatusCode.DuplicateFile, StatusCode.BadRequest, "Duplicate file: id [@id@]", "id");
         public static ApiExceptionType UNABLE_TO_CREATE_HOUSEHOLD_FOR_USER_ROLE = new ApiExceptionType(StatusCode.UnableToCreateHouseholdForRole, StatusCode.BadRequest, "Unable to create household for role");
+        public static ApiExceptionType EXTERNAL_ERROR = new ApiExceptionType(StatusCode.ExternalError, "externalCode: [@externalCode@], externalMessage: [@externalMessage@]", "externalCode", "externalMessage");
         public static ApiExceptionType HTTP_METHOD_NOT_SUPPORTED = new ApiExceptionType(StatusCode.HttpMethodNotSupported, StatusCode.BadRequest, "HTTP [@argument@] method not supported", "argument" );
         public static ApiExceptionType PROPERTY_IS_OPC_SUPPORTED = new ApiExceptionType(StatusCode.PropertyIsOpcSupported, StatusCode.InvalidActionParameters, "Property [@property@] is supported only for OPC accounts", "property");
         public static ApiExceptionType KEY_CANNOT_BE_EMPTY_OR_NULL = new ApiExceptionType(StatusCode.KeyCannotBeEmptyOrNull, StatusCode.BadRequest, "Key of [@property@] cannot be empty or null", "property");

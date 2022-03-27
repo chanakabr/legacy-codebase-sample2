@@ -21,7 +21,7 @@ namespace WebAPI.ModelsValidators
                 {
                     if (languageCodes.Contains(token.Language))
                     {
-                        throw new BadRequestException(ApiException.DUPLICATE_LANGUAGE_SENT, token.Language);
+                        throw new BadRequestException(BadRequestException.DUPLICATE_LANGUAGE_SENT, token.Language);
                     }
 
                     if (shouldValidateValues && string.IsNullOrEmpty(token.Value))
@@ -32,7 +32,7 @@ namespace WebAPI.ModelsValidators
 
                     if (shouldValidateLanguageExistsForGroup && !groupLanguageCodes.Contains(token.Language))
                     {
-                        throw new BadRequestException(ApiException.GROUP_DOES_NOT_CONTAIN_LANGUAGE, token.Language);
+                        throw new BadRequestException(BadRequestException.GROUP_DOES_NOT_CONTAIN_LANGUAGE, token.Language);
                     }
 
                     languageCodes.Add(token.Language);
@@ -40,14 +40,14 @@ namespace WebAPI.ModelsValidators
 
                 if (shouldCheckDefaultLanguageIsSent && !languageCodes.Contains(GroupDefaultLanguageCode))
                 {
-                    throw new BadRequestException(ApiException.DEFUALT_LANGUAGE_MUST_BE_SENT, parameterName);
+                    throw new BadRequestException(BadRequestException.DEFUALT_LANGUAGE_MUST_BE_SENT, parameterName);
                 }
 
                 if (shouldValidateRequestLanguage)
                 {
                     if (string.IsNullOrEmpty(RequestLanguageCode) || RequestLanguageCode != "*")
                     {
-                        throw new BadRequestException(ApiException.GLOBAL_LANGUAGE_MUST_BE_ASTERISK_FOR_WRITE_ACTIONS);
+                        throw new BadRequestException(BadRequestException.GLOBAL_LANGUAGE_MUST_BE_ASTERISK_FOR_WRITE_ACTIONS);
                     }
                 }
             }
