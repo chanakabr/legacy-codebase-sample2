@@ -28,7 +28,9 @@ then
 	docker pull $AWS_HOST/master/ott-tool-codegen:build
 fi
 
-echo Generating Catalog events with ott-tool-codegen...
+echo Generating Catalog events
 docker run --rm -e GITHUB_TOKEN=$GITHUB_TOKEN -v $BASH_DIR/Catalog:/userdir $AWS_HOST/master/ott-tool-codegen:build service -srb $SCHEMA_BRANCH -s phoenix --lang csharp
+echo Generating Household events
+docker run --rm -e GITHUB_TOKEN=$GITHUB_TOKEN -v $BASH_DIR/Household:/userdir $AWS_HOST/master/ott-tool-codegen:build service -srb $SCHEMA_BRANCH -s phoenix --lang csharp
 
 echo Generating events has been completed.

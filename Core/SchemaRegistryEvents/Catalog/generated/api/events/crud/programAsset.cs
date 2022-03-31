@@ -21,6 +21,9 @@ namespace Phoenix.Generated.Api.Events.Crud.ProgramAsset
     /// </summary>
     public partial class ProgramAsset
     {
+        /// <summary>
+        /// enum values - Created=0, Updated=1,Deleted=2
+        /// </summary>
         [JsonProperty("operation", NullValueHandling = NullValueHandling.Ignore)]
         public long? Operation { get; set; }
 

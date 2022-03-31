@@ -127,6 +127,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaCanaryDeploymentMicroservicesRoutingAction.MULTIREQUEST:
                     res = CanaryDeploymentRoutingAction.MultiRequestController;
                     break;
+                case KalturaCanaryDeploymentMicroservicesRoutingAction.HOUSEHOLD_USER:
+                    res = CanaryDeploymentRoutingAction.HouseholdUser;
+                    break;
                 default:
                     throw new Exception("invalid KalturaCanaryDeploymentRoutingAction type");
             }
@@ -144,6 +147,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 case KalturaCanaryDeploymentMicroservicesRoutingService.PHOENIX_REST_PROXY:
                     res = MicroservicesCanaryDeploymentRoutingService.PhoenixRestProxy;
+                    break;
+                case KalturaCanaryDeploymentMicroservicesRoutingService.HOUSEHOLD:
+                    res = MicroservicesCanaryDeploymentRoutingService.HouseholdService;
                     break;
                 default:
                     throw new Exception("invalid KalturaCanaryDeploymentRoutingService type");

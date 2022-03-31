@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using ApiLogic.Users;
+using ApiObjects.Response;
 
 namespace Core.Users.Cache
 {
@@ -567,29 +568,38 @@ namespace Core.Users.Cache
         }
         */
 
-        internal bool GetDLM(int dlmId, int groupId, out LimitationsManager dlm)
+        public bool GetDLM(int dlmId, int groupId, out LimitationsManager dlm)
         {
             dlm = null;
             try
             {
-                string key = LayeredCacheKeys.GetDlmKey(dlmId);
-                LimitationsManager dlmToGet = null;
-                if (!LayeredCache.Instance.Get<LimitationsManager>(key, ref dlmToGet, GetDlm, new Dictionary<string, object>() { { "groupId", groupId }, { "dlmId", dlmId } }, groupId,
-                                                    LayeredCacheConfigNames.DLM_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetDlmInvalidationKey(groupId, dlmId) }))
-                {
-                    log.DebugFormat("GetDLM - Couldn't get dlmId {0}", dlmId);
-                }
-                else
-                {
-                    dlm = TVinciShared.ObjectCopier.Clone<LimitationsManager>(dlmToGet);
-                }
+                dlm = GetDLMUnsafe(dlmId, groupId);
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetDLM for groupId: {0}, dlmId: {1}", groupId, dlmId), ex);
+                log.Error($"Failed GetDLM for groupId: {groupId}, dlmId: {dlmId}", ex);
             }
 
             return dlm != null;
+        }
+        
+        public LimitationsManager GetDLMUnsafe(int dlmId, int groupId)
+        {
+            Try<LimitationsManager> dlmToGet = null;
+            if (LayeredCache.Instance.Get(
+                    LayeredCacheKeys.GetDlmKey(dlmId),
+                    ref dlmToGet,
+                    GetDlm, 
+                    new Dictionary<string, object> { { "groupId", groupId }, { "dlmId", dlmId } },
+                    groupId,
+                    LayeredCacheConfigNames.DLM_LAYERED_CACHE_CONFIG_NAME,
+                    new List<string> { LayeredCacheKeys.GetDlmInvalidationKey(groupId, dlmId) }))
+            {
+                return TVinciShared.ObjectCopier.Clone(dlmToGet.Value);
+            }
+
+            if (dlmToGet == null) throw new Exception($"Can't get DLM from cache. groupId:[{groupId}]. dlmId:[{dlmId}]");
+            return dlmToGet.Value; // throws an exception(infrastructure error) or return null(entity not found)
         }
 
         /*internal bool RemoveDLM(int nDlmID)
@@ -667,10 +677,10 @@ namespace Core.Users.Cache
             return new Tuple<Domain, bool>(domain, res);
         }
 
-        private static Tuple<LimitationsManager, bool> GetDlm(Dictionary<string, object> funcParams)
+        private static Tuple<Try<LimitationsManager>, bool> GetDlm(Dictionary<string, object> funcParams)
         {
             bool res = false;
-            LimitationsManager dlm = null;
+            Try<LimitationsManager> dlm = null;
             try
             {
                 if (funcParams != null && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("dlmId"))
@@ -678,7 +688,7 @@ namespace Core.Users.Cache
                     int? groupId = funcParams["groupId"] as int?;
                     int? dlmId = funcParams["dlmId"] as int?;
                     dlm = dlmRepository.Get(groupId.Value, dlmId.Value);
-                    res = dlm != null;
+                    res = dlm.IsValue && dlm.Value != null;
                 }
             }
             catch (Exception ex)
@@ -686,7 +696,7 @@ namespace Core.Users.Cache
                 log.Error(string.Format("GetDlm failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
-            return new Tuple<LimitationsManager, bool>(dlm, res);
+            return Tuple.Create(dlm, res);
         }
 
         #endregion

@@ -4,7 +4,9 @@
     public enum KalturaCanaryDeploymentMicroservicesRoutingService
     {
         PHOENIX = 0,
-        PHOENIX_REST_PROXY = 1
+        PHOENIX_REST_PROXY = 1,
+        //MULTIREQUEST = 2,
+        HOUSEHOLD = 3,
     }
 
     public enum KalturaCanaryDeploymentMicroservicesRoutingAction
@@ -19,7 +21,7 @@
         LOGOUT = 7, // ottuser/action/logout
         ANONYMOUSLOGIN = 8, // ottuser/action/anonymousLogin
         MULTIREQUEST = 9, // ottuser/action/multirequest
-        
+        HOUSEHOLD_USER = 10, // ottuser/action/get
     }
 
     public enum KalturaCanaryDeploymentMicroservicesMigrationEvent

@@ -2871,6 +2871,13 @@ namespace Core.Users
                 success = true;
             }
 
+            m_DomainStatus = CreateNpvrAccount( m_nGroupID, m_nDomainID, npvrQuotaInSecs);
+
+            return success;
+        }
+
+        public static DomainStatus CreateNpvrAccount(int m_nGroupID, int m_nDomainID, long npvrQuotaInSecs)
+        {
             INPVRProvider npvr;
             if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr, null) && npvr.SynchronizeNpvrWithDomain && Utils.IsServiceAllowed(m_nGroupID, m_nDomainID, eService.NPVR))
             {
@@ -2881,28 +2888,27 @@ namespace Core.Users
                     {
                         if (resp.isOK)
                         {
-                            m_DomainStatus = DomainStatus.OK;
+                            return DomainStatus.OK;
                         }
                         else
                         {
-                            m_DomainStatus = DomainStatus.DomainCreatedWithoutNPVRAccount;
                             log.Error("Error - " + string.Format("CreateNewDomain. NPVR Provider returned null from Factory. G ID: {0} , D ID: {1} , NPVR Err Msg: {2}", m_nGroupID, m_nDomainID, resp.msg));
+                            return DomainStatus.DomainCreatedWithoutNPVRAccount;
                         }
                     }
                     else
                     {
-                        m_DomainStatus = DomainStatus.DomainCreatedWithoutNPVRAccount;
                         log.Error("Error - " + string.Format("CreateNewDomain. NPVR Provider CreateAccount response is null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
+                        return DomainStatus.DomainCreatedWithoutNPVRAccount;
                     }
                 }
                 catch (Exception ex)
                 {
-                    m_DomainStatus = DomainStatus.DomainCreatedWithoutNPVRAccount;
                     log.ErrorFormat("CreateNewDomain. NPVR Provider return with ex from Factory. G ID: {0} , D ID: {1} , ex: {2}", m_nGroupID, m_nDomainID, ex);
+                    return DomainStatus.DomainCreatedWithoutNPVRAccount;
                 }
             }
-
-            return success;
+            return DomainStatus.OK;
         }
 
         protected override bool DoUpdate()

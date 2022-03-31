@@ -1,36 +1,26 @@
 ﻿using System.Collections.Generic;
+using static ApiObjects.CanaryDeployment.Microservices.CanaryDeploymentRoutingAction;
+using static ApiObjects.CanaryDeployment.Microservices.MicroservicesCanaryDeploymentRoutingService;
 
 namespace ApiObjects.CanaryDeployment.Microservices
 {
     public static class CanaryDeploymentRoutingActionLists
     {
-        
         public static readonly Dictionary<CanaryDeploymentRoutingAction, MicroservicesCanaryDeploymentRoutingService>
             RoutingActionsToMsRoutingService =
                 new Dictionary<CanaryDeploymentRoutingAction, MicroservicesCanaryDeploymentRoutingService>()
                 {
-                    {CanaryDeploymentRoutingAction.AppTokenController, MicroservicesCanaryDeploymentRoutingService.PhoenixRestProxy},
-                    {
-                        CanaryDeploymentRoutingAction.UserLoginPinController,
-                        MicroservicesCanaryDeploymentRoutingService.PhoenixRestProxy
-                    },
-                    {
-                        CanaryDeploymentRoutingAction.SsoAdapterProfileController,
-                        MicroservicesCanaryDeploymentRoutingService.PhoenixRestProxy
-                    },
-                    {CanaryDeploymentRoutingAction.SessionController, MicroservicesCanaryDeploymentRoutingService.PhoenixRestProxy},
-                    {
-                        CanaryDeploymentRoutingAction.HouseHoldDevicePinActions,
-                        MicroservicesCanaryDeploymentRoutingService.PhoenixRestProxy
-                    },
-                    {CanaryDeploymentRoutingAction.RefreshSession, MicroservicesCanaryDeploymentRoutingService.PhoenixRestProxy},
-                    {CanaryDeploymentRoutingAction.Login, MicroservicesCanaryDeploymentRoutingService.PhoenixRestProxy},
-                    {CanaryDeploymentRoutingAction.Logout, MicroservicesCanaryDeploymentRoutingService.PhoenixRestProxy},
-                    {CanaryDeploymentRoutingAction.AnonymousLogin, MicroservicesCanaryDeploymentRoutingService.PhoenixRestProxy},
-                    {
-                        CanaryDeploymentRoutingAction.MultiRequestController,
-                        MicroservicesCanaryDeploymentRoutingService.MultiRequestMicroService
-                    }
+                    {AppTokenController, PhoenixRestProxy},
+                    {UserLoginPinController, PhoenixRestProxy},
+                    {SsoAdapterProfileController, PhoenixRestProxy},
+                    {SessionController, PhoenixRestProxy},
+                    {HouseHoldDevicePinActions, PhoenixRestProxy },
+                    {RefreshSession, PhoenixRestProxy},
+                    {Login, PhoenixRestProxy},
+                    {Logout, PhoenixRestProxy},
+                    {AnonymousLogin, PhoenixRestProxy},
+                    {MultiRequestController, MultiRequestMicroService},
+                    {HouseholdUser, HouseholdService},
                 };
                 
         public static readonly List<string> AppTokenControllerRouting = new List<string>() { "appToken/action/add", "appToken/action/delete", "appToken/action/get", "appToken/action/startSession" };
@@ -42,15 +32,16 @@ namespace ApiObjects.CanaryDeployment.Microservices
         public static readonly List<string> LoginRouting = new List<string>() { "ottuser/action/login" };
         public static readonly List<string> LogoutRouting = new List<string>() { "ottuser/action/logout" };
         public static readonly List<string> AnonymousLoginRouting = new List<string>() { "ottuser/action/anonymousLogin" };        
-        public static readonly List<string> MultiRequestController = new List<string>() { "multirequest","multirequest/action/do" };
-
+        public static readonly List<string> MultiRequestControllerRouting = new List<string>() { "multirequest","multirequest/action/do" };
+        public static readonly List<string> HouseholdUserRouting = new List<string>() { "ottuser/action/get", "ottuser/action/register" };
     }    
 
     public enum MicroservicesCanaryDeploymentRoutingService
     {
         Phoenix = 0,
         PhoenixRestProxy = 1,       
-        MultiRequestMicroService = 2
+        MultiRequestMicroService = 2,
+        HouseholdService = 3,
     }
 
     public enum CanaryDeploymentRoutingAction
@@ -65,6 +56,7 @@ namespace ApiObjects.CanaryDeployment.Microservices
         Logout = 7, // ottuser/action/logout
         AnonymousLogin = 8, // ottuser/action/anonymousLogin        
         MultiRequestController = 9, // multirequest/  + multirequest/action/do
+        HouseholdUser = 10, // ottuser/action/get
     }
 
     public enum CanaryDeploymentMigrationEvent

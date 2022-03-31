@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using ApiObjects.Response;
 using Core.Users;
 using DAL;
 using Phx.Lib.Log;
@@ -13,7 +14,7 @@ namespace ApiLogic.Users
     {
         LimitationsManager Add(int groupId, long updaterId, LimitationsManager limitationsManager);
         LimitationsManager Update(int groupId, long updaterId, LimitationsManager limitationsManager);
-        LimitationsManager Get(int groupId, int limitId);
+        Try<LimitationsManager> Get(int groupId, int limitId);
         IEnumerable<int> GetDomainLimitationModuleIds(int groupId);
         bool Delete(int limitId, long updaterId);
     }
@@ -52,21 +53,15 @@ namespace ApiLogic.Users
             }
         }
 
-        public LimitationsManager Get(int groupId, int limitId)
+        public Try<LimitationsManager> Get(int groupId, int limitId)
         {
-            try
+            return Try.Create(() =>
             {
                 var dataSet = _dlmDal.GetGroupLimitsAndDeviceFamilies(groupId, limitId);
                 var oLimitationsManager = CreateLimitationsManager(dataSet);
 
                 return oLimitationsManager;
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, $"Error while {nameof(Get)}: {nameof(groupId)}={groupId}, {nameof(limitId)}={limitId}, {e.Message}.");
-
-                return null;
-            }
+            });
         }
 
         public IEnumerable<int> GetDomainLimitationModuleIds(int groupId)

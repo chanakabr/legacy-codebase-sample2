@@ -71,7 +71,7 @@ namespace ApiLogic.Tests.Users.Services
                 .Returns(FakeLimitationsManagerResponse1());
             var domainLimitationModuleRepository = new DomainLimitationModuleRepository(_domainLimitationModuleDalMock.Object, _loggerMock.Object);
 
-            var result = domainLimitationModuleRepository.Get(1, 1);
+            var result = domainLimitationModuleRepository.Get(1, 1).Value;
 
             result.Should().NotBeNull();
             result.domianLimitID.Should().Be(1);
@@ -107,7 +107,7 @@ namespace ApiLogic.Tests.Users.Services
                 .Returns(dlmDTO);
             var domainLimitationModuleRepository = new DomainLimitationModuleRepository(_domainLimitationModuleDalMock.Object, _loggerMock.Object);
 
-            var result = domainLimitationModuleRepository.Get(1, 1);
+            var result = domainLimitationModuleRepository.Get(1, 1).Value;
 
             result.Should().BeNull();
         }

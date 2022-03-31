@@ -24,8 +24,10 @@ IF %UpdateTool% == 1 (
     docker pull 870777418594.dkr.ecr.us-west-2.amazonaws.com/master/ott-tool-codegen:build
 )
 
-ECHO Generating Catalog events with ott-tool-codegen...
+ECHO Generating Catalog events
 docker run --rm -e GITHUB_TOKEN=${env.GITHUB_TOKEN} -v %cd%/Catalog:/userdir  870777418594.dkr.ecr.us-west-2.amazonaws.com/master/ott-tool-codegen:build service -srb %SCHEMA_BRANCH% -s phoenix --lang csharp
+ECHO Generating Household events
+docker run --rm -e GITHUB_TOKEN=${env.GITHUB_TOKEN} -v %cd%/Household:/userdir  870777418594.dkr.ecr.us-west-2.amazonaws.com/master/ott-tool-codegen:build service -srb %SCHEMA_BRANCH% -s phoenix --lang csharp
 
 
 ECHO Generating events has been completed.

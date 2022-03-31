@@ -430,7 +430,10 @@ namespace CanaryDeploymentManager
                     apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.AnonymousLoginRouting);
                     break;
                 case CanaryDeploymentRoutingAction.MultiRequestController:
-                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.MultiRequestController);
+                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.MultiRequestControllerRouting);
+                    break;
+                case CanaryDeploymentRoutingAction.HouseholdUser:
+                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.HouseholdUserRouting);
                     break;
                 default:
                     break;
@@ -459,18 +462,12 @@ namespace CanaryDeploymentManager
             Status res = new Status(eResponseStatus.Error, "Failed validating routing action can be sent to phoenix proxy");
             Status okStatus = new Status(eResponseStatus.OK);
 
-            //multi request action can not be routed to phoenix rest proxy service
-            if (routingAction == CanaryDeploymentRoutingAction.MultiRequestController && routingService == MicroservicesCanaryDeploymentRoutingService.PhoenixRestProxy)
+            var expectedService = CanaryDeploymentRoutingActionLists.RoutingActionsToMsRoutingService[routingAction];
+            if (routingService != MicroservicesCanaryDeploymentRoutingService.Phoenix && expectedService != routingService)
             {
-                return  new Status(eResponseStatus.FailedToSetAllRoutingActions, "MultiRequestAction can not be routed to Phoenix Rest Proxy");
+                return new Status(eResponseStatus.FailedToSetAllRoutingActions, $"{routingAction} could be routed to {expectedService} or Phoenix");
             }
 
-            //multi request action can only be routed to multi request MS
-            if (routingAction != CanaryDeploymentRoutingAction.MultiRequestController && routingService == MicroservicesCanaryDeploymentRoutingService.MultiRequestMicroService)
-            {
-                return new Status(eResponseStatus.FailedToSetAllRoutingActions, $"action {routingAction} can not be routed to MultiRequest MS");
-            }
-                                   
             switch (routingAction)
             {
                 case CanaryDeploymentRoutingAction.AppTokenController:
@@ -501,6 +498,9 @@ namespace CanaryDeploymentManager
                     res = okStatus;
                     break;
                 case CanaryDeploymentRoutingAction.MultiRequestController:
+                    res = okStatus;
+                    break;
+                case CanaryDeploymentRoutingAction.HouseholdUser:
                     res = okStatus;
                     break;
                 default:
