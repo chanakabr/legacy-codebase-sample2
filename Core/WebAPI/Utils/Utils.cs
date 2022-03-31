@@ -430,5 +430,13 @@ namespace WebAPI.Utils
 
             return values;
         }
+
+        public static bool IsBetween<T>(T value, T minValue, T maxValue) where T : IComparable
+        {
+            var compareWithMinValue = value.CompareTo(minValue);
+            var compareWithMaxValue = value.CompareTo(maxValue);
+
+            return compareWithMinValue >= 0 && compareWithMaxValue <= 0;
+        }
     }
 }

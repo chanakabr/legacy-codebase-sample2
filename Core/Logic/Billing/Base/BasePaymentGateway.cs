@@ -221,7 +221,7 @@ namespace Core.Billing
                 }
 
                 var status = paymentGateway.ValidateRetries();
-                if(!status.IsOkStatusCode())
+                if (!status.IsOkStatusCode())
                 {
                     response.Status.Set(status);
                     return response;
@@ -540,7 +540,7 @@ namespace Core.Billing
                                     pgsby.IsDefault = true;
                                     pgsby.By = ApiObjects.eHouseholdPaymentGatewaySelectedBy.Account;
                                 }
-                                
+
                                 int household = ODBCWrapper.Utils.GetIntSafeVal(dr, "house_hold_id");
                                 if (household > 0)
                                 {
@@ -619,7 +619,7 @@ namespace Core.Billing
 
                 if (paymentGateway.RenewalIntervalMinutes < MIN_RENEWAL_INTERVAL_MINUTES)
                 {
-                    response.Status = new Status((int)eResponseStatus.Error,$"Renewal interval must be larger than {MIN_RENEWAL_INTERVAL_MINUTES} minutes");
+                    response.Status = new Status((int)eResponseStatus.Error, $"Renewal interval must be larger than {MIN_RENEWAL_INTERVAL_MINUTES} minutes");
                     return response;
                 }
 
@@ -630,7 +630,7 @@ namespace Core.Billing
                 }
 
                 var status = paymentGateway.ValidateRetries();
-                if(!status.IsOkStatusCode())
+                if (!status.IsOkStatusCode())
                 {
                     response.Status.Set(status);
                     return response;
@@ -676,7 +676,7 @@ namespace Core.Billing
                     response.Status.Set(paymentGatewayResponse.Status);
                     return response;
                 }
-                
+
                 if (settings == null || settings.Count == 0)
                 {
                     response.Status = new Status((int)eResponseStatus.PaymentGatewayParamsRequired, NO_PARAMS_TO_INSERT);
@@ -723,7 +723,7 @@ namespace Core.Billing
                     response.Set(paymentGatewayResponse.Status);
                     return response;
                 }
-               
+
                 // check user
                 Status userStatus = Utils.ValidateUserAndDomain(groupID, siteGuid, ref householdId);
 
@@ -1032,7 +1032,7 @@ namespace Core.Billing
             {
                 response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
-            
+
             response.PaymentGateway = paymentGateway;
             return response;
         }
@@ -1111,7 +1111,7 @@ namespace Core.Billing
                     transactionResponse.Status.Set(paymentGatewayResponse.Status);
                     return transactionResponse;
                 }
-                
+
                 // payment gateway is NOT Google/Apple/Roku - continue                
                 bool isSuspended = false;
                 if (!IsVerificationPaymentGateway(paymentGateway))
@@ -1439,25 +1439,6 @@ namespace Core.Billing
             XmlNode rootNode = xmlDoc.CreateElement("root");
             xmlDoc.AppendChild(rootNode);
 
-            XmlNode siteGuidNode;
-            XmlNode lastFourDigitsNode;
-            XmlNode priceNode; //price / total price             
-            XmlNode paymentMethodAdditionNode;
-            XmlNode priceCodeNode;
-            XmlNode currencyNodeCode;
-            XmlNode customDataNode;
-            XmlNode isRecurringNode;
-            XmlNode subscriptionCodeNode;
-            XmlNode purchaseIdNode;
-            XmlNode paymentNumberNode;
-            XmlNode numberOfPaymentsNode;
-            XmlNode countryCdNode;
-            XmlNode languageCodeNode;
-            XmlNode deviceNameNode;
-            XmlNode previewModuleIDNode;
-            XmlNode collectionCodeNode;
-            XmlNode billingGuidNode;
-
             int numberOfPayments = 0;
             int mediaFileID = 0;
             int mediaID = 0;
@@ -1482,6 +1463,7 @@ namespace Core.Billing
             string deviceName = string.Empty;
             string prePaidCode = string.Empty;
             string collectionCode = string.Empty;
+            long pagoId = 0;
 
             foreach (RenewDetails rsd in renewUnified)
             {
@@ -1489,87 +1471,89 @@ namespace Core.Billing
                 Core.Billing.Utils.SplitRefference(rsd.CustomData, ref mediaFileID, ref mediaID, ref subscriptionCode, ref pPVCode, ref prePaidCode, ref priceCode,
                         ref price, ref currencyCode, ref isRecurring, ref pPVModuleCode, ref numberOfPayments, ref userGUID,
                                     ref relevantSub, ref maxNumberOfUses, ref maxUsageModuleLifeCycle, ref viewLifeCycleSecs, ref purchaseType,
-                                    ref countryCd, ref languageCode, ref deviceName, ref previewModuleID, ref collectionCode);
+                                    ref countryCd, ref languageCode, ref deviceName, ref previewModuleID, ref collectionCode, out pagoId);
 
                 int nPaymentNumberToInsertToDB = Core.Billing.Utils.CalcPaymentNumberForBillingTransactionsDBTable(rsd.PaymentNumber, 0);
 
                 rowNode = xmlDoc.CreateElement("row");
 
-                siteGuidNode = xmlDoc.CreateElement("site_guid");
+                XmlNode siteGuidNode = xmlDoc.CreateElement("site_guid");
                 siteGuidNode.InnerText = userGUID;
                 rowNode.AppendChild(siteGuidNode);
 
-                lastFourDigitsNode = xmlDoc.CreateElement("last_four_digits");
+                XmlNode lastFourDigitsNode = xmlDoc.CreateElement("last_four_digits");
                 lastFourDigitsNode.InnerText = string.Empty;
                 rowNode.AppendChild(lastFourDigitsNode);
 
-                priceNode = xmlDoc.CreateElement("price");
+                XmlNode priceNode = xmlDoc.CreateElement("price");
                 priceNode.InnerText = rsd.Price.ToString();
                 rowNode.AppendChild(priceNode);
 
-                paymentMethodAdditionNode = xmlDoc.CreateElement("payment_method_addition");
+                XmlNode paymentMethodAdditionNode = xmlDoc.CreateElement("payment_method_addition");
                 paymentMethodAdditionNode.InnerText = string.Empty;
                 rowNode.AppendChild(paymentMethodAdditionNode);
 
-                priceCodeNode = xmlDoc.CreateElement("price_code");
+                XmlNode priceCodeNode = xmlDoc.CreateElement("price_code");
                 priceCodeNode.InnerText = priceCode;
                 rowNode.AppendChild(priceCodeNode);
 
-                currencyNodeCode = xmlDoc.CreateElement("currency_code");
+                XmlNode currencyNodeCode = xmlDoc.CreateElement("currency_code");
                 currencyNodeCode.InnerText = rsd.Currency;
                 rowNode.AppendChild(currencyNodeCode);
 
-                customDataNode = xmlDoc.CreateElement("custom_data");
+                XmlNode customDataNode = xmlDoc.CreateElement("custom_data");
                 // change partial tag to full period - due to unified billing cycle 
                 customDataNode.InnerText = rsd.CustomData.Replace("<partialPrice>True</partialPrice>", "");
 
-
                 rowNode.AppendChild(customDataNode);
 
-                isRecurringNode = xmlDoc.CreateElement("is_recurring");
+                XmlNode isRecurringNode = xmlDoc.CreateElement("is_recurring");
                 isRecurringNode.InnerText = isRecurring ? "1" : "0";
                 rowNode.AppendChild(isRecurringNode);
 
-                subscriptionCodeNode = xmlDoc.CreateElement("subscription_code");
+                XmlNode subscriptionCodeNode = xmlDoc.CreateElement("subscription_code");
                 subscriptionCodeNode.InnerText = subscriptionCode;
                 rowNode.AppendChild(subscriptionCodeNode);
 
-                purchaseIdNode = xmlDoc.CreateElement("purchase_id");
+                XmlNode purchaseIdNode = xmlDoc.CreateElement("purchase_id");
                 purchaseIdNode.InnerText = rsd.PurchaseId.ToString();
                 rowNode.AppendChild(purchaseIdNode);
 
-                paymentNumberNode = xmlDoc.CreateElement("payment_number");
+                XmlNode paymentNumberNode = xmlDoc.CreateElement("payment_number");
                 paymentNumberNode.InnerText = nPaymentNumberToInsertToDB.ToString();
                 rowNode.AppendChild(paymentNumberNode);
 
-                numberOfPaymentsNode = xmlDoc.CreateElement("number_of_payments");
+                XmlNode numberOfPaymentsNode = xmlDoc.CreateElement("number_of_payments");
                 numberOfPaymentsNode.InnerText = rsd.NumOfPayments.ToString();
                 rowNode.AppendChild(numberOfPaymentsNode);
 
-                countryCdNode = xmlDoc.CreateElement("country_code");
+                XmlNode countryCdNode = xmlDoc.CreateElement("country_code");
                 countryCdNode.InnerText = countryCd;
                 rowNode.AppendChild(countryCdNode);
 
-                languageCodeNode = xmlDoc.CreateElement("language_code");
+                XmlNode languageCodeNode = xmlDoc.CreateElement("language_code");
                 languageCodeNode.InnerText = languageCode;
                 rowNode.AppendChild(languageCodeNode);
 
-                deviceNameNode = xmlDoc.CreateElement("device_name");
+                XmlNode deviceNameNode = xmlDoc.CreateElement("device_name");
                 deviceNameNode.InnerText = deviceName;
                 rowNode.AppendChild(deviceNameNode);
 
-                previewModuleIDNode = xmlDoc.CreateElement("preview_module_id");
+                XmlNode previewModuleIDNode = xmlDoc.CreateElement("preview_module_id");
                 previewModuleIDNode.InnerText = "0";
                 rowNode.AppendChild(previewModuleIDNode);
 
-                collectionCodeNode = xmlDoc.CreateElement("collection_code");
+                XmlNode collectionCodeNode = xmlDoc.CreateElement("collection_code");
                 collectionCodeNode.InnerText = collectionCode;
                 rowNode.AppendChild(collectionCodeNode);
 
-                billingGuidNode = xmlDoc.CreateElement("billing_guid");
+                XmlNode billingGuidNode = xmlDoc.CreateElement("billing_guid");
                 billingGuidNode.InnerText = rsd.BillingGuid.ToString();
                 rowNode.AppendChild(billingGuidNode);
 
+                XmlNode pagoNode = xmlDoc.CreateElement("pago_id");
+                pagoNode.InnerText = collectionCode;
+                rowNode.AppendChild(pagoNode);
 
                 rootNode.AppendChild(rowNode);
             }
@@ -1867,7 +1851,7 @@ namespace Core.Billing
             return isVerification;
         }
 
-        private TransactResult SendRenewalRequestToAdapter(RenewDetails renewDetails, string chargeId, string productCode, PaymentGateway paymentGateway, 
+        private TransactResult SendRenewalRequestToAdapter(RenewDetails renewDetails, string chargeId, string productCode, PaymentGateway paymentGateway,
             string externalTransactionId, string paymentMethodExternalId, int paymenMethodId)
         {
             TransactResult response = new TransactResult();
@@ -2173,7 +2157,7 @@ namespace Core.Billing
                                     else
                                     {
                                         // Retry only if gateway has defined pending retires amount
-                                        if (paymentGateway.PendingRetries > 0 || paymentGateway.IsAsyncPolicy )
+                                        if (paymentGateway.PendingRetries > 0 || paymentGateway.IsAsyncPolicy)
                                         {
                                             EnqueuPendingRequest(groupID, productId, (int)productType, siteGuid, paymentGWPending);
                                         }
@@ -2526,12 +2510,13 @@ namespace Core.Billing
             Core.Billing.Utils.SplitRefference(customData, ref nMediaFileID, ref nMediaID, ref sSubscriptionCode, ref sPPVCode, ref sPrePaidCode, ref sPriceCode,
                     ref dChargePrice, ref sCurrencyCode, ref bIsRecurring, ref sPPVModuleCode, ref nNumberOfPayments, ref sUserGUID,
                                 ref sRelevantSub, ref nMaxNumberOfUses, ref nMaxUsageModuleLifeCycle, ref nViewLifeCycleSecs, ref sPurchaseType,
-                                ref sCountryCd, ref sLanguageCode, ref sDeviceName, ref sPreviewModuleID, ref sCollectionCode);
+                                ref sCountryCd, ref sLanguageCode, ref sDeviceName, ref sPreviewModuleID, ref sCollectionCode, out long pagoId);
 
             long lBillingTransactionID = Core.Billing.Utils.InsertBillingTransaction(sUserGUID, string.Empty, dChargePrice, sPriceCode,
                     sCurrencyCode, customData, status, string.Empty, bIsRecurring, nMediaFileID, nMediaID, sPPVModuleCode,
                     sSubscriptionCode, "", groupID, nBillingProvider, paymentGWTransaction.ID, 0.0, dChargePrice, paymentNumber, nNumberOfPayments, "",
-                    sCountryCd, sLanguageCode, sDeviceName, nBillingMethod, nBillingMethod, sPrePaidCode, sPreviewModuleID, sCollectionCode, paymentGWTransaction.BillingGuid);
+                    sCountryCd, sLanguageCode, sDeviceName, nBillingMethod, nBillingMethod, sPrePaidCode, sPreviewModuleID, sCollectionCode,
+                    paymentGWTransaction.BillingGuid, pagoId);
 
             return lBillingTransactionID;
         }
@@ -2814,8 +2799,8 @@ namespace Core.Billing
 
                 if (transactionStatus == eTransactionState.Failed)
                 {
-                    if(!DAL.ApiDAL.Update_BillingStatusAndReason_ByBillingGuid(billingGuid, 1, failreason))
-                    { 
+                    if (!DAL.ApiDAL.Update_BillingStatusAndReason_ByBillingGuid(billingGuid, 1, failreason))
+                    {
                         //add log
                     }
                 }
@@ -2944,7 +2929,7 @@ namespace Core.Billing
                             PaymentDetails = paymentGatewayTransaction.PaymentDetails,
                             PaymentMethod = paymentGatewayTransaction.PaymentMethod,
                             Status = new Status((int)eResponseStatus.ErrorUpdatingPendingTransaction, ERROR_UPDATING_PENDING_TRANSACTION)
-                        }                        ;
+                        };
                         log.Debug($"Failed to update pending transaction. paymentGateway = {paymentGatewayId}" +
                             $" adapterTransactionId = {paymentGatewayTransaction.ID}, paymentDetails = {paymentGatewayTransaction.PaymentDetails}, " +
                             $"Status = {ERROR_UPDATING_PENDING_TRANSACTION}");
@@ -2958,7 +2943,7 @@ namespace Core.Billing
                         TransactionID = paymentGatewayTransaction.ID,
                         PaymentDetails = paymentGatewayTransaction.PaymentDetails,
                         PaymentMethod = paymentGatewayTransaction.PaymentMethod,
-                        
+
                         Status = new Status()
                         {
                             Code = (int)eResponseStatus.OK,
@@ -3744,7 +3729,7 @@ namespace Core.Billing
                 response.Status.Set(paymentGatewayResponse.Status);
                 return response;
             }
-            
+
             if (string.IsNullOrEmpty(name))
             {
                 response.Status = new Status((int)eResponseStatus.PaymentMethodNameRequired, PAYMENT_METHOD_NAME_REQUIRED);

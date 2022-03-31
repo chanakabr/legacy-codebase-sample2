@@ -1,6 +1,6 @@
 ﻿using ApiLogic.Api.Managers;
+using ApiLogic.ConditionalAccess;
 using APILogic.Api.Managers;
-using APILogic.ConditionalAccess;
 using APILogic.ConditionalAccess.Managers;
 using ApiObjects;
 using ApiObjects.Billing;
@@ -14,7 +14,6 @@ using ApiObjects.Rules;
 using ApiObjects.SubscriptionSet;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
-using Phx.Lib.Appconfig;
 using Core.Api.Managers;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
@@ -27,9 +26,9 @@ using Core.Users;
 using DAL;
 using EpgBL;
 using GroupsCacheManager;
-using Phx.Lib.Log;
-
 using NPVR;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
 using QueueWrapper;
 using System;
 using System.Collections.Generic;
@@ -42,8 +41,6 @@ using System.Threading;
 using System.Xml;
 using TVinciShared;
 using Tvinic.GoogleAPI;
-using ApiLogic;
-using ApiLogic.ConditionalAccess;
 
 namespace Core.ConditionalAccess
 {
@@ -1487,7 +1484,7 @@ namespace Core.ConditionalAccess
                         }
                     }
 
-                    fullPrice.FinalPrice = GetLowestPrice(groupId, fullPrice.FinalPrice, domainId, discountPrice, eTransactionType.Subscription, currencyCode, long.Parse(subCode),
+                    fullPrice.FinalPrice = PriceManager.GetLowestPrice(groupId, fullPrice.FinalPrice, domainId, discountPrice, eTransactionType.Subscription, currencyCode, long.Parse(subCode),
                                                 countryCode, ref couponCode, subscription.m_oCouponsGroup, subscription.GetValidSubscriptionCouponGroup(), null);
 
                     fullPrice.CouponCode = couponCode;
@@ -1772,7 +1769,7 @@ namespace Core.ConditionalAccess
                 // Get price code according to country and currency (if exists on the request)
                 if (!string.IsNullOrEmpty(ip) && (isValidCurrencyCode || GeneralPartnerConfigManager.Instance.GetGroupDefaultCurrency(groupId, ref currencyCode)))
                 {
-                    countryCode = Utils.GetIP2CountryCode(groupId, ip);
+                    countryCode = APILogic.Utils.GetIP2CountryCode(groupId, ip);
                     PriceCode priceCodeWithCurrency = Pricing.Module.GetPriceCodeDataByCountyAndCurrency(groupId, priceCode.m_nObjectID, countryCode, currencyCode);
                     if (priceCodeWithCurrency == null)
                     {
@@ -1802,93 +1799,8 @@ namespace Core.ConditionalAccess
             theReason = PriceReason.ForPurchase;
             return price;
         }
-
-        /// <summary>
-        /// Calculate lowest price according to external Discount Module and BusinessModuleRules
-        /// </summary>
-        /// <param name="groupId"></param>
-        /// <param name="currentPrice"></param>
-        /// <param name="externalDiscount"></param>
-        /// <param name="domainId"></param>
-        /// <param name="transactionType"></param>
-        /// <param name="currencyCode"></param>
-        /// <param name="businessModuleId"></param>
-        /// <param name="countryCode"></param>
-        /// <returns></returns>
-        private static Price GetLowestPrice(int groupId, Price currentPrice, int domainId, Price discountPrice, eTransactionType transactionType,
-                                            string currencyCode, long businessModuleId, string countryCode, ref string couponCode, CouponsGroup couponsGroup,
-                                            List<SubscriptionCouponGroup> subscriptionCouponGroups, List<string> allUserIdsInDomain, long mediaId = 0)
-        {
-            Price lowestPrice = discountPrice ?? currentPrice;
-
-            if (BusinessModuleRuleManager.IsActionTypeRuleExists(groupId, RuleActionType.ApplyDiscountModuleRule))
-            {
-                if (allUserIdsInDomain == null || allUserIdsInDomain.Count == 0)
-                {
-                    allUserIdsInDomain = Domains.Module.GetDomainUserList(groupId, domainId);
-                }
-
-                // get all segments in domain
-                List<long> segmentIds = GetDomainSegments(groupId, domainId, allUserIdsInDomain);
-
-                // calc lowest price
-                var filter = new BusinessModuleRuleConditionScope()
-                {
-                    BusinessModuleId = businessModuleId,
-                    BusinessModuleType = transactionType,
-                    SegmentIds = segmentIds,
-                    FilterByDate = true,
-                    FilterBySegments = true,
-                    GroupId = groupId,
-                    MediaId = mediaId
-                };
-
-                var businessModuleRules = BusinessModuleRuleManager.GetBusinessModuleRules(groupId, filter, RuleActionType.ApplyDiscountModuleRule);
-                if (businessModuleRules.HasObjects())
-                {
-                    log.DebugFormat("Utils.GetLowestPrice - businessModuleRules count: {0}", businessModuleRules.Objects.Count);
-                    foreach (var businessModuleRule in businessModuleRules.Objects)
-                    {
-                        if (businessModuleRule.Actions != null && businessModuleRule.Actions.Count == 1)
-                        {
-                            var discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)(businessModuleRule.Actions[0] as ApplyDiscountModuleRuleAction).DiscountModuleId, countryCode, currencyCode);
-                            if (discountModule != null)
-                            {
-                                var tempPrice = GetPriceAfterDiscount(currentPrice, discountModule, 1);
-                                if (tempPrice != null && tempPrice.m_dPrice < lowestPrice.m_dPrice)
-                                {
-                                    lowestPrice = tempPrice;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (lowestPrice.IsFree() || transactionType == eTransactionType.PPV || string.IsNullOrEmpty(couponCode)) { return lowestPrice; }
-
-            long couponGroupId = PricingDAL.Get_CouponGroupId(groupId, couponCode); // return only if valid 
-            if (couponGroupId > 0)
-            {
-                // look if this coupon group id exsits in coupon list 
-                CouponsGroup currCouponGroup = null;
-                if (couponsGroup != null && !string.IsNullOrEmpty(couponsGroup.m_sGroupCode) && couponsGroup.m_sGroupCode.Equals(couponGroupId.ToString()))
-                {
-                    currCouponGroup = ObjectCopier.Clone(couponsGroup);
-                }
-                else if (subscriptionCouponGroups != null)
-                {
-                    currCouponGroup = ObjectCopier.Clone<CouponsGroup>(subscriptionCouponGroups.FirstOrDefault
-                        (x => x.m_sGroupCode.Equals(couponGroupId.ToString()) && (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)));
-                }
-
-                lowestPrice = CalculateCouponDiscount(ref lowestPrice, currCouponGroup, ref couponCode, groupId, domainId);
-            }
-
-            return lowestPrice;
-        }
-
-        private static List<long> GetDomainSegments(int groupId, long domainId, List<string> userIds)
+      
+        public static List<long> GetDomainSegments(int groupId, long domainId, List<string> userIds)
         {
             List<long> segmentIds = new List<long>();
             if (userIds?.Count > 0)
@@ -2257,7 +2169,7 @@ namespace Core.ConditionalAccess
 
             List<int> lUsersIds = Utils.GetAllUsersDomainBySiteGUID(sSiteGUID, groupId, ref domainID);
 
-            price = GetLowestPrice(groupId, price, domainID, discountPrice, eTransactionType.Collection, currencyCode, long.Parse(sColCode), countryCode,
+            price = PriceManager.GetLowestPrice(groupId, price, domainID, discountPrice, eTransactionType.Collection, currencyCode, long.Parse(sColCode), countryCode,
                                    ref couponCode, collection.m_oCouponsGroup, collection.CouponsGroups, lUsersIds.ConvertAll(x => x.ToString()));
 
             return price;
@@ -2484,7 +2396,7 @@ namespace Core.ConditionalAccess
 
             if (!string.IsNullOrEmpty(ip) && (isValidCurrencyCode || GeneralPartnerConfigManager.Instance.GetGroupDefaultCurrency(nGroupID, ref currencyCode)))
             {
-                countryCode = GetIP2CountryCode(nGroupID, ip);
+                countryCode = APILogic.Utils.GetIP2CountryCode(nGroupID, ip);
                 PriceCode priceCodeWithCurrency = Core.Pricing.Module.GetPriceCodeDataByCountyAndCurrency(nGroupID, ppvModule.m_oPriceCode.m_nObjectID, countryCode, currencyCode);
                 bool shouldUpdateDiscountModule = false;
                 DiscountModule discountModuleWithCurrency = null;
@@ -2941,7 +2853,7 @@ namespace Core.ConditionalAccess
                     Price discountPrice =
                         GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, couponCode, groupID, string.Empty, out dtDiscountEndDate, domainID);
 
-                    price = GetLowestPrice(groupID, price, domainID, discountPrice, eTransactionType.PPV, currencyCode, ppvID, countryCode, ref couponCode, null, null,
+                    price = PriceManager.GetLowestPrice(groupID, price, domainID, discountPrice, eTransactionType.PPV, currencyCode, ppvID, countryCode, ref couponCode, null, null,
                                            allUserIDsInDomain.ConvertAll(x => x.ToString()), mediaID);
 
                     if (IsFreeMediaFile(theReason, price))
@@ -7979,6 +7891,9 @@ namespace Core.ConditionalAccess
                 case PriceReason.PendingEntitlement: //entitlement
                     status = new ApiObjects.Response.Status((int)eResponseStatus.PendingEntitlement, "Entitlement is pending");
                     break;
+                case PriceReason.PagoPurchased:
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchaseProgramAssetGroupOfferPurchased, "ProgramAssetGroupOffer already purchased");
+                    break;
                 default:
                     status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
                     break;
@@ -8483,22 +8398,7 @@ namespace Core.ConditionalAccess
             }
 
             return status;
-        }
-
-        internal static ApiObjects.Country GetCountryByIp(int groupId, string ip)
-        {
-            ApiObjects.Country res = null;
-            try
-            {
-                res = Core.Api.Module.GetCountryByIp(groupId, ip);
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed Utils.GetCountryByIp with groupId: {0}, ip: {1}", groupId, ip), ex);
-            }
-
-            return res;
-        }
+        }       
 
         internal static ApiObjects.Country GetCountryByCountryName(int groupId, string countryName)
         {
@@ -8520,7 +8420,7 @@ namespace Core.ConditionalAccess
             string res = string.Empty;
             try
             {
-                ApiObjects.Country country = GetCountryByIp(groupId, ip);
+                ApiObjects.Country country = APILogic.Utils.GetCountryByIp(groupId, ip);
                 res = country != null ? country.Name : res;
             }
             catch (Exception ex)
@@ -8529,30 +8429,14 @@ namespace Core.ConditionalAccess
             }
 
             return res;
-        }
-
-        internal static string GetIP2CountryCode(int groupId, string ip)
-        {
-            string res = string.Empty;
-            try
-            {
-                ApiObjects.Country country = GetCountryByIp(groupId, ip);
-                res = country != null ? country.Code : res;
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed Utils.GetIP2CountryCode with groupId: {0}, ip: {1}", groupId, ip), ex);
-            }
-
-            return res;
-        }
+        }       
 
         internal static int GetIP2CountryId(int groupId, string ip)
         {
             int res = 0;
             try
             {
-                ApiObjects.Country country = GetCountryByIp(groupId, ip);
+                ApiObjects.Country country = APILogic.Utils.GetCountryByIp(groupId, ip);
                 res = country != null ? country.Id : res;
             }
             catch (Exception ex)
@@ -8623,6 +8507,24 @@ namespace Core.ConditionalAccess
                         foreach (string keyToRemove in keysToRemove)
                         {
                             domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary.Remove(keyToRemove);
+                        }
+                    }
+
+                    // remove expired pago's
+                    if (domainEntitlements.PagoEntitlements != null && domainEntitlements.PagoEntitlements != null)
+                    {
+                        List<long> keysToRemove = new List<long>();
+                        foreach (KeyValuePair<long, PagoEntitlement> pair in domainEntitlements.PagoEntitlements)
+                        {
+                            if (pair.Value.EndDate.HasValue && pair.Value.EndDate.Value <= DateTime.UtcNow)
+                            {
+                                keysToRemove.Add(pair.Key);
+                            }
+                        }
+
+                        foreach (long keyToRemove in keysToRemove)
+                        {
+                            domainEntitlements.PagoEntitlements.Remove(keyToRemove);
                         }
                     }
 
@@ -8762,6 +8664,8 @@ namespace Core.ConditionalAccess
                         domainEntitlements.DomainPpvEntitlements = InitializeDomainPpvs(groupId.Value, domainId.Value, usersInDomain, mapper);
                         //Get domain bundle entitlements
                         domainEntitlements.DomainBundleEntitlements = InitializeDomainBundles(domainId.Value, groupId.Value, usersInDomain, false);
+                        //Get domain PAGO entitlements
+                        domainEntitlements.PagoEntitlements = InitializeDomainPagos(groupId.Value, domainId.Value, usersInDomain);
                     }
                 }
             }
@@ -9936,6 +9840,38 @@ namespace Core.ConditionalAccess
             }
 
             return lowestPrice;
+        }
+
+        private static Dictionary<long, PagoEntitlement> InitializeDomainPagos(int groupId, int domainId, List<int> usersInDomain)
+        {
+            Dictionary<long, PagoEntitlement> pagoEntitlements = new Dictionary<long, PagoEntitlement>();
+            DataTable dt = ConditionalAccessDAL.GetPagoPurchases(domainId, usersInDomain);
+
+            if (dt?.Rows.Count > 0)
+            {
+                foreach (DataRow row in dt.Rows)
+                {
+                    long pagoId = ODBCWrapper.Utils.GetLongSafeVal(row, "PROGRAM_ASSET_GROUP_OFFER_ID");
+
+                    if (!pagoEntitlements.ContainsKey(pagoId))
+                    {
+                        PagoEntitlement pagoEntitlement = new PagoEntitlement()
+                        {
+                            CreateDate = ODBCWrapper.Utils.GetDateSafeVal(row, "CREATE_DATE"),
+                            EndDate = ODBCWrapper.Utils.GetDateSafeVal(row, "END_DATE"),
+                            Id = ODBCWrapper.Utils.GetLongSafeVal(row, "ID"),
+                            IsPending = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_PENDING") == 1,
+                            PagoId = pagoId,
+                            PurchasedByUserId = ODBCWrapper.Utils.GetLongSafeVal(row, "SITE_USER_GUID"),
+                            StartDate = ODBCWrapper.Utils.GetDateSafeVal(row, "CREATE_DATE")
+                        };
+
+                        pagoEntitlements.Add(pagoId, pagoEntitlement);
+                    }
+                }
+            }
+
+            return pagoEntitlements;
         }
     }
 }

@@ -12,6 +12,9 @@ namespace PGAdapter.Models
         Subscription,
 
         [EnumMember]
-        Collection
+        Collection,
+
+        [EnumMember]
+        PAGO
     }
 }

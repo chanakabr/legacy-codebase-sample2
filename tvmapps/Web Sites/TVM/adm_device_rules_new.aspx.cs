@@ -127,10 +127,10 @@ public partial class adm_device_rules_new : System.Web.UI.Page
 
         if (Session["device_rule_id"] != null && !string.IsNullOrEmpty(Session["device_rule_id"].ToString()) && int.TryParse(Session["device_rule_id"].ToString(), out int ruleId) && ruleId > 0)
         {
-            devicetypesInRule = TvmDAL.GetDeviceRuleBrandsById(ruleId);
+            devicetypesInRule = TvmDAL.GetDeviceRuleBrandsById(LoginManager.GetLoginGroupID(), ruleId);
         }
 
-        DataTable deviceBrandsFamilies = TvmDAL.GetDeviceBrandsFamilies();
+        DataTable deviceBrandsFamilies = TvmDAL.GetDeviceBrandsFamilies(LoginManager.GetLoginGroupID());
         List<string> devicetypesInRuleHashSet = new List<string>();
         List<string> deviceBrandsFamiliesHashSet = new List<string>();
 

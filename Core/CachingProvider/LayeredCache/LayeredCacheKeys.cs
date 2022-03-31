@@ -889,7 +889,17 @@ namespace CachingProvider.LayeredCache
 
         public static string GetSessionCharacteristic(int groupId, string sessionCharacteristic) =>
             $"session_characteristic_{groupId}_{sessionCharacteristic}";
-        
+
+        public static string GetDeviceFamiliesKey(long groupId)
+        {
+            return $"device_families_{groupId}";
+        }
+
+        public static string GetDeviceBrandsKey(long groupId)
+        {
+            return $"device_brands_{groupId}";
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -1670,7 +1680,17 @@ namespace CachingProvider.LayeredCache
         {
             return $"invalidationKey_group_{groupId}_searchPriorityGroupsMappings";
         }
-        
+
+        public static string GetDeviceFamiliesInvalidationKey(long groupId)
+        {
+            return $"invalidationKey_DeviceFamilies_{groupId}";
+        }
+
+        public static string GetDeviceBrandsInvalidationKey(long groupId)
+        {
+            return $"invalidationKey_DeviceBrands_{groupId}";
+        }
+
         #endregion
 
         #region Invalidation keys functions

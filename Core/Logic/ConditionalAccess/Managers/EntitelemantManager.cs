@@ -1,17 +1,20 @@
 ﻿using ApiLogic.ConditionalAccess.Modules;
+using ApiLogic.Pricing.Handlers;
+using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Billing;
 using ApiObjects.ConditionalAccess;
+using ApiObjects.ConditionalAccess.DTO;
 using ApiObjects.Pricing;
 using ApiObjects.Response;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
-using Phx.Lib.Appconfig;
 using Core.ConditionalAccess.Modules;
 using Core.ConditionalAccess.Response;
 using Core.Pricing;
 using Core.Users;
 using DAL;
+using Phx.Lib.Appconfig;
 using Phx.Lib.Log;
 using QueueWrapper;
 using System;
@@ -21,7 +24,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml;
-using APILogic.Api.Managers;
 using TVinciShared;
 
 namespace Core.ConditionalAccess
@@ -133,7 +135,7 @@ namespace Core.ConditionalAccess
                                 ResponseStatus validateStatus = Utils.ValidateUser(groupId, userId, ref householdId);
                                 domainId = (int)householdId;
                             }
-                            
+
                             if (domainId > 0)
                             {
                                 CachedEntitlementResults cachedEntitlementResults = Utils.GetCachedEntitlementResults(domainId, mediaFileId);
@@ -326,7 +328,7 @@ namespace Core.ConditionalAccess
                                     IsLivePlayBack = !string.IsNullOrEmpty(epgChannelId);
                                 }
                             }
-                            
+
                         }
                     }
 
@@ -542,6 +544,7 @@ namespace Core.ConditionalAccess
 
                             break;
                         }
+                    case eTransactionType.ProgramAssetGroupOffer:
                     default:
                         break;
                 }
@@ -818,7 +821,7 @@ namespace Core.ConditionalAccess
             return entitlementsResponse;
         }
 
-        private static Entitlement CreateSubscriptionEntitelment(BaseConditionalAccess cas, DataRow dataRow, bool isExpired, 
+        private static Entitlement CreateSubscriptionEntitelment(BaseConditionalAccess cas, DataRow dataRow, bool isExpired,
             List<PaymentDetails> renewPaymentDetails, long domainId, Dictionary<long, long> purchaseIdToScheduledSubscriptionId = null)
         {
             var entitlement = new Entitlement()
@@ -907,7 +910,7 @@ namespace Core.ConditionalAccess
             }
 
             string customdata = billingData != null ? billingData.Item2 : null;
-            entitlement.PriceDetails = GetSubscriptionEntitlementPriceDetails(cas.m_nGroupID, entitlement, customdata);           
+            entitlement.PriceDetails = GetSubscriptionEntitlementPriceDetails(cas.m_nGroupID, entitlement, customdata);
 
             return entitlement;
         }
@@ -1485,6 +1488,10 @@ namespace Core.ConditionalAccess
                         {
                             return UpdatePendingCollectionEntitlement(groupId, billingGuid);
                         }
+                    case eTransactionType.ProgramAssetGroupOffer:
+                        {
+                            return UpdatePendingPagoEntitlement(groupId, billingGuid);
+                        }
                     default:
                         break;
                 }
@@ -1714,6 +1721,11 @@ namespace Core.ConditionalAccess
                             status = DeletePendingCollectionEntitlement(groupId, billingGuid);
                             break;
                         }
+                    case eTransactionType.ProgramAssetGroupOffer:
+                        {
+                            status = DeletePendingPagoEntitlement(groupId, billingGuid);
+                            break;
+                        }
                     default:
                         break;
                 }
@@ -1759,7 +1771,7 @@ namespace Core.ConditionalAccess
                             status.Set(eResponseStatus.OK);
 
                             string coupon = ODBCWrapper.Utils.ExtractString(row, "coupon_code");
-                            
+
                             if (!string.IsNullOrEmpty(coupon))
                             {
                                 // reduce coupon count
@@ -2173,7 +2185,6 @@ namespace Core.ConditionalAccess
             return entitlementPriceDetails;
         }
 
-        
         private static void GetDataFromCustomData(string customData, out double customDataPrice, out string customDataCurrency, out string countryCode,
             out string coupon, out string campaign, out string compansation)
         {
@@ -2186,7 +2197,7 @@ namespace Core.ConditionalAccess
 
             if (string.IsNullOrEmpty(customData)) return;
             try
-            {              
+            {
                 XmlDocument doc = new XmlDocument();
                 doc.LoadXml(customData);
                 XmlNode theRequest = doc.FirstChild;
@@ -2205,9 +2216,9 @@ namespace Core.ConditionalAccess
             }
             catch (Exception exc)
             {
-                log.Error($"exception while getting data from customData. exc: {exc}");                
+                log.Error($"exception while getting data from customData. exc: {exc}");
             }
-        }        
+        }
 
         public static long GetEntitlementPriceDetailsEndDate(long lifeCycle, int recurring, DateTime endDate)
         {
@@ -2217,6 +2228,135 @@ namespace Core.ConditionalAccess
             }
 
             return DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate);
+        }
+
+        private static ApiObjects.Response.Status UpdatePendingPagoEntitlement(int groupId, string billingGuid)
+        {
+            // Get pago_purchase
+            EntitlementDto entitlementDto = ConditionalAccessDAL.Instance.GetPagoPurchasesByBillingGuid(groupId, billingGuid);
+            if (entitlementDto != null)
+            {
+                DateTime now = DateTime.UtcNow;
+                DateTime endDate = entitlementDto.EndDate;
+
+                var pago = PagoManager.Instance.GetProgramAssetGroupOffer(groupId, entitlementDto.EntitlementId);
+                if (pago != null)
+                {
+                    endDate = pago.ExpiryDate.Value;
+                }
+
+                ProgramAssetGroupOfferPurchase purchase = new ProgramAssetGroupOfferPurchase(groupId)
+                {
+                    purchaseId = (long)entitlementDto.PurchaseId,
+                    ProductId = entitlementDto.EntitlementId,
+                    siteGuid = entitlementDto.UserId.ToString(),
+                    startDate = now,
+                    endDate = endDate,
+                    CreateAndUpdateDate = now,
+                    houseHoldId = entitlementDto.HouseholdId,
+                    billingGuid = billingGuid,
+                    IsPending = false
+                };
+
+                purchase.Update();
+            }
+
+            return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK };
+        }
+
+        private static ApiObjects.Response.Status DeletePendingPagoEntitlement(int groupId, string billingGuid)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            // Get pago_purchase
+            EntitlementDto entitlementDto = ConditionalAccessDAL.Instance.GetPagoPurchasesByBillingGuid(groupId, billingGuid);
+            if (entitlementDto != null)
+            {
+                DateTime now = DateTime.UtcNow;
+
+                ProgramAssetGroupOfferPurchase purchase = new ProgramAssetGroupOfferPurchase(groupId)
+                {
+                    ProductId = entitlementDto.EntitlementId,
+                    siteGuid = entitlementDto.UserId.ToString(),
+                    houseHoldId = entitlementDto.HouseholdId
+                };
+
+                if (purchase.Delete())
+                {
+                    status.Set(eResponseStatus.OK);
+                }
+            }
+
+            return status;
+        }
+
+        internal static Entitlements GetEntitlementPagoItems(BaseConditionalAccess baseConditionalAccess, int groupId, int domainId, int pageSize,
+            int pageIndex, EntitlementOrderBy orderBy = EntitlementOrderBy.PurchaseDateAsc)
+        {
+            var entitlementsResponse = new Entitlements() { status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK } };
+
+            if (domainId > 0)
+            {
+                List<EntitlementDto> pagoEntitlements = null;
+                pagoEntitlements = ConditionalAccessDAL.Instance.GetEntitlementPagoItems(groupId, domainId);
+                if (pagoEntitlements == null || pagoEntitlements.Count == 0)
+                {
+                    entitlementsResponse.status.Set(eResponseStatus.OK, "no permitted items");
+                    return entitlementsResponse;
+                }
+
+                // orderBy
+
+                switch (orderBy)
+                {
+                    case EntitlementOrderBy.PurchaseDateDesc:
+                        pagoEntitlements = pagoEntitlements.OrderByDescending(col => col.PurchaseDate).ToList();
+                        break;
+                    case EntitlementOrderBy.PurchaseDateAsc:
+                    default:
+                        pagoEntitlements = pagoEntitlements.OrderBy(col => col.PurchaseDate).ToList();
+                        break;
+                }
+
+                if (pagoEntitlements?.Count > 0)
+                {
+                    // map pagoEntitlements dto --> Entitlements
+                    entitlementsResponse.entitelments = MapPagoEntitlements(pagoEntitlements);
+                    entitlementsResponse.totalItems = entitlementsResponse.entitelments.Count;
+                    int startIndexOnList = pageIndex * pageSize;
+                    int rangeToGetFromList = (startIndexOnList + pageSize) > entitlementsResponse.entitelments.Count ? (entitlementsResponse.entitelments.Count - startIndexOnList) > 0 ? (entitlementsResponse.entitelments.Count - startIndexOnList) : 0 : pageSize;
+                    if (rangeToGetFromList > 0)
+                    {
+                        entitlementsResponse.entitelments = entitlementsResponse.entitelments.Skip(startIndexOnList).Take(rangeToGetFromList).ToList();
+                    }
+                }
+            }
+
+            entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            return entitlementsResponse;
+        }
+
+        private static List<Entitlement> MapPagoEntitlements(List<EntitlementDto> pagoEntitlements)
+        {
+            List<Entitlement> res = new List<Entitlement>();
+            foreach (var item in pagoEntitlements)
+            {
+                res.Add(new Entitlement()
+                {
+                    type = item.Type,
+                    entitlementId = item.EntitlementId.ToString(),
+                    endDate = item.EndDate,
+                    currentDate = item.CurrentDate,
+                    purchaseDate = item.PurchaseDate,
+                    purchaseID = item.PurchaseId,
+                    paymentMethod = Utils.GetBillingTransMethod(item.BillingTransactionId, item.BillingGuid),
+                    deviceUDID = item.DeviceUdid,
+                    deviceName = !string.IsNullOrEmpty(item.DeviceUdid) ? Utils.GetDeviceName(item.DeviceUdid) : string.Empty,
+                    IsPending = item.IsPending
+                });
+            }
+
+            return res;
         }
     }
 }

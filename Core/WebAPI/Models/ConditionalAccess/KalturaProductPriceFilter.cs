@@ -53,6 +53,14 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "couponCodeEqual")]
         public string CouponCodeEqual { get; set; }
 
+        /// <summary>
+        /// Comma separated ProgramAssetGroupOffer identifiers 
+        /// </summary>
+        [DataMember(Name = "programAssetGroupOfferIdIn")]
+        [JsonProperty("programAssetGroupOfferIdIn")]
+        [XmlElement(ElementName = "programAssetGroupOfferIdIn")]
+        public string ProgramAssetGroupOfferIdIn { get; set; }
+
         internal bool getShouldGetOnlyLowest()
         {
             return isLowest.HasValue ? (bool)isLowest : false;
@@ -83,10 +91,22 @@ namespace WebAPI.Models.ConditionalAccess
 
         internal void Validate()
         {
-            if ((SubscriptionIdIn == null || SubscriptionIdIn.Count() == 0) && (FileIdIn == null || FileIdIn.Count() == 0) && (CollectionIdIn == null || CollectionIdIn.Count() == 0))
+            if ((SubscriptionIdIn == null || SubscriptionIdIn.Count() == 0) &&
+                 (FileIdIn == null || FileIdIn.Count() == 0) &&
+                 (CollectionIdIn == null || CollectionIdIn.Count() == 0) &&
+                 (ProgramAssetGroupOfferIdIn == null || ProgramAssetGroupOfferIdIn.Count() == 0))
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "KalturaProductPriceFilter.subscriptionIdIn, KalturaProductPriceFilter.fileIdIn, KalturaProductPriceFilter.collectionIdIn");
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "KalturaProductPriceFilter.subscriptionIdIn, KalturaProductPriceFilter.fileIdIn, " +
+                    "KalturaProductPriceFilter.collectionIdIn, KalturaProductPriceFilter.programAssetGroupOfferIdIn");
             }
+        }
+
+        internal List<long> GetProgramAssetGroupOfferIdIn()
+        {
+            if (string.IsNullOrEmpty(ProgramAssetGroupOfferIdIn))
+                return null;
+
+            return WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(ProgramAssetGroupOfferIdIn, "KalturaProductPriceFilter.programAssetGroupOfferIdIn");
         }
     }
 }

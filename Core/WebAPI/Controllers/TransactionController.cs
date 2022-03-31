@@ -113,11 +113,11 @@ namespace WebAPI.Controllers
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
-            }            
+            }
         }
         
         /// <summary>
-        /// Purchase specific product or subscription for a household. Upon successful charge entitlements to use the requested product or subscription are granted. 
+        /// Purchase specific product, subscription or Program asset group offer (PAGO) for a household. Upon successful charge entitlements to use the requested product or subscription are granted. 
         /// </summary>
         /// <param name="purchase">Purchase properties</param>
         /// <remarks>Possible status codes: 
@@ -165,6 +165,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.SubscriptionSetDoesNotExist)]
         [Throws(eResponseStatus.PurchasePassedEntitlementFailed)]
         [Throws(eResponseStatus.PurchaseFailed)]
+        [Throws(eResponseStatus.UnableToPurchaseProgramAssetGroupOfferPurchased)]
         static public KalturaTransaction Purchase(KalturaPurchase purchase)
         {
             KalturaTransaction response = new KalturaTransaction();

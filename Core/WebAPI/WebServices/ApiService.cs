@@ -17,6 +17,8 @@ using System.Web;
 using System.Web.Services;
 using System.Xml;
 using System.Xml.Serialization;
+using ApiLogic.Repositories;
+using Core.Api;
 
 namespace WebAPI.WebServices
 {
@@ -4037,7 +4039,13 @@ namespace WebAPI.WebServices
             int groupId = GetGroupID(sWSUserName, sWSPassword);
             if (groupId > 0)
             {
-                return Core.Api.Module.GetDeviceFamilyList(groupId);
+                var listResponse = DeviceFamilyRepository.Instance.List(groupId);
+                return new DeviceFamilyResponse
+                {
+                    Status = listResponse.Status,
+                    DeviceFamilies = listResponse.Objects,
+                    TotalItems = listResponse.TotalItems
+                };
             }
             else
             {
@@ -4053,7 +4061,13 @@ namespace WebAPI.WebServices
             int groupId = GetGroupID(sWSUserName, sWSPassword);
             if (groupId > 0)
             {
-                return Core.Api.Module.GetDeviceBrandList(groupId);
+                var listResponse = DeviceBrandRepository.Instance.List(groupId);
+                return new DeviceBrandResponse
+                {
+                    Status = listResponse.Status,
+                    DeviceBrands = listResponse.Objects,
+                    TotalItems = listResponse.TotalItems
+                };
             }
             else
             {

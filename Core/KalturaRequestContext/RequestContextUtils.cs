@@ -8,7 +8,7 @@ namespace KalturaRequestContext
 
         public string GetRequestId() => GetValueOrDefault<object>(RequestContextConstants.SESSION_ID_KEY)?.ToString()
                                         ?? GetValueOrDefault<object>(RequestContextConstants.REQUEST_ID_KEY)?.ToString();
-
+        
         public long? GetPartnerId()
         {
             if (GetRequestContextValue(RequestContextConstants.REQUEST_GROUP_ID, out object partnerIdObject)

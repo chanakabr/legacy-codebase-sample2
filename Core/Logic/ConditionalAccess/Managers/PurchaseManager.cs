@@ -1,4 +1,5 @@
-﻿using ApiLogic.Api.Managers;
+﻿using ApiLogic.Pricing.Handlers;
+using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Billing;
@@ -19,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using APILogic.Api.Managers;
 using TVinciShared;
 
 namespace Core.ConditionalAccess
@@ -811,7 +811,7 @@ namespace Core.ConditionalAccess
                         break;
                     case eTransactionType.Collection:
                         rolePermission = RolePermissions.PURCHASE_COLLECTION;
-                        break;
+                        break;                   
                     default:
                         break;
                 }
@@ -864,7 +864,7 @@ namespace Core.ConditionalAccess
 
                 // get payment gateway
                 PaymentGatewayItemResponse paymentGatewayResponse = null;
-                if (transactionType == eTransactionType.PPV || transactionType == eTransactionType.Collection)
+                if (transactionType == eTransactionType.PPV || transactionType == eTransactionType.Collection || transactionType == eTransactionType.ProgramAssetGroupOffer)
                 {
                     paymentGatewayResponse = Core.Billing.Module.GetPaymentGateway(contextData.GroupId, contextData.DomainId.Value, paymentGwId, contextData.UserIp);
                 }
@@ -879,6 +879,9 @@ namespace Core.ConditionalAccess
                         break;
                     case eTransactionType.Collection:
                         response = PurchaseCollection(cas, contextData, price, currency, productId, coupon, paymentGwId, paymentMethodId, adapterData, paymentGatewayResponse.PaymentGateway);
+                        break;
+                    case eTransactionType.ProgramAssetGroupOffer:
+                        response = PurchasePago(cas, contextData, price, currency, productId, coupon, paymentGwId, paymentMethodId, adapterData, paymentGatewayResponse.PaymentGateway, user);
                         break;
                     default:
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Illegal product ID");
@@ -2254,6 +2257,137 @@ namespace Core.ConditionalAccess
                 response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
 
+            return response;
+        }
+
+        private static TransactionResponse PurchasePago(BaseConditionalAccess cas, ContextData contextData, double price, string currency, int pagoId, string coupon,
+            int paymentGwId, int paymentMethodId, string adapterData, PaymentGateway paymentGateway, Users.User user)
+        {
+            TransactionResponse response = new TransactionResponse(eResponseStatus.Error);
+
+            // log request
+            string logString = $"Purchase request: contextData {contextData}, price {price}, currency {currency}, pagoId {pagoId }, coupon {coupon }, " +
+                               $"paymentGwId {paymentGwId }, paymentMethodId {paymentMethodId } adapterData {adapterData }";
+            try
+            {
+                // get country by user IP
+                string country = string.Empty;
+                if (!string.IsNullOrEmpty(contextData.UserIp))
+                {
+                    country = Utils.GetIP2CountryName(contextData.GroupId, contextData.UserIp);
+                }
+
+                // get pago
+                ProgramAssetGroupOffer pago = PagoManager.Instance.GetProgramAssetGroupOffer(contextData.GroupId, pagoId);
+                if (pago == null)
+                {
+                    response.Status.Set(eResponseStatus.Error, "ProductId doesn't exist");
+                    log.Warn($"Warning: {response.Status.Message}, data: {logString}");
+                    return response;
+                }
+
+                if (!PagoManager.Instance.IsPagoAllowed(pago))
+                {
+                    response.Status = Utils.SetResponseStatus(PriceReason.NotForPurchase);                    
+                    log.Warn($"Warning: This programAssetGroupOffer is NotForPurchase , data: {logString}");
+                    return response;
+                }
+
+                // validate price
+                PriceReason priceReason = PriceReason.UnKnown;
+                Price priceResponse = PriceManager.GetPagoFinalPrice(contextData.GroupId, contextData.UserId.Value, ref priceReason, pago, country, contextData.UserIp,
+                    currency);
+
+                if (priceReason != PriceReason.ForPurchase)
+                {
+                    // not for purchase
+                    response.Status = Utils.SetResponseStatus(priceReason);
+                    log.Warn($"Warning: {response.Status.Message}, data: {logString}");
+                    return response;
+                }
+
+                // item is for purchase
+                if ((priceResponse != null && priceResponse.m_dPrice == price && priceResponse.m_oCurrency.m_sCurrencyCD3 == currency) ||
+                    (paymentGateway != null && paymentGateway.ExternalVerification))
+                {
+                    // price validated, create the Custom Data
+                    string customData = cas.GetCustomDataForPago(pago, pagoId, contextData.UserId.Value, price, currency, contextData.UserIp, country, contextData.Udid);
+
+                    // create new GUID for billing_transaction
+                    string billingGuid = Guid.NewGuid().ToString();
+
+                    // purchase
+                    response = HandlePurchase(cas, contextData.GroupId, contextData.UserId.Value.ToString(), contextData.DomainId.Value, price, currency, contextData.UserIp, customData,
+                        pagoId, eTransactionType.ProgramAssetGroupOffer, billingGuid, paymentGwId, 0, paymentMethodId, adapterData);
+
+                    if (response == null || response.Status == null)
+                    {
+                        // purchase failed - no status error
+                        response.Status = new Status((int)eResponseStatus.PurchaseFailed, BaseConditionalAccess.PURCHASE_FAILED);
+                        log.Warn($"Warn: {response.Status.Message}, data: {logString}");
+                        return response;
+                    }
+
+                    // Status OK + (State OK || State Pending) = grant entitlement
+                    if (response.Status.Code == (int)eResponseStatus.OK && (response.State.Equals(eTransactionState.OK.ToString()) ||
+                        response.State.Equals(eTransactionState.Pending.ToString())))
+                    {
+                        if (paymentGateway == null)
+                        {
+                            paymentGateway = Core.Billing.Module.GetPaymentGatewayByBillingGuid(contextData.GroupId, contextData.DomainId.Value, billingGuid);
+                        }
+
+                        // purchase passed, update entitlement date
+                        DateTime entitlementDate = DateTime.UtcNow;
+                        response.CreatedAt = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlementDate);
+                        DateTime? endDate = null;
+
+                        bool handleBillingPassed = false;
+                        long purchaseID = 0;
+
+                        if (response.State.Equals(eTransactionState.Pending.ToString()) & paymentGateway != null && paymentGateway.IsAsyncPolicy)
+                        {
+                            int pendingInMinutes = paymentGateway.GetAsyncPendingMinutes();
+                            endDate = entitlementDate.AddMinutes(pendingInMinutes);
+
+                            handleBillingPassed = cas.HandlePagoBillingSuccess(ref response, contextData.UserId.Value, contextData.DomainId.Value, pago, price, currency,
+                                contextData.UserIp, country, contextData.Udid, long.Parse(response.TransactionID), customData, pagoId, billingGuid, false, entitlementDate,
+                                ref purchaseID, endDate, true);
+
+                            // Pending failed
+                            if (!handleBillingPassed)
+                            {
+                                response.Status = new Status((int)eResponseStatus.Error, "Pending entitlement failed");
+                                log.Warn($"Warn: {response.Status.Message}, data: {logString}");
+                            }
+
+                            return response;
+                        }
+
+                        // grant entitlement
+                        cas.HandlePagoBillingSuccess(ref response, contextData.UserId.Value, contextData.DomainId.Value, pago, price, currency, contextData.UserIp,
+                                country, contextData.Udid, long.Parse(response.TransactionID), customData, pagoId, billingGuid, false, entitlementDate, ref purchaseID);
+                    }
+                    else
+                    {
+                        // purchase failed - received error status
+                        log.Warn($"Warn: {response.Status.Message}, data: {logString}");
+                    }
+
+                }
+                else
+                {
+                    // incorrect price
+                    response.Status = new Status((int)eResponseStatus.IncorrectPrice, BaseConditionalAccess.INCORRECT_PRICE);
+                    log.Warn($"Warn: {response.Status.Message}, data: {log}");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception occurred. data: " + logString, ex);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error);
+            }
             return response;
         }
 

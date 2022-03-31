@@ -372,6 +372,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Tests", "Core\Core.Tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchemaRegistryEvents", "Core\SchemaRegistryEvents\SchemaRegistryEvents.csproj", "{FA1DDE8B-F3A6-4D39-9CD4-137697340F7F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KLogMonitor", "Core\KLogMonitor\KLogMonitor.csproj", "{E755E87E-E518-4C31-B168-6954ACE56E3E}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Phoenix.AsyncHandler", "Phoenix.AsyncHandler\Phoenix.AsyncHandler.csproj", "{457A06E1-D509-43E3-844A-2A36AAD3D7D7}"
 EndProject
 Global
@@ -3744,6 +3746,7 @@ Global
 		{A79600E0-0F01-4E8D-A6BF-6E31D00D2BA3} = {8CFEED2B-5B1B-4F3D-82D8-4BF4248F9AA5}
 		{DFFBBB89-73EF-4D58-B95A-D578E867FA67} = {833589FA-818B-4A00-8206-9C58EC6EAE1E}
 		{FA1DDE8B-F3A6-4D39-9CD4-137697340F7F} = {833589FA-818B-4A00-8206-9C58EC6EAE1E}
+		{E755E87E-E518-4C31-B168-6954ACE56E3E} = {428EC7F8-E16E-4BB8-B773-36AED1D370D9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35

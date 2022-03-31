@@ -640,7 +640,7 @@ namespace WebAPI.Clients
             };
 
             if (filter.BillingItemsTypeEqual.HasValue)
-            {
+            {                
                 transactionHistoryFilter.BillingItemsType = Mapper.Map<BillingItemsType>(filter.BillingItemsTypeEqual);
             }
 

@@ -199,6 +199,7 @@ namespace ApiObjects.Response
         CampaignIsAlreadyAppliedForSubscription = 3085,
         RecordingIdsExceededLimit = 3086,
         ProgramStartOverNotEnabled = 3087,
+        UnableToPurchaseProgramAssetGroupOfferPurchased = 3088,
 
         #endregion
 
@@ -402,6 +403,10 @@ namespace ApiObjects.Response
         DeviceManufacturerIdsDoesNotExist = 5083,
         UserSessionProfileDoesNotExist = 5084,
         CannotDeleteUserSessionProfile = 5085,
+        DeviceFamilyIdAlreadyInUse = 5086,
+        DeviceFamilyDoesNotExist = 5087,
+        DeviceBrandIdAlreadyInUse = 5088,
+        DeviceBrandDoesNotExist = 5089,
 
         #endregion
 

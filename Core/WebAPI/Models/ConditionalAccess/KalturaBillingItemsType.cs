@@ -7,6 +7,7 @@
         subscription = 2,
         pre_paid = 3,
         pre_paid_expired = 4,
-        collection = 5
+        collection = 5,
+        program_asset_group_offer = 6
     }
 }

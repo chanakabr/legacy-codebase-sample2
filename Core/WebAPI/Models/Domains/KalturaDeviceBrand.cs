@@ -17,7 +17,6 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        [SchemeProperty(ReadOnly = true)]
         public long? Id { get; set; }
 
         /// <summary>
@@ -31,10 +30,20 @@ namespace WebAPI.Models.Domains
         /// <summary>
         /// Device family identifier
         /// </summary>
-        [DataMember(Name = "deviceFamilyid")]
-        [JsonProperty("deviceFamilyid")]
-        [XmlElement(ElementName = "deviceFamilyid")]
-        [SchemeProperty(ReadOnly = true)]
+        [DataMember(Name = "deviceFamilyId")]
+        [JsonProperty("deviceFamilyId")]
+        [XmlElement(ElementName = "deviceFamilyId")]
         public long? DeviceFamilyId { get; set; }
+
+        /// <summary>
+        /// Type of device family.
+        /// <see cref="KalturaDeviceBrandType.Custom"/> if this device family belongs only to this group,
+        /// <see cref="KalturaDeviceBrandType.System"/> otherwise.
+        /// </summary>
+        [DataMember(Name = "type")]
+        [JsonProperty("type")]
+        [XmlElement("type")]
+        [SchemeProperty(ReadOnly = true)]
+        public KalturaDeviceBrandType Type { get; set; }
     }
 }

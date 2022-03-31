@@ -440,26 +440,6 @@ namespace DAL
             }
         }
 
-        public static string Get_DeviceFamilyIDAndName(int nDeviceBrandID, ref int nDeviceFamilyID)
-        {
-            string res = string.Empty;
-            StoredProcedure sp = new StoredProcedure("Get_DeviceFamilyIDAndName");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@DeviceBrandID", nDeviceBrandID);
-            DataSet ds = sp.ExecuteDataSet();
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-            {
-                DataTable dt = ds.Tables[0];
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                {
-                    nDeviceFamilyID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["id"]);
-                    res = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["name"]);
-                }
-            }
-
-            return res;
-        }
-
         public static string GenerateNewPIN(int groupId)
         {
             string sNewPIN = string.Empty;

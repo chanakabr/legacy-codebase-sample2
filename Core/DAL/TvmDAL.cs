@@ -1299,12 +1299,12 @@ namespace DAL
             return sp.Execute();
         }
 
-        public static DataTable GetDeviceRuleBrandsById(int deviceRuleId)
+        public static DataTable GetDeviceRuleBrandsById(long groupId, int deviceRuleId)
         {
             try
             {
-                var parameters = new Dictionary<string, object>() { { "@deviceRuleId", deviceRuleId } };
-                return UtilsDal.Execute("Get_DeviceRuleBrandsById", parameters, "MAIN_CONNECTION_STRING");
+                var parameters = new Dictionary<string, object> { { "@GroupId", groupId }, { "@deviceRuleId", deviceRuleId } };
+                return UtilsDal.Execute("Get_DeviceRuleBrandsById", parameters);
             }
             catch (Exception ex)
             {
@@ -1314,11 +1314,12 @@ namespace DAL
             return null;
         }
 
-        public static DataTable GetDeviceBrandsFamilies()
+        public static DataTable GetDeviceBrandsFamilies(long groupId)
         {
             try
             {
-                return UtilsDal.Execute("GetDeviceBrandsFamilies", null, "MAIN_CONNECTION_STRING");
+                var parameters = new Dictionary<string, object> { { "@GroupId", groupId } };
+                return UtilsDal.Execute("GetDeviceBrandsFamilies", parameters);
             }
             catch (Exception ex)
             {

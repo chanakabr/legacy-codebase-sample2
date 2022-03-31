@@ -1,0 +1,12 @@
+{
+  "$id": "http://ott.service.phoenix/api/events/crud/segmentationType",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SegmentationType",
+  "type": "object",
+  "description": "An event used to reflect a crud operation in a segmentation type",
+  "allOf": [
+    {
+      "$ref": "ott-schema-registry/events/crud/segmentationType"
+    }
+  ]
+}

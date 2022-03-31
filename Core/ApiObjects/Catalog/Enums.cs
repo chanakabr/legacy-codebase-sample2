@@ -94,7 +94,8 @@ namespace ApiObjects.Catalog
     public enum eBundleType
     {
         SUBSCRIPTION = 0,
-        COLLECTION = 1
+        COLLECTION = 1,
+        PAGO = 2
     }
 
     public enum eUserType

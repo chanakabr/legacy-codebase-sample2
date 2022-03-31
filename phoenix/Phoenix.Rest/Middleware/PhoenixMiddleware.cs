@@ -4,7 +4,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Phoenix.Rest.Services;
 using System.Reflection;
 using ApiLogic.Context;
+using ApiLogic.Modules.Services;
+using ApiLogic.Users.Managers;
+using ApiLogic.Pricing.Handlers;
 using Core.Catalog.CatalogManagement;
+using Core.ConditionalAccess.Modules;
 using WebAPI.Filters;
 using Core.Middleware;
 using HealthCheck;
@@ -37,6 +41,11 @@ namespace Phoenix.Rest.Middleware
             services.AddSingleton(serviceProvider => tracer);
             KMonitor.ConfigureTracer(() => new JaegerManager(tracer));
             EpgAssetManager.InitProgramAssetCrudMessageService(WebKafkaContextProvider.Instance);
+            Core.Api.Module.InitUserSegmentCrudMessageService(WebKafkaContextProvider.Instance);
+            HouseholdSegmentManager.InitHouseholdSegmentCrudMessageService(WebKafkaContextProvider.Instance);
+            Core.Api.Module.InitSegmentationTypeCrudMessageService(WebKafkaContextProvider.Instance);
+            ProgramAssetGroupOfferPurchase.InitEntitlementCrudMessageService(WebKafkaContextProvider.Instance);
+            PagoManager.InitProgramAssetGroupOfferCrudMessageService(WebKafkaContextProvider.Instance);
 
             return services;
         }

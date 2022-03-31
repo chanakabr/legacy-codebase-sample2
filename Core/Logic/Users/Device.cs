@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using Phx.Lib.Log;
 using System.Reflection;
+using ApiLogic.Repositories;
 using CachingProvider.LayeredCache;
 using ApiObjects;
 
@@ -73,9 +74,12 @@ namespace Core.Users
                 if (nDeviceBrandID > 0)
                 {
                     m_deviceBrandID = nDeviceBrandID;
-                    int nFamilyID = 0;
-                    m_deviceFamily = DeviceDal.Get_DeviceFamilyIDAndName(nDeviceBrandID, ref nFamilyID);
-                    m_deviceFamilyID = nFamilyID;
+                    var deviceFamilyResponse = DeviceFamilyRepository.Instance.GetByDeviceBrandId(nGroupID, nDeviceBrandID);
+                    if (deviceFamilyResponse.IsOkStatusCode())
+                    {
+                        m_deviceFamily = deviceFamilyResponse.Object.Name;
+                        m_deviceFamilyID = deviceFamilyResponse.Object.Id;
+                    }
                 }
                 else
                 {
@@ -519,8 +523,11 @@ namespace Core.Users
 
             if (success && m_deviceBrandID > 0)
             {
-                int notUsed = 0;
-                m_deviceFamily = DeviceDal.Get_DeviceFamilyIDAndName(m_deviceBrandID, ref notUsed);
+                var deviceFamilyResponse = DeviceFamilyRepository.Instance.GetByDeviceBrandId(m_groupID, m_deviceBrandID);
+                if (deviceFamilyResponse.IsOkStatusCode())
+                {
+                    m_deviceFamily = deviceFamilyResponse.Object.Name;
+                }
             }
 
             string manufacturer = null;

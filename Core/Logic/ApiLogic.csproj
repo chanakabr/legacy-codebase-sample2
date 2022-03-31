@@ -66,7 +66,7 @@
     <ProjectReference Include="..\SessionManager\SessionManager.csproj" />
     <ProjectReference Include="..\StaticticsBL\StaticticsBL.csproj" />
     <ProjectReference Include="..\StreamingProvider\StreamingProvider.csproj" />
-    <ProjectReference Include="..\Synchronizer\Synchronizer.csproj" />
+    <ProjectReference Include="..\Synchronizer\Synchronizer.csproj" /> 
     <ProjectReference Include="..\TvinciCache\TvinciCache.csproj" />
     <ProjectReference Include="..\TVinciShared\TVinciShared.csproj" />
     <ProjectReference Include="..\ApiObjects\ApiObjects.csproj" />

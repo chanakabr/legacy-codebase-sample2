@@ -10,7 +10,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// Entitlements filter 
     /// </summary>
-    public partial class KalturaEntitlementFilter : KalturaFilter<KalturaEntitlementOrderBy> 
+    public partial class KalturaEntitlementFilter : KalturaBaseEntitlementFilter
     {
         /// <summary>
         ///The type of the entitlements to return
@@ -54,14 +54,6 @@ namespace WebAPI.Models.ConditionalAccess
         internal bool getIsExpiredEqual()
         {
             return IsExpiredEqual.HasValue ? (bool)IsExpiredEqual : false;
-        }
-
-        internal void Validate()
-        {
-            if (!ProductTypeEqual.HasValue && !EntitlementTypeEqual.HasValue)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaEntitlementFilter.productTypeEqual");
-            }
         }
     }
 }

@@ -14,13 +14,13 @@ using System.Reflection;
 using System.Text;
 using ApiLogic.Api.Managers;
 using APILogic.Api.Managers;
+using ApiLogic.Repositories;
 using ApiLogic.Users;
 using ApiLogic.Users.Services;
 using KeyValuePair = ApiObjects.KeyValuePair;
 using ApiObjects.Base;
 using ApiLogic.Users.Security;
 using log4net;
-using Core.Api;
 
 namespace Core.Users
 {
@@ -31,13 +31,12 @@ namespace Core.Users
         ApiObjects.Response.Status DeleteDLM(int groupId, int dlmId, long userId);
         GenericResponse<bool> IsDLMInUse(int limitId, int groupId);
     }
-    
+
     public abstract class BaseDomain : IBaseDomain
     {
         private readonly IDomainLimitationModuleRepository _dlmRepository;
+        private readonly IDeviceFamilyRepository _deviceFamilyRepository;
         private readonly KLogger log;
-        private readonly IDeviceFamilyManager _deviceFamilyManager;
-        
 
         protected int m_nGroupID;
 
@@ -50,15 +49,15 @@ namespace Core.Users
         {
             m_nGroupID = nGroupID;
             _dlmRepository = new DomainLimitationModuleRepository();
+            _deviceFamilyRepository = DeviceFamilyRepository.Instance;
             log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-            _deviceFamilyManager = api.Instance;
         }
 
-        protected BaseDomain(int groupId, IDomainLimitationModuleRepository dlmRepository, ILog log, IDeviceFamilyManager deviceFamilyManager)
+        protected BaseDomain(int groupId, IDomainLimitationModuleRepository dlmRepository, IDeviceFamilyRepository deviceFamilyRepository, ILog log)
         {
             m_nGroupID = groupId;
             _dlmRepository = dlmRepository;
-            _deviceFamilyManager = deviceFamilyManager;
+            _deviceFamilyRepository = deviceFamilyRepository;
             this.log = new KLogger(log, MethodBase.GetCurrentMethod().DeclaringType.ToString());
         }
 
@@ -2560,19 +2559,17 @@ namespace Core.Users
             var response = new GenericResponse<LimitationsManager>();
             response.SetStatus(eResponseStatus.OK);
 
-            var deviceFamilies = _deviceFamilyManager.GetAllDeviceFamilyList();
-
-            if (deviceFamilies == null)
+            var listResponse = _deviceFamilyRepository.List(m_nGroupID);
+            if (!listResponse.IsOkStatusCode())
             {
-                response.SetStatus(new ApiObjects.Response.Status(eResponseStatus.Error, "DLM is not valid, can't retrieve device family"));
+                response.SetStatus(listResponse.Status.Code, "DLM is not valid, can't retrieve device family.");
                 return response;
             }
 
-            var deviceFamiliesIdsDoesntExist = limitationsManager.lDeviceFamilyLimitations.Where(x => !deviceFamilies.Exists(y => y.Id == x.deviceFamily)).Select(dfl => dfl.deviceFamily.ToString());
-
+            var deviceFamiliesIdsDoesntExist = limitationsManager.lDeviceFamilyLimitations.Where(x => !listResponse.Objects.Exists(y => y.Id == x.deviceFamily)).Select(dfl => dfl.deviceFamily.ToString());
             if (deviceFamiliesIdsDoesntExist.Any())
             {
-                response.SetStatus(new ApiObjects.Response.Status((int)eResponseStatus.Error, $"DLM is not valid, these device family ids doesnt exist {string.Join(",", deviceFamiliesIdsDoesntExist)}"));
+                response.SetStatus(new ApiObjects.Response.Status((int)eResponseStatus.Error, $"DLM is not valid, these device family ids doesn't exist {string.Join(",", deviceFamiliesIdsDoesntExist)}"));
             }
 
             return response;

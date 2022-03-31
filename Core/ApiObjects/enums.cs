@@ -218,7 +218,9 @@ namespace ApiObjects
         [EnumMember]
         Subscription,
         [EnumMember]
-        Collection
+        Collection,
+        [EnumMember]
+        ProgramAssetGroupOffer
     }
 
     public enum eBusinessModule

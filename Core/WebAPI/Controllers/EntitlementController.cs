@@ -8,6 +8,7 @@ using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
+using WebAPI.ModelsValidators;
 
 namespace WebAPI.Controllers
 {
@@ -15,7 +16,7 @@ namespace WebAPI.Controllers
     public class EntitlementController : IKalturaController
     {
         /// <summary>
-        /// Immediately cancel a subscription, PPV or collection. Cancel is possible only if within cancellation window and content not already consumed
+        /// Immediately cancel a subscription, PPV, collection or programAssetGroupOffer. Cancel is possible only if within cancellation window and content not already consumed
         /// </summary>                
         /// <param name="assetId">The mediaFileID to cancel</param>        
         /// <param name="productType">The product type for the cancelation</param>
@@ -72,7 +73,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Immediately cancel a subscription, PPV or collection. Cancel applies regardless of cancellation window and content consumption status
+        /// Immediately cancel a subscription, PPV, collection or programAssetGroupOffer. Cancel applies regardless of cancellation window and content consumption status
         /// </summary>                
         /// <param name="assetId">The mediaFileID to cancel</param>        
         /// <param name="productType">The product type for the cancelation</param>
@@ -225,11 +226,10 @@ namespace WebAPI.Controllers
         /// <param name="pager">Request pager</param>1
         [Action("list")]
         [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.UserDoesNotExist)]
-        static public KalturaEntitlementListResponse List(KalturaEntitlementFilter filter, KalturaFilterPager pager = null)
+        static public KalturaEntitlementListResponse List(KalturaBaseEntitlementFilter filter, KalturaFilterPager pager = null)
         {
-            KalturaEntitlementListResponse response = new KalturaEntitlementListResponse();
-
             int groupId = KS.GetFromRequest().GroupId;
 
             if (pager == null)
@@ -239,38 +239,47 @@ namespace WebAPI.Controllers
 
             filter.Validate();
 
-            try
+            KalturaEntitlementListResponse response = null;
+            switch (filter)
             {
-                // call client
-                switch (filter.EntityReferenceEqual)
-                {
-                    case KalturaEntityReferenceBy.user:
-                        {
-                            response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KS.GetFromRequest().UserId,
-                                filter.EntitlementTypeEqual.HasValue ? filter.EntitlementTypeEqual.Value : filter.ProductTypeEqual.Value,
-                                filter.getIsExpiredEqual(), pager.PageSize.Value, pager.GetRealPageIndex(), filter.OrderBy);
-                        }
-                        break;
-                    case KalturaEntityReferenceBy.household:
-                        {
-                            response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(),
-                                filter.EntitlementTypeEqual.HasValue ? filter.EntitlementTypeEqual.Value : filter.ProductTypeEqual.Value,
-                                filter.getIsExpiredEqual(), pager.PageSize.Value, pager.GetRealPageIndex(), filter.OrderBy);
-                        }
-                        break;
-                }
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
+                case KalturaEntitlementFilter f:
+                    response = ListByEntitlementFilter(groupId, KS.GetFromRequest().UserId, pager, f); break;
+                case KalturaProgramAssetGroupOfferEntitlementFilter f: response = ListByPagoEntitlementFilter(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), pager, f); break;
+                default: throw new NotImplementedException($"List for {filter.objectType} is not implemented");
             }
 
             if (response != null && response.TotalCount == 0)
             {
                 response.TotalCount = response.Entitlements.Count;
             }
-
             return response;
+        }
+
+        private static KalturaEntitlementListResponse ListByPagoEntitlementFilter(int groupId, int domainId, KalturaFilterPager pager, KalturaProgramAssetGroupOfferEntitlementFilter filter)
+        {
+            return  ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, domainId,
+                           KalturaTransactionType.programAssetGroupOffer, false, pager.PageSize.Value, pager.GetRealPageIndex(), filter.OrderBy);
+        }
+
+        private static KalturaEntitlementListResponse ListByEntitlementFilter(int groupId, string userId, KalturaFilterPager pager, KalturaEntitlementFilter filter)
+        {
+            switch (filter.EntityReferenceEqual)
+            {
+                case KalturaEntityReferenceBy.user:
+                    {
+                        return ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, userId,
+                            filter.EntitlementTypeEqual.HasValue ? filter.EntitlementTypeEqual.Value : filter.ProductTypeEqual.Value,
+                            filter.getIsExpiredEqual(), pager.PageSize.Value, pager.GetRealPageIndex(), filter.OrderBy);
+                    }
+                case KalturaEntityReferenceBy.household:
+                    {
+                        return  ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId),
+                            filter.EntitlementTypeEqual.HasValue ? filter.EntitlementTypeEqual.Value : filter.ProductTypeEqual.Value,
+                            filter.getIsExpiredEqual(), pager.PageSize.Value, pager.GetRealPageIndex(), filter.OrderBy);
+                    }
+            }
+            
+            return null;
         }
 
         /// <summary>
@@ -321,7 +330,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>        
-        /// Grant household for an entitlement for a PPV or Subscription.
+        /// Grant household for an entitlement for a PPV, Subscription or programAssetGroupOffer.
         /// </summary>
         /// <param name="contentId">Identifier for the content. Relevant only if Product type = PPV</param>
         /// <param name="productId">Identifier for the product package from which this content is offered  </param>
@@ -356,6 +365,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.SubscriptionSetDoesNotExist)]
         [Throws(eResponseStatus.ServiceAlreadyExists)]
         [Throws(eResponseStatus.DlmExist)]
+        [Throws(eResponseStatus.UnableToPurchaseProgramAssetGroupOfferPurchased)]
         static public bool Grant(int productId, KalturaTransactionType productType, bool history, int contentId = 0)
         {
             bool response = false;
@@ -471,7 +481,7 @@ namespace WebAPI.Controllers
 
             return response;
         }
-        
+
         /// <summary>
         /// Update Kaltura Entitelment by Purchase id
         /// </summary>                
@@ -530,7 +540,7 @@ namespace WebAPI.Controllers
         /// <param name="newProductId">Identifier for the new product package </param>
         /// <param name="history">Controls if the new entitlements swap will appear in the user’s history. True – will add a history entry. False (or if ommited) – no history entry will be added</param>
         [Action("swap")]
-        [ApiAuthorize]       
+        [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
@@ -605,7 +615,7 @@ namespace WebAPI.Controllers
 
             try
             {
-               
+
                 return ClientsManager.ConditionalAccessClient().GetEntitlementNextRenewal(groupId, domainID, id, userId);
             }
             catch (ClientException ex)
@@ -614,7 +624,7 @@ namespace WebAPI.Controllers
             }
             return null;
         }
-        
+
         /// <summary>
         /// Apply new coupon for existing subscription
         /// </summary>
@@ -637,7 +647,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                ClientsManager.ConditionalAccessClient().ApplyCoupon(groupId, householdId, userId, purchaseId, couponCode );
+                ClientsManager.ConditionalAccessClient().ApplyCoupon(groupId, householdId, userId, purchaseId, couponCode);
             }
             catch (ClientException ex)
             {

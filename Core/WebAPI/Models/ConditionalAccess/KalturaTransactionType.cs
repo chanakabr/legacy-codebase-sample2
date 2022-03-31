@@ -7,6 +7,7 @@ namespace WebAPI.Models.ConditionalAccess
     {  
         ppv,
         subscription,
-        collection
+        collection,
+        programAssetGroupOffer
     }
 }

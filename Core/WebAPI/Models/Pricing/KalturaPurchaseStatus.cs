@@ -17,6 +17,7 @@
         not_for_purchase,
         invalid_currency,
         currency_not_defined_on_price_code,
-        pending_entitlement
+        pending_entitlement,
+        program_asset_group_offer_purchased
     }
 }

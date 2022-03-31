@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
+using ApiLogic.Repositories;
 using ApiLogic.Users;
 using ApiObjects;
 using ApiObjects.Response;
-using Core.Api;
 using Core.Users;
 using FluentAssertions;
 using log4net;
@@ -18,16 +18,16 @@ namespace ApiLogic.Tests.Users
     {
         private MockRepository _mockRepository;
         private Mock<IDomainLimitationModuleRepository> _dlmRepositoryMock;
+        private Mock<IDeviceFamilyRepository> _deviceFamilyRepositoryMock;
         private Mock<ILog> _logMock;
-        private Mock<IDeviceFamilyManager> _deviceFamilyManagerMock;
 
         [SetUp]
         public void SetUp()
         {
             _mockRepository = new MockRepository(MockBehavior.Strict);
             _dlmRepositoryMock = _mockRepository.Create<IDomainLimitationModuleRepository>();
+            _deviceFamilyRepositoryMock = new Mock<IDeviceFamilyRepository>();
             _logMock = _mockRepository.Create<ILog>();
-            _deviceFamilyManagerMock = new Mock<IDeviceFamilyManager>();
         }
 
         [TearDown]
@@ -44,9 +44,10 @@ namespace ApiLogic.Tests.Users
             _dlmRepositoryMock
                 .Setup(x => x.Add(1, 7, It.IsAny<LimitationsManager>()))
                 .Returns(outLimitationManager);
-
-            _deviceFamilyManagerMock.Setup(x => x.GetAllDeviceFamilyList()).Returns(FakeDeviceFamilyResponse());
-            var baseDomain = new FakeBaseDomain(1, _dlmRepositoryMock.Object, _logMock.Object, _deviceFamilyManagerMock.Object);
+            _deviceFamilyRepositoryMock
+                .Setup(x => x.List(1))
+                .Returns(FakeDeviceFamilyGenericResponse());
+            var baseDomain = new FakeBaseDomain(1, _dlmRepositoryMock.Object, _logMock.Object, _deviceFamilyRepositoryMock.Object);
 
             var result = baseDomain.AddDLM(1, inLimitationManager, 7);
 
@@ -61,9 +62,10 @@ namespace ApiLogic.Tests.Users
             _dlmRepositoryMock
                 .Setup(x => x.Add(1, 7, It.IsAny<LimitationsManager>()))
                 .Returns((LimitationsManager)null);
-            _deviceFamilyManagerMock.Setup(x => x.GetAllDeviceFamilyList()).Returns(FakeDeviceFamilyResponse());
-
-            var baseDomain = new FakeBaseDomain(1, _dlmRepositoryMock.Object, _logMock.Object, _deviceFamilyManagerMock.Object);
+            _deviceFamilyRepositoryMock
+                .Setup(x => x.List(1))
+                .Returns(FakeDeviceFamilyGenericResponse());
+            var baseDomain = new FakeBaseDomain(1, _dlmRepositoryMock.Object, _logMock.Object, _deviceFamilyRepositoryMock.Object);
 
             var result = baseDomain.AddDLM(1, FakeLimitationsManager(), 7);
 
@@ -79,11 +81,12 @@ namespace ApiLogic.Tests.Users
             _dlmRepositoryMock
                 .Setup(x => x.Add(1, 7, It.IsAny<LimitationsManager>()))
                 .Throws(exception);
+            _deviceFamilyRepositoryMock
+                .Setup(x => x.List(1))
+                .Returns(FakeDeviceFamilyGenericResponse());
             _logMock
                 .Setup(x => x.Error("AddDLM - failed groupId=1, userId=7, exception: Message", exception));
-            _deviceFamilyManagerMock.Setup(x => x.GetAllDeviceFamilyList()).Returns(FakeDeviceFamilyResponse());
-
-            var baseDomain = new FakeBaseDomain(1, _dlmRepositoryMock.Object, _logMock.Object, _deviceFamilyManagerMock.Object);
+            var baseDomain = new FakeBaseDomain(1, _dlmRepositoryMock.Object, _logMock.Object, _deviceFamilyRepositoryMock.Object);
 
             var result = baseDomain.AddDLM(1, FakeLimitationsManager(), 7);
 
@@ -98,8 +101,7 @@ namespace ApiLogic.Tests.Users
             _dlmRepositoryMock
                 .Setup(x => x.Delete(2, 3))
                 .Returns(false);
-
-            var baseDomain = new FakeBaseDomain(1, _dlmRepositoryMock.Object, _logMock.Object, _deviceFamilyManagerMock.Object);
+            var baseDomain = new FakeBaseDomain(1, _dlmRepositoryMock.Object, _logMock.Object, _deviceFamilyRepositoryMock.Object);
 
             var result = baseDomain.DeleteDLM(1, 2, 3);
 
@@ -115,14 +117,12 @@ namespace ApiLogic.Tests.Users
                 .Throws(exception);
             _logMock
                 .Setup(x => x.Error("Failed to delete DLM. userId:3, groupId:1, dlmId:2. Message: Message", exception));
-
-            var baseDomain = new FakeBaseDomain(1, _dlmRepositoryMock.Object, _logMock.Object, _deviceFamilyManagerMock.Object);
+            var baseDomain = new FakeBaseDomain(1, _dlmRepositoryMock.Object, _logMock.Object, _deviceFamilyRepositoryMock.Object);
 
             var result = baseDomain.DeleteDLM(1, 2, 3);
 
             result.Should().Match<Status>(x => x.Code == (int)eResponseStatus.Error && x.Message == "Error");
         }
-
 
         [Test]
         public void UpdateDLM_DlmUpdated_ReturnsOkGenericResponse()
@@ -132,9 +132,10 @@ namespace ApiLogic.Tests.Users
             _dlmRepositoryMock
                 .Setup(x => x.Update(1, 7, It.IsAny<LimitationsManager>()))
                 .Returns(outLimitationManager);
-
-            _deviceFamilyManagerMock.Setup(x => x.GetAllDeviceFamilyList()).Returns(FakeDeviceFamilyResponse());
-            var baseDomain = new FakeBaseDomain(1, _dlmRepositoryMock.Object, _logMock.Object, _deviceFamilyManagerMock.Object);
+            _deviceFamilyRepositoryMock
+                .Setup(x => x.List(1))
+                .Returns(FakeDeviceFamilyGenericResponse());
+            var baseDomain = new FakeBaseDomain(1, _dlmRepositoryMock.Object, _logMock.Object, _deviceFamilyRepositoryMock.Object);
 
             var result = baseDomain.UpdateDLM(1, 1, 7, inLimitationManager);
 
@@ -149,9 +150,10 @@ namespace ApiLogic.Tests.Users
             _dlmRepositoryMock
                 .Setup(x => x.Update(1, 7, It.IsAny<LimitationsManager>()))
                 .Returns((LimitationsManager)null);
-
-            _deviceFamilyManagerMock.Setup(x => x.GetAllDeviceFamilyList()).Returns(FakeDeviceFamilyResponse());
-            var baseDomain = new FakeBaseDomain(1, _dlmRepositoryMock.Object, _logMock.Object, _deviceFamilyManagerMock.Object);
+            _deviceFamilyRepositoryMock
+                .Setup(x => x.List(1))
+                .Returns(FakeDeviceFamilyGenericResponse());
+            var baseDomain = new FakeBaseDomain(1, _dlmRepositoryMock.Object, _logMock.Object, _deviceFamilyRepositoryMock.Object);
 
             var result = baseDomain.UpdateDLM(1, 1, 7, FakeLimitationsManager());
 
@@ -163,33 +165,37 @@ namespace ApiLogic.Tests.Users
         [Test]
         public void UpdateDLM_DlmNotUpdated_ReturnsErrorGenericResponseDeviceFamilies()
         {
-            _deviceFamilyManagerMock.Setup(x => x.GetAllDeviceFamilyList()).Returns((List<DeviceFamily>)null);
-            var baseDomain = new FakeBaseDomain(1, _dlmRepositoryMock.Object, _logMock.Object, _deviceFamilyManagerMock.Object);
+            _deviceFamilyRepositoryMock
+                .Setup(x => x.List(1))
+                .Returns(new GenericListResponse<DeviceFamily>());
+            var baseDomain = new FakeBaseDomain(1, _dlmRepositoryMock.Object, _logMock.Object, _deviceFamilyRepositoryMock.Object);
 
             var result = baseDomain.UpdateDLM(123, 1, 7, FakeLimitationsManager());
+
             result.Should().NotBeNull();
-            result.resp.Should().Match<Status>(x => x.Code == (int)eResponseStatus.Error && x.Message == $"DLM is not valid, can't retrieve device family");
+            result.resp.Should().Match<Status>(x => x.Code == (int)eResponseStatus.Error && x.Message == "DLM is not valid, can't retrieve device family.");
             result.dlm.Should().BeNull();
         }
 
         [Test]
         public void UpdateDLM_DlmNotUpdated_ReturnsErrorDeviceFamiliesNotValidGenericResponse()
         {
-            var baseDomain = new FakeBaseDomain(1, _dlmRepositoryMock.Object, _logMock.Object, _deviceFamilyManagerMock.Object);
-
-            _deviceFamilyManagerMock.Setup(x => x.GetAllDeviceFamilyList()).Returns(FakeDeviceFamilyResponseDiffIds);
+            _deviceFamilyRepositoryMock
+                .Setup(x => x.List(1))
+                .Returns(FakeDeviceFamilyDiffIdsGenericResponse);
+            var baseDomain = new FakeBaseDomain(1, _dlmRepositoryMock.Object, _logMock.Object, _deviceFamilyRepositoryMock.Object);
 
             var result = baseDomain.UpdateDLM(123, 1, 7, FakeLimitationsManager());
-            var errorMessage = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()).ToString();
+
             result.Should().NotBeNull();
-            result.resp.Should().Match<Status>(x => x.Code == (int)eResponseStatus.Error && x.Message == $"DLM is not valid, these device family ids doesnt exist 1,2");
+            result.resp.Should().Match<Status>(x => x.Code == (int)eResponseStatus.Error && x.Message == "DLM is not valid, these device family ids doesn't exist 1,2");
             result.dlm.Should().BeNull();
         }
 
         private class FakeBaseDomain : BaseDomain
         {
-            public FakeBaseDomain(int groupId, IDomainLimitationModuleRepository dlmRepository, ILog log, IDeviceFamilyManager deviceFamilyManager)
-                : base(groupId, dlmRepository, log, deviceFamilyManager)
+            public FakeBaseDomain(int groupId, IDomainLimitationModuleRepository dlmRepository, ILog log, IDeviceFamilyRepository deviceFamilyRepository)
+                : base(groupId, dlmRepository, deviceFamilyRepository, log)
             {
             }
 
@@ -236,28 +242,33 @@ namespace ApiLogic.Tests.Users
                 nUserLimit = 6,
                 lDeviceFamilyLimitations = new List<DeviceFamilyLimitations>
                 {
-                    new DeviceFamilyLimitations(){ deviceFamily = 1 },
-                    new DeviceFamilyLimitations(){ deviceFamily = 2 }
+                    new DeviceFamilyLimitations { deviceFamily = 1 },
+                    new DeviceFamilyLimitations { deviceFamily = 2 }
                 },
                 Description = "description"
             };
         }
-        private List<DeviceFamily>  FakeDeviceFamilyResponse()
+
+        private GenericListResponse<DeviceFamily> FakeDeviceFamilyGenericResponse()
         {
-            return new List<DeviceFamily>
+            var deviceFamilies = new List<DeviceFamily>
             {
                 new DeviceFamily { Id = 1 },
                 new DeviceFamily { Id = 2 }
             };
+
+            return new GenericListResponse<DeviceFamily>(Status.Ok, deviceFamilies);
         }
 
-        private List<DeviceFamily> FakeDeviceFamilyResponseDiffIds()
+        private GenericListResponse<DeviceFamily> FakeDeviceFamilyDiffIdsGenericResponse()
         {
-            return new List<DeviceFamily>
+            var deviceFamilies = new List<DeviceFamily>
             {
                 new DeviceFamily { Id = 3 },
                 new DeviceFamily { Id = 4 }
             };
+
+            return new GenericListResponse<DeviceFamily>(Status.Ok, deviceFamilies);
         }
     }
 }

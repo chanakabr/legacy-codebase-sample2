@@ -317,16 +317,17 @@ namespace Core.Billing
             string sDeviceName = "";
             string sPreviewModuleID = string.Empty;
             string sCollectionCode = string.Empty;
+            long pagoId = 0;
 
             Utils.SplitRefference(sCustomData, ref nMediaFileID, ref nMediaID, ref sSubscriptionCode, ref sPPVCode, ref sRelevantPrePaid, ref sPriceCode,
                     ref dChargePrice, ref sCurrencyCode, ref bIsRecurring, ref sPPVModuleCode, ref nNumberOfPayments,
                     ref sUserGUID, ref sRelevantSub, ref nMaxNumberOfUses, ref nMaxUsageModuleLifeCycle, ref nViewLifeCycleSecs, ref sPurchaseType,
-                    ref sCountryCd, ref sLanguageCode, ref sDeviceName, ref sPreviewModuleID, ref sCollectionCode);
+                    ref sCountryCd, ref sLanguageCode, ref sDeviceName, ref sPreviewModuleID, ref sCollectionCode, out pagoId);
 
             long lTransID = Utils.InsertBillingTransaction(sSiteGUID, "", dChargePrice, sPriceCode,
                     sCurrencyCode, sCustomData, (int)(ret.m_oStatus), "", bIsRecurring, nMediaFileID, nMediaID, sPPVModuleCode,
                     sSubscriptionCode, "", m_nGroupID, nBillingProvider, nTransactionLocalID, 0.0, dChargePrice, nPaymentNumber, nNumberOfPayments, "",
-                    sCountryCd, sLanguageCode, sDeviceName, 4, billingMethod, sRelevantPrePaid, sPreviewModuleID, sCollectionCode);
+                    sCountryCd, sLanguageCode, sDeviceName, 4, billingMethod, sRelevantPrePaid, sPreviewModuleID, sCollectionCode, null, pagoId);
             ret.m_sRecieptCode = lTransID.ToString();
             return ret;
         }

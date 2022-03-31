@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Xml;
 using ApiObjects.Billing;
-using System.Net;
 using APILogic.Api.Managers;
 using ApiObjects;
 using Core.Pricing;
@@ -42,7 +41,7 @@ namespace Core.Billing
         private static Dictionary<string, string> enablePaymentGatewayInputValues = new Dictionary<string, string>()
         { { "true", "1" }, { "yes", "1" }, { "1", "1" }, { "false", "0" }, { "no", "0" }, { "0", "0" } };
 
-        
+
         public static Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BaseBilling t)
         {
             Int32 nGroupID = GetGroupID(sWSUserName, sWSPassword, sFunctionName);
@@ -173,16 +172,16 @@ namespace Core.Billing
             Int32 nGroupID, string sLast4Digits, string sPreviewEnd, eMailTemplateType templateType, eTransactionType? transactionType = null, bool partialPrice = false)
         {
             try
-            {                
+            {
                 if (!string.IsNullOrEmpty(sPreviewEnd) && templateType == eMailTemplateType.Purchase)
                     templateType = eMailTemplateType.PurchaseWithPreviewModule;
                 //get HH from siteGuid
                 User houseHoldUser = GetHHFromSiteGuid(sSiteGUID, nGroupID);
-                MailRequestObj purchaseRequest = 
+                MailRequestObj purchaseRequest =
                     BillingMailTemplateFactory.GetMailTemplate(nGroupID, houseHoldUser.m_sSiteGUID, sExternalNum, double.Parse(stotalAmount),
                     scurrency, sItemName, sPaymentMethod, sLast4Digits, sPreviewEnd, templateType, lBillingTransID, houseHoldUser, partialPrice);
                 log.DebugFormat("params for purchase mail ws_billing purchaseRequest.m_sSubject={0}, houseHoldUser.m_sSiteGUID={1}, purchaseRequest.m_sTemplateName={2}", purchaseRequest.m_sSubject, houseHoldUser.m_sSiteGUID, purchaseRequest.m_sTemplateName);
-                
+
                 if (purchaseRequest != null && !string.IsNullOrEmpty(purchaseRequest.m_sTemplateName))
                 {
                     Api.Module.SendMailTemplate(nGroupID, purchaseRequest);
@@ -252,7 +251,7 @@ namespace Core.Billing
         {
             try
             {
-                PurchaseMailRequest purchaseRequest = BillingMailTemplateFactory.GetMailTemplate(nGroupID, sSiteGUID, sExternalNum, 
+                PurchaseMailRequest purchaseRequest = BillingMailTemplateFactory.GetMailTemplate(nGroupID, sSiteGUID, sExternalNum,
                     double.Parse(stotalAmount), scurrency, sItemName, sPaymentMethod, string.Empty, string.Empty, templateType, lBillingTransID);
 
 
@@ -334,15 +333,20 @@ namespace Core.Billing
         {
             string sPreviewModuleID = string.Empty;
             string sCollectionCode = string.Empty;
-            SplitRefference(sRefference, ref nMediaFileID, ref nMediaID, ref sSubscriptionCode, ref sPPVCode, ref sPrePaidCode, ref sPriceCode, ref dPrice, ref sCurrencyCd, ref bIsRecurring, ref sPPVModuleCode, ref nNumberOfPayments, ref sSiteGUID, ref sRelevantSub, ref nMaxNumberOfUses, ref nMaxUsageModuleLifeCycle, ref nViewLifeCycleSecs, ref sPurchaseType, ref sCurrencyCd, ref sLanguageCd, ref sDeviceName, ref sPreviewModuleID, ref sCollectionCode);
+            long pagoId = 0;
+            SplitRefference(sRefference, ref nMediaFileID, ref nMediaID, ref sSubscriptionCode, ref sPPVCode, ref sPrePaidCode, ref sPriceCode, ref dPrice,
+                ref sCurrencyCd, ref bIsRecurring, ref sPPVModuleCode, ref nNumberOfPayments, ref sSiteGUID, ref sRelevantSub, ref nMaxNumberOfUses,
+                ref nMaxUsageModuleLifeCycle, ref nViewLifeCycleSecs, ref sPurchaseType, ref sCurrencyCd, ref sLanguageCd, ref sDeviceName, ref sPreviewModuleID,
+                ref sCollectionCode, out pagoId);
         }
 
         public static void SplitRefference(string sRefference, ref Int32 nMediaFileID, ref Int32 nMediaID, ref string sSubscriptionCode, ref string sPPVCode, ref string sPrePaidCode,
             ref string sPriceCode, ref double dPrice, ref string sCurrencyCd, ref bool bIsRecurring, ref string sPPVModuleCode,
             ref Int32 nNumberOfPayments, ref string sSiteGUID, ref string sRelevantSub, ref Int32 nMaxNumberOfUses,
             ref Int32 nMaxUsageModuleLifeCycle, ref Int32 nViewLifeCycleSecs, ref string sPurchaseType,
-            ref string sCountryCd, ref string sLanguageCd, ref string sDeviceName, ref string sPreviewModuleID, ref string sCollectionCode)
+            ref string sCountryCd, ref string sLanguageCd, ref string sDeviceName, ref string sPreviewModuleID, ref string sCollectionCode, out long pagoId)
         {
+            pagoId = 0;
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(sRefference);
             System.Xml.XmlNode theRequest = doc.FirstChild;
@@ -412,6 +416,11 @@ namespace Core.Billing
             else
                 bIsRecurring = !string.IsNullOrEmpty(sPreviewModuleID);
             sCollectionCode = collectioncode;
+            string pagoVal = Utils.GetSafeValue("pagoId", ref theRequest);
+            if (!string.IsNullOrEmpty(pagoVal))
+            {
+                long.TryParse(pagoVal, out pagoId);
+            }
         }
 
         public static string GetHash(string sToHash, string sHashParameterName)
@@ -915,6 +924,8 @@ namespace Core.Billing
                 string sDeviceName = "";
                 string sPrePaidCode = string.Empty;
                 string sCollectionCode = string.Empty;
+                long pagoId = 0;
+
                 string sLoweredTrimmedStatus = sStatus.Trim().ToLower();
                 if (sLoweredTrimmedStatus.StartsWith("pending") || sLoweredTrimmedStatus.StartsWith("authorised") || sLoweredTrimmedStatus.StartsWith("authorized") || sLoweredTrimmedStatus.StartsWith("success") || sLoweredTrimmedStatus.StartsWith("renewal") || sLoweredTrimmedStatus.StartsWith("charge"))
                     nStatus = 0;
@@ -924,12 +935,12 @@ namespace Core.Billing
                 Core.Billing.Utils.SplitRefference(sCustomData, ref nMediaFileID, ref nMediaID, ref sSubscriptionCode, ref sPPVCode, ref sPrePaidCode, ref sPriceCode,
                         ref dChargePrice, ref sCurrencyCode, ref bIsRecurring, ref sPPVModuleCode, ref nNumberOfPayments, ref sUserGUID,
                                     ref sRelevantSub, ref nMaxNumberOfUses, ref nMaxUsageModuleLifeCycle, ref nViewLifeCycleSecs, ref sPurchaseType,
-                                    ref sCountryCd, ref sLanguageCode, ref sDeviceName, ref sPreviewModuleID, ref sCollectionCode);
+                                    ref sCountryCd, ref sLanguageCode, ref sDeviceName, ref sPreviewModuleID, ref sCollectionCode, out pagoId);
 
                 lBillingTransactionID = Core.Billing.Utils.InsertBillingTransaction(sSiteGUID, sDigits, dChargePrice, sPriceCode,
                         sCurrencyCode, sCustomData, nStatus, sErrCode + "|" + sReason, bIsRecurring, nMediaFileID, nMediaID, sPPVModuleCode,
                         sSubscriptionCode, "", nGroupID, nBillingProvider, nRet, 0.0, dChargePrice, nPaymentNum, nNumberOfPayments, "",
-                        sCountryCd, sLanguageCode, sDeviceName, nBILLING_PROCESSOR, nBILLING_METHOD, sPrePaidCode, sPreviewModuleID, sCollectionCode);
+                        sCountryCd, sLanguageCode, sDeviceName, nBILLING_PROCESSOR, nBILLING_METHOD, sPrePaidCode, sPreviewModuleID, sCollectionCode, null, pagoId);
             }
             finally
             {
@@ -974,16 +985,18 @@ namespace Core.Billing
             string sDeviceName = "";
             string sPrePaidCode = string.Empty;
             string sCollectionCode = string.Empty;
+            long pagoId = 0;
 
             Core.Billing.Utils.SplitRefference(sCustomData, ref nMediaFileID, ref nMediaID, ref sSubscriptionCode, ref sPPVCode, ref sPrePaidCode, ref sPriceCode,
                                           ref dChargePrice, ref sCurrencyCode, ref bIsRecurring, ref sPPVModuleCode, ref nNumberOfPayments, ref sUserGUID,
                                           ref sRelevantSub, ref nMaxNumberOfUses, ref nMaxUsageModuleLifeCycle, ref nViewLifeCycleSecs, ref sPurchaseType,
-                                          ref sCountryCd, ref sLanguageCode, ref sDeviceName, ref sPreviewModuleID, ref sCollectionCode);
+                                          ref sCountryCd, ref sLanguageCode, ref sDeviceName, ref sPreviewModuleID, ref sCollectionCode, out pagoId);
 
             long lBillingTransactionID = Core.Billing.Utils.InsertBillingTransaction(sSiteGUID, sDigits, dChargePrice, sPriceCode,
                                         sCurrencyCode, sCustomData, nBillingStatus, sErrCode + "|" + sReason, bIsRecurring, nMediaFileID, nMediaID, sPPVModuleCode,
                                         sSubscriptionCode, sChargedMobileNumber, nGroupID, nBillingProvider, nM1TransactionID, 0.0, dChargePrice, nPaymentNum, nNumberOfPayments, sCustomerServiceID,
-                                        sCountryCd, sLanguageCode, sDeviceName, nBillingProcessor, nBillingMethod, sPrePaidCode, sPreviewModuleID, sCollectionCode);
+                                        sCountryCd, sLanguageCode, sDeviceName, nBillingProcessor, nBillingMethod, sPrePaidCode, sPreviewModuleID, sCollectionCode,
+                                        null, pagoId);
 
             return lBillingTransactionID;
         }
@@ -1404,7 +1417,7 @@ namespace Core.Billing
             }
 
         }
-        
+
         public static void GetBasePopupImpl(ref BasePopup t, Int32 nGroupID)
         {
             Int32 nImplID = 0;
@@ -1449,50 +1462,44 @@ namespace Core.Billing
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("fail InsertBillingTransaction ex = {0},  billingProvider={1}, paymentGatewayId={2}, billingTransactionStatus={3}", ex, billingProvider, paymenMethodId, billingTransactionStatus);                         
+                log.ErrorFormat("fail InsertBillingTransaction ex = {0},  billingProvider={1}, paymentGatewayId={2}, billingTransactionStatus={3}", ex, billingProvider, paymenMethodId, billingTransactionStatus);
             }
             return new Dictionary<long, long>();
         }
 
-        public static long InsertBillingTransaction(string sSITE_GUID, string sLAST_FOUR_DIGITS, double dPRICE,
-    string sPRICE_CODE, string sCURRENCY_CODE, string sCUSTOMDATA, Int32 nBILLING_STATUS, string sBILLING_REASON,
-    bool bIS_RECURRING, Int32 nMEDIA_FILE_ID, Int32 nMEDIA_ID, string sPPVMODULE_CODE,
-    string sSUBSCRIPTION_CODE, string sCELL_PHONE, Int32 ngroup_id, Int32 nBILLING_PROVIDER,
-    Int32 nBILLING_PROVIDER_REFFERENCE, double dPAYMENT_METHOD_ADDITION, double dTOTAL_PRICE,
-    Int32 nPAYMENT_NUMBER, Int32 nNUMBER_OF_PAYMENTS, string sEXTRA_PARAMS,
-    string sCountryCd, string sLanguageCode, string sDeviceName, Int32 nBILLING_PROCESSOR, Int32 nBILLING_METHOD, string sPrePaidCode)
+        public static long InsertBillingTransaction(string sSITE_GUID, string sLAST_FOUR_DIGITS, double dPRICE, string sPRICE_CODE, string sCURRENCY_CODE,
+            string sCUSTOMDATA, Int32 nBILLING_STATUS, string sBILLING_REASON, bool bIS_RECURRING, Int32 nMEDIA_FILE_ID, Int32 nMEDIA_ID, string sPPVMODULE_CODE,
+            string sSUBSCRIPTION_CODE, string sCELL_PHONE, Int32 ngroup_id, Int32 nBILLING_PROVIDER, Int32 nBILLING_PROVIDER_REFFERENCE,
+            double dPAYMENT_METHOD_ADDITION, double dTOTAL_PRICE, Int32 nPAYMENT_NUMBER, Int32 nNUMBER_OF_PAYMENTS, string sEXTRA_PARAMS,
+            string sCountryCd, string sLanguageCode, string sDeviceName, Int32 nBILLING_PROCESSOR, Int32 nBILLING_METHOD, string sPrePaidCode)
         {
             return InsertBillingTransaction(sSITE_GUID, sLAST_FOUR_DIGITS, dPRICE,
-            sPRICE_CODE, sCURRENCY_CODE, sCUSTOMDATA, nBILLING_STATUS, sBILLING_REASON,
-            bIS_RECURRING, nMEDIA_FILE_ID, nMEDIA_ID, sPPVMODULE_CODE,
-            sSUBSCRIPTION_CODE, sCELL_PHONE, ngroup_id, nBILLING_PROVIDER,
-            nBILLING_PROVIDER_REFFERENCE, dPAYMENT_METHOD_ADDITION, dTOTAL_PRICE,
-            nPAYMENT_NUMBER, nNUMBER_OF_PAYMENTS, sEXTRA_PARAMS,
-            sCountryCd, sLanguageCode, sDeviceName, nBILLING_PROCESSOR, nBILLING_METHOD, sPrePaidCode, string.Empty, string.Empty);
+                sPRICE_CODE, sCURRENCY_CODE, sCUSTOMDATA, nBILLING_STATUS, sBILLING_REASON,
+                bIS_RECURRING, nMEDIA_FILE_ID, nMEDIA_ID, sPPVMODULE_CODE,
+                sSUBSCRIPTION_CODE, sCELL_PHONE, ngroup_id, nBILLING_PROVIDER,
+                nBILLING_PROVIDER_REFFERENCE, dPAYMENT_METHOD_ADDITION, dTOTAL_PRICE,
+                nPAYMENT_NUMBER, nNUMBER_OF_PAYMENTS, sEXTRA_PARAMS,
+                sCountryCd, sLanguageCode, sDeviceName, nBILLING_PROCESSOR, nBILLING_METHOD, sPrePaidCode, string.Empty, string.Empty);
         }
-
-        public static long InsertBillingTransaction(string sSITE_GUID, string sLAST_FOUR_DIGITS, double dPRICE,
-            string sPRICE_CODE, string sCURRENCY_CODE, string sCUSTOMDATA, Int32 nBILLING_STATUS, string sBILLING_REASON,
-            bool bIS_RECURRING, Int32 nMEDIA_FILE_ID, Int32 nMEDIA_ID, string sPPVMODULE_CODE,
-            string sSUBSCRIPTION_CODE, string sCELL_PHONE, Int32 ngroup_id, Int32 nBILLING_PROVIDER,
-            long lBILLING_PROVIDER_REFFERENCE, double dPAYMENT_METHOD_ADDITION, double dTOTAL_PRICE,
-            Int32 nPAYMENT_NUMBER, Int32 nNUMBER_OF_PAYMENTS, string sEXTRA_PARAMS,
-            string sCountryCd, string sLanguageCode, string sDeviceName, Int32 nBILLING_PROCESSOR, Int32 nBILLING_METHOD, string sPrePaidCode, string sPreviewModuleID, string sCollectionCode, string billingGuid = null)
+        
+        public static long InsertBillingTransaction(string siteGuid, string lastFourDigits, double price, string priceCode, string currencyCode, 
+            string customdata, int billingStatus, string billingReason, bool isRecurring, int mediaFileId, int mediaId, string ppvmoduleCode,
+            string subscriptionCode, string cellPhone, int groupId, int billingProvider,  long billingProviderRefference, double paymentMmethodAddition, 
+            double totalPrice, int paymentNumber, int numberOfPayments, string extraParams, string countryCd, string languageCode, string deviceName, 
+            int billingProcessor, int billingMmethod, string prePaidCode, string previewModuleID, string collectionCode, string billingGuid = null, long pagoId = 0)
         {
-            long lPreviewModuleID = 0;
-            if (!string.IsNullOrEmpty(sPreviewModuleID))
-                Int64.TryParse(sPreviewModuleID, out lPreviewModuleID);
-            double dPriceToWriteToDatabase = lPreviewModuleID > 0 ? 0.0 : dPRICE;
-            double dTotalPriceToWriteToDatabase = lPreviewModuleID > 0 ? 0.0 : dTOTAL_PRICE;
-            int nPaymentNumberToInsertToDB = CalcPaymentNumberForBillingTransactionsDBTable(nPAYMENT_NUMBER, lPreviewModuleID);
+            long previewModuleId = 0;
+            if (!string.IsNullOrEmpty(previewModuleID))
+                Int64.TryParse(previewModuleID, out previewModuleId);
+            double dPriceToWriteToDatabase = previewModuleId > 0 ? 0.0 : price;
+            double dTotalPriceToWriteToDatabase = previewModuleId > 0 ? 0.0 : totalPrice;
+            int nPaymentNumberToInsertToDB = CalcPaymentNumberForBillingTransactionsDBTable(paymentNumber, previewModuleId);
 
-
-
-            long lRet = ApiDAL.Insert_NewBillingTransaction(sSITE_GUID, sLAST_FOUR_DIGITS, dPriceToWriteToDatabase, sPRICE_CODE, sCURRENCY_CODE,
-            sCUSTOMDATA, nBILLING_STATUS, sBILLING_REASON, bIS_RECURRING, nMEDIA_FILE_ID, nMEDIA_ID, sPPVMODULE_CODE,
-            sSUBSCRIPTION_CODE, sCELL_PHONE, ngroup_id, nBILLING_PROVIDER, lBILLING_PROVIDER_REFFERENCE,
-            dPAYMENT_METHOD_ADDITION, dTotalPriceToWriteToDatabase, nPaymentNumberToInsertToDB, nNUMBER_OF_PAYMENTS, sEXTRA_PARAMS, sCountryCd,
-            sLanguageCode, sDeviceName, nBILLING_PROCESSOR, nBILLING_METHOD, sPrePaidCode, lPreviewModuleID, sCollectionCode, billingGuid);
+            long lRet = ApiDAL.Insert_NewBillingTransaction(siteGuid, lastFourDigits, dPriceToWriteToDatabase, priceCode, currencyCode, customdata, billingStatus, 
+                        billingReason, isRecurring, mediaFileId, mediaId, ppvmoduleCode, subscriptionCode, cellPhone, groupId, billingProvider, 
+                        billingProviderRefference, paymentMmethodAddition, dTotalPriceToWriteToDatabase, nPaymentNumberToInsertToDB, numberOfPayments, 
+                        extraParams, countryCd,languageCode, deviceName, billingProcessor, billingMmethod, prePaidCode, previewModuleId, collectionCode, 
+                        billingGuid, pagoId);
 
             return lRet;
         }
@@ -2141,7 +2148,7 @@ namespace Core.Billing
                 // get from cache 
                 string key = string.Format("DateEmailFormat_{0}", groupId);
                 bool bRes = TvinciCache.WSCache.Instance.TryGet<string>(key, out dateEmailFormat);
-                
+
                 if (!bRes)
                 {
                     dateEmailFormat = DAL.BillingDAL.getEmailDateFormat(groupId);
@@ -2164,7 +2171,7 @@ namespace Core.Billing
 
             return dateEmailFormat;
         }
-        
+
         internal static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, ref int householdId)
         {
             var status = new ApiObjects.Response.Status() { Code = -1 };
@@ -2212,13 +2219,13 @@ namespace Core.Billing
                                 break;
                             }
                         case ResponseStatus.UserSuspended:
-                        {
-                            status = RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(groupId, long.Parse(siteGuid))
-                                ? ApiObjects.Response.Status.Ok
-                                : new ApiObjects.Response.Status(eResponseStatus.UserSuspended);
+                            {
+                                status = RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(groupId, long.Parse(siteGuid))
+                                    ? ApiObjects.Response.Status.Ok
+                                    : new ApiObjects.Response.Status(eResponseStatus.UserSuspended);
 
-                            break;
-                        }
+                                break;
+                            }
                         // Most cases will return general error
                         default:
                             {
@@ -2239,7 +2246,7 @@ namespace Core.Billing
 
             return status;
         }
-        
+
         /// <summary>
         /// Validates that a user exists and belongs to a given domain
         /// </summary>
@@ -2463,22 +2470,6 @@ namespace Core.Billing
         internal static bool DataTableExsits(DataTable dataTable)
         {
             return dataTable != null && dataTable.Rows != null && dataTable.Rows.Count > 0;
-        }
-
-        internal static string GetIP2CountryCode(int groupId, string ip)
-        {
-            string res = string.Empty;
-            try
-            {
-                var country = Core.Api.api.GetCountryByIp(groupId, ip);
-                res = country != null ? country.Code : res;
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed Utils.GetIP2CountryCode with groupId: {0}, ip: {1}", groupId, ip), ex);
-            }
-
-            return res;
         }
     }
 }

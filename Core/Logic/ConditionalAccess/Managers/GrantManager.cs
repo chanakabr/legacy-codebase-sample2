@@ -1,12 +1,14 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Pricing.Handlers;
+using APILogic.Api.Managers;
+using ApiObjects;
 using ApiObjects.Billing;
 using ApiObjects.ConditionalAccess;
 using ApiObjects.Pricing;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
-using Phx.Lib.Appconfig;
 using Core.Pricing;
 using DAL;
+using Phx.Lib.Appconfig;
 using Phx.Lib.Log;
 using QueueWrapper;
 using System;
@@ -14,7 +16,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using APILogic.Api.Managers;
 
 namespace Core.ConditionalAccess
 {
@@ -74,6 +75,9 @@ namespace Core.ConditionalAccess
                         break;
                     case eTransactionType.Collection:
                         status = GrantCollection(cas, groupId, userId, householdId, productId, ip, udid, history);
+                        break;
+                    case eTransactionType.ProgramAssetGroupOffer:
+                        status = GrantProgramAssetGroupOffer(cas, groupId, long.Parse(userId), householdId, productId, ip, udid, history);
                         break;
                     default:
                         status.Set((int)eResponseStatus.InvalidProductType, "Illegal product Type");
@@ -758,6 +762,101 @@ namespace Core.ConditionalAccess
             }
 
             return billingResponse;
+        }
+
+        private static Status GrantProgramAssetGroupOffer(BaseConditionalAccess cas, int groupId, long userId, long householdId, int pagoId, string ip, string udid, bool saveHistory)
+        {
+            Status status = new Status();
+
+            // log request
+            string logString = $"Purchase request: userID {userId}, household {householdId}, productId {pagoId}, userIp {ip}, deviceName {udid}, saveHistory {saveHistory}";
+
+            try
+            {
+                // get country by user IP
+                string country = string.IsNullOrEmpty(ip) ? string.Empty : Utils.GetIP2CountryName(groupId, ip);
+
+                // get pago
+                ProgramAssetGroupOffer pago = null;
+                pago = PagoManager.Instance.GetProgramAssetGroupOffer(groupId, pagoId);
+                if (pago == null)
+                {
+                    status.Set(eResponseStatus.InvalidOffer, "This programAssetGroupOffer is invalid");
+                    log.Warn($"Warning: {status.Message}, data: {logString}");
+                    return status;
+                }
+
+                if(!PagoManager.Instance.IsPagoAllowed(pago))
+                {
+                    status.Set(eResponseStatus.NotForPurchase, "Not valid for purchase");
+                    log.Warn($"Warning: This programAssetGroupOffer is NotForPurchase , data: {logString}");
+                    return status;
+                }
+
+                // validate price
+                PriceReason priceReason = PriceReason.UnKnown;
+                Price priceResponse = null;
+                priceResponse = PriceManager.GetPagoFinalPrice(groupId, userId, ref priceReason, pago, country, ip);
+
+                if (priceReason == PriceReason.UnKnown)
+                {
+                    status.Set(eResponseStatus.InvalidOffer, "This programAssetGroupOffer is invalid");
+                    log.Warn($"Warning: {status.Message}, data: {logString}");
+                    return status;
+                }
+
+                if (priceReason != PriceReason.ForPurchase)
+                {
+                    // not for purchase
+                    status = Utils.SetResponseStatus(priceReason);
+                    log.Warn($"Warning: {status.Message}, data: {logString}");
+                    return status;
+                }
+
+                if (priceResponse == null)
+                {
+                    status.Set(eResponseStatus.Error, BaseConditionalAccess.GET_PRICE_ERROR);
+                    log.Warn($"Warning: {status.Message}, data: {logString}");
+                    return status;
+                }
+
+                // price validated, create the Custom Data
+                string customData = cas.GetCustomDataForPago(pago, pagoId, userId, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, ip, country, string.Empty);
+
+                // purchase
+                BillingResponse billingResponse = HandleTransactionPurchase(saveHistory, cas, userId.ToString(), priceResponse, ip, customData);
+
+                if (billingResponse == null || billingResponse.m_oStatus != BillingResponseStatus.Success)
+                {
+                    // purchase failed - no status error
+                    status.Set(eResponseStatus.PurchaseFailed, BaseConditionalAccess.PURCHASE_FAILED);
+                    log.Warn($"Warning: {status.Message}, data: {logString}");
+                    return status;
+                }
+
+                // purchase passed, update entitlement date
+                DateTime entitlementDate = DateTime.UtcNow;
+                TransactionResponse response = null;
+
+                // create new GUID for billing_transaction
+                string billingGuid = Guid.NewGuid().ToString();
+
+                // grant entitlement
+                long lBillingTransactionID = 0;
+                long purchaseID = 0;
+                var result = cas.HandlePagoBillingSuccess(ref response, userId, householdId, pago, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, ip,
+                                                            country, udid, lBillingTransactionID, customData, pagoId, billingGuid, false, entitlementDate, ref purchaseID);
+                if (result)
+                {
+                    status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception occurred. data: " + logString, ex);
+            }
+
+            return status;
         }
     }
 }

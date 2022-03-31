@@ -1,9 +1,10 @@
 ﻿using ApiObjects;
 using ApiObjects.ConditionalAccess;
+using ApiObjects.ConditionalAccess.DTO;
 using ApiObjects.SubscriptionSet;
+using ODBCWrapper;
 using Phx.Lib.Appconfig;
 using Phx.Lib.Log;
-using ODBCWrapper;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -19,7 +20,12 @@ namespace DAL
         bool DeletePartnerBasicDataDb(long partnerId, long updaterId);
     }
 
-    public class ConditionalAccessDAL : ICAPartnerRepository
+    public interface ICAEntitlementRepository
+    {
+        List<EntitlementDto> GetEntitlementPagoItems(int partnerId, int domainId);
+    }
+
+    public class ConditionalAccessDAL : ICAPartnerRepository, ICAEntitlementRepository
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int RETRY_LIMIT = 5;
@@ -60,7 +66,7 @@ namespace DAL
             if (ds != null)
                 return ds.Tables[0];
             return null;
-        }
+        }        
 
         public static string GetMediaFileCoGuid(int nGroupID, int nMediaFileID)
         {
@@ -406,7 +412,7 @@ namespace DAL
                 updateQuery.SetConnectionKey("CA_CONNECTION_STRING");
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", nIsActive);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", nStatus);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow); 
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                 updateQuery += " WHERE ";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nPurchaseID);
                 updateQuery += " AND ";
@@ -974,7 +980,7 @@ namespace DAL
             sp.AddParameter("@SiteGUID", sSiteGUID);
             sp.AddParameter("@GroupID", nGroupID);
             sp.AddParameter("@SubscriptionCode", nSubscriptionCode);
-            if (subscriptionPurchaseStatus == (int) SubscriptionPurchaseStatus.Fail)
+            if (subscriptionPurchaseStatus == (int)SubscriptionPurchaseStatus.Fail)
             {
                 sp.AddParameter("@IsActive", 2);
             }
@@ -3597,7 +3603,7 @@ namespace DAL
             try
             {
                 var parameters = new Dictionary<string, object>() { { "@groupId", groupId }, { "@startDate", startDate }, { "@endDate", endDate },
-                                                                    { "@purchaseId", purchaseId }, { "@isPending", isPending ? 1: 0 }};            
+                                                                    { "@purchaseId", purchaseId }, { "@isPending", isPending ? 1: 0 }};
                 return UtilsDal.ExecuteReturnValue<long>("Update_PPVPurchases", parameters, CA_CONNECTION_STRING) > 0;
             }
             catch (Exception ex)
@@ -3628,7 +3634,7 @@ namespace DAL
         {
             try
             {
-                var parameters = new Dictionary<string, object>() { { "@groupId", groupId }, { "@billingGuid", billingGuid }};
+                var parameters = new Dictionary<string, object>() { { "@groupId", groupId }, { "@billingGuid", billingGuid } };
                 return UtilsDal.Execute("Get_SubscriptionsPurchasesByBillingGuid", parameters, CA_CONNECTION_STRING);
             }
             catch (Exception ex)
@@ -3686,6 +3692,151 @@ namespace DAL
             sp.AddParameter("@updaterId", updaterId);
 
             return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static long InsertPagoPurchase(int groupId, long pagoId, string userId, double price, string currency, string customData, string country, string deviceName,
+            long billingTransactionId, DateTime startDate, DateTime endDate, long householdId, string billingGuid, bool isPending, DateTime createAndUpdateDate)
+        {
+            var sp = new StoredProcedure("Insert_ProgramAssetGroupOfferPurchases");
+            sp.SetConnectionKey(CA_CONNECTION_STRING);
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@programAssetGroupOfferId", pagoId);
+            sp.AddParameter("@userId", userId);
+            sp.AddParameter("@price", price);
+            sp.AddParameter("@currency", currency);
+            sp.AddParameter("@customData", customData);
+            sp.AddParameter("@country", country);
+            sp.AddParameter("@deviceName", deviceName);
+            sp.AddParameter("@billingTransactionId", billingTransactionId);
+            sp.AddParameter("@startDate", startDate);
+            sp.AddParameter("@endDate", endDate);
+            sp.AddParameter("@domainID", householdId);
+            sp.AddParameter("@billingGuid", billingGuid);
+            sp.AddParameter("@isPending", isPending ? 1 : 0);
+            sp.AddParameter("@createDate", createAndUpdateDate);
+            sp.AddParameter("@updateDate", createAndUpdateDate);
+
+            return sp.ExecuteReturnValue<long>();
+        }
+        
+        public static bool CancelPagoPurchaseTransactionByUser(long userId, long productId)
+        {
+            StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelPAGOPurchaseTransactionByUser");
+            sp.SetConnectionKey(CA_CONNECTION_STRING);
+            sp.AddParameter("@cancellationDate", DateTime.UtcNow);
+            sp.AddParameter("@userId", userId);
+            sp.AddParameter("@assetId", productId);
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static bool CancelPagoPurchaseTransactionByHousehold(long householdId, long productId)
+        {
+            StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelPAGOPurchaseTransactionByHousehold");
+            sp.SetConnectionKey(CA_CONNECTION_STRING);
+            sp.AddParameter("@cancellationDate", DateTime.UtcNow);
+            sp.AddParameter("@assetId", productId);
+            sp.AddParameter("@domainId", householdId);
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static bool UpdatePagoPurchase(int groupId, long householdId, long purchaseId, DateTime startDate, DateTime endDate, bool isPending)
+        {
+            var parameters = new Dictionary<string, object>
+            {
+                { "@groupId", groupId }, { "@startDate", startDate }, { "@endDate", endDate },
+                { "@domainId", householdId }, { "@purchaseId", purchaseId }, { "@isPending", isPending ? 1 : 0 }
+             };
+            return UtilsDal.ExecuteReturnValue<long>("Update_ProgramAssetGroupOfferPurchases", parameters, CA_CONNECTION_STRING) > 0;
+        }
+
+        public static DataTable GetPagoPurchases(long pagoId, long groupId, long domainId)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_AllPagoPurchasesByDomainAndPagoId");
+            sp.SetConnectionKey(CA_CONNECTION_STRING);
+            sp.AddParameter("@pagoId", pagoId);
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@domainId", domainId);
+            return sp.Execute();
+        }
+
+        public static DataTable GetPagoPurchases(int domainId, List<int> userIds)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_AllPagoPurchasesByUserIds");
+            sp.SetConnectionKey(CA_CONNECTION_STRING);
+
+            DataTable dt = CreateListDataTable(userIds);
+            sp.AddDataTableParameter("@userIds", dt);
+
+            sp.AddParameter("@domainId", domainId);
+            return sp.Execute();
+        }       
+
+        public List<EntitlementDto> GetEntitlementPagoItems(int partnerId, int domainId)
+        {
+            List<EntitlementDto> entitlements = new List<EntitlementDto>();
+
+            StoredProcedure sp = new StoredProcedure("Get_PermittedPago");
+            sp.SetConnectionKey(CA_CONNECTION_STRING);
+            sp.AddParameter("@groupId", partnerId);
+            sp.AddParameter("@domainId", domainId);
+            DataTable dt = sp.Execute();
+            if (dt?.Rows.Count > 0)
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    entitlements.Add(CreateEntitlementDto(dr));
+                }
+            }
+            return entitlements;
+        }
+
+        private EntitlementDto CreateEntitlementDto(DataRow dr)
+        {
+            return new EntitlementDto()
+            {
+                Type = eTransactionType.ProgramAssetGroupOffer,
+                EntitlementId = Utils.GetLongSafeVal(dr, "PROGRAM_ASSET_GROUP_OFFER_ID"),
+                EndDate = Utils.GetDateSafeVal(dr, "END_DATE"),
+                CurrentDate = Utils.GetDateSafeVal(dr, "cDate"),
+                PurchaseDate = Utils.GetDateSafeVal(dr, "CREATE_DATE"),
+                PurchaseId = Utils.GetIntSafeVal(dr, "ID"),
+                BillingTransactionId = Utils.GetIntSafeVal(dr, "billing_transaction_id"),
+                BillingGuid = Utils.GetSafeStr(dr, "BILLING_GUID"),
+                DeviceUdid = Utils.GetSafeStr(dr, "device_name"),
+                IsPending = Utils.GetIntSafeVal(dr, "IS_PENDING") == 1,
+                UserId = Utils.GetLongSafeVal(dr, "USER_ID"),
+                HouseholdId = Utils.GetLongSafeVal(dr, "DOMAIN_ID")
+            };
+        }
+
+        public EntitlementDto GetPagoPurchasesByBillingGuid(int groupId, string billingGuid)
+        {
+            var parameters = new Dictionary<string, object>() { { "@groupId", groupId }, { "@billingGuid", billingGuid } };
+            var dt = UtilsDal.Execute("Get_PagoPurchasesByBillingGuid", parameters, CA_CONNECTION_STRING);
+            if (dt?.Rows.Count > 0)
+            {
+                DataRow dr = dt.Rows[0];
+                return CreateEntitlementDto(dr);
+            }
+
+            return null;
+        }
+
+        private static DataTable CreateListDataTable(List<int> userIds)
+        {
+            DataTable resultTable = new DataTable("IDListBigint"); ;
+            resultTable.Columns.Add("ID", typeof(long));
+
+            foreach (int userId in userIds)
+            {
+                DataRow row = resultTable.NewRow();
+                row["ID"] = (long)userId;
+                resultTable.Rows.Add(row);
+            }
+
+            return resultTable;
         }
     }
 }

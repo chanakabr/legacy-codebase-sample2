@@ -158,6 +158,8 @@ namespace WebAPI.Exceptions
         
         public static ClientExceptionType PAGO_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.ProgramAssetGroupOfferDoesNotExist, "The programAssetGroupOffer does not exist", "The programAssetGroupOffer does not exist");
         public static ClientExceptionType EXTERNAL_OFFER_ID_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.ExternalOfferIdAlreadyExists, "External offer id already exists", "The external offer Id you are trying to add / update already exists");
+        public static ClientExceptionType UNABLE_TO_PURCHASE_PAGO_PURCHASED = new ClientExceptionType(eResponseStatus.UnableToPurchaseProgramAssetGroupOfferPurchased, "Unable To Purchase PAGO Purchased", "This ProgramAssetGroupOffer has already been purchased by this household");
+
 
         #endregion
 
@@ -334,6 +336,10 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType DEVICEMANUFACTURER_IDS_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.DeviceManufacturerIdsDoesNotExist, "DeviceManufacturer Ids Does Not Exist");
         public static ClientExceptionType USERSESSIONPROFILE_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.UserSessionProfileDoesNotExist, "UserSessionProfile Does Not Exist");
         public static ClientExceptionType CANNOT_DELETE_USERSESSIONPROFILE = new ClientExceptionType(eResponseStatus.CannotDeleteUserSessionProfile, "Cannot Delete UserSessionProfile");
+        public static ClientExceptionType DEVICE_FAMILY_ID_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.DeviceFamilyIdAlreadyInUse, "Device family id already in use");
+        public static ClientExceptionType DEVICE_FAMILY_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.DeviceFamilyDoesNotExist, "Device family does not exist");
+        public static ClientExceptionType DEVICE_BRAND_ID_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.DeviceBrandIdAlreadyInUse, "Device brand id already in use");
+        public static ClientExceptionType DEVICE_BRAND_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.DeviceBrandDoesNotExist, "Device brand does not exist");
 
         #endregion
 

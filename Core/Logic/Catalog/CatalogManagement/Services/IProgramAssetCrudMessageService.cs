@@ -10,6 +10,6 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
         Task PublishUpdateEventAsync(long groupId, long epgId);
         Task PublishUpdateEventsAsync(long groupId, IReadOnlyCollection<long> epgIds);
         Task PublishDeleteEventAsync(long groupId, long epgId);
-        Task PublishDeleteEventsAsync(long groupId, IReadOnlyCollection<long> epgIds);
+        Task PublishDeleteEventsAsync(long groupId, IReadOnlyCollection<long> epgIds); 
     }
 }

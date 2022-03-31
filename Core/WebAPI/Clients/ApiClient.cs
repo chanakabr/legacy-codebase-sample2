@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Core.Api;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -3039,70 +3040,62 @@ namespace WebAPI.Clients
             return responseSettings;
         }
 
-        internal KalturaDeviceFamilyListResponse GetDeviceFamilyList(int groupId)
+        internal KalturaDeviceFamily AddDeviceFamily(long groupId, KalturaDeviceFamily deviceFamily, long updaterId)
         {
-
-            KalturaDeviceFamilyListResponse result = new KalturaDeviceFamilyListResponse() { TotalCount = 0 };
-            DeviceFamilyResponse response = null;
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Api.Module.GetDeviceFamilyList(groupId);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException(StatusCode.Error);
-            }
-
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response.Status);
-            }
-
-            result.Objects = AutoMapper.Mapper.Map<List<KalturaDeviceFamily>>(response.DeviceFamilies);
-            result.TotalCount = response.TotalItems;
+            Func<DeviceFamily, GenericResponse<DeviceFamily>> addFunc = deviceFamilyToAdd => DeviceFamilyManager.Instance.Add(groupId, deviceFamilyToAdd, updaterId);
+            var result = ClientUtils.GetResponseFromWS(deviceFamily, addFunc);
 
             return result;
         }
 
-        internal KalturaDeviceBrandListResponse GetDeviceBrandList(int groupId)
+        internal KalturaDeviceFamily UpdateDeviceFamily(long groupId, KalturaDeviceFamily deviceFamily, long updaterId)
         {
+            Func<DeviceFamily, GenericResponse<DeviceFamily>> updateFunc = deviceFamilyToUpdate => DeviceFamilyManager.Instance.Update(groupId, deviceFamilyToUpdate, updaterId);
+            var result = ClientUtils.GetResponseFromWS(deviceFamily, updateFunc);
 
-            KalturaDeviceBrandListResponse result = new KalturaDeviceBrandListResponse() { TotalCount = 0 };
-            DeviceBrandResponse response = null;
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Api.Module.GetDeviceBrandList(groupId);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
+            return result;
+        }
 
-            if (response == null)
-            {
-                throw new ClientException(StatusCode.Error);
-            }
+        internal KalturaDeviceFamilyListResponse GetDeviceFamilies(long groupId, long? id, string name, bool? isSystem, bool orderByIdAsc, int pageIndex, int pageSize)
+        {
+            Func<GenericListResponse<DeviceFamily>> listFunc = () => DeviceFamilyManager.Instance.List(groupId, id, name, isSystem, orderByIdAsc, pageIndex, pageSize);
+            var response = ClientUtils.GetResponseListFromWS<KalturaDeviceFamily, DeviceFamily>(listFunc);
 
-            if (response.Status.Code != (int)StatusCode.OK)
+            var result = new KalturaDeviceFamilyListResponse
             {
-                throw new ClientException(response.Status);
-            }
+                Objects = response.Objects,
+                TotalCount = response.TotalCount
+            };
 
-            result.Objects = AutoMapper.Mapper.Map<List<KalturaDeviceBrand>>(response.DeviceBrands);
-            result.TotalCount = response.TotalItems;
+            return result;
+        }
+
+        public KalturaDeviceBrand AddDeviceBrand(long groupId, KalturaDeviceBrand deviceBrand, long updaterId)
+        {
+            Func<DeviceBrand, GenericResponse<DeviceBrand>> addFunc = deviceBrandToAdd => DeviceBrandManager.Instance.Add(groupId, deviceBrandToAdd, updaterId);
+            var result = ClientUtils.GetResponseFromWS(deviceBrand, addFunc);
+
+            return result;
+        }
+
+        public KalturaDeviceBrand UpdateDeviceBrand(long groupId, KalturaDeviceBrand deviceBrand, long updaterId)
+        {
+            Func<DeviceBrand, GenericResponse<DeviceBrand>> updateFunc = deviceBrandToUpdate => DeviceBrandManager.Instance.Update(groupId, deviceBrandToUpdate, updaterId);
+            var result = ClientUtils.GetResponseFromWS(deviceBrand, updateFunc);
+
+            return result;
+        }
+
+        public KalturaDeviceBrandListResponse GetDeviceBrandList(long groupId, long? id, long? deviceFamilyId, string name, bool? isSystem, bool orderByIdAsc, int pageIndex, int pageSize)
+        {
+            Func<GenericListResponse<DeviceBrand>> listFunc = () => DeviceBrandManager.Instance.List(groupId, id, deviceFamilyId, name, isSystem, orderByIdAsc, pageIndex, pageSize);
+            var response = ClientUtils.GetResponseListFromWS<KalturaDeviceBrand, DeviceBrand>(listFunc);
+
+            var result = new KalturaDeviceBrandListResponse
+            {
+                Objects = response.Objects,
+                TotalCount = response.TotalCount
+            };
 
             return result;
         }

@@ -441,7 +441,7 @@ namespace Core.Billing
             string prePaidCode = string.Empty;
             if (!string.IsNullOrEmpty(sUserIP))
             {
-                sCountryCd = Utils.GetIP2CountryCode(m_nGroupID, sUserIP);
+                sCountryCd = APILogic.Utils.GetIP2CountryCode(m_nGroupID, sUserIP);
                 if (m_nGroupID == 109 || m_nGroupID == 110 || m_nGroupID == 111)
                 {
                     log.Debug("Billing IP - " + sUserGUID + " : " + sCountryCd);

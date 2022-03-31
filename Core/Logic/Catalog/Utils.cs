@@ -1,14 +1,15 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Catalog;
+using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
-using Phx.Lib.Appconfig;
 using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using DAL;
 using GroupsCacheManager;
+using Phx.Lib.Appconfig;
 using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,6 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
-using ApiLogic.Catalog;
 using Tvinci.Core.DAL;
 
 namespace Core.Catalog
@@ -1004,22 +1004,6 @@ namespace Core.Catalog
             }
 
             return epgChannelIdToLinearMediaIdMap;
-        }
-
-        internal static string GetIP2CountryCode(int groupId, string ip)
-        {
-            string res = string.Empty;
-            try
-            {
-                ApiObjects.Country country = Core.Api.api.GetCountryByIp(groupId, ip);
-                res = country != null ? country.Code : res;
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed Utils.GetIP2CountryCode with groupId: {0}, ip: {1}", groupId, ip), ex);
-            }
-
-            return res;
         }
 
         internal static int GetIP2CountryId(int groupId, string ip)

@@ -1,10 +1,12 @@
 ﻿using ApiObjects;
 using ApiObjects.Base;
+using ApiObjects.ConditionalAccess;
 using ApiObjects.Pricing;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using Core.Api;
 using Core.Catalog.CatalogManagement;
+using Core.ConditionalAccess;
 using Core.GroupManagers;
 using Core.Pricing;
 using DAL;
@@ -17,6 +19,10 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using ApiLogic.Catalog.CatalogManagement.Services;
+using Core.Pricing.Services;
+using EventBus.Kafka;
+using OTT.Lib.Kafka;
 
 namespace ApiLogic.Pricing.Handlers
 {
@@ -57,6 +63,7 @@ namespace ApiLogic.Pricing.Handlers
         private readonly IMediaFileTypeManager _fileManager;
         private readonly IPagoModule _pagoModule;
         private readonly IVirtualAssetManager _virtualAssetManager;
+        private static IProgramAssetGroupOfferCrudMessageService  _messageService;
 
         public static PagoManager Instance => lazy.Value;
 
@@ -100,7 +107,7 @@ namespace ApiLogic.Pricing.Handlers
 
             _pagoModule.InvalidateProgramAssetGroupOffer(contextData.GroupId);
 
-            // Add VirtualAssetInfo for new ProgramAssetGroupOffer 
+            // Add VirtualAssetInfo for new ProgramAssetGroupOffer
             var virtualAssetInfo = new VirtualAssetInfo()
             {
                 Type = ObjectVirtualAssetInfoType.PAGO,
@@ -129,6 +136,8 @@ namespace ApiLogic.Pricing.Handlers
 
             response.Object = GetProgramAssetGroupOffer(contextData.GroupId, id, true); ;
             response.Status.Set(eResponseStatus.OK);
+            _messageService?.PublishCreateEventAsync(contextData.GroupId, response.Object).GetAwaiter().GetResult();
+            
             return response;
         }
 
@@ -142,7 +151,7 @@ namespace ApiLogic.Pricing.Handlers
             {
                 response.SetStatus(eResponseStatus.AccountIsNotOpcSupported, "Account Is Not OPC Supported");
                 return response;
-            }            
+            }
 
             #region validate ExternalId - must be unique
             if (!string.IsNullOrEmpty(pagoToInsert.ExternalId))
@@ -178,7 +187,7 @@ namespace ApiLogic.Pricing.Handlers
                     return response;
                 }
             }
-            #endregion validate FileTypesIds                     
+            #endregion validate FileTypesIds
 
             #region validate PriceDetailsId
             if (pagoToInsert.PriceDetailsId.HasValue)
@@ -190,7 +199,7 @@ namespace ApiLogic.Pricing.Handlers
                     return response;
                 }
             }
-            #endregion validate PriceDetailsId                
+            #endregion validate PriceDetailsId
 
             #region Validate Dates
             status = ValidateDates(pagoToInsert.StartDate, pagoToInsert.EndDate, pagoToInsert.ExpiryDate);
@@ -204,9 +213,9 @@ namespace ApiLogic.Pricing.Handlers
             return response;
         }
 
-        public GenericResponse<ProgramAssetGroupOffer> Update(ContextData contextData, ProgramAssetGroupOffer pagoToUpdate)
+        public GenericResponse<ProgramAssetGroupOffer> Update(ContextData contextData, ProgramAssetGroupOffer pagoToUpdate, bool isAllowedToViewInactiveAssets)
         {
-            ProgramAssetGroupOffer pago = GetProgramAssetGroupOffer(contextData.GroupId, pagoToUpdate.Id);
+            ProgramAssetGroupOffer pago = GetProgramAssetGroupOffer(contextData.GroupId, pagoToUpdate.Id, isAllowedToViewInactiveAssets);
             GenericResponse<ProgramAssetGroupOffer> response = ValidateUpdate(pago, contextData, pagoToUpdate);
             if (!response.IsOkStatusCode())
             {
@@ -220,7 +229,7 @@ namespace ApiLogic.Pricing.Handlers
                 {
                     virtualAssetInfo = new VirtualAssetInfo()
                     {
-                        Type = ObjectVirtualAssetInfoType.Boxset,
+                        Type = ObjectVirtualAssetInfoType.PAGO,
                         Id = pagoToUpdate.Id,
                         Name = pagoToUpdate.Name.Values.First(),
                         UserId = contextData.UserId.Value
@@ -264,6 +273,7 @@ namespace ApiLogic.Pricing.Handlers
                 _pagoModule.InvalidateProgramAssetGroupOffer(contextData.GroupId, pagoToUpdate.Id);
                 response.Object = GetProgramAssetGroupOffer(contextData.GroupId, pagoToUpdate.Id, true);
                 response.Status.Set(eResponseStatus.OK);
+                _messageService?.PublishUpdateEventAsync(contextData.GroupId, response.Object).GetAwaiter().GetResult();
             }
 
             return response;
@@ -287,7 +297,7 @@ namespace ApiLogic.Pricing.Handlers
             }
 
             #region validate ExternalId - must be unique
-            if (pagoToUpdate.ExternalId != string.Empty && pagoToUpdate.ExternalId != pago.ExternalId)
+            if (!string.IsNullOrEmpty(pagoToUpdate.ExternalId) && pagoToUpdate.ExternalId != pago.ExternalId)
             {
                 status = ValidateExternalId(contextData.GroupId, pagoToUpdate.ExternalId, pagoToUpdate.Id);
                 if (!status.IsOkStatusCode())
@@ -296,10 +306,10 @@ namespace ApiLogic.Pricing.Handlers
                     return response;
                 }
             }
-            #endregion validate ExternalId            
+            #endregion validate ExternalId
 
             #region validate ExternalOfferId - must be unique
-            if (pagoToUpdate.ExternalOfferId != string.Empty && pagoToUpdate.ExternalOfferId != pago.ExternalOfferId)
+            if (!string.IsNullOrEmpty(pagoToUpdate.ExternalOfferId) && pagoToUpdate.ExternalOfferId != pago.ExternalOfferId)
             {
                 status = ValidateExternalOfferId(contextData.GroupId, pagoToUpdate.ExternalOfferId, pagoToUpdate.Id);
                 if (!status.IsOkStatusCode())
@@ -308,7 +318,7 @@ namespace ApiLogic.Pricing.Handlers
                     return response;
                 }
             }
-            #endregion validate ExternalOfferId      
+            #endregion validate ExternalOfferId
 
             #region validate FileTypesIds
             if (pagoToUpdate.FileTypeIds != null)
@@ -400,6 +410,7 @@ namespace ApiLogic.Pricing.Handlers
             if (_repository.DeletePago(contextData.GroupId, id))
             {
                 _pagoModule.InvalidateProgramAssetGroupOffer(contextData.GroupId, (int)id);
+                _messageService?.PublishDeleteEventAsync(contextData.GroupId, id).GetAwaiter().GetResult();
                 result.Set(eResponseStatus.OK);
             }
             else
@@ -534,7 +545,7 @@ namespace ApiLogic.Pricing.Handlers
             }
 
             return status;
-        }    
+        }
 
         private Status ValidatePriceDetails(int partnerId, long priceDetailsId)
         {
@@ -757,10 +768,10 @@ namespace ApiLogic.Pricing.Handlers
             return Tuple.Create(programAssetGroupOffers, true);
         }
 
-        private ProgramAssetGroupOffer GetProgramAssetGroupOffer(long partnerId, long pagoId, bool getAlsoUnactive = false)
+        public ProgramAssetGroupOffer GetProgramAssetGroupOffer(long partnerId, long pagoId, bool getAlsoInactive = false)
         {
             ProgramAssetGroupOffer pago = null;
-            var list = GetProgramAssetGroupOffers(partnerId, new List<long>() { pagoId }, getAlsoUnactive);
+            var list = GetProgramAssetGroupOffers(partnerId, new List<long>() { pagoId }, getAlsoInactive);
 
             if (list?.Count > 0)
             {
@@ -768,6 +779,57 @@ namespace ApiLogic.Pricing.Handlers
             }
 
             return pago;
+        }
+
+        public GenericListResponse<PagoPricesContainer> GetPagoPrices(int groupId, List<long> pagoIds, long userId, string currency)
+        {
+            GenericListResponse<PagoPricesContainer> response = new GenericListResponse<PagoPricesContainer>();
+            response.SetStatus(eResponseStatus.OK);
+
+            if (pagoIds?.Count > 0)
+            {
+                PriceReason priceReason = PriceReason.UnKnown;
+
+                foreach (var pagoId in pagoIds)
+                {
+                    ProgramAssetGroupOffer pago = GetProgramAssetGroupOffer(groupId, pagoId);
+                    if (pago == null)
+                    {
+                        response.SetStatus(eResponseStatus.ProgramAssetGroupOfferDoesNotExist, $"ProgramAssetGroupOffer {pagoId} does not exist");
+                        return response;
+    }
+
+                    if (!IsPagoAllowed(pago))
+                    {
+                        return response;
+                    }
+
+                    Price price = PriceManager.GetPagoFinalPrice(groupId, userId, ref priceReason, pago, string.Empty, string.Empty, currency);
+                    if (price != null)
+                    {
+                        PagoPricesContainer pagoPricesContainer = new PagoPricesContainer() { PagoId = pagoId, m_oPrice = price, m_PriceReason = priceReason };
+                        response.Objects.Add(pagoPricesContainer);
+                    }
+                    else
+                    {
+                        log.Warn($"Price not found for pagoId: {pagoId}, groupId: {groupId}");
+                    }
+                }
+            }
+
+            return response;
+        }
+
+        public bool IsPagoAllowed(ProgramAssetGroupOffer pago)
+        {
+            return pago.IsActive.Value && pago.StartDate < DateTime.UtcNow && pago.EndDate > DateTime.UtcNow;
+        }
+        
+        public static void InitProgramAssetGroupOfferCrudMessageService(IKafkaContextProvider contextProvider)
+        {
+            _messageService = new ProgramAssetGroupOfferCrudMessageService(
+                KafkaProducerFactoryInstance.Get(),
+                contextProvider);
         }
     }
 }

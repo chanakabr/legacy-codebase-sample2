@@ -1,10 +1,9 @@
 ﻿using ApiObjects;
+using ApiObjects.Pricing;
 using Core.Pricing;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Core.ConditionalAccess
 {
@@ -16,6 +15,8 @@ namespace Core.ConditionalAccess
         internal PPVEntitlements DomainPpvEntitlements { get; set; }
         [JsonProperty("DomainBundleEntitlements")]
         internal BundleEntitlements DomainBundleEntitlements { get; set; }
+        [JsonProperty("PagoEntitlements")]
+        public Dictionary<long, PagoEntitlement> PagoEntitlements { get; set; }
 
         public List<int> DomainSubscriptionsIds
         {
@@ -77,6 +78,8 @@ namespace Core.ConditionalAccess
             public Dictionary<string, ConditionalAccess.Utils.UserBundlePurchase> EntitledSubscriptions { get; set; }
             [JsonProperty("EntitledCollections")]
             public Dictionary<string, ConditionalAccess.Utils.UserBundlePurchase> EntitledCollections { get; set; }
+            [JsonProperty("EntitledPagos")]
+            public Dictionary<long, ConditionalAccess.Utils.UserBundlePurchase> EntitledPagos { get; set; }
 
             [JsonIgnore]
             public Dictionary<int, List<Subscription>> FileTypeIdToSubscriptionMappings { get; set; }
@@ -88,6 +91,8 @@ namespace Core.ConditionalAccess
             public Dictionary<int, Subscription> SubscriptionsData { get; set; }
             [JsonIgnore]
             public Dictionary<int, Collection> CollectionsData { get; set; }
+            [JsonIgnore]
+            public Dictionary<int, ProgramAssetGroupOffer> ProgramAssetGroupOffersData { get; set; }
 
             public BundleEntitlements()
             {
@@ -97,7 +102,9 @@ namespace Core.ConditionalAccess
                 ChannelsToSubscriptionMappings = new Dictionary<int,List<Subscription>>();
                 ChannelsToCollectionsMappings = new Dictionary<int,List<Collection>>();
                 SubscriptionsData = new Dictionary<int,Subscription>();
-                CollectionsData = new Dictionary<int,Collection>();                
+                CollectionsData = new Dictionary<int,Collection>();
+                ProgramAssetGroupOffersData = new Dictionary<int, ProgramAssetGroupOffer>();
+
             }
         }
     }
@@ -109,11 +116,14 @@ namespace Core.ConditionalAccess
         public Dictionary<string, List<ConditionalAccess.Utils.UserBundlePurchaseWithSuspend>> EntitledSubscriptions { get; set; }
         [JsonProperty("EntitledCollections")]
         public Dictionary<string, List<ConditionalAccess.Utils.UserBundlePurchase>> EntitledCollections { get; set; }
+        [JsonProperty("EntitledPagos")]
+        public Dictionary<long, List<ConditionalAccess.Utils.UserBundlePurchase>> EntitledPagos { get; set; }
 
         public DomainBundles()
         {
             EntitledSubscriptions = new Dictionary<string, List<Utils.UserBundlePurchaseWithSuspend>>();
             EntitledCollections = new Dictionary<string, List<Utils.UserBundlePurchase>>();
+            EntitledPagos = new Dictionary<long, List<Utils.UserBundlePurchase>>();
         }
     }
 }

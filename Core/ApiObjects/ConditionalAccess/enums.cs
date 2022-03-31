@@ -18,7 +18,8 @@
         NotForPurchase = 13,
         InvalidCurrency = 14,
         CurrencyNotDefinedOnPriceCode = 15,
-        PendingEntitlement = 16
+        PendingEntitlement = 16,
+        PagoPurchased = 17
     }
 
     public enum MediaFileStatus
@@ -36,7 +37,8 @@
         Subscription = 2,
         PrePaid = 3,
         PrePaidExpired = 4,
-        Collection = 5
+        Collection = 5,
+        ProgramAssetGroupOffer = 6
     }
 
     public enum BillingAction

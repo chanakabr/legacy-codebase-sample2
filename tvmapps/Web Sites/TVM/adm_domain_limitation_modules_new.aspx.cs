@@ -413,6 +413,12 @@ public partial class adm_domain_limitation_modules_new : System.Web.UI.Page
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("gdf.group_id", "=", groupID);
             selectQuery += " and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("gdf.limit_module_id", "=", limitID);
+            selectQuery += " and (";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ludf.Group_Id", "=", groupID);
+            selectQuery += " or ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ludf.Group_Id", "=", 0);
+            selectQuery += ") and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ludf.Status", "=", 1);
             selectQuery += " order by ludf.id asc";
             if (selectQuery.Execute("query", true) != null)
             {

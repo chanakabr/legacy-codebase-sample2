@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using TVinciShared;
 using System.Collections.Generic;
+using ApiLogic.Repositories;
 using Core.Catalog.CatalogManagement;
 using ApiObjects;
 using Core.Catalog;
@@ -92,7 +93,7 @@ namespace Core.Notification
             if (!settings.IsIotEnabled.GetValueOrDefault() && settings.EpgNotification.Enabled) 
                 return new Status(eResponseStatus.InvalidNotificationSettingsSetup, "iotEnabled should be `true` in order set epgNotification enabled");
 
-            var existingDeviceFamilyIds = Api.Module.GetDeviceFamilyList(groupId).DeviceFamilies.Select(_ => _.Id);
+            var existingDeviceFamilyIds = DeviceFamilyRepository.Instance.List(groupId).Objects.Select(_ => _.Id);
             var unknownDeviceFamilyIds = settings.EpgNotification.DeviceFamilyIds.Except(existingDeviceFamilyIds).ToList();
             if (unknownDeviceFamilyIds.Count != 0) return new Status(eResponseStatus.NonExistingDeviceFamilyIds, "unknown device family:" + string.Join(",", unknownDeviceFamilyIds));
 

@@ -54,7 +54,7 @@ namespace DAL
         DefaultParentalSettingsPartnerConfig GetDefaultParentalSettingsPartnerConfig(int groupId);
     }
 
-    public class ApiDAL : ICatalogPartnerRepository, IVirtualAssetPartnerConfigRepository, IDrmAdapterRepository, 
+    public class ApiDAL : ICatalogPartnerRepository, IVirtualAssetPartnerConfigRepository, IDrmAdapterRepository,
                           IGeneralPartnerConfigRepository, IDefaultParentalSettingsPartnerRepository
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -1068,7 +1068,7 @@ namespace DAL
                 int.TryParse(userId, out nSiteGuid);
 
                 var mediaMarkManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
-                
+
                 string documentKey = UtilsDal.GetUserAllAssetMarksDocKey(userId);
                 var allUserAssetMarks = new Lazy<UserMediaMarks>(() => mediaMarkManager.Get<UserMediaMarks>(documentKey));
 
@@ -1235,14 +1235,14 @@ namespace DAL
            string sCellPhone, long lGroupID, long lBillingProvider, long lBillingProviderReference, double dPaymentMethodAddition,
            double dTotalPrice, int nPaymentNumber, int nNumberOfPayments, string sExtraParams, string sCountryCode,
            string sLanguageCode, string sDeviceName, int nBillingProcessor, int nBillingMethod, string sPrePaidCode,
-           long lPreviewModuleID, string sCollectionCode, string billingGuid = null)
+           long lPreviewModuleID, string sCollectionCode, string billingGuid = null, long pagoId = 0)
         {
 
             return Insert_NewBillingTransaction(sSiteGuid, sLastFourDigits, dPrice, sPriceCode, sCurrencyCode,
                 sCustomData, nBillingStatus, sBillingReason, bIsRecurring, lMediaFileID, lMediaID, sPPVModuleCode,
                 sSubscriptionCode, sCellPhone, lGroupID, lBillingProvider, lBillingProviderReference, dPaymentMethodAddition,
                 dTotalPrice, nPaymentNumber, nNumberOfPayments, sExtraParams, sCountryCode, sLanguageCode, sDeviceName,
-                nBillingProcessor, nBillingMethod, sPrePaidCode, lPreviewModuleID, 0, 0, 0, string.Empty, sCollectionCode, billingGuid);
+                nBillingProcessor, nBillingMethod, sPrePaidCode, lPreviewModuleID, 0, 0, 0, string.Empty, sCollectionCode, billingGuid, pagoId);
         }
 
         public static long Insert_NewBillingTransaction(string sSiteGuid, string sLastFourDigits, double dPrice,
@@ -1252,7 +1252,7 @@ namespace DAL
             double dTotalPrice, int nPaymentNumber, int nNumberOfPayments, string sExtraParams, string sCountryCode,
             string sLanguageCode, string sDeviceName, int nBillingProcessor, int nBillingMethod, string sPrePaidCode,
             long lPreviewModuleID, long lPurchaseID, int nFinancialProcessingStatus, int? nNewRenewableStatus, string sRemarks,
-            string sCollectionCode, string billingGuid = null)
+            string sCollectionCode, string billingGuid = null, long pagoId = 0)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewBillingTransaction");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -1311,6 +1311,10 @@ namespace DAL
             }
 
             sp.AddParameter("@BillingGuid", billingGuid);
+            if (pagoId > 0)
+            {
+                sp.AddParameter("@PagoId", pagoId);
+            }
 
             return sp.ExecuteReturnValue<long>();
 
@@ -4165,22 +4169,6 @@ namespace DAL
             return dt;
         }
 
-        public static DataTable GetDeviceFamilies()
-        {
-            return UtilsDal.Execute("GetDeviceFamilies");
-        }
-
-        public static DataTable GetDeviceBrands()
-        {
-            DataTable dt = null;
-            ODBCWrapper.StoredProcedure spGetDeviceBrands = new ODBCWrapper.StoredProcedure("GetDeviceBrands");
-            spGetDeviceBrands.SetConnectionKey("MAIN_CONNECTION_STRING");
-            dt = spGetDeviceBrands.Execute();
-
-            return dt;
-
-        }
-
         public static DataTable GetAllCountries()
         {
             DataTable dt = null;
@@ -4241,7 +4229,7 @@ namespace DAL
                     }
                 }
             }
-            
+
             return files;
         }
 
@@ -4507,7 +4495,7 @@ namespace DAL
             return res;
         }
 
-        public long InsertDrmAdapter(DrmAdapter drmAdapter, int groupId,  long userId)
+        public long InsertDrmAdapter(DrmAdapter drmAdapter, int groupId, long userId)
         {
             try
             {

@@ -67,6 +67,12 @@ public partial class adm_device_management : System.Web.UI.Page
         theTable += ("select a.is_active,a.id as id,ac.id as family_id,ac.NAME as 'Name', a.max_limit as 'Limit', a.max_concurrent_limit as 'Concurrent Limit', a.status " + 
                      "from groups_device_families a with (nolock), lu_DeviceFamily ac with (nolock) where a.device_family_id = ac.id and ");
         theTable += ODBCWrapper.Parameter.NEW_PARAM("a.group_id", "=", nGroupID);
+        theTable += " and (";
+        theTable += ODBCWrapper.Parameter.NEW_PARAM("ac.Group_Id", "=", nGroupID);
+        theTable += " or ";
+        theTable += ODBCWrapper.Parameter.NEW_PARAM("ac.Group_Id", "=", 0);
+        theTable += ") and ";
+        theTable += ODBCWrapper.Parameter.NEW_PARAM("ac.Status", "=", 1);
         theTable += " and ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("a.limit_module_id", "=", int.Parse(Session["limit_module_id"].ToString()));
         if (sOrderBy != "")

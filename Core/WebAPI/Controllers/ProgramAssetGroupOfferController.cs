@@ -85,11 +85,13 @@ namespace WebAPI.Controllers
         {
             KalturaProgramAssetGroupOffer result = null;
             ProgramAssetGroupOfferValidator.ValidateForUpdate(programAssetGroupOffer);
-            var contextData = KS.GetContextData();
             programAssetGroupOffer.Id = id;
+            
+            var contextData = KS.GetContextData();
+            bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(contextData.GroupId, contextData.UserId.ToString(), true);
 
             Func<ProgramAssetGroupOffer, GenericResponse<ProgramAssetGroupOffer>> updateFunc = (ProgramAssetGroupOffer pagoToUpdate) =>
-              PagoManager.Instance.Update(contextData, pagoToUpdate);
+              PagoManager.Instance.Update(contextData, pagoToUpdate, isAllowedToViewInactiveAssets);
 
             result = ClientUtils.GetResponseFromWS<KalturaProgramAssetGroupOffer, ProgramAssetGroupOffer>(programAssetGroupOffer, updateFunc);
 
@@ -122,8 +124,12 @@ namespace WebAPI.Controllers
             KalturaGenericListResponse<KalturaProgramAssetGroupOffer> result;
             switch (filter)
             {
-                case KalturaProgramAssetGroupOfferIdInFilter f: result = ListByProgramAssetGroupOfferIdInFilter(contextData, corePager, f); break;
-                case KalturaProgramAssetGroupOfferFilter f: result = ListByProgramAssetGroupOfferFilter(contextData, corePager, f); break;
+                case KalturaProgramAssetGroupOfferIdInFilter f:
+                    result = ListByProgramAssetGroupOfferIdInFilter(contextData, corePager, f);
+                    break;
+                case KalturaProgramAssetGroupOfferFilter f:
+                    result = ListByProgramAssetGroupOfferFilter(contextData, corePager, f);
+                    break;
                 default: throw new NotImplementedException($"List for {filter.objectType} is not implemented");
             };
 

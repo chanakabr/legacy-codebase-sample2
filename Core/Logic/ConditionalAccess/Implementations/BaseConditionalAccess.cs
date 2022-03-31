@@ -51,6 +51,7 @@ using KalturaRequestContext;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using ExternalRecording = ApiObjects.TimeShiftedTv.ExternalRecording;
+using ApiLogic.Pricing.Handlers;
 
 namespace Core.ConditionalAccess
 {
@@ -164,6 +165,10 @@ namespace Core.ConditionalAccess
                                                               string userIP, string country, string deviceName, long billingTransactionId, string customData, int productID,
                                                               string billingGuid, bool isEntitledToPreviewModule, DateTime entitlementDate, ref long purchaseID, DateTime? endDate = null, bool isPending = false);
 
+
+        protected internal abstract bool HandlePagoBillingSuccess(ref TransactionResponse response, long userId, long householdId, ProgramAssetGroupOffer pago,
+                    double price, string currency, string userIP, string country, string deviceName, long billingTransactionId, string customData, int productId,
+                    string billingGuid, bool isEntitledToPreviewModule, DateTime entitlementDate, ref long purchaseID, DateTime? endDate = null, bool isPending = false);
 
         /*
          * This method was created in order to solve a bug in the flow of ChargeUserForMediaFile in Cinepolis.
@@ -1920,7 +1925,7 @@ namespace Core.ConditionalAccess
 
             if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
             {
-                if (!RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, long.Parse(userId)) 
+                if (!RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, long.Parse(userId))
                     && !RolesPermissionsManager.Instance.IsPermittedPermissionItem(this.m_nGroupID, domain.m_masterGUIDs[0].ToString(), "Entitlement_Cancel"))
                 {
                     response.Code = (int)eResponseStatus.DomainSuspended;
@@ -6934,7 +6939,7 @@ namespace Core.ConditionalAccess
                     }
                 }
 
-                string countryCode = !string.IsNullOrEmpty(ip) ? Utils.GetIP2CountryCode(m_nGroupID, ip) : string.Empty;
+                string countryCode = !string.IsNullOrEmpty(ip) ? APILogic.Utils.GetIP2CountryCode(m_nGroupID, ip) : string.Empty;
                 MediaFilePPVContainer[] oModules = Core.Pricing.Module.GetPPVModuleListForMediaFilesWithExpiry(m_nGroupID, mediaFilesForPurchase.ToArray(), countryCode, languageCode, udid);
 
                 // run over all media files for purchase
@@ -7331,7 +7336,9 @@ namespace Core.ConditionalAccess
                 case BillingItemsType.Collection:
                     tableName = "collections_purchases";
                     break;
-
+                case BillingItemsType.ProgramAssetGroupOffer:
+                    tableName = "program_asset_group_offer_purchases";
+                    break;
                 case BillingItemsType.Unknown:
                 case BillingItemsType.Subscription:
                 default:
@@ -7723,6 +7730,7 @@ namespace Core.ConditionalAccess
                 string collectionCode = ODBCWrapper.Utils.GetSafeStr(dr, "COLLECTION_CODE");
                 string siteGuid = ODBCWrapper.Utils.GetSafeStr(dr, "SITE_GUID");
                 string userFullName = ODBCWrapper.Utils.GetSafeStr(dr, "FIRST_NAME") + " " + ODBCWrapper.Utils.GetSafeStr(dr, "LAST_NAME");
+                long pagoId = ODBCWrapper.Utils.GetLongSafeVal(dr, "PAGO_ID");
 
                 string customData = ODBCWrapper.Utils.GetSafeStr(dr, "CUSTOMDATA");
                 XmlDocument doc = new XmlDocument();
@@ -7756,8 +7764,6 @@ namespace Core.ConditionalAccess
                         res.m_eBillingAction = BillingAction.RenewPayment;
                     }
                 }
-
-
 
                 if (!string.IsNullOrEmpty(sPrePaidCode))
                 {
@@ -7812,7 +7818,6 @@ namespace Core.ConditionalAccess
                     // update type
                     res.m_eItemType = BillingItemsType.Collection;
 
-
                     // get collection data
                     Collection collection = null;
                     collection = Pricing.Module.Instance.GetCollectionData(m_nGroupID, collectionCode, string.Empty, string.Empty, string.Empty, true);
@@ -7841,6 +7846,22 @@ namespace Core.ConditionalAccess
                     {
                         res.m_sPurchasedItemName = GetMediaTitle(nMediaID);
                     }
+                }
+
+                // check if transaction is a pago type
+                if (pagoId > 0)
+                {
+                    // update type
+                    res.m_eItemType = BillingItemsType.ProgramAssetGroupOffer;
+
+                    // get pago data
+                    ProgramAssetGroupOffer pago = PagoManager.Instance.GetProgramAssetGroupOffer(m_nGroupID, pagoId);
+
+                    // get pago name
+                    if (pago != null)
+                        res.m_sPurchasedItemName = pago.Name.Values.First();
+
+                    res.m_sPurchasedItemCode = pagoId.ToString();
                 }
 
                 ePaymentMethod pm = ePaymentMethod.Unknown;
@@ -10505,6 +10526,24 @@ namespace Core.ConditionalAccess
 
                                         break;
                                     }
+                                case eTransactionType.ProgramAssetGroupOffer:
+                                    {
+                                        var programAssetGroupOfferPurchase = new ProgramAssetGroupOfferPurchase(this.m_nGroupID)
+                                        {
+                                            siteGuid = purchasingSiteGuid,
+                                            ProductId = assetID,
+                                            houseHoldId = domainId,
+                                            Id = purchaseId,
+                                            startDate = createDate,
+                                            billingTransactionId = billingTransactionId,
+                                            billingGuid = billingGuid,
+                                            purchaseId = purchaseId,
+                                            endDate = endDate
+                                        };
+
+                                        dalResult = programAssetGroupOfferPurchase.Delete();
+                                        break;
+                                    }
                                 default:
                                     {
                                         break;
@@ -10947,6 +10986,15 @@ namespace Core.ConditionalAccess
                 case eTransactionType.Collection:
                     {
                         p_dtUserPurchases = ConditionalAccessDAL.Get_AllCollectionPurchasesByUserIDsAndCollectionCode(p_nAssetID, null, m_nGroupID, p_domainID);
+                        break;
+                    }
+                case eTransactionType.ProgramAssetGroupOffer:
+                    {
+                        p_dtUserPurchases = ConditionalAccessDAL.GetPagoPurchases(p_nAssetID, m_nGroupID, p_domainID);
+                        if (p_dtUserPurchases?.Rows != null && p_dtUserPurchases.Rows.Count > 0)
+                        {
+                            return true;
+                        }
                         break;
                     }
                 default:
@@ -11830,6 +11878,12 @@ namespace Core.ConditionalAccess
                             response = EntitlementManager.GetUsersEntitlementCollectionsItems(this, m_nGroupID, userIds, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex, orderBy);
                             break;
                         }
+                    case eTransactionType.ProgramAssetGroupOffer:
+                        {
+                            // retrieve all pagos' entitlements for a specific domain 
+                            response = EntitlementManager.GetEntitlementPagoItems(this, m_nGroupID, domainID, pageSize, pageIndex, orderBy);
+                            break;
+                        }
                     default:
                         break;
                 }
@@ -12250,10 +12304,10 @@ namespace Core.ConditionalAccess
                                             }
 
                                             long endDateUnix = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds((DateTime)subscriptionEndDate);
-                                            
+
                                             // enqueue renew transaction
-                                            bool enqueueSuccessful = PurchaseManager.RenewTransactionMessageInQueue(m_nGroupID, siteguid, 
-                                                billingGuid, purchaseID, endDateUnix, nextRenewalDate);                                            
+                                            bool enqueueSuccessful = PurchaseManager.RenewTransactionMessageInQueue(m_nGroupID, siteguid,
+                                                billingGuid, purchaseID, endDateUnix, nextRenewalDate);
                                         }
                                         catch (Exception ex)
                                         {
@@ -14354,7 +14408,7 @@ namespace Core.ConditionalAccess
                         if (totalSeconds != -1)
                         {
                             int recordingDuration = QuotaManager.GetRecordingDurationSeconds(recording);
-                            if (recordingDuration > totalSeconds) 
+                            if (recordingDuration > totalSeconds)
                             {
                                 recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExceededQuota, eResponseStatus.ExceededQuota.ToString());
                             }
@@ -16187,8 +16241,8 @@ namespace Core.ConditionalAccess
                 int availibleQuota = QuotaManager.Instance.GetDomainAvailableQuota(m_nGroupID, domainId, out int used);
 
                 // min quota threshold for skipping this process                
-                if (availibleQuota != -1 && 
-                    availibleQuota <= 60 && (!tstvSettings.QuotaOveragePolicy.HasValue || 
+                if (availibleQuota != -1 &&
+                    availibleQuota <= 60 && (!tstvSettings.QuotaOveragePolicy.HasValue ||
                                              (tstvSettings.QuotaOveragePolicy.HasValue && tstvSettings.QuotaOveragePolicy.Value == QuotaOveragePolicy.StopAtQuota)))
                 {
                     log.DebugFormat("Not enough quota to complete series recordings for domainId = {0}", domainId);
@@ -18682,5 +18736,39 @@ namespace Core.ConditionalAccess
 
         #endregion
 
+        internal string GetCustomDataForPago(ProgramAssetGroupOffer pago, int pagoId, long userId, double price, string currency, string userIp, string country, string udid)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<customdata type=\"pago\">");
+            if (String.IsNullOrEmpty(country) == false)
+            {
+                sb.Append($"<lcc>{country}</lcc>");
+            }
+            else
+            {
+                sb.Append($"<lcc>{Utils.GetIP2CountryName(m_nGroupID, userIp)}</lcc>");
+            }
+
+            sb.Append($"<u id=\"{userId}\"/>");
+            sb.Append($"<pagoId>{pagoId}</pagoId>");
+            sb.Append("<ppvm>");
+            sb.Append("</ppvm>");
+            //TODO anat for pago? check as collection 0902
+
+            sb.Append("<pc>");
+            if (pago != null && pago.PriceDetailsId.HasValue)
+            {
+                var priceDetailsResponse = PriceDetailsManager.Instance.GetPriceDetailsById(m_nGroupID, pago.PriceDetailsId.Value);
+                if(priceDetailsResponse?.Object != null)
+                {
+                    sb.Append(priceDetailsResponse.Object.Name);
+                }
+            }
+            sb.Append("</pc>");
+            sb.Append($"<pri>{price}</pri>");
+            sb.Append($"<cu>{currency}</cu>");
+            sb.Append("</customdata>");
+            return sb.ToString();
+        }
     }
 }

@@ -150,6 +150,8 @@
         public const string GET_CUSTOM_FIELDS_PARTNER_CONFIG = "GetCustomFieldsPartnerConfigDB";
         public const string GET_GROUP_USING_ALIAS_NAMES = "GetGroupUsingAliasNames";
         public const string LIST_SEARCH_PRIORITY_GROUPS_MAPPINGS = "ListSearchPriorityGroupsMappings";
+        public const string GET_DEVICE_FAMILIES_CACHE_CONFIG_NAME = "GetDeviceFamilies";
+        public const string GET_DEVICE_BRANDS_CACHE_CONFIG_NAME = "GetDeviceBrands";
 
         // DON'T you ever change the value of this static var even when its not aligned, changing will require sync integration and change tcm config
         public const string GET_MICROSERVICES_CANARY_CONFIGURATION = "GetCanaryConfiguration";

@@ -13,6 +13,7 @@ namespace WebAPI.Models.ConditionalAccess
     [Serializable]
     [XmlInclude(typeof(KalturaSubscriptionEntitlement))]
     [XmlInclude(typeof(KalturaPpvEntitlement))]
+    [XmlInclude(typeof(KalturaProgramAssetGroupOfferEntitlement))]
     public partial class KalturaEntitlement : KalturaOTTObject
     {
         /// <summary>

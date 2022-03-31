@@ -2248,7 +2248,7 @@ namespace Core.ConditionalAccess
                     case eTransactionType.Collection:
                         response.PurchaseCustomDataId = t.GetBundleCustomDataID(userId, price, currency,
                         productId, string.Empty, coupon, string.Empty, userIP, string.Empty, string.Empty, udid, string.Empty, previewModuleID.ToString(), eBundleType.COLLECTION);
-                        break;
+                        break;                    
                     default:
                         break;
                 }

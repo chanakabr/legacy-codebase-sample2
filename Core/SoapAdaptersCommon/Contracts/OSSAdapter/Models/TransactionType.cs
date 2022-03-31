@@ -12,6 +12,9 @@ namespace OSSAdapter.Models
         Subscription,
 
         [EnumMember]
-        Collection
+        Collection,
+
+        [EnumMember]
+        PAGO
     }
 }

@@ -13,7 +13,8 @@ namespace Core.Catalog
             "crid",
             CatalogLogic.EXTERNALID,
             CatalogLogic.ENTRYID,
-            "...."
+            "....",
+            CatalogLogic.EXTERNAL_OFFER_ID
         };
 
         public static readonly HashSet<string> ReservedUnifiedSearchNumericFields = new HashSet<string>

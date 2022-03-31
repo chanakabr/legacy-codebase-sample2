@@ -12,6 +12,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using ApiLogic.Repositories;
 using TVinciShared;
 
 namespace ApiLogic.Api.Managers
@@ -29,17 +30,21 @@ namespace ApiLogic.Api.Managers
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private static readonly Lazy<GeneralPartnerConfigManager> lazy = new Lazy<GeneralPartnerConfigManager>(() => new GeneralPartnerConfigManager(
-             ApiDAL.Instance),
-             LazyThreadSafetyMode.PublicationOnly);
+        private static readonly Lazy<GeneralPartnerConfigManager> lazy = new Lazy<GeneralPartnerConfigManager>(
+            () => new GeneralPartnerConfigManager(ApiDAL.Instance, DeviceFamilyRepository.Instance),
+            LazyThreadSafetyMode.PublicationOnly);
 
         private readonly IGeneralPartnerConfigRepository _repository;
+        private readonly IDeviceFamilyRepository _deviceFamilyRepository;
 
         public static GeneralPartnerConfigManager Instance { get { return lazy.Value; } }
 
-        public GeneralPartnerConfigManager(IGeneralPartnerConfigRepository repository)
+        public GeneralPartnerConfigManager(
+            IGeneralPartnerConfigRepository repository,
+            IDeviceFamilyRepository deviceFamilyRepository)
         {
             _repository = repository;
+            _deviceFamilyRepository = deviceFamilyRepository;
         }
 
         public bool IsValidCurrencyCode(int groupId, string currencyCode3)
@@ -209,9 +214,8 @@ namespace ApiLogic.Api.Managers
                 if (partnerConfigToUpdate?.RollingDeviceRemovalData?.RollingDeviceRemovalFamilyIds?.Count > 0 || partnerConfigToUpdate.DowngradePriorityFamilyIds.Count > 0)
                 {
                     // validate deviceFamilyIds
-                    var deviceFamilyList = Core.Api.Module.GetDeviceFamilyList(groupId);
-                    List<DeviceFamily> deviceFamilies = deviceFamilyList.DeviceFamilies;
-                    if (deviceFamilyList.Status.Code != (int)eResponseStatus.OK || deviceFamilies.Count == 0)
+                    var listResponse = _deviceFamilyRepository.List(groupId);
+                    if (!listResponse.IsOkStatusCode())
                     {
                         response.Message = "No DeviceFamilies";
                         return response;
@@ -233,7 +237,7 @@ namespace ApiLogic.Api.Managers
                         allFamilyIds.AddRange((partnerConfigToUpdate.DowngradePriorityFamilyIds));
                     }
                     
-                    var existingFamilies = allFamilyIds.Intersect(deviceFamilies.Select(x => x.Id));
+                    var existingFamilies = allFamilyIds.Intersect(listResponse.Objects.Select(x => x.Id));
                     var notDeviceFamilies = allFamilyIds.Except(existingFamilies).ToList();
 
                     if (notDeviceFamilies.Count > 0)

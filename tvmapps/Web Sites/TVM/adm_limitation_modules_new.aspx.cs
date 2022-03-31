@@ -303,10 +303,16 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
             selectQuery.SetConnectionKey("CONNECTION_STRING");
             selectQuery += "select gdf.device_family_id, ldf.Name from groups_device_families gdf with (nolock) ";
             selectQuery += "inner join lu_DeviceFamily ldf with (nolock) on ldf.id=gdf.device_family_id ";
-            selectQuery += "where is_active=1 and [status]=1 and ";
+            selectQuery += "where gdf.is_active=1 and gdf.[status]=1 and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("gdf.group_id", "=", nLogedInGroupID);
             selectQuery += " and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("gdf.limit_module_id", "=", Int32.Parse(Session["parent_limit_id"].ToString()));
+            selectQuery += " and (";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ldf.Group_Id", "=", nLogedInGroupID);
+            selectQuery += " or ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ldf.Group_Id", "=", 0);
+            selectQuery += ") and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ldf.Status", "=", 1);
             List<int> limitModulesIDs = null;
             if (Session["limit_id"] != null && Session["limit_id"].ToString().Length > 0)
             {
@@ -391,6 +397,12 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("dflm.group_id", "=", groupID);
             selectQuery += " and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("dflm.device_limitation_module_id", "=", limitID);
+            selectQuery += " and (";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ldf.Group_Id", "=", groupID);
+            selectQuery += " or ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ldf.Group_Id", "=", 0);
+            selectQuery += ") and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ldf.Status", "=", 1);
             selectQuery += " order by dflm.device_family_id asc";
             if (selectQuery.Execute("query", true) != null)
             {

@@ -6,7 +6,6 @@ using ApiObjects.Rules;
 using ApiObjects.Segmentation;
 using ApiObjects.User.SessionProfile;
 using AutoFixture;
-using AutoFixture.Kernel;
 using Core.Api;
 using Moq;
 using NUnit.Framework;
@@ -14,6 +13,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using ApiLogic.Repositories;
 
 namespace ApiLogic.Tests.Users
 {
@@ -46,45 +46,49 @@ namespace ApiLogic.Tests.Users
         {
             var allIds = GetIds(IdsToContain.all);
             
-            var deviceBrandManagerMock = new Mock<IDeviceBrandManager>();
-            var deviceBrands = GetDeviceBrands(allIds);
-            deviceBrandManagerMock.Setup(x => x.GetAllDeviceBrands()).Returns(deviceBrands);
-
-            var deviceFamilyManagerMock = new Mock<IDeviceFamilyManager>();
-            var deviceFamilies = GetDeviceFamilies(allIds);
-            deviceFamilyManagerMock.Setup(x => x.GetAllDeviceFamilyList()).Returns(deviceFamilies);
+            var deviceBrandRepositoryMock = new Mock<IDeviceBrandRepository>();
+            deviceBrandRepositoryMock
+                .Setup(x => x.List(1))
+                .Returns(GetDeviceBrandsGenericResponse(allIds));
+            
+            var deviceFamiliesRepositoryMock = new Mock<IDeviceFamilyRepository>();
+            deviceFamiliesRepositoryMock
+                .Setup(x => x.List(1))
+                .Returns(GetDeviceFamiliesGenericResponse(allIds));
 
             var segmentsManagerMock = new Mock<ISegmentsManager>();
             var segmentationTypes = GetSegmentationType(allIds);
             segmentsManagerMock.Setup(x => x.ListSegmentationTypes(It.IsAny<int>(), It.IsAny<HashSet<long>>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<AssetSearchDefinition>()))
                 .Returns(new GenericListResponse<SegmentationType>(Status.Ok, segmentationTypes));
 
-            var validator = new UserSessionProfileExpressionValidator(deviceBrandManagerMock.Object,
-                                                        deviceFamilyManagerMock.Object,
+            var validator = new UserSessionProfileExpressionValidator(deviceBrandRepositoryMock.Object,
+                                                        deviceFamiliesRepositoryMock.Object,
                                                         segmentsManagerMock.Object,
                                                         Mock.Of<IDeviceReferenceDataManager>());
-            var response = validator.Validate(fixture.Create<int>(), expression);
+            var response = validator.Validate(1, expression);
             Assert.That(response.Code, Is.EqualTo((int)expectedResponse));
         }
 
-        private List<DeviceBrand> GetDeviceBrands(List<int> allIds)
+        private GenericListResponse<DeviceBrand> GetDeviceBrandsGenericResponse(List<int> allIds)
         {
             var deviceBrands = fixture.CreateMany<DeviceBrand>(allIds.Count).ToList();
             for (int i = 0; i < allIds.Count; i++)
             {
                 deviceBrands[i].Id = allIds[i];
             }
-            return deviceBrands;
+
+            return new GenericListResponse<DeviceBrand>(Status.Ok, deviceBrands);
         }
 
-        private List<DeviceFamily> GetDeviceFamilies(List<int> allIds)
+        private GenericListResponse<DeviceFamily> GetDeviceFamiliesGenericResponse(List<int> allIds)
         {
             var deviceFamilies = fixture.CreateMany<DeviceFamily>(allIds.Count).ToList();
             for (int i = 0; i < allIds.Count; i++)
             {
                 deviceFamilies[i].Id = allIds[i];
             }
-            return deviceFamilies;
+
+            return new GenericListResponse<DeviceFamily>(Status.Ok, deviceFamilies);
         }
 
         private List<SegmentationType> GetSegmentationType(List<int> allIds)

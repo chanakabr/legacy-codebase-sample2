@@ -28,7 +28,6 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "name")]
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
-        [SchemeProperty(ReadOnly = true)]
         public string Name { get; set; }
 
         /// <summary>
@@ -50,6 +49,17 @@ namespace WebAPI.Models.Domains
         [OldStandardProperty("concurrent_limit")]
         [Obsolete]
         public int? ConcurrentLimit { get; set; }
+
+        /// <summary>
+        /// Type of device family.
+        /// <see cref="KalturaDeviceFamilyType.Custom"/> if this device family belongs only to this group,
+        /// <see cref="KalturaDeviceFamilyType.System"/> otherwise.
+        /// </summary>
+        [DataMember(Name = "type")]
+        [JsonProperty("type")]
+        [XmlElement("type")]
+        [SchemeProperty(ReadOnly = true)]
+        public KalturaDeviceFamilyType Type { get; set; }
     }
 
     /// <summary>
@@ -72,7 +82,7 @@ namespace WebAPI.Models.Domains
     /// Device family limitations details
     /// </summary>
     public partial class KalturaHouseholdDeviceFamilyLimitations : KalturaDeviceFamilyBase
-    {
+    {   
         /// <summary>
         /// Allowed device change frequency code
         /// </summary>

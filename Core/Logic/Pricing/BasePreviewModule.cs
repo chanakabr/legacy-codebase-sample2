@@ -91,7 +91,7 @@ namespace Core.Pricing
                         break;
                     case eTransactionType.Collection:
                         dt = PricingDAL.GetUsageModuleCollection(sAssetCode);
-                        break;
+                        break;                   
                     default:
                         return null;
                 }

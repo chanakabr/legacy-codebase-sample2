@@ -58,14 +58,14 @@ namespace DAL.Pricing
                                     o.Ascending(f => f.ExternalId), new MongoDbCreateIndexOptions<ProgramAssetGroupOffer>
                                     {
                                         Unique = true,
-                                        PartialFilterExpression = b=> b.Type(a=>a.ExternalId,"string")
+                                        PartialFilterExpression = b=> b.Exists(a=>a.ExternalId) & b.Type(a=>a.ExternalId,"string") & b.Gt<object>(a=>a.ExternalId,0)
                                         });
 
                              builder.CreateIndex<ProgramAssetGroupOffer>( o =>
                                     o.Ascending(f => f.ExternalOfferId), new MongoDbCreateIndexOptions<ProgramAssetGroupOffer>
                                     {
                                         Unique = true,
-                                        PartialFilterExpression = b=> b.Type(a=>a.ExternalOfferId,"string")
+                                        PartialFilterExpression = b=> b.Exists(a=>a.ExternalOfferId) & b.Type(a=>a.ExternalOfferId,"string") & b.Gt<object>(a=>a.ExternalOfferId,0)
                                         });
                             }
                         }

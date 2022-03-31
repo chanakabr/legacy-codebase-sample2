@@ -205,6 +205,7 @@ namespace Core.Billing
             string sDeviceName = string.Empty;
             string sPreviewModuleID = string.Empty;
             string sCollectionCode = string.Empty;
+            long pagoId = 0;
 
             // initialize variables only for split reference
             string sUserGUID = string.Empty;
@@ -222,7 +223,7 @@ namespace Core.Billing
                     ref dChargePrice, ref sCurrencyCode, ref bIsRecurring, ref sPPVModuleCode, ref p_nNumberOfPayments,
                     ref sUserGUID, ref sRelevantSub, ref nMaxNumberOfUses, ref nMaxUsageModuleLifeCycle,
                     ref nViewLifeCycleSecs, ref sPurchaseType, ref sCountryCd, ref sLanguageCode, ref sDeviceName,
-                    ref sPreviewModuleID, ref sCollectionCode);
+                    ref sPreviewModuleID, ref sCollectionCode, out pagoId);
 
             long lBillingTransactionID = Utils.InsertBillingTransaction(p_sSiteGUID,
                 // no last four digits
@@ -237,7 +238,7 @@ namespace Core.Billing
                 0.0, dChargePrice, p_nPaymentNumber, p_nNumberOfPayments,
                 // no extra params
                 string.Empty,
-                sCountryCd, sLanguageCode, sDeviceName, nBillingProcessor, nBillingMethod, sRelevantPrePaid, sPreviewModuleID, sCollectionCode);
+                sCountryCd, sLanguageCode, sDeviceName, nBillingProcessor, nBillingMethod, sRelevantPrePaid, sPreviewModuleID, sCollectionCode, null, pagoId);
 
             return (lBillingTransactionID);
         }

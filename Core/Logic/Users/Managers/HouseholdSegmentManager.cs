@@ -8,6 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ApiLogic.Modules.Services;
+using EventBus.Kafka;
+using OTT.Lib.Kafka;
 
 namespace ApiLogic.Users.Managers
 {
@@ -16,6 +19,8 @@ namespace ApiLogic.Users.Managers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private static readonly Lazy<HouseholdSegmentManager> lazy = new Lazy<HouseholdSegmentManager>(() => new HouseholdSegmentManager());
+        
+        private static IHouseholdSegmentCrudMessageService  _householdSegmentMessageService;
 
         public static HouseholdSegmentManager Instance { get { return lazy.Value; } }
 
@@ -69,6 +74,7 @@ namespace ApiLogic.Users.Managers
                 }
                 response.Object = objectToAdd;
                 response.Status.Set(eResponseStatus.OK);
+                _householdSegmentMessageService?.PublishCreateEventAsync(contextData.GroupId, objectToAdd).GetAwaiter().GetResult();
 
             }
             catch (Exception ex)
@@ -143,6 +149,7 @@ namespace ApiLogic.Users.Managers
                 }
 
                 response.Set(eResponseStatus.OK);
+                _householdSegmentMessageService?.PublishDeleteEventAsync(contextData.GroupId, householdSegment).GetAwaiter().GetResult();
             }
             catch (Exception ex)
             {
@@ -223,6 +230,14 @@ namespace ApiLogic.Users.Managers
         public GenericResponse<HouseholdSegment> Get(ContextData contextData, long id)
         {
             throw new NotImplementedException();
+        }
+        
+        public static void InitHouseholdSegmentCrudMessageService(IKafkaContextProvider contextProvider)
+        {
+            _householdSegmentMessageService = new HouseholdSegmentCrudMessageService(
+                KafkaProducerFactoryInstance.Get(),
+                contextProvider,
+                new KLogger(nameof(HouseholdSegmentCrudMessageService)));
         }
     }
 }

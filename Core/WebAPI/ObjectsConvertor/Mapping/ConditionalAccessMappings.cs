@@ -42,6 +42,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                            return eTransactionType.Subscription;
                        case KalturaTransactionType.collection:
                            return eTransactionType.Collection;
+                       case KalturaTransactionType.programAssetGroupOffer:
+                           return eTransactionType.ProgramAssetGroupOffer;
                        default:
                            throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown kalturaTransactionType value : {kalturaTransactionType}");
                    }
@@ -60,6 +62,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                                return eTransactionType.Subscription;
                            case KalturaTransactionType.collection:
                                return eTransactionType.Collection;
+                           case KalturaTransactionType.programAssetGroupOffer:
+                               return eTransactionType.ProgramAssetGroupOffer;
                            default:
                                throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown kalturaTransactionType value : {kalturaTransactionType}");
                        }
@@ -85,6 +89,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             case KalturaTransactionType.collection:
                                 result = eTransactionType.Collection;
                                 break;
+                            case KalturaTransactionType.programAssetGroupOffer:
+                                result = eTransactionType.ProgramAssetGroupOffer;
+                                break;
                             default:
                                 throw new ClientException((int)StatusCode.Error, "Unknown transaction type");
                         }
@@ -103,6 +110,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             return KalturaTransactionType.subscription;
                         case eTransactionType.Collection:
                             return KalturaTransactionType.collection;
+                        case eTransactionType.ProgramAssetGroupOffer:
+                            return KalturaTransactionType.programAssetGroupOffer;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown eTransactionType value : {transactionType}");
                     }
@@ -168,6 +177,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.endDate)))
               .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxNumberOfUses))
               ;
+
+            cfg.CreateMap<ProgramAssetGroupOfferPurchase, KalturaProgramAssetGroupOfferEntitlement>()
+             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaTransactionType.programAssetGroupOffer))
+             .ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.purchaseId))
+             .ForMember(dest => dest.DeviceName, opt => opt.MapFrom(src => src.deviceName))
+             .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => (int)src.purchaseId))
+             .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.ProductId))
+             .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.houseHoldId))
+             .ForMember(dest => dest.PurchaseDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)))
+             .ForMember(dest => dest.CurrentDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)))
+             .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.endDate)))             
+             ;
 
             cfg.CreateMap<Entitlement, KalturaPpvEntitlement>()
                .ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.entitlementId))
@@ -236,6 +258,29 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.IsPending, opt => opt.MapFrom(src => src.IsPending))
               ;
 
+            cfg.CreateMap<Entitlement, KalturaProgramAssetGroupOfferEntitlement>()
+              .ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.entitlementId))
+              .ForMember(dest => dest.CurrentUses, opt => opt.MapFrom(src => src.currentUses))
+              .ForMember(dest => dest.CurrentDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.currentDate)))
+              .ForMember(dest => dest.LastViewDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.lastViewDate)))
+              .ForMember(dest => dest.PurchaseDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.purchaseDate)))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.purchaseID))
+              .ForMember(dest => dest.DeviceUDID, opt => opt.MapFrom(src => src.deviceUDID))
+              .ForMember(dest => dest.DeviceName, opt => opt.MapFrom(src => src.deviceName))
+              .ForMember(dest => dest.IsCancelationWindowEnabled, opt => opt.MapFrom(src => src.cancelWindow))
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.type))
+              .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.endDate)))
+              .ForMember(dest => dest.PaymentMethod, opt => opt.ResolveUsing(src => ConvertPaymentMethod(src.paymentMethod)))
+              .ForMember(dest => dest.MediaFileId, opt => opt.MapFrom(src => GetNullableInt(src.mediaFileID)))
+              .ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => GetNullableInt(src.mediaID)))
+              .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxUses))
+              .ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => GetNullableInt(0)))
+              .ForMember(dest => dest.PurchaseId, opt => opt.MapFrom(src => src.purchaseID))
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaTransactionType.programAssetGroupOffer))
+              .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.entitlementId))
+              .ForMember(dest => dest.IsPending, opt => opt.MapFrom(src => src.IsPending))
+              ;
+
             cfg.CreateMap<PpvPurchase, KalturaEntitlementCancellation>()
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaTransactionType.ppv))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => (int)src.purchaseId))
@@ -279,6 +324,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaCollectionEntitlement, Entitlement>()
                   .ForMember(dest => dest.purchaseID, opt => opt.MapFrom(src => src.Id))
                   .ForMember(dest => dest.type, opt => opt.MapFrom(src => eTransactionType.Collection))
+                  .ForMember(dest => dest.endDate, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampAbsSecondsToDateTime(src.EndDate)))
+                  ;
+            
+            cfg.CreateMap<KalturaProgramAssetGroupOfferEntitlement, Entitlement>()
+                  .ForMember(dest => dest.purchaseID, opt => opt.MapFrom(src => src.Id))
+                  .ForMember(dest => dest.type, opt => opt.MapFrom(src => eTransactionType.ProgramAssetGroupOffer))
                   .ForMember(dest => dest.endDate, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampAbsSecondsToDateTime(src.EndDate)))
                   ;
 
@@ -625,13 +676,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<BusinessModuleDetails, KalturaBusinessModuleDetails>()
               .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleId))
-              .ForMember(dest => dest.BusinessModuleType, opt => opt.ResolveUsing(src => ConvertKalturaTransactionType(src.BusinessModuleType)))
-              ;
+              .ForMember(dest => dest.BusinessModuleType, opt => opt.ResolveUsing(src => src.BusinessModuleType));            
 
             cfg.CreateMap<KalturaBusinessModuleDetails, BusinessModuleDetails>()
               .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleId))
-              .ForMember(dest => dest.BusinessModuleType, opt => opt.ResolveUsing(src => ConvertKalturaTransactionType(src.BusinessModuleType)))
-              ;
+              .ForMember(dest => dest.BusinessModuleType, opt => opt.ResolveUsing(src => src.BusinessModuleType));           
 
             cfg.CreateMap<MediaFile, KalturaPlaybackSource>()
               .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.MediaId.ToString()))
@@ -720,47 +769,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
         {
             return GenericExtensionMethods.ConvertEnumsById<ChronologicalRecordStartTime, KalturaChronologicalRecordStartTime>
                 (chronologicalRecordFrom, KalturaChronologicalRecordStartTime.NONE).Value;
-        }
-
-        internal static eTransactionType? ConvertKalturaTransactionType(KalturaTransactionType? businessModuleTypeEqual)
-        {
-            if (!businessModuleTypeEqual.HasValue)
-            {
-                return null;
-            }
-            switch (businessModuleTypeEqual)
-            {
-                case KalturaTransactionType.collection:
-                    return eTransactionType.Collection;
-                case KalturaTransactionType.ppv:
-                    return eTransactionType.PPV;
-                case KalturaTransactionType.subscription:
-                    return eTransactionType.Subscription;
-                default:
-                    break;
-            }
-            throw new NotImplementedException();
-        }
-
-        internal static KalturaTransactionType? ConvertKalturaTransactionType(eTransactionType? businessModuleTypeEqual)
-        {
-            if (!businessModuleTypeEqual.HasValue)
-            {
-                return null;
-            }
-            switch (businessModuleTypeEqual)
-            {
-                case eTransactionType.Collection:
-                    return KalturaTransactionType.collection;
-                case eTransactionType.PPV:
-                    return KalturaTransactionType.ppv;
-                case eTransactionType.Subscription:
-                    return KalturaTransactionType.subscription;
-                default:
-                    break;
-            }
-            throw new NotImplementedException();
-        }
+        }      
 
         private static KalturaAdsPolicy? ConvertAdsPolicy(AdsPolicy? adsPolicy)
         {
@@ -848,9 +857,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case eTransactionType.Subscription:
                     result = AutoMapper.Mapper.Map<KalturaSubscriptionEntitlement>(entitlement);
                     break;
+                case eTransactionType.ProgramAssetGroupOffer:
+                    result = AutoMapper.Mapper.Map<KalturaProgramAssetGroupOfferEntitlement>(entitlement);
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown entitlement type");
-                    break;
             }
             return result;
         }

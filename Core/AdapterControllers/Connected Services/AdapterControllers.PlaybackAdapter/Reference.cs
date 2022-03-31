@@ -1018,6 +1018,9 @@ namespace AdapterControllers.PlaybackAdapter
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
         Collection = 2,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        PAGO = 3,
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]

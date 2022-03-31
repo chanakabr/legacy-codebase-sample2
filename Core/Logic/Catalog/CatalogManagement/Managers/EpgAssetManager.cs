@@ -66,7 +66,6 @@ namespace Core.Catalog.CatalogManagement
         public const string EXTERNAL_OFFER_IDS_META_SYSTEM_NAME = "ExternalOfferIds";
         private static readonly int MaxDescriptionSize = 1024;
         private static readonly int MaxNameSize = 255;
-
         private static IProgramAssetCrudMessageService _messageService;
 
         public static readonly Dictionary<string, string> BasicProgramMetasSystemNameToName = new Dictionary<string, string>()
@@ -243,6 +242,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 SendActionEvent(groupId, newEpgId, eAction.On);
+                
                 result = AssetManager.GetAsset(groupId, newEpgId, eAssetTypes.EPG, true);
                 if (result.IsOkStatusCode())
                 {
@@ -1729,7 +1729,6 @@ namespace Core.Catalog.CatalogManagement
             {
                 RemoveTopicsFromProgramEpgCB(epgCB, programMetas, programTags, catalogGroupCache.GetDefaultLanguage().Code);
             }
-
             _messageService.PublishUpdateEventAsync(groupId, epgId).GetAwaiter().GetResult();
 
             return epgCbList;
@@ -2031,7 +2030,6 @@ namespace Core.Catalog.CatalogManagement
 
             return keys.FirstOrDefault();
         }
-
         #endregion
     }
 }

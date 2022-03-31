@@ -3,7 +3,6 @@ using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Response;
 using ApiObjects.Rules;
-using ApiObjects.Segmentation;
 using ApiObjects.User.SessionProfile;
 using Core.Api;
 using Phx.Lib.Log;
@@ -12,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using ApiLogic.Repositories;
 
 namespace ApiLogic.Users
 {
@@ -25,26 +25,26 @@ namespace ApiLogic.Users
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private static readonly Lazy<UserSessionProfileExpressionValidator> LazyInstance = new Lazy<UserSessionProfileExpressionValidator>(() =>
-            new UserSessionProfileExpressionValidator(api.Instance,
-                                                      api.Instance,
-                                                      Core.Api.Module.Instance,
-                                                      DeviceReferenceDataManager.Instance),
+                new UserSessionProfileExpressionValidator(DeviceBrandRepository.Instance,
+                    DeviceFamilyRepository.Instance,
+                    Core.Api.Module.Instance,
+                    DeviceReferenceDataManager.Instance),
             LazyThreadSafetyMode.PublicationOnly);
 
         public static IUserSessionProfileExpressionValidator Instance => LazyInstance.Value;
 
-        private readonly IDeviceBrandManager _deviceBrandManager;
-        private readonly IDeviceFamilyManager _deviceFamilyManager;
+        private readonly IDeviceBrandRepository _deviceBrandRepository;
+        private readonly IDeviceFamilyRepository _deviceFamilyRepository;
         private readonly ISegmentsManager _segmentsManager;
         private readonly IDeviceReferenceDataManager _deviceReferenceDataManager;
 
-        public UserSessionProfileExpressionValidator(IDeviceBrandManager deviceBrandManager,
-                                         IDeviceFamilyManager deviceFamilyManager,
+        public UserSessionProfileExpressionValidator(IDeviceBrandRepository deviceBrandRepository,
+                                         IDeviceFamilyRepository deviceFamilyRepository,
                                          ISegmentsManager segmentsManager,
                                          IDeviceReferenceDataManager deviceReferenceDataManager)
         {
-            _deviceBrandManager = deviceBrandManager;
-            _deviceFamilyManager = deviceFamilyManager;
+            _deviceBrandRepository = deviceBrandRepository;
+            _deviceFamilyRepository = deviceFamilyRepository;
             _segmentsManager = segmentsManager;
             _deviceReferenceDataManager = deviceReferenceDataManager;
         }
@@ -65,8 +65,8 @@ namespace ApiLogic.Users
         {
             switch (condition)
             {
-                case DeviceBrandCondition c: return ValidateDeviceBrandIds(c.IdIn);
-                case DeviceFamilyCondition c: return ValidateDeviceFamilyIds(c.IdIn);
+                case DeviceBrandCondition c: return ValidateDeviceBrandIds(groupId, c.IdIn);
+                case DeviceFamilyCondition c: return ValidateDeviceFamilyIds(groupId, c.IdIn);
                 case SegmentsCondition c: return ValidateSegmentIds(groupId, c.SegmentIds);
                 case DeviceManufacturerCondition c: return ValidateDeviceManufacturerIds(groupId, c.IdIn);
                 case DeviceModelCondition c1:
@@ -83,18 +83,28 @@ namespace ApiLogic.Users
                 .FirstOrDefault(status => !status.IsOkStatusCode()) ?? Status.Ok;
         }
 
-        private Status ValidateDeviceBrandIds(List<int> ids)
+        private Status ValidateDeviceBrandIds(long groupId, List<int> ids)
         {
-            var deviceBrands = _deviceBrandManager.GetAllDeviceBrands();
-            var deviceBrandMap = deviceBrands.Select(x => x.Id).ToHashSet();
-            return AllExists(ids, deviceBrandMap, "DeviceBrand", eResponseStatus.DeviceBrandIdsDoesNotExist);
+            var listResponse = _deviceBrandRepository.List(groupId);
+            if (listResponse.IsOkStatusCode())
+            {
+                var deviceBrandMap = listResponse.Objects.Select(x => x.Id).ToHashSet();
+                return AllExists(ids, deviceBrandMap, "DeviceBrand", eResponseStatus.DeviceBrandIdsDoesNotExist);
+            }
+
+            return listResponse.Status;
         }
 
-        private Status ValidateDeviceFamilyIds(List<int> ids)
+        private Status ValidateDeviceFamilyIds(long groupId, List<int> ids)
         {
-            var deviceFamilies = _deviceFamilyManager.GetAllDeviceFamilyList();
-            var deviceFamiliesMap = deviceFamilies.Select(x => x.Id).ToHashSet();
-            return AllExists(ids, deviceFamiliesMap, "DeviceFamily", eResponseStatus.NonExistingDeviceFamilyIds);
+            var listResponse = _deviceFamilyRepository.List(groupId);
+            if (listResponse.IsOkStatusCode())
+            {
+                var deviceFamiliesMap = listResponse.Objects.Select(x => x.Id).ToHashSet();
+                return AllExists(ids, deviceFamiliesMap, "DeviceFamily", eResponseStatus.NonExistingDeviceFamilyIds);
+            }
+
+            return listResponse.Status;
         }
 
         private Status ValidateSegmentIds(int groupId, List<long> ids)

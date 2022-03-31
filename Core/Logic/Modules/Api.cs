@@ -22,6 +22,10 @@ using System.Linq;
 using System.Reflection;
 using System.Web;
 using System.Xml;
+using ApiLogic.Catalog.CatalogManagement.Services;
+using ApiLogic.Modules.Services;
+using EventBus.Kafka;
+using OTT.Lib.Kafka;
 
 namespace Core.Api
 {
@@ -34,6 +38,8 @@ namespace Core.Api
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly Lazy<Module> lazy = new Lazy<Module>(() => new Module());
+        private static ISegmentationTypeCrudMessageService  _segmentationTypeMessageService;
+        private static IUserSegmentCrudMessageService  _userSegmentMessageService;
 
         public static Module Instance { get { return lazy.Value; } }
 
@@ -1665,16 +1671,6 @@ namespace Core.Api
             return Core.Api.api.UpdateScheduledTaskNextRunIntervalInSeconds(scheduledTaskType, nextRunIntervalInSeconds);
         }
 
-        public static DeviceFamilyResponse GetDeviceFamilyList(int groupId)
-        {
-            return api.GetDeviceFamilyList();
-        }
-
-        public static DeviceBrandResponse GetDeviceBrandList(int groupId)
-        {
-            return Core.Api.api.GetDeviceBrandList();
-        }
-
         public static ApiObjects.CountryLocaleResponse GetCountryList(int groupId, List<int> countryIds)
         {
             return Core.Api.api.GetCountryLocaleList(countryIds, groupId);
@@ -2056,6 +2052,7 @@ namespace Core.Api
 
                     response.Object = segmentationType;
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    _segmentationTypeMessageService?.PublishCreateEventAsync(groupId, segmentationType).GetAwaiter().GetResult();
                 }
             }
             catch (Exception ex)
@@ -2120,6 +2117,7 @@ namespace Core.Api
 
                     response.Object = segmentationType;
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    _segmentationTypeMessageService?.PublishUpdateEventAsync(groupId, segmentationType).GetAwaiter().GetResult();
                 }
             }
             catch (Exception ex)
@@ -2201,6 +2199,7 @@ namespace Core.Api
                 else
                 {
                     result.Set(eResponseStatus.OK);
+                    _segmentationTypeMessageService?.PublishDeleteEventAsync(groupId, id).GetAwaiter().GetResult();
                 }
 
             }
@@ -2368,6 +2367,7 @@ namespace Core.Api
                     {
                         response.Object = userSegment;
                         response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                            _userSegmentMessageService?.PublishCreateEventAsync(groupId, userSegment).GetAwaiter().GetResult();
                     }
                 }
             }
@@ -2421,6 +2421,7 @@ namespace Core.Api
                 else
                 {
                     result = new Status();
+                    _userSegmentMessageService?.PublishDeleteEventAsync(groupId, segmentationType).GetAwaiter().GetResult();
                 }
             }
             catch (Exception ex)
@@ -2733,6 +2734,22 @@ namespace Core.Api
                 log.Error("Exception in UpdatePermission", ex);
             }
             return result;
+        }
+        
+        public static void InitSegmentationTypeCrudMessageService(IKafkaContextProvider contextProvider)
+        {
+            _segmentationTypeMessageService = new SegmentationTypeCrudMessageService(
+                KafkaProducerFactoryInstance.Get(),
+                contextProvider,
+                new KLogger(nameof(SegmentationTypeCrudMessageService)));
+        }
+        
+        public static void InitUserSegmentCrudMessageService(IKafkaContextProvider contextProvider)
+        {
+            _userSegmentMessageService = new UserSegmentCrudMessageService(
+                KafkaProducerFactoryInstance.Get(),
+                contextProvider,
+                new KLogger(nameof(UserSegmentCrudMessageService)));
         }
     }
 }

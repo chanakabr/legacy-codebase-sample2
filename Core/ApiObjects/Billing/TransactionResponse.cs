@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
+﻿using ApiObjects.Response;
+using System;
 
 namespace ApiObjects.Billing
 {
@@ -49,6 +46,11 @@ namespace ApiObjects.Billing
         public TransactionResponse(int statusCode, string statusMessage)
         {
             Status = new Response.Status(statusCode, statusMessage);
+        }
+
+        public TransactionResponse(eResponseStatus status, string statusMessage = null)
+        {
+            Status = new Response.Status(status, statusMessage);
         }
 
         protected override bool DoInsert()

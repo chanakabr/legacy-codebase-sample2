@@ -1,12 +1,17 @@
-﻿using System;
+﻿using ApiLogic.Pricing.Handlers;
+using ApiObjects.Response;
+using Core.ConditionalAccess;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using WebAPI.ClientManagers.Client;
+using WebAPI.Clients;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
+using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
 using WebAPI.Utils;
 
@@ -36,6 +41,7 @@ namespace WebAPI.Controllers
             string language = Utils.Utils.GetLanguageFromRequest();
             string currency = Utils.Utils.GetCurrencyFromRequest();
             string userId = KS.GetFromRequest().UserId;
+            var contextData = KS.GetContextData();
 
             try
             {
@@ -58,6 +64,19 @@ namespace WebAPI.Controllers
                     collectiontPrices = ClientsManager.ConditionalAccessClient().GetCollectionPrices(groupId, filter.getCollectionIdIn(), userId, filter.CouponCodeEqual, udid, language,
                                                                                         filter.getShouldGetOnlyLowest(), currency);
                     productPrices.AddRange(collectiontPrices);
+                }
+                if (!string.IsNullOrEmpty(filter.ProgramAssetGroupOfferIdIn))
+                {
+                    GenericListResponse<PagoPricesContainer> listFunc() =>
+                        PagoManager.Instance.GetPagoPrices(groupId, filter.GetProgramAssetGroupOfferIdIn(), contextData.UserId.Value, currency);
+
+                    KalturaGenericListResponse<KalturaProgramAssetGroupOfferPrice> res =
+                       ClientUtils.GetResponseListFromWS<KalturaProgramAssetGroupOfferPrice, PagoPricesContainer>(listFunc);
+
+                    if (res.Objects?.Count > 0)
+                    {
+                        productPrices.AddRange(res.Objects);
+                    }
                 }
 
                 // order

@@ -3,12 +3,10 @@ using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
-using Phx.Lib.Appconfig;
 using Core.Api.Managers;
 using Core.Catalog;
 using Core.Users;
-using ElasticSearch.Utilities;
-using GroupsCacheManager;
+using Phx.Lib.Appconfig;
 using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
@@ -22,7 +20,6 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
-using Tvinci.Core.DAL;
 using TVinciShared;
 
 namespace APILogic
@@ -624,7 +621,7 @@ namespace APILogic
             }
 
             return result;
-        }
+        }       
 
         internal static bool InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypes(int groupId, FriendlyAssetLifeCycleRule rule)
         {
@@ -913,6 +910,37 @@ namespace APILogic
             }
 
             return new Tuple<List<LanguageObj>, bool>(languagesResult, res);
+        }
+
+        internal static string GetIP2CountryCode(int groupId, string ip)
+        {
+            string res = string.Empty;
+            try
+            {
+                ApiObjects.Country country = GetCountryByIp(groupId, ip);
+                res = country != null ? country.Code : res;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed Utils.GetIP2CountryCode with groupId: {0}, ip: {1}", groupId, ip), ex);
+            }
+
+            return res;
+        }
+
+        internal static ApiObjects.Country GetCountryByIp(int groupId, string ip)
+        {
+            ApiObjects.Country res = null;
+            try
+            {
+                res = Core.Api.Module.GetCountryByIp(groupId, ip);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed Utils.GetCountryByIp with groupId: {0}, ip: {1}", groupId, ip), ex);
+            }
+
+            return res;
         }
     }
 }

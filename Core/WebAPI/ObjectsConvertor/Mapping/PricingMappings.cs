@@ -844,6 +844,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
                            throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown ProgramAssetGroupOfferOrderBy value : {type}");
                    }
                });
+
+            cfg.CreateMap<PricesContainer, KalturaProductPrice>()
+               .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oPrice))
+               .ForMember(dest => dest.PurchaseStatus, opt => opt.MapFrom(src => ConvertPriceReasonToPurchaseStatus(src.m_PriceReason)))
+               ;
+
+            cfg.CreateMap<PagoPricesContainer, KalturaProgramAssetGroupOfferPrice>()
+                .IncludeBase<PricesContainer, KalturaProductPrice>()
+               .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.PagoId))
+               .ForMember(dest => dest.ProductType, opt => opt.MapFrom(src => KalturaTransactionType.programAssetGroupOffer))
+               ;
         }
 
         private static KalturaSubscriptionSetType ConvertSetType(SubscriptionSetType subscriptionSetType)
@@ -1123,6 +1134,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 case PriceReason.PendingEntitlement:
                     result = KalturaPurchaseStatus.pending_entitlement;
+                    break;
+                case PriceReason.PagoPurchased:
+                    result = KalturaPurchaseStatus.program_asset_group_offer_purchased;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown purchase status");

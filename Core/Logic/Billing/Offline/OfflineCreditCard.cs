@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ApiObjects.MediaIndexingObjects;
-using ApiObjects.Billing;
+﻿using ApiObjects.Billing;
+using System;
 
 namespace Core.Billing
 {
@@ -22,7 +18,7 @@ namespace Core.Billing
             : base(p_nGroupID)
         {
 
-        } 
+        }
 
         #endregion
 
@@ -41,11 +37,11 @@ namespace Core.Billing
         /// <param name="numberOfPayments"></param>
         /// <param name="extraParameters"></param>
         /// <returns></returns>
-        public override BillingResponse ChargeUser(string siteGUID, double chargePrice, 
+        public override BillingResponse ChargeUser(string siteGUID, double chargePrice,
             string currencyCode, string userIP, string customData, int paymentNumber, int numberOfPayments, string extraParameters)
         {
             BillingResponse oResponse = new BillingResponse();
-            
+
             // By default, start as unkown until method clears it up
             oResponse.m_oStatus = BillingResponseStatus.UnKnown;
             oResponse.m_sStatusDescription = "Unkown";
@@ -68,7 +64,7 @@ namespace Core.Billing
                     try
                     {
                         // Insert new offline transaction record
-                        lOfflineTransactionID = 
+                        lOfflineTransactionID =
                             DAL.BillingDAL.Insert_NewOfflineTransaction(lSiteGuid, chargePrice, currencyCode, this.m_nGroupID, customData, null);
                     }
                     catch (Exception)
@@ -81,7 +77,7 @@ namespace Core.Billing
                     // If insert was successful
                     if (lOfflineTransactionID != 0)
                     {
-                        long lBillingTransactionID = 
+                        long lBillingTransactionID =
                             InsertBillingTransaction(siteGUID, customData, paymentNumber, ref numberOfPayments, lOfflineTransactionID);
 
                         // If insert was succesful
@@ -138,14 +134,14 @@ namespace Core.Billing
         /// <param name="p_nNumberOfPayments"></param>
         /// <param name="lOfflineTransactionLocalID"></param>
         /// <returns></returns>
-        protected long InsertBillingTransaction(string p_sSiteGUID, string p_sCustomData, int p_nPaymentNumber, 
+        protected long InsertBillingTransaction(string p_sSiteGUID, string p_sCustomData, int p_nPaymentNumber,
             ref int p_nNumberOfPayments, long lOfflineTransactionLocalID)
         {
             int nBillingProvider = (int)eBillingProvider.Offline;
             int nBillingProcessor = 4;
             // TODO s: What is the billing method?
             int nBillingMethod = 50;
-            
+
             #region Ref varaibles definition
 
             // initialize variables for split reference and insert billing transaction
@@ -164,6 +160,7 @@ namespace Core.Billing
             string sDeviceName = string.Empty;
             string sPreviewModuleID = string.Empty;
             string sCollectionCode = string.Empty;
+            long pagoId = 0;
 
             // initialize variables only for split reference
             string sUserGUID = string.Empty;
@@ -176,12 +173,12 @@ namespace Core.Billing
 
             #endregion
 
-            Utils.SplitRefference(p_sCustomData, ref nMediaFileID, ref nMediaID, 
+            Utils.SplitRefference(p_sCustomData, ref nMediaFileID, ref nMediaID,
                 ref sSubscriptionCode, ref sPPVCode, ref sRelevantPrePaid, ref sPriceCode,
                     ref dChargePrice, ref sCurrencyCode, ref bIsRecurring, ref sPPVModuleCode, ref p_nNumberOfPayments,
-                    ref sUserGUID, ref sRelevantSub, ref nMaxNumberOfUses, ref nMaxUsageModuleLifeCycle, 
-                    ref nViewLifeCycleSecs, ref sPurchaseType, ref sCountryCd, ref sLanguageCode, ref sDeviceName, 
-                    ref sPreviewModuleID, ref sCollectionCode);
+                    ref sUserGUID, ref sRelevantSub, ref nMaxNumberOfUses, ref nMaxUsageModuleLifeCycle,
+                    ref nViewLifeCycleSecs, ref sPurchaseType, ref sCountryCd, ref sLanguageCode, ref sDeviceName,
+                    ref sPreviewModuleID, ref sCollectionCode, out pagoId);
 
             long lBillingTransactionID = Utils.InsertBillingTransaction(p_sSiteGUID,
                 // no last four digits
@@ -196,7 +193,7 @@ namespace Core.Billing
                 0.0, dChargePrice, p_nPaymentNumber, p_nNumberOfPayments,
                 // no extra params
                 string.Empty,
-                sCountryCd, sLanguageCode, sDeviceName, nBillingProcessor, nBillingMethod, sRelevantPrePaid, sPreviewModuleID, sCollectionCode);
+                sCountryCd, sLanguageCode, sDeviceName, nBillingProcessor, nBillingMethod, sRelevantPrePaid, sPreviewModuleID, sCollectionCode, null, pagoId);
 
             return (lBillingTransactionID);
         }

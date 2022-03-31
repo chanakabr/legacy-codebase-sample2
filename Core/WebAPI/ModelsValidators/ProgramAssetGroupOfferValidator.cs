@@ -49,11 +49,14 @@ namespace WebAPI.ModelsValidators
 
         internal static void ValidateForUpdate(this KalturaProgramAssetGroupOffer model)
         {
-            if (model.Name != null && model.Name.Values.Count > 0 && string.IsNullOrEmpty(model.Name.Values[0].Value))
+            if (model.Name != null)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
+                if (model.Name.Values.Count > 0 && string.IsNullOrEmpty(model.Name.Values[0].Value))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
+                }
+                model.Name.Validate("multilingualName");
             }
-            model.Name.Validate("multilingualName");
 
             if (model.StartDate.HasValue && model.EndDate.HasValue && model.StartDate > model.EndDate)
             {

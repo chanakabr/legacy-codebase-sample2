@@ -28,6 +28,8 @@ using WebAPI.ModelsFactory;
 using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
 using KeyValuePair = ApiObjects.KeyValuePair;
+using ApiObjects.BulkUpload;
+using WebAPI.Models.Domains;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -500,15 +502,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region Device Family
 
-            //TimeShiftedTvPartnerSettings to KalturaTimeShiftedTvPartnerSettings
             cfg.CreateMap<DeviceFamily, WebAPI.Models.Domains.KalturaDeviceFamily>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertToKalturaDeviceFamilyType(src.Id)));
 
             cfg.CreateMap<DeviceBrand, WebAPI.Models.Domains.KalturaDeviceBrand>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.DeviceFamilyId, opt => opt.MapFrom(src => src.DeviceFamilyId));
+                .ForMember(dest => dest.DeviceFamilyId, opt => opt.MapFrom(src => src.DeviceFamilyId))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertToKalturaDeviceBrandType(src.Id)));
 
             #endregion
 
@@ -2957,46 +2960,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static KalturaTransactionType? ConvertTransactionType(eTransactionType? type)
-        {
-            if (type == null)
-            {
-                return null;
-            }
-
-            switch (type)
-            {
-                case eTransactionType.Collection:
-                    return KalturaTransactionType.collection;
-                case eTransactionType.PPV:
-                    return KalturaTransactionType.ppv;
-                case eTransactionType.Subscription:
-                    return KalturaTransactionType.subscription;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown Transaction Type");
-            }
-        }
-
-        private static eTransactionType? ConvertTransactionType(KalturaTransactionType? type)
-        {
-            if (type == null)
-            {
-                return null;
-            }
-
-            switch (type)
-            {
-                case KalturaTransactionType.collection:
-                    return eTransactionType.Collection;
-                case KalturaTransactionType.ppv:
-                    return eTransactionType.PPV;
-                case KalturaTransactionType.subscription:
-                    return eTransactionType.Subscription;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown Transaction Type");
-            }
-        }
-
         private static WebAPI.Models.API.KalturaPurchaseSettingsType? ConvertPurchaseSetting(ePurchaeSettingsType? type)
         {
             WebAPI.Models.API.KalturaPurchaseSettingsType result = WebAPI.Models.API.KalturaPurchaseSettingsType.block;
@@ -3668,6 +3631,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
         }
 
         private static string ToCSV<T>(IEnumerable<T> v) => string.Join(",", v);
+
+        private static KalturaDeviceFamilyType ConvertToKalturaDeviceFamilyType(long deviceFamilyId)
+        {
+            const long maxSystemId = 49;
+            return deviceFamilyId <= maxSystemId
+                ? KalturaDeviceFamilyType.System
+                : KalturaDeviceFamilyType.Custom;
+        }
+
+        private static KalturaDeviceBrandType ConvertToKalturaDeviceBrandType(long deviceBrandId)
+        {
+            const long maxSystemId = 999;
+            return deviceBrandId <= maxSystemId
+                ? KalturaDeviceBrandType.System
+                : KalturaDeviceBrandType.Custom;
+        }
 
         #endregion
     }

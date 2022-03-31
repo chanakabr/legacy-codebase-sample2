@@ -59,22 +59,45 @@ namespace Core.ConditionalAccess
 
     }
 
-    public class CollectionsPricesContainer
+    public class PricesContainer
+    {
+        public Price m_oPrice { get; set; }
+        public PriceReason m_PriceReason { get; set; }
+
+        public PricesContainer() { }
+
+        public void Initialize(Price price, PriceReason priceReason)
+        {
+            m_oPrice = price;
+            m_PriceReason = priceReason;
+        }
+    }
+
+    public class CollectionsPricesContainer : PricesContainer
     {
         public string m_sCollectionCode;
-        public Price m_oPrice;
-        public PriceReason m_PriceReason;
-
+        
         public CollectionsPricesContainer()
         { }
 
-        public void Initialize(string sCollectionCode, Price oPrice, PriceReason ePriceReason)
+        public void Initialize(string collectionCode, Price price, PriceReason priceReason)
         {
-            m_sCollectionCode = sCollectionCode;
-            m_oPrice = oPrice;
-            m_PriceReason = ePriceReason;
+            base.Initialize(price, priceReason);
+            m_sCollectionCode = collectionCode;
         }
+    }
 
+    public class PagoPricesContainer : PricesContainer
+    {
+        public long PagoId { get; set; }
+
+        public PagoPricesContainer() : base() { }
+
+        public void Initialize(long pagoId, Price price, PriceReason priceReason)
+        {
+            base.Initialize(price, priceReason);
+            PagoId = pagoId;
+        }
     }
 
     public class PrePaidPricesContainer

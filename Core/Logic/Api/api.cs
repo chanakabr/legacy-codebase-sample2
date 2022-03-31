@@ -43,6 +43,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Xml;
+using ApiLogic.Repositories;
 using ApiObjects.MediaMarks;
 using CouchbaseManager;
 using Tvinci.Core.DAL;
@@ -65,16 +66,10 @@ namespace Core.Api
         VirtualAssetInfoResponse GetVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo);
     }
 
-    public interface IDeviceFamilyManager
+    public interface IDomainDeviceManager
     {
-        List<DeviceFamily> GetAllDeviceFamilyList();
         int GetDeviceFamilyIdByUdid(int domainId, int groupId, string udid);
         Dictionary<string, int> GetDomainDevices(int domainId, int groupId);
-    }
-
-    public interface IDeviceBrandManager
-    {
-        List<DeviceBrand> GetAllDeviceBrands();
     }
 
     public interface ICountryManager
@@ -88,7 +83,7 @@ namespace Core.Api
         ParentalRulesResponse GetParentalRules(int groupId, bool shouldGetOnlyActive = true);
     }
 
-    public class api : IVirtualAssetManager, IDeviceFamilyManager, IDeviceBrandManager, ICountryManager, IParentalRuleManager
+    public class api : IVirtualAssetManager, IDomainDeviceManager, ICountryManager, IParentalRuleManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -9742,83 +9737,6 @@ namespace Core.Api
             return deviceFamilyId;
         }
 
-        public static DeviceFamilyResponse GetDeviceFamilyList()
-        {
-            DeviceFamilyResponse result = new DeviceFamilyResponse();
-
-            var deviceFamilies = Instance.GetAllDeviceFamilyList();
-            if (deviceFamilies != null)
-            {
-                result.DeviceFamilies = deviceFamilies;
-                result.Status = Status.Ok;
-                result.TotalItems = deviceFamilies.Count;
-            }
-
-            return result;
-        }
-
-        public List<DeviceFamily> GetAllDeviceFamilyList()
-        {
-            List<DeviceFamily> deviceFamilies = null;
-            DataTable dt = DAL.ApiDAL.GetDeviceFamilies();
-            
-            if (dt != null && dt.Rows != null)
-            {
-                deviceFamilies = new List<DeviceFamily>(dt.Rows.Count);
-                foreach (DataRow dr in dt.Rows)
-                {
-                    int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID", 0);
-                    string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
-                    if (id > 0 && !string.IsNullOrEmpty(name))
-                    {
-                        DeviceFamily deviceFamily = new DeviceFamily(id, name);
-                        deviceFamilies.Add(deviceFamily);
-                    }
-                }
-            }
-            return deviceFamilies;
-        }
-
-        public static DeviceBrandResponse GetDeviceBrandList()
-        {
-            DeviceBrandResponse result = new DeviceBrandResponse();
-            var deviceBrands = Instance.GetAllDeviceBrands();
-            if (deviceBrands != null)
-            {
-                result.DeviceBrands = deviceBrands;
-                result.Status = Status.Ok;
-                result.TotalItems = deviceBrands.Count;
-            }
-
-            return result;
-        }
-
-        public List<DeviceBrand> GetAllDeviceBrands()
-        {
-            List<DeviceBrand> deviceBrands = null;
-            DataTable dt = DAL.ApiDAL.GetDeviceBrands();
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-            {
-                deviceBrands = new List<DeviceBrand>(dt.Rows.Count);
-                for (int i = 0; i < dt.Rows.Count; i++)
-                {
-                    DataRow dr = dt.Rows[i];
-                    if (dr != null)
-                    {
-                        int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID", 0);
-                        string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
-                        int deviceFamilyId = ODBCWrapper.Utils.GetIntSafeVal(dr, "DEVICE_FAMILY_ID", 0);
-                        if (id > 0 && !string.IsNullOrEmpty(name))
-                        {
-                            DeviceBrand deviceFamily = new DeviceBrand(id, name, deviceFamilyId);
-                            deviceBrands.Add(deviceFamily);
-                        }
-                    }
-                }
-            }
-            return deviceBrands;
-        }
-
         public List<Country> GetCountryListByIds(List<int> countryIds, int groupId)
         {
             List<Country> countries = null;
@@ -11129,16 +11047,14 @@ namespace Core.Api
                 if (deviceConcurrencyPriorityToUpdate.DeviceFamilyIds?.Count > 0)
                 {
                     // validate deviceFamilyIds
-                    var deviceFamilyList = api.GetDeviceFamilyList();
-                    if (deviceFamilyList == null ||
-                        deviceFamilyList.Status.Code != (int)eResponseStatus.OK ||
-                        deviceFamilyList.DeviceFamilies.Count == 0)
+                    var listResponse = DeviceFamilyRepository.Instance.List(groupId);
+                    if (!listResponse.IsOkStatusCode())
                     {
                         response.Message = "No DeviceFamilies";
                         return response;
                     }
 
-                    var notDeviceFamilies = deviceConcurrencyPriorityToUpdate.DeviceFamilyIds.FindAll(x => !deviceFamilyList.DeviceFamilies.Any(y => y.Id == x));
+                    var notDeviceFamilies = deviceConcurrencyPriorityToUpdate.DeviceFamilyIds.FindAll(x => !listResponse.Objects.Any(y => y.Id == x));
                     if (notDeviceFamilies != null && notDeviceFamilies.Count > 0)
                     {
                         response.Set((int)eResponseStatus.NonExistingDeviceFamilyIds,

@@ -14,6 +14,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using ApiLogic.Repositories;
 
 namespace ApiLogic.Tests.Partner
 {
@@ -30,20 +31,23 @@ namespace ApiLogic.Tests.Partner
 
             var categoryCacheMock = new Mock<ICategoryCache>();
             var treeListResponse = new GenericListResponse<CategoryVersion>(Status.Ok, new List<CategoryVersion>() { fixture.Create<CategoryVersion>() });
-            categoryCacheMock.Setup(x => x.ListCategoryVersionByTree(It.IsAny<ContextData>(), It.IsAny<CategoryVersionFilterByTree>(), null))
-                             .Returns(treeListResponse);
+            categoryCacheMock
+                .Setup(x => x.ListCategoryVersionByTree(It.IsAny<ContextData>(), It.IsAny<CategoryVersionFilterByTree>(), null))
+                .Returns(treeListResponse);
 
-            var deviceFamilies = objectToUpdate.CategoryManagement.DeviceFamilyToCategoryTree.Select(x => new DeviceFamily(x.Key, fixture.Create<string>())).ToList();
-            var deviceFamilyManagerMock = new Mock<IDeviceFamilyManager>();
-            deviceFamilyManagerMock.Setup(x => x.GetAllDeviceFamilyList())
-                                   .Returns(deviceFamilies);
+            var deviceFamiliesResponse = new GenericListResponse<DeviceFamily>(Status.Ok, objectToUpdate.CategoryManagement.DeviceFamilyToCategoryTree.Select(x => new DeviceFamily(x.Key, fixture.Create<string>())).ToList());
+            var domainDeviceManagerMock = new Mock<IDomainDeviceManager>();
+            var deviceFamilyRepositoryMock = new Mock<IDeviceFamilyRepository>();
+            deviceFamilyRepositoryMock
+                .Setup(x => x.List(1))
+                .Returns(deviceFamiliesResponse);
 
             var repositoryMock = new Mock<ICatalogPartnerRepository>();
             repositoryMock.Setup(x => x.SaveCatalogPartnerConfig(It.IsAny<int>(), It.IsAny<CatalogPartnerConfig>()))
-                          .Returns(true);
+                .Returns(true);
 
-            CatalogPartnerConfigManager manager = new CatalogPartnerConfigManager(repositoryMock.Object, layeredCacheMock.Object, categoryCacheMock.Object, deviceFamilyManagerMock.Object);
-            var updateStatus = manager.UpdateCatalogConfig(fixture.Create<int>(), objectToUpdate);
+            CatalogPartnerConfigManager manager = new CatalogPartnerConfigManager(repositoryMock.Object, layeredCacheMock.Object, categoryCacheMock.Object, domainDeviceManagerMock.Object, deviceFamilyRepositoryMock.Object);
+            var updateStatus = manager.UpdateCatalogConfig(1, objectToUpdate);
             Assert.That(updateStatus.Code, Is.EqualTo((int)eResponseStatus.OK));
         }
 
@@ -84,14 +88,17 @@ namespace ApiLogic.Tests.Partner
                                  .Returns(new GenericListResponse<CategoryVersion>(Status.Ok, treeList));
             }
 
-            var deviceFamilies = deviceFamilyIds.Select(x => new DeviceFamily(x, fixture.Create<string>())).ToList();
-            var deviceFamilyManagerMock = new Mock<IDeviceFamilyManager>();
-            deviceFamilyManagerMock.Setup(x => x.GetAllDeviceFamilyList()).Returns(deviceFamilies);
+            var deviceFamiliesResponse = new GenericListResponse<DeviceFamily>(Status.Ok, deviceFamilyIds.Select(x => new DeviceFamily(x, fixture.Create<string>())).ToList());
+            var domainDeviceManagerMock = new Mock<IDomainDeviceManager>();
+            var deviceFamilyRepositoryMock = new Mock<IDeviceFamilyRepository>();
+            deviceFamilyRepositoryMock
+                .Setup(x => x.List(1))
+                .Returns(deviceFamiliesResponse);
 
             var repositoryMock = new Mock<ICatalogPartnerRepository>();
 
-            CatalogPartnerConfigManager manager = new CatalogPartnerConfigManager(repositoryMock.Object, layeredCacheMock.Object, categoryCacheMock.Object, deviceFamilyManagerMock.Object);
-            var updateStatus = manager.UpdateCatalogConfig(fixture.Create<int>(), objectToUpdate);
+            CatalogPartnerConfigManager manager = new CatalogPartnerConfigManager(repositoryMock.Object, layeredCacheMock.Object, categoryCacheMock.Object, domainDeviceManagerMock.Object, deviceFamilyRepositoryMock.Object);
+            var updateStatus = manager.UpdateCatalogConfig(1, objectToUpdate);
 
             Assert.That(updateStatus.Code, Is.EqualTo((int)expectedError));
             repositoryMock.Verify(foo => foo.SaveCatalogPartnerConfig(It.IsAny<int>(), It.IsAny<CatalogPartnerConfig>()), Times.Never());
@@ -190,8 +197,9 @@ namespace ApiLogic.Tests.Partner
             var repositoryMock = Mock.Of<ICatalogPartnerRepository>();
             var layeredCacheMock = LayeredCacheHelper.GetLayeredCacheMock(catalogPartnerConfig, cacheWork, false);
             var categoryCacheMock = Mock.Of<ICategoryCache>();
-            var deviceFamilyManagerMock = Mock.Of<IDeviceFamilyManager>();
-            CatalogPartnerConfigManager manager = new CatalogPartnerConfigManager(repositoryMock, layeredCacheMock.Object, categoryCacheMock, deviceFamilyManagerMock);
+            var domainDeviceManagerMock = Mock.Of<IDomainDeviceManager>();
+            var deviceFamilyRepositoryMock = Mock.Of<IDeviceFamilyRepository>();
+            CatalogPartnerConfigManager manager = new CatalogPartnerConfigManager(repositoryMock, layeredCacheMock.Object, categoryCacheMock, domainDeviceManagerMock, deviceFamilyRepositoryMock);
             var response = manager.GetCatalogConfig(fixture.Create<int>());
             Assert.That(response.Status.Code, Is.EqualTo((int)expectedResponse));
         }
@@ -213,14 +221,15 @@ namespace ApiLogic.Tests.Partner
         {
             var layeredCacheMock = LayeredCacheHelper.GetLayeredCacheMock(catalogPartnerConfig, true, false);
 
-            var deviceFamilyManagerMock = new Mock<IDeviceFamilyManager>();
-            deviceFamilyManagerMock.Setup(x => x.GetDeviceFamilyIdByUdid(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>()))
+            var domainDeviceManagerMock = new Mock<IDomainDeviceManager>();
+            domainDeviceManagerMock.Setup(x => x.GetDeviceFamilyIdByUdid(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>()))
                                    .Returns(deviceFamilyId);
 
             var fixture = new Fixture();
             var repositoryMock = Mock.Of<ICatalogPartnerRepository>();
             var categoryCacheMock = Mock.Of<ICategoryCache>();
-            CatalogPartnerConfigManager manager = new CatalogPartnerConfigManager(repositoryMock, layeredCacheMock.Object, categoryCacheMock, deviceFamilyManagerMock.Object);
+            var deviceFamilyRepositoryMock = Mock.Of<IDeviceFamilyRepository>();
+            CatalogPartnerConfigManager manager = new CatalogPartnerConfigManager(repositoryMock, layeredCacheMock.Object, categoryCacheMock, domainDeviceManagerMock.Object, deviceFamilyRepositoryMock);
             var treeId = manager.GetCategoryVersionTreeIdByDeviceFamilyId(fixture.Create<ContextData>(), deviceFamily);
             Assert.That(treeId, Is.EqualTo(expectedTreeId));
         }

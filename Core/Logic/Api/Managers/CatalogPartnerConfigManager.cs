@@ -11,8 +11,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
+using ApiLogic.Repositories;
 
 namespace ApiLogic.Api.Managers
 {
@@ -31,7 +31,8 @@ namespace ApiLogic.Api.Managers
             new CatalogPartnerConfigManager(ApiDAL.Instance,
                                             LayeredCache.Instance,
                                             CategoryCache.Instance,
-                                            api.Instance),
+                                            api.Instance,
+                                            DeviceFamilyRepository.Instance),
             LazyThreadSafetyMode.PublicationOnly);
 
         public static CatalogPartnerConfigManager Instance { get { return lazy.Value; } }
@@ -39,17 +40,20 @@ namespace ApiLogic.Api.Managers
         private readonly ICatalogPartnerRepository _repository;
         private readonly ILayeredCache _layeredCache;
         private readonly ICategoryCache _categoryCache;
-        private readonly IDeviceFamilyManager _deviceFamilyManager;
+        private readonly IDomainDeviceManager _domainDeviceManager;
+        private readonly IDeviceFamilyRepository _deviceFamilyRepository;
 
         public CatalogPartnerConfigManager(ICatalogPartnerRepository repository,
-                                           ILayeredCache layeredCache,
-                                           ICategoryCache categoryCache,
-                                           IDeviceFamilyManager deviceFamilyManager)
+            ILayeredCache layeredCache,
+            ICategoryCache categoryCache,
+            IDomainDeviceManager domainDeviceManager,
+            IDeviceFamilyRepository deviceFamilyRepository)
         {
             _repository = repository;
             _layeredCache = layeredCache;
             _categoryCache = categoryCache;
-            _deviceFamilyManager = deviceFamilyManager;
+            _domainDeviceManager = domainDeviceManager;
+            _deviceFamilyRepository = deviceFamilyRepository;
         }
 
         public Status UpdateCatalogConfig(int groupId, CatalogPartnerConfig catalogPartnerConfig)
@@ -174,7 +178,7 @@ namespace ApiLogic.Api.Managers
             {
                 if (!deviceFamilyId.HasValue)
                 {
-                    deviceFamilyId = _deviceFamilyManager.GetDeviceFamilyIdByUdid((int)(contextData.DomainId ?? 0), contextData.GroupId, contextData.Udid);
+                    deviceFamilyId = _domainDeviceManager.GetDeviceFamilyIdByUdid((int)(contextData.DomainId ?? 0), contextData.GroupId, contextData.Udid);
                 }
                 
                 if (categoryConfig.DeviceFamilyToCategoryTree.ContainsKey(deviceFamilyId.Value))
@@ -207,20 +211,20 @@ namespace ApiLogic.Api.Managers
             if (categoryManagement.DeviceFamilyToCategoryTree != null)
             {
                 // validate deviceFamilyIds
-                var deviceFamilyList = _deviceFamilyManager.GetAllDeviceFamilyList();
-                if (deviceFamilyList == null || deviceFamilyList.Count == 0)
+                var deviceFamilyListResponse = _deviceFamilyRepository.List(groupId);
+                if (!deviceFamilyListResponse.IsOkStatusCode())
                 {
-                    validateStatus.Set(eResponseStatus.NonExistingDeviceFamilyIds, 
-                                       $"DeviceFamilyIds {string.Join(", ", categoryManagement.DeviceFamilyToCategoryTree.Keys)} do not exist");
+                    validateStatus.Set(eResponseStatus.NonExistingDeviceFamilyIds,
+                        $"DeviceFamilyIds {string.Join(", ", categoryManagement.DeviceFamilyToCategoryTree.Keys)} do not exist");
                     return validateStatus;
                 }
 
-                HashSet<int> deviceFamilies = deviceFamilyList.Select(x => x.Id).ToHashSet();
+                HashSet<int> deviceFamilies = deviceFamilyListResponse.Objects.Select(x => x.Id).ToHashSet();
                 var notExistDeviceFamilies = categoryManagement.DeviceFamilyToCategoryTree.Keys.Where(x => !deviceFamilies.Contains(x)).ToList();
                 if (notExistDeviceFamilies.Count > 0)
                 {
                     validateStatus.Set(eResponseStatus.NonExistingDeviceFamilyIds,
-                                       $"DeviceFamilyIds {string.Join(", ", notExistDeviceFamilies)} do not exist");
+                        $"DeviceFamilyIds {string.Join(", ", notExistDeviceFamilies)} do not exist");
                     return validateStatus;
                 }
 

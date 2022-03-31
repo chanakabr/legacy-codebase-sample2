@@ -1,9 +1,11 @@
 using AdapterControllers;
 using ApiLogic.ConditionalAccess.Modules;
+using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Billing;
 using ApiObjects.ConditionalAccess;
 using ApiObjects.Epg;
+using ApiObjects.Pricing;
 using ApiObjects.Response;
 using ApiObjects.Rules;
 using Core.Api.Managers;
@@ -16,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
-using APILogic.Api.Managers;
 
 namespace Core.ConditionalAccess
 {
@@ -256,25 +257,25 @@ namespace Core.ConditionalAccess
 
             SubscriptionPurchase subscriptionPurchase = new SubscriptionPurchase(this.m_nGroupID)
             {
-                 billingTransactionId = lBillingTransactionID,
-                 country = sCountryCd,
-                 currency = sCurrency,
-                 customData = sCustomData,
-                 deviceName = sDeviceName,
-                 endDate = dtSubEndDate,
-                 entitlementDate = dtUtcNow,
-                 houseHoldId = domianID,
-                 isEntitledToPreviewModule = bIsEntitledToPreviewModule,
-                 isRecurring = bIsRecurring,
-                 languageCode = sLanguageCode,
-                 maxNumberOfViews = maxNumberOfViews,
-                 previewModuleId = lPreviewModuleID,
-                 price = price,
-                 productId = sSubscriptionCode,
-                 siteGuid = sSiteGUID,
-                 startDate = dtUtcNow,
-                 usageModuleExists = bUsageModuleExists,
-                 viewLifeCycle = viewLifeCycle
+                billingTransactionId = lBillingTransactionID,
+                country = sCountryCd,
+                currency = sCurrency,
+                customData = sCustomData,
+                deviceName = sDeviceName,
+                endDate = dtSubEndDate,
+                entitlementDate = dtUtcNow,
+                houseHoldId = domianID,
+                isEntitledToPreviewModule = bIsEntitledToPreviewModule,
+                isRecurring = bIsRecurring,
+                languageCode = sLanguageCode,
+                maxNumberOfViews = maxNumberOfViews,
+                previewModuleId = lPreviewModuleID,
+                price = price,
+                productId = sSubscriptionCode,
+                siteGuid = sSiteGUID,
+                startDate = dtUtcNow,
+                usageModuleExists = bUsageModuleExists,
+                viewLifeCycle = viewLifeCycle
             };
 
             bool insertResult = subscriptionPurchase.Insert();
@@ -415,7 +416,7 @@ namespace Core.ConditionalAccess
         protected internal override bool HandleChargeUserForMediaFileBillingSuccess(string siteGuid, int householdId,
             Subscription relevantSub, double price, string currency, string couponCode, string userIP,
             string countryCode, string languageCode, string deviceName, BillingResponse br, string customData,
-            PPVModule thePPVModule, long mediaFileId, ref long billingTransactionId, ref long purchaseId, bool isDummy, 
+            PPVModule thePPVModule, long mediaFileId, ref long billingTransactionId, ref long purchaseId, bool isDummy,
             string billingGuid = null, DateTime? startDate = null, DateTime? endDate = null)
         {
             bool result = true;
@@ -438,7 +439,7 @@ namespace Core.ConditionalAccess
             }
 
             int maxNumOfViews = bIsPPVUsageModuleExists ? thePPVModule.m_oUsageModule.m_nMaxNumberOfViews : 0;
-            
+
             PpvPurchase ppvPurchase = new PpvPurchase(this.m_nGroupID)
             {
                 billingGuid = billingGuid,
@@ -516,11 +517,11 @@ namespace Core.ConditionalAccess
          * Answer: In order to later on unify the NPVR Licensed Link calculation with the EPG Licensed Link
          */
         public override LicensedLinkResponse GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP,
-                                                        string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode, 
+                                                        string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode,
                                                         PlayContextType contextType, out string drmData)
         {
             LicensedLinkResponse response = new LicensedLinkResponse();
-            
+
             // validate user state (suspended or not)
             int domainId = 0;
             drmData = string.Empty;
@@ -601,9 +602,9 @@ namespace Core.ConditionalAccess
                     response.status = eResponseStatus.NetworkRuleBlock.ToString();
                     return response;
                 }
-                
-                LicensedLinkResponse licensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, 
-                                                                             sCouponCode, eformat == eEPGFormatType.NPVR ? eObjectType.Recording : eObjectType.EPG, 
+
+                LicensedLinkResponse licensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME,
+                                                                             sCouponCode, eformat == eEPGFormatType.NPVR ? eObjectType.Recording : eObjectType.EPG,
                                                                              ref fileMainStreamingCoID, ref mediaId, ref fileType, out drmId, ref fileCoGuid, programId, npvrId);
 
                 //GetLicensedLink return empty link no need to continue
@@ -631,7 +632,7 @@ namespace Core.ConditionalAccess
                     {
                         response.Status.Code = (int)eResponseStatus.OK;
                         response.status = eLicensedLinkStatus.OK.ToString();
-                        response.mainUrl = npvrLicensedLink;                        
+                        response.mainUrl = npvrLicensedLink;
                         return response;
                     }
                     else
@@ -766,7 +767,7 @@ namespace Core.ConditionalAccess
 
         protected internal override bool HandlePPVBillingSuccess(ref TransactionResponse response, string siteguid, long houseHoldId, Subscription relevantSub, double price, string currency,
                                                         string coupon, string userIp, string country, string deviceName, long billingTransactionId, string customData,
-                                                        PPVModule thePPVModule, int productId, int contentId, string billingGuid, DateTime entitlementDate, 
+                                                        PPVModule thePPVModule, int productId, int contentId, string billingGuid, DateTime entitlementDate,
                                                         ref long purchaseId, DateTime? endDate = null, bool isPending = false)
         {
             purchaseId = 0;
@@ -788,13 +789,13 @@ namespace Core.ConditionalAccess
                     {
                         endDate = Utils.GetEndDateTime(startDate, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle, true, true);
                     }
-                }                
+                }
 
                 if (response != null && response.StartDateSeconds > 0)
                 {
                     // received start date form transaction - calculate end date accordingly
                     startDate = TVinciShared.DateUtils.UtcUnixTimestampSecondsToDateTime(response.StartDateSeconds);
-                }               
+                }
 
                 if (response != null)
                 {
@@ -830,7 +831,7 @@ namespace Core.ConditionalAccess
                 };
                 ppvPurchase.Insert();
                 purchaseId = ppvPurchase.purchaseId;
-                               
+
                 if (purchaseId < 1)
                 {
                     // entitlement failed
@@ -855,7 +856,7 @@ namespace Core.ConditionalAccess
         }
 
         protected internal override bool HandleSubscriptionBillingSuccess(
-            ref TransactionResponse response, string siteguid, long houseHoldId, Subscription subscription, double price, 
+            ref TransactionResponse response, string siteguid, long houseHoldId, Subscription subscription, double price,
             string currency, string coupon, string userIP,
             string country, string deviceName, long billingTransactionId, string customData, int productId, string billingGuid,
             bool isEntitledToPreviewModule, bool isRecurring, DateTime? entitlementDate, ref long purchaseId, ref DateTime? subscriptionEndDate,
@@ -943,7 +944,7 @@ namespace Core.ConditionalAccess
                     processPurchasesId = processPurchasesId,
                     IsPending = isPending
                 };
-                
+
                 subscriptionPurchase.Insert();
                 purchaseId = subscriptionPurchase.purchaseId;
 
@@ -992,7 +993,7 @@ namespace Core.ConditionalAccess
                 if (endDate.HasValue)
                 {
                     collectionEndDate = endDate.Value;
-                    if(response != null)
+                    if (response != null)
                     {
                         response.EndDateSeconds = (long)collectionEndDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
                     }
@@ -1013,7 +1014,7 @@ namespace Core.ConditionalAccess
                             response.EndDateSeconds = (long)collectionEndDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
                         }
                     }
-                }              
+                }
 
                 // update response object
                 if (response != null)
@@ -1060,6 +1061,85 @@ namespace Core.ConditionalAccess
             catch (Exception ex)
             {
                 log.Error("fail HandleCollectionBillingSuccess ", ex);
+            }
+            return purchaseID > 0;
+        }
+
+        protected internal override bool HandlePagoBillingSuccess(ref TransactionResponse response, long userId, long householdId, ProgramAssetGroupOffer pago, 
+            double price, string currency, string userIP, string country, string deviceName, long billingTransactionId, string customData, 
+            int productId, string billingGuid, bool isEntitledToPreviewModule, DateTime entitlementDate, ref long purchaseID, 
+            DateTime? endDate = null, bool isPending = false)
+        {
+            purchaseID = 0;
+
+            try
+            {
+                DateTime pagoEndDate;
+
+                if (endDate.HasValue)
+                {
+                    pagoEndDate = endDate.Value;
+                    if (response != null)
+                    {
+                        response.EndDateSeconds = (long)pagoEndDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                    }
+                }
+                else
+                {
+                    // get pago expiry date
+                    pagoEndDate = pago.ExpiryDate.Value;
+                    if (response != null)
+                    {
+                        if (response.EndDateSeconds > 0)
+                        {
+                            pagoEndDate = TVinciShared.DateUtils.UtcUnixTimestampSecondsToDateTime(response.EndDateSeconds);
+                        }
+                        else
+                        {
+                            response.EndDateSeconds = (long)pagoEndDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                        }
+                    }
+                }
+
+                // update response object
+                if (response != null)
+                {
+                    response.StartDateSeconds = (long)entitlementDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                }
+
+                // grant entitlement 
+                var pagoPurchase = new ProgramAssetGroupOfferPurchase(m_nGroupID)
+                {
+                    ProductId = productId,
+                    siteGuid = userId.ToString(),
+                    price = price,
+                    currency = currency,
+                    customData = customData,
+                    country = country,
+                    deviceName = deviceName,
+                    billingTransactionId = billingTransactionId,
+                    startDate = entitlementDate,
+                    endDate = pagoEndDate, 
+                    CreateAndUpdateDate = entitlementDate,
+                    houseHoldId = householdId,
+                    billingGuid = billingGuid,
+                    IsPending = isPending
+                };
+
+                pagoPurchase.Insert();
+                purchaseID = pagoPurchase.purchaseId;
+
+                if (purchaseID < 1)
+                {
+                    // entitlement failed
+                    log.Error($"Failed to insert pago purchase. Billing transaction ID: {billingTransactionId} , userId: {userId} , Product ID: {productId}");
+                }
+
+                ApiDAL.Update_PurchaseIDInBillingTransactions(billingTransactionId, purchaseID);
+            }
+            catch (Exception ex)
+            {
+                log.Error("fail HandlePagoBillingSuccess ", ex);
             }
             return purchaseID > 0;
         }

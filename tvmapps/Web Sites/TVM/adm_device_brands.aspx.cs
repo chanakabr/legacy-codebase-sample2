@@ -262,6 +262,12 @@ public partial class adm_device_brands : System.Web.UI.Page
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery += "select * from lu_DeviceBrands with (nolock) where ";
         selectQuery += ODBCWrapper.Parameter.NEW_PARAM("Device_Family_ID", "=", familyID);
+        selectQuery += "and (";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("Group_Id", "=", nLogedInGroupID);
+        selectQuery += " or ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("Group_Id", "=", 0);
+        selectQuery += ") and ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("Status", "=", 1);
         Int32 nCount = 0;
         if (selectQuery.Execute("query", true) != null)
         {

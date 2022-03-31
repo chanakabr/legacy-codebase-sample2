@@ -3,6 +3,7 @@ using ApiLogic.Api.Validators;
 using ApiLogic.Catalog.CatalogManagement.Repositories;
 using ApiLogic.EPG;
 using ApiLogic.Notification;
+using ApiLogic.Repositories;
 using CachingProvider.LayeredCache;
 using Core.Catalog.Cache;
 using Core.Catalog.CatalogManagement;
@@ -41,6 +42,7 @@ namespace EpgNotificationHandler.Infrastructure
                 .AddSingleton<IAssetStructMetaRepository, AssetStructMetaRepository>()
                 .AddSingleton<IGroupSettingsManager, GroupSettingsManager>()
                 .AddSingleton<IGroupManager, GroupManager>()
-                .AddSingleton<IIotNotificationService, IotNotificationService>();
+                .AddSingleton<IIotNotificationService, IotNotificationService>()
+                .AddSingleton(DeviceFamilyRepository.Instance);
     }
 }

@@ -342,6 +342,11 @@ namespace Core.Billing
                         result = APILogic.PaymentGWAdapter.eTransactionType.Collection;
                         break;
                     }
+                case ApiObjects.eTransactionType.ProgramAssetGroupOffer:
+                    {
+                        result = APILogic.PaymentGWAdapter.eTransactionType.PAGO;
+                        break;
+                    }
                 default:
                     {
                         break;

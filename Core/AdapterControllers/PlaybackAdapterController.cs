@@ -345,6 +345,8 @@ namespace AdapterControllers
                     return eTransactionType.PPV;
                 case TransactionType.Subscription:
                     return eTransactionType.Subscription;
+                case TransactionType.PAGO:
+                    return eTransactionType.ProgramAssetGroupOffer;
                 default:
                     throw new KalturaException($"Unknown Transaction Type: {businessModuleType}", (int)eResponseStatus.Error);
             }
@@ -364,6 +366,8 @@ namespace AdapterControllers
                     return TransactionType.PPV;
                 case eTransactionType.Subscription:
                     return TransactionType.Subscription;
+                case eTransactionType.ProgramAssetGroupOffer:
+                    return TransactionType.PAGO;
                 default:
                     throw new KalturaException($"Unknown Transaction Type: {businessModuleType}", (int)eResponseStatus.Error);
             }
