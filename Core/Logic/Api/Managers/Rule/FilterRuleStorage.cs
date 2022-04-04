@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using ApiLogic.Users.Managers;
 using ApiObjects;
 using ApiObjects.Rules;
 using ApiObjects.Rules.FilterActions;
@@ -18,12 +19,12 @@ namespace ApiLogic.Api.Managers.Rule
     
     public class FilterRuleCondition
     {
-        public IReadOnlyCollection<long> UserSessionProfileIds { get; }
+        public string SessionCharacteristicsId { get; }
         public int GroupId { get; }
 
-        public FilterRuleCondition(IReadOnlyCollection<long> userSessionProfileIds, int groupId)
+        public FilterRuleCondition(int groupId, string sessionCharacteristicsId)
         {
-            UserSessionProfileIds = userSessionProfileIds;
+            SessionCharacteristicsId = sessionCharacteristicsId;
             GroupId = groupId;
         }
     }
@@ -31,16 +32,18 @@ namespace ApiLogic.Api.Managers.Rule
     public class FilterRuleStorage : IFilterRuleStorage
     {
         private static readonly IReadOnlyCollection<AssetRuleAction> Empty = new List<AssetRuleAction>(0);
-        private static readonly Lazy<FilterRuleStorage> Lazy =
-            new Lazy<FilterRuleStorage>(() => new FilterRuleStorage(AssetRuleManager.Instance), 
+        private static readonly Lazy<FilterRuleStorage> Lazy = new Lazy<FilterRuleStorage>(
+            () => new FilterRuleStorage(AssetRuleManager.Instance, SessionCharacteristicManager.Instance),
             LazyThreadSafetyMode.PublicationOnly);
         public static IFilterRuleStorage Instance => Lazy.Value;
 
         private readonly IAssetRuleManager _assetRuleManager;
+        private readonly ISessionCharacteristicManager _sessionCharacteristicManager;
 
-        public FilterRuleStorage(IAssetRuleManager assetRuleManager) 
+        public FilterRuleStorage(IAssetRuleManager assetRuleManager, ISessionCharacteristicManager sessionCharacteristicManager)
         {
             _assetRuleManager = assetRuleManager;
+            _sessionCharacteristicManager = sessionCharacteristicManager;
         }
         
         public IReadOnlyCollection<FilterAssetByKsql> GetFilterAssetRules(FilterRuleCondition condition) =>
@@ -52,18 +55,33 @@ namespace ApiLogic.Api.Managers.Rule
         
         private IEnumerable<AssetRuleAction> GetRulesActions(FilterRuleCondition condition)
         {
-            if (condition.UserSessionProfileIds == null || condition.UserSessionProfileIds.Count == 0) return Empty;
-                
-            var assetRules = _assetRuleManager.GetAssetRules(RuleConditionType.UserSessionProfile, condition.GroupId);
+            var assetRules = _assetRuleManager
+                .GetAssetRules(RuleConditionType.UserSessionProfile, condition.GroupId)
+                .GetOrThrow();
+            if (assetRules.Count == 0)
+            {
+                return Empty;
+            }
+
+            var sessionCharacteristics = _sessionCharacteristicManager.GetFromCache(condition.GroupId, condition.SessionCharacteristicsId);
+            if (sessionCharacteristics == null)
+            {
+                return Empty;
+            }
+
             return assetRules
-                .GetOrThrow()
-                .Where(ar => MatchConditions(ar, condition))
+                .Where(ar => MatchConditions(ar, sessionCharacteristics.UserSessionProfileIds))
                 .SelectMany(ar => ar.Actions);
         }
 
-        private static bool MatchConditions(AssetRule assetRule, FilterRuleCondition condition)
+        private static bool MatchConditions(AssetRule assetRule, IReadOnlyCollection<long> userSessionProfileIds)
         {
-            var scope = new UserSessionProfileConditionScope { RuleId = assetRule.Id, UserSessionProfileIds = condition.UserSessionProfileIds };
+            var scope = new UserSessionProfileConditionScope
+            {
+                RuleId = assetRule.Id,
+                UserSessionProfileIds = userSessionProfileIds
+            };
+
             var match = scope.Evaluate(assetRule.Conditions.Single());
             return match;
         }

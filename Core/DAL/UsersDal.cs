@@ -3,7 +3,6 @@ using ApiObjects.Base;
 using ApiObjects.CanaryDeployment.Microservices;
 using ApiObjects.SSOAdapter;
 using ApiObjects.User;
-using ApiObjects.User.SessionProfile;
 using AuthenticationGrpcClientWrapper;
 using CanaryDeploymentManager;
 using Phx.Lib.Appconfig;

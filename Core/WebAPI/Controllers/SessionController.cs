@@ -1,21 +1,14 @@
-﻿using ApiObjects.Response;
-using System;
-using System.Collections.Generic;
-using ApiLogic.Users.Managers;
-using ApiObjects.User.SessionProfile;
-using AutoMapper;
+﻿using System;
+using ApiObjects.Response;
+using TVinciShared;
 using WebAPI.ClientManagers;
+using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
-using WebAPI.ClientManagers.Client;
-using TVinciShared;
-using WebAPI.Models.General;
-using ApiLogic.Users;
-using Core.Users;
 
 namespace WebAPI.Controllers
 {
@@ -149,71 +142,6 @@ namespace WebAPI.Controllers
             string userId = ks.UserId;
 
             return AuthorizationManager.RevokeSessions(groupId, userId);
-        }
-
-        /// <summary>
-        /// Create session characteristic
-        /// </summary>
-        /// <param name="userId">user identifier</param>
-        /// <param name="householdId">household identifier</param>
-        /// <param name="udid">device UDID</param>
-        /// <param name="regionId">region identifier</param>
-        /// <param name="sessionCharacteristicParams">session characteristic dynamic params</param>
-        /// <param name="expiration">relative expiration(TTL) in seconds, should be equal or greater than KS expiration</param>
-        /// <returns>session characteristic entity</returns>
-        [Action("createSessionCharacteristic")]
-        [ApiAuthorize]
-        [ValidationException(SchemeValidationType.ACTION_NAME)]
-        static public KalturaSessionCharacteristic CreateSessionCharacteristic(
-            string userId,
-            long householdId,
-            string udid,
-            long expiration,
-            int? regionId = null,
-            SerializableDictionary<string, KalturaStringValueArray> sessionCharacteristicParams = null)
-        {
-            // could be validation here, but it should be used by Auth MS only...
-            
-            var groupId = KS.GetFromRequest().GroupId;
-            var region = regionId ?? KSUtils.ExtractKSPayload(KS.GetFromRequest()).RegionId;
-            var userSegments = Core.Api.Module.GetUserAndHouseholdSegmentIds(groupId, userId, householdId);
-            var userRoles = ClientsManager.UsersClient().GetUserRoleIds(groupId, userId);
-            var sessionCharacteristics = Mapper.Map<Dictionary<string, List<string>>>(sessionCharacteristicParams) 
-                                         ?? new Dictionary<string, List<string>>(0);
-
-            var userSessionProfileIds = GetUserSessionProfileIds(groupId, udid, userSegments, sessionCharacteristics);
-
-            var sessionCharacteristicKey = SessionCharacteristicManager.Instance.GetOrAdd(groupId,
-                new SessionCharacteristic(region, userSegments, userRoles, userSessionProfileIds), (uint)expiration);
-            return new KalturaSessionCharacteristic
-            {
-                Id = sessionCharacteristicKey,
-                RegionId = region,
-                UserSegmentsIds = string.Join(",", userSegments),
-                UserRolesIds = string.Join(",", userRoles),
-                UserSessionProfilesIds = string.Join(",", userSessionProfileIds)
-            };
-        }
-
-        private static List<long> GetUserSessionProfileIds(int groupId, string udid, List<long> userSegments, Dictionary<string, List<string>> sessionCharacteristics)
-        {
-            var device = new Device(groupId); // TODO could be from cache
-            if (!device.Initialize(udid) || device.m_state != DeviceState.Activated) return new List<long>(0); // TODO is it correct?
-
-            var userScope = new UserSessionConditionScope
-            {
-                BrandId = device.m_deviceBrandID,
-                FamilyId = device.m_deviceFamilyID,
-                SegmentIds = userSegments,
-                FilterBySegments = true,
-                ManufacturerId = device.ManufacturerId,
-                Model = device.Model,
-                SessionCharacteristics = sessionCharacteristics,
-                DeviceDynamicData = device.DynamicData,
-                RuleId = 0 // not used
-            };
-
-            return UserSessionProfileManager.Instance.GetMatchedUserSessionProfiles(groupId, userScope);
         }
     }
 }

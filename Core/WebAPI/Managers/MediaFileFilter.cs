@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using ApiLogic.Api.Managers.Rule;
-using ApiLogic.Users.Managers;
 using ApiObjects;
 using ApiObjects.Rules;
 using AutoMapper;
@@ -18,30 +17,27 @@ namespace WebAPI.Managers
     public class MediaFileFilter : IMediaFileFilter
     {
         private static readonly Lazy<MediaFileFilter> Lazy = new Lazy<MediaFileFilter>(
-            () => new MediaFileFilter(FilterFileRule.Instance, FilterRuleStorage.Instance, FileManager.Instance, SessionCharacteristicManager.Instance),
+            () => new MediaFileFilter(FilterFileRule.Instance, FilterRuleStorage.Instance, FileManager.Instance),
             LazyThreadSafetyMode.PublicationOnly);
 
         private readonly IFilterFileRule _filterFileRule;
         private readonly IFilterRuleStorage _filterRuleStorage;
         private readonly IMediaFileTypeManager _mediaFileTypeManager;
-        private readonly ISessionCharacteristicManager _sessionCharacteristicManager;
 
         public static IMediaFileFilter Instance => Lazy.Value;
 
-        public MediaFileFilter(IFilterFileRule filterFileRule, IFilterRuleStorage filterRuleStorage, IMediaFileTypeManager mediaFileTypeManager, ISessionCharacteristicManager sessionCharacteristicManager)
+        public MediaFileFilter(IFilterFileRule filterFileRule, IFilterRuleStorage filterRuleStorage, IMediaFileTypeManager mediaFileTypeManager)
         {
             _filterFileRule = filterFileRule;
             _filterRuleStorage = filterRuleStorage;
             _mediaFileTypeManager = mediaFileTypeManager;
-            _sessionCharacteristicManager = sessionCharacteristicManager;
         }
 
         public void FilterAssetFiles(KalturaAsset asset, int groupId, string sessionCharacteristicKey)
         {
             var fileTypes = new FileManager.FileTypes(groupId, _mediaFileTypeManager);
 
-            var sessionCharacteristic = _sessionCharacteristicManager.GetFromCache(groupId, sessionCharacteristicKey);
-            var filterRuleCondition = new FilterRuleCondition(sessionCharacteristic?.UserSessionProfileIds, groupId);
+            var filterRuleCondition = new FilterRuleCondition(groupId, sessionCharacteristicKey);
             var discoveryRules = _filterRuleStorage.GetFilterFileRulesForDiscovery(filterRuleCondition);
             var playbackRules = _filterRuleStorage.GetFilterFileRulesForPlayback(filterRuleCondition);
 
@@ -52,8 +48,7 @@ namespace WebAPI.Managers
         {
             var fileTypes = new FileManager.FileTypes(groupId, _mediaFileTypeManager);
 
-            var sessionCharacteristic = _sessionCharacteristicManager.GetFromCache(groupId, sessionCharacteristicKey);
-            var filterRuleCondition = new FilterRuleCondition(sessionCharacteristic?.UserSessionProfileIds, groupId);
+            var filterRuleCondition = new FilterRuleCondition(groupId, sessionCharacteristicKey);
             var discoveryRules = _filterRuleStorage.GetFilterFileRulesForDiscovery(filterRuleCondition);
             var playbackRules = _filterRuleStorage.GetFilterFileRulesForPlayback(filterRuleCondition);
 
@@ -67,8 +62,7 @@ namespace WebAPI.Managers
         {
             var fileTypes = new FileManager.FileTypes(groupId, _mediaFileTypeManager);
 
-            var sessionCharacteristic = _sessionCharacteristicManager.GetFromCache(groupId, sessionCharacteristicKey);
-            var filterRuleCondition = new FilterRuleCondition(sessionCharacteristic?.UserSessionProfileIds, groupId);
+            var filterRuleCondition = new FilterRuleCondition(groupId, sessionCharacteristicKey);
             var playbackRules = _filterRuleStorage.GetFilterFileRulesForPlayback(filterRuleCondition);
 
             return FilterAssetFilesForUser(mediaFiles, playbackRules, ToEAssetType(assetType), fileTypes).ToList();

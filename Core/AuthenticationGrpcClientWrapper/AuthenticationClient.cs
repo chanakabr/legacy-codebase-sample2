@@ -11,7 +11,7 @@ using OTT.Service.Authentication;
 
 namespace AuthenticationGrpcClientWrapper
 {
-    public class AuthenticationClient
+    public class AuthenticationClient : IAuthenticationClient
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private readonly Authentication.AuthenticationClient _Client;
@@ -23,7 +23,7 @@ namespace AuthenticationGrpcClientWrapper
         /// Construct GRPC client for authentication service
         /// In case service address is not configure returns null
         /// </summary>
-        public static AuthenticationClient GetClientFromTCM()
+        public static IAuthenticationClient GetClientFromTCM()
         {
             if (_Instance == null)
             {
@@ -377,6 +377,29 @@ namespace AuthenticationGrpcClientWrapper
                     });
 
                     return grpcResponse?.UDID;
+                }
+            }
+            catch (Exception e)
+            {
+                _Logger.Error("Error while calling GetDeviceLoginPin Auth GRPC service", e);
+                return null;
+            }
+        }
+
+        public GetSessionCharacteristicsResponse GetSessionCharacteristics(int partnerId, string sessionCharacteristicsId)
+        {
+            try
+            {
+                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString()))
+                {
+                    mon.Table = $"GetSessionCharacteristics > partnerId:{partnerId}";
+                    var grpcResponse = _Client.GetSessionCharacteristics(new GetSessionCharacteristicsRequest
+                    {
+                        PartnerId = partnerId,
+                        Id = sessionCharacteristicsId,
+                    });
+
+                    return grpcResponse;
                 }
             }
             catch (Exception e)

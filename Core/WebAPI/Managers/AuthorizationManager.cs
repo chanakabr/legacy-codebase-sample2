@@ -7,7 +7,6 @@ using ApiObjects.CanaryDeployment.Microservices;
 using ApiObjects.DataMigrationEvents;
 using ApiObjects.Response;
 using ApiObjects.User;
-using ApiObjects.User.SessionProfile;
 using AuthenticationGrpcClientWrapper;
 using CachingProvider.LayeredCache;
 using CanaryDeploymentManager;

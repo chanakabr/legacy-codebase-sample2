@@ -9,7 +9,6 @@ using ApiObjects.Rules;
 using ApiObjects.Rules.FilterActions;
 using ApiObjects.SearchObjects;
 using ApiObjects.TimeShiftedTv;
-using ApiObjects.User.SessionProfile;
 using AutoMapper.Configuration;
 using Core.Api.Modules;
 using System;
@@ -2229,52 +2228,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaStringValueArray, List<string>>().ConvertUsing(v => v.Objects.Select(_ => _.value).ToList());
             cfg.CreateMap<List<string>, KalturaStringValueArray>().ConvertUsing(v => new KalturaStringValueArray
                 { Objects = v.Select(_ => new KalturaStringValue { value = _ }).ToList() });
-
-            cfg.CreateMap<KalturaUserSessionProfile, UserSessionProfile>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Expression, opt => opt.MapFrom(src => src.Expression));
-
-            cfg.CreateMap<UserSessionProfile, KalturaUserSessionProfile>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Expression, opt => opt.MapFrom(src => src.Expression));
-
-            cfg.CreateMap<KalturaUserSessionProfileExpression, IUserSessionProfileExpression>()
-                .Include(typeof(KalturaExpressionAnd), typeof(ExpressionAnd))
-                .Include(typeof(KalturaExpressionOr), typeof(ExpressionOr))
-                .Include(typeof(KalturaExpressionNot), typeof(ExpressionNot))
-                .Include(typeof(KalturaUserSessionCondition), typeof(UserSessionCondition));
-
-            cfg.CreateMap<IUserSessionProfileExpression, KalturaUserSessionProfileExpression>()
-                .Include(typeof(ExpressionAnd), typeof(KalturaExpressionAnd))
-                .Include(typeof(ExpressionOr), typeof(KalturaExpressionOr))
-                .Include(typeof(ExpressionNot), typeof(KalturaExpressionNot))
-                .Include(typeof(UserSessionCondition), typeof(KalturaUserSessionCondition));
-
-            cfg.CreateMap<KalturaExpressionAnd, ExpressionAnd>()
-                .ForMember(dest => dest.Expressions, opt => opt.MapFrom(src => src.Expressions));
-
-            cfg.CreateMap<ExpressionAnd, KalturaExpressionAnd>()
-                .ForMember(dest => dest.Expressions, opt => opt.MapFrom(src => src.Expressions));
-
-            cfg.CreateMap<KalturaExpressionOr, ExpressionOr>()
-                .ForMember(dest => dest.Expressions, opt => opt.MapFrom(src => src.Expressions));
-
-            cfg.CreateMap<ExpressionOr, KalturaExpressionOr>()
-                .ForMember(dest => dest.Expressions, opt => opt.MapFrom(src => src.Expressions));
-
-            cfg.CreateMap<KalturaExpressionNot, ExpressionNot>()
-                .ForMember(dest => dest.Expression, opt => opt.MapFrom(src => src.Expression));
-
-            cfg.CreateMap<ExpressionNot, KalturaExpressionNot>()
-                .ForMember(dest => dest.Expression, opt => opt.MapFrom(src => src.Expression));
-
-            cfg.CreateMap<KalturaUserSessionCondition, UserSessionCondition>()
-               .ForMember(dest => dest.Condition, opt => opt.MapFrom(src => src.Condition));
-
-            cfg.CreateMap<UserSessionCondition, KalturaUserSessionCondition>()
-                .ForMember(dest => dest.Condition, opt => opt.MapFrom(src => src.Condition));
         }
 
         private static string GetStreamerTypes(List<StreamerType> types)

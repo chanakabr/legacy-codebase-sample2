@@ -12600,10 +12600,6 @@ namespace WebAPI.Reflection
                 case "session":
                     switch(action)
                     {
-                        case "createsessioncharacteristic":
-                            RolesManager.ValidateActionPermitted("session", "createSessionCharacteristic", WebAPI.Managers.eKSValidation.All);
-                            return SessionController.CreateSessionCharacteristic((string) methodParams[0], (long) methodParams[1], (string) methodParams[2], (long) methodParams[3], (Nullable<int>) methodParams[4], (SerializableDictionary<string, KalturaStringValueArray>) methodParams[5]);
-                            
                         case "get":
                             if(isOldVersion)
                             {
@@ -21938,40 +21934,6 @@ namespace WebAPI.Reflection
                 case "session":
                     switch(action)
                     {
-                        case "createsessioncharacteristic":
-                            ret.Add("userId", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(string),
-                            });
-                            ret.Add("householdId", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
-                            });
-                            ret.Add("udid", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(string),
-                            });
-                            ret.Add("expiration", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
-                            });
-                            ret.Add("regionId", new MethodParam(){
-                                NewName = newParamName,
-                                IsOptional = true,
-                                DefaultValue = null,
-                                IsNullable = true,
-                                Type = typeof(Int32),
-                            });
-                            ret.Add("sessionCharacteristicParams", new MethodParam(){
-                                NewName = newParamName,
-                                IsOptional = true,
-                                DefaultValue = null,
-                                IsMap = true,
-                                GenericType = typeof(KalturaStringValueArray),
-                                Type = typeof(SerializableDictionary<string, KalturaStringValueArray>),
-                            });
-                            return ret;
-                            
                         case "get":
                             ret.Add("session", new MethodParam(){
                                 NewName = newParamName,
