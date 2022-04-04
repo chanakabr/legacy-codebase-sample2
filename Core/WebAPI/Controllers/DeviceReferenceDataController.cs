@@ -9,6 +9,7 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
+using System.Collections.Generic;
 
 namespace WebAPI.Controllers
 {
@@ -39,7 +40,7 @@ namespace WebAPI.Controllers
 
         private static KalturaDeviceManufacturerInformation AddDeviceManufacturerInformation(ContextData contextData, KalturaDeviceManufacturerInformation objectToAdd)
         {
-            Func<DeviceManufacturerInformation, GenericResponse<DeviceManufacturerInformation>> addFunc = 
+            Func<DeviceManufacturerInformation, GenericResponse<DeviceManufacturerInformation>> addFunc =
                 (DeviceManufacturerInformation coreObject) => DeviceReferenceDataManager.Instance.Add(contextData, coreObject);
             var result = ClientUtils.GetResponseFromWS(objectToAdd, addFunc);
             return result;
@@ -73,7 +74,7 @@ namespace WebAPI.Controllers
 
         private static KalturaDeviceManufacturerInformation UpdateDeviceManufacturerInformation(ContextData contextData, KalturaDeviceManufacturerInformation objectToUpdate)
         {
-            Func<DeviceManufacturerInformation, GenericResponse<DeviceManufacturerInformation>> updateFance = 
+            Func<DeviceManufacturerInformation, GenericResponse<DeviceManufacturerInformation>> updateFance =
                 (DeviceManufacturerInformation coreObject) => DeviceReferenceDataManager.Instance.Update(contextData, coreObject);
             var result = ClientUtils.GetResponseFromWS(objectToUpdate, updateFance);
             return result;
@@ -116,7 +117,7 @@ namespace WebAPI.Controllers
             KalturaGenericListResponse<KalturaDeviceReferenceData> result;
             switch (filter)
             {
-                case KalturaDeviceManufacturersReferenceDataFilter f: result = ListByDeviceManufacturersReferenceDataFilter(contextData, corePager, f); break;    
+                case KalturaDeviceManufacturersReferenceDataFilter f: result = ListByDeviceManufacturersReferenceDataFilter(contextData, corePager, f); break;
                 default: throw new Exceptions.ClientException((int)eResponseStatus.NotAllowed, "Filter error");
             }
 
@@ -136,12 +137,15 @@ namespace WebAPI.Controllers
             Func<GenericListResponse<DeviceReferenceData>> listFunc = () =>
                 DeviceReferenceDataManager.Instance.ListByManufacturer(contextData, coreFilter, pager);
 
-            KalturaGenericListResponse<KalturaDeviceReferenceData> triggerCampaignResponse =
+            KalturaGenericListResponse<KalturaDeviceReferenceData> deviceReferenceDataResponse =
                ClientUtils.GetResponseListFromWS<KalturaDeviceReferenceData, DeviceReferenceData>(listFunc);
 
-            KalturaGenericListResponse<KalturaDeviceReferenceData> response = new KalturaGenericListResponse<KalturaDeviceReferenceData>();
-            response.Objects.AddRange(triggerCampaignResponse.Objects);
-            response.TotalCount = triggerCampaignResponse.TotalCount;
+            var response = new KalturaGenericListResponse<KalturaDeviceReferenceData>()
+            {
+                Objects = new List<KalturaDeviceReferenceData>()
+            };
+            response.Objects.AddRange(deviceReferenceDataResponse?.Objects);
+            response.TotalCount = deviceReferenceDataResponse == null ? 0 : deviceReferenceDataResponse.TotalCount;
             return response;
         }
     }
