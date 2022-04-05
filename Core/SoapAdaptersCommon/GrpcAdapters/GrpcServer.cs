@@ -25,6 +25,8 @@ namespace SoapAdaptersCommon.GrpcAdapters
         private IServiceCollection _ParentServices;
 
         private const string GRPC_PORT_ENV_KEY = "GRPC_PORT";
+        private const string GRPC_INSECURE_PORT_ENV_KEY = "GRPC_INSECURE_PORT";
+        private const string GRPC_INSECURE_ENV_KEY = "GRPC_ALLOW_INSECURE";
         private const string GRPC_CERT_ENV_KEY = "GRPC_CERT";
         private const string GRPC_SSL_CRT_FILE_ENV = "OTT_GRPC_SSL_CRT_FILE";
         private const string GRPC_SSL_CRT_KEY_ENV = "OTT_GRPC_SSL_CRT_KEY";
@@ -37,38 +39,54 @@ namespace SoapAdaptersCommon.GrpcAdapters
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            var grpcPort = Environment.GetEnvironmentVariable(GRPC_PORT_ENV_KEY);
-            if (string.IsNullOrEmpty(grpcPort))
-            {
-                _Logger.Warn($"{GRPC_PORT_ENV_KEY}");
-                return Task.CompletedTask;
-            }
-            
             // using PFX
             var grpcCertFilePath = Environment.GetEnvironmentVariable(GRPC_CERT_ENV_KEY);
             var grpcCertPassword = Environment.GetEnvironmentVariable(GRPC_CERT_PASSWORD_ENV_KEY);
             var isPfxProvided = !string.IsNullOrEmpty(grpcCertFilePath) && !string.IsNullOrEmpty(grpcCertPassword);
-            
+
             // using CRT and PEM
             var grpcSSLCertFilePath = Environment.GetEnvironmentVariable(GRPC_SSL_CRT_FILE_ENV);
             var grpcSSLCertKey = Environment.GetEnvironmentVariable(GRPC_SSL_CRT_KEY_ENV);
             var isCrtPemProvided = !string.IsNullOrEmpty(grpcSSLCertFilePath) && !string.IsNullOrEmpty(grpcSSLCertKey);
-            
-            
-            if (!isPfxProvided && !isCrtPemProvided)
+
+            var useSecure = isPfxProvided || isCrtPemProvided;
+
+            var secureGrpcPort = Environment.GetEnvironmentVariable(GRPC_PORT_ENV_KEY);
+            if (useSecure && string.IsNullOrEmpty(secureGrpcPort))
             {
-                _Logger.Warn($"missing SSL certificate: please configure {GRPC_CERT_ENV_KEY}/{GRPC_CERT_PASSWORD_ENV_KEY} or {GRPC_SSL_CRT_FILE_ENV}/{GRPC_SSL_CRT_KEY_ENV} , grpc engpint will not start");
-                return Task.CompletedTask;
-            }
-            
-            
-            int intPort;
-            if (!int.TryParse(grpcPort, out intPort))
-            {
-                _Logger.Error($"{GRPC_PORT_ENV_KEY}={grpcPort} is not an integer, grpc server will not start.");
+                _Logger.Warn($"{GRPC_PORT_ENV_KEY} is empty");
                 return Task.CompletedTask;
             }
 
+            var insecureValue = Environment.GetEnvironmentVariable(GRPC_INSECURE_ENV_KEY);
+            var useInsecure = insecureValue == "1" || "true".Equals(insecureValue, StringComparison.OrdinalIgnoreCase);
+
+            var insecureGrpcPort = Environment.GetEnvironmentVariable(GRPC_INSECURE_PORT_ENV_KEY);
+            if (useInsecure && string.IsNullOrEmpty(insecureGrpcPort))
+            {
+                _Logger.Warn($"{GRPC_INSECURE_PORT_ENV_KEY} is empty");
+                return Task.CompletedTask;
+            }
+
+            if (!useInsecure && !useSecure)
+            {
+                _Logger.Warn($"insecure endpoint is not configured and SSL certificate is missing: please configure {GRPC_CERT_ENV_KEY}/{GRPC_CERT_PASSWORD_ENV_KEY} or {GRPC_SSL_CRT_FILE_ENV}/{GRPC_SSL_CRT_KEY_ENV} or {GRPC_INSECURE_ENV_KEY}, grpc server will not start.");
+                return Task.CompletedTask;
+            }
+
+            var securePort = 0;
+            if (useSecure && !int.TryParse(secureGrpcPort, out securePort))
+            {
+                _Logger.Error($"{GRPC_PORT_ENV_KEY}={secureGrpcPort} is not an integer, grpc server will not start.");
+                return Task.CompletedTask;
+            }
+
+            var insecurePort = 0;
+            if (useInsecure && !int.TryParse(insecureGrpcPort, out insecurePort))
+            {
+                _Logger.Error($"{GRPC_INSECURE_PORT_ENV_KEY}={insecureGrpcPort} is not an integer, grpc server will not start.");
+                return Task.CompletedTask;
+            }
 
             GrpcStartup.ParentServiceCollection = _ParentServices;
             _GrpcHost = WebHost.CreateDefaultBuilder()
@@ -76,22 +94,32 @@ namespace SoapAdaptersCommon.GrpcAdapters
                 .ConfigureAppConfiguration((ctx, builder) => builder.Sources.Clear())
                 .ConfigureKestrel(o =>
                 {
-                    var port = intPort;
                     o.Limits.MinRequestBodyDataRate = null;
-                    o.ListenAnyIP(port, listenOptions =>
+                    if (useSecure)
                     {
-                        if (isCrtPemProvided)
+                        o.ListenAnyIP(securePort, listenOptions =>
                         {
-                            var cert = SSLHelpers.NewX509Certificate2FromCrtAndKey(grpcSSLCertFilePath, grpcSSLCertKey);
-                            listenOptions.UseHttps(cert);
-                        }
-                        else if (isPfxProvided)
+                            if (isCrtPemProvided)
+                            {
+                                var cert = SSLHelpers.NewX509Certificate2FromCrtAndKey(grpcSSLCertFilePath, grpcSSLCertKey);
+                                listenOptions.UseHttps(cert);
+                            }
+                            else if (isPfxProvided)
+                            {
+                                listenOptions.UseHttps(grpcCertFilePath, grpcCertPassword);
+                            }
+
+                            listenOptions.Protocols = HttpProtocols.Http2;
+                        });
+                    }
+
+                    if (useInsecure)
+                    {
+                        o.ListenAnyIP(insecurePort, listenOptions =>
                         {
-                            listenOptions.UseHttps(grpcCertFilePath, grpcCertPassword);
-                        }
-                        
-                        listenOptions.Protocols = HttpProtocols.Http2;
-                    });
+                            listenOptions.Protocols = HttpProtocols.Http2;
+                        });
+                    }
                 })
                 .ConfigureLogging((context, logging) =>
                 {
