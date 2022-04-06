@@ -121,7 +121,7 @@ namespace WebAPI.Models.Catalog
             var response = ClientsManager.CatalogClient().SearchAssets(searchAssetFilter);
             if (pager.PageIndex.HasValue && pager.PageSize.HasValue && searchAssetFilter.GroupByType == GroupingOption.Include)
             {
-                response.Objects = response.Objects.Skip(pager.GetRealPageIndex() * pager.PageSize.Value)?.Take(pager.PageSize.Value).ToList();
+                response.Objects = response.Objects?.Skip(pager.GetRealPageIndex() * pager.PageSize.Value)?.Take(pager.PageSize.Value).ToList();
             }
 
             return response;
