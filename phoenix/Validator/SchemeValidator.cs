@@ -438,7 +438,6 @@ namespace Validator.Managers.Scheme
         {
             bool valid = true;
 
-            ListResponseAttribute listResponseAttribute = null;
             if (type != kalturaListResponseType && type.Name.EndsWith("ListResponse"))
             {
                 if (!type.IsSubclassOf(kalturaListResponseType))
@@ -485,13 +484,13 @@ namespace Validator.Managers.Scheme
                 var dataMember = property.GetCustomAttribute<DataMemberAttribute>(false);
                 if (dataMember == null) { continue; }
 
-                valid = ValidateProperty(property, strict, listResponseAttribute) && valid;
+                valid = ValidateProperty(property, strict) && valid;
             }
 
             return valid;
         }
 
-        private bool ValidateProperty(PropertyInfo property, bool strict, ListResponseAttribute listResponseAttribute)
+        private bool ValidateProperty(PropertyInfo property, bool strict)
         {
             bool valid = true;
 

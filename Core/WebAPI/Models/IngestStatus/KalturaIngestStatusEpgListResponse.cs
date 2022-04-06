@@ -7,11 +7,10 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.IngestStatus
 {
-    [ListResponse("IngestStatus")]
     public partial class KalturaIngestStatusEpgListResponse : KalturaListResponse
     {
         /// <summary>
-        /// A list of objects
+        /// A list of IngestStatus
         /// </summary>
         [DataMember(Name = "objects")]
         [JsonProperty("objects")]

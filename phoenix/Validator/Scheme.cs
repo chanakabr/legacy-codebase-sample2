@@ -716,7 +716,6 @@ namespace Validator.Managers.Scheme
             }
 
             var properties = classType.GetProperties().ToList();
-            ListResponseAttribute listResponseAttribute = null;
             if (classType.BaseType != null)
             {
                 //Remove properties from base

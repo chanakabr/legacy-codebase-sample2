@@ -7,11 +7,10 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
 {
-    [ListResponse("Coupons")]
     public partial class KalturaCouponListResponse : KalturaListResponse
     {
         /// <summary>
-        /// A list of objects
+        /// A list of Coupons
         /// </summary>
         [DataMember(Name = "objects")]
         [JsonProperty("objects")]
