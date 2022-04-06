@@ -172,7 +172,7 @@ namespace EpgNotificationHandler
             {
                 return false;
             }
-            
+
             var now = SystemDateTime.UtcNow;
             var startDate = now.AddHours(-backwardTimeRange);
             var endDate = now.AddHours(forwardTimeRange);
@@ -188,15 +188,27 @@ namespace EpgNotificationHandler
         {
             return ns.settings.EpgNotification.LiveAssetIds.Count == 0 || ns.settings.EpgNotification.LiveAssetIds.Contains(serviceEvent.LiveAssetId);
         }
-        
+
         private static string Serialize(EpgNotificationEvent serviceEvent)
         {
+            var utcNow = DateUtils.GetUtcUnixTimestampNow();
             var content = new EpgUpdateMessage
             {
                 Header = new UpdateHeader
                 {
-                    EventDate = DateUtils.GetUtcUnixTimestampNow(),
-                    EventType = EventType.epg_update
+                    Properties = new UpdateEventProperties
+                    {
+                        EventDate = new UpdateEventDate
+                        {
+                            EventDate = utcNow,
+                            Type = utcNow.GetType().Name
+                        },
+                        EventType = new UpdateEventType
+                        {
+                            Enum = new List<string> { EventType.epg_update.ToString() },
+                            Type = typeof(string).Name
+                        }
+                    }
                 },
                 StartDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(serviceEvent.UpdatedRange.From),
                 EndDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(serviceEvent.UpdatedRange.To),

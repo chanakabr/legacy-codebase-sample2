@@ -43,4 +43,14 @@ docker run --rm -e GITHUB_TOKEN=$GITHUB_TOKEN -v $BASH_DIR/Api:/userdir $AWS_HOS
 echo Generating Pricing events with ott-tool-codegen...
 docker run --rm -e GITHUB_TOKEN=$GITHUB_TOKEN -v $BASH_DIR/Pricing:/userdir $AWS_HOST/master/ott-tool-codegen:build service -srb $SCHEMA_BRANCH -s phoenix --lang csharp
 
+echo Generating ConditionalAccess events with ott-tool-codegen...
+docker run --rm -e GITHUB_TOKEN=$GITHUB_TOKEN -v $BASH_DIR/ConditionalAccess:/userdir $AWS_HOST/master/ott-tool-codegen:build service -srb $SCHEMA_BRANCH -s phoenix --lang csharp
+
+
+echo Generating Api events with ott-tool-codegen...
+docker run --rm -e GITHUB_TOKEN=$GITHUB_TOKEN -v $BASH_DIR/Api:/userdir $AWS_HOST/master/ott-tool-codegen:build service -srb $SCHEMA_BRANCH -s phoenix --lang csharp
+
+echo Generating Pricing events with ott-tool-codegen...
+docker run --rm -e GITHUB_TOKEN=$GITHUB_TOKEN -v $BASH_DIR/Pricing:/userdir $AWS_HOST/master/ott-tool-codegen:build service -srb $SCHEMA_BRANCH -s phoenix --lang csharp
+
 echo Generating events has been completed.

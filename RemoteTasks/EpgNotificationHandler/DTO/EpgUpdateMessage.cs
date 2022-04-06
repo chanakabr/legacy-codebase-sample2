@@ -1,5 +1,4 @@
-﻿using ApiObjects.EventBus;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 
 namespace EpgNotificationHandler.DTO
@@ -17,14 +16,5 @@ namespace EpgNotificationHandler.DTO
         public long StartDate { get; set; }
         [JsonProperty("end_date")]
         public long EndDate { get; set; }
-    }
-
-    [Serializable]
-    public class UpdateHeader
-    {
-        [JsonProperty("event_type")]
-        public EventType EventType { get; set; }
-        [JsonProperty("event_date")]
-        public long EventDate { get; set; }
     }
 }
