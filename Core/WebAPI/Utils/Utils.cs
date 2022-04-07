@@ -196,11 +196,23 @@ namespace WebAPI.Utils
         {
             string xForwardedProtoHeader = HttpContext.Current.Request.Headers["X-Forwarded-Proto"];
             string xKProxyProto = HttpContext.Current.Request.Headers["X-KProxy-Proto"];
-
+            
             string baseUrl = string.Format("{0}://{1}{2}", (!string.IsNullOrEmpty(xForwardedProtoHeader) && xForwardedProtoHeader == "https") ||
                 (!string.IsNullOrEmpty(xKProxyProto) && xKProxyProto == "https") ?
-                "https" : HttpContext.Current.Request.GetUrl().Scheme, HttpContext.Current.Request.GetUrl().Host, HttpContext.Current.Request.GetApplicationPath().TrimEnd('/'));
+                "https" : HttpContext.Current.Request.GetUrl().Scheme, ExtractHost(), HttpContext.Current.Request.GetApplicationPath().TrimEnd('/'));
             return baseUrl;
+        }
+
+        private static string ExtractHost()
+        {
+            string originalUriValue = null;
+#if NETCOREAPP3_1
+            originalUriValue = HttpContext.Current.Request.Headers.TryGetOriginalUriValue();      
+#elif NET45_OR_GREATER
+            originalUriValue = HttpContext.Current.Request.Headers[HeadersExtensions.ServiceUrlHeaderName];
+#endif
+
+            return string.IsNullOrEmpty(originalUriValue) ? HttpContext.Current.Request.GetUrl().Host : originalUriValue;
         }
 
         public static long GetUserIdFromKs(KS ks = null)
