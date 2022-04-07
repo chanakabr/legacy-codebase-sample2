@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Phx.Lib.Log" Version="1.2.3.49-alpha" />
+    <PackageReference Include="Phx.Lib.Log" Version="1.2.4" />
   </ItemGroup>
 
    <!-- This is a workaround that will allow TVM website project to build, if you read this an 
