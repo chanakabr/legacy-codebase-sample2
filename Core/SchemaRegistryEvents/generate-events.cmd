@@ -32,8 +32,6 @@ docker run --rm -e GITHUB_TOKEN=${env.GITHUB_TOKEN} -v %cd%/Household:/userdir  
 ECHO Generating ConditionalAccess events with ott-tool-codegen...
  docker run --rm -e GITHUB_TOKEN=${env.GITHUB_TOKEN} -v %cd%/ConditionalAccess:/userdir  870777418594.dkr.ecr.us-west-2.amazonaws.com/master/ott-tool-codegen:build service -srb %SCHEMA_BRANCH% -s phoenix --lang csharp
 
-
-
 ECHO Generating Api events with ott-tool-codegen...
 docker run --rm -e GITHUB_TOKEN=${env.GITHUB_TOKEN} -v %cd%/Api:/userdir  870777418594.dkr.ecr.us-west-2.amazonaws.com/master/ott-tool-codegen:build service -srb %SCHEMA_BRANCH% -s phoenix --lang csharp
 

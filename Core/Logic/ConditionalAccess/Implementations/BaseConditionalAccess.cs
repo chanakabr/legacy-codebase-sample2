@@ -1662,7 +1662,8 @@ namespace Core.ConditionalAccess
         /// <param name="sSubscriptionCode"></param>
         /// <param name="nSubscriptionPurchaseID"></param>
         /// <returns></returns>
-        public virtual bool CancelSubscription(string sSiteGUID, string sSubscriptionCode, Int32 nSubscriptionPurchaseID)
+        public virtual bool CancelSubscription(string sSiteGUID, string sSubscriptionCode,
+            Int32 nSubscriptionPurchaseID)
         {
             bool bRet = false;
             Subscription theSub = null;
@@ -1672,34 +1673,44 @@ namespace Core.ConditionalAccess
                 Utils.ValidateUser(m_nGroupID, sSiteGUID, ref domainId);
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
-                theSub = Pricing.Module.Instance.GetSubscriptionData(m_nGroupID, sSubscriptionCode, string.Empty, string.Empty, string.Empty, false, sSiteGUID);
+                theSub = Pricing.Module.Instance.GetSubscriptionData(m_nGroupID, sSubscriptionCode, string.Empty,
+                    string.Empty, string.Empty, false, sSiteGUID);
 
-                if (theSub != null && theSub.m_oUsageModule != null && theSub.m_oSubscriptionPriceCode != null && theSub.m_bIsRecurring)
+                if (theSub != null && theSub.m_oUsageModule != null && theSub.m_oSubscriptionPriceCode != null &&
+                    theSub.m_bIsRecurring)
                 {
                     DataTable dt = ConditionalAccessDAL.GetSubscriptionPurchaseID(nSubscriptionPurchaseID);
                     if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                     {
                         Int32 nID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["ID"]);
 
-                        bRet = ConditionalAccessDAL.CancelSubscription(nID, m_nGroupID, sSiteGUID, sSubscriptionCode) > 0;
+                        bRet = ConditionalAccessDAL.CancelSubscription(nID, m_nGroupID, sSiteGUID, sSubscriptionCode) >
+                               0;
                         if (bRet)
                         {
                             WriteToUserLog(sSiteGUID,
-                                String.Concat("Sub ID: ", sSubscriptionCode, " with Purchase ID: ", nSubscriptionPurchaseID, " has been canceled."));
-                            if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, domainId)))
+                                String.Concat("Sub ID: ", sSubscriptionCode, " with Purchase ID: ",
+                                    nSubscriptionPurchaseID, " has been canceled."));
+                            if (!LayeredCache.Instance.SetInvalidationKey(
+                                LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, domainId)))
                             {
-                                log.ErrorFormat("Failed to set invalidation key on CancelSubscription for domainId = {0}");
+                                log.ErrorFormat(
+                                    "Failed to set invalidation key on CancelSubscription for domainId = {0}");
                             }
                         }
                         else
                         {
                             #region Logging
-                            StringBuilder sb = new StringBuilder("CancelSubscription. Probably failed to cancel subscription against DB. ");
+
+                            StringBuilder sb =
+                                new StringBuilder(
+                                    "CancelSubscription. Probably failed to cancel subscription against DB. ");
                             sb.Append(String.Concat("Site Guid: ", sSiteGUID));
                             sb.Append(String.Concat(" Sub Code: ", sSubscriptionCode));
                             sb.Append(String.Concat(" Sub Purchase ID: ", nSubscriptionPurchaseID));
 
                             log.Error("Error - " + sb.ToString());
+
                             #endregion
                         }
                     }
@@ -1708,6 +1719,7 @@ namespace Core.ConditionalAccess
             catch (Exception ex)
             {
                 #region Logging
+
                 StringBuilder sb = new StringBuilder("Exception at CancelSubscriptionRenewal. ");
                 sb.Append(String.Concat(" Ex Msg: ", ex.Message));
                 sb.Append(String.Concat(" Site Guid: ", sSiteGUID));
@@ -1718,10 +1730,61 @@ namespace Core.ConditionalAccess
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
 
                 log.Error("Exception - " + sb.ToString(), ex);
+
                 #endregion
             }
+
             return bRet;
         }
+
+        public virtual ApiObjects.Response.Status CancelSubscriptionRenewalAfterAppStoreEvent(string source, string externalTransactionId)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status();
+            string productId = BillingDAL.GetPaymentGatewayProductIdByExternalID(source, externalTransactionId,
+                out int groupId, out int domainId);
+            if(groupId != 0 && domainId != 0 && !productId.IsNullOrEmpty())
+            {
+                m_nGroupID = groupId;
+                var domainSubscriptionPurchase = GetDomainSubscriptionPurchasesFromCache(productId, domainId);
+            
+                SubscriptionPurchase subscriptionPurchase = new SubscriptionPurchase(groupId)
+                {
+                    purchaseId = domainSubscriptionPurchase.PurchaseId,
+                    productId = productId,
+                    siteGuid = domainSubscriptionPurchase.PurchasingUserId.ToString(),
+                    status = SubscriptionPurchaseStatus.Cancel,
+                    UpdateFromCancelRenewal = true
+                };
+
+                if (subscriptionPurchase.Update())
+                {
+                    string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(groupId, domainId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on CancelSubscriptionRenewal key = {0}", invalidationKey);
+                    }
+                    
+                    DateTime dtServiceEndDate = domainSubscriptionPurchase.EndDate.HasValue ?
+                        domainSubscriptionPurchase.EndDate.Value :
+                        DateTime.MaxValue;
+                    
+                    // Enqueue event for when subscription will eventually end, for notification
+                    long endDateUnix = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(dtServiceEndDate);
+
+                    RenewManager.EnqueueSubscriptionEndsMessage(groupId, domainSubscriptionPurchase.PurchasingUserId.ToString(), domainSubscriptionPurchase.PurchaseId, endDateUnix);
+                    response.Set(eResponseStatus.OK);
+               }
+                else
+                {
+                    log.ErrorFormat("Failed to cancle subscription");
+                }
+            } else
+            {
+                log.ErrorFormat($"could not find PaymentGatewayProductId for externalTransactionId: {externalTransactionId}");
+            }
+            return response;
+        }
+        
         /// <summary>
         /// Cancel a household service subscription at the next renewal. The subscription stays valid till the next renewal.
         /// </summary>
@@ -1918,7 +1981,7 @@ namespace Core.ConditionalAccess
 
             return response;
         }
-
+        
         private ApiObjects.Response.Status CheckSuspendStatus(int groupId, Domain domain, string userId)
         {
             var response = new ApiObjects.Response.Status();

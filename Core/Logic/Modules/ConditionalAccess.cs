@@ -521,6 +521,11 @@ namespace Core.ConditionalAccess
             }
         }
 
+        public static Status CancelSubscriptionRenewalAfterAppStoreEvent(string source, string externalTransactionId)
+        {
+            BaseConditionalAccess condition = new TvinciConditionalAccess(0, "CA_CONNECTION_STRING");
+            return condition.CancelSubscriptionRenewalAfterAppStoreEvent(source, externalTransactionId);
+        }
 
         public static bool ChangeSubscriptionDates(int groupID, string sSiteGUID, string sSubscriptionCode,
             Int32 nSubscriptionPurchaseID, Int32 dAdditionInDays, bool bNewRenewable)

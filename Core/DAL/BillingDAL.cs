@@ -1924,6 +1924,33 @@ namespace DAL
             return response;
         }
 
+        public static string GetPaymentGatewayProductIdByExternalID(string name, string externalTransactionId, 
+            out int groupId, out int domainId)
+        {
+            string productId = String.Empty;
+            groupId = 0;
+            domainId = 0;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGatewayTransactionDetails");
+            sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+            sp.AddParameter("@external_transaction_id", externalTransactionId);
+            sp.AddParameter("@name", name);
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows.Count == 1)
+                {
+                    productId = Utils.GetSafeStr(dt.Rows[0]["product_id"]);
+                    domainId = Utils.GetIntSafeVal(dt.Rows[0]["domain_id"]);
+                    groupId = Utils.GetIntSafeVal(dt.Rows[0]["group_id"]);
+                }
+            }
+
+            return productId;
+        }
+        
         public static int UpdatePaymentGatewayPending(int groupID, PaymentGatewayPending pending)
         {
             int result = 0;
