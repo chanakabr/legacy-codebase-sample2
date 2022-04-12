@@ -51,25 +51,12 @@ namespace ApiLogic.IndexManager.Sorting
             UnifiedSearchDefinitions definitions,
             IDictionary<string, ElasticSearchApi.ESAssetDocument> assetIdToDocument)
         {
+            return GetReorderedAssetIdsInternal(searchResults, definitions, assetIdToDocument);
+        }
 
-            if (definitions.PriorityGroupsMappings == null || !definitions.PriorityGroupsMappings.Any())
-            {
-                return GetReorderedAssetIdsInternal(searchResults, definitions, assetIdToDocument);
-            }
-
-            IEnumerable<(long id, string sortValue)> GetReorderedByPriorityGroups(
-                IEnumerable<UnifiedSearchResult> searchResultForPriorityGroup)
-                => GetReorderedAssetIdsInternal(searchResultForPriorityGroup, definitions, assetIdToDocument)
-                    .Select(x => (x, (string)null))
-                    .ToArray();
-
-            return GetReorderedItemIds(
-                searchResults,
-                x => x.Score,
-                GetReorderedByPriorityGroups,
-                x => long.Parse(x.AssetId))
-                ?.Select(x => x.id)
-                .ToArray();
+        public bool IsSortingCompleted(UnifiedSearchDefinitions definitions)
+        {
+            return BuildSortingStages(definitions).All(s => s.Status == StageStatus.Completed);
         }
 
         public IGroupBySearch GetGroupBySortingStrategy(IEsOrderByField orderByField)
@@ -210,7 +197,7 @@ namespace ApiLogic.IndexManager.Sorting
 
             var reorderedItemIds = GetReorderedItemIds(
                 sortedResults,
-                x => x.sortValue,
+                x => x.sortValue ?? string.Empty,
                 GetReorderedBySecondarySorting,
                 x => x.id);
 
@@ -264,6 +251,7 @@ namespace ApiLogic.IndexManager.Sorting
         {
             if (orderField is EsOrderByField field)
             {
+                // TODO: Please, be aware that the pretty the same switch clause is placed in SortingByBasicFieldsService class. If you change smth there, you might need changes in SortingByBasicFieldsService class as well.
                 switch (field.OrderByField)
                 {
                     case OrderBy.ID:

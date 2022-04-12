@@ -13,6 +13,8 @@ namespace ApiLogic.IndexManager.Sorting
             UnifiedSearchDefinitions definitions,
             IDictionary<string, ElasticSearchApi.ESAssetDocument> assetIdToDocument);
 
+        bool IsSortingCompleted(UnifiedSearchDefinitions definitions);
+
         IGroupBySearch GetGroupBySortingStrategy(IEsOrderByField orderByField);
     }
 }

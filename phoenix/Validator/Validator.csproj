@@ -10,8 +10,12 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
   
-  <PropertyGroup>
+  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
     <PostBuildEvent>dotnet $(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\Validator.dll</PostBuildEvent>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
+    <PostBuildEvent>/usr/local/share/dotnet/x64/dotnet $(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\Validator.dll</PostBuildEvent>
   </PropertyGroup>
 
   <ItemGroup>

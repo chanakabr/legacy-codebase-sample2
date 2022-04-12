@@ -2082,56 +2082,81 @@ namespace Core.Catalog
                                 idToDocument.Add(result.AssetId, doc);
                             }
 
-                            var reorderedAssetIds = _sortingService.GetReorderedAssetIds(
-                                searchResultsList,
-                                unifiedSearchDefinitions,
-                                idToDocument);
-
-                            // need to reorder items
-                            if (reorderedAssetIds?.Count > 0)
+                            if (!_sortingService.IsSortingCompleted(unifiedSearchDefinitions))
                             {
-                                // Page results: check which results should be returned
-                                Dictionary<int, UnifiedSearchResult> idToResultDictionary = new Dictionary<int, UnifiedSearchResult>();
-                                // Map all results in dictionary
-                                searchResultsList.ForEach(item =>
+                                IReadOnlyCollection<long> reorderedAssetIds = null;
+                                if (unifiedSearchDefinitions.PriorityGroupsMappings == null || !unifiedSearchDefinitions.PriorityGroupsMappings.Any())
                                 {
-                                    int assetId = int.Parse(item.AssetId);
-                                    if (item.AssetType == eAssetTypes.NPVR)
-                                    {
-                                        assetId = int.Parse(((RecordingSearchResult)item).RecordingId);
-                                    }
-
-                                    if (!idToResultDictionary.ContainsKey(assetId))
-                                    {
-                                        idToResultDictionary.Add(assetId, item);
-                                    }
-                                });
-
-                                searchResultsList.Clear();
-                                var assetIds = reorderedAssetIds.Page(pageSize, pageIndex, out var illegalRequest).ToArray();
-                                if (!illegalRequest)
+                                    reorderedAssetIds = _sortingService.GetReorderedAssetIds(
+                                        searchResultsList,
+                                        unifiedSearchDefinitions,
+                                        idToDocument);
+                                }
+                                else
                                 {
-                                    foreach (int id in assetIds)
+                                    var priorityGroupsResults = searchResultsList.GroupBy(r => r.Score);
+                                    var orderedIds = new List<long>();
+                                    foreach (var priorityGroupsResult in priorityGroupsResults)
                                     {
-                                        if (idToResultDictionary.TryGetValue(id, out var temporaryResult))
+                                        var reorderedIdsChunk = _sortingService.GetReorderedAssetIds(priorityGroupsResult, unifiedSearchDefinitions, idToDocument);
+                                        if (reorderedIdsChunk == null)
                                         {
-                                            searchResultsList.Add(temporaryResult);
+                                            log.Debug($"Chunk from priority group hasn't been processed. Asset Ids: [{string.Join(",", priorityGroupsResult.Select(x => x.AssetId))}]");
+                                            continue;
+                                        }
+
+                                        orderedIds.AddRange(reorderedIdsChunk);
+                                    }
+
+                                    reorderedAssetIds = orderedIds;
+                                }
+
+                                // need to reorder items
+                                if (reorderedAssetIds?.Count > 0)
+                                {
+                                    // Page results: check which results should be returned
+                                    Dictionary<int, UnifiedSearchResult> idToResultDictionary = new Dictionary<int, UnifiedSearchResult>();
+                                    // Map all results in dictionary
+                                    searchResultsList.ForEach(item =>
+                                    {
+                                        int assetId = int.Parse(item.AssetId);
+                                        if (item.AssetType == eAssetTypes.NPVR)
+                                        {
+                                            assetId = int.Parse(((RecordingSearchResult) item).RecordingId);
+                                        }
+
+                                        if (!idToResultDictionary.ContainsKey(assetId))
+                                        {
+                                            idToResultDictionary.Add(assetId, item);
+                                        }
+                                    });
+
+                                    searchResultsList.Clear();
+                                    var assetIds = reorderedAssetIds.Page(pageSize, pageIndex, out var illegalRequest).ToArray();
+                                    if (!illegalRequest)
+                                    {
+                                        foreach (int id in assetIds)
+                                        {
+                                            if (idToResultDictionary.TryGetValue(id, out var temporaryResult))
+                                            {
+                                                searchResultsList.Add(temporaryResult);
+                                            }
                                         }
                                     }
                                 }
-                            }
 
-                            if (esAggregationResult != null
-                                && _esSortingService.IsBucketsReorderingRequired(esOrderByFields, unifiedSearchDefinitions.distinctGroup))
-                            {
-                                var assetIds = searchResultsList.Select(item => long.Parse(item.AssetId)).ToList();
-                                ReorderBuckets(
-                                    esAggregationResult,
-                                    pageIndex,
-                                    pageSize,
-                                    unifiedSearchDefinitions.distinctGroup,
-                                    idToDocument,
-                                    assetIds);
+                                if (esAggregationResult != null
+                                    && _esSortingService.IsBucketsReorderingRequired(esOrderByFields, unifiedSearchDefinitions.distinctGroup))
+                                {
+                                    var assetIds = searchResultsList.Select(item => long.Parse(item.AssetId)).ToList();
+                                    ReorderBuckets(
+                                        esAggregationResult,
+                                        pageIndex,
+                                        pageSize,
+                                        unifiedSearchDefinitions.distinctGroup,
+                                        idToDocument,
+                                        assetIds);
+                                }
                             }
                         }
 

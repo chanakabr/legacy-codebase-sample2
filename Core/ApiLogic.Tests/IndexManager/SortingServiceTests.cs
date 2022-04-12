@@ -256,48 +256,6 @@ namespace ApiLogic.Tests.IndexManager
             result.Should().BeEquivalentTo(expectedResult, options => options.WithStrictOrdering());
         }
 
-        [Test]
-        public void GetReorderedAssetIds_PriorityGroupsSet()
-        {
-            var expectedResult = new List<long> { 4, 5, 2, 3, 1 };
-            var orderByStatsResult = new List<(long id, string sortValue)> { (4, "10"), (2, "9"), (3, "8"), (5, "4") };
-            var (sortingResults, assetIdToDocument) = GenerateData(5);
-
-            var orderByViews = new EsOrderByStatisticsField(OrderBy.VIEWS, OrderDir.DESC, null);
-            var definitions = new UnifiedSearchDefinitions
-            {
-                orderByFields = new[] { orderByViews },
-                PriorityGroupsMappings = new Dictionary<double, IEsPriorityGroup>
-                {
-                    { 1.0, new KSqlEsPriorityGroup(new BooleanLeaf()) }
-                }
-            };
-
-            var assetIds = new long[] { 5, 4, 3, 2 };
-            var esDocuments = new[]
-            {
-                assetIdToDocument["5"], assetIdToDocument["4"], assetIdToDocument["3"], assetIdToDocument["2"]
-            };
-
-            _esSortingService
-                .Setup(x => x.ShouldSortByStatistics(orderByViews))
-                .Returns(true);
-
-            var sortingService = new SortingService(
-                GetSortingByStatsServiceMock(esDocuments, assetIds, definitions, orderByViews, orderByStatsResult).Object,
-                _mockRepository.Create<ISortingByBasicFieldsService>().Object,
-                GetSortingAdapterMock(definitions).Object,
-                _esSortingService.Object);
-
-            var result = sortingService.GetReorderedAssetIds(
-                sortingResults,
-                definitions,
-                assetIdToDocument);
-
-            result.Should().NotBeNull();
-            result.Should().BeEquivalentTo(expectedResult, options => options.WithStrictOrdering());
-        }
-
         private static (IEnumerable<UnifiedSearchResult> sortingResults, IDictionary<string, ElasticSearchApi.ESAssetDocument> assetIdToDocument)
             GenerateData(int count)
         {

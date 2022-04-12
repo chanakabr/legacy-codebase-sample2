@@ -53,7 +53,7 @@ namespace ApiLogic.IndexManager.Sorting
 
             return orderedItems
                 .ThenByDescending(x => x.id)
-                .Select(x => ((long id, string value))(x.asset_id, valueSelector(x).ToString()))
+                .Select(x => ((long id, string value))(x.asset_id, valueSelector(x)?.ToString()))
                 .ToArray();
         }
 
@@ -71,6 +71,7 @@ namespace ApiLogic.IndexManager.Sorting
                 Func<ElasticSearchApi.ESAssetDocument, T> valueSelector)
                 => Sort(documents, valueSelector, esOrderByField.OrderByDirection);
 
+            // TODO: Please, be aware that the pretty the same switch clause is placed in SortingService class. If you change smth there, you might need changes in SortingService class as well.
             switch (esOrderByField.OrderByField)
             {
                 case OrderBy.ID:
