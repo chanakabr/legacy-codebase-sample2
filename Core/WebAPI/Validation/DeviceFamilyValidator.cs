@@ -7,7 +7,8 @@ namespace WebAPI.Validation
 {
     public class DeviceFamilyValidator : IDeviceFamilyValidator
     {
-        private const int FAMILY_RANGE_LENGTH = 50;
+        private const int ID_RANGE_LENGTH = 10000;
+        private const int FAMILY_COUNT = 50;
         private const int MAX_NAME_LENGTH = 50;
 
         private static readonly Lazy<DeviceFamilyValidator> Lazy = new Lazy<DeviceFamilyValidator>(() => new DeviceFamilyValidator(), LazyThreadSafetyMode.PublicationOnly);
@@ -31,8 +32,8 @@ namespace WebAPI.Validation
 
         private void ValidateId(long groupId, long? id)
         {
-            var minId = groupId * FAMILY_RANGE_LENGTH;
-            var maxId = minId + FAMILY_RANGE_LENGTH - 1;
+            var minId = groupId * ID_RANGE_LENGTH;
+            var maxId = minId + FAMILY_COUNT - 1;
 
             if (!id.HasValue)
             {
@@ -47,7 +48,7 @@ namespace WebAPI.Validation
 
         private void ValidateName(string name)
         {
-            if (string.IsNullOrEmpty(name))
+            if (string.IsNullOrWhiteSpace(name))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, nameof(KalturaDeviceFamily.Name));
             }

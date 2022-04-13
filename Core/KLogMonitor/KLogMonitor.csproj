@@ -13,6 +13,6 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Phx.Lib.Log" Version="1.2.3" />
+    <PackageReference Include="Phx.Lib.Log" Version="1.2.4" />
   </ItemGroup>
 </Project>

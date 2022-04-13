@@ -2926,9 +2926,8 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                MediaFileItemPricesContainer price;
                 response = t.GetPlaybackContext(userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid,
-                    out price, urlType, sourceType, isPlaybackManifest, adapterData);
+                    urlType, sourceType, isPlaybackManifest, adapterData);
             }
             else
             {

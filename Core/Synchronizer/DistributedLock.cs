@@ -19,7 +19,7 @@ namespace Synchronizer
         private readonly CouchbaseManager.CouchbaseManager _KeyValueStore;
         private readonly int _GroupId;
 
-        private static string _additionalInfo = string.Empty;
+        private readonly string _additionalInfo = string.Empty;
 
         public DistributedLock(int groupId)
         {
@@ -147,7 +147,7 @@ namespace Synchronizer
             return result.ToString();
         }
 
-        private static string WrapLogMessageWithMetadata(string logMessage)
+        private string WrapLogMessageWithMetadata(string logMessage)
         {
             return logMessage + _additionalInfo;
         }

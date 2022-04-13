@@ -7,9 +7,10 @@ namespace WebAPI.Validation
 {
     public class DeviceBrandValidator : IDeviceBrandValidator
     {
-        private const int FAMILY_RANGE_LENGTH = 50;
-        private const int BRAND_RANGE_LENGTH = 1000;
-        private const int MAX_NAME_LENGTH = 255;
+        private const int ID_RANGE_LENGTH = 10000;
+        private const int FAMILY_COUNT = 50;
+        private const int BRAND_COUNT = 1000;
+        private const int MAX_NAME_LENGTH = 50;
 
         private static readonly Lazy<DeviceBrandValidator> Lazy = new Lazy<DeviceBrandValidator>(() => new DeviceBrandValidator(), LazyThreadSafetyMode.PublicationOnly);
 
@@ -38,8 +39,8 @@ namespace WebAPI.Validation
 
         private void ValidateId(long groupId, long? id)
         {
-            var minId = groupId * BRAND_RANGE_LENGTH;
-            var maxId = minId + BRAND_RANGE_LENGTH - 1;
+            var minId = groupId * ID_RANGE_LENGTH;
+            var maxId = minId + BRAND_COUNT - 1;
 
             if (!id.HasValue)
             {
@@ -55,9 +56,9 @@ namespace WebAPI.Validation
         private void ValidateDeviceFamilyId(long groupId, long? deviceFamilyId)
         {
             const long minSystemId = 1;
-            const long maxSystemId = FAMILY_RANGE_LENGTH - 1;
-            var minCustomId = groupId * FAMILY_RANGE_LENGTH;
-            var maxCustomId = minCustomId + FAMILY_RANGE_LENGTH - 1;
+            const long maxSystemId = ID_RANGE_LENGTH - 1;
+            var minCustomId = groupId * ID_RANGE_LENGTH;
+            var maxCustomId = minCustomId + FAMILY_COUNT - 1;
 
             if (!deviceFamilyId.HasValue)
             {
@@ -66,13 +67,13 @@ namespace WebAPI.Validation
 
             if (!(Utils.Utils.IsBetween(deviceFamilyId.Value, minSystemId, maxSystemId) || Utils.Utils.IsBetween(deviceFamilyId.Value, minCustomId, maxCustomId)))
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_NOT_IN_PREDEFINED_RANGE, nameof(KalturaDeviceBrand.DeviceFamilyId), $"{minCustomId},{maxCustomId}");
+                throw new BadRequestException(BadRequestException.ARGUMENT_NOT_IN_PREDEFINED_RANGE, nameof(KalturaDeviceBrand.DeviceFamilyId), $"{minSystemId},{maxSystemId}] or [{minCustomId},{maxCustomId}");
             }
         }
 
         private void ValidateName(string name)
         {
-            if (string.IsNullOrEmpty(name))
+            if (string.IsNullOrWhiteSpace(name))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, nameof(KalturaDeviceBrand.Name));
             }

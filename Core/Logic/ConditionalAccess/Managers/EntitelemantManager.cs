@@ -163,7 +163,8 @@ namespace Core.ConditionalAccess
                                         {
                                             fullLifeCycleLeft = cachedEntitlementResults.EntitlementEndDate.Value.Subtract(now);
                                         }
-                                        else if (cachedEntitlementResults.TransactionType == eTransactionType.PPV && cachedEntitlementResults.FullLifeCycle > 0 && cachedEntitlementResults.EntitlementStartDate.HasValue)
+                                        else if ((cachedEntitlementResults.TransactionType == eTransactionType.PPV || cachedEntitlementResults.TransactionType == eTransactionType.ProgramAssetGroupOffer)
+                                                 && cachedEntitlementResults.FullLifeCycle > 0 && cachedEntitlementResults.EntitlementStartDate.HasValue)
                                         {
                                             DateTime endDate = Utils.GetEndDateTime(cachedEntitlementResults.EntitlementStartDate.Value, cachedEntitlementResults.FullLifeCycle);
                                             fullLifeCycleLeft = endDate.Subtract(now);
@@ -330,6 +331,7 @@ namespace Core.ConditionalAccess
                             }
 
                         }
+                        
                     }
 
                 } // end if nMediaFileID > 0
@@ -357,7 +359,7 @@ namespace Core.ConditionalAccess
             response.IsOfflinePlayBack = isOfflinePlayback;
             response.IsLivePlayBack = IsLivePlayBack;
 
-            return (response);
+            return response;
         }
 
         internal static Entitlements UpdateEntitlement(BaseConditionalAccess cas, long domainId, Entitlement entitlement)

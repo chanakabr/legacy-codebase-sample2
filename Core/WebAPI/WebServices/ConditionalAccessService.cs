@@ -3250,8 +3250,7 @@ namespace WebAPI.WebServices
             Int32 groupId = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword, "GetUserEntitlements", ref t);
             if (groupId != 0 && t != null)
             {
-                MediaFileItemPricesContainer price;
-                response = t.GetPlaybackContext(userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid, out price, urlType, null);
+                response = t.GetPlaybackContext(userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid, urlType, null);
             }
             else
             {

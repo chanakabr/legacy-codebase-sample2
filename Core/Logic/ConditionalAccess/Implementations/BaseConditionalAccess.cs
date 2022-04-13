@@ -18166,12 +18166,11 @@ namespace Core.ConditionalAccess
             return GrantManager.SwapSubscription(this, this.m_nGroupID, userId, oldSubscriptionCode, newSubscriptionCode, ip, udid, history);
         }
 
-        public PlaybackContextResponse GetPlaybackContext(string userId, string assetId, eAssetTypes assetType, List<long> fileIds, StreamerType? streamerType,
-            string mediaProtocol, PlayContextType context, string ip, string udid, out MediaFileItemPricesContainer filePrice,
-            UrlType urlType, string sourceType = null, bool isPlaybackManifest = false, Dictionary<string, string> adapterData = null)
+        public PlaybackContextResponse GetPlaybackContext(string userId, string assetId, eAssetTypes assetType, 
+            List<long> fileIds, StreamerType? streamerType, string mediaProtocol, PlayContextType context, string ip, 
+            string udid, UrlType urlType, string sourceType = null, bool isPlaybackManifest = false, 
+            Dictionary<string, string> adapterData = null)
         {
-            filePrice = null;
-
             if (isPlaybackManifest)
             {
                 return PlaybackManager.GetPlaybackManifest(m_nGroupID, assetId, assetType, fileIds, streamerType, mediaProtocol, context, sourceType, userId, udid);
@@ -18179,7 +18178,7 @@ namespace Core.ConditionalAccess
             else
             {
                 return PlaybackManager.GetPlaybackContext(this, m_nGroupID, userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid,
-                                                          out filePrice, urlType, sourceType, adapterData);
+                                                          out _, urlType, sourceType, adapterData);
             }
         }
 

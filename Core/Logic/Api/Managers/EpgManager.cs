@@ -89,23 +89,53 @@ namespace APILogic.Api.Managers
             return new Tuple<Dictionary<long, string>, bool>(allLinearMedia, res);
         }
 
-        internal static long GetCurrentProgram(int groupId, string epgChannelId, bool isRetry = false)
+        private static List<ExtendedSearchResult> GetFuturePrograms(int groupId, string epgChannelId)
         {
             string adjacentProgramsKey = LayeredCacheKeys.GetAdjacentProgramsKey(groupId, epgChannelId);
             List<ExtendedSearchResult> adjacentPrograms = null;
             var invalidationKey = LayeredCacheKeys.GetAdjacentProgramsInvalidationKey(groupId, epgChannelId);
 
             if (!LayeredCache.Instance.Get(adjacentProgramsKey,
-                                           ref adjacentPrograms,
-                                           GetAdjacentPrograms,
-                                           new Dictionary<string, object>() { { "groupId", groupId }, { "epgChannelId", epgChannelId } },
-                                           groupId,
-                                           LayeredCacheConfigNames.GET_ADJACENT_PROGRAMS,
-                                           new List<string>() { invalidationKey }))
+                ref adjacentPrograms,
+                GetAdjacentPrograms,
+                new Dictionary<string, object>() { { "groupId", groupId }, { "epgChannelId", epgChannelId } },
+                groupId,
+                LayeredCacheConfigNames.GET_ADJACENT_PROGRAMS,
+                new List<string>() { invalidationKey }))
             {
                 log.Error($"GetCurrentProgram.GetAdjacentPrograms - Failed get data from LayeredCache, key: {adjacentProgramsKey}.");
-                return 0;
+                return null;
             }
+
+            return adjacentPrograms;
+        }
+
+        internal static List<ExtendedSearchResult> GetPrograms(int groupId, string epgChannelId, int numberOfProgram = 1, bool isRetry = false)
+        {
+            var invalidationKey = LayeredCacheKeys.GetAdjacentProgramsInvalidationKey(groupId, epgChannelId);
+            List<ExtendedSearchResult> adjacentPrograms = GetFuturePrograms(groupId, epgChannelId);
+            
+            if (adjacentPrograms != null && adjacentPrograms.Count > 0)
+            {
+                var availableProgram = adjacentPrograms.FindAll(x => !string.IsNullOrEmpty(x.AssetId));
+                if (!isRetry && availableProgram.Count == 0)
+                {
+                    log.Debug($"GetPrograms - need to refresh LayeredCache. Invalidating by key: {invalidationKey}.");
+                    LayeredCache.Instance.SetInvalidationKey(invalidationKey);
+                    return GetPrograms(groupId, epgChannelId, numberOfProgram, true);
+                }
+                
+                log.Debug($"GetPrograms - found programs");
+                return numberOfProgram == 0 ? availableProgram : availableProgram.Take(numberOfProgram).ToList();
+            }
+
+            return null;
+        }
+
+        internal static long GetCurrentProgram(int groupId, string epgChannelId, bool isRetry = false)
+        {
+            var invalidationKey = LayeredCacheKeys.GetAdjacentProgramsInvalidationKey(groupId, epgChannelId);
+            List<ExtendedSearchResult> adjacentPrograms = GetFuturePrograms(groupId, epgChannelId);
 
             if (adjacentPrograms != null && adjacentPrograms.Count > 0)
             {

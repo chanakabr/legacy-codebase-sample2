@@ -24,6 +24,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using ApiLogic;
+using MoreLinq;
 using TVinciShared;
 
 namespace Core.ConditionalAccess
@@ -37,15 +39,14 @@ namespace Core.ConditionalAccess
 
         public static PlaybackContextResponse GetPlaybackContext(BaseConditionalAccess cas, int groupId, string userId, string assetId, eAssetTypes assetType,
             List<long> fileIds, StreamerType? streamerType, string mediaProtocol, PlayContextType context,
-            string ip, string udid, out MediaFileItemPricesContainer filePrice, UrlType urlType, string sourceType = null, Dictionary<string, string> adapterData = null)
+            string ip, string udid, out PlaybackContextOut playbackContextOut, UrlType urlType, string sourceType = null, Dictionary<string, string> adapterData = null)
         {
             PlaybackContextResponse response = new PlaybackContextResponse()
             {
                 Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
             };
 
-            filePrice = null;
-
+            playbackContextOut = new PlaybackContextOut();
             BlockEntitlementType blockEntitlement = BlockEntitlementType.NO_BLOCK; // default value 
 
             try
@@ -246,6 +247,7 @@ namespace Core.ConditionalAccess
                 if (files != null && files.Count > 0)
                 {
                     MediaFileItemPricesContainer[] prices = null;
+                    AdsControlData defaultAdsData = GetDomainAdsControl(groupId, domainId);
 
                     if (assetType == eAssetTypes.NPVR && (epgChannelLinearMedia == null || epgChannelLinearMedia.EnableRecordingPlaybackNonEntitledChannel))
                     {
@@ -258,7 +260,6 @@ namespace Core.ConditionalAccess
 
                         if (prices != null && prices.Length > 0)
                         {
-                            AdsControlData defaultAdsData = GetDomainAdsControl(groupId, domainId);
                             foreach (MediaFileItemPricesContainer price in prices)
                             {
                                 AdsControlData adsData = null;
@@ -312,9 +313,23 @@ namespace Core.ConditionalAccess
                                     assetFileIdsAds.Add(price.m_nMediaFileID, defaultAdsData);
                                 }
 
-                                filePrice = price;
+                                playbackContextOut.MediaFileItemPrices = price;
                             }
                         }
+                    }
+
+                    var notPurchasedFiles = files.Where(x =>
+                        !assetFileIdsAds.ContainsKey(x.Id)).ToList();
+                    var hasFilesNotFromPago = assetFileIdsAds.Count > 0;
+
+                    //Make sure we're not checking pago in case of purchased by different entitlement/free asset 
+                    if (!hasFilesNotFromPago)
+                    {
+                        playbackContextOut.PagoProgramAvailability = Utils.GetEntitledPagoWindow(groupId,
+                            (int) domainId,
+                            int.Parse(assetId), assetType, notPurchasedFiles, program);
+                        playbackContextOut.PagoProgramAvailability?.FileIds?.ForEach(x =>
+                            assetFileIdsAds.Add(x, defaultAdsData));
                     }
 
                     if (assetFileIdsAds.Count > 0)
@@ -343,8 +358,15 @@ namespace Core.ConditionalAccess
                                 response.Status = Utils.ConcurrencyResponseToResponseStatus(concurrencyResponse.Status);
                                 return response;
                             }
-
+                            
                             domainId = concurrencyResponse.Data.DomainId;
+                            //if there's no file from other business module and still
+                            //we got here, it means we got entitlement from pago
+                            if (!hasFilesNotFromPago && playbackContextOut.PagoProgramAvailability?.FileIds?.Count > 0)
+                            {
+                                concurrencyResponse.Data.ProductId = (int)playbackContextOut.PagoProgramAvailability.PagoId;
+                                concurrencyResponse.Data.ProductType = eTransactionType.ProgramAssetGroupOffer;
+                            }
                         }
                         else
                         {
@@ -419,7 +441,7 @@ namespace Core.ConditionalAccess
                                                 isLive = !string.IsNullOrEmpty(epgChannelId);
                                             }
 
-                                            HandlePlayUsesAndDevicePlayData(cas, userId, domainId, (int)file.Id, ip, udid, filePrice, concurrencyResponse != null ? concurrencyResponse.Data : null, isLive);
+                                            HandlePlayUsesAndDevicePlayData(cas, userId, domainId, (int)file.Id, ip, udid, playbackContextOut, concurrencyResponse != null ? concurrencyResponse.Data : null, isLive);
                                         }
                                     }
                                 }
@@ -518,20 +540,32 @@ namespace Core.ConditionalAccess
         }
 
         private static void HandlePlayUsesAndDevicePlayData(BaseConditionalAccess cas, string userId, long domainId, int fileId, string ip, string udid, 
-            MediaFileItemPricesContainer filePrice, ApiObjects.MediaMarks.DevicePlayData devicePlayData, bool isLive)
+            PlaybackContextOut playbackContextOutContainer, ApiObjects.MediaMarks.DevicePlayData devicePlayData, bool isLive)
         {
-            
+            var filePrice = playbackContextOutContainer.MediaFileItemPrices;
             if (Utils.IsItemPurchased(filePrice))
             {
                 PlayUsesManager.HandlePlayUses(cas, filePrice, userId, fileId, ip, string.Empty, string.Empty, udid, string.Empty, domainId, cas.m_nGroupID, isLive);
             }
-            // item must be free otherwise we wouldn't get this far
-            else if (ApplicationConfiguration.Current.LicensedLinksCacheConfiguration.ShouldUseCache.Value
-                && filePrice?.m_oItemPrices?.Length > 0)
+            else if (ApplicationConfiguration.Current.LicensedLinksCacheConfiguration.ShouldUseCache.Value)
             {
-                bool res = Utils.InsertOrSetCachedEntitlementResults(domainId, fileId,
+                var pagoAvailableWindow = playbackContextOutContainer.PagoProgramAvailability;
+                if (pagoAvailableWindow != null && pagoAvailableWindow.IsValid())
+                {
+                    var now = DateTime.UtcNow;
+                    var viewTime = (int)(pagoAvailableWindow.EndDate - pagoAvailableWindow.StartDate).TotalMinutes;
+                    Utils.InsertOrSetCachedEntitlementResults(domainId, fileId,
+                        new CachedEntitlementResults(viewTime, viewTime, now, false, false,
+                            eTransactionType.ProgramAssetGroupOffer, now,
+                            null, isLive));
+                }
+                // item must be free otherwise we wouldn't get this far
+                else if(filePrice?.m_oItemPrices?.Length > 0) 
+                {
+                    Utils.InsertOrSetCachedEntitlementResults(domainId, fileId,
                         new CachedEntitlementResults(0, 0, DateTime.UtcNow, true, false,
-                        eTransactionType.PPV, null, filePrice.m_oItemPrices[0].m_dtEndDate, isLive));
+                            eTransactionType.PPV, null, filePrice.m_oItemPrices[0].m_dtEndDate, isLive));
+                }
             }
 
             if (devicePlayData != null)
@@ -629,11 +663,10 @@ namespace Core.ConditionalAccess
                 }
 
                 MediaFile file = files[0];
-                MediaFileItemPricesContainer price;
 
                 PlaybackContextResponse playbackContextResponse = GetPlaybackContext(cas, groupId, userId, assetId, assetType, new List<long>() { fileId },
                                                                                      file.StreamerType.Value, file.Url.Substring(0, file.Url.IndexOf(':')), playContextType,
-                                                                                     ip, udid, out price, UrlType.playmanifest);
+                                                                                     ip, udid, out var playbackContextOut, UrlType.playmanifest);
 
                 if (playbackContextResponse.Status.Code != (int)eResponseStatus.OK)
                 {
@@ -670,7 +703,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // HandlePlayUses
-                    HandlePlayUsesAndDevicePlayData(cas, userId, domainId, (int)file.Id, ip, udid, price, playbackContextResponse.ConcurrencyData, isLive);
+                    HandlePlayUsesAndDevicePlayData(cas, userId, domainId, (int)file.Id, ip, udid, playbackContextOut, playbackContextResponse.ConcurrencyData, isLive);
                 }
             }
             catch (Exception ex)

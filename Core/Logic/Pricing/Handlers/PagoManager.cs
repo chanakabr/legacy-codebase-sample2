@@ -694,7 +694,7 @@ namespace ApiLogic.Pricing.Handlers
             return Tuple.Create(res, res?.Count > 0);
         }
 
-        private List<ProgramAssetGroupOffer> GetProgramAssetGroupOffers(long partnerId, List<long> programAssetGroupOfferIds, bool getAlsoUnactive = false)
+        public List<ProgramAssetGroupOffer> GetProgramAssetGroupOffers(long partnerId, List<long> programAssetGroupOfferIds, bool getAlsoUnactive = false)
         {
             List<ProgramAssetGroupOffer> pagos = new List<ProgramAssetGroupOffer>();
 

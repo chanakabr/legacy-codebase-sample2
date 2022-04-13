@@ -39,8 +39,15 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Xml;
+using ApiLogic.Pricing.Handlers;
+using MoreLinq;
+using MoreLinq.Extensions;
+using OffersGrpcClientWrapper;
+using OTT.Service.Offers;
 using TVinciShared;
 using Tvinic.GoogleAPI;
+using SlimAsset = ApiObjects.Rules.SlimAsset;
+using TransactionType = OTT.Service.Offers.TransactionType;
 
 namespace Core.ConditionalAccess
 {
@@ -9739,6 +9746,115 @@ namespace Core.ConditionalAccess
             return programId;
         }
 
+        private static List<ExtendedSearchResult> GetProgramsByMediaId(int groupId, int mediaId, int numberOfProgram)
+        {
+            List<ExtendedSearchResult> programs = new List<ExtendedSearchResult>();
+            string epgChannelId = APILogic.Api.Managers.EpgManager.GetEpgChannelId(mediaId, groupId);
+            if (!string.IsNullOrEmpty(epgChannelId))
+            {
+                programs = APILogic.Api.Managers.EpgManager.GetPrograms(groupId, epgChannelId, numberOfProgram);
+            }
+
+            return programs;
+        }
+        
+        internal static PagoProgramAvailability GetEntitledPagoWindow(int groupId, int domainId, int assetId,
+            eAssetTypes assetType, List<MediaFile> files, EPGChannelProgrammeObject EpgProgram)
+        {
+            DomainEntitlements domainEntitlements = null;
+            if (!TryGetDomainEntitlementsFromCache(groupId, domainId, null, ref domainEntitlements))
+            {
+                return null;
+            }
+
+            var userPagoIds = domainEntitlements.PagoEntitlements.Select(x => x.Value.PagoId)
+                .ToList();
+
+            //user don't have pagos
+            if (userPagoIds.Count == 0) return null; 
+            var userPagos = PagoManager.Instance.GetProgramAssetGroupOffers(groupId, userPagoIds);
+            
+            var partnerConfig = ApiDAL.GetCommercePartnerConfig(groupId, out _);
+
+            List<ExtendedSearchResult> programs = new List<ExtendedSearchResult>();
+            switch (assetType)
+            {
+                case eAssetTypes.EPG:
+                    DateTime.TryParseExact(EpgProgram.START_DATE, EPG_DATETIME_FORMAT,
+                        System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None,
+                        out var startDate);
+                    DateTime.TryParseExact(EpgProgram.END_DATE, EPG_DATETIME_FORMAT,
+                        System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None,
+                        out var endDate);
+                    
+                    programs.Add(new ExtendedSearchResult
+                    {
+                        AssetId = EpgProgram.EPG_ID.ToString(),
+                        StartDate = startDate,
+                        EndDate = endDate
+                    });
+                    break;
+                case eAssetTypes.MEDIA:
+                    programs = GetProgramsByMediaId(groupId, assetId, 5);
+                    break;
+                default:
+                    return null;
+            }
+
+            var slimAssets = programs.Select(x => 
+                new OTT.Service.Offers.SlimAsset
+                {
+                    Id = Convert.ToInt64(x.AssetId), 
+                    Type = AssetType.Epg
+                });
+            var pagosForProgram = OffersClient.Instance.GetAssetProductOffers(groupId, slimAssets);
+            if (pagosForProgram == null || pagosForProgram.Count == 0)
+            {
+                log.Debug($"There is no Pagos for programs id {string.Join(string.Empty, programs.Select(x => x.AssetId))}");
+                return null;
+            }
+            
+            var pago = new PagoProgramAvailability();
+            foreach (var program in programs.OrderBy(prog => prog.StartDate))
+            {
+                //get relevant pagos for program
+                var pagoPerProgram = pagosForProgram.FirstOrDefault(x => long.Parse(program.AssetId) == x.AssetId);
+                //check existance of available purchased pagos and program playing.
+                var availableUserPagosPerProgram = userPagos.Where(userPago => 
+                    pagoPerProgram.Products?.Any(productOffer =>
+                    productOffer.ProductId == userPago.Id &&
+                    productOffer.ProductType == TransactionType.ProgramAssetGroupOffer) ?? false).ToList();
+
+                //there is no available pago for user, there's no reason to keep checking and break with current program
+                if(availableUserPagosPerProgram.Count == 0) break;
+
+                //add padding for program for entitlement window
+                var padStartDate = program.StartDate.AddSeconds(-partnerConfig.ProgramAssetEntitlementPaddingStart ?? 0);
+                var padEndDate = program.EndDate.AddSeconds(partnerConfig.ProgramAssetEntitlementPaddingEnd ?? 0);
+                //set the first program with pago.
+                if (!pago.IsStartDateSet() && padStartDate < DateTime.UtcNow)
+                {
+                    pago.StartDate = padStartDate;
+                    //it doesnt matter so we're taking the first one
+                    pago.PagoId = availableUserPagosPerProgram.First().Id;
+                    var allTypesAreValid = availableUserPagosPerProgram.Any(availableUserPagoPerProgram => availableUserPagoPerProgram.FileTypeIds == null);
+                    var availableFiles = files;
+                    if (!allTypesAreValid)
+                        availableFiles = availableFiles.Where(file =>
+                            availableUserPagosPerProgram.Any(
+                                availableUserPagoPerProgram => availableUserPagoPerProgram.FileTypeIds.Contains(file.TypeId)))
+                            .ToList();
+                    pago.FileIds = availableFiles.Select(file => file.Id).ToList();
+                }
+                // keep the end date of the last one that fit.   
+                pago.EndDate = padEndDate;
+            }
+
+            log.Debug($"PagoId {pago.PagoId} StartDate {pago.StartDate} EndDate {pago.EndDate} FileIds {pago.FileIds}");
+            return pago.IsValid() ? pago : null;
+
+        }
+        
         internal static List<EPGChannelProgrammeObject> GetEpgsByExternalIds(int nGroupID, List<string> epgExternalIds)
         {
             List<EPGChannelProgrammeObject> epgs = null;

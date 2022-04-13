@@ -20,6 +20,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />    
     <PackageReference Include="morelinq" Version="3.3.2" />    
     <PackageReference Include="Phx.Lib.Appconfig" Version="1.4.2" />
+    <PackageReference Include="ott.client.offers.grpc" Version="0.1.2" />
     <PackageReference Include="System.Runtime.Caching" Version="4.5.0" />
   </ItemGroup>
 
@@ -59,6 +60,7 @@
     <ProjectReference Include="..\Notifiers\Notifiers.csproj" />
     <ProjectReference Include="..\NPVR\NPVR.csproj" />
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj" />
+    <ProjectReference Include="..\OffersGrpcClientWrapper\OffersGrpcClientWrapper.csproj" />
     <ProjectReference Include="..\QueueWrapper\QueueWrapper.csproj" />
     <ProjectReference Include="..\ScheduledTasks\ScheduledTasks.csproj" />
     <ProjectReference Include="..\SchemaRegistryEvents\SchemaRegistryEvents.csproj" />
