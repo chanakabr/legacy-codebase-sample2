@@ -43,8 +43,7 @@ stage('Unified-CI'){
                             buildDockerAndPushToEcr("tvpapi","Tvpapi.Dockerfile")
                             buildDockerAndPushToEcr("wsingest","WSIngest.Dockerfile")
                             buildDockerAndPushToEcr("ingesthandlers","IngestHandlers.Dockerfile")
-                            buildDockerAndPushToEcr("opc-migration","OPC_Migration.Dockerfile")
-                            buildDockerAndPushToEcr("ott-service-phoenix-async-handler","AsyncHandler.Dockerfile")
+                            buildDockerAndPushToEcr("opc-migration","OPC_Migration.Dockerfile")                            
                         }
                         // stage("Trigger Release Candidate"){
                         //     steps{
