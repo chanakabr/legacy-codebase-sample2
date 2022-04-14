@@ -11,7 +11,7 @@ namespace ApiLogic.Api.Managers
     {
         private static readonly Lazy<DeviceFamilyManager> Lazy = new Lazy<DeviceFamilyManager>(
             () => new DeviceFamilyManager(DeviceFamilyRepository.Instance),
-            LazyThreadSafetyMode.None);
+            LazyThreadSafetyMode.PublicationOnly);
 
         private readonly IDeviceFamilyRepository _deviceFamilyRepository;
 

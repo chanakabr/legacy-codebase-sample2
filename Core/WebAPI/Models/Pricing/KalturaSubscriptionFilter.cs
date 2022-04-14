@@ -90,7 +90,7 @@ namespace WebAPI.Models.Pricing
 
         public override KalturaSubscriptionOrderBy GetDefaultOrderByValue()
         {
-            return KalturaSubscriptionOrderBy.NAME_ASC;
+            return KalturaSubscriptionOrderBy.START_DATE_ASC;
         }
     }
 }

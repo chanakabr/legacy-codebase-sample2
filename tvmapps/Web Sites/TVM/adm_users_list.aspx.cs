@@ -124,9 +124,13 @@ public partial class adm_users_list : System.Web.UI.Page
         theTable += ODBCWrapper.Parameter.NEW_PARAM("u.group_id", "=", nGroupID);
         countQuery += ODBCWrapper.Parameter.NEW_PARAM("u.group_id", "=", nGroupID);
 
-        queryPart = " and u.USERNAME NOT LIKE '%{Household}%' ";
-        theTable += queryPart;
-        countQuery += queryPart;
+        bool searchExact = Session["search_exact_ul"] != null && Session["search_exact_ul"].ToString() != "";
+        if (!searchExact)
+        {
+            queryPart = " and u.USERNAME NOT LIKE '%{Household}%' ";
+            theTable += queryPart;
+            countQuery += queryPart;
+        }       
 
         if (Session["search_free_ul"] != null && Session["search_free_ul"].ToString() != "")
         {
@@ -135,7 +139,7 @@ public partial class adm_users_list : System.Web.UI.Page
             theTable += queryPart;
             countQuery += queryPart;
         }
-        else if(Session["search_exact_ul"] != null && Session["search_exact_ul"].ToString() != "")
+        else if(searchExact)
         {
             string exactSearch = $"= '{Session["search_exact_ul"].ToString()}'";
             queryPart = " and (u.USERNAME " + exactSearch + " or u.FIRST_NAME " + exactSearch + " or u.LAST_NAME " + exactSearch + " or u.EMAIL_ADD " + exactSearch + ")";

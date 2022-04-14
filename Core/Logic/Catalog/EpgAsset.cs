@@ -49,7 +49,6 @@ namespace Core.Catalog
             : base()
         {
             AssetType = eAssetTypes.EPG;
-            ExternalOfferIds = new List<string>();
         }
 
         public EpgAsset(List<EpgCB> epgCBList, string defaultLanguageCode, Dictionary<string, List<EpgPicture>> groupEpgPicturesSizes, int groupId)

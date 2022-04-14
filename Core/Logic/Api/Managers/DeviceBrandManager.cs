@@ -11,7 +11,7 @@ namespace ApiLogic.Api.Managers
     {
         private static readonly Lazy<DeviceBrandManager> Lazy = new Lazy<DeviceBrandManager>(
             () => new DeviceBrandManager(DeviceFamilyRepository.Instance, DeviceBrandRepository.Instance),
-            LazyThreadSafetyMode.None);
+            LazyThreadSafetyMode.PublicationOnly);
 
         private readonly IDeviceFamilyRepository _deviceFamilyRepository;
         private readonly IDeviceBrandRepository _deviceBrandRepository;
