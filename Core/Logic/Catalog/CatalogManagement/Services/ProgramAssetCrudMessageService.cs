@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -135,7 +136,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
                 Id = epgAsset.Id,
                 EndDate = epgAsset.EndDate?.ToUtcUnixTimestampSeconds(),
                 ExpirationDate = expirationDate?.ToUtcUnixTimestampSeconds(),
-                ExternalOfferIds = epgAsset.ExternalOfferIds.ToArray(),
+                ExternalOfferIds = (epgAsset.ExternalOfferIds ?? new List<string>(0)).ToArray(),
                 PartnerId = groupId,
                 StartDate = epgAsset.StartDate?.ToUtcUnixTimestampSeconds(),
                 Operation = operation
