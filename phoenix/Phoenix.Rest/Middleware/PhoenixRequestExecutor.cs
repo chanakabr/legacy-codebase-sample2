@@ -25,14 +25,12 @@ namespace Phoenix.Rest.Middleware
 
         private readonly RequestDelegate _Next;
         private readonly IResponseFromatterProvider _FormatterProvider;
-        private readonly ITracer _Tracer;
         private static readonly ServiceController _ServiceController = new ServiceController();
 
-        public PhoenixRequestExecutor(RequestDelegate next, IResponseFromatterProvider formatterProvider, ITracer tracer)
+        public PhoenixRequestExecutor(RequestDelegate next, IResponseFromatterProvider formatterProvider)
         {
             _Next = next;
             _FormatterProvider = formatterProvider;
-            _Tracer = tracer;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -41,7 +39,7 @@ namespace Phoenix.Rest.Middleware
             if (phoenixContext == null) { throw new Exception("Phoenix Context was lost on the way :/ this should never happen. if you see this message... hopefully..."); }
 
             object response = null;
-            using (var jm = JaegerManager.TraceScope(_Tracer, phoenixContext.IsMultiRequest
+            using (var jm = (IDisposable)JaegerManager.TraceScope(phoenixContext.IsMultiRequest
                 ? $"{phoenixContext.RouteData.Service}"
                 : $"{phoenixContext.RouteData.Service}/{phoenixContext.RouteData.Action}"))
             {

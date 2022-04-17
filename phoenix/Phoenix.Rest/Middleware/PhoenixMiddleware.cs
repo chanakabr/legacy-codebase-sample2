@@ -13,10 +13,7 @@ using WebAPI.Filters;
 using Core.Middleware;
 using HealthCheck;
 using Phoenix.Rest.Middleware.Metrics;
-using OpenTracing;
-using OpenTracing.Contrib.NetCore.CoreFx;
 using OTT.Lib.Tracing;
-using IKTracer = OTT.Lib.Tracing.IKTracer;
 
 namespace Phoenix.Rest.Middleware
 {
@@ -35,11 +32,7 @@ namespace Phoenix.Rest.Middleware
             services.AddStaticHttpContextAccessor();
             services.AddSingleton<IResponseFromatterProvider, ResponseFromatterProvider>();
             services.AddApiExceptionHandler<PhoenixExceptionHandler>();
-            services.AddOpenTracing();
-            var tracer = JaegerManager.GetTracer(null);
-            // Adds the Jaeger Tracer.
-            services.AddSingleton(serviceProvider => tracer);
-            KMonitor.ConfigureTracer(() => new JaegerManager(tracer));
+            services.AddJaegerTracing();
             EpgAssetManager.InitProgramAssetCrudMessageService(WebKafkaContextProvider.Instance);
             Core.Api.Module.InitUserSegmentCrudMessageService(WebKafkaContextProvider.Instance);
             HouseholdSegmentManager.InitHouseholdSegmentCrudMessageService(WebKafkaContextProvider.Instance);
