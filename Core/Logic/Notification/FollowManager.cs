@@ -22,6 +22,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using ApiObjects.Catalog;
 using TVinciShared;
 
 namespace Core.Notification

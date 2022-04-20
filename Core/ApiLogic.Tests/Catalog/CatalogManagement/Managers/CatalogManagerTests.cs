@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ApiLogic.Catalog.CatalogManagement.Repositories;
+using ApiLogic.Catalog.CatalogManagement.Validators;
 using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
@@ -23,7 +24,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
     {
         private MockRepository _mockRepository;
         private Mock<ILayeredCache> _layeredCacheMock;
+        private Mock<IAssetStructValidator> _assetStructValidator;
         private Mock<IAssetStructMetaRepository> _assetStructMetaRepositoryMock;
+        private Mock<IAssetStructRepository> _assetStructRepositoryMock;
         private Mock<ILabelRepository> _labelRepositoryMock;
         private Mock<IGroupManager> _groupManagerMock;
         private Mock<IGroupSettingsManager> _groupSettingsManagerMock;
@@ -36,7 +39,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
             _mockRepository = new MockRepository(MockBehavior.Strict);
             _labelRepositoryMock = _mockRepository.Create<ILabelRepository>();
             _layeredCacheMock = _mockRepository.Create<ILayeredCache>();
+            _assetStructValidator = _mockRepository.Create<IAssetStructValidator>();
             _assetStructMetaRepositoryMock = _mockRepository.Create<IAssetStructMetaRepository>();
+            _assetStructRepositoryMock = _mockRepository.Create<IAssetStructRepository>();
             _loggerMock = _mockRepository.Create<IKLogger>();
             _groupManagerMock = _mockRepository.Create<IGroupManager>();
             _catalogCache = _mockRepository.Create<ICatalogCache>();
@@ -60,7 +65,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
             var catalogManager = new CatalogManager(
                 _labelRepositoryMock.Object,
                 _layeredCacheMock.Object,
+                _assetStructValidator.Object,
                 _assetStructMetaRepositoryMock.Object,
+                _assetStructRepositoryMock.Object,
                 _groupSettingsManagerMock.Object,
                 _groupManagerMock.Object,
                 _catalogCache.Object,
@@ -84,7 +91,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
             var catalogManager = new CatalogManager(
                 _labelRepositoryMock.Object,
                 _layeredCacheMock.Object,
+                _assetStructValidator.Object,
                 _assetStructMetaRepositoryMock.Object,
+                _assetStructRepositoryMock.Object,
                 _groupSettingsManagerMock.Object,
                 _groupManagerMock.Object,
                 _catalogCache.Object,
@@ -108,7 +117,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
             var catalogManager = new CatalogManager(
                 _labelRepositoryMock.Object,
                 _layeredCacheMock.Object,
+                _assetStructValidator.Object,
                 _assetStructMetaRepositoryMock.Object,
+                _assetStructRepositoryMock.Object,
                 _groupSettingsManagerMock.Object,
                 _groupManagerMock.Object,
                 _catalogCache.Object,
@@ -132,7 +143,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
             var catalogManager = new CatalogManager(
                 _labelRepositoryMock.Object,
                 _layeredCacheMock.Object,
+                _assetStructValidator.Object,
                 _assetStructMetaRepositoryMock.Object,
+                _assetStructRepositoryMock.Object,
                 _groupSettingsManagerMock.Object,
                 _groupManagerMock.Object,
                 _catalogCache.Object,
@@ -155,7 +168,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
             var catalogManager = new CatalogManager(
                 _labelRepositoryMock.Object,
                 _layeredCacheMock.Object,
+                _assetStructValidator.Object,
                 _assetStructMetaRepositoryMock.Object,
+                _assetStructRepositoryMock.Object,
                 _groupSettingsManagerMock.Object,
                 _groupManagerMock.Object,
                 _catalogCache.Object,
@@ -178,7 +193,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
             var catalogManager = new CatalogManager(
                 _labelRepositoryMock.Object,
                 _layeredCacheMock.Object,
+                _assetStructValidator.Object,
                 _assetStructMetaRepositoryMock.Object,
+                _assetStructRepositoryMock.Object,
                 _groupSettingsManagerMock.Object,
                 _groupManagerMock.Object,
                 _catalogCache.Object,
@@ -199,7 +216,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
             var catalogManager = new CatalogManager(
                 _labelRepositoryMock.Object,
                 _layeredCacheMock.Object,
+                _assetStructValidator.Object,
                 _assetStructMetaRepositoryMock.Object,
+                _assetStructRepositoryMock.Object,
                 _groupSettingsManagerMock.Object,
                 _groupManagerMock.Object,
                 _catalogCache.Object,
@@ -223,7 +242,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
             var catalogManager = new CatalogManager(
                 _labelRepositoryMock.Object,
                 _layeredCacheMock.Object,
+                _assetStructValidator.Object,
                 _assetStructMetaRepositoryMock.Object,
+                _assetStructRepositoryMock.Object,
                 _groupSettingsManagerMock.Object,
                 _groupManagerMock.Object,
                 _catalogCache.Object,
@@ -247,7 +268,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
             var catalogManager = new CatalogManager(
                 _labelRepositoryMock.Object,
                 _layeredCacheMock.Object,
+                _assetStructValidator.Object,
                 _assetStructMetaRepositoryMock.Object,
+                _assetStructRepositoryMock.Object,
                 _groupSettingsManagerMock.Object,
                 _groupManagerMock.Object,
                 _catalogCache.Object,
@@ -271,7 +294,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
             var catalogManager = new CatalogManager(
                 _labelRepositoryMock.Object,
                 _layeredCacheMock.Object,
+                _assetStructValidator.Object,
                 _assetStructMetaRepositoryMock.Object,
+                _assetStructRepositoryMock.Object,
                 _groupSettingsManagerMock.Object,
                 _groupManagerMock.Object,
                 _catalogCache.Object,
@@ -295,7 +320,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
             var catalogManager = new CatalogManager(
                 _labelRepositoryMock.Object,
                 _layeredCacheMock.Object,
+                _assetStructValidator.Object,
                 _assetStructMetaRepositoryMock.Object,
+                _assetStructRepositoryMock.Object,
                 _groupSettingsManagerMock.Object,
                 _groupManagerMock.Object,
                 _catalogCache.Object,
@@ -319,7 +346,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
             var catalogManager = new CatalogManager(
                 _labelRepositoryMock.Object,
                 _layeredCacheMock.Object,
+                _assetStructValidator.Object,
                 _assetStructMetaRepositoryMock.Object,
+                _assetStructRepositoryMock.Object,
                 _groupSettingsManagerMock.Object,
                 _groupManagerMock.Object,
                 _catalogCache.Object,
@@ -345,7 +374,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Managers
             var catalogManager = new CatalogManager(
                 _labelRepositoryMock.Object,
                 _layeredCacheMock.Object,
+                _assetStructValidator.Object,
                 _assetStructMetaRepositoryMock.Object,
+                _assetStructRepositoryMock.Object,
                 _groupSettingsManagerMock.Object,
                 _groupManagerMock.Object,
                 _catalogCache.Object,

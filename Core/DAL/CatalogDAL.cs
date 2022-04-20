@@ -11,6 +11,7 @@ using ApiObjects.CouchbaseWrapperObjects;
 using ApiObjects.Epg;
 using ApiObjects.MediaMarks;
 using ApiObjects.PlayCycle;
+using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CouchbaseManager;
 using DAL;
@@ -4665,14 +4666,6 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<int>() == 1;
         }
 
-        public static DataSet GetAssetStructsByGroupId(int groupId)
-        {
-            StoredProcedure sp = new StoredProcedure("GetAssetStructsByGroupId");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@GroupId", groupId);
-            return sp.ExecuteDataSet();
-        }
-
         public static DataSet GetMediaFileTypesByGroupId(int groupId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaFileTypesByGroupId");
@@ -4697,61 +4690,6 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@VideoCodecs", videoCodecs != null && videoCodecs.Count > 0 ? string.Join(",", videoCodecs) : string.Empty);
             sp.AddParameter("@AudioCodecs", audioCodecs != null && audioCodecs.Count > 0 ? string.Join(",", audioCodecs) : string.Empty);
             sp.AddParameter("@UpdaterId", userId);
-
-            return sp.ExecuteDataSet();
-        }
-
-        public static DataSet InsertAssetStruct(int groupId, string name, List<KeyValuePair<string, string>> namesInOtherLanguages, string systemName,
-                                                List<KeyValuePair<long, int>> metaIdsToPriority, bool? isPredefined, long userId, string features,
-                                                long? connectingMetaId, long? connectedParentMetaId, string pluralName, long? parentId, bool isProgramStruct,
-                                                bool isLinear, List<KeyValuePair<string, string>> dynamicData = null)
-        {
-            StoredProcedure sp = new StoredProcedure("InsertAssetStruct");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@GroupId", groupId);
-            sp.AddParameter("@Name", name);
-            sp.AddParameter("@NamesInOtherLanguagesExist", namesInOtherLanguages != null && namesInOtherLanguages.Count > 0);
-            sp.AddKeyValueListParameter<string, string>("@NamesInOtherLanguages", namesInOtherLanguages, "key", "value");
-            sp.AddParameter("@SystemName", systemName);
-            sp.AddParameter("@IsPredefined", isPredefined.HasValue && isPredefined.Value ? 1 : 0);
-            sp.AddParameter("@MetaIdsToPriorityExist", metaIdsToPriority != null && metaIdsToPriority.Count > 0);
-            sp.AddKeyValueListParameter<long, int>("@MetaIdsToPriority", metaIdsToPriority, "key", "value");
-            sp.AddParameter("@UpdaterId", userId);
-            sp.AddParameter("@Features", features);
-            sp.AddParameter("@ConnectingMetaId", connectingMetaId);
-            sp.AddParameter("@ConnectedParentMetaId", connectedParentMetaId);
-            sp.AddParameter("@PluralName", pluralName);
-            sp.AddParameter("@ParentId", parentId);
-            sp.AddParameter("@IsProgramStruct", isProgramStruct ? 1 : 0);
-            sp.AddParameter("@DynamicData", (dynamicData != null && dynamicData.Count != 0) ? JsonConvert.SerializeObject(dynamicData) : null);
-            sp.AddParameter("@IsLinear", isLinear ? 1 : 0);
-
-            return sp.ExecuteDataSet();
-
-        }
-
-        public static DataSet UpdateAssetStruct(int groupId, long id, string name, bool shouldUpdateOtherNames, List<KeyValuePair<string, string>> namesInOtherLanguages,
-                                                string systemName, bool shouldUpdateMetaIds, List<KeyValuePair<long, int>> metaIdsToPriority,
-                                                long userId, string features, long? connectingMetaId, long? connectedParentMetaId, string pluralName,
-                                                long? parentId, List<KeyValuePair<string, string>> dynamicData)
-        {
-            StoredProcedure sp = new StoredProcedure("UpdateAssetStruct");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@GroupId", groupId);
-            sp.AddParameter("@Id", id);
-            sp.AddParameter("@Name", name);
-            sp.AddParameter("@ShouldUpdateOtherNames", shouldUpdateOtherNames ? 1 : 0);
-            sp.AddKeyValueListParameter<string, string>("@NamesInOtherLanguages", namesInOtherLanguages, "key", "value");
-            sp.AddParameter("@SystemName", systemName);
-            sp.AddParameter("@ShouldUpdateMetaIds", shouldUpdateMetaIds ? 1 : 0);
-            sp.AddKeyValueListParameter<long, int>("@MetaIdsToPriority", metaIdsToPriority, "key", "value");
-            sp.AddParameter("@UpdaterId", userId);
-            sp.AddParameter("@Features", features);
-            sp.AddParameter("@ConnectingMetaId", connectingMetaId);
-            sp.AddParameter("@ConnectedParentMetaId", connectedParentMetaId);
-            sp.AddParameter("@PluralName", pluralName);
-            sp.AddParameter("@ParentId", parentId);
-            sp.AddParameter("@DynamicData", (dynamicData != null && dynamicData.Count != 0) ? JsonConvert.SerializeObject(dynamicData) : null);
 
             return sp.ExecuteDataSet();
         }

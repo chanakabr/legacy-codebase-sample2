@@ -20,6 +20,8 @@ using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Web;
+using ApiLogic.Catalog.CatalogManagement.Managers;
+using ApiObjects.Catalog;
 using TVinciShared;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
@@ -342,9 +344,9 @@ namespace WebAPI.App_Start
 
         private ExcelStructure GetExcelStructureFromAssetStruct(int groupId, KalturaAssetStruct assetStruct)
         {
-            var excelStructureManager = Mapper.Map<AssetStruct>(assetStruct);
-            var excelStructure = excelStructureManager.GetExcelStructure(groupId);
-            return excelStructure;
+            var mappedAssetStruct = Mapper.Map<AssetStruct>(assetStruct);
+
+            return new AssetStructStructureManager(mappedAssetStruct).GetExcelStructure(groupId);
         }
 
         /// <summary>

@@ -1,6 +1,7 @@
 ﻿using ApiLogic.Api.Managers;
 using ApiLogic.Api.Validators;
 using ApiLogic.Catalog.CatalogManagement.Repositories;
+using ApiLogic.Catalog.CatalogManagement.Validators;
 using ApiLogic.EPG;
 using ApiLogic.Notification;
 using ApiLogic.Repositories;
@@ -39,7 +40,9 @@ namespace EpgNotificationHandler.Infrastructure
                 .AddSingleton<IRegionValidator, RegionValidator>()
                 .AddSingleton<ILabelDal, LabelDal>()
                 .AddSingleton<ILabelRepository, LabelRepository>()
+                .AddSingleton<IAssetStructValidator, AssetStructValidator>()
                 .AddSingleton<IAssetStructMetaRepository, AssetStructMetaRepository>()
+                .AddSingleton<IAssetStructRepository, AssetStructRepository>()
                 .AddSingleton<IGroupSettingsManager, GroupSettingsManager>()
                 .AddSingleton<IGroupManager, GroupManager>()
                 .AddSingleton<IIotNotificationService, IotNotificationService>()

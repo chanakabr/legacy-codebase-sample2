@@ -323,6 +323,7 @@ namespace ApiObjects.Response
         VideoCodecsDoesNotExist = 4115,
         AudioCodecsDoesNotExist = 4116,
         SearchPriorityGroupDoesNotExist = 4117,
+        CanNotRemoveMetaIdsForLiveToVod = 4118,
 
         #endregion
 

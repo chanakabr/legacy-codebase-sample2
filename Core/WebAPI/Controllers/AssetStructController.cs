@@ -90,6 +90,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ParentIdShouldNotPointToItself)]
         [Throws(eResponseStatus.MetaIdsDuplication)]
         [Throws(eResponseStatus.AssetStructMetasConatinSystemNameDuplication)]
+        [Throws(eResponseStatus.CanNotRemoveMetaIdsForLiveToVod)]
         [SchemeArgument("id", MinLong = 0)]
         static public KalturaAssetStruct Update(long id, KalturaAssetStruct assetStruct)
         {

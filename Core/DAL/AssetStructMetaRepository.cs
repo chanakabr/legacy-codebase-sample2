@@ -8,13 +8,14 @@ using System.Collections.Generic;
 using CouchbaseManager;
 using Phx.Lib.Log;
 using System.Reflection;
+using ApiObjects.Catalog;
 
 namespace DAL
 {
     public interface IAssetStructMetaRepository
     {
-        List<AssetStructMetaDTO> GetAssetStructMetaList(int groupId, long metaId);
-        AssetStructMetaDTO UpdateAssetStructMeta(int groupId, long userId, AssetStructMetaDTO assetStructMetaDTO, out bool success);
+        List<AssetStructMeta> GetAssetStructMetaList(int groupId, long metaId);
+        AssetStructMeta UpdateAssetStructMeta(int groupId, long userId, AssetStructMetaDTO assetStructMetaDTO, out bool success);
         bool UpdateEpgAssetStructMetas(int groupId, List<KeyValuePair<long, string>> epgMetaIdsToValue, long userId);
 
         //Meta aliases
@@ -35,7 +36,7 @@ namespace DAL
         {
         }
 
-        public AssetStructMetaDTO UpdateAssetStructMeta(int groupId, long userId, AssetStructMetaDTO assetStructMetaDTO, out bool success)
+        public AssetStructMeta UpdateAssetStructMeta(int groupId, long userId, AssetStructMetaDTO assetStructMetaDTO, out bool success)
         {
             success = true;
             StoredProcedure sp = new StoredProcedure("UpdateAssetStructMeta");
@@ -53,7 +54,7 @@ namespace DAL
             sp.AddParameter("@alias", assetStructMetaDTO.Alias);
 
             var response = sp.Execute();
-            var dtoObject = CreateAssetStructMetaDtoListFromDT(response).FirstOrDefault();
+            var dtoObject = CreateAssetStructMetaListFromDT(response).FirstOrDefault();
 
             if (dtoObject == null)
             {
@@ -72,7 +73,7 @@ namespace DAL
             return dtoObject;
         }
 
-        public List<AssetStructMetaDTO> GetAssetStructMetaList(int groupId, long metaId)
+        public List<AssetStructMeta> GetAssetStructMetaList(int groupId, long metaId)
         {
             StoredProcedure sp = new StoredProcedure("GetAssetStructMetaListByMetaId");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -80,7 +81,7 @@ namespace DAL
             sp.AddParameter("@MetaId", metaId);
 
             var response = sp.Execute();
-            return CreateAssetStructMetaDtoListFromDT(response);
+            return CreateAssetStructMetaListFromDT(response);
         }
 
         public bool UpdateEpgAssetStructMetas(int groupId, List<KeyValuePair<long, string>> epgMetaIdsToValue, long userId)
@@ -94,24 +95,24 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        private List<AssetStructMetaDTO> CreateAssetStructMetaDtoListFromDT(DataTable dt)
+        private List<AssetStructMeta> CreateAssetStructMetaListFromDT(DataTable dt)
         {
-            var assetStructMetaList = new List<AssetStructMetaDTO>();
+            var assetStructMetaList = new List<AssetStructMeta>();
 
             if (dt != null && dt.Rows != null)
             {
                 foreach (DataRow dr in dt.Rows)
                 {
-                    assetStructMetaList.Add(CreateAssetStructMetaDTO(dr, ODBCWrapper.Utils.GetLongSafeVal(dr, "TEMPLATE_ID"), ODBCWrapper.Utils.GetLongSafeVal(dr, "TOPIC_ID")));
+                    assetStructMetaList.Add(CreateAssetStructMeta(dr, Utils.GetLongSafeVal(dr, "TEMPLATE_ID"), ODBCWrapper.Utils.GetLongSafeVal(dr, "TOPIC_ID")));
                 }
             }
 
             return assetStructMetaList;
         }
 
-        public static AssetStructMetaDTO CreateAssetStructMetaDTO(DataRow dr, long assetStructId, long metaId)
+        public static AssetStructMeta CreateAssetStructMeta(DataRow dr, long assetStructId, long metaId)
         {
-            var assetStructMeta = new AssetStructMetaDTO()
+            var assetStructMeta = new AssetStructMeta()
             {
                 AssetStructId = assetStructId,
                 MetaId = metaId,

@@ -15,14 +15,19 @@ using System.Threading;
 
 namespace Core.Catalog.CatalogManagement
 {
-    public class TopicManager
+    public interface ITopicManager
+    {
+        GenericResponse<Topic> AddTopic(int groupId, Topic topicToAdd, long userId, bool shouldCheckRegularFlowValidations = true);
+    }
+
+    public class TopicManager : ITopicManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly Lazy<TopicManager> lazy = new Lazy<TopicManager>(() => 
         new TopicManager(CatalogManager.Instance, CatalogDAL.Instance, VirtualAssetPartnerConfigManager.Instance,
             IndexManagerFactory.Instance, GroupsCache.Instance(), ConditionalAccess.Utils.Instance, Core.Notification.NotificationCache.Instance())
         , LazyThreadSafetyMode.PublicationOnly);
-        public static TopicManager Instance { get { return lazy.Value; } }
+        public static TopicManager Instance => lazy.Value;
 
         private readonly ICatalogManager _catalogManager;
         private readonly ITopicRepository _repository;

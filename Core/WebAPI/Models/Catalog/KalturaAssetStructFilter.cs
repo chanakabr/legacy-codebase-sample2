@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using ApiObjects;
+using ApiObjects.Catalog;
 using ApiObjects.Response;
 using AutoMapper;
 using Core.Catalog;

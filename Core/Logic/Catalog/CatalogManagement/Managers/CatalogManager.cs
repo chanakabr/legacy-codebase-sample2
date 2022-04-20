@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using ApiLogic.Api.Managers;
 using ApiLogic.Catalog.CatalogManagement.Models;
 using ApiLogic.Catalog.CatalogManagement.Repositories;
+using ApiLogic.Catalog.CatalogManagement.Services;
+using ApiLogic.Catalog.CatalogManagement.Validators;
 using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.MediaMarks;
@@ -60,6 +62,8 @@ namespace Core.Catalog.CatalogManagement
         private readonly ILayeredCache _layeredCache;
         private readonly IAssetStructMetaRepository _assetStructMetaRepository;
         private readonly ICatalogCache _catalogCache;
+        private readonly IAssetStructRepository _assetStructRepository;
+        private readonly IAssetStructValidator _assetStructValidator;
 
         internal static readonly HashSet<string> TopicsToIgnore = CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
         internal const string OPC_UI_METADATA = "metadata";
@@ -76,7 +80,9 @@ namespace Core.Catalog.CatalogManagement
         private static readonly Lazy<CatalogManager> lazy = new Lazy<CatalogManager>(() =>
                 new CatalogManager(LabelRepository.Instance,
                     LayeredCache.Instance,
+                    AssetStructValidator.Instance,
                     AssetStructMetaRepository.Instance,
+                    AssetStructRepository.Instance,
                     GroupSettingsManager.Instance,
                     GroupManager.Instance,
                     CatalogCache.Instance()),
@@ -87,13 +93,17 @@ namespace Core.Catalog.CatalogManagement
         public CatalogManager(
             ILabelRepository labelRepository,
             ILayeredCache layeredCache,
+            IAssetStructValidator assetStructValidator,
             IAssetStructMetaRepository assetStructMetaRepository,
+            IAssetStructRepository assetStructRepository,
             IGroupSettingsManager groupSettingsManager,
             IGroupManager groupManager,
             ICatalogCache catalogCache)
         {
             _labelRepository = labelRepository ?? throw new ArgumentNullException(nameof(labelRepository));
             _layeredCache = layeredCache ?? throw new ArgumentNullException(nameof(layeredCache));
+            _assetStructValidator = assetStructValidator ?? throw new ArgumentNullException(nameof(assetStructValidator));
+            _assetStructRepository = assetStructRepository ?? throw new ArgumentNullException(nameof(assetStructRepository));
             _assetStructMetaRepository = assetStructMetaRepository ?? throw new ArgumentNullException(nameof(assetStructMetaRepository));
             _groupSettingsManager = groupSettingsManager ?? throw new ArgumentNullException(nameof(groupSettingsManager));
             _groupManager = groupManager ?? throw new ArgumentNullException(nameof(groupManager));
@@ -103,18 +113,20 @@ namespace Core.Catalog.CatalogManagement
         public CatalogManager(
             ILabelRepository labelRepository,
             ILayeredCache layeredCache,
+            IAssetStructValidator assetStructValidator,
             IAssetStructMetaRepository assetStructMetaRepository,
+            IAssetStructRepository assetStructRepository,
             IGroupSettingsManager groupSettingsManager,
             IGroupManager groupManager,
             ICatalogCache catalogCache,
-            IKLogger logger) : this(labelRepository, layeredCache, assetStructMetaRepository, groupSettingsManager, groupManager, catalogCache)
+            IKLogger logger) : this(labelRepository, layeredCache, assetStructValidator, assetStructMetaRepository, assetStructRepository, groupSettingsManager, groupManager, catalogCache)
         {
             log = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         #region Private Methods
 
-        private static Tuple<CatalogGroupCache, bool> GetCatalogGroupCache(Dictionary<string, object> funcParams)
+        private Tuple<CatalogGroupCache, bool> GetCatalogGroupCache(Dictionary<string, object> funcParams)
         {
             bool res = false;
             CatalogGroupCache catalogGroupCache = null;
@@ -153,8 +165,7 @@ namespace Core.Catalog.CatalogManagement
                         //     return new Tuple<CatalogGroupCache, bool>(null, false);
                         // }
 
-                        DataSet assetStructsDs = CatalogDAL.GetAssetStructsByGroupId(groupId.Value);
-                        List<AssetStruct> assetStructs = CreateAssetStructListFromDataSet(assetStructsDs);
+                        var assetStructs = _assetStructRepository.GetAssetStructsByGroupId(groupId.Value);
                         // return false if asset is null
                         if (assetStructs == null)
                         {
@@ -186,227 +197,6 @@ namespace Core.Catalog.CatalogManagement
                     log.ErrorFormat("Failed to set invalidation key for catalogGroupCache with invalidationKey: {0}", invalidationKey);
                 }
             }
-        }
-
-        private static Status CreateAssetStructResponseStatusFromResult(long result, Status status = null)
-        {
-            Status responseStatus = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            switch (result)
-            {
-                case -111:
-                    responseStatus = new Status((int)eResponseStatus.AssetStructNameAlreadyInUse, eResponseStatus.AssetStructNameAlreadyInUse.ToString());
-                    break;
-                case -222:
-                    responseStatus = new Status((int)eResponseStatus.AssetStructSystemNameAlreadyInUse, eResponseStatus.AssetStructSystemNameAlreadyInUse.ToString());
-                    break;
-                case -333:
-                    responseStatus = new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
-                    break;
-                default:
-                    if (status != null)
-                    {
-                        responseStatus = status;
-                    }
-
-                    break;
-            }
-
-            return responseStatus;
-        }
-
-        private static AssetStruct CreateAssetStruct(long id, DataRow dr, List<DataRow> assetStructTranslations)
-        {
-            AssetStruct result = null;
-            if (id > 0)
-            {
-                string name = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION");
-                string systemName = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
-                if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(systemName))
-                {
-                    DateTime? createDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
-                    DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
-                    List<LanguageContainer> namesInOtherLanguages = new List<LanguageContainer>();
-                    if (assetStructTranslations != null && assetStructTranslations.Count > 0)
-                    {
-                        foreach (DataRow translationDr in assetStructTranslations)
-                        {
-                            string languageCode = ODBCWrapper.Utils.GetSafeStr(translationDr, "CODE3");
-                            string translation = ODBCWrapper.Utils.GetSafeStr(translationDr, "TRANSLATION");
-                            if (!string.IsNullOrEmpty(languageCode) && !string.IsNullOrEmpty(translation))
-                            {
-                                namesInOtherLanguages.Add(new LanguageContainer(languageCode, translation));
-                            }
-                        }
-                    }
-
-                    string commaSeparatedFeatures = ODBCWrapper.Utils.GetSafeStr(dr, "FEATURES");
-                    HashSet<string> features = null;
-                    if (!string.IsNullOrEmpty(commaSeparatedFeatures))
-                    {
-                        features = new HashSet<string>(commaSeparatedFeatures.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
-                    }
-
-                    long? parentId = ODBCWrapper.Utils.GetNullableLong(dr, "PARENT_TYPE_ID");
-                    result = new AssetStruct()
-                    {
-                        Id = id,
-                        Name = name,
-                        NamesInOtherLanguages = namesInOtherLanguages,
-                        SystemName = systemName,
-                        IsPredefined = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_BASIC"),
-                        ParentId = parentId.HasValue && parentId.Value == 0 ? null : parentId,
-                        CreateDate = createDate.HasValue ? DateUtils.DateTimeToUtcUnixTimestampSeconds(createDate.Value) : 0,
-                        UpdateDate = updateDate.HasValue ? DateUtils.DateTimeToUtcUnixTimestampSeconds(updateDate.Value) : 0,
-                        Features = features,
-                        ConnectingMetaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "CONNECTING_META_ID"),
-                        ConnectedParentMetaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "CONNECTED_PARENT_META_ID"),
-                        PluralName = ODBCWrapper.Utils.GetSafeStr(dr, "PLURAL_NAME"),
-                        IsProgramAssetStruct = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_PROGRAM") == 1,
-                        IsLinearAssetStruct = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_LINEAR") == 1,
-                        DynamicData = ODBCWrapper.Utils.GetSafeStr(dr["dynamic_data"]) == null ? null :
-                        JsonConvert.DeserializeObject<List<KeyValuePair<string, string>>>(ODBCWrapper.Utils.GetSafeStr(dr["dynamic_data"]))
-                    };
-                }
-            }
-
-            return result;
-        }
-
-        private static GenericResponse<AssetStruct> CreateAssetStructResponseFromDataSet(DataSet ds, List<KeyValuePair<long, int>> insertedMetaIdsToPriority = null)
-        {
-            GenericResponse<AssetStruct> response = new GenericResponse<AssetStruct>();
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-            {
-                DataTable dtMediaTypes = ds.Tables[0];
-                if (dtMediaTypes != null && dtMediaTypes.Rows != null && dtMediaTypes.Rows.Count == 1)
-                {
-                    long id = ODBCWrapper.Utils.GetLongSafeVal(dtMediaTypes.Rows[0], "ID", 0);
-                    if (id > 0)
-                    {
-                        List<DataRow> assetStructTranslations = (ds.Tables.Count > 1 ? ds.Tables[1].AsEnumerable() : new DataTable().AsEnumerable()).ToList();
-                        response.Object = CreateAssetStruct(id, dtMediaTypes.Rows[0], assetStructTranslations);
-
-                        if (response.Object != null)
-                        {
-                            if (insertedMetaIdsToPriority != null && insertedMetaIdsToPriority.Count > 0)
-                            {
-                                foreach (KeyValuePair<long, int> metaIdToPriority in insertedMetaIdsToPriority)
-                                {
-                                    if (!response.Object.MetaIds.Contains(metaIdToPriority.Key))
-                                    {
-                                        response.Object.MetaIds.Add(metaIdToPriority.Key);
-                                    }
-                                }
-                            }
-                            else if (ds.Tables.Count == 3)
-                            {
-                                DataTable dtTemplateTopics = ds.Tables[2];
-                                if (dtTemplateTopics != null && dtTemplateTopics.Rows != null && dtTemplateTopics.Rows.Count > 0)
-                                {
-                                    if (response.Object.MetaIds == null)
-                                    {
-                                        response.Object.MetaIds = new List<long>(dtTemplateTopics.Rows.Count);
-                                    }
-
-                                    foreach (DataRow dr in dtTemplateTopics.Rows)
-                                    {
-                                        long metaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "TOPIC_ID", 0);
-                                        if (!response.Object.MetaIds.Contains(metaId))
-                                        {
-                                            response.Object.MetaIds.Add(metaId);
-                                        }
-                                    }
-                                }
-                            }
-
-                            response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
-                        }
-                    }
-                    else
-                    {
-                        response.SetStatus(CreateAssetStructResponseStatusFromResult(id));
-                    }
-                }
-                /// assetStruct does not exist
-                else
-                {
-                    response.SetStatus(CreateAssetStructResponseStatusFromResult(0, new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString())));
-                }
-            }
-
-            return response;
-        }
-
-        private static List<AssetStruct> CreateAssetStructListFromDataSet(DataSet ds)
-        {
-            List<AssetStruct> response = null;
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-            {
-                Dictionary<long, AssetStruct> idToAssetStructMap = new Dictionary<long, AssetStruct>();
-                DataTable dt = ds.Tables[0];
-                EnumerableRowCollection<DataRow> translations = ds.Tables.Count > 2 ? ds.Tables[2].AsEnumerable() : new DataTable().AsEnumerable();
-                if (dt != null && dt.Rows != null)
-                {
-                    foreach (DataRow dr in dt.Rows)
-                    {
-                        long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
-                        if (id > 0 && !idToAssetStructMap.ContainsKey(id))
-                        {
-                            List<DataRow> assetStructTranslations = (from row in translations
-                                                                     where (Int64)row["TEMPLATE_ID"] == id
-                                                                     select row).ToList();
-                            AssetStruct assetStruct = CreateAssetStruct(id, dr, assetStructTranslations);
-                            if (assetStruct != null)
-                            {
-                                idToAssetStructMap.Add(id, assetStruct);
-                            }
-                        }
-                    }
-                }
-
-                DataTable metasDt = ds.Tables[1];
-                if (metasDt != null && metasDt.Rows != null && metasDt.Rows.Count > 0 && idToAssetStructMap.Count > 0)
-                {
-                    Dictionary<long, Dictionary<int, long>> assetStructOrderedMetasMap = new Dictionary<long, Dictionary<int, long>>();
-
-                    foreach (DataRow dr in metasDt.Rows)
-                    {
-                        long assetStructId = ODBCWrapper.Utils.GetLongSafeVal(dr, "TEMPLATE_ID", 0);
-                        long metaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "TOPIC_ID", 0);
-                        int order = ODBCWrapper.Utils.GetIntSafeVal(dr, "ORDER", 0);
-
-                        if (assetStructId > 0 && metaId > 0 && order > 0 && idToAssetStructMap.ContainsKey(assetStructId))
-                        {
-                            if (assetStructOrderedMetasMap.ContainsKey(assetStructId))
-                            {
-                                assetStructOrderedMetasMap[assetStructId][order] = metaId;
-                            }
-                            else
-                            {
-                                assetStructOrderedMetasMap.Add(assetStructId, new Dictionary<int, long>() { { order, metaId } });
-                            }
-
-                            if (!idToAssetStructMap[assetStructId].AssetStructMetas.ContainsKey(metaId))
-                            {
-                                AssetStructMeta assetStructMeta = CreateAssetStructMeta(dr, assetStructId, metaId);
-                                idToAssetStructMap[assetStructId].AssetStructMetas.Add(metaId, assetStructMeta);
-                            }
-                        }
-                    }
-
-                    foreach (AssetStruct assetStruct in idToAssetStructMap.Values)
-                    {
-                        if (assetStructOrderedMetasMap.ContainsKey(assetStruct.Id))
-                        {
-                            assetStruct.MetaIds = assetStructOrderedMetasMap[assetStruct.Id].OrderBy(x => x.Key).Select(x => x.Value).ToList();
-                        }
-                    }
-                }
-
-                response = idToAssetStructMap.Values.ToList();
-            }
-
-            return response;
         }
 
         private static List<Topic> CreateTopicListFromDataSet(DataSet ds)
@@ -707,30 +497,6 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
             }
-        }
-
-        private static List<AssetStructMeta> CreateAssetStructMetaListFromDT(DataTable dt)
-        {
-            List<AssetStructMeta> assetStructMetaList = null;
-
-            if (dt != null && dt.Rows != null)
-            {
-                assetStructMetaList = new List<AssetStructMeta>(dt.Rows.Count);
-
-                foreach (DataRow dr in dt.Rows)
-                {
-                    AssetStructMeta assetStructMeta = CreateAssetStructMeta(dr, ODBCWrapper.Utils.GetLongSafeVal(dr, "TEMPLATE_ID"), ODBCWrapper.Utils.GetLongSafeVal(dr, "TOPIC_ID"));
-                    assetStructMetaList.Add(assetStructMeta);
-                }
-            }
-
-            return assetStructMetaList;
-        }
-
-        private static AssetStructMeta CreateAssetStructMeta(DataRow dr, long assetStructId, long metaId)
-        {
-            var dto = AssetStructMetaRepository.CreateAssetStructMetaDTO(dr, assetStructId, metaId);
-            return Instance.ConvertFromDto(dto);
         }
 
         private static string GetConnectingMetaValue(Topic topic, Asset mediaAsset)
@@ -1456,7 +1222,7 @@ namespace Core.Catalog.CatalogManagement
                 // validate basic metas
                 if (!isProgramStruct)
                 {
-                    Status validateBasicMetasResult = assetStructToadd.ValidateBasicMetaIds(catalogGroupCache, isProgramStruct);
+                    Status validateBasicMetasResult = _assetStructValidator.ValidateBasicMetaIds(catalogGroupCache, assetStructToadd, isProgramStruct);
                     if (validateBasicMetasResult.Code != (int)eResponseStatus.OK)
                     {
                         result.SetStatus(validateBasicMetasResult);
@@ -1482,7 +1248,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // validate metas with the same system name don't exist
-                Status validateNoSystemNameDuplication = assetStructToadd.ValidateNoSystemNameDuplicationOnMetaIds(catalogGroupCache);
+                Status validateNoSystemNameDuplication = _assetStructValidator.ValidateNoSystemNameDuplicationOnMetaIds(catalogGroupCache, assetStructToadd);
                 if (validateNoSystemNameDuplication.Code != (int)eResponseStatus.OK)
                 {
                     result.SetStatus(validateNoSystemNameDuplication);
@@ -1546,14 +1312,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                bool isLinear = assetStructToadd.SystemName.Equals("linear", StringComparison.OrdinalIgnoreCase);
-
-                DataSet ds = CatalogDAL.InsertAssetStruct(groupId, assetStructToadd.Name, languageCodeToName, assetStructToadd.SystemName, metaIdsToPriority,
-                                                      assetStructToadd.IsPredefined, userId, assetStructToadd.GetCommaSeparatedFeatures(), assetStructToadd.ConnectingMetaId,
-                                                          assetStructToadd.ConnectedParentMetaId, assetStructToadd.PluralName, assetStructToadd.ParentId, isProgramStruct,
-                                                          isLinear, assetStructToadd.DynamicData);
-                result = CreateAssetStructResponseFromDataSet(ds, metaIdsToPriority);
-
+                result = _assetStructRepository.InsertAssetStruct(groupId, userId, assetStructToadd, languageCodeToName, metaIdsToPriority);
                 // For backward compatibility
                 if (isProgramStruct)
                 {
@@ -1644,7 +1403,7 @@ namespace Core.Catalog.CatalogManagement
                     if (shouldUpdateMetaIds)
                     {
                         // validate basic metas
-                        Status validateBasicMetasResult = assetStructToUpdate.ValidateBasicMetaIds(catalogGroupCache, isProgramStruct);
+                        Status validateBasicMetasResult = _assetStructValidator.ValidateBasicMetaIds(catalogGroupCache, assetStructToUpdate, isProgramStruct);
                         if (validateBasicMetasResult.Code != (int)eResponseStatus.OK)
                         {
                             result.SetStatus(validateBasicMetasResult);
@@ -1669,10 +1428,17 @@ namespace Core.Catalog.CatalogManagement
                         }
 
                         // validate metas with the same system name don't exist
-                        Status validateNoSystemNameDuplication = assetStructToUpdate.ValidateNoSystemNameDuplicationOnMetaIds(catalogGroupCache);
+                        Status validateNoSystemNameDuplication = _assetStructValidator.ValidateNoSystemNameDuplicationOnMetaIds(catalogGroupCache, assetStructToUpdate);
                         if (validateNoSystemNameDuplication.Code != (int)eResponseStatus.OK)
                         {
                             result.SetStatus(validateNoSystemNameDuplication);
+                            return result;
+                        }
+
+                        if (assetStruct.SystemName.Equals(LiveToVodService.LIVE_TO_VOD_ASSET_STRUCT_SYSTEM_NAME, StringComparison.OrdinalIgnoreCase)
+                            && assetStruct.MetaIds?.Except(assetStructToUpdate.MetaIds).Any() == true)
+                        {
+                            result.SetStatus(eResponseStatus.CanNotRemoveMetaIdsForLiveToVod, "It's not allowed to remove metas for L2V asset struct.");
                             return result;
                         }
                     }
@@ -1747,11 +1513,14 @@ namespace Core.Catalog.CatalogManagement
                     assetStructToUpdate.DynamicData = catalogGroupCache.AssetStructsMapById[id].DynamicData;
                 }
 
-                DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, id, assetStructToUpdate.Name, shouldUpdateOtherNames, languageCodeToName, assetStructToUpdate.SystemName,
-                                                          shouldUpdateMetaIds, metaIdsToPriority, userId, assetStructToUpdate.GetCommaSeparatedFeatures(),
-                                                          assetStructToUpdate.ConnectingMetaId, assetStructToUpdate.ConnectedParentMetaId, assetStructToUpdate.PluralName,
-                                                          assetStructToUpdate.ParentId, assetStructToUpdate.DynamicData);
-
+                result = _assetStructRepository.UpdateAssetStruct(
+                    groupId,
+                    userId,
+                    assetStructToUpdate,
+                    shouldUpdateOtherNames,
+                    languageCodeToName,
+                    shouldUpdateMetaIds,
+                    metaIdsToPriority);
                 // For backward compatibility
                 if (isProgramStruct)
                 {
@@ -1765,8 +1534,6 @@ namespace Core.Catalog.CatalogManagement
                         log.ErrorFormat("UpdateEpgAssetStructTags faild for groupId: {0}, epgTagIdsToValue: {1}.", groupId, string.Join(",", epgTagIdsToValue));
                     }
                 }
-
-                result = CreateAssetStructResponseFromDataSet(ds);
 
                 if (shouldCheckRegularFlowValidations)
                 {
@@ -2659,14 +2426,12 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 var dtoObject = ConvertToDto(assetStructMeta, metaId, assetStructId);
-                var responseDto = _assetStructMetaRepository.UpdateAssetStructMeta(groupId, userId, dtoObject, out bool success);
+                var updatedMeta  = _assetStructMetaRepository.UpdateAssetStructMeta(groupId, userId, dtoObject, out bool success);
 
-                if (success && !string.IsNullOrEmpty(responseDto.Alias))
+                if (success && !string.IsNullOrEmpty(updatedMeta.Alias))
                 {
                     _layeredCache.SetInvalidationKey(LayeredCacheKeys.GetGroupUsingAliasNamesInvalidationKey(groupId));
                 }
-
-                response.Object = ConvertFromDto(responseDto);
 
                 response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 InvalidateCatalogGroupCache(groupId, response.Status, true, response.Object);
@@ -2709,29 +2474,6 @@ namespace Core.Catalog.CatalogManagement
             {
                 log.Error($"Failed getting IsGroupUsingAliases from LayeredCache, groupId: {groupId}, key: {key}");
             }
-
-            return response;
-        }
-
-        private AssetStructMeta ConvertFromDto(AssetStructMetaDTO responseDto)
-        {
-            if (responseDto == null)
-                return null;
-
-            var response = new AssetStructMeta
-            {
-                IsInherited = responseDto.IsInherited,
-                IsLocationTag = responseDto.IsLocationTag,
-                SuppressedOrder = responseDto.SuppressedOrder,
-                Alias = responseDto.Alias,
-                IngestReferencePath = responseDto.IngestReferencePath,
-                ProtectFromIngest = responseDto.ProtectFromIngest,
-                DefaultIngestValue = responseDto.DefaultIngestValue,
-                AssetStructId = responseDto.AssetStructId,
-                MetaId = responseDto.MetaId,
-                CreateDate = responseDto.CreateDate,
-                UpdateDate = responseDto.UpdateDate
-            };
 
             return response;
         }
@@ -2854,8 +2596,7 @@ namespace Core.Catalog.CatalogManagement
                 }
                 else
                 {
-                    var listOfAssetStructMetaDto = _assetStructMetaRepository.GetAssetStructMetaList(groupId, metaId.Value);
-                    response.Objects = listOfAssetStructMetaDto.Select(x => ConvertFromDto(x)).ToList();
+                    response.Objects = _assetStructMetaRepository.GetAssetStructMetaList(groupId, metaId.Value);
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }

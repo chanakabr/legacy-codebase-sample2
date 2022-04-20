@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ApiObjects;
 using ApiObjects.BulkUpload;
+using ApiObjects.Catalog;
 using Core.Catalog;
 using IngestHandler.Common.Infrastructure;
 using IngestHandler.Domain.IngestProtection;
