@@ -47,7 +47,7 @@ namespace ApiObjects.Rules
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class AssetCondition : AssetRuleCondition
+    public class AssetCondition : AssetConditionBase
     {
         [JsonProperty("Ksql")]
         public string Ksql { get; set; }

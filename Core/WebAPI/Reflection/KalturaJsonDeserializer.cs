@@ -155,6 +155,9 @@ namespace WebAPI.Reflection
                 case "KalturaAssetCondition":
                     return new KalturaAssetCondition(parameters, true);
                     
+                case "KalturaAssetConditionBase":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
                 case "KalturaAssetCount":
                     return new KalturaAssetCount(parameters, true);
                     
@@ -277,6 +280,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaAssetsFilter":
                     return new KalturaAssetsFilter(parameters, true);
+                    
+                case "KalturaAssetShopCondition":
+                    return new KalturaAssetShopCondition(parameters, true);
                     
                 case "KalturaAssetStatistics":
                     return new KalturaAssetStatistics(parameters, true);
@@ -9322,6 +9328,12 @@ namespace WebAPI.Models.API
             }
         }
     }
+    public partial class KalturaAssetConditionBase
+    {
+        public KalturaAssetConditionBase(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+        }
+    }
     public partial class KalturaAssetRule
     {
         private static RuntimeSchemePropertyAttribute ConditionsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetRule")
@@ -9506,6 +9518,19 @@ namespace WebAPI.Models.API
             }
         }
     }
+    public partial class KalturaAssetShopCondition
+    {
+        public KalturaAssetShopCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("value") && parameters["value"] != null)
+                {
+                    Value = (String) Convert.ChangeType(parameters["value"], typeof(String));
+                }
+            }
+        }
+    }
     public partial class KalturaAssetSubscriptionCondition
     {
         public KalturaAssetSubscriptionCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
@@ -9522,11 +9547,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["conditions"] is JArray)
                     {
-                        Conditions = OTTObjectBuilder.buildList<KalturaAssetCondition>(typeof(KalturaAssetCondition), (JArray) parameters["conditions"]);
+                        Conditions = OTTObjectBuilder.buildList<KalturaAssetConditionBase>(typeof(KalturaAssetConditionBase), (JArray) parameters["conditions"]);
                     }
                     else if (parameters["conditions"] is IList)
                     {
-                        Conditions = OTTObjectBuilder.buildList(typeof(KalturaAssetCondition), parameters["conditions"] as object[]);
+                        Conditions = OTTObjectBuilder.buildList(typeof(KalturaAssetConditionBase), parameters["conditions"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("actions") && parameters["actions"] != null)
@@ -9565,6 +9590,20 @@ namespace WebAPI.Models.API
                     if (!Enum.IsDefined(typeof(KalturaRuleActionType), ActionsContainType))
                     {
                         throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ActionsContainType, typeof(KalturaRuleActionType)));
+                    }
+                }
+                if (parameters.ContainsKey("conditionsContainType") && parameters["conditionsContainType"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["conditionsContainType"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "conditionsContainType");
+                    }
+
+                    ConditionsContainType = (KalturaRuleConditionType) Enum.Parse(typeof(KalturaRuleConditionType), parameters["conditionsContainType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaRuleConditionType), ConditionsContainType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ConditionsContainType, typeof(KalturaRuleConditionType)));
                     }
                 }
             }

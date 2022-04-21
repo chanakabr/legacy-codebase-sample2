@@ -638,7 +638,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaCondition, RuleCondition>()
                 .Include(typeof(KalturaOrCondition), typeof(OrCondition))
                 .Include(typeof(KalturaBusinessModuleCondition), typeof(BusinessModuleCondition))
-                .Include(typeof(KalturaAssetCondition), typeof(AssetCondition))
                 .Include(typeof(KalturaConcurrencyCondition), typeof(ConcurrencyCondition))
                 .Include(typeof(KalturaDateCondition), typeof(DateCondition))
                 .Include(typeof(KalturaIpRangeCondition), typeof(IpRangeCondition))
@@ -657,10 +656,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .Include(typeof(KalturaDynamicKeysCondition), typeof(DynamicKeysCondition))
                 .Include(typeof(KalturaDeviceDynamicDataCondition), typeof(DeviceDynamicDataCondition));
 
+            cfg.CreateMap<KalturaAssetConditionBase, AssetConditionBase>()
+                .Include(typeof(KalturaAssetCondition), typeof(AssetCondition))
+                .Include(typeof(KalturaAssetShopCondition), typeof(AssetShopCondition));
+
             cfg.CreateMap<RuleCondition, KalturaCondition>()
                 .Include(typeof(OrCondition), typeof(KalturaOrCondition))
                 .Include(typeof(BusinessModuleCondition), typeof(KalturaBusinessModuleCondition))
-                .Include(typeof(AssetCondition), typeof(KalturaAssetCondition))
                 .Include(typeof(ConcurrencyCondition), typeof(KalturaConcurrencyCondition))
                 .Include(typeof(DateCondition), typeof(KalturaDateCondition))
                 .Include(typeof(IpRangeCondition), typeof(KalturaIpRangeCondition))
@@ -678,6 +680,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .Include(typeof(DeviceModelCondition), typeof(KalturaDeviceModelCondition))
                 .Include(typeof(DynamicKeysCondition), typeof(KalturaDynamicKeysCondition))
                 .Include(typeof(DeviceDynamicDataCondition), typeof(KalturaDeviceDynamicDataCondition));
+
+            cfg.CreateMap<AssetConditionBase, KalturaAssetConditionBase>()
+                .Include(typeof(AssetCondition), typeof(KalturaAssetCondition))
+                .Include(typeof(AssetShopCondition), typeof(KalturaAssetShopCondition));
 
             cfg.CreateMap<WebAPI.Models.Catalog.KalturaSlimAsset, SlimAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -708,6 +714,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                        case KalturaRuleConditionType.DYNAMIC_KEYS: return RuleConditionType.DynamicKeys;
                        case KalturaRuleConditionType.USER_SESSION_PROFILE: return RuleConditionType.UserSessionProfile;
                        case KalturaRuleConditionType.DEVICE_DYNAMIC_DATA: return RuleConditionType.DeviceDynamicData;
+                       case KalturaRuleConditionType.ASSET_SHOP: return RuleConditionType.AssetShop;
                        default:
                            throw new ClientException((int)StatusCode.UnknownEnumValue,
                                string.Format("Unknown conditionType value : {0}", kalturaRuleConditionType.ToString()));
@@ -739,6 +746,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         case RuleConditionType.DynamicKeys: return KalturaRuleConditionType.DYNAMIC_KEYS;
                         case RuleConditionType.UserSessionProfile: return KalturaRuleConditionType.USER_SESSION_PROFILE;
                         case RuleConditionType.DeviceDynamicData: return KalturaRuleConditionType.DEVICE_DYNAMIC_DATA;
+                        case RuleConditionType.AssetShop: return KalturaRuleConditionType.ASSET_SHOP;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown conditionType value : {0}", ruleConditionType.ToString()));
                     }
@@ -797,6 +805,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .IncludeBase<AssetCondition, KalturaAssetCondition>()
                 .ForMember(dest => dest.Limit, opt => opt.MapFrom(src => src.Limit))
                 .ForMember(dest => dest.ConcurrencyLimitationType, opt => opt.MapFrom(src => src.RestrictionPolicy));
+
+            cfg.CreateMap<KalturaAssetShopCondition, AssetShopCondition>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value));
+
+            cfg.CreateMap<AssetShopCondition, KalturaAssetShopCondition>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value));
 
             cfg.CreateMap<KalturaConcurrencyLimitationType, ConcurrencyRestrictionPolicy>()
                 .ConvertUsing(kalturaConcurrencyLimitationType =>

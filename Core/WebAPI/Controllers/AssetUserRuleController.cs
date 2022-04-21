@@ -44,11 +44,11 @@ namespace WebAPI.Controllers
                 if (filter != null && filter.AttachedUserIdEqualCurrent.HasValue && filter.AttachedUserIdEqualCurrent.Value)
                 {
                     long userId = long.Parse(KS.GetFromRequest().UserId);
-                    response = ClientsManager.ApiClient().GetAssetUserRules(groupId, userId, filter.ActionsContainType.Value, true);
+                    response = ClientsManager.ApiClient().GetAssetUserRules(groupId, userId, filter.ActionsContainType.Value, filter.ConditionsContainType, true);
                 }
                 else
                 {
-                    response = ClientsManager.ApiClient().GetAssetUserRules(groupId, null, filter.ActionsContainType.Value, true);
+                    response = ClientsManager.ApiClient().GetAssetUserRules(groupId, null, filter.ActionsContainType.Value, filter.ConditionsContainType, true);
                 }
             }
             catch (ClientException ex)

@@ -1929,9 +1929,9 @@ namespace Core.Api
 
         #region AssetUserRule
 
-        public static GenericListResponse<AssetUserRule> GetAssetUserRuleList(int groupId, long? userId, RuleActionType? ruleActionType, bool returnConfigError)
+        public static GenericListResponse<AssetUserRule> GetAssetUserRuleList(int groupId, long? userId, RuleActionType? ruleActionType, RuleConditionType? ruleConditionType, bool returnConfigError)
         {
-            return AssetUserRuleManager.GetAssetUserRuleList(groupId, userId, false, ruleActionType, returnConfigError);
+            return AssetUserRuleManager.GetAssetUserRuleList(groupId, userId, false, ruleActionType, ruleConditionType, returnConfigError);
         }
 
         public static GenericResponse<AssetUserRule> AddAssetUserRule(int groupId, AssetUserRule assetUserRuleToAdd)

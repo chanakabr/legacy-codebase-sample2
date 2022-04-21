@@ -18,6 +18,7 @@ using ApiLogic.Catalog.Tree;
 using ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority;
 using ApiLogic.IndexManager.Sorting;
 using ApiObjects;
+using ApiObjects.Rules;
 using Phx.Lib.Appconfig;
 using Core.Api.Managers;
 using Core.Catalog.CatalogManagement;
@@ -513,9 +514,9 @@ namespace Core.Catalog
                         StringBuilder query = new StringBuilder();
                         query.Append("(or ");
                         definitions.assetUserRuleIds.Add(assetUserRulesResponse.Object.Id);
-                        foreach (var condition in assetUserRulesResponse.Object.Conditions)
+                        foreach (var assetCondition in assetUserRulesResponse.Object.Conditions.OfType<AssetCondition>())
                         {
-                            query.AppendFormat(" {0}", condition.Ksql);
+                            query.AppendFormat(" {0}", assetCondition.Ksql);
                         }
 
                         query.Append(")");
@@ -574,9 +575,9 @@ namespace Core.Catalog
             foreach (var rule in rulesList)
             {
                 rulesIds.Add(rule.Id);
-                foreach (var condition in rule.Conditions)
+                foreach (var assetCondition in rule.Conditions.OfType<AssetCondition>())
                 {
-                    query.AppendFormat(" {0}", condition.Ksql);
+                    query.AppendFormat(" {0}", assetCondition.Ksql);
                 }
             }
 

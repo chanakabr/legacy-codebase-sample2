@@ -3660,19 +3660,22 @@ namespace WebAPI.Clients
 
         #region AssetUserRule
 
-        internal KalturaAssetUserRuleListResponse GetAssetUserRules(int groupId, long? userId = null, KalturaRuleActionType? actionsContainType = null, bool returnConfigError = false)
+        internal KalturaAssetUserRuleListResponse GetAssetUserRules(int groupId, long? userId = null, KalturaRuleActionType? actionsContainType = null, KalturaRuleConditionType? conditionsContainType = null, bool returnConfigError = false)
         {
-            KalturaAssetUserRuleListResponse result = new KalturaAssetUserRuleListResponse();
-            RuleActionType? ruleActionType = actionsContainType.HasValue ? Mapper.Map<RuleActionType?>(actionsContainType.Value) : null;
+            var ruleActionType = Mapper.Map<RuleActionType?>(actionsContainType);
+            var ruleConditionType = Mapper.Map<RuleConditionType?>(conditionsContainType);
 
             Func<GenericListResponse<AssetUserRule>> getAssetUserRuleListFunc = () =>
-               Core.Api.Module.GetAssetUserRuleList(groupId, userId, ruleActionType, returnConfigError);
+                Core.Api.Module.GetAssetUserRuleList(groupId, userId, ruleActionType, ruleConditionType, returnConfigError);
 
             KalturaGenericListResponse<KalturaAssetUserRule> response =
                 ClientUtils.GetResponseListFromWS<KalturaAssetUserRule, AssetUserRule>(getAssetUserRuleListFunc);
 
-            result.Objects = response.Objects;
-            result.TotalCount = response.TotalCount;
+            var result = new KalturaAssetUserRuleListResponse
+            {
+                Objects = response.Objects,
+                TotalCount = response.TotalCount
+            };
 
             return result;
         }

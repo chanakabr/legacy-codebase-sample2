@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using ApiObjects.Rules.Converters;
 
 namespace ApiObjects.Rules
 {
@@ -11,14 +12,14 @@ namespace ApiObjects.Rules
         public long Id { get; set; }
         [JsonProperty("Name")]
         public string Name { get; set; }
+
         [JsonProperty("Description")]
         public string Description { get; set; }
 
         [JsonProperty(PropertyName = "Conditions",
-                      TypeNameHandling = TypeNameHandling.Auto,
-                      ItemTypeNameHandling = TypeNameHandling.Auto,
+                      ItemConverterType = typeof(AssetConditionBaseConverter),
                       ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
-        public List<AssetCondition> Conditions { get; set; }
+        public List<AssetConditionBase> Conditions { get; set; }
 
         [JsonProperty(PropertyName = "Actions",
                       TypeNameHandling = TypeNameHandling.Auto,

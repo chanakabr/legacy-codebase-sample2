@@ -776,6 +776,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAssetShopCondition":
+                    switch(property.Name)
+                    {
+                        case "Value":
+                            return "value";
+                    }
+                    break;
+                    
                 case "KalturaAssetStatistics":
                     switch(property.Name)
                     {
@@ -943,6 +951,8 @@ namespace WebAPI.Reflection
                             return "actionsContainType";
                         case "AttachedUserIdEqualCurrent":
                             return "attachedUserIdEqualCurrent";
+                        case "ConditionsContainType":
+                            return "conditionsContainType";
                     }
                     break;
                     

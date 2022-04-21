@@ -9382,6 +9382,36 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
+    public partial class KalturaAssetConditionBase
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+    }
     public partial class KalturaAssetRule
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -9574,6 +9604,44 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
+    public partial class KalturaAssetShopCondition
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Value != null && (retrievedProperties == null || retrievedProperties.Contains("value")))
+            {
+                ret.Add("value", "\"value\": " + "\"" + EscapeJson(Value) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Value != null && (retrievedProperties == null || retrievedProperties.Contains("value")))
+            {
+                ret.Add("value", "<value>" + EscapeXml(Value) + "</value>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaAssetSubscriptionCondition
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -9675,6 +9743,10 @@ namespace WebAPI.Models.API
             {
                 ret.Add("attachedUserIdEqualCurrent", "\"attachedUserIdEqualCurrent\": " + AttachedUserIdEqualCurrent.ToString().ToLower());
             }
+            if(ConditionsContainType.HasValue && (retrievedProperties == null || retrievedProperties.Contains("conditionsContainType")))
+            {
+                ret.Add("conditionsContainType", "\"conditionsContainType\": " + "\"" + Enum.GetName(typeof(KalturaRuleConditionType), ConditionsContainType) + "\"");
+            }
             return ret;
         }
         
@@ -9696,6 +9768,10 @@ namespace WebAPI.Models.API
             if(AttachedUserIdEqualCurrent.HasValue && (retrievedProperties == null || retrievedProperties.Contains("attachedUserIdEqualCurrent")))
             {
                 ret.Add("attachedUserIdEqualCurrent", "<attachedUserIdEqualCurrent>" + AttachedUserIdEqualCurrent.ToString().ToLower() + "</attachedUserIdEqualCurrent>");
+            }
+            if(ConditionsContainType.HasValue && (retrievedProperties == null || retrievedProperties.Contains("conditionsContainType")))
+            {
+                ret.Add("conditionsContainType", "<conditionsContainType>" + "" + Enum.GetName(typeof(KalturaRuleConditionType), ConditionsContainType) + "" + "</conditionsContainType>");
             }
             return ret;
         }

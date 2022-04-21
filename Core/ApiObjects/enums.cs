@@ -1158,7 +1158,8 @@ namespace ApiObjects
         DeviceUdidDynamicList,
         DynamicKeys,
         UserSessionProfile,
-        DeviceDynamicData
+        DeviceDynamicData,
+        AssetShop
     }
 
     public enum RuleActionTaskType

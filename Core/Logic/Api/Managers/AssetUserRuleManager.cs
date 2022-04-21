@@ -34,8 +34,13 @@ namespace Core.Api.Managers
 
         #region Public Methods
 
-        internal static GenericListResponse<AssetUserRule> GetAssetUserRuleList(int groupId, long? userId, bool shouldGetGroupRulesFirst = false, 
-            RuleActionType? ruleActionType = null, bool returnConfigError = false)
+        internal static GenericListResponse<AssetUserRule> GetAssetUserRuleList(
+            int groupId, 
+            long? userId, 
+            bool shouldGetGroupRulesFirst = false, 
+            RuleActionType? ruleActionType = null,
+            RuleConditionType? ruleConditionType = null,
+            bool returnConfigError = false)
         {
             GenericListResponse<AssetUserRule> response = new GenericListResponse<AssetUserRule>();
             bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
@@ -126,15 +131,10 @@ namespace Core.Api.Managers
                 {
                     if (fullAssetUserRules != null && fullAssetUserRules.Count > 0)
                     {
-                        if (ruleActionType.HasValue)
-                        {
-                            var tmpAssetUserList = fullAssetUserRules.Values.Where(x => x.Actions.Any(a => a.Type == ruleActionType.Value)).ToList();
-                            response.Objects = tmpAssetUserList;
-                        }
-                        else
-                        {
-                            response.Objects = fullAssetUserRules.Values.ToList();
-                        }
+                        response.Objects = fullAssetUserRules.Values
+                            .Where(x => (!ruleActionType.HasValue || x.Actions.Any(_ => _.Type == ruleActionType))
+                                        && (!ruleConditionType.HasValue || x.Conditions.Count(_ => _.Type == ruleConditionType) == 1))
+                            .ToList();
                     }
                 }
 
@@ -773,13 +773,14 @@ namespace Core.Api.Managers
                                 //build search for each tag and tag values
                                 Parallel.ForEach(mediaAssetUserRules, (rule) =>
                                 {
-                                    if (rule.Conditions != null && rule.Conditions.Count > 0)
+                                    var assetConditions = rule?.Conditions.OfType<AssetCondition>();
+                                    if (assetConditions != null && assetConditions.Any())
                                     {
-                                        filter = string.Format("(and media_id='{0}' {1})", mediaId.Value, rule.Conditions[0].Ksql);
+                                        filter = string.Format("(and media_id='{0}' {1})", mediaId.Value, assetConditions.First().Ksql);
                                         medias = api.SearchAssets(groupId.Value, filter, 0, 0, false, 0, false, string.Empty, string.Empty, string.Empty, 0, 0, true, true);
 
-                                        if (medias != null && medias.Count() > 0)// there is a match 
-                                    {
+                                        if (medias != null && medias.Length > 0) // there is a match 
+                                        {
                                             ruleIds.Add(rule.Id);
                                         }
                                     }

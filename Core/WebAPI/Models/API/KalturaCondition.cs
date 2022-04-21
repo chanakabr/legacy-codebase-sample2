@@ -35,6 +35,7 @@ namespace WebAPI.Models.API
         DYNAMIC_KEYS,
         USER_SESSION_PROFILE,
         DEVICE_DYNAMIC_DATA,
+        ASSET_SHOP
     }
 
     /// <summary>
@@ -159,7 +160,7 @@ namespace WebAPI.Models.API
     /// Asset Condition
     /// </summary>
     [Serializable]
-    public partial class KalturaAssetCondition : KalturaCondition
+    public partial class KalturaAssetCondition : KalturaAssetConditionBase
     {
         /// <summary>
         /// KSQL  

@@ -36,6 +36,15 @@ namespace WebAPI.Models.API
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public KalturaRuleActionType? ActionsContainType { get; set; }
 
+        /// <summary>
+        /// Indicates that only asset rules are returned that have exactly one and not more associated condition.
+        /// </summary>
+        [DataMember(Name = "conditionsContainType")]
+        [JsonProperty("conditionsContainType")]
+        [XmlElement(ElementName = "conditionsContainType")]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public KalturaRuleConditionType? ConditionsContainType { get; set; }
+
         public override KalturaAssetUserRuleOrderBy GetDefaultOrderByValue()
         {
             return KalturaAssetUserRuleOrderBy.NONE;
@@ -47,6 +56,12 @@ namespace WebAPI.Models.API
                 !(ActionsContainType.Value == KalturaRuleActionType.USER_BLOCK || ActionsContainType.Value == KalturaRuleActionType.FILTER))
             {
                 throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetRuleFilter.actionsContainType");
+            }
+
+            if (ConditionsContainType.HasValue
+                && !(ConditionsContainType.Value == KalturaRuleConditionType.ASSET || ConditionsContainType == KalturaRuleConditionType.ASSET_SHOP))
+            {
+                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetRuleFilter.conditionsContainType");
             }
         }
     }

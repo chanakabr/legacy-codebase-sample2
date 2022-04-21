@@ -17,12 +17,12 @@ namespace WebAPI.Models.API
     public partial class KalturaAssetUserRule : KalturaAssetRuleBase
     {
         /// <summary>
-        /// List of Ksql conditions for the user rule
+        /// List of conditions for the user rule
         /// </summary>
         [DataMember(Name = "conditions")]
         [JsonProperty("conditions")]
         [XmlElement(ElementName = "conditions")]
-        public List<KalturaAssetCondition> Conditions { get; set; }
+        public List<KalturaAssetConditionBase> Conditions { get; set; }
 
         /// <summary>
         /// List of actions for the user rule
@@ -63,9 +63,25 @@ namespace WebAPI.Models.API
             {
                 foreach (var condition in Conditions)
                 {
-                    if (string.IsNullOrEmpty(condition.Ksql) || string.IsNullOrWhiteSpace(condition.Ksql))
+                    condition.Validate();
+                }
+
+                var shopConditions = Conditions.OfType<KalturaAssetShopCondition>().ToList();
+                if (shopConditions.Count > 1)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_MAX_ITEMS_CROSSED, "conditions");
+                }
+
+                if (shopConditions.Count == 1 && Actions != null && Actions.Count > 0)
+                {
+                    if (Actions.Count > 1)
                     {
-                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ksql");
+                        throw new BadRequestException(BadRequestException.ARGUMENT_MAX_ITEMS_CROSSED, "actions");
+                    }
+
+                    if (!(Actions.First() is KalturaAssetUserRuleFilterAction))
+                    {
+                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "actions");
                     }
                 }
             }
