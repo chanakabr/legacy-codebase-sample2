@@ -1516,6 +1516,7 @@ namespace Core.Catalog.CatalogManagement
                 result = _assetStructRepository.UpdateAssetStruct(
                     groupId,
                     userId,
+                    assetStruct.Id,
                     assetStructToUpdate,
                     shouldUpdateOtherNames,
                     languageCodeToName,

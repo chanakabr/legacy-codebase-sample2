@@ -16,6 +16,7 @@ namespace DAL
         GenericResponse<AssetStruct> UpdateAssetStruct(
             int groupId,
             long userId,
+            long assetStructId,
             AssetStruct assetStructToUpdate,
             bool shouldUpdateOtherNames,
             List<KeyValuePair<string, string>> namesInOtherLanguages,

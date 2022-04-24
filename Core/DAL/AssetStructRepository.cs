@@ -60,6 +60,7 @@ namespace DAL
         public GenericResponse<AssetStruct> UpdateAssetStruct(
             int groupId,
             long userId,
+            long assetStructId,
             AssetStruct assetStructToUpdate,
             bool shouldUpdateOtherNames,
             List<KeyValuePair<string, string>> namesInOtherLanguages,
@@ -69,7 +70,7 @@ namespace DAL
             StoredProcedure sp = new StoredProcedure("UpdateAssetStruct");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
-            sp.AddParameter("@Id", assetStructToUpdate.Id);
+            sp.AddParameter("@Id", assetStructId);
             sp.AddParameter("@Name", assetStructToUpdate.Name);
             sp.AddParameter("@ShouldUpdateOtherNames", shouldUpdateOtherNames ? 1 : 0);
             sp.AddKeyValueListParameter("@NamesInOtherLanguages", namesInOtherLanguages, "key", "value");
