@@ -35856,6 +35856,19 @@ namespace WebAPI.Models.Partner
             MinItems = -1,
             MaxItems = -1,
         };
+        private static RuntimeSchemePropertyAttribute ShopMarkerMetaIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCatalogPartnerConfig")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
         public KalturaCatalogPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
@@ -35888,6 +35901,11 @@ namespace WebAPI.Models.Partner
                 {
                     UploadExportDatalakeSchemaProperty.Validate("uploadExportDatalake", parameters["uploadExportDatalake"]);
                     UploadExportDatalake = (Boolean) Convert.ChangeType(parameters["uploadExportDatalake"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("shopMarkerMetaId") && parameters["shopMarkerMetaId"] != null)
+                {
+                    ShopMarkerMetaIdSchemaProperty.Validate("shopMarkerMetaId", parameters["shopMarkerMetaId"]);
+                    ShopMarkerMetaId = (Int64) Convert.ChangeType(parameters["shopMarkerMetaId"], typeof(Int64));
                 }
             }
         }

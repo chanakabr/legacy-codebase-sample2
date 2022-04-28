@@ -10,6 +10,8 @@
 
         public bool? UploadExportDatalake { get; set; }
 
+        public long? ShopMarkerMetaId { get; set; }
+
         public bool SetUnchangedProperties(CatalogPartnerConfig oldConfig)
         {
             var needToUpdate = false;
@@ -47,6 +49,15 @@
             else
             {
                 this.UploadExportDatalake = oldConfig.UploadExportDatalake;
+            }
+
+            if (ShopMarkerMetaId.HasValue)
+            {
+                needToUpdate = true;
+            }
+            else
+            {
+                ShopMarkerMetaId = oldConfig.ShopMarkerMetaId;
             }
 
             return needToUpdate;

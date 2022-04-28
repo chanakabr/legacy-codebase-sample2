@@ -1,20 +1,19 @@
-﻿using ApiLogic.Api.Managers;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using ApiLogic.Api.Managers;
+using ApiLogic.Api.Validators;
+using ApiLogic.Repositories;
 using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Catalog;
 using ApiObjects.Response;
 using AutoFixture;
-using CachingProvider.LayeredCache;
 using Core.Api;
 using Core.Catalog.CatalogManagement;
 using DAL;
 using Moq;
 using NUnit.Framework;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using ApiLogic.Repositories;
 
 namespace ApiLogic.Tests.Partner
 {
@@ -42,11 +41,19 @@ namespace ApiLogic.Tests.Partner
                 .Setup(x => x.List(1))
                 .Returns(deviceFamiliesResponse);
 
+            var topicManagerMock = new Mock<ITopicManager>();
+            topicManagerMock
+                .Setup(x => x.GetTopicsByIds(It.IsAny<int>(), It.IsAny<List<long>>(), MetaType.All))
+                .Returns(new GenericListResponse<Topic>(Status.Ok, new List<Topic> { new Topic { Id = objectToUpdate.ShopMarkerMetaId.Value } }));
+
             var repositoryMock = new Mock<ICatalogPartnerRepository>();
-            repositoryMock.Setup(x => x.SaveCatalogPartnerConfig(It.IsAny<int>(), It.IsAny<CatalogPartnerConfig>()))
+            repositoryMock
+                .Setup(x => x.SaveCatalogPartnerConfig(It.IsAny<int>(), It.IsAny<CatalogPartnerConfig>()))
                 .Returns(true);
 
-            CatalogPartnerConfigManager manager = new CatalogPartnerConfigManager(repositoryMock.Object, layeredCacheMock.Object, categoryCacheMock.Object, domainDeviceManagerMock.Object, deviceFamilyRepositoryMock.Object);
+            var validator = new CatalogPartnerConfigValidator(categoryCacheMock.Object, deviceFamilyRepositoryMock.Object, topicManagerMock.Object);
+
+            CatalogPartnerConfigManager manager = new CatalogPartnerConfigManager(repositoryMock.Object, layeredCacheMock.Object, domainDeviceManagerMock.Object, validator);
             var updateStatus = manager.UpdateCatalogConfig(1, objectToUpdate);
             Assert.That(updateStatus.Code, Is.EqualTo((int)eResponseStatus.OK));
         }
@@ -65,10 +72,11 @@ namespace ApiLogic.Tests.Partner
         }
 
         [TestCaseSource(nameof(UpdateErrorTestCases))]
-        public void CheckUpdateErrors(eResponseStatus expectedError, 
-                                      CatalogPartnerConfig objectToUpdate, 
-                                      List<int> deviceFamilyIds, 
-                                      Dictionary<long, List<CategoryVersion>> treeListMap)
+        public void CheckUpdateErrors(eResponseStatus expectedError,
+                                      CatalogPartnerConfig objectToUpdate,
+                                      List<int> deviceFamilyIds,
+                                      Dictionary<long, List<CategoryVersion>> treeListMap,
+                                      long shopMarkerMetaId)
         {
             Fixture fixture = new Fixture();
 
@@ -78,14 +86,16 @@ namespace ApiLogic.Tests.Partner
             var defaultTree = objectToUpdate.CategoryManagement.DefaultCategoryTree.Value;
             List<CategoryVersion> defaultTreeList = treeListMap.ContainsKey(defaultTree) ? treeListMap[defaultTree] : null;
 
-            categoryCacheMock.Setup(x => x.ListCategoryVersionByTree(It.IsAny<ContextData>(), It.Is<CategoryVersionFilterByTree>(o => o.TreeId == defaultTree), null))
-                             .Returns(new GenericListResponse<CategoryVersion>(Status.Ok, defaultTreeList));
+            categoryCacheMock
+                .Setup(x => x.ListCategoryVersionByTree(It.IsAny<ContextData>(), It.Is<CategoryVersionFilterByTree>(o => o.TreeId == defaultTree), null))
+                .Returns(new GenericListResponse<CategoryVersion>(Status.Ok, defaultTreeList));
 
             foreach (var treeId in objectToUpdate.CategoryManagement.DeviceFamilyToCategoryTree.Values)
             {
                 List<CategoryVersion> treeList = treeListMap.ContainsKey(treeId) ? treeListMap[treeId] : null;
-                categoryCacheMock.Setup(x => x.ListCategoryVersionByTree(It.IsAny<ContextData>(), It.Is<CategoryVersionFilterByTree>(o => o.TreeId == treeId), null))
-                                 .Returns(new GenericListResponse<CategoryVersion>(Status.Ok, treeList));
+                categoryCacheMock
+                    .Setup(x => x.ListCategoryVersionByTree(It.IsAny<ContextData>(), It.Is<CategoryVersionFilterByTree>(o => o.TreeId == treeId), null))
+                    .Returns(new GenericListResponse<CategoryVersion>(Status.Ok, treeList));
             }
 
             var deviceFamiliesResponse = new GenericListResponse<DeviceFamily>(Status.Ok, deviceFamilyIds.Select(x => new DeviceFamily(x, fixture.Create<string>())).ToList());
@@ -95,9 +105,33 @@ namespace ApiLogic.Tests.Partner
                 .Setup(x => x.List(1))
                 .Returns(deviceFamiliesResponse);
 
+            var topicManagerMock = new Mock<ITopicManager>();
+            topicManagerMock
+                .Setup(x => x.GetTopicsByIds(It.IsAny<int>(), It.IsAny<List<long>>(), MetaType.All))
+                .Returns(() =>
+                {
+                    Topic topic;
+                    if (shopMarkerMetaId == 101)
+                    {
+                        topic = new Topic { Id = 101 };
+                    }
+                    else if (shopMarkerMetaId == 102)
+                    {
+                        topic = new Topic { Id = 102, Type = MetaType.Tag };
+                    }
+                    else
+                    {
+                        topic = null;
+                    }
+
+                    return new GenericListResponse<Topic>(Status.Ok, new List<Topic> { topic });
+                });
+
             var repositoryMock = new Mock<ICatalogPartnerRepository>();
 
-            CatalogPartnerConfigManager manager = new CatalogPartnerConfigManager(repositoryMock.Object, layeredCacheMock.Object, categoryCacheMock.Object, domainDeviceManagerMock.Object, deviceFamilyRepositoryMock.Object);
+            var validator = new CatalogPartnerConfigValidator(categoryCacheMock.Object, deviceFamilyRepositoryMock.Object, topicManagerMock.Object);
+
+            CatalogPartnerConfigManager manager = new CatalogPartnerConfigManager(repositoryMock.Object, layeredCacheMock.Object, domainDeviceManagerMock.Object, validator);
             var updateStatus = manager.UpdateCatalogConfig(1, objectToUpdate);
 
             Assert.That(updateStatus.Code, Is.EqualTo((int)expectedError));
@@ -128,8 +162,8 @@ namespace ApiLogic.Tests.Partner
                 }
             }
             var deviceFamilyIds1 = catalogPartnerConfig1.CategoryManagement.DeviceFamilyToCategoryTree.Keys.ToList();
-            yield return new TestCaseData(eResponseStatus.CategoryTreeDoesNotExist, catalogPartnerConfig1, deviceFamilyIds1, treeListMap1).SetName("UpdateError_DefaultTreeNotExist");
-            
+            yield return new TestCaseData(eResponseStatus.CategoryTreeDoesNotExist, catalogPartnerConfig1, deviceFamilyIds1, treeListMap1, 101).SetName("UpdateError_DefaultTreeNotExist");
+
             // CategoryTreeNotExist for non default
             var catalogPartnerConfig2 = fixture.Create<CatalogPartnerConfig>();
             var deviceFamilyIds2 = catalogPartnerConfig2.CategoryManagement.DeviceFamilyToCategoryTree.Keys.ToList();
@@ -140,7 +174,7 @@ namespace ApiLogic.Tests.Partner
             foreach (var pair in catalogPartnerConfig2.CategoryManagement.DeviceFamilyToCategoryTree)
             {
                 last = pair.Value;
-                if (pair.Value % 2 ==0 && !treeListMap2.ContainsKey(pair.Value))
+                if (pair.Value % 2 == 0 && !treeListMap2.ContainsKey(pair.Value))
                 {
                     treeListMap2.Add(pair.Key, tree1);
                 }
@@ -151,8 +185,8 @@ namespace ApiLogic.Tests.Partner
                 treeListMap2.Remove(last);
             }
 
-            yield return new TestCaseData(eResponseStatus.CategoryTreeDoesNotExist, catalogPartnerConfig2, deviceFamilyIds2, treeListMap2).SetName("UpdateError_NonDefaultTreeNotExist");
-            
+            yield return new TestCaseData(eResponseStatus.CategoryTreeDoesNotExist, catalogPartnerConfig2, deviceFamilyIds2, treeListMap2, 101).SetName("UpdateError_NonDefaultTreeNotExist");
+
             // NonExistingDeviceFamilyIds - no device family for partner
             var catalogPartnerConfig3 = fixture.Create<CatalogPartnerConfig>();
             var deviceFamilyIds3 = new List<int>();
@@ -166,7 +200,7 @@ namespace ApiLogic.Tests.Partner
                     treeListMap3.Add(pair.Key, tree1);
                 }
             }
-            yield return new TestCaseData(eResponseStatus.NonExistingDeviceFamilyIds, catalogPartnerConfig3, deviceFamilyIds3, treeListMap3).SetName("UpdateError_NoDeviceFamilyForPartner");
+            yield return new TestCaseData(eResponseStatus.NonExistingDeviceFamilyIds, catalogPartnerConfig3, deviceFamilyIds3, treeListMap3, 101).SetName("UpdateError_NoDeviceFamilyForPartner");
 
             // NonExistingDeviceFamilyIds - missing device families in partner
             var catalogPartnerConfig4 = fixture.Create<CatalogPartnerConfig>();
@@ -187,7 +221,37 @@ namespace ApiLogic.Tests.Partner
                 deviceFamilyIds4.RemoveAt(0);
             }
 
-            yield return new TestCaseData(eResponseStatus.NonExistingDeviceFamilyIds, catalogPartnerConfig4, deviceFamilyIds4, treeListMap4).SetName("UpdateError_MissingDeviceFamilies");
+            yield return new TestCaseData(eResponseStatus.NonExistingDeviceFamilyIds, catalogPartnerConfig4, deviceFamilyIds4, treeListMap4, 101).SetName("UpdateError_MissingDeviceFamilies");
+
+            var catalogPartnerConfig5 = fixture.Create<CatalogPartnerConfig>();
+            catalogPartnerConfig5.ShopMarkerMetaId = 102;
+            var deviceFamilyIds5 = catalogPartnerConfig5.CategoryManagement.DeviceFamilyToCategoryTree.Keys.ToList();
+            var tree5 = fixture.Create<List<CategoryVersion>>();
+            var treeListMap5 = new Dictionary<long, List<CategoryVersion>> { { catalogPartnerConfig5.CategoryManagement.DefaultCategoryTree.Value, tree5 } };
+            foreach (var pair in catalogPartnerConfig5.CategoryManagement.DeviceFamilyToCategoryTree)
+            {
+                if (!treeListMap5.ContainsKey(pair.Value))
+                {
+                    treeListMap5.Add(pair.Value, tree5);
+                }
+            }
+
+            yield return new TestCaseData(eResponseStatus.Error, catalogPartnerConfig5, deviceFamilyIds5, treeListMap5, catalogPartnerConfig5.ShopMarkerMetaId).SetName("UpdateError_MetaWithMultiValue");
+
+            var catalogPartnerConfig6 = fixture.Create<CatalogPartnerConfig>();
+            catalogPartnerConfig6.ShopMarkerMetaId = 103;
+            var deviceFamilyIds6 = catalogPartnerConfig6.CategoryManagement.DeviceFamilyToCategoryTree.Keys.ToList();
+            var tree6 = fixture.Create<List<CategoryVersion>>();
+            var treeListMap6 = new Dictionary<long, List<CategoryVersion>> { { catalogPartnerConfig6.CategoryManagement.DefaultCategoryTree.Value, tree6 } };
+            foreach (var pair in catalogPartnerConfig6.CategoryManagement.DeviceFamilyToCategoryTree)
+            {
+                if (!treeListMap6.ContainsKey(pair.Value))
+                {
+                    treeListMap6.Add(pair.Value, tree6);
+                }
+            }
+
+            yield return new TestCaseData(eResponseStatus.MetaNotFound, catalogPartnerConfig6, deviceFamilyIds6, treeListMap6, catalogPartnerConfig6.ShopMarkerMetaId).SetName("UpdateError_MetaNotFound");
         }
 
         [TestCaseSource(nameof(GetCatalogConfigTestCases))]
@@ -199,7 +263,11 @@ namespace ApiLogic.Tests.Partner
             var categoryCacheMock = Mock.Of<ICategoryCache>();
             var domainDeviceManagerMock = Mock.Of<IDomainDeviceManager>();
             var deviceFamilyRepositoryMock = Mock.Of<IDeviceFamilyRepository>();
-            CatalogPartnerConfigManager manager = new CatalogPartnerConfigManager(repositoryMock, layeredCacheMock.Object, categoryCacheMock, domainDeviceManagerMock, deviceFamilyRepositoryMock);
+            var topicManagerMock = Mock.Of<ITopicManager>();
+
+            var validator = new CatalogPartnerConfigValidator(categoryCacheMock, deviceFamilyRepositoryMock, topicManagerMock);
+
+            CatalogPartnerConfigManager manager = new CatalogPartnerConfigManager(repositoryMock, layeredCacheMock.Object, domainDeviceManagerMock, validator);
             var response = manager.GetCatalogConfig(fixture.Create<int>());
             Assert.That(response.Status.Code, Is.EqualTo((int)expectedResponse));
         }
@@ -222,14 +290,19 @@ namespace ApiLogic.Tests.Partner
             var layeredCacheMock = LayeredCacheHelper.GetLayeredCacheMock(catalogPartnerConfig, true, false);
 
             var domainDeviceManagerMock = new Mock<IDomainDeviceManager>();
-            domainDeviceManagerMock.Setup(x => x.GetDeviceFamilyIdByUdid(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>()))
-                                   .Returns(deviceFamilyId);
+            domainDeviceManagerMock
+                .Setup(x => x.GetDeviceFamilyIdByUdid(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>()))
+                .Returns(deviceFamilyId);
+
+            var topicManagerMock = new Mock<ITopicManager>();
 
             var fixture = new Fixture();
             var repositoryMock = Mock.Of<ICatalogPartnerRepository>();
             var categoryCacheMock = Mock.Of<ICategoryCache>();
             var deviceFamilyRepositoryMock = Mock.Of<IDeviceFamilyRepository>();
-            CatalogPartnerConfigManager manager = new CatalogPartnerConfigManager(repositoryMock, layeredCacheMock.Object, categoryCacheMock, domainDeviceManagerMock.Object, deviceFamilyRepositoryMock);
+            var validator = new CatalogPartnerConfigValidator(categoryCacheMock, deviceFamilyRepositoryMock, topicManagerMock.Object);
+
+            CatalogPartnerConfigManager manager = new CatalogPartnerConfigManager(repositoryMock, layeredCacheMock.Object, domainDeviceManagerMock.Object, validator);
             var treeId = manager.GetCategoryVersionTreeIdByDeviceFamilyId(fixture.Create<ContextData>(), deviceFamily);
             Assert.That(treeId, Is.EqualTo(expectedTreeId));
         }

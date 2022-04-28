@@ -1,18 +1,16 @@
-﻿using ApiObjects;
-using ApiObjects.Base;
-using ApiObjects.Catalog;
-using ApiObjects.Response;
-using CachingProvider.LayeredCache;
-using Core.Api;
-using Core.Catalog.CatalogManagement;
-using DAL;
-using Phx.Lib.Log;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using ApiLogic.Repositories;
+using ApiObjects;
+using ApiObjects.Base;
+using ApiObjects.Response;
+using ApiLogic.Api.Validators;
+using CachingProvider.LayeredCache;
+using Core.Api;
+using DAL;
+using Phx.Lib.Log;
 
 namespace ApiLogic.Api.Managers
 {
@@ -30,30 +28,26 @@ namespace ApiLogic.Api.Managers
         private static readonly Lazy<CatalogPartnerConfigManager> lazy = new Lazy<CatalogPartnerConfigManager>(() =>
             new CatalogPartnerConfigManager(ApiDAL.Instance,
                                             LayeredCache.Instance,
-                                            CategoryCache.Instance,
                                             api.Instance,
-                                            DeviceFamilyRepository.Instance),
+                                            CatalogPartnerConfigValidator.Instance),
             LazyThreadSafetyMode.PublicationOnly);
 
         public static CatalogPartnerConfigManager Instance { get { return lazy.Value; } }
 
         private readonly ICatalogPartnerRepository _repository;
         private readonly ILayeredCache _layeredCache;
-        private readonly ICategoryCache _categoryCache;
         private readonly IDomainDeviceManager _domainDeviceManager;
-        private readonly IDeviceFamilyRepository _deviceFamilyRepository;
+        private readonly ICatalogPartnerConfigValidator _catalogPartnerConfigValidator;
 
         public CatalogPartnerConfigManager(ICatalogPartnerRepository repository,
             ILayeredCache layeredCache,
-            ICategoryCache categoryCache,
             IDomainDeviceManager domainDeviceManager,
-            IDeviceFamilyRepository deviceFamilyRepository)
+            ICatalogPartnerConfigValidator catalogPartnerConfigValidator)
         {
             _repository = repository;
             _layeredCache = layeredCache;
-            _categoryCache = categoryCache;
             _domainDeviceManager = domainDeviceManager;
-            _deviceFamilyRepository = deviceFamilyRepository;
+            _catalogPartnerConfigValidator = catalogPartnerConfigValidator;
         }
 
         public Status UpdateCatalogConfig(int groupId, CatalogPartnerConfig catalogPartnerConfig)
@@ -76,14 +70,11 @@ namespace ApiLogic.Api.Managers
 
                 if (needToUpdate)
                 {
-                    if (catalogPartnerConfig.CategoryManagement != null)
+                    var validateStatus = _catalogPartnerConfigValidator.Validate(groupId, catalogPartnerConfig);
+                    if (!validateStatus.IsOkStatusCode())
                     {
-                        var validateStatus = ValidateCategoryManagment(groupId, catalogPartnerConfig.CategoryManagement);
-                        if (!validateStatus.IsOkStatusCode())
-                        {
-                            response.Set(validateStatus);
-                            return response;
-                        }
+                        response.Set(validateStatus);
+                        return response;
                     }
 
                     if (!_repository.SaveCatalogPartnerConfig(groupId, catalogPartnerConfig))
@@ -190,57 +181,6 @@ namespace ApiLogic.Api.Managers
             
             treeId = categoryConfig.DefaultCategoryTree ?? 0;
             return treeId;
-        }
-
-        private Status ValidateCategoryManagment(int groupId, CategoryManagement categoryManagement)
-        {
-            Status validateStatus = Status.Ok;
-
-            var contextDate = new ContextData(groupId);
-            if (categoryManagement.DefaultCategoryTree.HasValue)
-            {
-                var filter = new CategoryVersionFilterByTree() { TreeId = categoryManagement.DefaultCategoryTree.Value };
-                var defaultCategory = _categoryCache.ListCategoryVersionByTree(contextDate, filter);
-                if (!defaultCategory.HasObjects())
-                {
-                    validateStatus.Set(eResponseStatus.CategoryTreeDoesNotExist, $"Category tree {categoryManagement.DefaultCategoryTree} does not exist");
-                    return validateStatus;
-                }
-            }
-
-            if (categoryManagement.DeviceFamilyToCategoryTree != null)
-            {
-                // validate deviceFamilyIds
-                var deviceFamilyListResponse = _deviceFamilyRepository.List(groupId);
-                if (!deviceFamilyListResponse.IsOkStatusCode())
-                {
-                    validateStatus.Set(eResponseStatus.NonExistingDeviceFamilyIds,
-                        $"DeviceFamilyIds {string.Join(", ", categoryManagement.DeviceFamilyToCategoryTree.Keys)} do not exist");
-                    return validateStatus;
-                }
-
-                HashSet<int> deviceFamilies = deviceFamilyListResponse.Objects.Select(x => x.Id).ToHashSet();
-                var notExistDeviceFamilies = categoryManagement.DeviceFamilyToCategoryTree.Keys.Where(x => !deviceFamilies.Contains(x)).ToList();
-                if (notExistDeviceFamilies.Count > 0)
-                {
-                    validateStatus.Set(eResponseStatus.NonExistingDeviceFamilyIds,
-                        $"DeviceFamilyIds {string.Join(", ", notExistDeviceFamilies)} do not exist");
-                    return validateStatus;
-                }
-
-                foreach (var categoryTree in categoryManagement.DeviceFamilyToCategoryTree.Values)
-                {
-                    var filter = new CategoryVersionFilterByTree() { TreeId = categoryTree };
-                    var defaultCategory = _categoryCache.ListCategoryVersionByTree(contextDate, filter);
-                    if (!defaultCategory.HasObjects())
-                    {
-                        validateStatus.Set(eResponseStatus.CategoryTreeDoesNotExist, $"Category tree {categoryTree} does not exist");
-                        return validateStatus;
-                    }
-                }
-            }
-
-            return validateStatus;
         }
 
         private Tuple<CatalogPartnerConfig, bool> GetCatalogPartnerConfigDB(Dictionary<string, object> funcParams)

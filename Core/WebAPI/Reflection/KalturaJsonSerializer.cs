@@ -41170,6 +41170,10 @@ namespace WebAPI.Models.Partner
             {
                 ret.Add("epgMultilingualFallbackSupport", "\"epgMultilingualFallbackSupport\": " + EpgMultilingualFallbackSupport.ToString().ToLower());
             }
+            if(ShopMarkerMetaId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("shopMarkerMetaId")))
+            {
+                ret.Add("shopMarkerMetaId", "\"shopMarkerMetaId\": " + ShopMarkerMetaId);
+            }
             if(SingleMultilingualMode.HasValue && (retrievedProperties == null || retrievedProperties.Contains("singleMultilingualMode")))
             {
                 ret.Add("singleMultilingualMode", "\"singleMultilingualMode\": " + SingleMultilingualMode.ToString().ToLower());
@@ -41200,6 +41204,10 @@ namespace WebAPI.Models.Partner
             if(EpgMultilingualFallbackSupport.HasValue && (retrievedProperties == null || retrievedProperties.Contains("epgMultilingualFallbackSupport")))
             {
                 ret.Add("epgMultilingualFallbackSupport", "<epgMultilingualFallbackSupport>" + EpgMultilingualFallbackSupport.ToString().ToLower() + "</epgMultilingualFallbackSupport>");
+            }
+            if(ShopMarkerMetaId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("shopMarkerMetaId")))
+            {
+                ret.Add("shopMarkerMetaId", "<shopMarkerMetaId>" + ShopMarkerMetaId + "</shopMarkerMetaId>");
             }
             if(SingleMultilingualMode.HasValue && (retrievedProperties == null || retrievedProperties.Contains("singleMultilingualMode")))
             {

@@ -1,11 +1,9 @@
 ﻿using ApiLogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Response;
-using DAL;
 using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Reflection;
 using Tvinci.Core.DAL;
@@ -18,6 +16,7 @@ namespace Core.Catalog.CatalogManagement
     public interface ITopicManager
     {
         GenericResponse<Topic> AddTopic(int groupId, Topic topicToAdd, long userId, bool shouldCheckRegularFlowValidations = true);
+        GenericListResponse<Topic> GetTopicsByIds(int groupId, List<long> ids, MetaType type);
     }
 
     public class TopicManager : ITopicManager

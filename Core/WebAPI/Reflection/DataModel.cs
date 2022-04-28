@@ -1497,6 +1497,8 @@ namespace WebAPI.Reflection
                             return "categoryManagement";
                         case "EpgMultilingualFallbackSupport":
                             return "epgMultilingualFallbackSupport";
+                        case "ShopMarkerMetaId":
+                            return "shopMarkerMetaId";
                         case "SingleMultilingualMode":
                             return "singleMultilingualMode";
                         case "UploadExportDatalake":

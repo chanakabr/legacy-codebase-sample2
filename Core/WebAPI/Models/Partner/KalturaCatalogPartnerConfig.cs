@@ -54,6 +54,15 @@ namespace WebAPI.Models.Partner
         [SchemeProperty(IsNullable = true)]
         public bool? UploadExportDatalake { get; set; }
 
+        /// <summary>
+        /// Shop Marker's identifier
+        /// </summary>
+        [DataMember(Name = "shopMarkerMetaId")]
+        [JsonProperty("shopMarkerMetaId")]
+        [XmlElement(ElementName = "shopMarkerMetaId")]
+        [SchemeProperty(IsNullable = true)]
+        public long? ShopMarkerMetaId { get; set; }
+
         internal override bool Update(int groupId)
         {
             Func<CatalogPartnerConfig, Status> partnerConfigFunc =
