@@ -33,7 +33,7 @@ namespace WebAPI.Models.General
             {
                 if (!value.HasValue)
                 {
-                    pageIndex = 30;
+                    pageSize = 30;
                 }
                 else if (value > MAX_PAGE_SIZE)
                 {

@@ -175,6 +175,9 @@ namespace ApiObjects.Response
             }
         }
 
+        // Deserialization constructor.
+        private Try() { }
+
         private Exception Rethrow()
         {
             ExceptionDispatchInfo.Capture(_exception).Throw();
