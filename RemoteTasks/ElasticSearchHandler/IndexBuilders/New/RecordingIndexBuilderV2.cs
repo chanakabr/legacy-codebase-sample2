@@ -43,20 +43,11 @@ namespace ElasticSearchHandler.IndexBuilders
 
         protected override void PopulateIndex(string newIndexName, GroupsCacheManager.Group group)
         {
-            List<int> statuses = new List<int>() { (int)RecordingInternalStatus.OK, (int)RecordingInternalStatus.Waiting,
-            (int)RecordingInternalStatus.Canceled, (int)RecordingInternalStatus.Failed};
-
-            // Get information about relevant recordings
-            epgToRecordingMapping = DAL.RecordingsDAL.GetEpgToRecordingsMapByRecordingStatuses(this.groupId, statuses);
-            List<string> epgIds = new List<string>();
-
             bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
-            CatalogGroupCache catalogGroupCache = null;
-            Dictionary<ulong, Dictionary<string, EpgCB>> programs = new Dictionary<ulong, Dictionary<string, EpgCB>>();
             List<LanguageObj> languages = new List<LanguageObj>();
             if (doesGroupUsesTemplates)
             {
-                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling PopulateEpgIndex", groupId);
                     return;
@@ -69,11 +60,33 @@ namespace ElasticSearchHandler.IndexBuilders
                 languages = group.GetLangauges();
             }
 
+            PopulateIndexPaging(newIndexName, languages);
+        }
+
+        private void PopulateIndexPaging(string newIndexName, List<LanguageObj> languages, long minId = 0)
+        {
+            log.Debug($"PopulateIndexPaging maxId:{minId}");
+
+            long maxId = minId;
+            List<int> statuses = new List<int>() { (int)RecordingInternalStatus.OK, (int)RecordingInternalStatus.Waiting,
+            (int)RecordingInternalStatus.Canceled, (int)RecordingInternalStatus.Failed};
+
+            // Get information about relevant recordings
+            epgToRecordingMapping = DAL.RecordingsDAL.GetEpgToRecordingsMapByRecordingStatuses(this.groupId, statuses, minId);
+            List<string> epgIds = new List<string>();
+
             List<EpgCB> epgs = new List<EpgCB>();
             EpgBL.TvinciEpgBL epgBL = new TvinciEpgBL(this.groupId);
 
             foreach (var programId in epgToRecordingMapping.Keys)
             {
+                long recordingId = epgToRecordingMapping[programId];
+
+                if (recordingId > maxId)
+                {
+                    maxId = recordingId;
+                }
+
                 // for main language
                 epgIds.Add(programId.ToString());
 
@@ -102,6 +115,11 @@ namespace ElasticSearchHandler.IndexBuilders
             Dictionary<ulong, Dictionary<string, EpgCB>> epgDictionary = BuildEpgsLanguageDictionary(epgs);
 
             _IndexManager.AddEPGsToIndex(newIndexName, true, epgDictionary, linearChannelsRegionsMapping, epgToRecordingMapping);
+
+            if (maxId > minId)
+            {
+                PopulateIndexPaging(newIndexName, languages, maxId);
+            }
         }
 
         protected override bool FinishUpEpgIndex(string newIndexName)

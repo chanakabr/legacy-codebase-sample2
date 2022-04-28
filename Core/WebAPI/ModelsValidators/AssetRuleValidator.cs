@@ -19,6 +19,7 @@ namespace WebAPI.ModelsValidators
                 { KalturaRuleConditionType.CONCURRENCY, ValidateConcurrencyConditionRelations },
                 { KalturaRuleConditionType.ASSET, ValidateAssetConditionRelations },
                 { KalturaRuleConditionType.IP_RANGE, ValidateIpRangeConditionRelations },
+                { KalturaRuleConditionType.IP_V6_RANGE, ValidateIpV6RangeConditionRelations },
                 { KalturaRuleConditionType.OR, NoValidation },
                 { KalturaRuleConditionType.HEADER, NoValidation },
                 { KalturaRuleConditionType.USER_SESSION_PROFILE, ValidateUserSessionProfileConditionRelations },
@@ -94,6 +95,12 @@ namespace WebAPI.ModelsValidators
         }
 
         private static HashSet<KalturaRuleActionType> ValidateIpRangeConditionRelations(ConditionsMap existConditions)
+        {
+            var allowedActions = new HashSet<KalturaRuleActionType>() { KalturaRuleActionType.ALLOW_PLAYBACK, KalturaRuleActionType.BLOCK_PLAYBACK };
+            return allowedActions;
+        }
+
+        private static HashSet<KalturaRuleActionType> ValidateIpV6RangeConditionRelations(ConditionsMap existConditions)
         {
             var allowedActions = new HashSet<KalturaRuleActionType>() { KalturaRuleActionType.ALLOW_PLAYBACK, KalturaRuleActionType.BLOCK_PLAYBACK };
             return allowedActions;

@@ -1924,11 +1924,9 @@ namespace DAL
             return response;
         }
 
-        public static string GetPaymentGatewayProductIdByExternalID(string name, string externalTransactionId, 
-            out int groupId, out int domainId)
+        public static string GetPaymentGatewayProductIdByExternalID(string name, string externalTransactionId, out int domainId)
         {
             string productId = String.Empty;
-            groupId = 0;
             domainId = 0;
 
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGatewayTransactionDetails");
@@ -1944,7 +1942,6 @@ namespace DAL
                 {
                     productId = Utils.GetSafeStr(dt.Rows[0]["product_id"]);
                     domainId = Utils.GetIntSafeVal(dt.Rows[0]["domain_id"]);
-                    groupId = Utils.GetIntSafeVal(dt.Rows[0]["group_id"]);
                 }
             }
 

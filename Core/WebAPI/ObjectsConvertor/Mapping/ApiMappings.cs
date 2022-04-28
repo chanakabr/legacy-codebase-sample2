@@ -638,9 +638,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaCondition, RuleCondition>()
                 .Include(typeof(KalturaOrCondition), typeof(OrCondition))
                 .Include(typeof(KalturaBusinessModuleCondition), typeof(BusinessModuleCondition))
+                .Include(typeof(KalturaAssetConditionBase), typeof(AssetConditionBase))
                 .Include(typeof(KalturaConcurrencyCondition), typeof(ConcurrencyCondition))
                 .Include(typeof(KalturaDateCondition), typeof(DateCondition))
                 .Include(typeof(KalturaIpRangeCondition), typeof(IpRangeCondition))
+                .Include(typeof(KalturaIpV6RangeCondition), typeof(IpV6RangeCondition))
                 .Include(typeof(KalturaCountryCondition), typeof(CountryCondition))
                 .Include(typeof(KalturaHeaderCondition), typeof(HeaderCondition))
                 .Include(typeof(KalturaUserSubscriptionCondition), typeof(UserSubscriptionCondition))
@@ -663,9 +665,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<RuleCondition, KalturaCondition>()
                 .Include(typeof(OrCondition), typeof(KalturaOrCondition))
                 .Include(typeof(BusinessModuleCondition), typeof(KalturaBusinessModuleCondition))
+                .Include(typeof(AssetConditionBase), typeof(KalturaAssetConditionBase))
                 .Include(typeof(ConcurrencyCondition), typeof(KalturaConcurrencyCondition))
                 .Include(typeof(DateCondition), typeof(KalturaDateCondition))
                 .Include(typeof(IpRangeCondition), typeof(KalturaIpRangeCondition))
+                .Include(typeof(IpV6RangeCondition), typeof(KalturaIpV6RangeCondition))
                 .Include(typeof(CountryCondition), typeof(KalturaCountryCondition))
                 .Include(typeof(HeaderCondition), typeof(KalturaHeaderCondition))
                 .Include(typeof(UserSubscriptionCondition), typeof(KalturaUserSubscriptionCondition))
@@ -698,6 +702,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                        case KalturaRuleConditionType.COUNTRY: return RuleConditionType.Country;
                        case KalturaRuleConditionType.CONCURRENCY: return RuleConditionType.Concurrency;
                        case KalturaRuleConditionType.IP_RANGE: return RuleConditionType.IP_RANGE;
+                       case KalturaRuleConditionType.IP_V6_RANGE: return RuleConditionType.IP_V6_RANGE;
                        case KalturaRuleConditionType.BUSINESS_MODULE: return RuleConditionType.BusinessModule;
                        case KalturaRuleConditionType.SEGMENTS: return RuleConditionType.Segments;
                        case KalturaRuleConditionType.DATE: return RuleConditionType.Date;
@@ -730,6 +735,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         case RuleConditionType.Country: return KalturaRuleConditionType.COUNTRY;
                         case RuleConditionType.Concurrency: return KalturaRuleConditionType.CONCURRENCY;
                         case RuleConditionType.IP_RANGE: return KalturaRuleConditionType.IP_RANGE;
+                        case RuleConditionType.IP_V6_RANGE: return KalturaRuleConditionType.IP_V6_RANGE;
                         case RuleConditionType.BusinessModule: return KalturaRuleConditionType.BUSINESS_MODULE;
                         case RuleConditionType.Segments: return KalturaRuleConditionType.SEGMENTS;
                         case RuleConditionType.Date: return KalturaRuleConditionType.DATE;
@@ -864,6 +870,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate.HasValue ? src.StartDate.Value : 0))
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate.HasValue ? src.EndDate.Value : 0));
 
+            cfg.CreateMap<KalturaIpV6RangeCondition, IpV6RangeCondition>()
+               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+               .ForMember(dest => dest.FromIp, opt => opt.MapFrom(src => src.FromIP))
+               .ForMember(dest => dest.ToIp, opt => opt.MapFrom(src => src.ToIP));
+
             cfg.CreateMap<KalturaIpRangeCondition, IpRangeCondition>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
@@ -871,6 +883,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ToIp, opt => opt.MapFrom(src => src.ToIP))
                 .ForMember(dest => dest.IpFrom, opt => opt.ResolveUsing(src => GetConvertedIp(src.FromIP)))
                 .ForMember(dest => dest.IpTo, opt => opt.ResolveUsing(src => GetConvertedIp(src.ToIP)));
+
+            cfg.CreateMap<IpV6RangeCondition, KalturaIpV6RangeCondition>()
+               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+               .ForMember(dest => dest.FromIP, opt => opt.MapFrom(src => src.FromIp))
+               .ForMember(dest => dest.ToIP, opt => opt.MapFrom(src => src.ToIp));
 
             cfg.CreateMap<IpRangeCondition, KalturaIpRangeCondition>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
@@ -2341,9 +2359,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         private static long GetConvertedIp(string ip)
         {
-            long convertIp = 0;
-            APILogic.Utils.ConvertIpToNumber(ip, out convertIp);
-            return convertIp;
+            APILogic.Utils.ConvertIpToNumber(ip, out var convertIp, out var isV6);
+            return long.Parse(convertIp);
         }
 
         private static List<Permission> ConvertPermissionsNames(string permissionNames, string excludedPermissionNames)

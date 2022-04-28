@@ -1159,6 +1159,7 @@ namespace ApiObjects
         DynamicKeys,
         UserSessionProfile,
         DeviceDynamicData,
+        IP_V6_RANGE,
         AssetShop
     }
 

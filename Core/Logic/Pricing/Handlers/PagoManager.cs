@@ -9,8 +9,11 @@ using Core.Catalog.CatalogManagement;
 using Core.ConditionalAccess;
 using Core.GroupManagers;
 using Core.Pricing;
+using Core.Pricing.Services;
 using DAL;
 using DAL.Pricing;
+using EventBus.Kafka;
+using OTT.Lib.Kafka;
 using Phx.Lib.Appconfig;
 using Phx.Lib.Log;
 using System;
@@ -19,10 +22,6 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using ApiLogic.Catalog.CatalogManagement.Services;
-using Core.Pricing.Services;
-using EventBus.Kafka;
-using OTT.Lib.Kafka;
 
 namespace ApiLogic.Pricing.Handlers
 {
@@ -63,7 +62,7 @@ namespace ApiLogic.Pricing.Handlers
         private readonly IMediaFileTypeManager _fileManager;
         private readonly IPagoModule _pagoModule;
         private readonly IVirtualAssetManager _virtualAssetManager;
-        private static IProgramAssetGroupOfferCrudMessageService  _messageService;
+        private static IProgramAssetGroupOfferCrudMessageService _messageService;
 
         public static PagoManager Instance => lazy.Value;
 
@@ -137,7 +136,7 @@ namespace ApiLogic.Pricing.Handlers
             response.Object = GetProgramAssetGroupOffer(contextData.GroupId, id, true); ;
             response.Status.Set(eResponseStatus.OK);
             _messageService?.PublishCreateEventAsync(contextData.GroupId, response.Object).GetAwaiter().GetResult();
-            
+
             return response;
         }
 
@@ -166,15 +165,14 @@ namespace ApiLogic.Pricing.Handlers
             #endregion validate ExternalId
 
             #region validate ExternalOfferId - must be unique
-            if (!string.IsNullOrEmpty(pagoToInsert.ExternalOfferId))
+
+            status = ValidateExternalOfferId(contextData.GroupId, pagoToInsert.ExternalOfferId);
+            if (!status.IsOkStatusCode())
             {
-                status = ValidateExternalOfferId(contextData.GroupId, pagoToInsert.ExternalOfferId);
-                if (!status.IsOkStatusCode())
-                {
-                    response.SetStatus(status);
-                    return response;
-                }
+                response.SetStatus(status);
+                return response;
             }
+
             #endregion validate ExternalOfferId
 
             #region validate FileTypesIds
@@ -797,7 +795,7 @@ namespace ApiLogic.Pricing.Handlers
                     {
                         response.SetStatus(eResponseStatus.ProgramAssetGroupOfferDoesNotExist, $"ProgramAssetGroupOffer {pagoId} does not exist");
                         return response;
-    }
+                    }
 
                     if (!IsPagoAllowed(pago))
                     {
@@ -824,7 +822,7 @@ namespace ApiLogic.Pricing.Handlers
         {
             return pago.IsActive.Value && pago.StartDate < DateTime.UtcNow && pago.EndDate > DateTime.UtcNow;
         }
-        
+
         public static void InitProgramAssetGroupOfferCrudMessageService(IKafkaContextProvider contextProvider)
         {
             _messageService = new ProgramAssetGroupOfferCrudMessageService(

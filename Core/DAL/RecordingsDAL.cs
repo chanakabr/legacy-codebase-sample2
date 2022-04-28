@@ -707,7 +707,7 @@ namespace DAL
             return epgsToRecordingsMap;
         }
 
-        public static Dictionary<long, long> GetEpgToRecordingsMapByRecordingStatuses(int groupId, List<int> recordingStatuses)
+        public static Dictionary<long, long> GetEpgToRecordingsMapByRecordingStatuses(int groupId, List<int> recordingStatuses, long minId = 0)
         {
             Dictionary<long, long> epgsToRecordingsMap = new Dictionary<long, long>();
 
@@ -715,6 +715,7 @@ namespace DAL
             spGetEpgsByRecordingStatus.SetConnectionKey(RECORDING_CONNECTION);
             spGetEpgsByRecordingStatus.AddParameter("@GroupID", groupId);
             spGetEpgsByRecordingStatus.AddIDListParameter<int>("@RecordingStatuses", recordingStatuses, "ID");
+            spGetEpgsByRecordingStatus.AddParameter("@MinId", minId);
 
             DataTable dt = spGetEpgsByRecordingStatus.Execute();
 

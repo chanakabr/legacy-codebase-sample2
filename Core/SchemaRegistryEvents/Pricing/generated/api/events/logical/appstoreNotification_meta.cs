@@ -7,7 +7,7 @@ namespace Phoenix.Generated.Api.Events.Logical.appstoreNotification
         private const string AppstoreNotificationTopic = "events.logical.AppstoreNotification";
         public string GetPartitioningKey()
         {
-            return $"AppstoreNotification_{this.ExternalTransactionId }";
+            return $"AppstoreNotification_{this.PartnerId }_{this.ExternalTransactionId }";
 
         }
 

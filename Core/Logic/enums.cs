@@ -37,6 +37,8 @@ namespace Core.Api
         PostGetUserData = 3,
         PreSignOut = 4,
         PostSignOut = 5,
-        Invoke = 6
+        Invoke = 6,
+        AdjustRegionId = 7
+        
     }
 }

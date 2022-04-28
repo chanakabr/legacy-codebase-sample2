@@ -1,0 +1,53 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <Version>5.2.0.3673</Version>
+    <AssemblyTitle>2019-04-09 20:15:47 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-0-147-gb99fddbc-dirty</AssemblyTitle>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <LangVersion>8</LangVersion>
+    <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="ssl\ssl.crt" />
+    <None Remove="ssl\ssl.key" />
+    <None Remove="ssl\ssl.pfx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="ssl\ssl.crt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ssl\ssl.key">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ssl\ssl.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="app.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="log4net.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\GrpcAPI\GrpcAPI.csproj" />
+    <ProjectReference Include="..\..\Core\HealthCheck\HealthCheck.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Grpc.HealthCheck" Version="2.45.0" />
+    <PackageReference Include="OTT.Lib.GRPC" Version="0.0.0.33-alpha" />
+    <PackageReference Include="Phx.Lib.Appconfig" Version="1.4.2" />
+    <PackageReference Include="Phx.Lib.Log" Version="1.2.4" />
+  </ItemGroup>
+
+</Project>

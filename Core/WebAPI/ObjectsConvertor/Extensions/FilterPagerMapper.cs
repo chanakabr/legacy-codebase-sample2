@@ -6,7 +6,7 @@ namespace WebAPI.ObjectsConvertor.Extensions
     {
         public static int GetRealPageIndex(this KalturaFilterPager model)
         {
-            return model.PageIndex.Value - 1;
+            return model.GetPageIndex();
         }
     }
 }

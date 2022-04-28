@@ -35,6 +35,7 @@ namespace WebAPI.Models.API
         DYNAMIC_KEYS,
         USER_SESSION_PROFILE,
         DEVICE_DYNAMIC_DATA,
+        IP_V6_RANGE,
         ASSET_SHOP
     }
 

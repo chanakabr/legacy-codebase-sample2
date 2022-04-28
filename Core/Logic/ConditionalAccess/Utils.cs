@@ -361,7 +361,7 @@ namespace Core.ConditionalAccess
             return mapper;
         }
 
-        internal static int GetMediaIdByFileId(int groupId, int mediaFileId)
+        public static int GetMediaIdByFileId(int groupId, int mediaFileId)
         {
             int mediaId = 0;
             try
@@ -4989,13 +4989,13 @@ namespace Core.ConditionalAccess
             return isContained;
         }
 
-        internal static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, ref long householdId)
+        public static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, ref long householdId)
         {
             Domain domain;
             return ValidateUserAndDomain(groupId, siteGuid, ref householdId, out domain);
         }
 
-        internal static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, ref long householdId, out Domain domain)
+        public static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, ref long householdId, out Domain domain)
         {
             User user;
             return ValidateUserAndDomain(groupId, siteGuid, ref householdId, out domain, out user);
@@ -5249,7 +5249,7 @@ namespace Core.ConditionalAccess
             return tstvAccountSettings;
         }
 
-        internal static List<EPGChannelProgrammeObject> GetEpgsByIds(int nGroupID, List<long> epgIds)
+        public static List<EPGChannelProgrammeObject> GetEpgsByIds(int nGroupID, List<long> epgIds)
         {
             List<EPGChannelProgrammeObject> epgs = null;
 
@@ -5956,7 +5956,7 @@ namespace Core.ConditionalAccess
                     .ToDictionary(x => x.Key, x => x.Value);
         }
 
-        internal static Dictionary<long, Recording> GetDomainRecordings(int groupId, long domainId, bool shouldFilterViewableRecordingsOnly = true)
+        public static Dictionary<long, Recording> GetDomainRecordings(int groupId, long domainId, bool shouldFilterViewableRecordingsOnly = true)
         {
             Dictionary<long, Recording> domainRecordingIdToRecordingMap = null;
             Dictionary<long, Recording> response = new Dictionary<long, Recording>();
@@ -7440,7 +7440,7 @@ namespace Core.ConditionalAccess
             return result.Values.ToList();
         }
 
-        internal static MediaObj GetMediaById(int groupID, int mediaId)
+        public static MediaObj GetMediaById(int groupID, int mediaId)
         {
             MediaObj media = null;
 
@@ -7847,7 +7847,7 @@ namespace Core.ConditionalAccess
             return result;
         }
 
-        internal static bool GetLinearMediaInfoByEpgChannelIdAndFileType(int groupId, string epgChannelId, string fileType, ref int linearMediaId, ref int mediaFileId)
+        public static bool GetLinearMediaInfoByEpgChannelIdAndFileType(int groupId, string epgChannelId, string fileType, ref int linearMediaId, ref int mediaFileId)
         {
             bool res = false;
             DataTable dt = ApiDAL.GetLinearMediaInfoByEpgChannelIdAndFileType(groupId, epgChannelId, fileType);
@@ -7862,7 +7862,7 @@ namespace Core.ConditionalAccess
             return res;
         }
 
-        internal static bool InsertOrSetCachedEntitlementResults(long domainId, int mediaFileId, CachedEntitlementResults cachedEntitlementResults)
+        public static bool InsertOrSetCachedEntitlementResults(long domainId, int mediaFileId, CachedEntitlementResults cachedEntitlementResults)
         {
             return ConditionalAccessDAL.InsertOrSetCachedEntitlementResults(ApplicationConfiguration.Current.Version.Value, domainId, mediaFileId, cachedEntitlementResults);
         }
@@ -7991,7 +7991,7 @@ namespace Core.ConditionalAccess
             return GroupSettingsManager.Instance.IsOpc(groupId);
         }
 
-        internal static ApiObjects.Response.Status GetMediaIdForAsset(int groupId, string assetId, eAssetTypes assetType, string userId, Domain domain, string udid,
+        public static ApiObjects.Response.Status GetMediaIdForAsset(int groupId, string assetId, eAssetTypes assetType, string userId, Domain domain, string udid,
             out long mediaId, out Recording recording, out EPGChannelProgrammeObject program)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());

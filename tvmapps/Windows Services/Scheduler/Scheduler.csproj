@@ -20,9 +20,7 @@
     <Compile Update="ProjectInstaller.Designer.cs">
       <DependentUpon>ProjectInstaller.cs</DependentUpon>
     </Compile>
-    <Compile Update="TVM_Tasker.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Update="TVM_Tasker.cs" />
     <Compile Update="TVM_Tasker.Designer.cs">
       <DependentUpon>TVM_Tasker.cs</DependentUpon>
     </Compile>

@@ -1528,6 +1528,28 @@ namespace DAL
             return null;
         }
 
+        public static MediaConcurrencyRule GetMCRuleByID(int ruleID)
+        {
+            // get limitation from DB
+            DataTable dt = GetMCRulesByID(ruleID);
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                int rule_ID = Utils.GetIntSafeVal(dt.Rows[0], "rule_id");
+                string name = Utils.GetSafeStr(dt.Rows[0], "name");
+                int tagTypeID = Utils.GetIntSafeVal(dt.Rows[0], "tag_type_id");
+                string tagType = Utils.GetSafeStr(dt.Rows[0], "tag_type_name");
+                int MCLimitation = Utils.GetIntSafeVal(dt.Rows[0], "media_concurrency_limit");
+                int bmId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "BM_ID");
+                int bmType = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "type");
+                int restrictionPolicy = ODBCWrapper.Utils.ExtractInteger(dt.Rows[0], "restriction_policy");
+
+                return new MediaConcurrencyRule(rule_ID, tagTypeID, tagType, name, 1, bmId,
+                    (eBusinessModule)bmType, MCLimitation, (ConcurrencyRestrictionPolicy)restrictionPolicy);
+            }
+
+            return null;
+        }
+        
         public static DataTable Get_MediaFileTypeDescription(int nMediaFileID, int nGroupID)
         {
 

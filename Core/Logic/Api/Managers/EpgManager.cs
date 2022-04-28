@@ -24,7 +24,7 @@ namespace APILogic.Api.Managers
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        internal static string GetEpgChannelId(int mediaId, int groupId)
+        public static string GetEpgChannelId(int mediaId, int groupId)
         {
             string allLinearMediaIdsKey = LayeredCacheKeys.GetAllLinearMediaKey(groupId);
             Dictionary<long, string> allLinearMedia = null;

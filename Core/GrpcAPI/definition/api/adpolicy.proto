@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option csharp_namespace = "phoenix";
+option go_package = "./models";
+
+package phoenix;
+
+enum AdsPolicy
+{
+  NONE = 0;
+  NoAds = 1;
+  KeepAds = 2;
+}

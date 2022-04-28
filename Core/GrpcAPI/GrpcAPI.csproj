@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <RootNamespace>GrpcAPI</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="AutoMapper" Version="7.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\ApiObjects\ApiObjects.csproj" />
+      <ProjectReference Include="..\Core.Middleware\Core.Middleware.csproj" />
+      <ProjectReference Include="..\Logic\ApiLogic.csproj" />
+    </ItemGroup>
+    
+</Project>

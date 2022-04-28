@@ -32,10 +32,19 @@ namespace Phoenix.AsyncHandler.Pricing
         
         protected HandleResult CancelSubscriptionRenewal(ConsumeResult<string, AppstoreNotification> consumeResult)
         {
-            var appstoreNotification = consumeResult.GetValue();
+            var appstoreNotification = consumeResult.GetValue(); 
             var orderId = appstoreNotification.ExternalTransactionId;
             var source = appstoreNotification.NotificationSource.ToString();
-            Core.ConditionalAccess.Module.CancelSubscriptionRenewalAfterAppStoreEvent(source, orderId);
+            if (appstoreNotification.PartnerId.HasValue)
+            {
+                var status =  Core.ConditionalAccess.Module.CancelSubscriptionRenewalAfterAppStoreEvent((int)appstoreNotification.PartnerId.Value, source, orderId);
+                if (!status.IsOkStatusCode())
+                {
+                    _logger.LogError(status.Message);
+                }
+            } else {
+                _logger.LogError("PartnerId not exists");
+            }
             return Result.Ok;
         }
     }

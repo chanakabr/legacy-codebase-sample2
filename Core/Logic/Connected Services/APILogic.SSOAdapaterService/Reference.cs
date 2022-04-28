@@ -113,6 +113,18 @@ namespace APILogic.SSOAdapaterService
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
         PostGetUserData = 3,
+
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        PreSignOut = 4,
+
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        PostSignOut = 5,
+
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Invoke = 6,
+
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        AdjustRegionId = 7
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]

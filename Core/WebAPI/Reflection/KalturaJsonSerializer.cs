@@ -13692,6 +13692,52 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
+    public partial class KalturaIpV6RangeCondition
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(FromIP != null && (retrievedProperties == null || retrievedProperties.Contains("fromIP")))
+            {
+                ret.Add("fromIP", "\"fromIP\": " + "\"" + EscapeJson(FromIP) + "\"");
+            }
+            if(ToIP != null && (retrievedProperties == null || retrievedProperties.Contains("toIP")))
+            {
+                ret.Add("toIP", "\"toIP\": " + "\"" + EscapeJson(ToIP) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(FromIP != null && (retrievedProperties == null || retrievedProperties.Contains("fromIP")))
+            {
+                ret.Add("fromIP", "<fromIP>" + EscapeXml(FromIP) + "</fromIP>");
+            }
+            if(ToIP != null && (retrievedProperties == null || retrievedProperties.Contains("toIP")))
+            {
+                ret.Add("toIP", "<toIP>" + EscapeXml(ToIP) + "</toIP>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaLanguage
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -35156,7 +35202,7 @@ namespace WebAPI.Models.Pricing
                     ret.Add("preview_module", "\"preview_module\": " + propertyValue);
                 }
             }
-            if(PreviewModuleId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("previewModuleId")))
+            if((retrievedProperties == null || retrievedProperties.Contains("previewModuleId")))
             {
                 ret.Add("previewModuleId", "\"previewModuleId\": " + PreviewModuleId);
             }
@@ -35448,7 +35494,7 @@ namespace WebAPI.Models.Pricing
                 ret.Add("preview_module", "<preview_module>" + propertyValue + "</preview_module>");
                 }
             }
-            if(PreviewModuleId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("previewModuleId")))
+            if((retrievedProperties == null || retrievedProperties.Contains("previewModuleId")))
             {
                 ret.Add("previewModuleId", "<previewModuleId>" + PreviewModuleId + "</previewModuleId>");
             }

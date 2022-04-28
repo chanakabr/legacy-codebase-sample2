@@ -118,6 +118,17 @@ namespace ApiLogic.Api.Managers
             return false;
         }
 
+        public static bool Evaluate(IIpV6RangeConditionScope scope, IpV6RangeCondition condition)
+        {
+            var _helper = new TVinciShared.IPAddressRange()
+                .Init(condition.FromIp, condition.ToIp);
+
+            if (!_helper.IsValidIpV6(scope.IpV6))
+                return false;
+
+            return _helper.IsInRange(scope.IpV6);
+        }
+
         public static bool Evaluate(IBusinessModuleConditionScope scope, BusinessModuleCondition condition)
         {
             return !scope.BusinessModuleType.HasValue ||
@@ -145,11 +156,9 @@ namespace ApiLogic.Api.Managers
 
         public static bool Evaluate(IHeaderConditionScope scope, HeaderCondition condition)
         {
-            bool isInHeaders = false;
-            if (scope.Headers.ContainsKey(condition.Key) && scope.Headers[condition.Key].Equals(condition.Value))
-            {
-                isInHeaders = true;
-            }
+            //ignore case sensitive - rest header - keeps format and grpc - headers always lower
+            bool isInHeaders = scope.Headers.Any(header => string.Equals(header.Key, condition.Key, StringComparison.InvariantCultureIgnoreCase) 
+                                                      && string.Equals(header.Value, condition.Value, StringComparison.InvariantCultureIgnoreCase));
 
             if (condition.Not)
             {

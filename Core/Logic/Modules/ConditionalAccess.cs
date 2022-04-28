@@ -521,10 +521,18 @@ namespace Core.ConditionalAccess
             }
         }
 
-        public static Status CancelSubscriptionRenewalAfterAppStoreEvent(string source, string externalTransactionId)
+        public static Status CancelSubscriptionRenewalAfterAppStoreEvent(int groupID, string source, string externalTransactionId)
         {
-            BaseConditionalAccess condition = new TvinciConditionalAccess(0, "CA_CONNECTION_STRING");
-            return condition.CancelSubscriptionRenewalAfterAppStoreEvent(source, externalTransactionId);
+            BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupID);
+            if (t != null)
+            {
+                return t.CancelSubscriptionRenewalAfterAppStoreEvent(source, externalTransactionId);
+            }
+            else
+            {
+                return (new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = "Invalid request" });
+            }
         }
 
         public static bool ChangeSubscriptionDates(int groupID, string sSiteGUID, string sSubscriptionCode,
@@ -2949,6 +2957,19 @@ namespace Core.ConditionalAccess
             else
             {
                 response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+            return response;
+        }
+
+        public static bool IsServiceAllowed(int groupID, int domainId, eService service)
+        {
+            var response = false;
+            ConditionalAccess.BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupID);
+            if (t != null)
+            {
+                MediaFileItemPricesContainer price;
+                response = t.IsServiceAllowed(domainId, service);
             }
             return response;
         }

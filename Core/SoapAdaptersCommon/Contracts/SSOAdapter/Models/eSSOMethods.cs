@@ -12,6 +12,14 @@ namespace SSOAdapter.Models
         [EnumMember]
         PreGetUserData = 2,
         [EnumMember]
-        PostGetUserData = 3
+        PostGetUserData = 3,
+        [EnumMember]
+        PreSignOut = 4,
+        [EnumMember]
+        PostSignOut = 5,
+        [EnumMember]
+        Invoke = 6,
+        [EnumMember]
+        AdjustRegionId = 7
     }
 }

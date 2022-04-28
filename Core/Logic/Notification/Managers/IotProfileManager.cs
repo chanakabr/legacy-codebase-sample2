@@ -138,11 +138,7 @@ namespace ApiLogic.Notification
 
                 _iotManager.InvalidateClientConfiguration(groupId);
 
-                response.Object = new IotProfile
-                {
-                    AdapterUrl = iotProfile.AdapterUrl,
-                    IotProfileAws = _iotManager.GetConfiguration(groupId)
-                };
+                response.Object = iotProfile;
 
                 response.SetStatus(Status.Ok);
             }

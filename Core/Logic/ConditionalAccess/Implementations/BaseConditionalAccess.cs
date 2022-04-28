@@ -1739,15 +1739,13 @@ namespace Core.ConditionalAccess
 
         public virtual ApiObjects.Response.Status CancelSubscriptionRenewalAfterAppStoreEvent(string source, string externalTransactionId)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status();
-            string productId = BillingDAL.GetPaymentGatewayProductIdByExternalID(source, externalTransactionId,
-                out int groupId, out int domainId);
-            if(groupId != 0 && domainId != 0 && !productId.IsNullOrEmpty())
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status(eResponseStatus.Error);
+            string productId = BillingDAL.GetPaymentGatewayProductIdByExternalID(source, externalTransactionId, out int domainId);
+            if(domainId != 0 && !productId.IsNullOrEmpty())
             {
-                m_nGroupID = groupId;
                 var domainSubscriptionPurchase = GetDomainSubscriptionPurchasesFromCache(productId, domainId);
             
-                SubscriptionPurchase subscriptionPurchase = new SubscriptionPurchase(groupId)
+                SubscriptionPurchase subscriptionPurchase = new SubscriptionPurchase(this.m_nGroupID)
                 {
                     purchaseId = domainSubscriptionPurchase.PurchaseId,
                     productId = productId,
@@ -1758,7 +1756,7 @@ namespace Core.ConditionalAccess
 
                 if (subscriptionPurchase.Update())
                 {
-                    string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(groupId, domainId);
+                    string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(this.m_nGroupID, domainId);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on CancelSubscriptionRenewal key = {0}", invalidationKey);
@@ -1771,16 +1769,17 @@ namespace Core.ConditionalAccess
                     // Enqueue event for when subscription will eventually end, for notification
                     long endDateUnix = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(dtServiceEndDate);
 
-                    RenewManager.EnqueueSubscriptionEndsMessage(groupId, domainSubscriptionPurchase.PurchasingUserId.ToString(), domainSubscriptionPurchase.PurchaseId, endDateUnix);
+                    RenewManager.EnqueueSubscriptionEndsMessage(this.m_nGroupID, domainSubscriptionPurchase.PurchasingUserId.ToString(), domainSubscriptionPurchase.PurchaseId, endDateUnix);
                     response.Set(eResponseStatus.OK);
                }
                 else
                 {
-                    log.ErrorFormat("Failed to cancle subscription");
+                    response.Message = "Failed to Cancel subscription";
                 }
-            } else
+            } 
+            else
             {
-                log.ErrorFormat($"could not find PaymentGatewayProductId for externalTransactionId: {externalTransactionId}");
+                response.Message = $"could not find PaymentGatewayProductId for externalTransactionId: {externalTransactionId}"; 
             }
             return response;
         }

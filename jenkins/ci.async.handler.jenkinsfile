@@ -34,7 +34,6 @@ node('Linux') {
 	kbot.notify(["OTT_DEV_BE_GO"], additionalMsg, true)
 }
 
-
 // copy-paste from ci.linux.jenkinsfile
 def runTests(){
     def testProjects = findDirectoriesWithTests()

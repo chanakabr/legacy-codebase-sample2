@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+option csharp_namespace = "phoenix";
+option go_package = "./models";
+
+package phoenix;
+
+enum eAssetTypes
+{
+  EPG = 0;
+  NPVR = 1;
+  MEDIA = 2;
+  UNKNOWN = -1;
+}
+
+message SlimAsset{
+  string Id = 1;
+  eAssetTypes Type = 2;
+}
+
+message MediaMapper{
+   int32 mediaFileID = 1;
+   int32 mediaID = 2;
+   string productCode = 3;
+}

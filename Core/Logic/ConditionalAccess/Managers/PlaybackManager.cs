@@ -868,7 +868,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        internal static AdsControlData GetDomainAdsControl(int groupId, long domainId)
+        public static AdsControlData GetDomainAdsControl(int groupId, long domainId)
         {
             AdsControlData adsData = null;
 

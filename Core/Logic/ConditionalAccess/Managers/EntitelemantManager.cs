@@ -329,7 +329,6 @@ namespace Core.ConditionalAccess
                                     IsLivePlayBack = !string.IsNullOrEmpty(epgChannelId);
                                 }
                             }
-
                         }
                         
                     }
@@ -412,7 +411,8 @@ namespace Core.ConditionalAccess
                                 return response;
                             }
 
-                            if (entitlement.paymentGatewayId > 0)
+                            if (entitlement.paymentGatewayId > 0 &&
+                                (subscriptionEntitlement.paymentGatewayId != entitlement.paymentGatewayId || subscriptionEntitlement.paymentMethodId != entitlement.paymentMethodId))
                             {
                                 // move here to Billing WS (write all in billing)
                                 var changeStatus = Billing.Module.ChangePaymentDetails(groupId, billingGuid, domainId, entitlement.paymentGatewayId, entitlement.paymentMethodId);

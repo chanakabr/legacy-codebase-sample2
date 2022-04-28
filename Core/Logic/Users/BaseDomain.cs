@@ -1260,11 +1260,11 @@ namespace Core.Users
         /// <param name="domain"></param>
         /// <param name="deviceFamilyId"></param>
         /// <returns></returns>
-        protected bool IsDevicePlayValid(string udid, Domain domain, out int deviceFamilyId)
+        public bool IsDevicePlayValid(string udid, Domain domain, out int deviceFamilyId)
         {
             bool isDeviceRecognized = false;
             deviceFamilyId = 0;
-
+    
             try
             {
                 if (domain != null)

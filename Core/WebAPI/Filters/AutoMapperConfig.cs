@@ -36,7 +36,7 @@ namespace WebAPI.Filters
             DMSMapping.RegisterMappings(cfg);
             SegmentationMapings.RegisterMappings(cfg);
             CanaryDeploymentMapping.RegisterMappings(cfg);
-
+    
             Mapper.Initialize(cfg);
         }
     }

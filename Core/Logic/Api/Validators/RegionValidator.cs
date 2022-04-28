@@ -148,7 +148,7 @@ namespace ApiLogic.Api.Validators
                 listOfErrors.Add("Region can not appear twice.");
             }
 
-            var filter = new RegionFilter { RegionIds = regionUniqueIds };
+            var filter = new RegionFilter { RegionIds = regionUniqueIds, ExclusiveLcn = true };
             var regionsResult = RegionManager.Instance.GetRegions(groupId, filter);
             if (regionsResult.IsOkStatusCode())
             {

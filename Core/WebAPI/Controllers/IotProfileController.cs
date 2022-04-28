@@ -35,7 +35,7 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// </remarks>
         /// <param name="id">KalturaIotProfile identifier</param>
-        [Action("delete")]
+        [Action("get")]
         [ApiAuthorize]
         [SchemeArgument("id", MinLong = 1)]
         [Throws(eResponseStatus.AdapterNotExists)]

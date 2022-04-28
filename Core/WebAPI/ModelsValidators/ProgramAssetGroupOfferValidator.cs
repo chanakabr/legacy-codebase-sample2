@@ -45,6 +45,9 @@ namespace WebAPI.ModelsValidators
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "expiryDate", "endDate");
             }
+
+            if (string.IsNullOrEmpty(model.ExternalOfferId))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalOfferId");
         }
 
         internal static void ValidateForUpdate(this KalturaProgramAssetGroupOffer model)

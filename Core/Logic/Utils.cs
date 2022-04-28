@@ -790,10 +790,9 @@ namespace APILogic
                     string ip = funcParams["ip"].ToString();
                     if (!string.IsNullOrEmpty(ip))
                     {
-                        long convertedIp = 0;
-                        if (ConvertIpToNumber(ip, out convertedIp) && convertedIp > 0)
+                        if (ConvertIpToNumber(ip, out var convertedIp, out var isV6) && long.TryParse(convertedIp, out var _parsed) && _parsed > 0)
                         {
-                            isProxyBlocked = DAL.ApiDAL.IsProxyBlockedForIp(convertedIp);
+                            isProxyBlocked = DAL.ApiDAL.IsProxyBlockedForIp(_parsed);
                             res = true;
                         }
                     }
@@ -808,18 +807,33 @@ namespace APILogic
             return new Tuple<bool, bool>(isProxyBlocked, res);
         }
 
-        public static bool ConvertIpToNumber(string ip, out long convertedIp)
+        public static bool ConvertIpToNumber(string ip, out string convertedIp, out bool isV6)
         {
-            convertedIp = 0;
-            if (string.IsNullOrEmpty(ip) || !IPAddress.TryParse(ip, out IPAddress ipAddress)
-                || ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
+            convertedIp = 0.ToString();
+            isV6 = false;
+
+            if (string.IsNullOrEmpty(ip) || string.IsNullOrWhiteSpace(ip)
+                || !IPAddress.TryParse(ip, out var _ip))
             {
                 return false;
             }
+
+            if (_ip.AddressFamily == AddressFamily.InterNetworkV6)
+            {
+                isV6 = true;
+                return true;
+            }
+
+            return ConvertIpV4ToNumber(ip, out convertedIp);
+        }
+
+        private static bool ConvertIpV4ToNumber(string ip, out string convertedIp)
+        {
+            convertedIp = 0.ToString();
             try
             {
                 string[] splitted = ip.Split('.');
-                convertedIp = Int64.Parse(splitted[3]) + Int64.Parse(splitted[2]) * 256 + Int64.Parse(splitted[1]) * 256 * 256 + Int64.Parse(splitted[0]) * 256 * 256 * 256;
+                convertedIp = (Int64.Parse(splitted[3]) + Int64.Parse(splitted[2]) * 256 + Int64.Parse(splitted[1]) * 256 * 256 + Int64.Parse(splitted[0]) * 256 * 256 * 256).ToString();
                 return true;
             }
             catch (Exception ex)

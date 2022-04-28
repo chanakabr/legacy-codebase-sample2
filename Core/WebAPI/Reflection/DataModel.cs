@@ -4658,6 +4658,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaIpV6RangeCondition":
+                    switch(property.Name)
+                    {
+                        case "FromIP":
+                            return "fromIP";
+                        case "ToIP":
+                            return "toIP";
+                    }
+                    break;
+                    
                 case "KalturaItemPrice":
                     switch(property.Name)
                     {
@@ -11073,8 +11083,8 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("iotProfile", "add", WebAPI.Managers.eKSValidation.All);
                             return IotProfileController.Add((KalturaIotProfile) methodParams[0]);
                             
-                        case "delete":
-                            RolesManager.ValidateActionPermitted("iotProfile", "delete", WebAPI.Managers.eKSValidation.All);
+                        case "get":
+                            RolesManager.ValidateActionPermitted("iotProfile", "get", WebAPI.Managers.eKSValidation.All);
                             return IotProfileController.Get((long) methodParams[0]);
                             
                         case "update":
@@ -18641,11 +18651,11 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
-                        case "delete":
+                        case "get":
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
-                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "iotProfile", "delete") {
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "iotProfile", "get") {
                                     RequiresPermission = false,
                                     MaxLength = -1,
                                     MinLength = -1,

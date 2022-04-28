@@ -1451,6 +1451,9 @@ namespace WebAPI.Reflection
                 case "KalturaIpRangeCondition":
                     return new KalturaIpRangeCondition(parameters, true);
                     
+                case "KalturaIpV6RangeCondition":
+                    return new KalturaIpV6RangeCondition(parameters, true);
+                    
                 case "KalturaItemPrice":
                     return new KalturaItemPrice(parameters, true);
                     
@@ -8627,7 +8630,6 @@ namespace WebAPI.Models.General
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
-            MaxInteger = 500,
             MinInteger = 1,
             MinItems = -1,
             MaxItems = -1,
@@ -12115,6 +12117,23 @@ namespace WebAPI.Models.API
     public partial class KalturaIpRangeCondition
     {
         public KalturaIpRangeCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("fromIP") && parameters["fromIP"] != null)
+                {
+                    FromIP = (String) Convert.ChangeType(parameters["fromIP"], typeof(String));
+                }
+                if (parameters.ContainsKey("toIP") && parameters["toIP"] != null)
+                {
+                    ToIP = (String) Convert.ChangeType(parameters["toIP"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaIpV6RangeCondition
+    {
+        public KalturaIpV6RangeCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {

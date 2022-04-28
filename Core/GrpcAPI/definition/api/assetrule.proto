@@ -1,0 +1,507 @@
+syntax = "proto3";
+import "status.proto";
+import "asset.proto";
+import "household.proto";
+import "google/protobuf/struct.proto";
+
+option csharp_namespace = "phoenix";
+option go_package = "./models";
+
+package phoenix;
+
+enum RuleStatus
+{
+  Ready = 0;
+  InProgress = 1;
+}
+
+enum RuleConditionType
+{
+  Asset = 0;
+  Country = 1;
+  Concurrency = 2;
+  IP_RANGE = 3;
+  BusinessModule = 4;
+  Segments = 5;
+  Date = 6;
+  Or = 7;
+  Header = 8;
+  UserSubscription = 9;
+  AssetSubscription = 10;
+  UserRole = 11;
+  DeviceBrand = 12;
+  DeviceFamily = 13;
+  DeviceManufacturer = 14;
+  DeviceModel = 16;
+  DeviceUdidDynamicList = 17;
+  DynamicKeys = 18;
+  UserSessionProfile = 19;
+  DeviceDynamicData = 20;
+}
+
+message RuleCondition{
+  RuleConditionType Type = 1;
+  string Description = 2;
+}
+
+message NotRuleCondition{
+  RuleConditionType Type = 1;
+  string Description = 2;
+  bool Not = 3;
+}
+
+message OrCondition{
+  RuleConditionType Type = 1;
+  string Description = 2;
+  repeated RuleConditionKind Conditions = 3;
+  bool Not = 4;
+}
+
+message BusinessModuleCondition{
+  enum eTransactionType
+  {
+    PPV = 0;
+    Subscription = 1;
+    Collection = 2;
+  }
+  RuleConditionType Type = 1;
+  string Description = 2;
+  int64 BusinessModuleId = 3;
+  eTransactionType BusinessModuleType = 4;
+}
+
+message AssetCondition{
+  RuleConditionType Type = 1;
+  string Description = 2;
+  string Ksql = 3;
+}
+
+message ConcurrencyCondition{
+  RuleConditionType Type = 1;
+  string Description = 2;
+  int32 Limit = 3;
+  ConcurrencyRestrictionPolicy RestrictionPolicy = 4;
+}
+
+message DateCondition{
+  RuleConditionType Type = 1;
+  string Description = 2;
+  bool Not = 3;
+  int64 StartDate = 4;
+  int64 EndDate = 5;
+}
+
+message IpRangeCondition{
+  RuleConditionType Type = 1;
+  string Description = 2;
+  string FromIp = 3;
+  string ToIp = 4;
+  int64 IpFrom = 5;
+  int64 IpTo = 6;
+}
+
+message CountryCondition{
+  RuleConditionType Type = 1;
+  string Description = 2;
+  bool Not = 3;
+  repeated int32 Countries = 4;
+}
+
+message HeaderCondition{
+  RuleConditionType Type = 1;
+  string Description = 2;
+  bool Not = 3;
+  string Key = 4;
+  string Value = 5;
+}
+
+message UserSubscriptionCondition{
+  RuleConditionType Type = 1;
+  string Description = 2;
+  repeated int64 SubscriptionIds = 3;
+}
+
+message AssetSubscriptionCondition{
+  RuleConditionType Type = 1;
+  string Description = 2;
+  repeated int64 SubscriptionIds = 3;
+}
+
+message UdidDynamicListCondition{
+  RuleConditionType Type = 1;
+  string Description = 2;
+  int64 Id = 3;
+}
+
+message UserRoleCondition{
+  RuleConditionType Type = 1;
+  string Description = 2;
+  repeated int64 RoleIds = 3;
+}
+
+message UserSessionProfileCondition{
+  RuleConditionType Type = 1;
+  string Description = 2;
+  int64 Id = 3;
+}
+
+message SegmentsCondition{
+  RuleConditionType Type = 1;
+  string Description = 2;
+  repeated int64 SegmentIds = 3;
+}
+
+message DeviceBrandCondition{
+  RuleConditionType Type = 1;
+  string Description = 2;
+  repeated int64 IdIn = 3;
+}
+
+message DeviceFamilyCondition{
+  RuleConditionType Type = 1;
+  string Description = 2;
+  repeated int64 IdIn = 3;
+}
+
+message DeviceManufacturerCondition{
+  RuleConditionType Type = 1;
+  string Description = 2;
+  repeated int64 IdIn = 3;
+}
+
+message DeviceModelCondition{
+  RuleConditionType Type = 1;
+  string Description = 2;
+  string RegexEqual = 3;
+}
+
+message DynamicKeysCondition{
+  RuleConditionType Type = 1;
+  string Description = 2;
+  string Key = 3;
+  repeated string Values = 4;
+}
+
+message DeviceDynamicDataCondition{
+  RuleConditionType Type = 1;
+  string Description = 2;
+  string Key = 3;
+  string Value = 4;
+}
+
+message RuleAction{
+  RuleActionType Type = 1;
+  string Description = 2;
+
+  enum RuleActionType
+  {
+    Block = 0;
+    StartDateOffset = 1;
+    EndDateOffset = 2;
+    UserBlock = 3;
+    AllowPlayback = 4;
+    BlockPlayback = 5;
+    ApplyDiscountModuleRule = 6;
+    ApplyPlaybackAdapter = 7;
+    UserFilter = 8;
+    AssetLifeCycleTransition = 9;
+    ApplyFreePlayback = 10;
+    FilterAssetByKsql = 11;
+    FilterFileByQualityInDiscovery = 12;
+    FilterFileByQualityInPlayback = 13;
+    FilterFileByAssetTypeInDiscovery = 14;
+    FilterFileByAssetTypeInPlayback = 15;
+    FilterFileByFileTypeIdInDiscovery = 16;
+    FilterFileByFileTypeIdInPlayback = 17;
+    FilterFileByAudioCodecInDiscovery = 18;
+    FilterFileByAudioCodecInPlayback = 19;
+    FilterFileByVideoCodecInDiscovery = 20;
+    FilterFileByVideoCodecInPlayback = 21;
+    FilterFileByStreamerTypeInDiscovery = 22;
+    FilterFileByStreamerTypeInPlayback = 23;
+    FilterFileByLabelInDiscovery = 24;
+    FilterFileByLabelInPlayback = 25;
+  }
+  
+  message AssetBlockAction{
+    RuleActionType Type = 1;
+    string Description = 2;
+  }
+  
+  message AssetUserRuleBlockAction{
+    RuleActionType Type = 1;
+    string Description = 2;
+  }
+  
+  message AllowPlaybackAction{
+    RuleActionType Type = 1;
+    string Description = 2;
+  }
+  
+  message BlockPlaybackAction{
+    RuleActionType Type = 1;
+    string Description = 2;
+  }
+  
+  message TimeOffsetRuleAction{
+    RuleActionType Type = 1;
+    string Description = 2;
+    int32 Offset = 3;
+    bool TimeZone = 4;
+  }
+
+  message EndDateOffsetRuleAction{
+    RuleActionType Type = 1;
+    string Description = 2;
+    int32 Offset = 3;
+    bool TimeZone = 4;
+  }
+  
+  message StartDateOffsetRuleAction{
+    RuleActionType Type = 1;
+    string Description = 2;
+    int32 Offset = 3;
+    bool TimeZone = 4;
+  }
+  
+  message AssetUserRuleFilterAction{
+    RuleActionType Type = 1;
+    string Description = 2;
+    bool ApplyOnChannel = 3;
+  }
+  
+  message ApplyDiscountModuleRuleAction {
+    RuleActionType Type = 1;
+    string Description = 2;
+    int64 DiscountModuleId = 3;
+  }
+  
+  message ApplyPlaybackAdapterRuleAction {
+    RuleActionType Type = 1;
+    string Description = 2;
+    int32 AdapterId = 3;
+  }
+  
+  enum AssetLifeCycleRuleAction
+  {
+    Unknown = 0;
+    Add = 1;
+    Remove = 2;
+  }
+
+  enum AssetLifeCycleRuleTransitionType
+  {
+    Tag = 0;
+    BusinessModel = 1;
+  }
+  
+  message AssetLifeCycleTransitionAction{
+    RuleActionType Type = 1;
+    string Description = 2;
+    AssetLifeCycleRuleAction ActionType = 3;
+    AssetLifeCycleRuleTransitionType TransitionType = 4;
+  }
+  
+  message AssetLifeCycleTagTransitionAction{
+    RuleActionType Type = 1;
+    string Description = 2;
+    AssetLifeCycleRuleAction ActionType = 3;
+    AssetLifeCycleRuleTransitionType TransitionType = 4;
+    repeated int32 TagIds = 5;
+  }
+  
+  message LifeCycleFileTypesAndPpvsTransitions{
+    repeated int32 FileTypeIds = 1;
+    repeated int32 PpvIds = 2;
+  }
+  
+  message AssetLifeCycleBuisnessModuleTransitionAction{
+    RuleActionType Type = 1;
+    string Description = 2;
+    AssetLifeCycleRuleAction ActionType = 3;
+    AssetLifeCycleRuleTransitionType TransitionType = 4;
+    LifeCycleFileTypesAndPpvsTransitions Transitions = 5;
+  }
+  
+  message ApplyFreePlaybackAction{
+    RuleActionType Type = 1;
+    string Description = 2;
+  }
+}
+
+
+message Rule {
+  int64 Id = 1;
+  string Name = 2;
+  string Description = 3;
+  int32 GroupId = 4;
+  RuleStatus Status = 5;
+  string Label = 6;
+}
+
+message RuleConditionKind{
+  oneof kind{
+    OrCondition OrCondition = 1;
+    NotRuleCondition NotRuleCondition = 2;
+    BusinessModuleCondition BusinessModuleCondition = 3;
+    AssetCondition AssetCondition = 4;
+    DateCondition DateCondition = 5;
+    ConcurrencyCondition ConcurrencyCondition = 6;
+    CountryCondition CountryCondition = 7;
+    IpRangeCondition IpRangeCondition = 8;
+    HeaderCondition HeaderCondition = 9;
+    UserSubscriptionCondition UserSubscriptionCondition = 10;
+    AssetSubscriptionCondition AssetSubscriptionCondition = 11;
+    UserRoleCondition UserRoleCondition = 12;
+    UdidDynamicListCondition UdidDynamicListCondition = 13;
+    UserSessionProfileCondition UserSessionProfileCondition = 14;
+  }
+}
+
+message RuleActionKind{
+  oneof kind{
+    RuleAction.AssetBlockAction AssetBlockAction = 1;
+    RuleAction.EndDateOffsetRuleAction EndDateOffsetRuleAction = 2;
+    RuleAction.StartDateOffsetRuleAction StartDateOffsetRuleAction = 3;
+    RuleAction.AssetUserRuleBlockAction AssetUserRuleBlockAction = 4;
+    RuleAction.AssetUserRuleFilterAction AssetUserRuleFilterAction = 5;
+    RuleAction.AllowPlaybackAction AllowPlaybackAction = 6;
+    RuleAction.BlockPlaybackAction BlockPlaybackAction = 7;
+    RuleAction.ApplyDiscountModuleRuleAction ApplyDiscountModuleRuleAction = 8;
+    RuleAction.ApplyPlaybackAdapterRuleAction ApplyPlaybackAdapterRuleAction = 9;
+    RuleAction.AssetLifeCycleTagTransitionAction AssetLifeCycleTagTransitionAction = 10;
+    RuleAction.AssetLifeCycleBuisnessModuleTransitionAction AssetLifeCycleBuisnessModuleTransitionAction = 11;
+    RuleAction.ApplyFreePlaybackAction ApplyFreePlaybackAction = 12;
+  }
+}
+
+message AssetRule {
+  repeated RuleConditionKind Conditions = 1;
+  repeated RuleActionKind Actions = 2;
+  Rule Rule = 3;
+}
+
+message CheckNetworkRulesRequest{
+  repeated SlimAsset SlimAsset = 1;
+  int32 groupId = 2;
+  string ip = 3;
+}
+message CheckNetworkRulesResponse{
+  Status status = 1;
+  AssetRule AssetRule = 2;
+}
+
+message GetAssetRulesRequest{
+  message NullableSlimAsset{
+    oneof kind{
+      google.protobuf.NullValue null = 1;
+      SlimAsset data = 2;
+    }
+  }
+
+  message NullableRuleActionType{
+    oneof kind{
+      google.protobuf.NullValue null = 1;
+      RuleActionType data = 2;
+    }
+  }
+  enum RuleActionType
+  {
+      None = 0;
+      Block = 1;
+      StartDateOffset = 2;
+      EndDateOffset = 3;
+      UserBlock = 4;
+      AllowPlayback = 5;
+      BlockPlayback = 6;
+      ApplyDiscountModuleRule = 7;
+      ApplyPlaybackAdapter = 8;
+      UserFilter = 9;
+      AssetLifeCycleTransition = 10;
+      ApplyFreePlayback = 11;
+      FilterAssetByKsql = 12;
+      FilterFileByQualityInDiscovery = 13;
+      FilterFileByQualityInPlayback = 14;
+      FilterFileByAssetTypeInDiscovery = 15;
+      FilterFileByAssetTypeInPlayback = 16;
+      FilterFileByFileTypeIdInDiscovery = 17;
+      FilterFileByFileTypeIdInPlayback = 18;
+      FilterFileByAudioCodecInDiscovery = 19;
+      FilterFileByAudioCodecInPlayback = 20;
+      FilterFileByVideoCodecInDiscovery = 21;
+      FilterFileByVideoCodecInPlayback = 22;
+      FilterFileByStreamerTypeInDiscovery = 23;
+      FilterFileByStreamerTypeInPlayback = 24;
+      FilterFileByLabelInDiscovery = 25;
+      FilterFileByLabelInPlayback = 26;
+  }
+  RuleConditionType assetRuleConditionType = 1;
+  int32 groupId = 2;
+  NullableSlimAsset slimAsset = 3;
+  NullableRuleActionType ruleActionType = 4;
+}
+
+message GetAssetRulesResponse{
+  repeated AssetRule AssetRules = 1;
+  Status status = 2;
+  int32 totalCount = 3;
+}
+
+message GetGroupMediaConcurrencyRulesRequest{
+  int32 groupId = 1;
+}
+
+message GetGroupMediaConcurrencyRulesResponse{
+  repeated mediaConcurrencyRule mediaConcurrencyRules = 1;
+}
+
+message GetMediaConcurrencyByIdRequest{
+  int32 ruleId = 1;
+}
+
+message GetMediaConcurrencyByIdResponse{
+  int32 mediaConcurrencyLimit = 1;
+  ConcurrencyRestrictionPolicy policy = 2;
+}
+
+message GetAssetMediaRuleIdsRequest {
+  int32 groupId = 1;
+  int32 mediaId = 2;
+}
+message GetAssetMediaRuleIdsResponse {
+  repeated int64 ids = 1;
+}
+message GetMediaConcurrencyRulesRequest {
+  int32 groupId = 1;
+  int32 mediaId = 2;
+  int32 businessModuleId = 3;
+  businessModule businessModuleType = 4;
+}
+enum ConcurrencyRestrictionPolicy
+{
+  Single = 0;
+  Group = 1;
+}
+
+enum businessModule {
+  businessModule_NONE = 0;
+  PPV = 1;
+  businessModule_Subscription = 2;
+}
+message mediaConcurrencyRule {
+  int32 RuleID = 1;
+  string Name = 2;
+  int32 TagTypeID = 3;
+  string TagType = 4;
+  repeated string AllTagValues = 5;
+  repeated int32 TagValues = 6;
+  int32 bmId = 7;
+  bool IsActive = 8;
+  businessModule Type = 9;
+  ConcurrencyRestrictionPolicy RestrictionPolicy = 10;
+  int32 Limitation = 11;
+
+}
+message GetMediaConcurrencyRulesResponse {
+  repeated mediaConcurrencyRule mediaConcurrencyRules = 1;
+}

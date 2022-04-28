@@ -608,10 +608,11 @@ namespace APILogic.Api.Managers
         private static List<AssetRule> GetAssetRulesByIp(int groupId, string ip)
         {
             List<AssetRule> assetRules = null;
-            long convertedIp = 0;
 
             // convert ip address to number
-            if (!APILogic.Utils.ConvertIpToNumber(ip, out convertedIp) || convertedIp == 0)
+            if (!APILogic.Utils.ConvertIpToNumber(ip, out var convertedIp, out var isV6)
+                || !isV6 && long.Parse(convertedIp) == 0
+                || isV6 && string.IsNullOrEmpty(convertedIp))
             {
                 //invalid ip
                 return assetRules;
@@ -623,7 +624,11 @@ namespace APILogic.Api.Managers
                 return assetRules;
 
             assetRules = assetRulesResponse.Objects.Where(x => x.Conditions.Any(z => z.Type == RuleConditionType.IP_RANGE) &&
-                                                               x.Conditions.OfType<IpRangeCondition>().Any(p => p.IpFrom <= convertedIp && convertedIp <= p.IpTo)).ToList();
+                         x.Conditions.OfType<IpRangeCondition>().Any(p => p.IpFrom <= long.Parse(convertedIp) && long.Parse(convertedIp) <= p.IpTo)).ToList();
+
+            var ipV6Rules = assetRulesResponse.Objects.Where(x => x.Conditions.Any(z => z.Type == RuleConditionType.IP_V6_RANGE) &&
+                                                               x.Conditions.OfType<IpV6RangeCondition>().Any(p => new IPAddressRange().Init(p.FromIp, p.ToIp).IsInRange(ip))).ToList();
+            assetRules.AddRange(ipV6Rules);
             return assetRules;
         }
         

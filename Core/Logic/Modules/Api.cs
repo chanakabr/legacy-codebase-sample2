@@ -1880,7 +1880,7 @@ namespace Core.Api
             return Core.Api.api.GetCustomDrmDeviceLicenseData(groupId, drmAdapterId, userId, udid, deviceFamily, deviceBrandId, ip);
         }
 
-        internal static List<int> GetMediaConcurrencyRulesByDomainLimitionModule(int groupId, int dlmId)
+        public static List<int> GetMediaConcurrencyRulesByDomainLimitionModule(int groupId, int dlmId)
         {
             return Core.Api.api.GetMediaConcurrencyRulesByDeviceLimitionModule(groupId, dlmId);
         }

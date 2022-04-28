@@ -2171,8 +2171,8 @@ namespace Core.Billing
 
             return dateEmailFormat;
         }
-
-        internal static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, ref int householdId)
+        
+        public static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, ref int householdId)
         {
             var status = new ApiObjects.Response.Status() { Code = -1 };
 

@@ -799,7 +799,7 @@ namespace Core.Api.Managers
             return response;
         }
 
-        internal static List<SlimAsset> GetAssetsForValidation(eAssetTypes assetType, int groupId, long assetId)
+        public static List<SlimAsset> GetAssetsForValidation(eAssetTypes assetType, int groupId, long assetId)
         {
             if (assetId <= 0 && (assetType != eAssetTypes.MEDIA && assetType != eAssetTypes.EPG))
             {
@@ -872,7 +872,7 @@ namespace Core.Api.Managers
             return assetsToCheck;
         }
 
-        internal static Status CheckNetworkRules(List<SlimAsset> assetsToCheck, int groupId, string ip, out AssetRule blockingRule)
+        public static Status CheckNetworkRules(List<SlimAsset> assetsToCheck, int groupId, string ip, out AssetRule blockingRule)
         {
             blockingRule = null;
 
@@ -881,15 +881,23 @@ namespace Core.Api.Managers
                 return new Status((int)eResponseStatus.OK);
             }
 
-            long convertedIp;
-            APILogic.Utils.ConvertIpToNumber(ip, out convertedIp);
+            APILogic.Utils.ConvertIpToNumber(ip, out var convertedIp, out var isV6);
             Dictionary<string, string> headers = ListUtils.ToDictionary(System.Web.HttpContext.Current.Request.GetHeaders());
 
             var scope = new NetworkConditionScope()
             {
-                Headers = headers,
-                Ip = convertedIp
+                Headers = headers
             };
+
+            if (isV6)
+            {
+                scope.IpV6 = ip;
+            }
+            else
+            {
+                scope.Ip = long.Parse(convertedIp);
+            }
+
             log.DebugFormat("CheckNetworkRules - scope: {0}.", scope.ToString());
 
             foreach (var asset in assetsToCheck)
@@ -906,6 +914,7 @@ namespace Core.Api.Managers
                             if (scope.Evaluate(condition))
                             {
                                 blockingRule = networkRule;
+
                                 log.DebugFormat("CheckNetworkRules the asset: {0} block because of NetworkRule: {1}.", asset.Id, networkRule.Id);
                                 return new Status((int)eResponseStatus.NetworkRuleBlock, "Network rule block");
                             }
@@ -1025,7 +1034,7 @@ namespace Core.Api.Managers
 
                                 }
 
-                                if (ruleIds != null)
+                                if (ruleIds != null && ruleIds.Any())
                                 {
                                     var assetRulesCB = _repository.GetAssetRules(ruleIds);
                                     if (assetRulesCB != null && assetRulesCB.Count > 0)

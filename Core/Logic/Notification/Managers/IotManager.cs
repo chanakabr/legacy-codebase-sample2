@@ -13,6 +13,8 @@ using DAL;
 using Newtonsoft.Json;
 using Phx.Lib.Appconfig;
 using Phx.Lib.Log;
+using Polly;
+using Polly.Retry;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -22,6 +24,7 @@ using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using TVinciShared;
 using Module = Core.Domains.Module;
 
@@ -48,6 +51,7 @@ namespace ApiLogic.Notification
         private static readonly Lazy<HttpClient> HttpClientLazy = new Lazy<HttpClient>(
             () => HttpClientUtil.GetHttpClient(ApplicationConfiguration.Current.IotHttpClientConfiguration),
             LazyThreadSafetyMode.PublicationOnly);
+
         private readonly ThreadLocal<MD5> _md5 = new ThreadLocal<MD5>(MD5.Create);
         private readonly ICatalogManager _catalogManager;
         private readonly IRegionManager _regionManager;
@@ -65,8 +69,12 @@ namespace ApiLogic.Notification
         private const string ADD_CONFIG = "/api/IOT/Configuration/Update";
         private const string CREATE_ENVIRONMENT = "/api/IOT/Environment/Create";
         private const int TOPIC_PARTITIONS_COUNT = 10;
+        private const double FALLBACK_TIMEOUT_MILISECONDS = 3000; //default is 1:40 min
         public static IotManager Instance => IoTManagerLazy.Value;
         private static HttpClient HttpClient => HttpClientLazy.Value;
+        private static TimeSpan _httpClientCancellationDuration;
+        private readonly int _RetryCount = 3;
+        private readonly RetryPolicy _RetryPolicy;
 
         private IotManager() : this(
             CatalogManager.Instance,
@@ -75,8 +83,8 @@ namespace ApiLogic.Notification
             NotificationDal.Instance,
             LayeredCache.Instance,
             Module.Instance)
-        {
-        }
+        { }
+
 
         public IotManager(ICatalogManager catalogManager,
             IRegionManager regionManager,
@@ -91,6 +99,11 @@ namespace ApiLogic.Notification
             _notificationDal = notificationDal ?? throw new ArgumentNullException(nameof(notificationDal));
             _layeredCache = layeredCache ?? throw new ArgumentNullException(nameof(layeredCache));
             _domainModule = domainModule ?? throw new ArgumentNullException(nameof(domainModule));
+
+            var iotTimeout = Environment.GetEnvironmentVariable("IOT_HTTP_TIMEOUT");
+            var timeout = !string.IsNullOrEmpty(iotTimeout) ? double.Parse(iotTimeout) : FALLBACK_TIMEOUT_MILISECONDS;
+            _httpClientCancellationDuration = TimeSpan.FromMilliseconds(timeout);
+            _RetryPolicy = GetRetryPolicyForIoT();
         }
 
         public GenericResponse<Iot> Register(ContextData contextData)
@@ -116,6 +129,12 @@ namespace ApiLogic.Notification
                     Logger.Error($"Error while registering udid: {udid} for group: {groupId}.");
                     response.SetStatus(eResponseStatus.RequestFailed);
                     return response;
+                }
+
+                if (string.IsNullOrEmpty(response.Object.UserPassword))
+                {
+                    //Manage aws rate limit error, BEO-11878
+                    throw new Exception("IoT registration error");
                 }
 
                 response.SetStatus(Status.Ok);
@@ -287,7 +306,7 @@ namespace ApiLogic.Notification
             }
             catch (Exception ex)
             {
-                Logger.Error($"Failed GetGroupPermissionItemsDictionary, groupId: {groupId}", ex);
+                Logger.Error($"Failed GetClientConfiguration, groupId: {groupId}", ex);
             }
 
             return result;
@@ -431,117 +450,138 @@ namespace ApiLogic.Notification
             return $"{_url}{configValue}";
         }
 
-        private T SendToAdapter<T>(int groupId, IotAction action, object request, MethodType method, bool groupNeeded = false)
+        private async Task<T> SendToAdapter<T>(int groupId, IotAction action, object request, MethodType method, bool groupNeeded = false)
+        {
+            var result = (T)default;
+
+            await _RetryPolicy.Execute(
+                async () =>
+            {
+                result = await Instance.InternalSendToAdapter<T>(groupId, action, request, method, groupNeeded);
+                if (result == null)
+                {
+                    throw new Exception("SendToAdapter failed");
+                }
+            });
+
+            return result;
+        }
+
+        private async Task<T> InternalSendToAdapter<T>(int groupId, IotAction action, object request, MethodType method, bool groupNeeded = false)
         {
             var url = GetAdapterUrl(groupId, action);
             if (groupNeeded)
                 url += $"?groupId={groupId}";
 
             StringContent content = null;
-            var counter = 0;
             HttpResponseMessage response;
-            var _random = new Random();
-            while (counter < 3)//TODO - Change to Polly
+
+            switch (method)
             {
-                counter++;
-                switch (method)
-                {
-                    case MethodType.Post:
-                        content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
-                        response = HttpClient.PostAsync(url, content).Result;
-                        if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created)
-                        {
-                            return NotificationAdapter.ParseResponse<T>(response);
-                        }
-                        break;
+                case MethodType.Post:
+                    content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+                    if (action == IotAction.CREATE_ENVIRONMENT)
+                    {
+                        //IoT creation is a longer call and requiere more time before cancellation
+                        //No timeout when calling 'Create'
+                        response = await HttpClient.PostAsync(url, content);
+                    }
+                    else
+                    {
+                        using (var cts = new CancellationTokenSource(_httpClientCancellationDuration))
+                            response = await HttpClient.PostAsync(url, content, cts.Token);
+                    }
+                    break;
 
-                    case MethodType.Put:
-                        content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
-                        response = HttpClient.PutAsync(url, content).Result;
-                        if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created)
-                        {
-                            return NotificationAdapter.ParseResponse<T>(response);
-                        }
-                        break;
+                case MethodType.Put:
+                    content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+                    using (var cts = new CancellationTokenSource(_httpClientCancellationDuration))
+                        response = await HttpClient.PutAsync(url, content, cts.Token);
+                    break;
 
-                    case MethodType.Get:
-                        var fullUrl = $"{url}{request}";
-                        response = HttpClient.GetAsync(fullUrl).Result;
-                        if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created)
-                        {
-                            return NotificationAdapter.ParseResponse<T>(response);
-                        }
-                        break;
+                case MethodType.Get:
+                    var fullUrl = $"{url}{request}";
+                    using (var cts = new CancellationTokenSource(_httpClientCancellationDuration))
+                        response = await HttpClient.GetAsync(fullUrl, cts.Token);
+                    break;
 
-                    case MethodType.Delete:
-                        var _request = new HttpRequestMessage
-                        {
-                            Method = HttpMethod.Delete,
-                            RequestUri = new Uri(url),
-                            Content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json")
-                        };
-                        response = HttpClient.SendAsync(_request).Result;
-                        if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created)
-                        {
-                            return NotificationAdapter.ParseResponse<T>(response);
-                        }
-                        break;
+                case MethodType.Delete:
+                    var _request = new HttpRequestMessage
+                    {
+                        Method = HttpMethod.Delete,
+                        RequestUri = new Uri(url),
+                        Content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json")
+                    };
 
-                    default:
-                        Logger.Error($"Invalid attempt to call method: {method}, url: {url} group: {groupId}");
-                        return default;
-                }
-                Thread.Sleep(counter * _random.Next(0, 100));
+                    using (var cts = new CancellationTokenSource(_httpClientCancellationDuration))
+                        response = await HttpClient.SendAsync(_request, cts.Token);
+                    break;
+
+                default:
+                    Logger.Error($"Invalid attempt to call method: {method}, url: {url} group: {groupId}");
+                    throw new NotSupportedException($"Unsupported request method: {method}, url: {url}");
             }
-            return default;
+
+            if (response != null && response.StatusCode.IsServiceStatusDefined())
+            {
+                return NotificationAdapter.ParseResponse<T>(response);
+            }
+
+            throw new ApplicationException("Parse or invalid data error");
         }
 
-        private bool IsServiceStatusDefined(HttpStatusCode status, out bool hasConfig)
+        private RetryPolicy GetRetryPolicyForIoT()
         {
-            hasConfig = (int)status != 204;
-            return new List<int> { 204 /*NoContent*/, 208 /*AlreadyReported*/ }.Contains((int)status);
+            return Policy.Handle<Exception>()
+                .WaitAndRetry(_RetryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time) =>
+                {
+                    Logger.Warn(ex.ToString());
+                    Logger.Warn($"Waiting for:[{time.TotalSeconds}] seconds until next retry");
+                });
         }
-
 
         #region commonIotRequests
         public bool PublishIotMessage(int groupId, string message, string topic)
         {
-            var request = new { GroupId = groupId.ToString(), Message = @message, Topic = topic, ExternalAnnouncementId = "string" };
-            var response = SendToAdapter<IotPublishResponse>(groupId, IotAction.PUBLISH, request, MethodType.Post);
+            var request = new PublishIotMessageRequest(groupId.ToString(), @message, topic, "string");
+            var response = SendToAdapter<IotPublishResponse>(groupId, IotAction.PUBLISH, request, MethodType.Post).ExecuteAndWait();
             return response != null && response.AdapterStatusCode == 0;
         }
 
         public bool AddToThingShadow(int groupId, string message, string thingArn, string udid)
         {
-            var request = new { GroupId = groupId.ToString(), ThingArn = thingArn, Message = message, Udid = udid };
-            var response = SendToAdapter<bool>(groupId, IotAction.ADD_TO_SHADOW, request, MethodType.Post);
+            var request = new AddToThingShadowRequest(groupId.ToString(), thingArn, message, udid);
+            var response = SendToAdapter<bool>(groupId, IotAction.ADD_TO_SHADOW, request, MethodType.Post).ExecuteAndWait();
             return response;
         }
 
         private Iot RegisterDevice(int groupId, string udid)
         {
-            var _request = new { GroupId = groupId.ToString(), Udid = udid };
-            var response = SendToAdapter<Iot>(groupId, IotAction.REGISTER, _request, MethodType.Post);
+            var _request = new RegisterDeviceRequest(groupId.ToString(), udid);
+            var response = SendToAdapter<Iot>(groupId, IotAction.REGISTER, _request, MethodType.Post).ExecuteAndWait();
+            if (response != null)
+                response.Udid = udid;
+
             return response;
         }
 
         private bool DeleteDevice(int groupId, string udid)
         {
-            var _request = new { GroupId = groupId.ToString(), Udid = udid};
-            var response = SendToAdapter<bool>(groupId, IotAction.DELETE_DEVICE, _request, MethodType.Delete);
+            var _request = new DeleteDeviceRequest(groupId.ToString(), udid);
+            var response = SendToAdapter<bool>(groupId, IotAction.DELETE_DEVICE, _request, MethodType.Delete).ExecuteAndWait();
             return response;
         }
 
         public IotProfileAws CreateIotEnvironment(int groupId, IotProfile iotProfile)
         {
-            var _request = new { GroupId = groupId.ToString() };
-            var response = SendToAdapter<IotProfileAws>(groupId, IotAction.CREATE_ENVIRONMENT, _request, MethodType.Post);
+            var _request = new CreateIotEnvironmentRequest(groupId.ToString());
+            var response = SendToAdapter<IotProfileAws>(groupId, IotAction.CREATE_ENVIRONMENT, _request, MethodType.Post).ExecuteAndWait();
             return response;
         }
 
         public IotProfileAws UpdateIotEnvironment(int groupId, IotProfile newConfigurations)
         {
-            return SendToAdapter<IotProfileAws>(groupId, IotAction.ADD_CONFIG, newConfigurations.IotProfileAws, MethodType.Put);
+            return SendToAdapter<IotProfileAws>(groupId, IotAction.ADD_CONFIG, newConfigurations.IotProfileAws, MethodType.Put).ExecuteAndWait();
         }
 
         /// <summary>
@@ -552,7 +592,7 @@ namespace ApiLogic.Notification
         public IotProfileAws GetConfiguration(int groupId)
         {
             var urlSuffix = $"groupId={groupId}&forClient={false}";
-            return SendToAdapter<IotProfileAws>(groupId, IotAction.GET_IOT_CONFIGURATION, urlSuffix, MethodType.Get);
+            return SendToAdapter<IotProfileAws>(groupId, IotAction.GET_IOT_CONFIGURATION, urlSuffix, MethodType.Get).ExecuteAndWait();
         }
         #endregion
     }

@@ -77,7 +77,7 @@ namespace WebAPI.Controllers
 
             if (pager == null)
             {
-                pager = new KalturaFilterPager();
+                pager = new KalturaFilterPager { PageSize = int.MaxValue };
             }
 
             var groupId = Utils.Utils.GetGroupIdFromRequest();

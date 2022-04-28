@@ -30,6 +30,11 @@ namespace ApiObjects.Rules
         long Ip { get; set; }
     }
 
+    public interface IIpV6RangeConditionScope : IConditionScope
+    {
+        string IpV6 { get; set; }
+    }
+
     public interface IAssetConditionScope : IConditionScope
     {
         long MediaId { get; set; }

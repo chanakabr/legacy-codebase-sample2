@@ -19,6 +19,9 @@ namespace Phoenix.Generated.Api.Events.Logical.appstoreNotification
     /// </summary>
     public partial class AppstoreNotification
     {
+        [JsonProperty("partnerId", NullValueHandling = NullValueHandling.Ignore)]
+        public long? PartnerId { get; set; }
+
         [JsonProperty("schema", NullValueHandling = NullValueHandling.Ignore)]
         public Schema Schema { get; set; }
 
@@ -35,7 +38,7 @@ namespace Phoenix.Generated.Api.Events.Logical.appstoreNotification
         /// Google/Apple
         /// </summary>
         [JsonProperty("extraInformation", NullValueHandling = NullValueHandling.Ignore)]
-        public System.Collections.Generic.Dictionary<string, ExtraInformation> ExtraInformation { get; set; }
+        public System.Collections.Generic.Dictionary<string, string> ExtraInformation { get; set; }
 
         /// <summary>
         /// Event source type - either from Google or Apple
@@ -56,15 +59,6 @@ namespace Phoenix.Generated.Api.Events.Logical.appstoreNotification
         /// </summary>
         [JsonProperty("subscriptionId", NullValueHandling = NullValueHandling.Ignore)]
         public string SubscriptionId { get; set; }
-    }
-
-    public partial class ExtraInformation
-    {
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
-        [JsonProperty("value")]
-        public object Value { get; set; }
     }
 
     public partial class Schema
