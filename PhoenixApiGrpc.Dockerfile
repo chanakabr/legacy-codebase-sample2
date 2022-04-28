@@ -8,7 +8,7 @@ COPY [".git", ".git"]
 COPY ["Core", "Core"]
 COPY ["phoenix", "phoenix"]
 
-RUN wget -qO ./grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/v0.3.2/grpc_health_probe-linux-amd64
+RUN wget -qO ./grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/v0.4.11/grpc_health_probe-linux-amd64
 RUN chmod +x ./grpc_health_probe
 
 #version patch
