@@ -12,15 +12,14 @@ namespace Phoenix.AsyncHandler
         private readonly DomainsCache _domainsCache;
         private readonly ILogger<HouseholdNpvrAccountHandler> _logger;
 
-        public HouseholdNpvrAccountHandler(IKafkaConsumerFactory consumerFactory, DomainsCache domainsCache,
-            ILogger<HouseholdNpvrAccountHandler> logger) : base(consumerFactory, "household-npvr-account")
+        public HouseholdNpvrAccountHandler(
+            DomainsCache domainsCache,
+            ILogger<HouseholdNpvrAccountHandler> logger)
         {
             _domainsCache = domainsCache;
             _logger = logger;
         }
 
-        protected override string Topic() => Household.GetTopic();
-        
         protected override long GetOperation(Household value) => value.Operation.Value;
 
         protected override HandleResult Create(ConsumeResult<string, Household> consumeResult)

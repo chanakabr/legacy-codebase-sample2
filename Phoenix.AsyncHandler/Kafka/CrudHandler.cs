@@ -8,13 +8,9 @@ namespace Phoenix.AsyncHandler.Kafka
     /// Long-running handler, which consumes CRUD kafka messages
     /// </summary>
     /// <typeparam name="T">CRUD message</typeparam>
-    public abstract class CrudHandler<T> : Handler<T>
+    public abstract class CrudHandler<T> : IHandler<T>
     {
-        protected CrudHandler(IKafkaConsumerFactory consumerFactory, string kafkaGroupSuffix) : base(consumerFactory, kafkaGroupSuffix)
-        {
-        }
-
-        protected override HandleResult Handle(ConsumeResult<string, T> consumeResult)
+        public virtual HandleResult Handle(ConsumeResult<string, T> consumeResult)
         {
             switch (GetOperation(consumeResult.Result.Message.Value))
             {

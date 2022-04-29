@@ -1,16 +1,16 @@
 ﻿using System;
-using System.Linq;
 using Core.Users.Cache;
 using log4net.Core;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OTT.Lib.Kafka;
 using Phoenix.AsyncHandler.Kafka;
+using Phoenix.AsyncHandler.Pricing;
+using Phoenix.Generated.Api.Events.Crud.Household;
+using Phoenix.Generated.Api.Events.Logical.appstoreNotification;
 using Phx.Lib.Appconfig;
 using Phx.Lib.Log;
-using RestSharp.Extensions;
 
 namespace Phoenix.AsyncHandler
 {
@@ -42,26 +42,24 @@ namespace Phoenix.AsyncHandler
 
         public static IServiceCollection AddDependencies(this IServiceCollection services)
         {
-            // TODO looks like it's not possible to use "scoped" service without extra effort  
-            // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/host/hosted-services?view=aspnetcore-6.0&tabs=visual-studio#consuming-a-scoped-service-in-a-background-task
-            //services.AddScoped<IRequestContext, RequestContext>();
-
-            services
-                .AddSingleton(p => DomainsCache.Instance());
+            services.AddSingleton(p => DomainsCache.Instance());
+            services.AddScoped<IKafkaContextProvider, AsyncHandlerKafkaContextProvider>();
             
             return services;
         }
 
         public static IServiceCollection AddKafkaHandlersFromAssembly(this IServiceCollection services)
         {
-            var assembly = typeof(Handler<>).Assembly;
-            var handlerTypes = assembly.GetTypes()
-                .Where(t => t.IsClass && t.IsSubclassOfRawGeneric(typeof(Handler<>)) && !t.IsAbstract);
-            foreach (var handlerType in handlerTypes)
-            {
-                services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHostedService), handlerType));
-            }
+            services.AddKafkaHandler<HouseholdNpvrAccountHandler, Household>("household-npvr-account", Household.GetTopic());
+            services.AddKafkaHandler<EntitlementLogicalHandler, AppstoreNotification>("appstore-notification", AppstoreNotification.GetTopic());
+            return services;
+        }
 
+        private static IServiceCollection AddKafkaHandler<THandler, TValue>(this IServiceCollection services, string kafkaGroupSuffix, string topic) where THandler : IHandler<TValue>
+        {
+            services.AddScoped(typeof(THandler), typeof(THandler));
+            services.AddSingleton<IHostedService, BackgroundServiceStarter<THandler, TValue>>(p =>
+                new BackgroundServiceStarter<THandler, TValue>(p.GetService<IKafkaConsumerFactory>(), p.GetService<IServiceScopeFactory>(), kafkaGroupSuffix, topic));
             return services;
         }
 

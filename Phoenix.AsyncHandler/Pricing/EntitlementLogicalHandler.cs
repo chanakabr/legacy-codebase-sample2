@@ -1,27 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using Core.Users.Cache;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using OTT.Lib.Kafka;
 using Phoenix.AsyncHandler.Kafka;
 using Phoenix.Generated.Api.Events.Logical.appstoreNotification;
 
-
 namespace Phoenix.AsyncHandler.Pricing
 {
-    public class EntitlementLogicalHandler : Handler<AppstoreNotification>
+    public class EntitlementLogicalHandler : IHandler<AppstoreNotification>
     {
-
         private readonly ILogger<EntitlementLogicalHandler> _logger;
 
-        public EntitlementLogicalHandler(IKafkaConsumerFactory consumerFactory, ILogger<EntitlementLogicalHandler> logger) :
-            base(consumerFactory, "appstore-notification")
+        public EntitlementLogicalHandler(ILogger<EntitlementLogicalHandler> logger)
         {
             _logger = logger;
         }
-
-        protected override string Topic() => AppstoreNotification.GetTopic();
-        protected override HandleResult Handle(ConsumeResult<string, AppstoreNotification> consumeResult)
+        
+        public HandleResult Handle(ConsumeResult<string, AppstoreNotification> consumeResult)
         {
             switch (consumeResult.Result.Message.Value.State)
             {
