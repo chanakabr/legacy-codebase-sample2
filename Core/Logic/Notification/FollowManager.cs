@@ -535,7 +535,8 @@ namespace Core.Notification
                 Recipients = eAnnouncementRecipientsType.Other,
                 StartTime = episodeMediaAsset.CatalogStartDate.Value.ToUtcUnixTimestampSeconds(),
                 Timezone = "UTC",
-                Status = eAnnouncementStatus.NotSent
+                Status = eAnnouncementStatus.NotSent,
+                IncludeUserInbox = true
             };
 
             // check if previous unsent messages were queued for this announcement and asset (series).
