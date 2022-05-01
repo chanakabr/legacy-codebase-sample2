@@ -465,7 +465,8 @@ namespace Core.Notification
                 Recipients = eAnnouncementRecipientsType.Other,
                 StartTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(episodeMedia.m_dCatalogStartDate),
                 Timezone = "UTC",
-                Status = eAnnouncementStatus.NotSent
+                Status = eAnnouncementStatus.NotSent,
+                IncludeUserInbox = true
             };
 
             SendMessageAnnouncement(announcement, message, mediaID, groupId);
