@@ -54,7 +54,7 @@ namespace DAL
             sp.AddParameter("@DynamicData", assetStructToAdd.DynamicData?.Count > 0 ? JsonConvert.SerializeObject(assetStructToAdd.DynamicData) : null);
             sp.AddParameter("@IsLinear", assetStructToAdd.IsLinearAssetStruct ? 1 : 0);
 
-            return CreateAssetStructResponseFromDataSet(sp.ExecuteDataSet());
+            return CreateAssetStructResponseFromDataSet(sp.ExecuteDataSet(), metaIdsToPriority);
         }
 
         public GenericResponse<AssetStruct> UpdateAssetStruct(
