@@ -2148,8 +2148,7 @@ namespace Core.ConditionalAccess
                                 (maxNumberOfUses > numberOfUses || maxNumberOfUses == 0) &&
                                 (!endDate.HasValue ||
                                 endDate.Value > now ||
-                                // suspended subscription
-                                (isRecurringStatus && subscriptionStatus == 7)))
+                                isRecurringStatus ))
                             {
                                 domainSubscriptionPurchase = new DomainSubscriptionPurchase()
                                 {
