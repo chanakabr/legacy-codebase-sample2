@@ -2433,6 +2433,8 @@ namespace Core.Catalog.CatalogManagement
                 {
                     _layeredCache.SetInvalidationKey(LayeredCacheKeys.GetGroupUsingAliasNamesInvalidationKey(groupId));
                 }
+                
+                response.Object = updatedMeta;
 
                 response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 InvalidateCatalogGroupCache(groupId, response.Status, true, response.Object);
