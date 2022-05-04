@@ -558,7 +558,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetDlmKey(int dlmId)
         {
-            return string.Format("DLM_{0}", dlmId);
+            return string.Format("DLM_V2_{0}", dlmId);
         }
 
         public static string GroupFeaturesKey(int groupId)

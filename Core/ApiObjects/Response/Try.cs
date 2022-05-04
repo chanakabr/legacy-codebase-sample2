@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 // copy-pasted from https://github.com/StephenCleary/Try
 namespace ApiObjects.Response
@@ -173,6 +174,13 @@ namespace ApiObjects.Response
             {
                 _value = value;
             }
+        }
+        
+        [JsonConstructor]
+        private Try(Exception exception, T value)
+        {
+            _exception = exception;
+            _value = value;
         }
 
         private Exception Rethrow()
