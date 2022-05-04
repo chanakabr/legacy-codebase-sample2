@@ -24,6 +24,7 @@ using System.Threading;
 using System.Xml;
 using ApiLogic.Api.Managers.Rule;
 using ApiLogic.Catalog;
+using ApiObjects.Rules;
 using ApiObjects.SearchPriorityGroups;
 using Tvinci.Core.DAL;
 using TVinciShared;
@@ -1358,6 +1359,8 @@ namespace Core.Catalog.CatalogManagement
 
                     // update meta inherited
                     CatalogManager.UpdateChildAssetsMetaInherited(groupId, catalogGroupCache, userId, assetStruct, result.Object, currentAsset);
+
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaAssetUserRulesInvalidationKey(groupId, result.Object.Id));
                 }
             }
             catch (Exception ex)
@@ -3048,6 +3051,24 @@ namespace Core.Catalog.CatalogManagement
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddAsset", groupId);
                     return result;
+                }
+
+                var getAssetUserRulesResponse = AssetUserRuleManager.GetAssetUserRuleList(groupId, userId, ruleConditionType: RuleConditionType.AssetShop);
+                if (getAssetUserRulesResponse.IsOkStatusCode())
+                {
+                    var shopAssetRule = getAssetUserRulesResponse.Objects?.FirstOrDefault();
+                    if (shopAssetRule != null)
+                    {
+                        var setShopMarkerMetaResponse = ShopMarkerService.Instance.SetShopMarkerMeta(groupId, assetToAdd, shopAssetRule);
+                        if (!setShopMarkerMetaResponse.IsOkStatusCode())
+                        {
+                            return new GenericResponse<Asset>(setShopMarkerMetaResponse);
+                        }
+                    }
+                }
+                else
+                {
+                    return new GenericResponse<Asset>(getAssetUserRulesResponse.Status);
                 }
 
                 switch (assetToAdd.AssetType)

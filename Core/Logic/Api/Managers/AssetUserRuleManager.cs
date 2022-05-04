@@ -14,6 +14,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using ApiLogic.Api.Managers.Rule;
 
 namespace Core.Api.Managers
 {
@@ -130,7 +131,7 @@ namespace Core.Api.Managers
                                                                    invalidationKeysMap))
                 {
                     if (fullAssetUserRules != null && fullAssetUserRules.Count > 0)
-                    {
+                    {   
                         response.Objects = fullAssetUserRules.Values
                             .Where(x => (!ruleActionType.HasValue || x.Actions.Any(_ => _.Type == ruleActionType))
                                         && (!ruleConditionType.HasValue || x.Conditions.Count(_ => _.Type == ruleConditionType) == 1))
@@ -514,7 +515,7 @@ namespace Core.Api.Managers
                                                                },
                                                                groupId,
                                                                LayeredCacheConfigNames.MEDIA_ASSET_USER_RULES_LAYERED_CACHE_CONFIG_NAME,
-                                                               new List<string>() { LayeredCacheKeys.GetAssetUserRuleIdsGroupInvalidationKey(groupId) }))
+                                                               new List<string> { LayeredCacheKeys.GetAssetUserRuleIdsGroupInvalidationKey(groupId), LayeredCacheKeys.GetMediaAssetUserRulesInvalidationKey(groupId, mediaId) }))
                     {
                         log.Error(string.Format("GetMediaAssetUserRulesToUser - GetMediaAssetUserRules - Failed get data from cache groupId={0}, mediaId={1}", groupId, mediaId));
                     }
@@ -773,10 +774,10 @@ namespace Core.Api.Managers
                                 //build search for each tag and tag values
                                 Parallel.ForEach(mediaAssetUserRules, (rule) =>
                                 {
-                                    var assetConditions = rule?.Conditions.OfType<AssetCondition>();
-                                    if (assetConditions != null && assetConditions.Any())
+                                    if (rule?.Conditions?.Any() == true)
                                     {
-                                        filter = string.Format("(and media_id='{0}' {1})", mediaId.Value, assetConditions.First().Ksql);
+                                        var ksql = AssetConditionKsqlFactory.Instance.GetKsql(groupId.Value, rule.Conditions[0]);
+                                        filter = $"(and media_id='{mediaId.Value}' {ksql})";
                                         medias = api.SearchAssets(groupId.Value, filter, 0, 0, false, 0, false, string.Empty, string.Empty, string.Empty, 0, 0, true, true);
 
                                         if (medias != null && medias.Length > 0) // there is a match 

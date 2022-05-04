@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Threading;
 using ApiObjects;
@@ -25,14 +24,11 @@ namespace ApiLogic.Api.Managers
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private static readonly Lazy<CatalogPartnerConfigManager> lazy = new Lazy<CatalogPartnerConfigManager>(() =>
-            new CatalogPartnerConfigManager(ApiDAL.Instance,
-                                            LayeredCache.Instance,
-                                            api.Instance,
-                                            CatalogPartnerConfigValidator.Instance),
+        private static readonly Lazy<CatalogPartnerConfigManager> lazy = new Lazy<CatalogPartnerConfigManager>(
+            () => new CatalogPartnerConfigManager(ApiDAL.Instance, LayeredCache.Instance, api.Instance, CatalogPartnerConfigValidator.Instance),
             LazyThreadSafetyMode.PublicationOnly);
 
-        public static CatalogPartnerConfigManager Instance { get { return lazy.Value; } }
+        public static CatalogPartnerConfigManager Instance => lazy.Value;
 
         private readonly ICatalogPartnerRepository _repository;
         private readonly ILayeredCache _layeredCache;

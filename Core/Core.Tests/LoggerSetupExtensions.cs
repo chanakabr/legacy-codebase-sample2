@@ -6,7 +6,7 @@ namespace Core.Tests
 {
     public static class LoggerSetupExtensions
     {
-        public static Mock<ILogger> Setup(this Mock<ILogger> logger, LogLevel logLevel, string expectedMessage)
+        public static Mock<T> Setup<T>(this Mock<T> logger, LogLevel logLevel, string expectedMessage) where T : class, ILogger
         {
             Func<object, Type, bool> state = (v, t) => string.Compare(v.ToString(), expectedMessage, StringComparison.Ordinal) == 0;
 

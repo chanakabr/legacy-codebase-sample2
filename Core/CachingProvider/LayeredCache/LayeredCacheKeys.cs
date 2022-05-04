@@ -1691,6 +1691,11 @@ namespace CachingProvider.LayeredCache
             return $"invalidationKey_DeviceBrands_{groupId}";
         }
 
+        public static string GetMediaAssetUserRulesInvalidationKey(int groupId, long mediaId)
+        {
+            return $"invalidationKey_mediaAssetUserRules_groupId_{groupId}_mediaId_{mediaId}";
+        }
+
         #endregion
 
         #region Invalidation keys functions

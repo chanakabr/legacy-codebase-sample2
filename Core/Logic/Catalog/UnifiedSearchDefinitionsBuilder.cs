@@ -11,6 +11,7 @@ using TVinciShared;
 using ApiObjects.Response;
 using Phx.Lib.Log;
 using System.Reflection;
+using ApiLogic.Api.Managers.Rule;
 using ApiLogic.Catalog;
 using ApiLogic.Catalog.CatalogManagement.Models;
 using ApiLogic.Catalog.CatalogManagement.Services;
@@ -514,9 +515,10 @@ namespace Core.Catalog
                         StringBuilder query = new StringBuilder();
                         query.Append("(or ");
                         definitions.assetUserRuleIds.Add(assetUserRulesResponse.Object.Id);
-                        foreach (var assetCondition in assetUserRulesResponse.Object.Conditions.OfType<AssetCondition>())
+                        foreach (var assetCondition in assetUserRulesResponse.Object.Conditions)
                         {
-                            query.AppendFormat(" {0}", assetCondition.Ksql);
+                            var ksql = AssetConditionKsqlFactory.Instance.GetKsql(groupId, assetCondition);
+                            query.AppendFormat(" {0}", ksql);
                         }
 
                         query.Append(")");
@@ -549,7 +551,7 @@ namespace Core.Catalog
                     var rulesList = assetUserRulesResponse.Objects;
                     List<long> rulesIds;
                     string queryString;
-                    GetQueryStringFromAssetUserRules(rulesList, out rulesIds, out queryString);
+                    GetQueryStringFromAssetUserRules(groupId, rulesList, out rulesIds, out queryString);
 
                     definitions.assetUserRuleIds.AddRange(rulesIds);
                     BooleanPhrase.ParseSearchExpression(queryString, ref phrase);
@@ -567,7 +569,7 @@ namespace Core.Catalog
             return phrase;
         }
 
-        public static void GetQueryStringFromAssetUserRules(List<ApiObjects.Rules.AssetUserRule> rulesList, out List<long> rulesIds, out string queryString)
+        public static void GetQueryStringFromAssetUserRules(long groupId, List<ApiObjects.Rules.AssetUserRule> rulesList, out List<long> rulesIds, out string queryString)
         {
             rulesIds = new List<long>();
             StringBuilder query = new StringBuilder();
@@ -575,9 +577,10 @@ namespace Core.Catalog
             foreach (var rule in rulesList)
             {
                 rulesIds.Add(rule.Id);
-                foreach (var assetCondition in rule.Conditions.OfType<AssetCondition>())
+                foreach (var assetCondition in rule.Conditions)
                 {
-                    query.AppendFormat(" {0}", assetCondition.Ksql);
+                    var ksql = AssetConditionKsqlFactory.Instance.GetKsql(groupId, assetCondition);
+                    query.AppendFormat(" {0}", ksql);
                 }
             }
 

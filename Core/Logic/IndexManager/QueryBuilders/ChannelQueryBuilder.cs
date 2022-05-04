@@ -204,7 +204,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     var rulesIds = new List<long>();
                     string queryString = string.Empty;
 
-                    UnifiedSearchDefinitionsBuilder.GetQueryStringFromAssetUserRules(new List<ApiObjects.Rules.AssetUserRule>()
+                    UnifiedSearchDefinitionsBuilder.GetQueryStringFromAssetUserRules(channel.m_nGroupID, new List<ApiObjects.Rules.AssetUserRule>()
                         {
                             assetUserRule.Object
                         },
