@@ -320,6 +320,7 @@ namespace EventBus.RabbitMQ
 
 
                     SetLoggingContext(serviceEvent);
+                    SetEventContext(scope, serviceEvent);
                     using (var mon = new KMonitor(Events.eEvent.EVENT_API_START, serviceEvent?.GroupId.ToString(), eventName, serviceEvent?.RequestId))
                     {
                         mon.Database = eventName;
@@ -330,7 +331,13 @@ namespace EventBus.RabbitMQ
             }
         }
 
-
+        private void SetEventContext(IServiceScope scope, ServiceEvent serviceEvent)
+        {
+            var eventContext = scope.ServiceProvider.GetService<IEventContext>() as EventContext;
+            // In case EventContext of specific type is null, meaning that it has been overriden by the user.
+            eventContext?.PopulateFromServiceEvent(serviceEvent);
+        }
+        
         private ServiceEvent SetLoggingContext(object serviceEvent)
         {
             // TODO: Arthur, Think of the bigger context picture and how should it be managed, for logging and for in memepry data store

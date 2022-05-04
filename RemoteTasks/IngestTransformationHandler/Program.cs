@@ -6,14 +6,17 @@ using Core.Metrics;
 using EventBus.Abstraction;
 using EventBus.Kafka;
 using EventBus.RabbitMQ;
+using FeatureFlag;
 using IngestHandler.Common.Infrastructure;
 using IngestHandler.Common.Kafka;
 using IngestTransformationHandler.Managers;
 using IngestTransformationHandler.Repositories;
+using Microsoft.Extensions.Configuration;
 using Phx.Lib.Log;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Ott.Lib.FeatureToggle.IocExtensions;
 using OTT.Lib.Kafka;
 using TvinciCache;
 using WebAPI.Filters;
@@ -40,12 +43,20 @@ namespace EPGTransformationHandler
                     s.AddKafkaContextProvider<IngestKafkaContextProvider>();
                     s.AddScoped<IEventBusPublisher, KafkaPublisher>();
                     s.AddScoped<IEpgIngestMessaging>(provider => new EpgIngestMessaging(provider.GetService<IEventBusPublisher>(), new KLogger(nameof(EpgIngestMessaging))));
+                    
+                    s.AddFeatureToggle(new ConfigurationBuilder().AddEnvironmentVariables().Build());
+                    s.AddScoped<IFeatureFlagContext, FeatureFlagIngestContext>();
+                    s.AddScoped<IPhoenixFeatureFlag, PhoenixFeatureFlag>();
                 })
                 .ConfigureEventBusConsumer(c =>
                 {
                     c.DedicatedPartnerIdsResolver = () => GroupsFeatures.GetGroupsThatImplementFeature(GroupFeature.EPG_INGEST_V2);
                 })
-                .ConfigureLogging(configureLogging => configureLogging.AddLog4Net());
+                .ConfigureLogging(configureLogging =>
+                {
+                    configureLogging.ClearProviders();
+                    configureLogging.AddProvider(new KLoggerProvider());
+                });
             await builder.RunConsoleAsync();
         }
     }

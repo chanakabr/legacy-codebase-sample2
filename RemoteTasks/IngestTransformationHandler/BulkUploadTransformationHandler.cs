@@ -28,6 +28,8 @@ using IngestTransformationHandler.Managers;
 using Synchronizer;
 using Tvinci.Core.DAL;
 using ApiLogic.IndexManager.Helpers;
+using FeatureFlag;
+using IngestHandler.Common.Locking;
 
 namespace IngestTransformationHandler
 {
@@ -36,6 +38,7 @@ namespace IngestTransformationHandler
         private readonly IndexCompactionManager _indexCompactionManager;
         private readonly IEpgCRUDOperationsManager _crudOperationsManager;
         private readonly IEpgIngestMessaging _epgIngestMessaging;
+        private readonly IPhoenixFeatureFlag _phoenixFeatureFlag;
         private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly XmlSerializer _XmlTVSerializer = new XmlSerializer(typeof(EpgChannels));
 
@@ -49,12 +52,13 @@ namespace IngestTransformationHandler
 
         private IngestProfile _ingestProfile;
         private DistributedLock _locker;
-
-        public BulkUploadTransformationHandler(IndexCompactionManager indexCompactionManager, IEpgCRUDOperationsManager crudOperationsManager, IEpgIngestMessaging epgIngestMessaging)
+        
+        public BulkUploadTransformationHandler(IndexCompactionManager indexCompactionManager, IEpgCRUDOperationsManager crudOperationsManager, IEpgIngestMessaging epgIngestMessaging, IPhoenixFeatureFlag phoenixFeatureFlag)
         {
             _indexCompactionManager = indexCompactionManager;
             _crudOperationsManager = crudOperationsManager;
             _epgIngestMessaging = epgIngestMessaging;
+            _phoenixFeatureFlag = phoenixFeatureFlag;
         }
 
         public Task Handle(BulkUploadTransformationEvent serviceEvent)
@@ -145,12 +149,15 @@ namespace IngestTransformationHandler
                     _logger.Error($"Trying to set fatal status on BulkUploadId:[{serviceEvent.BulkUploadId}]", ex);
                     var result = UpdateBulkUploadStatusAndErrors(BulkUploadJobStatus.Fatal);
                     _logger.Error($"An Exception occurred in transformation handler requestId:[{_eventData.RequestId}], BulkUploadId:[{_eventData.BulkUploadId}], update result status [{result.Status}].", ex);
-                    Unlock();
                 }
                 catch (Exception innerEx)
                 {
                     _logger.Error($"An Exception occurred when trying to set FATAL status on bulkUpload. requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}].", innerEx);
                     throw;
+                }
+                finally
+                {
+                    Unlock();
                 }
 
                 throw;
@@ -177,7 +184,7 @@ namespace IngestTransformationHandler
             {
                 { "BulkUploadId", serviceEvent.BulkUploadId.ToString() }
             };
-            _locker = new DistributedLock(serviceEvent.GroupId, lockerMetadata);
+            _locker = new DistributedLock(new LockContext(serviceEvent.GroupId, serviceEvent.UserId), _phoenixFeatureFlag, lockerMetadata);
 
             _bulUpload = BulkUploadMethods.GetBulkUploadData(serviceEvent.GroupId, serviceEvent.BulkUploadId);
 
@@ -432,17 +439,17 @@ namespace IngestTransformationHandler
                 Unlock();
                 _bulUpload.Results.ForEach(r => r.Status = BulkUploadResultStatus.Ok);
                 UpdateBulkUpload(BulkUploadJobStatus.Success);
+                return;
             }
 
             // in case the actual crud calculations are less thant the keys we locked initially this means we can unlock few days
-
             var effectiveLocIndices = ingestEvents.Select(e => e.TargetIndexName).ToList();
             var effectiveLockKeys = effectiveLocIndices.Select(targetIndexName => BulkUploadMethods.GetIngestLockKey(targetIndexName));
             var keysToUnlock = _jobData.LockKeys.Except(effectiveLockKeys);
             if (keysToUnlock.Any())
             {
                 _logger.Info($"calculated crud operations did not include several days that were locked, unlocking:[{string.Join(",", keysToUnlock)}]");
-                _locker.Unlock(keysToUnlock);
+                _locker.Unlock(keysToUnlock, LockInitiator.GetBulkUploadLockInitiator(_eventData.BulkUploadId));
                 var allCrudOperations = crudOperations.ItemsToAdd
                 .Concat(crudOperations.ItemsToUpdate)
                 .Concat(crudOperations.ItemsToDelete)
@@ -501,28 +508,23 @@ namespace IngestTransformationHandler
 
         private void AcquireLockOnIngestRange()
         {
-            try
+            var epgV2Config = ApplicationConfiguration.Current.EPGIngestV2Configuration;
+            var isLocked = _locker.Lock(_jobData.LockKeys,
+                epgV2Config.LockNumOfRetries.Value,
+                epgV2Config.LockRetryIntervalMS.Value,
+                epgV2Config.LockTTLSeconds.Value,
+                LockInitiator.GetBulkUploadLockInitiator(_bulUpload.Id),
+                LockInitiator.EpgIngestGlobalLockKeyInitiator);
+            if (!isLocked)
             {
-                var epgV2Config = ApplicationConfiguration.Current.EPGIngestV2Configuration;
-                var isLocked = _locker.Lock(_jobData.LockKeys,
-                    epgV2Config.LockNumOfRetries.Value,
-                    epgV2Config.LockRetryIntervalMS.Value,
-                    epgV2Config.LockTTLSeconds.Value,
-                    $"BulkUpload_{_bulUpload.Id}");
-                if (!isLocked) { throw new Exception("Failed to acquire lock on ingest dates"); }
-            }
-            catch
-            {
-                Unlock();
-                throw;
+                throw new Exception("Failed to acquire lock on ingest dates");
             }
         }
 
         private void Unlock()
         {
-            _locker.Unlock(_jobData.LockKeys);
+            _locker.Unlock(_jobData.LockKeys, LockInitiator.GetBulkUploadLockInitiator(_bulUpload.Id));
         }
-
 
         private IngestProfile GetIngestProfile()
         {

@@ -11,7 +11,11 @@ using ApiObjects.Response;
 using Phx.Lib.Appconfig;
 using Core.Catalog;
 using CouchbaseManager;
+using FeatureFlag;
 using IngestHandler.Common;
+using IngestHandler.Common.Locking;
+using Ott.Lib.FeatureToggle;
+using Ott.Lib.FeatureToggle.Managers;
 using Phx.Lib.Appconfig.Types;
 using Phx.Lib.Log;
 using Synchronizer;
@@ -28,9 +32,11 @@ namespace IngestTransformationHandler.Managers
         private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private readonly ICouchbaseManager _couchbaseManager;
         private readonly EPGIngestV2Configuration _epgV2Config;
+        private readonly IPhoenixFeatureFlag _phoenixFeatureFlag;
 
-        public IndexCompactionManager()
+        public IndexCompactionManager(IPhoenixFeatureFlag phoenixFeatureFlag)
         {
+            _phoenixFeatureFlag = phoenixFeatureFlag;
             _couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
             _epgV2Config = ApplicationConfiguration.Current.EPGIngestV2Configuration;
         }
@@ -52,7 +58,7 @@ namespace IngestTransformationHandler.Managers
             }
             
             var lockerMetadata = GenerateLockerMetadata(bulkUploadId);
-            var locker = new DistributedLock(partnerId, lockerMetadata);
+            var locker = new DistributedLock(new LockContext(partnerId), _phoenixFeatureFlag, lockerMetadata);
             try
             {
                 if (IsRunIntervalForCompactionPassed(partnerId))
@@ -75,9 +81,8 @@ namespace IngestTransformationHandler.Managers
             }
             finally
             {
-                locker.Unlock(GetGlobalEpgIngestLockKey(partnerId));
+                locker.Unlock(GetGlobalEpgIngestLockKey(partnerId), nameof(IndexCompactionManager));
             }
-            
         }
 
         private void CompactEpgIndices(int partnerId, int futureCompactionStart, int pastCompactioStart)
@@ -93,7 +98,8 @@ namespace IngestTransformationHandler.Managers
                 _epgV2Config.LockNumOfRetries.Value,
                 _epgV2Config.LockRetryIntervalMS.Value,
                 _epgV2Config.LockTTLSeconds.Value,
-                nameof(IndexCompactionManager));
+                nameof(IndexCompactionManager),
+                LockInitiator.EpgIngestGlobalLockKeyInitiator);
             if (!isLocked) { throw new Exception("Failed to acquire lock on ingest dates"); }
         }
 

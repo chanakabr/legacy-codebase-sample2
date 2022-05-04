@@ -43,26 +43,18 @@ namespace CouchbaseManager
 
         public bool Set<T>(CouchbaseRecord<T> record)
         {
-            switch (record.Compression)
+            return Set(record, true, false);
+        }
+
+        public bool Add<T>(string key, T value, uint expiration = 0, bool asJson = false, bool suppressErrors = false)
+        {
+            var couchbaseRecord = new CouchbaseRecord<T>
             {
-                case Compression.Compression.None:
-                    return Set(record.Key, record.Content, record.Expiration, record.Version);
-                case Compression.Compression.Gzip:
-                {
-                    var internalRecord = new InternalCouchbaseRecord<byte[]>
-                    {
-                        Headers = new Headers
-                        {
-                            Compression = record.Compression
-                        },
-                        Content = record.Content.Compress()
-                    };
-                    return Set(record.Key, internalRecord, record.Expiration, record.Version);
-                }
-                default:
-                    Log.Error(THIS_TYPE_OF_COMPRESSION_ISNOT_SUPPORTED_CURRENTLY);
-                    throw new NotImplementedException(THIS_TYPE_OF_COMPRESSION_ISNOT_SUPPORTED_CURRENTLY);
-            }
+                Key = key,
+                Content = value,
+                Expiration = expiration
+            };
+            return Set(couchbaseRecord, false, suppressErrors);
         }
 
         public bool Set<T>(string key, T value, uint expiration)
@@ -88,9 +80,38 @@ namespace CouchbaseManager
             });
         }
 
-        private bool Set<T>(string key, T content, uint expiration, ulong? version = null)
+        private bool Set<T>(CouchbaseRecord<T> record, bool isUpsert, bool suppressErrors)
         {
-            return !version.HasValue ? _manager.Set(key, content, expiration) : _manager.SetWithVersion(key, content, version.Value, expiration);
+            switch (record.Compression)
+            {
+                case Compression.Compression.None:
+                    return InternalSet(record.Key, record.Content, record.Expiration, isUpsert, record.Version, suppressErrors: suppressErrors);
+                case Compression.Compression.Gzip:
+                {
+                    var internalRecord = new InternalCouchbaseRecord<byte[]>
+                    {
+                        Headers = new Headers
+                        {
+                            Compression = record.Compression
+                        },
+                        Content = record.Content.Compress()
+                    };
+                    return InternalSet(record.Key, internalRecord, record.Expiration, isUpsert, record.Version, suppressErrors: suppressErrors);
+                }
+                default:
+                    Log.Error(THIS_TYPE_OF_COMPRESSION_ISNOT_SUPPORTED_CURRENTLY);
+                    throw new NotImplementedException(THIS_TYPE_OF_COMPRESSION_ISNOT_SUPPORTED_CURRENTLY);
+            }
+        }
+
+        private bool InternalSet<T>(string key, T content, uint expiration, bool isUpsert, ulong? version = null, bool suppressErrors = false)
+        {
+            if (isUpsert)
+            {
+                return !version.HasValue ? _manager.Set(key, content, expiration) : _manager.SetWithVersion(key, content, version.Value, expiration);    
+            }
+
+            return !version.HasValue ? _manager.Add(key, content, suppressErrors: suppressErrors) : _manager.Add(key, content, (uint) version.Value, suppressErrors: suppressErrors);
         }
 
         public T Get<T>(string key, out eResultStatus status, JsonSerializerSettings settings = null)

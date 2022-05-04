@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using CouchbaseManager;
+using FeatureFlag;
+using Ott.Lib.FeatureToggle;
 using Phx.Lib.Log;
+
+[assembly: InternalsVisibleTo("Synchronizer.Tests")]
 
 namespace Synchronizer
 {
@@ -15,22 +20,31 @@ namespace Synchronizer
 
     public class DistributedLock
     {
+        private readonly IPhoenixFeatureFlag _phoenixFeatureFlag;
+
         private static readonly KLogger _Logger = new KLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private readonly CouchbaseManager.CouchbaseManager _KeyValueStore;
-        private readonly int _GroupId;
+        private readonly ICouchbaseManager _keyValueStore;
+        private readonly LockContext _context;
 
         private readonly string _additionalInfo = string.Empty;
 
-        public DistributedLock(int groupId)
+        public DistributedLock(LockContext context, IPhoenixFeatureFlag phoenixFeatureFlag)
         {
-            _KeyValueStore = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.CACHE);
-            _GroupId = groupId;
+            _keyValueStore = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.CACHE);
+            _context = context;
+            _phoenixFeatureFlag = phoenixFeatureFlag;
         }
-        
-        public DistributedLock(int groupId, IReadOnlyDictionary<string, string> additionalInfoDic)
+
+        public DistributedLock(LockContext context, IPhoenixFeatureFlag phoenixFeatureFlag, IReadOnlyDictionary<string, string> additionalInfoDic) : this(context, phoenixFeatureFlag)
         {
-            _KeyValueStore = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.CACHE);
-            _GroupId = groupId;
+            _additionalInfo = FlatAdditionalInfo(additionalInfoDic);
+        }
+
+        internal DistributedLock(LockContext context, ICouchbaseManager keyValueStore, IPhoenixFeatureFlag phoenixFeatureFlag, IReadOnlyDictionary<string, string> additionalInfoDic)
+        {
+            _keyValueStore = keyValueStore;
+            _phoenixFeatureFlag = phoenixFeatureFlag;
+            _context = context;
             _additionalInfo = FlatAdditionalInfo(additionalInfoDic);
         }
 
@@ -39,12 +53,13 @@ namespace Synchronizer
         /// any other process to request same lock
         /// </summary>
         /// <returns>Ture if successfully locked, flase otherwise</returns>
-        public bool Lock(IEnumerable<string> keys, int numOfRetries, int retryIntervalMs, int ttlSeconds, string lockInitiator,string globalLockKeyNameInitiator = "")
+        public bool Lock(IEnumerable<string> keys, int numOfRetries, int retryIntervalMs, int ttlSeconds, string lockInitiator, string globalLockKeyNameInitiator = "")
         {
-            var globalLockKey = GetGlobalLockKey(_GroupId)+ globalLockKeyNameInitiator ;
+            var globalLockKey = GetGlobalLockKey(_context.GroupId)+ globalLockKeyNameInitiator ;
             // global lock object is used when aquiring lock on multiple keys.
             // it is here to make sure tow processes will not aquires partial lock form each list which will cause a deadlock
-            var globalLockObj = new LockObjectDocument() { LockInitiator = $"{lockInitiator}_{string.Join("_", keys)}" };
+            var globalLockInitiator = $"{lockInitiator}_{string.Join("_", keys)}";
+            var globalLockObj = new LockObjectDocument() { LockInitiator = globalLockInitiator };
             try
             {
                 var isGlobalLockedSuccess = LockSingleKey(numOfRetries, retryIntervalMs, ttlSeconds, globalLockObj, globalLockKey);
@@ -56,8 +71,8 @@ namespace Synchronizer
                 // Add distinct to save the users from themselves in case they are trying to lock the same key twice (should have same effect)
                 foreach (var key in keys.Distinct())
                 {
-                    var isLockedSucess = LockSingleKey(numOfRetries, retryIntervalMs, ttlSeconds, lockObj, key);
-                    if (!isLockedSucess)
+                    var isLockedSuccess = LockSingleKey(numOfRetries, retryIntervalMs, ttlSeconds, lockObj, key);
+                    if (!isLockedSuccess)
                     {
                         _Logger.Error(WrapLogMessageWithMetadata($"DistributedLock > Could not acquired lock on key:[{key}], all retry attempts exhausted."));
                         return false;
@@ -70,7 +85,7 @@ namespace Synchronizer
             }
             finally
             {
-                Unlock(new[] { globalLockKey });
+                Unlock(new[] { globalLockKey }, globalLockInitiator);
             }
 
             _Logger.Debug(WrapLogMessageWithMetadata($"DistributedLock > Acquired lock on key:[{string.Join(",", keys)}]..."));
@@ -82,10 +97,10 @@ namespace Synchronizer
             var lockAttempt = 0;
             _Logger.Debug(WrapLogMessageWithMetadata($"DistributedLock > Acquiring lock on key:[{key}]"));
 
-            var isLockSuccessful = _KeyValueStore.Add(key, lockObj, (uint)ttlSeconds, asJson: false, suppressErrors: true);
+            var isLockSuccessful = _keyValueStore.Add(key, lockObj, (uint)ttlSeconds, asJson: false, suppressErrors: true);
             while (!isLockSuccessful && lockAttempt < numOfRetries)
             {
-                isLockSuccessful = _KeyValueStore.Add(key, lockObj, (uint)ttlSeconds, asJson: false, suppressErrors: true);
+                isLockSuccessful = _keyValueStore.Add(key, lockObj, (uint)ttlSeconds, asJson: false, suppressErrors: true);
                 if (!isLockSuccessful)
                 {
                     lockAttempt++;
@@ -106,28 +121,62 @@ namespace Synchronizer
         /// Unlocks the give list of keys
         /// </summary>
         /// <param name="keys"></param>
-        public void Unlock(IEnumerable<string> keys)
+        public IReadOnlyDictionary<string, bool> Unlock(IEnumerable<string> keys, string lockInitiator)
         {
             if (keys == null || !keys.Any())
-                return;
-
-            foreach (var key in keys.Distinct())
             {
-                if (_KeyValueStore.Remove(key))
-                {
-                    _Logger.Debug(WrapLogMessageWithMetadata($"DistributedLock > Lock on key was removed:[{key}]"));
-
-                }
-                else
-                {
-                    _Logger.Error(WrapLogMessageWithMetadata($"DistributedLock > Could not remove lock on key:[{key}]"));
-                }
+                return new Dictionary<string, bool>();
             }
+            
+            var isStrictUnlockingDisabled = _phoenixFeatureFlag.IsStrictUnlockDisabled();
+            return keys.Distinct()
+                .Select(key => UnlockInternal(key, lockInitiator, isStrictUnlockingDisabled))
+                .ToDictionary(unlockResult => unlockResult.key, unlockResult => unlockResult.result);
         }
 
         public static string GetGlobalLockKey(int groupId)
         {
             return $"OTT_DISTRIBUTED_GLOBAL_LOCK_{groupId}";
+        }
+
+        private (string key, bool result) UnlockInternal(string key, string lockInitiator, bool isStrictUnlockingDisabled)
+        {
+            var lockObjectDocument = _keyValueStore.GetWithVersion<LockObjectDocument>(key, out var version, out var status);
+            var tempResult = false;
+            switch (status)
+            {
+                case eResultStatus.SUCCESS:
+                    if (!isStrictUnlockingDisabled)
+                    {
+                        if (string.Compare(lockObjectDocument.LockInitiator, lockInitiator, StringComparison.InvariantCultureIgnoreCase) != 0)
+                        {
+                            _Logger.Error($"The lock key is trying to be deleted by non-initiator. Key - {key}, LockInitiator - {lockInitiator}");
+                            tempResult = false;
+                            break;
+                        }
+                    }
+
+                    tempResult = _keyValueStore.Remove(key, version);
+                    _Logger.Debug(WrapLogMessageWithMetadata($"DistributedLock > Lock on key was removed:[{key}]"));
+                    break;
+                case eResultStatus.KEY_NOT_EXIST:
+                    tempResult = true;
+                    _Logger.Debug(WrapLogMessageWithMetadata($"DistributedLock > Lock on key was removed:[{key}]"));
+                    break;
+                case eResultStatus.ERROR:
+                    tempResult = false;
+                    _Logger.Error($"There was an error during retrieval of lock document. Key - {key}, LockInitiator - {lockInitiator}");
+                    break;
+            }
+
+            if (tempResult)
+            {
+                _Logger.Debug(WrapLogMessageWithMetadata($"DistributedLock > Lock on key was removed:[{key}]"));
+                return (key, true);
+            }
+
+            _Logger.Error(WrapLogMessageWithMetadata($"DistributedLock > Could not remove lock on key:[{key}]"));
+            return (key, false);
         }
 
         private static string FlatAdditionalInfo(IReadOnlyDictionary<string, string> additionalInfoDic)

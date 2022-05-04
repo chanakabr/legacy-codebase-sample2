@@ -6,6 +6,7 @@ using Phx.Lib.Appconfig;
 using EventBus.Abstraction;
 using Phx.Lib.Log;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Polly;
 using Polly.Retry;
@@ -57,6 +58,7 @@ namespace EventBus.RabbitMQ
                 _AllServiceHandlers.ForEach(h => services.AddScoped(h));
 
                 services.AddSingleton<IRabbitMQPersistentConnection>(RabbitMQPersistentConnection.GetInstanceUsingTCMConfiguration());
+                services.TryAddScoped<IEventContext, EventContext>();
                 ConfigureRabbitMQEventBus(services, _AllServiceHandlers);
 
                 var isHealthy = HealthCheck(services);

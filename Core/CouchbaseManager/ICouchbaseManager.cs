@@ -5,6 +5,8 @@ namespace CouchbaseManager
 {
     public interface ICouchbaseManager
     {
+        bool Add<T>(string key, T value, uint expiration = 0, bool asJson = false, bool suppressErrors = false);
+        
         bool Set<T>(string key, T value, uint expiration);
         
         bool SetWithVersion<T>(string key, T content, ulong version, uint expiration);

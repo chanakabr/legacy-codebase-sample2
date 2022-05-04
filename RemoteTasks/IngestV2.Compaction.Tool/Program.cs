@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Reflection;
+using FeatureFlag;
+using IngestHandler.Common.Infrastructure;
 using IngestTransformationHandler.Managers;
+using Ott.Lib.FeatureToggle.Managers;
 using Phx.Lib.Appconfig;
 using Phx.Lib.Log;
 
@@ -21,7 +24,8 @@ namespace IngestV2.Compaction.Tool
             Console.Title = Assembly.GetEntryAssembly().GetName().ToString();
 
 
-            var compactionManager = new IndexCompactionManager();
+            var featureFlagIngestContext = new DummyFeatureFlagIngestContext();
+            var compactionManager = new IndexCompactionManager(new PhoenixFeatureFlag(featureFlagIngestContext, FeatureToggleManager.Instance()));
             compactionManager.RunEpgIndexCompactionIfRequired(partnerId);
         }
 

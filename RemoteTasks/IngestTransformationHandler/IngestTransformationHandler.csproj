@@ -37,6 +37,7 @@
 
   <ItemGroup>
     <PackageReference Include="JUnitTestLogger" Version="1.1.0" />
+    <PackageReference Include="Ott.Lib.FeatureToggle" Version="1.1.1" />
   </ItemGroup>
 
 </Project>

@@ -13,6 +13,7 @@
     <ProjectReference Include="..\..\Core\DalCB\DalCB.csproj" />
     <ProjectReference Include="..\..\Core\ElasticSearch\ElasticSearch.csproj" />
     <ProjectReference Include="..\..\Core\GroupsCacheManager\GroupsCacheManager.csproj" />
+    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />
   </ItemGroup>
 

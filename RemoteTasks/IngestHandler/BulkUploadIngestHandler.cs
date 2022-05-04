@@ -21,9 +21,12 @@ using Core.GroupManagers;
 using CouchbaseManager;
 using EpgBL;
 using EventBus.Abstraction;
+using FeatureFlag;
 using IngestHandler.Common;
 using IngestHandler.Common.Infrastructure;
+using IngestHandler.Common.Locking;
 using IngestHandler.Domain.IngestProtection;
+using Ott.Lib.FeatureToggle;
 using Phx.Lib.Log;
 using Synchronizer;
 using Tvinci.Core.DAL;
@@ -55,6 +58,7 @@ namespace IngestHandler
         private readonly IRegionManager _regionManager;
         private readonly IEpgIngestMessaging _epgIngestMessaging;
         private readonly IIngestFinalizer _ingestFinalizer;
+        private readonly IPhoenixFeatureFlag _phoenixFeatureFlag;
 
         public BulkUploadIngestHandler(
             IIndexManagerFactory indexManagerFactory,
@@ -63,7 +67,8 @@ namespace IngestHandler
             IEpgAssetMultilingualMutator epgAssetMultilingualMutator,
             IRegionManager regionManager,
             IEpgIngestMessaging epgIngestMessaging,
-            IIngestFinalizer ingestFinalizer)
+            IIngestFinalizer ingestFinalizer,
+            IPhoenixFeatureFlag phoenixFeatureFlag)
         {
             _indexManagerFactory = indexManagerFactory;
             _ingestProtectProcessor = ingestProtectProcessor;
@@ -74,6 +79,7 @@ namespace IngestHandler
             _regionManager = regionManager ?? throw new ArgumentNullException(nameof(regionManager));
             _epgIngestMessaging = epgIngestMessaging;
             _ingestFinalizer = ingestFinalizer;
+            _phoenixFeatureFlag = phoenixFeatureFlag;
         }
 
         public async Task Handle(BulkUploadIngestEvent serviceEvent)
@@ -99,9 +105,9 @@ namespace IngestHandler
                     { "BulkUploadId", serviceEvent.BulkUploadId.ToString() },
                     { "TargetIndexName", serviceEvent.TargetIndexName}
                 };
-                var locker = new DistributedLock(serviceEvent.GroupId, lockerMetadata);
+                var locker = new DistributedLock(new LockContext(serviceEvent.GroupId, serviceEvent.UserId), _phoenixFeatureFlag, lockerMetadata);
                 _logger.Info($"HandleIngestCrudOperations completed, unlocking current TargetIndexName:[{serviceEvent.TargetIndexName}], BulkUploadId: [{_eventData.BulkUploadId}]");
-                locker.Unlock(new[] { lockKeyOfThisDay });
+                locker.Unlock(new[] { lockKeyOfThisDay }, LockInitiator.GetBulkUploadLockInitiator(serviceEvent.BulkUploadId));
             }
         }
 

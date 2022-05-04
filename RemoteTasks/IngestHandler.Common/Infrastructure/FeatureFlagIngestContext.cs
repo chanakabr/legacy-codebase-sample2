@@ -1,22 +1,17 @@
 using EventBus.Abstraction;
-using OTT.Lib.Kafka;
+using FeatureFlag;
 
-namespace IngestHandler.Common.Kafka
+namespace IngestHandler.Common.Infrastructure
 {
-    public class IngestKafkaContextProvider : IKafkaContextProvider
+    public sealed class FeatureFlagIngestContext : IFeatureFlagContext
     {
         private readonly IEventContext _eventContext;
 
-        public IngestKafkaContextProvider(IEventContext eventContext)
+        public FeatureFlagIngestContext(IEventContext eventContext)
         {
             _eventContext = eventContext;
         }
         
-        public string GetRequestId()
-        {
-            return _eventContext.RequestId;
-        }
-
         public long? GetPartnerId()
         {
             return _eventContext.GroupId;

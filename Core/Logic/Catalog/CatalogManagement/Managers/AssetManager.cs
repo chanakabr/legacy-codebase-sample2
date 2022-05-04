@@ -26,6 +26,8 @@ using ApiLogic.Api.Managers.Rule;
 using ApiLogic.Catalog;
 using ApiObjects.Rules;
 using ApiObjects.SearchPriorityGroups;
+using FeatureFlag;
+using Ott.Lib.FeatureToggle.Managers;
 using Tvinci.Core.DAL;
 using TVinciShared;
 
@@ -705,7 +707,7 @@ namespace Core.Catalog.CatalogManagement
                     string value;
                     string tagKeyToLock;
 
-                    DistributedLock _locker = new DistributedLock(groupId);
+                    DistributedLock _locker = new DistributedLock(new LockContext(groupId, userId), PhoenixFeatureFlagInstance.Get());
                     CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
 
                     // foreach missing tags insert new value using lock (BEO-9714)
@@ -716,7 +718,8 @@ namespace Core.Catalog.CatalogManagement
 
                         tagKeyToLock = $"AddTagLock_{groupId}_{topicId}_{value}".ToLower();
 
-                        if (_locker.Lock(new string[] { tagKeyToLock }, 3, 100, 180, "missingTagsLocker"))
+                        const string lockInitiator = "missingTagsLocker";
+                        if (_locker.Lock(new string[] { tagKeyToLock }, 3, 100, 180, lockInitiator, "_missing-tags-initiator"))
                         {
                             if (!couchbaseManager.IsKeyExists(tagKeyToLock))
                             {
@@ -725,7 +728,7 @@ namespace Core.Catalog.CatalogManagement
                                 couchbaseManager.Add(tagKeyToLock, string.Empty, 300);
                             }
 
-                            _locker.Unlock(new string[] { tagKeyToLock });
+                            _locker.Unlock(new[] { tagKeyToLock }, lockInitiator);
                         }
                     }
                 }
