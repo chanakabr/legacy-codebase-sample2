@@ -420,6 +420,21 @@ namespace ElasticSearch.Test
                 },
                 true,
                 "\"sort\" : [{\"_score\":{\"order\":\"desc\"}},{\"name\":{\"order\":\"desc\"}},{\"_uid\":{\"order\":\"desc\"}}]");
+            yield return new TestCaseData(
+                new List<IEsOrderByField>
+                {
+                    new EsOrderByField(OrderBy.NAME, OrderDir.DESC, new LanguageObj { Code = "eng", IsDefault = true })
+                },
+                false,
+                "\"sort\" : [{\"name\":{\"order\":\"desc\"}},{\"_uid\":{\"order\":\"desc\"}}]");
+            yield return new TestCaseData(
+                new List<IEsOrderByField>
+                {
+                    new EsOrderByField(OrderBy.CREATE_DATE, OrderDir.DESC),
+                    new EsOrderByField(OrderBy.NAME, OrderDir.DESC, new LanguageObj { Code = "arb"})
+                },
+                false,
+                "\"sort\" : [{\"create_date\":{\"order\":\"desc\"}},{\"name_arb\":{\"order\":\"desc\"}},{\"_uid\":{\"order\":\"desc\"}}]");
         }
 
         private static IEnumerable<TestCaseData> BuildExtraReturnFields()
@@ -453,6 +468,21 @@ namespace ElasticSearch.Test
                     new EsOrderBySlidingWindow(OrderBy.RATING, OrderDir.DESC, 1)
                 },
                 new[] { "metas.padded_meta2_eng" });
+            yield return new TestCaseData(
+                new IEsOrderByField[]
+                {
+                    new EsOrderByStatisticsField(OrderBy.VIEWS, OrderDir.DESC, null),
+                    new EsOrderByField(OrderBy.NAME, OrderDir.DESC, new LanguageObj { Code = "csp", IsDefault = true }),
+                },
+                new[] { "name" });
+            yield return new TestCaseData(
+                new IEsOrderByField[]
+                {
+
+                    new EsOrderByField(OrderBy.NAME, OrderDir.ASC, new LanguageObj { Code = "csp" }),
+                    new EsOrderByStatisticsField(OrderBy.VOTES_COUNT, OrderDir.DESC, null)
+                },
+                new[] { "name_csp" });
         }
     }
 }

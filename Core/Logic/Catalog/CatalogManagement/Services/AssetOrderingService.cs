@@ -291,7 +291,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
                 default:
                     return ShouldSortByStartDateOfAssociationTags(source.Field, input)
                         ? new EsOrderByStartDateAndAssociationTags(source.Direction)
-                        : (IEsOrderByField)new EsOrderByField(source.Field, source.Direction);
+                        : (IEsOrderByField)new EsOrderByField(source.Field, source.Direction, input.Language);
             }
         }
 
@@ -325,7 +325,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
                 default:
                     return ShouldSortByStartDateOfAssociationTags(order.m_eOrderBy, input)
                         ? new EsOrderByStartDateAndAssociationTags(order.m_eOrderDir)
-                        : (IEsOrderByField)new EsOrderByField(order.m_eOrderBy, order.m_eOrderDir);
+                        : (IEsOrderByField)new EsOrderByField(order.m_eOrderBy, order.m_eOrderDir, input.Language);
             }
         }
     }

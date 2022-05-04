@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Linq;
+using ApiObjects;
 using ApiObjects.SearchObjects;
 
 namespace ElasticSearch.Searcher
 {
     public class EsOrderByField : EsBaseOrderByField
     {
+        private readonly LanguageObj _language;
         private static readonly OrderBy[] ProjectableOrderings =
         {
             OrderBy.NAME,
@@ -15,10 +17,16 @@ namespace ElasticSearch.Searcher
             OrderBy.CREATE_DATE,
             OrderBy.UPDATE_DATE
         };
-        
-        public EsOrderByField(OrderBy field, OrderDir direction) : base(direction)
+
+        public EsOrderByField(OrderBy field, OrderDir direction)
+            : this (field, direction, null)
+        {
+        }
+
+        public EsOrderByField(OrderBy field, OrderDir direction, LanguageObj language) : base(direction)
         {
             OrderByField = field;
+            _language = language;
         }
 
         public OrderBy OrderByField { get; }
@@ -29,7 +37,14 @@ namespace ElasticSearch.Searcher
             {
                 if (ProjectableOrderings.Contains(OrderByField))
                 {
-                    return Enum.GetName(typeof(OrderBy), OrderByField)?.ToLower();
+                    var formattedValue = Enum.GetName(typeof(OrderBy), OrderByField)?.ToLower();
+                    // case when not default language was requested.
+                    if (OrderByField == OrderBy.NAME && _language != null && !_language.IsDefault)
+                    {
+                        return $"{formattedValue}_{_language.Code}";
+                    }
+
+                    return formattedValue;
                 }
 
                 switch (OrderByField)
