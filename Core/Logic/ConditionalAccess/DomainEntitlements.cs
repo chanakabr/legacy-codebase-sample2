@@ -8,9 +8,8 @@ using System.Collections.Generic;
 namespace Core.ConditionalAccess
 {
     [Serializable]
-    public class DomainEntitlements
+    public class DomainEntitlements : DomainEntitlementsCache
     {
-
         [JsonProperty("DomainPpvEntitlements")]
         internal PPVEntitlements DomainPpvEntitlements { get; set; }
         [JsonProperty("DomainBundleEntitlements")]
@@ -40,6 +39,17 @@ namespace Core.ConditionalAccess
         {
             DomainPpvEntitlements = new PPVEntitlements();
             DomainBundleEntitlements = new BundleEntitlements();
+            PagoEntitlements = new Dictionary<long, PagoEntitlement>();
+        }
+        
+        /// <summary>
+        /// represents all the domain entitlements
+        /// </summary>        
+        public DomainEntitlements(DomainEntitlementsCache entitlementsCache)
+        {
+            DomainPpvEntitlements = new PPVEntitlements(entitlementsCache.DomainPpvEntitlements);
+            DomainBundleEntitlements = new BundleEntitlements(entitlementsCache.DomainBundleEntitlements);
+            PagoEntitlements = entitlementsCache.PagoEntitlements;
         }
 
 
@@ -47,11 +57,8 @@ namespace Core.ConditionalAccess
         ///  represents the domain ppv entitlements object
         /// </summary>
         [Serializable]
-        internal class PPVEntitlements
+        internal new class PPVEntitlements : DomainEntitlementsCache.PPVEntitlements
         {
-            [JsonProperty("EntitlementsDictionary")]
-            public Dictionary<string, EntitlementObject> EntitlementsDictionary { get; set; }
-            
             [JsonIgnore]
             public Dictionary<string, List<int>> MediaIdGroupFileTypeMapper { get; set; }
             
@@ -64,6 +71,13 @@ namespace Core.ConditionalAccess
                 MediaIdGroupFileTypeMapper = new Dictionary<string, List<int>>();
                 MediaIdToMediaFiles = new Dictionary<int, HashSet<int>>();
             }
+            
+            public PPVEntitlements(DomainEntitlementsCache.PPVEntitlements entitlements)
+            {
+                EntitlementsDictionary = entitlements.EntitlementsDictionary;
+                MediaIdGroupFileTypeMapper = new Dictionary<string, List<int>>();
+                MediaIdToMediaFiles = new Dictionary<int, HashSet<int>>();
+            }
 
         }
 
@@ -72,15 +86,8 @@ namespace Core.ConditionalAccess
         /// represents the domain bundle (subscriptions and collections) entitlements object
         /// </summary>
         [Serializable]
-        internal class BundleEntitlements
+        internal new class BundleEntitlements : DomainEntitlementsCache.BundleEntitlements
         {
-            [JsonProperty("EntitledSubscriptions")]
-            public Dictionary<string, ConditionalAccess.Utils.UserBundlePurchase> EntitledSubscriptions { get; set; }
-            [JsonProperty("EntitledCollections")]
-            public Dictionary<string, ConditionalAccess.Utils.UserBundlePurchase> EntitledCollections { get; set; }
-            [JsonProperty("EntitledPagos")]
-            public Dictionary<long, ConditionalAccess.Utils.UserBundlePurchase> EntitledPagos { get; set; }
-
             [JsonIgnore]
             public Dictionary<int, List<Subscription>> FileTypeIdToSubscriptionMappings { get; set; }
             [JsonIgnore]
@@ -104,7 +111,18 @@ namespace Core.ConditionalAccess
                 SubscriptionsData = new Dictionary<int,Subscription>();
                 CollectionsData = new Dictionary<int,Collection>();
                 ProgramAssetGroupOffersData = new Dictionary<int, ProgramAssetGroupOffer>();
-
+            }
+            
+            public BundleEntitlements(DomainEntitlementsCache.BundleEntitlements entitlement)
+            {
+                EntitledSubscriptions = entitlement.EntitledSubscriptions;
+                EntitledCollections = entitlement.EntitledCollections;
+                FileTypeIdToSubscriptionMappings = new Dictionary<int,List<Subscription>>();
+                ChannelsToSubscriptionMappings = new Dictionary<int,List<Subscription>>();
+                ChannelsToCollectionsMappings = new Dictionary<int,List<Collection>>();
+                SubscriptionsData = new Dictionary<int,Subscription>();
+                CollectionsData = new Dictionary<int,Collection>();
+                ProgramAssetGroupOffersData = new Dictionary<int, ProgramAssetGroupOffer>();
             }
         }
     }
@@ -116,14 +134,11 @@ namespace Core.ConditionalAccess
         public Dictionary<string, List<ConditionalAccess.Utils.UserBundlePurchaseWithSuspend>> EntitledSubscriptions { get; set; }
         [JsonProperty("EntitledCollections")]
         public Dictionary<string, List<ConditionalAccess.Utils.UserBundlePurchase>> EntitledCollections { get; set; }
-        [JsonProperty("EntitledPagos")]
-        public Dictionary<long, List<ConditionalAccess.Utils.UserBundlePurchase>> EntitledPagos { get; set; }
 
         public DomainBundles()
         {
             EntitledSubscriptions = new Dictionary<string, List<Utils.UserBundlePurchaseWithSuspend>>();
             EntitledCollections = new Dictionary<string, List<Utils.UserBundlePurchase>>();
-            EntitledPagos = new Dictionary<long, List<Utils.UserBundlePurchase>>();
         }
     }
 }

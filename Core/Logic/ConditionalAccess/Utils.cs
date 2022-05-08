@@ -4254,9 +4254,9 @@ namespace Core.ConditionalAccess
             return res;
         }
 
-        internal static DomainEntitlements.PPVEntitlements InitializeDomainPpvs(int groupId, int domainId, List<int> allUsersInDomain, MeidaMaper[] mapper)
+        internal static DomainEntitlementsCache.PPVEntitlements InitializeDomainPpvs(int groupId, int domainId, List<int> allUsersInDomain)
         {
-            DomainEntitlements.PPVEntitlements domainPpvEntitlements = new DomainEntitlements.PPVEntitlements();
+            DomainEntitlementsCache.PPVEntitlements domainPpvEntitlements = new DomainEntitlementsCache.PPVEntitlements();
             try
             {
                 // Get all user entitlements
@@ -4296,7 +4296,7 @@ namespace Core.ConditionalAccess
             return relatedFileTypes.ToList();
         }
 
-        internal static void GetAllUserBundles(int nGroupID, int domainID, List<int> lstUserIDs, DomainEntitlements.BundleEntitlements userBundleEntitlements)
+        internal static void GetAllUserBundles(int nGroupID, int domainID, List<int> lstUserIDs, ref DomainEntitlementsCache.BundleEntitlements userBundleEntitlements)
         {
             DataSet dataSet = ConditionalAccessDAL.Get_AllBundlesInfoByUserIDsOrDomainID(domainID, lstUserIDs, nGroupID);
             if (dataSet != null && IsBundlesDataSetValid(dataSet))
@@ -4410,16 +4410,17 @@ namespace Core.ConditionalAccess
             }
         }
 
-        internal static DomainEntitlements.BundleEntitlements InitializeDomainBundles(int domainId, int groupId, List<int> allUsersInDomain, bool shouldPopulateBundles)
+        internal static DomainEntitlementsCache.BundleEntitlements InitializeDomainBundles(int domainId, int groupId, List<int> allUsersInDomain)
         {
-            DomainEntitlements.BundleEntitlements domainBundleEntitlements = new DomainEntitlements.BundleEntitlements();
+            DomainEntitlementsCache.BundleEntitlements domainBundleEntitlements = new DomainEntitlementsCache.BundleEntitlements();
             try
             {
-                GetAllUserBundles(groupId, domainId, allUsersInDomain, domainBundleEntitlements);
-                if (shouldPopulateBundles)
-                {
-                    PopulateDomainBundles(domainId, groupId, domainBundleEntitlements);
-                }
+                GetAllUserBundles(groupId, domainId, allUsersInDomain, ref domainBundleEntitlements);
+                //removed didn't find any usage for that
+                // if (shouldPopulateBundles)
+                // {
+                //     PopulateDomainBundles(domainId, groupId, domainBundleEntitlements);
+                // }
             }
             catch (Exception ex)
             {
@@ -8473,7 +8474,7 @@ namespace Core.ConditionalAccess
         internal static bool TryGetDomainEntitlementsFromCache(int groupId, int domainId, MeidaMaper[] mapperMapperList, ref DomainEntitlements domainEntitlements)
         {
             bool result = false;
-
+            DomainEntitlementsCache entitlementsFromCache = null;
             try
             {
                 string key = LayeredCacheKeys.GetDomainEntitlementsKey(groupId, domainId);
@@ -8486,19 +8487,20 @@ namespace Core.ConditionalAccess
 
                 if (domainId == 0)
                 {
-                    domainEntitlements = new DomainEntitlements();
+                    entitlementsFromCache = new DomainEntitlementsCache();
                     result = true;
                 }
                 else
                 {
-                    Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId }, { "mapper", mapperMapperList } };
-                    result = LayeredCache.Instance.Get<DomainEntitlements>(key, ref domainEntitlements, InitializeDomainEntitlements, funcParams, groupId,
+                    Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId } };
+                    result = LayeredCache.Instance.Get<DomainEntitlementsCache>(key, ref entitlementsFromCache, InitializeDomainEntitlements, funcParams, groupId,
                                                                         LayeredCacheConfigNames.GET_DOMAIN_ENTITLEMENTS_LAYERED_CACHE_CONFIG_NAME,
                                                                         new List<string>() { LayeredCacheKeys.GetDomainEntitlementInvalidationKey(groupId, domainId) });
                 }
-
-                if (result && domainEntitlements != null)
+                
+                if (result && entitlementsFromCache != null)
                 {
+                    domainEntitlements = new DomainEntitlements(entitlementsFromCache);
                     // remove expired PPV's
                     if (domainEntitlements.DomainPpvEntitlements != null && domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary != null)
                     {
@@ -8518,7 +8520,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // remove expired pago's
-                    if (domainEntitlements.PagoEntitlements != null && domainEntitlements.PagoEntitlements != null)
+                    if (domainEntitlements.PagoEntitlements != null && domainEntitlements.PagoEntitlements.Any())
                     {
                         List<long> keysToRemove = new List<long>();
                         foreach (KeyValuePair<long, PagoEntitlement> pair in domainEntitlements.PagoEntitlements)
@@ -8654,23 +8656,22 @@ namespace Core.ConditionalAccess
             return result && domainEntitlements != null;
         }
 
-        private static Tuple<DomainEntitlements, bool> InitializeDomainEntitlements(Dictionary<string, object> funcParams)
+        private static Tuple<DomainEntitlementsCache, bool> InitializeDomainEntitlements(Dictionary<string, object> funcParams)
         {
-            DomainEntitlements domainEntitlements = null;
+            DomainEntitlementsCache domainEntitlements = null;
             try
             {
-                if (funcParams != null && funcParams.Count == 3 && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("domainId") && funcParams.ContainsKey("mapper"))
+                if (funcParams != null && funcParams.Count == 2 && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("domainId"))
                 {
                     int? groupId = funcParams["groupId"] as int?, domainId = funcParams["domainId"] as int?;
-                    MeidaMaper[] mapper = funcParams["mapper"] as MeidaMaper[];
-                    if (groupId.HasValue && domainId.HasValue && mapper != null)
+                    if (groupId.HasValue && domainId.HasValue)
                     {
                         List<int> usersInDomain = Utils.GetAllUsersInDomain(groupId.Value, domainId.Value);
-                        domainEntitlements = new DomainEntitlements();
+                        domainEntitlements = new DomainEntitlementsCache();
                         //Get domain PPV entitlements
-                        domainEntitlements.DomainPpvEntitlements = InitializeDomainPpvs(groupId.Value, domainId.Value, usersInDomain, mapper);
+                        domainEntitlements.DomainPpvEntitlements = InitializeDomainPpvs(groupId.Value, domainId.Value, usersInDomain);
                         //Get domain bundle entitlements
-                        domainEntitlements.DomainBundleEntitlements = InitializeDomainBundles(domainId.Value, groupId.Value, usersInDomain, false);
+                        domainEntitlements.DomainBundleEntitlements = InitializeDomainBundles(domainId.Value, groupId.Value, usersInDomain);
                         //Get domain PAGO entitlements
                         domainEntitlements.PagoEntitlements = InitializeDomainPagos(groupId.Value, domainId.Value, usersInDomain);
                     }
@@ -8684,7 +8685,7 @@ namespace Core.ConditionalAccess
 
             bool res = domainEntitlements != null;
 
-            return new Tuple<DomainEntitlements, bool>(domainEntitlements, res);
+            return new Tuple<DomainEntitlementsCache, bool>(domainEntitlements, res);
         }
 
         internal static bool TryGetFileUrlLinks(int groupId, int mediaFileID, ref string mainUrl, ref string altUrl, ref int mainStreamingCoID,
