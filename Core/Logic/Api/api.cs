@@ -8423,14 +8423,19 @@ namespace Core.Api
             }
 
             var shouldFilterByIds = roleIds?.Count > 0;
-            if (roles.Count > 0 && shouldFilterByIds)
+            List<Role> userRoles = new List<Role>();
+            if (roles.Count > 0)
             {
-                roles = roles.Where(x => roleIds.Contains(x.Id)).ToList();
+                roles.ForEach(x =>
+                {
+                    if (!shouldFilterByIds || roleIds.Contains(x.Id))
+                        userRoles.Add(x);
+                });
             }
 
             var response = new RolesResponse
             {
-                Roles = roles,
+                Roles = userRoles,
                 Status = Status.Ok
             };
 

@@ -562,10 +562,10 @@ namespace WebAPI.Managers
                 // if the ks was originally of operator - get he's roles too
                 if (appendOriginalRoles && !string.IsNullOrEmpty(ks.OriginalUserId))
                 {
-                    userRoleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, ks.OriginalUserId);
-                    if (userRoleIds != null && userRoleIds.Count > 0)
+                    var originalRoleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, ks.OriginalUserId);
+                    if (originalRoleIds != null && originalRoleIds.Count > 0)
                     {
-                        roleIds.AddRange(userRoleIds);
+                        roleIds.AddRange(originalRoleIds);
                     }
                 }
             }
