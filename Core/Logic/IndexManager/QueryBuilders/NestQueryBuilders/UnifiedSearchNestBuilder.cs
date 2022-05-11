@@ -161,7 +161,8 @@ namespace ApiLogic.IndexManager.QueryBuilders
                                     Size = topHitsSize,
                                     // order just like regular search
                                     Sort = castedSort.Value,
-                                    Source = new Union<bool, ISourceFilter>(sourceFilter)
+                                    Source = new Union<bool, ISourceFilter>(sourceFilter),
+                                    DocValueFields = returnFields
                                 }
                             );
 
