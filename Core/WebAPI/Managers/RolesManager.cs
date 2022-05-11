@@ -572,11 +572,9 @@ namespace WebAPI.Managers
             return roleIds;
         }
 
-        public static bool IsManagerAllowedAction(List<long> roleIds)
+        public static bool IsManagerAllowedAction(KS ks, List<long> roleIds)
         {
-            // check role's hierarchy 
-            var ks = KS.GetFromRequest();
-
+            // check role's hierarchy
             bool isManager = GetRoleIds(ks).Any(ur => ur == MANAGER_ROLE_ID);
 
             if (isManager)

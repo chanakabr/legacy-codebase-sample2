@@ -295,12 +295,16 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (!string.IsNullOrEmpty(user.RoleIds) && !RolesManager.IsManagerAllowedAction(user.GetRoleIds()))
+                if (!string.IsNullOrEmpty(user.RoleIds))
                 {
-                    throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN,
-                                                       Enum.GetName(typeof(WebAPI.RequestType), WebAPI.RequestType.ALL),
-                                                       "KalturaOTTUser",
-                                                       "roleIds");
+                    var ks = KS.GetFromRequest();
+                    if (ks.GroupId != partnerId || !RolesManager.IsManagerAllowedAction(ks, user.GetRoleIds()))
+                    {
+                        throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN,
+                            Enum.GetName(typeof(WebAPI.RequestType), WebAPI.RequestType.ALL),
+                            "KalturaOTTUser",
+                            "roleIds");
+                    }
                 }
 
                 response = ClientsManager.UsersClient().SignUp(partnerId, user, password);
