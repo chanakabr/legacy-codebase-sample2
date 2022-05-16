@@ -107,7 +107,7 @@ namespace ApiLogic.Tests.Api.Managers.Rule
         {
             var service = new ShopMarkerService(_catalogPartnerConfigManagerMock.Object, _topicManagerMock.Object);
 
-            var result = service.SetShopMarkerMeta(1, new Asset(), new AssetUserRule { Conditions = new List<AssetConditionBase> { new AssetCondition() } });
+            var result = service.SetShopMarkerMeta(1, new AssetStruct(), new Asset(), new AssetUserRule { Conditions = new List<AssetConditionBase> { new AssetCondition() } });
 
             result.Should().Be(Status.Error);
         }
@@ -121,9 +121,29 @@ namespace ApiLogic.Tests.Api.Managers.Rule
                 .Returns(new GenericResponse<CatalogPartnerConfig>(getShopMarkerTopicStatus));
             var service = new ShopMarkerService(_catalogPartnerConfigManagerMock.Object, _topicManagerMock.Object);
 
-            var result = service.SetShopMarkerMeta(1, new Asset(), new AssetUserRule { Conditions = new List<AssetConditionBase> { new AssetCondition(), new AssetShopCondition { Value = "shopValue" } } });
+            var result = service.SetShopMarkerMeta(1, new AssetStruct(), new Asset(), new AssetUserRule { Conditions = new List<AssetConditionBase> { new AssetCondition(), new AssetShopCondition { Value = "shopValue" } } });
 
             result.Should().Be(getShopMarkerTopicStatus);
+        }
+
+        [Test]
+        public void SetShopMarkerMeta_AssetStructNotContainsShopMarkerMeta_MetaIsNotAddedAndReturnsOk()
+        {
+            var asset = new Asset { Metas = new List<Metas> { new Metas(new TagMeta(), "metaValue") } };
+            _catalogPartnerConfigManagerMock
+                .Setup(x => x.GetCatalogConfig(1))
+                .Returns(new GenericResponse<CatalogPartnerConfig>(Status.Ok, new CatalogPartnerConfig { ShopMarkerMetaId = 2 }));
+            _topicManagerMock
+                .Setup(x => x.GetTopicsByIds(1, It.Is<List<long>>(_ => _.Count == 1 && _[0] == 2), MetaType.All))
+                .Returns(new GenericListResponse<Topic>(Status.Ok, new List<Topic> { new Topic { Id = 2, SystemName = "shopMakerTopic", Type = MetaType.Number } }));
+            var service = new ShopMarkerService(_catalogPartnerConfigManagerMock.Object, _topicManagerMock.Object);
+
+            var result = service.SetShopMarkerMeta(1, new AssetStruct { MetaIds = new List<long> { 2 } }, asset, new AssetUserRule { Conditions = new List<AssetConditionBase> { new AssetCondition(), new AssetShopCondition { Value = "shopValue" } } });
+
+            result.Should().Be(Status.Ok);
+            asset.Metas.Should().NotBeNull();
+            asset.Metas.Should().Contain(x => x.m_oTagMeta.m_sName == "shopMakerTopic" && x.m_oTagMeta.m_sType == "Number" && x.m_sValue == "shopValue");
+            asset.Metas.Count.Should().Be(2);
         }
 
         [Test]
@@ -135,10 +155,11 @@ namespace ApiLogic.Tests.Api.Managers.Rule
                 .Returns(new GenericResponse<CatalogPartnerConfig>(Status.Ok, new CatalogPartnerConfig { ShopMarkerMetaId = 2 }));
             _topicManagerMock
                 .Setup(x => x.GetTopicsByIds(1, It.Is<List<long>>(_ => _.Count == 1 && _[0] == 2), MetaType.All))
-                .Returns(new GenericListResponse<Topic>(Status.Ok, new List<Topic> { new Topic { SystemName = "shopMakerTopic", Type = MetaType.Number } }));
+
+                .Returns(new GenericListResponse<Topic>(Status.Ok, new List<Topic> { new Topic { Id = 2, SystemName = "shopMakerTopic", Type = MetaType.Number } }));
             var service = new ShopMarkerService(_catalogPartnerConfigManagerMock.Object, _topicManagerMock.Object);
 
-            var result = service.SetShopMarkerMeta(1, asset, new AssetUserRule { Conditions = new List<AssetConditionBase> { new AssetCondition(), new AssetShopCondition { Value = "shopValue" } } });
+            var result = service.SetShopMarkerMeta(1, new AssetStruct { MetaIds = new List<long> { 2 } }, asset, new AssetUserRule { Conditions = new List<AssetConditionBase> { new AssetCondition(), new AssetShopCondition { Value = "shopValue" } } });
 
             result.Should().Be(Status.Ok);
             asset.Metas.Should().NotBeNull();
@@ -157,8 +178,7 @@ namespace ApiLogic.Tests.Api.Managers.Rule
                 .Setup(x => x.GetTopicsByIds(1, It.Is<List<long>>(_ => _.Count == 1 && _[0] == 2), MetaType.All))
                 .Returns(new GenericListResponse<Topic>(Status.Ok, new List<Topic> { new Topic { SystemName = "shopMakerTopic", Type = MetaType.String } }));
             var service = new ShopMarkerService(_catalogPartnerConfigManagerMock.Object, _topicManagerMock.Object);
-
-            var result = service.SetShopMarkerMeta(1, asset, new AssetUserRule { Conditions = new List<AssetConditionBase> { new AssetCondition(), new AssetShopCondition { Value = "shopValue" } } });
+            var result = service.SetShopMarkerMeta(1, new AssetStruct(), asset, new AssetUserRule { Conditions = new List<AssetConditionBase> { new AssetCondition(), new AssetShopCondition { Value = "shopValue" } } });
 
             result.Should().Be(Status.Ok);
             asset.Metas.Should().NotBeNull();

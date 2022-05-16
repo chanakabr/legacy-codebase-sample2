@@ -16109,26 +16109,37 @@ namespace Core.ConditionalAccess
                         }
                     }
 
-                    long minProtectionEpoch = RecordingsDAL.GetRecordingMinProtectedEpoch(task.RecordingId, task.ScheduledExpirationEpoch);
+                    var _recordingDuration = (recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
+                    var isUpdate = task.OldRecordingDuration > 0 && task.OldRecordingDuration != _recordingDuration;
 
-                    // add recording schedule task for next min protected date
-                    if (minProtectionEpoch > 0)
+                    if (!isUpdate)
                     {
-                        if (!RecordingsDAL.InsertExpiredRecordingNextTask(task.RecordingId, task.GroupId, minProtectionEpoch, TVinciShared.DateUtils.UtcUnixTimestampSecondsToDateTime(minProtectionEpoch)))
+                        var minProtectionEpoch = RecordingsDAL.GetRecordingMinProtectedEpoch(task.RecordingId, task.ScheduledExpirationEpoch);
+                        
+                        // add recording schedule task for next min protected date
+                        if (minProtectionEpoch > 0)
                         {
-                            log.ErrorFormat("failed InsertExpiredRecordingNextTask for recordingId: {0}, minProtectionDate {1}", task.RecordingId, minProtectionEpoch);
+                            if (!RecordingsDAL.InsertExpiredRecordingNextTask(task.RecordingId, task.GroupId, minProtectionEpoch, TVinciShared.DateUtils.UtcUnixTimestampSecondsToDateTime(minProtectionEpoch)))
+                            {
+                                log.ErrorFormat("failed InsertExpiredRecordingNextTask for recordingId: {0}, minProtectionDate {1}", task.RecordingId, minProtectionEpoch);
+                            }
+                        }
+                        else
+                        {
+                            log.DebugFormat("recordingId: {0} has no domain recording that protect it", task.RecordingId);
+
+                            if (!isPrivateCopy && RecordingsManager.Instance.NotifyAdapterForDelete(task.GroupId, recording, new List<long>()).IsOkStatusCode())
+                            {
+                                log.Debug($"After NotifyAdapterForDelete: groupId: {task.GroupId}, id: {recording.Id}, action: {eAction.Delete}");
+                                RecordingsManager.UpdateIndex(task.GroupId, recording.Id, eAction.Delete);
+                                RecordingsManager.UpdateCouchbase(task.GroupId, recording.EpgId, recording.Id, true);
+                            }
                         }
                     }
                     else
                     {
-                        log.DebugFormat("recordingId: {0} has no domain recording that protect it", task.RecordingId);
-
-                        if (!isPrivateCopy && RecordingsManager.Instance.NotifyAdapterForDelete(task.GroupId, recording, new List<long>()).IsOkStatusCode())
-                        {
-                            log.Debug($"After NotifyAdapterForDelete: groupId: {task.GroupId}, id: {recording.Id}, action: {eAction.Delete}");
-                            RecordingsManager.UpdateIndex(task.GroupId, recording.Id, eAction.Delete);
-                            RecordingsManager.UpdateCouchbase(task.GroupId, recording.EpgId, recording.Id, true);
-                        }
+                        // BEO-11375
+                        log.Debug($"recordingId: {task.RecordingId} is being updated");
                     }
                 }
 

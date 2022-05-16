@@ -53,7 +53,7 @@ namespace ApiLogic.Api.Managers.Rule
             return response;
         }
 
-        public Status SetShopMarkerMeta(long groupId, Asset asset, AssetUserRule assetUserRule)
+        public Status SetShopMarkerMeta(long groupId, AssetStruct assetStruct, Asset asset, AssetUserRule assetUserRule)
         {
             var shopCondition = assetUserRule.Conditions.OfType<AssetShopCondition>().SingleOrDefault();
             if (shopCondition == null)
@@ -68,6 +68,11 @@ namespace ApiLogic.Api.Managers.Rule
             }
 
             var shopMarkerTopic = shopMarkerTopicResponse.Object;
+            if (!assetStruct.MetaIds.Contains(shopMarkerTopic.Id))
+            {
+                return Status.Ok;
+            }
+
             var shopMeta = asset.Metas.SingleOrDefault(x => x.m_oTagMeta.m_sName == shopMarkerTopic.SystemName);
             if (shopMeta == null)
             {

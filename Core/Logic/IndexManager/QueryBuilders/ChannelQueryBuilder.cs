@@ -25,7 +25,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
     public interface IChannelQueryBuilder
     {
         MediaSearchObj BuildBaseChannelSearchObject(Channel channel);
-        UnifiedSearchDefinitions BuildSearchDefinitions(Channel channel, bool useMediaTypes);
+        UnifiedSearchDefinitions BuildSearchDefinitions(Channel channel);
 
         NestPercolatedQuery GetChannelQuery(Channel currentChannel);
         string GetChannelQueryString(ESMediaQueryBuilder mediaQueryParser, ESUnifiedQueryBuilder unifiedQueryBuilder, Channel currentChannel);
@@ -95,20 +95,11 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     {
                         if (currentChannel.m_nChannelTypeID == (int)ChannelType.Manual && currentChannel.AssetUserRuleId > 0)
                         {
-                            StringBuilder builder = new StringBuilder();
-                            builder.Append("(or ");
-
-                            foreach (var item in currentChannel.m_lChannelTags)
-                            {
-                                builder.AppendFormat("media_id='{0}' ", item.m_lValue);
-                            }
-
-                            builder.Append(")");
-
-                            currentChannel.filterQuery = builder.ToString();
+                            var mediaIds = currentChannel.m_lChannelTags.SelectMany(x => x.m_lValue);
+                            currentChannel.filterQuery = $"(or media_id:'{string.Join(",", mediaIds)}')";
                         }
 
-                        UnifiedSearchDefinitions definitions = BuildSearchDefinitions(currentChannel, true);
+                        UnifiedSearchDefinitions definitions = BuildSearchDefinitions(currentChannel);
 
                         definitions.shouldSearchEpg = false;
 
@@ -141,17 +132,12 @@ namespace ApiLogic.IndexManager.QueryBuilders
             return channelQuery;
         }
 
-        public UnifiedSearchDefinitions BuildSearchDefinitions(Channel channel, bool useMediaTypes)
+        public UnifiedSearchDefinitions BuildSearchDefinitions(Channel channel)
         {
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
 
             definitions.groupId = channel.m_nGroupID;
             var group = _groupManager.GetGroup(definitions.groupId);
-
-            if (useMediaTypes)
-            {
-                definitions.mediaTypes = new List<int>(channel.m_nMediaType);
-            }
 
             if (channel.m_nMediaType != null)
             {
@@ -372,20 +358,11 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 {
                     if (channel.m_nChannelTypeID == (int)ChannelType.Manual && channel.AssetUserRuleId > 0)
                     {
-                        StringBuilder builder = new StringBuilder();
-                        builder.Append("(or ");
-
-                        foreach (var item in channel.m_lChannelTags)
-                        {
-                            builder.AppendFormat("media_id='{0}' ", string.Join(",", item.m_lValue));
-                        }
-
-                        builder.Append(")");
-
-                        channel.filterQuery = builder.ToString();
+                        var mediaIds = channel.m_lChannelTags.SelectMany(x => x.m_lValue);
+                        channel.filterQuery = $"(or media_id:'{string.Join(",", mediaIds)}')";
                     }
 
-                    UnifiedSearchDefinitions definitions = BuildSearchDefinitions(channel, true);
+                    UnifiedSearchDefinitions definitions = BuildSearchDefinitions(channel);
                     definitions.shouldSearchEpg = false;
                     definitions.shouldIgnoreDeviceRuleID = true;
                     

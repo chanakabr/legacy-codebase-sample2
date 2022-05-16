@@ -860,19 +860,11 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 // validate assetStruct Exists
-                AssetStruct assetStruct = null;
-                if (assetToAdd.MediaType.m_nTypeID > 0 && catalogGroupCache.AssetStructsMapById.ContainsKey(assetToAdd.MediaType.m_nTypeID))
+                var getAssetStructResponse = GetAssetStruct(assetToAdd, catalogGroupCache);
+                var assetStruct = getAssetStructResponse.Object;
+                if (!getAssetStructResponse.IsOkStatusCode())
                 {
-                    assetStruct = catalogGroupCache.AssetStructsMapById[assetToAdd.MediaType.m_nTypeID];
-                }
-                else if (!string.IsNullOrEmpty(assetToAdd.MediaType.m_sTypeName) && catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(assetToAdd.MediaType.m_sTypeName))
-                {
-                    assetStruct = catalogGroupCache.AssetStructsMapBySystemName[assetToAdd.MediaType.m_sTypeName];
-                }
-                else
-                {
-                    result.SetStatus(eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
-                    return result;
+                    return new GenericResponse<Asset>(getAssetStructResponse.Status);
                 }
 
                 // validate asset
@@ -1216,7 +1208,7 @@ namespace Core.Catalog.CatalogManagement
             Status status = null;
             try
             {
-                if (!isForMigration)
+                if (!isForMigration && !isFromChannel)
                 {
                     status = AssetUserRuleManager.CheckAssetUserRuleList(groupId, userId, currentAsset.Id);
                     if (status == null || status.Code == (int)eResponseStatus.ActionIsNotAllowed)
@@ -1990,11 +1982,14 @@ namespace Core.Catalog.CatalogManagement
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-            Status status = AssetUserRuleManager.CheckAssetUserRuleList(groupId, userId, mediaId);
-            if (status == null || status.Code == (int)eResponseStatus.ActionIsNotAllowed)
+            if (!isFromChannel)
             {
-                result.Set((int)eResponseStatus.ActionIsNotAllowed, ACTION_IS_NOT_ALLOWED);
-                return result;
+                var status = AssetUserRuleManager.CheckAssetUserRuleList(groupId, userId, mediaId);
+                if (status == null || status.Code == (int)eResponseStatus.ActionIsNotAllowed)
+                {
+                    result.Set((int)eResponseStatus.ActionIsNotAllowed, ACTION_IS_NOT_ALLOWED);
+                    return result;
+                }
             }
 
             if (currentAsset == null)
@@ -3056,22 +3051,10 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                var getAssetUserRulesResponse = AssetUserRuleManager.GetAssetUserRuleList(groupId, userId, ruleConditionType: RuleConditionType.AssetShop);
-                if (getAssetUserRulesResponse.IsOkStatusCode())
+                var setShopMetaStatus = TrySetShopMeta(groupId, assetToAdd, catalogGroupCache, userId);
+                if (!setShopMetaStatus.IsOkStatusCode())
                 {
-                    var shopAssetRule = getAssetUserRulesResponse.Objects?.FirstOrDefault();
-                    if (shopAssetRule != null)
-                    {
-                        var setShopMarkerMetaResponse = ShopMarkerService.Instance.SetShopMarkerMeta(groupId, assetToAdd, shopAssetRule);
-                        if (!setShopMarkerMetaResponse.IsOkStatusCode())
-                        {
-                            return new GenericResponse<Asset>(setShopMarkerMetaResponse);
-                        }
-                    }
-                }
-                else
-                {
-                    return new GenericResponse<Asset>(getAssetUserRulesResponse.Status);
+                    return new GenericResponse<Asset>(setShopMetaStatus);
                 }
 
                 switch (assetToAdd.AssetType)
@@ -3480,6 +3463,65 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
+        }
+
+        private static Status TrySetShopMeta(int groupId, Asset asset, CatalogGroupCache catalogGroupCache, long userId)
+        {
+            var getAssetUserRulesResponse = AssetUserRuleManager.GetAssetUserRuleList(groupId, userId, ruleConditionType: RuleConditionType.AssetShop);
+            if (!getAssetUserRulesResponse.IsOkStatusCode())
+            {
+                return getAssetUserRulesResponse.Status;
+            }
+
+            var shopAssetRule = getAssetUserRulesResponse.Objects?.FirstOrDefault();
+            if (shopAssetRule == null)
+            {
+                return Status.Ok;
+            }
+
+            var getAssetStructResponse = GetAssetStruct(asset, catalogGroupCache);
+            if (!getAssetStructResponse.IsOkStatusCode())
+            {
+                return getAssetStructResponse.Status;
+            }
+
+            if (!getAssetStructResponse.HasObject())
+            {
+                return Status.Ok;
+            }
+
+            var response = ShopMarkerService.Instance.SetShopMarkerMeta(groupId, getAssetStructResponse.Object, asset, shopAssetRule);
+
+            return response;
+        }
+
+        private static GenericResponse<AssetStruct> GetAssetStruct(Asset asset, CatalogGroupCache catalogGroupCache)
+        {
+            if (asset is MediaAsset mediaAsset)
+            {
+                if (mediaAsset.MediaType.m_nTypeID > 0
+                    && catalogGroupCache.AssetStructsMapById.TryGetValue(mediaAsset.MediaType.m_nTypeID, out var assetStructById))
+                {
+                    return new GenericResponse<AssetStruct>(Status.Ok, assetStructById);
+                }
+
+                if (!string.IsNullOrEmpty(mediaAsset.MediaType.m_sTypeName)
+                    && catalogGroupCache.AssetStructsMapBySystemName.TryGetValue(mediaAsset.MediaType.m_sTypeName, out var assetStructByName))
+                {
+                    return new GenericResponse<AssetStruct>(Status.Ok, assetStructByName);
+                }
+
+                return new GenericResponse<AssetStruct>(eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
+            }
+
+            if (asset is EpgAsset)
+            {
+                var epgAssetStruct = catalogGroupCache.AssetStructsMapById[catalogGroupCache.GetProgramAssetStructId()];
+
+                return new GenericResponse<AssetStruct>(Status.Ok, epgAssetStruct);
+            }
+
+            return new GenericResponse<AssetStruct>(Status.Ok);
         }
 
         /// <summary>

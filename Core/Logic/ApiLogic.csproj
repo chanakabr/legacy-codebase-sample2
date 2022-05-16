@@ -19,7 +19,7 @@
     <PackageReference Include="DeepCloner" Version="0.10.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />    
     <PackageReference Include="morelinq" Version="3.3.2" />    
-    <PackageReference Include="Phx.Lib.Appconfig" Version="1.4.2" />
+    <PackageReference Include="Phx.Lib.Appconfig" Version="1.4.5" />
     <PackageReference Include="ott.client.offers.grpc" Version="0.1.2" />
     <PackageReference Include="System.Runtime.Caching" Version="4.5.0" />
   </ItemGroup>

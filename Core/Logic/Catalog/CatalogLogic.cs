@@ -7798,8 +7798,11 @@ namespace Core.Catalog
                         }
 
                         string loweredValue = leaf.value.ToString().ToLower();
-
-                        definitions.entitlementSearchDefinitions = new EntitlementSearchDefinitions();
+                        
+                        if (definitions.entitlementSearchDefinitions == null) 
+                        {
+                            definitions.entitlementSearchDefinitions = new EntitlementSearchDefinitions();
+                        }
 
                         switch (loweredValue)
                         {

@@ -34,7 +34,10 @@ namespace PlaybackAdapter
             Subscription,
 
             [EnumMember]
-            Collection
+            Collection,
+
+            [EnumMember]
+            PAGO
         }
     }
 }

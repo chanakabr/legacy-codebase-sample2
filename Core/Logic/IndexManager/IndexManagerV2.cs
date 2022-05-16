@@ -5611,20 +5611,11 @@ namespace Core.Catalog
                                 {
                                     if (currentChannel.m_nChannelTypeID == (int)ChannelType.Manual && currentChannel.AssetUserRuleId > 0)
                                     {
-                                        StringBuilder builder = new StringBuilder();
-                                        builder.Append("(or ");
-
-                                        foreach (var item in currentChannel.m_lChannelTags)
-                                        {
-                                            builder.AppendFormat("media_id='{0}' ", item.m_lValue);
-                                        }
-
-                                        builder.Append(")");
-
-                                        currentChannel.filterQuery = builder.ToString();
+                                        var mediaIds = currentChannel.m_lChannelTags.SelectMany(x => x.m_lValue);
+                                        currentChannel.filterQuery = $"(or media_id:'{string.Join(",", mediaIds)}')";
                                     }
 
-                                    UnifiedSearchDefinitions definitions = BuildSearchDefinitions(currentChannel, true);
+                                    UnifiedSearchDefinitions definitions = BuildSearchDefinitions(currentChannel);
 
                                     definitions.shouldSearchEpg = false;
 
@@ -7520,20 +7511,11 @@ namespace Core.Catalog
                 {
                     if (channel.m_nChannelTypeID == (int)ChannelType.Manual && channel.AssetUserRuleId > 0)
                     {
-                        StringBuilder builder = new StringBuilder();
-                        builder.Append("(or ");
-
-                        foreach (var item in channel.m_lChannelTags)
-                        {
-                            builder.AppendFormat("media_id='{0}' ", item.m_lValue);
-                        }
-
-                        builder.Append(")");
-
-                        channel.filterQuery = builder.ToString();
+                        var mediaIds = channel.m_lChannelTags.SelectMany(x => x.m_lValue);
+                        channel.filterQuery = $"(or media_id:'{string.Join(",", mediaIds)}')";
                     }
 
-                    UnifiedSearchDefinitions definitions = _channelQueryBuilder.BuildSearchDefinitions(channel, true);
+                    UnifiedSearchDefinitions definitions = _channelQueryBuilder.BuildSearchDefinitions(channel);
 
                     isMedia = definitions.shouldSearchMedia;
                     isEpg = definitions.shouldSearchEpg;
@@ -7631,16 +7613,11 @@ namespace Core.Catalog
         }
 
 
-        private UnifiedSearchDefinitions BuildSearchDefinitions(Channel channel, bool useMediaTypes)
+        private UnifiedSearchDefinitions BuildSearchDefinitions(Channel channel)
         {
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
 
             definitions.groupId = channel.m_nGroupID;
-
-            if (useMediaTypes)
-            {
-                definitions.mediaTypes = new List<int>(channel.m_nMediaType);
-            }
 
             if (channel.m_nMediaType != null)
             {
