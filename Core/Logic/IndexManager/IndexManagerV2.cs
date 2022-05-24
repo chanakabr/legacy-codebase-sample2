@@ -236,11 +236,10 @@ namespace Core.Catalog
                 var catalogGroupCache = GetCatalogGroupCache();
                 languagesMap = new Dictionary<int, LanguageObj>(catalogGroupCache.LanguageMapById);
 
-                var metas = catalogGroupCache.TopicsMapById.Values.Where(x => x.Type == ApiObjects.MetaType.Number).Select(y => y.SystemName).ToList();
-                if (metas?.Count > 0)
-                {
-                    metasToPad = new HashSet<string>(metas);
-                }
+                metasToPad = catalogGroupCache.TopicsMapById.Values
+                    .Where(x => x.Type == ApiObjects.MetaType.Number)
+                    .Select(y => y.SystemName.ToLower())
+                    .ToHashSet();
             }
             else
             {
@@ -604,17 +603,24 @@ namespace Core.Catalog
                 CatalogGroupCache catalogGroupCache = null;
                 Group groupManager = null;
                 List<LanguageObj> languages;
+                HashSet<string> metasToPad;
 
                 if (groupUsesTemplates)
                 {
                     catalogGroupCache = GetCatalogGroupCache();
                     languages = catalogGroupCache.LanguageMapById.Values.ToList();
 
+                    metasToPad = catalogGroupCache.TopicsMapById.Values
+                        .Where(x => x.Type == ApiObjects.MetaType.Number)
+                        .Select(y => y.SystemName.ToLower())
+                        .ToHashSet();
                 }
                 else
                 {
                     groupManager = GetGroupManager();
                     languages = groupManager.GetLangauges();
+
+                    metasToPad = GetMetasToPad();
                 }
 
                 if (languages == null)
@@ -668,6 +674,8 @@ namespace Core.Catalog
                             // Create bulk request object for each program
                             foreach (EpgCB epg in currentLanguageEpgs)
                             {
+                                epg.PadMetas(metasToPad);
+
                                 // Epg V2 has multiple indices connected to the gloabl alias {groupID}_epg
                                 // in that case we need to use the specific date alias for each epg item to update
                                 if (isIngestV2)
