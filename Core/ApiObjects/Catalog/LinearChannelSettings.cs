@@ -22,6 +22,10 @@ namespace ApiObjects.Catalog
 
         public long CatchUpBuffer { get; set; }
 
+        public long PaddingBeforeProgramStarts { get; set; }
+
+        public long PaddingAfterProgramEnds { get; set; }
+
         public long TrickPlayBuffer { get; set; }
 
         public bool EnableRecordingPlaybackNonEntitledChannel { get; set; }

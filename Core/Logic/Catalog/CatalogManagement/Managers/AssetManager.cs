@@ -1783,14 +1783,27 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static GenericResponse<Asset> AddLinearMediaAsset(int groupId, MediaAsset mediaAsset, LiveAsset linearMediaAssetToAdd, long userId)
+        private static GenericResponse<Asset> AddLinearMediaAsset(int groupId, MediaAsset mediaAsset, LiveAsset assetToAdd, long userId)
         {
             GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
             {
-                DataTable dt = CatalogDAL.InsertLinearMediaAsset(groupId, linearMediaAssetToAdd.EnableCdvrState, linearMediaAssetToAdd.EnableCatchUpState, linearMediaAssetToAdd.EnableRecordingPlaybackNonEntitledChannelState,
-                                                                linearMediaAssetToAdd.EnableStartOverState, linearMediaAssetToAdd.EnableTrickPlayState, linearMediaAssetToAdd.BufferCatchUp, linearMediaAssetToAdd.BufferTrickPlay,
-                                                                linearMediaAssetToAdd.ExternalCdvrId, linearMediaAssetToAdd.ExternalEpgIngestId, mediaAsset.Id, linearMediaAssetToAdd.ChannelType, userId);
+                DataTable dt = CatalogDAL.InsertLinearMediaAsset(
+                    groupId,
+                    assetToAdd.EnableCdvrState,
+                    assetToAdd.EnableCatchUpState,
+                    assetToAdd.EnableRecordingPlaybackNonEntitledChannelState,
+                    assetToAdd.EnableStartOverState,
+                    assetToAdd.EnableTrickPlayState,
+                    assetToAdd.BufferCatchUp,
+                    assetToAdd.PaddingBeforeProgramStarts,
+                    assetToAdd.PaddingAfterProgramEnds,
+                    assetToAdd.BufferTrickPlay,
+                    assetToAdd.ExternalCdvrId,
+                    assetToAdd.ExternalEpgIngestId,
+                    mediaAsset.Id,
+                    assetToAdd.ChannelType,
+                    userId);
                 result.Object = MediaAssetServiceLazy.Value.CreateLinearMediaAsset(groupId, mediaAsset, dt);
                 if (result.Object != null)
                 {
@@ -1806,22 +1819,34 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed AddLinearMediaAsset for groupId: {0} and asset: {1}", groupId, linearMediaAssetToAdd.ToString()), ex);
+                log.Error(string.Format("Failed AddLinearMediaAsset for groupId: {0} and asset: {1}", groupId, assetToAdd.ToString()), ex);
             }
 
             return result;
         }
 
-        private static GenericResponse<Asset> UpdateLinearMediaAsset(int groupId, MediaAsset mediaAsset, LiveAsset linearMediaAssetToUpdate, long userId, bool isForMigration = false)
+        private static GenericResponse<Asset> UpdateLinearMediaAsset(int groupId, MediaAsset mediaAsset, LiveAsset assetToUpdate, long userId, bool isForMigration = false)
         {
             GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
             {
-                DataTable dt = CatalogDAL.UpdateLinearMediaAsset(groupId, mediaAsset.Id, linearMediaAssetToUpdate.EnableCdvrState, linearMediaAssetToUpdate.EnableCatchUpState,
-                                                                linearMediaAssetToUpdate.EnableRecordingPlaybackNonEntitledChannelState, linearMediaAssetToUpdate.EnableStartOverState,
-                                                                linearMediaAssetToUpdate.EnableTrickPlayState, linearMediaAssetToUpdate.BufferCatchUp, linearMediaAssetToUpdate.BufferTrickPlay,
-                                                                linearMediaAssetToUpdate.ExternalCdvrId, linearMediaAssetToUpdate.ExternalEpgIngestId, linearMediaAssetToUpdate.ChannelType, userId);
-                result.Object = MediaAssetServiceLazy.Value.CreateLinearMediaAsset(groupId, mediaAsset, dt, linearMediaAssetToUpdate.EpgChannelId);
+                DataTable dt = CatalogDAL.UpdateLinearMediaAsset(
+                    groupId,
+                    mediaAsset.Id,
+                    assetToUpdate.EnableCdvrState,
+                    assetToUpdate.EnableCatchUpState,
+                    assetToUpdate.EnableRecordingPlaybackNonEntitledChannelState,
+                    assetToUpdate.EnableStartOverState,
+                    assetToUpdate.EnableTrickPlayState,
+                    assetToUpdate.BufferCatchUp,
+                    assetToUpdate.PaddingBeforeProgramStarts,
+                    assetToUpdate.PaddingAfterProgramEnds,
+                    assetToUpdate.BufferTrickPlay,
+                    assetToUpdate.ExternalCdvrId,
+                    assetToUpdate.ExternalEpgIngestId,
+                    assetToUpdate.ChannelType,
+                    userId);
+                result.Object = MediaAssetServiceLazy.Value.CreateLinearMediaAsset(groupId, mediaAsset, dt, assetToUpdate.EpgChannelId);
 
                 if (result.Object != null)
                 {
@@ -1844,7 +1869,7 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed UpdateLinearMediaAsset for groupId: {0} and asset: {1}", groupId, linearMediaAssetToUpdate.ToString()), ex);
+                log.Error(string.Format("Failed UpdateLinearMediaAsset for groupId: {0} and asset: {1}", groupId, assetToUpdate.ToString()), ex);
             }
 
             return result;
@@ -3211,6 +3236,8 @@ namespace Core.Catalog.CatalogManagement
                                     linearMediaAssetToUpdate.EnableStartOverState = oldLiveAsset.EnableStartOverState;
                                     linearMediaAssetToUpdate.EnableTrickPlayState = oldLiveAsset.EnableTrickPlayState;
                                     linearMediaAssetToUpdate.BufferCatchUp = oldLiveAsset.BufferCatchUp;
+                                    linearMediaAssetToUpdate.PaddingBeforeProgramStarts = oldLiveAsset.PaddingBeforeProgramStarts;
+                                    linearMediaAssetToUpdate.PaddingAfterProgramEnds = oldLiveAsset.PaddingAfterProgramEnds;
                                     linearMediaAssetToUpdate.BufferTrickPlay = oldLiveAsset.BufferTrickPlay;
                                     linearMediaAssetToUpdate.ChannelType = oldLiveAsset.ChannelType;
                                 }

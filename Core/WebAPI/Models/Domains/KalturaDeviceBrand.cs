@@ -30,9 +30,9 @@ namespace WebAPI.Models.Domains
         /// <summary>
         /// Device family identifier
         /// </summary>
-        [DataMember(Name = "deviceFamilyId")]
-        [JsonProperty("deviceFamilyId")]
-        [XmlElement(ElementName = "deviceFamilyId")]
+        [DataMember(Name = "deviceFamilyid")]
+        [JsonProperty("deviceFamilyid")]
+        [XmlElement(ElementName = "deviceFamilyid")]
         public long? DeviceFamilyId { get; set; }
 
         /// <summary>

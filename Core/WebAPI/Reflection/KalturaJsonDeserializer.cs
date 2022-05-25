@@ -23994,6 +23994,34 @@ namespace WebAPI.Models.Catalog
             MinItems = -1,
             MaxItems = -1,
         };
+        private static RuntimeSchemePropertyAttribute PaddingBeforeProgramStartsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 7,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinLong = 0,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute PaddingAfterProgramEndsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 7,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinLong = 0,
+            MinItems = -1,
+            MaxItems = -1,
+        };
         private static RuntimeSchemePropertyAttribute BufferTrickPlaySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
             ReadOnly = false,
@@ -24206,6 +24234,16 @@ namespace WebAPI.Models.Catalog
                 {
                     BufferCatchUpSchemaProperty.Validate("bufferCatchUpSetting", parameters["bufferCatchUpSetting"]);
                     BufferCatchUp = (Int64) Convert.ChangeType(parameters["bufferCatchUpSetting"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("paddingBeforeProgramStarts") && parameters["paddingBeforeProgramStarts"] != null)
+                {
+                    PaddingBeforeProgramStartsSchemaProperty.Validate("paddingBeforeProgramStarts", parameters["paddingBeforeProgramStarts"]);
+                    PaddingBeforeProgramStarts = (Int64) Convert.ChangeType(parameters["paddingBeforeProgramStarts"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("paddingAfterProgramEnds") && parameters["paddingAfterProgramEnds"] != null)
+                {
+                    PaddingAfterProgramEndsSchemaProperty.Validate("paddingAfterProgramEnds", parameters["paddingAfterProgramEnds"]);
+                    PaddingAfterProgramEnds = (Int64) Convert.ChangeType(parameters["paddingAfterProgramEnds"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("bufferTrickPlaySetting") && parameters["bufferTrickPlaySetting"] != null)
                 {
@@ -38552,9 +38590,9 @@ namespace WebAPI.Models.Domains
                 {
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
-                if (parameters.ContainsKey("deviceFamilyId") && parameters["deviceFamilyId"] != null)
+                if (parameters.ContainsKey("deviceFamilyid") && parameters["deviceFamilyid"] != null)
                 {
-                    DeviceFamilyId = (Int64) Convert.ChangeType(parameters["deviceFamilyId"], typeof(Int64));
+                    DeviceFamilyId = (Int64) Convert.ChangeType(parameters["deviceFamilyid"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {

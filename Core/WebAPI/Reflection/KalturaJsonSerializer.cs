@@ -28681,6 +28681,14 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("externalEpgIngestId", "\"externalEpgIngestId\": " + "\"" + EscapeJson(ExternalEpgIngestId) + "\"");
             }
+            if(PaddingAfterProgramEnds.HasValue && (retrievedProperties == null || retrievedProperties.Contains("paddingAfterProgramEnds")))
+            {
+                ret.Add("paddingAfterProgramEnds", "\"paddingAfterProgramEnds\": " + PaddingAfterProgramEnds);
+            }
+            if(PaddingBeforeProgramStarts.HasValue && (retrievedProperties == null || retrievedProperties.Contains("paddingBeforeProgramStarts")))
+            {
+                ret.Add("paddingBeforeProgramStarts", "\"paddingBeforeProgramStarts\": " + PaddingBeforeProgramStarts);
+            }
             if((retrievedProperties == null || retrievedProperties.Contains("enableRecordingPlaybackNonEntitledChannel")))
             {
                 ret.Add("enableRecordingPlaybackNonEntitledChannel", "\"enableRecordingPlaybackNonEntitledChannel\": " + RecordingPlaybackNonEntitledChannelEnabled.ToString().ToLower());
@@ -28763,6 +28771,14 @@ namespace WebAPI.Models.Catalog
             if(ExternalEpgIngestId != null && (retrievedProperties == null || retrievedProperties.Contains("externalEpgIngestId")))
             {
                 ret.Add("externalEpgIngestId", "<externalEpgIngestId>" + EscapeXml(ExternalEpgIngestId) + "</externalEpgIngestId>");
+            }
+            if(PaddingAfterProgramEnds.HasValue && (retrievedProperties == null || retrievedProperties.Contains("paddingAfterProgramEnds")))
+            {
+                ret.Add("paddingAfterProgramEnds", "<paddingAfterProgramEnds>" + PaddingAfterProgramEnds + "</paddingAfterProgramEnds>");
+            }
+            if(PaddingBeforeProgramStarts.HasValue && (retrievedProperties == null || retrievedProperties.Contains("paddingBeforeProgramStarts")))
+            {
+                ret.Add("paddingBeforeProgramStarts", "<paddingBeforeProgramStarts>" + PaddingBeforeProgramStarts + "</paddingBeforeProgramStarts>");
             }
             if((retrievedProperties == null || retrievedProperties.Contains("enableRecordingPlaybackNonEntitledChannel")))
             {
@@ -44518,9 +44534,9 @@ namespace WebAPI.Models.Domains
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(DeviceFamilyId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("deviceFamilyId")))
+            if(DeviceFamilyId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("deviceFamilyid")))
             {
-                ret.Add("deviceFamilyId", "\"deviceFamilyId\": " + DeviceFamilyId);
+                ret.Add("deviceFamilyid", "\"deviceFamilyid\": " + DeviceFamilyId);
             }
             if(Id.HasValue && (retrievedProperties == null || retrievedProperties.Contains("id")))
             {
@@ -44548,9 +44564,9 @@ namespace WebAPI.Models.Domains
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(DeviceFamilyId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("deviceFamilyId")))
+            if(DeviceFamilyId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("deviceFamilyid")))
             {
-                ret.Add("deviceFamilyId", "<deviceFamilyId>" + DeviceFamilyId + "</deviceFamilyId>");
+                ret.Add("deviceFamilyid", "<deviceFamilyid>" + DeviceFamilyId + "</deviceFamilyid>");
             }
             if(Id.HasValue && (retrievedProperties == null || retrievedProperties.Contains("id")))
             {

@@ -473,6 +473,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId))
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.CoGuid))
                 .ForMember(dest => dest.SummedCatchUpBuffer, opt => opt.MapFrom(src => src.CatchUpBuffer))
+                .ForMember(dest => dest.PaddingBeforeProgramStarts, opt => opt.MapFrom(src => src.PaddingBeforeProgramStarts))
+                .ForMember(dest => dest.PaddingBeforeProgramStarts, opt => opt.MapFrom(src => src.PaddingAfterProgramEnds))
                 .ForMember(dest => dest.BufferTrickPlay, opt => opt.Ignore())
                 .ForMember(dest => dest.BufferCatchUp, opt => opt.Ignore())
                 .ForMember(dest => dest.CatchUpEnabled, opt => opt.MapFrom(src => src.EnableCatchUp))
@@ -583,6 +585,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.SummedCatchUpBuffer, opt => opt.MapFrom(src => src.SummedCatchUpBuffer))
                 .ForMember(dest => dest.SummedTrickPlayBuffer, opt => opt.MapFrom(src => src.SummedTrickPlayBuffer))
                 .ForMember(dest => dest.BufferCatchUp, opt => opt.MapFrom(src => src.BufferCatchUp))
+                .ForMember(dest => dest.PaddingBeforeProgramStarts, opt => opt.MapFrom(src => src.PaddingBeforeProgramStarts))
+                .ForMember(dest => dest.PaddingAfterProgramEnds, opt => opt.MapFrom(src => src.PaddingAfterProgramEnds))
                 .ForMember(dest => dest.CatchUpEnabled, opt => opt.MapFrom(src => src.CatchUpEnabled))
                 .ForMember(dest => dest.CdvrEnabled, opt => opt.MapFrom(src => src.CdvrEnabled))
                 .ForMember(dest => dest.EnableCatchUpState, opt => opt.ResolveUsing(src => ConvertToTstvState(src.EnableCatchUpState)))
@@ -663,6 +667,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.SummedCatchUpBuffer, opt => opt.MapFrom(src => src.SummedCatchUpBuffer))
                 .ForMember(dest => dest.BufferTrickPlay, opt => opt.MapFrom(src => src.BufferTrickPlay))
                 .ForMember(dest => dest.BufferCatchUp, opt => opt.MapFrom(src => src.BufferCatchUp))
+                .ForMember(dest => dest.PaddingBeforeProgramStarts, opt => opt.MapFrom(src => src.PaddingBeforeProgramStarts))
+                .ForMember(dest => dest.PaddingAfterProgramEnds, opt => opt.MapFrom(src => src.PaddingAfterProgramEnds))
                 .ForMember(dest => dest.CatchUpEnabled, opt => opt.MapFrom(src => src.CatchUpEnabled))
                 .ForMember(dest => dest.CdvrEnabled, opt => opt.MapFrom(src => src.CdvrEnabled))
                 .ForMember(dest => dest.EnableCatchUpState, opt => opt.ResolveUsing(src => ConvertToKalturaTimeShiftedTvState(src.EnableCatchUpState)))
@@ -2929,6 +2935,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             extraParams.Add("catch_up_buffer", new KalturaStringValue() { value = media.CatchUpBuffer.ToString() });
             extraParams.Add("trick_play_buffer", new KalturaStringValue() { value = media.TrickPlayBuffer.ToString() });
+
+            extraParams.Add("padding_before_program_starts", new KalturaStringValue { value = media.PaddingBeforeProgramStarts.ToString() });
+            extraParams.Add("padding_after_program_ends", new KalturaStringValue { value = media.PaddingAfterProgramEnds.ToString() });
 
             extraParams.Add("enable_recording_playback_non_entitled_channel", new KalturaStringValue() { value = media.EnableRecordingPlaybackNonEntitledChannel.ToString() });
 

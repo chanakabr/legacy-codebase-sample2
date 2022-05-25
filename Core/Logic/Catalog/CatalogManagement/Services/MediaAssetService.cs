@@ -315,6 +315,8 @@ namespace Core.Catalog.CatalogManagement
             var enableTrickPlay = (TstvState)ODBCWrapper.Utils.GetIntSafeVal(dataRow, "ENABLE_TRICK_PLAY");
             var enableRecordingPlaybackNonEntitledChannel = (TstvState)ODBCWrapper.Utils.GetIntSafeVal(dataRow, "enable_recording_playback_non_entitled");
             var catchUpBuffer = ODBCWrapper.Utils.GetLongSafeVal(dataRow, "CATCH_UP_BUFFER", 0);
+            var paddingBeforeProgramStats = ODBCWrapper.Utils.GetLongSafeVal(dataRow, "PADDING_BEFORE_PROGRAM_STARTS", 0);
+            var paddingAfterProgramEnds = ODBCWrapper.Utils.GetLongSafeVal(dataRow, "PADDING_AFTER_PROGRAM_ENDS", 0);
             var trickPlayBuffer = ODBCWrapper.Utils.GetLongSafeVal(dataRow, "TRICK_PLAY_BUFFER", 0);
             var externalIngestId = ODBCWrapper.Utils.GetSafeStr(dataRow, "CHANNEL_ID");
             var externalCdvrId = ODBCWrapper.Utils.GetSafeStr(dataRow, "CDVR_ID");
@@ -339,7 +341,9 @@ namespace Core.Catalog.CatalogManagement
                 enableStartOver,
                 enableTrickPlay, 
                 enableRecordingPlaybackNonEntitledChannel, 
-                catchUpBuffer, 
+                catchUpBuffer,
+                paddingBeforeProgramStats,
+                paddingAfterProgramEnds,
                 trickPlayBuffer,
                 externalIngestId,
                 externalCdvrId,

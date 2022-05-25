@@ -32,6 +32,8 @@ namespace Core.Catalog
         public LinearChannelType? ChannelType { get; set; }
         //epg_identifier
         public long EpgChannelId { get; set; }
+        public long? PaddingBeforeProgramStarts { get; set; }
+        public long? PaddingAfterProgramEnds { get; set; }
 
         public LiveAsset()
             : base()
@@ -42,6 +44,8 @@ namespace Core.Catalog
             this.EnableTrickPlayState = null;
             this.EnableRecordingPlaybackNonEntitledChannelState = null;
             this.BufferCatchUp = null;
+            this.PaddingBeforeProgramStarts = null;
+            this.PaddingAfterProgramEnds = null;
             this.BufferTrickPlay = null;
             this.ExternalEpgIngestId = null;
             this.ExternalCdvrId = null;
@@ -64,6 +68,8 @@ namespace Core.Catalog
             this.EnableStartOverState = null;
             this.EnableTrickPlayState = null;
             this.EnableRecordingPlaybackNonEntitledChannelState = null;
+            this.PaddingBeforeProgramStarts = null;
+            this.PaddingAfterProgramEnds = null;
             this.BufferCatchUp = null;
             this.BufferTrickPlay = null;
             this.ExternalEpgIngestId = null;
@@ -89,6 +95,8 @@ namespace Core.Catalog
             EnableTrickPlayState = liveAsset.EnableTrickPlayState;
             EnableRecordingPlaybackNonEntitledChannelState = liveAsset.EnableRecordingPlaybackNonEntitledChannelState;
             BufferCatchUp = liveAsset.BufferCatchUp;
+            PaddingBeforeProgramStarts = liveAsset.PaddingBeforeProgramStarts;
+            PaddingAfterProgramEnds = liveAsset.PaddingBeforeProgramStarts;
             BufferTrickPlay = liveAsset.BufferTrickPlay;
             ExternalEpgIngestId = liveAsset.ExternalEpgIngestId;
             ExternalCdvrId = liveAsset.ExternalCdvrId;
@@ -103,8 +111,22 @@ namespace Core.Catalog
             EpgChannelId = liveAsset.EpgChannelId;
         }
 
-        public LiveAsset(long epgChannelId, TstvState? enableCdvr, TstvState? enableCatchUp, TstvState? enableStartOver, TstvState? enableTrickPlay, TstvState? enableRecordingPlaybackNonEntitledChannel, long catchUpBuffer,
-                                long trickPlayBuffer, string externalIngestId, string externalCdvrId, MediaAsset mediaAsset, TimeShiftedTvPartnerSettings accountTstvSettings, LinearChannelType channelType)
+        public LiveAsset(
+            long epgChannelId,
+            TstvState? enableCdvr,
+            TstvState? enableCatchUp,
+            TstvState? enableStartOver,
+            TstvState? enableTrickPlay,
+            TstvState? enableRecordingPlaybackNonEntitledChannel,
+            long catchUpBuffer,
+            long paddingBeforeProgramStarts,
+            long paddingAfterProgramEnds,
+            long trickPlayBuffer,
+            string externalIngestId,
+            string externalCdvrId,
+            MediaAsset mediaAsset,
+            TimeShiftedTvPartnerSettings accountTstvSettings,
+            LinearChannelType channelType)
             : base(mediaAsset)
         {
             this.MediaAssetType = MediaAssetType.Linear;
@@ -114,6 +136,8 @@ namespace Core.Catalog
             this.EnableTrickPlayState = enableTrickPlay;
             this.EnableRecordingPlaybackNonEntitledChannelState = enableRecordingPlaybackNonEntitledChannel;
             this.BufferCatchUp = catchUpBuffer;
+            this.PaddingBeforeProgramStarts = paddingBeforeProgramStarts;
+            this.PaddingAfterProgramEnds = paddingAfterProgramEnds;
             this.BufferTrickPlay = trickPlayBuffer;
             this.ExternalEpgIngestId = externalIngestId;
             this.ExternalCdvrId = externalCdvrId;
@@ -174,6 +198,13 @@ namespace Core.Catalog
                 {
                     this.SummedTrickPlayBuffer = accountTstvSettings.TrickPlayBufferLength.HasValue ? accountTstvSettings.TrickPlayBufferLength.Value : 0;
                 }
+
+                this.PaddingBeforeProgramStarts = PaddingBeforeProgramStarts > 0
+                    ? PaddingBeforeProgramStarts
+                    : accountTstvSettings.PaddingBeforeProgramStarts ?? default;
+                this.PaddingAfterProgramEnds = PaddingAfterProgramEnds > 0
+                    ? PaddingAfterProgramEnds
+                    : accountTstvSettings.PaddingAfterProgramEnds ?? default;
             }
         }
 

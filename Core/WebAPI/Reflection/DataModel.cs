@@ -2556,7 +2556,7 @@ namespace WebAPI.Reflection
                     switch(property.Name)
                     {
                         case "DeviceFamilyId":
-                            return "deviceFamilyId";
+                            return "deviceFamilyid";
                         case "Id":
                             return "id";
                         case "Name":
@@ -4911,6 +4911,10 @@ namespace WebAPI.Reflection
                             return "externalCdvrId";
                         case "ExternalEpgIngestId":
                             return "externalEpgIngestId";
+                        case "PaddingAfterProgramEnds":
+                            return "paddingAfterProgramEnds";
+                        case "PaddingBeforeProgramStarts":
+                            return "paddingBeforeProgramStarts";
                         case "RecordingPlaybackNonEntitledChannelEnabled":
                             return "enableRecordingPlaybackNonEntitledChannel";
                         case "StartOverEnabled":

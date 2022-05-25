@@ -78,6 +78,10 @@ namespace Core.Catalog.Response
         [DataMember]
         public long CatchUpBuffer;
         [DataMember]
+        public long PaddingBeforeProgramStarts;
+        [DataMember]
+        public long PaddingAfterProgramEnds;
+        [DataMember]
         public long TrickPlayBuffer;
         [DataMember]
         public bool EnableRecordingPlaybackNonEntitledChannel;
@@ -107,6 +111,8 @@ namespace Core.Catalog.Response
             EnableStartOver = false;
             EnableTrickPlay = false;
             CatchUpBuffer = 0;
+            PaddingBeforeProgramStarts = 0;
+            PaddingAfterProgramEnds = 0;
             TrickPlayBuffer = 0;
             EnableRecordingPlaybackNonEntitledChannel = false;
         }

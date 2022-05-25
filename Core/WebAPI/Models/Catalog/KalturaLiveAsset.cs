@@ -50,6 +50,26 @@ namespace WebAPI.Models.Catalog
         public long? BufferCatchUp { get; set; }
 
         /// <summary>
+        /// Returns padding before program starts in seconds from a live asset if configured,
+        /// otherwise returns corresponding value from TimeShiftedTvPartnerSettings.
+        /// </summary>
+        [DataMember(Name = "paddingBeforeProgramStarts")]
+        [JsonProperty(PropertyName = "paddingBeforeProgramStarts")]
+        [XmlElement(ElementName = "paddingBeforeProgramStarts")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.ALL, MinLong = 0)]
+        public long? PaddingBeforeProgramStarts { get; set; }
+
+        /// <summary>
+        /// Returns padding after program ends in seconds from a live asset if configured,
+        /// otherwise returns corresponding value from TimeShiftedTvPartnerSettings.
+        /// </summary>
+        [DataMember(Name = "paddingAfterProgramEnds")]
+        [JsonProperty(PropertyName = "paddingAfterProgramEnds")]
+        [XmlElement(ElementName = "paddingAfterProgramEnds")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.ALL, MinLong = 0)]
+        public long? PaddingAfterProgramEnds { get; set; }
+
+        /// <summary>
         /// buffer Trick-play, configuration only
         /// </summary>
         [DataMember(Name = "bufferTrickPlaySetting")]

@@ -4257,6 +4257,16 @@ namespace Tvinci.Core.DAL
             }
             linearChannelSettings.CatchUpBuffer = buffer;
 
+            var paddingBeforeProgramStarts = Utils.GetIntSafeVal(drChannel, "PADDING_BEFORE_PROGRAM_STARTS"); // channel settings
+            linearChannelSettings.PaddingBeforeProgramStarts = paddingBeforeProgramStarts > 0
+                ? paddingBeforeProgramStarts
+                : Utils.GetIntSafeVal(drAccount, "PADDING_BEFORE_PROGRAM_STARTS"); // account
+
+            var paddingAfterProgramEnds = Utils.GetIntSafeVal(drChannel, "PADDING_AFTER_PROGRAM_ENDS"); // channel settings
+            linearChannelSettings.PaddingAfterProgramEnds = paddingAfterProgramEnds > 0
+                ? paddingAfterProgramEnds
+                : Utils.GetIntSafeVal(drAccount, "PADDING_AFTER_PROGRAM_ENDS"); // account
+
             buffer = Utils.GetIntSafeVal(drChannel, "TRICK_PLAY_BUFFER"); // channel settings
             if (buffer == 0)
             {
@@ -5689,8 +5699,22 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static DataTable InsertLinearMediaAsset(int groupId, TstvState? enableCdvr, TstvState? enableCatchUp, TstvState? enableRecordingPlaybackNonEntitledChannel, TstvState? enableStartOver, TstvState? enableTrickPlay,
-                                                    long? catchUpBuffer, long? trickPlayBuffer, string externalCdvrId, string externalIngestId, long mediaId, LinearChannelType? channelType, long userId)
+        public static DataTable InsertLinearMediaAsset(
+            int groupId,
+            TstvState? enableCdvr,
+            TstvState? enableCatchUp,
+            TstvState? enableRecordingPlaybackNonEntitledChannel,
+            TstvState? enableStartOver,
+            TstvState? enableTrickPlay,
+            long? catchUpBuffer,
+            long? paddingBeforeProgramStarts,
+            long? paddingAfterProgramEnds,
+            long? trickPlayBuffer,
+            string externalCdvrId,
+            string externalIngestId,
+            long mediaId,
+            LinearChannelType? channelType,
+            long userId)
         {
             StoredProcedure sp = new StoredProcedure("InsertLinearMediaAsset");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5701,6 +5725,8 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@EnableStartOver", (int)enableStartOver.Value);
             sp.AddParameter("@EnableTrickPlay", (int)enableTrickPlay.Value);
             sp.AddParameter("@CatchUpBuffer", catchUpBuffer);
+            sp.AddParameter("@PaddingBeforeProgramStarts", paddingBeforeProgramStarts);
+            sp.AddParameter("@PaddingAfterProgramEnds", paddingAfterProgramEnds);
             sp.AddParameter("@TrickPlayBuffer", trickPlayBuffer);
             sp.AddParameter("@ExternalCdvrId", externalCdvrId);
             sp.AddParameter("@ExternalIngestId", externalIngestId);
@@ -5715,9 +5741,22 @@ namespace Tvinci.Core.DAL
             return sp.Execute();
         }
 
-        public static DataTable UpdateLinearMediaAsset(int groupId, long mediaId, TstvState? enableCdvr, TstvState? enableCatchUp, TstvState? enableRecordingPlaybackNonEntitledChannel, TstvState? enableStartOver,
-                                                        TstvState? enableTrickPlay, long? catchUpBuffer, long? trickPlayBuffer, string externalCdvrId, string externalIngestId, LinearChannelType? channelType,
-                                                        long userId)
+        public static DataTable UpdateLinearMediaAsset(
+            int groupId,
+            long mediaId,
+            TstvState? enableCdvr,
+            TstvState? enableCatchUp,
+            TstvState? enableRecordingPlaybackNonEntitledChannel,
+            TstvState? enableStartOver,
+            TstvState? enableTrickPlay,
+            long? catchUpBuffer,
+            long? paddingBeforeProgramStarts,
+            long? paddingAfterProgramEnds,
+            long? trickPlayBuffer,
+            string externalCdvrId,
+            string externalIngestId,
+            LinearChannelType? channelType,
+            long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateLinearMediaAsset");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5749,6 +5788,8 @@ namespace Tvinci.Core.DAL
             }
 
             sp.AddParameter("@CatchUpBuffer", catchUpBuffer);
+            sp.AddParameter("@PaddingBeforeProgramStarts", paddingBeforeProgramStarts);
+            sp.AddParameter("@PaddingAfterProgramEnds", paddingAfterProgramEnds);
             sp.AddParameter("@TrickPlayBuffer", trickPlayBuffer);
             sp.AddParameter("@ExternalCdvrId", externalCdvrId);
             sp.AddParameter("@ExternalIngestId", externalIngestId);

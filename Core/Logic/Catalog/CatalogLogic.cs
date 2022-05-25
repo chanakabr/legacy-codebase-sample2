@@ -530,6 +530,10 @@ namespace Core.Catalog
                                 oMediaObj.EnableTrickPlay =
                                     linearChannelSettings[oMediaObj.m_ExternalIDs].EnableTrickPlay;
                                 oMediaObj.CatchUpBuffer = linearChannelSettings[oMediaObj.m_ExternalIDs].CatchUpBuffer;
+                                oMediaObj.PaddingBeforeProgramStarts = linearChannelSettings[oMediaObj.m_ExternalIDs]
+                                    .PaddingBeforeProgramStarts;
+                                oMediaObj.PaddingAfterProgramEnds = linearChannelSettings[oMediaObj.m_ExternalIDs]
+                                    .PaddingAfterProgramEnds;
                                 oMediaObj.TrickPlayBuffer =
                                     linearChannelSettings[oMediaObj.m_ExternalIDs].TrickPlayBuffer;
                                 oMediaObj.EnableRecordingPlaybackNonEntitledChannel =

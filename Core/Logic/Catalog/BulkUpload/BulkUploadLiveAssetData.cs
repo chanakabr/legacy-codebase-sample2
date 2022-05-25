@@ -32,6 +32,8 @@ namespace Core.Catalog
             liveAsset.EnableStartOverState = TstvState.Inherited;
             liveAsset.EnableTrickPlayState = TstvState.Inherited;
             liveAsset.BufferCatchUp = 0;
+            liveAsset.PaddingBeforeProgramStarts = 0;
+            liveAsset.PaddingAfterProgramEnds = 0;
             liveAsset.BufferTrickPlay = 0;
             liveAsset.ChannelType = LinearChannelType.Unknown;
 
