@@ -5490,6 +5490,7 @@ namespace Core.Catalog
                 .Date(x => x.Name("create_date"))
                 .Keyword(x => InitializeDefaultTextPropertyDescriptor<string>("crid"))
                 .Keyword(x => InitializeDefaultTextPropertyDescriptor<string>("external_id"))
+                .Keyword(x => x.Name(e => e.CouchbaseDocumentId))
                 ;
 
             AddLanguageSpecificMappingToPropertyDescriptor(languages, metas, tags, metasToPad, analyzers, propertiesDescriptor);
