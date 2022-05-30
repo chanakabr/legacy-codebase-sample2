@@ -5,11 +5,11 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
 {
     public interface IProgramAssetCrudMessageService
     {
-        Task PublishCreateEventAsync(long groupId, long epgId);
-        Task PublishCreateEventsAsync(long groupId, IReadOnlyCollection<long> epgIds);
-        Task PublishUpdateEventAsync(long groupId, long epgId);
-        Task PublishUpdateEventsAsync(long groupId, IReadOnlyCollection<long> epgIds);
-        Task PublishDeleteEventAsync(long groupId, long epgId);
-        Task PublishDeleteEventsAsync(long groupId, IReadOnlyCollection<long> epgIds); 
+        Task PublishCreateEventAsync(long groupId, long epgId, long updaterId);
+        Task PublishCreateEventsAsync(long groupId, IReadOnlyCollection<long> epgIds, long updaterId);
+        Task PublishUpdateEventAsync(long groupId, long epgId, long updaterId);
+        Task PublishUpdateEventsAsync(long groupId, IReadOnlyCollection<long> epgIds, long updaterId);
+        Task PublishDeleteEventAsync(long groupId, long epgId, long updaterId);
+        Task PublishDeleteEventsAsync(long groupId, IReadOnlyCollection<long> epgIds, long updaterId);
     }
 }

@@ -73,7 +73,7 @@ namespace IngestHandler
                     BulkUploadResultsDictionary bulkUploadResultsDictionaries = bulkUpload.ConstructResultsDictionary();
                     var operations = CalculateOperations(bulkUpload, bulkUploadResultsDictionaries);
                     UpdateRecordings(bulkUpload, operations);
-                    await PublishProgramAssetMessages(bulkUpload.GroupId, operations);
+                    await PublishProgramAssetMessages(bulkUpload.GroupId, operations, bulkUpload.UpdaterId);
 
                     var result = BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(bulkUpload, newStatus);
                     if (result.IsOkStatusCode()) TrySendIngestCompleted(bulkUpload, newStatus);
@@ -260,11 +260,11 @@ namespace IngestHandler
             _epgIngestMessaging.EpgIngestPartCompleted(parameters);
         }
 
-        private Task PublishProgramAssetMessages(long groupId, Operations operations)
+        private Task PublishProgramAssetMessages(long groupId, Operations operations, long updaterId)
         {
-            var createdEventsTask = _crudMessageService.PublishCreateEventsAsync(groupId, operations.AddedEpgIds);
-            var updatedEventsTask = _crudMessageService.PublishUpdateEventsAsync(groupId, operations.UpdatedEpgIds);
-            var deletedEventsTask = _crudMessageService.PublishDeleteEventsAsync(groupId, operations.DeletedEpgIds);
+            var createdEventsTask = _crudMessageService.PublishCreateEventsAsync(groupId, operations.AddedEpgIds, updaterId);
+            var updatedEventsTask = _crudMessageService.PublishUpdateEventsAsync(groupId, operations.UpdatedEpgIds, updaterId);
+            var deletedEventsTask = _crudMessageService.PublishDeleteEventsAsync(groupId, operations.DeletedEpgIds, updaterId);
 
             return Task.WhenAll(createdEventsTask, updatedEventsTask, deletedEventsTask);
         }

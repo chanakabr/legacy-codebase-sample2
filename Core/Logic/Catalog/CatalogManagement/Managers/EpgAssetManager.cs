@@ -27,7 +27,7 @@ namespace Core.Catalog.CatalogManagement
 {
     public interface IEpgAssetManager
     {
-        IEnumerable<EpgAsset> GetEpgAssets(long groupId, IEnumerable<long> epgIds);
+        IEnumerable<EpgAsset> GetEpgAssets(long groupId, IEnumerable<long> epgIds, IEnumerable<string> languages);
     }
 
     public class EpgAssetManager : IEpgAssetManager
@@ -246,7 +246,7 @@ namespace Core.Catalog.CatalogManagement
                 result = AssetManager.GetAsset(groupId, newEpgId, eAssetTypes.EPG, true);
                 if (result.IsOkStatusCode())
                 {
-                    _messageService.PublishCreateEventAsync(groupId, newEpgId).GetAwaiter().GetResult();
+                    _messageService.PublishCreateEventAsync(groupId, newEpgId, userId).GetAwaiter().GetResult();
                 }
             }
             catch (Exception ex)
@@ -420,7 +420,7 @@ namespace Core.Catalog.CatalogManagement
                 result = AssetManager.GetAsset(groupId, epgAssetToUpdate.Id, eAssetTypes.EPG, true);
                 if (result.IsOkStatusCode())
                 {
-                    _messageService.PublishUpdateEventAsync(groupId, epgAssetToUpdate.Id).GetAwaiter().GetResult();
+                    _messageService.PublishUpdateEventAsync(groupId, epgAssetToUpdate.Id, userId).GetAwaiter().GetResult();
                 }
             }
             catch (Exception ex)
@@ -472,7 +472,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             SendActionEvent(groupId, epgId, eAction.Delete);
-            _messageService.PublishDeleteEventAsync(groupId, epgId).GetAwaiter().GetResult();
+            _messageService.PublishDeleteEventAsync(groupId, epgId, userId).GetAwaiter().GetResult();
 
             // Delete Index
             var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
@@ -557,7 +557,7 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     // update Epg metas and tags
-                    List<EpgCB> epgsToUpdate = RemoveTopicsFromProgramEpgCBs(groupId, epgAsset.Id, metasToRemoveByName, tagsToRemoveByName);
+                    List<EpgCB> epgsToUpdate = RemoveTopicsFromProgramEpgCBs(groupId, epgAsset.Id, metasToRemoveByName, tagsToRemoveByName, userId);
 
                     // invalidate asset
                     AssetManager.Instance.InvalidateAsset(eAssetTypes.EPG, groupId, epgAsset.Id);
@@ -1713,7 +1713,7 @@ namespace Core.Catalog.CatalogManagement
             return row;
         }
 
-        private static List<EpgCB> RemoveTopicsFromProgramEpgCBs(int groupId, long epgId, List<string> programMetas, List<string> programTags)
+        private static List<EpgCB> RemoveTopicsFromProgramEpgCBs(int groupId, long epgId, List<string> programMetas, List<string> programTags, long userId)
         {
             if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out var catalogGroupCache))
             {
@@ -1729,7 +1729,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 RemoveTopicsFromProgramEpgCB(epgCB, programMetas, programTags, catalogGroupCache.GetDefaultLanguage().Code);
             }
-            _messageService.PublishUpdateEventAsync(groupId, epgId).GetAwaiter().GetResult();
+            _messageService.PublishUpdateEventAsync(groupId, epgId, userId).GetAwaiter().GetResult();
 
             return epgCbList;
         }
@@ -2007,16 +2007,15 @@ namespace Core.Catalog.CatalogManagement
             return keys.FirstOrDefault();
         }
 
-        public IEnumerable<EpgAsset> GetEpgAssets(long groupId, IEnumerable<long> epgIds)
-        {
-            return GetEpgAssetsFromCache(epgIds.ToList(), (int)groupId);
-        }
+        public IEnumerable<EpgAsset> GetEpgAssets(long groupId, IEnumerable<long> epgIds, IEnumerable<string> languages)
+            => GetEpgAssetsFromCache(epgIds.ToList(), (int)groupId, languages?.ToList());
 
         public static void InitProgramAssetCrudMessageService(IKafkaContextProvider contextProvider)
         {
             _messageService = new ProgramAssetCrudMessageService(
                 AssetManager.Instance,
                 Instance,
+                ProgramCrudEventMapper.Instance,
                 KafkaProducerFactoryInstance.Get(),
                 contextProvider,
                 new KLogger(nameof(ProgramAssetCrudMessageService)));

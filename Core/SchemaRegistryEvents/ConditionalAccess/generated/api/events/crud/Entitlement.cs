@@ -24,11 +24,11 @@ namespace Phoenix.Generated.Api.Events.Crud.Entitlement
         /// <summary>
         /// enum values - Created=0, Updated=1,Deleted=2
         /// </summary>
-        [JsonProperty("operation", NullValueHandling = NullValueHandling.Ignore)]
-        public long? Operation { get; set; }
+        [JsonProperty("operation")]
+        public long Operation { get; set; }
 
-        [JsonProperty("partnerId", NullValueHandling = NullValueHandling.Ignore)]
-        public long? PartnerId { get; set; }
+        [JsonProperty("partnerId")]
+        public long PartnerId { get; set; }
 
         [JsonProperty("schema", NullValueHandling = NullValueHandling.Ignore)]
         public Schema Schema { get; set; }

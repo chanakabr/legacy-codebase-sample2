@@ -52,12 +52,14 @@ namespace EPGTransformationHandler
                     services.AddKafkaProducerFactory(KafkaConfig.Get());
                     services.AddKafkaContextProvider<IngestKafkaContextProvider>();
                     services.AddScoped<IEventBusPublisher, KafkaPublisher>();
+                    services.AddSingleton<IProgramCrudEventMapper, ProgramCrudEventMapper>();
                     services.AddScoped<IEpgIngestMessaging>(provider => new EpgIngestMessaging(
                         provider.GetService<IEventBusPublisher>(),
                         new KLogger(nameof(EpgIngestMessaging))));
                     services.AddScoped<IProgramAssetCrudMessageService>(provider => new ProgramAssetCrudMessageService(
                         provider.GetService<IAssetManager>(),
                         provider.GetService<IEpgAssetManager>(),
+                        provider.GetService<IProgramCrudEventMapper>(),
                         provider.GetService<IKafkaProducerFactory>(),
                         provider.GetService<IKafkaContextProvider>(),
                         new KLogger(nameof(ProgramAssetCrudMessageService))));

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,7 +10,6 @@ using Microsoft.Extensions.Logging;
 using OTT.Lib.Kafka;
 using Phoenix.Generated.Api.Events.Crud.ProgramAsset;
 using SchemaRegistryEvents.Catalog;
-using TVinciShared;
 
 namespace ApiLogic.Catalog.CatalogManagement.Services
 {
@@ -19,43 +17,49 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
     {
         private readonly IAssetManager _assetManager;
         private readonly IEpgAssetManager _epgAssetManager;
+        private readonly IProgramCrudEventMapper _programCrudEventMapper;
         private readonly IKafkaProducer<string, ProgramAsset> _programAssetProducer;
         private readonly ILogger _logger;
 
-        public ProgramAssetCrudMessageService(IAssetManager assetManager, IEpgAssetManager epgAssetManager, IKafkaProducerFactory producerFactory, IKafkaContextProvider contextProvider, ILogger logger)
+        public ProgramAssetCrudMessageService(
+            IAssetManager assetManager,
+            IEpgAssetManager epgAssetManager,
+            IProgramCrudEventMapper programCrudEventMapper,
+            IKafkaProducerFactory producerFactory,
+            IKafkaContextProvider contextProvider,
+            ILogger logger)
         {
             _assetManager = assetManager;
             _epgAssetManager = epgAssetManager;
+            _programCrudEventMapper = programCrudEventMapper;
             _programAssetProducer = producerFactory.Get<string, ProgramAsset>(contextProvider, Partitioner.Murmur2Random);
             _logger = logger;
         }
 
-        public Task PublishCreateEventAsync(long groupId, long epgId)
-        {
-            return PublishKafkaCreateOrUpdateEventsAsync(groupId, CrudOperationType.CREATE_OPERATION, new[] { epgId });
-        }
+        public Task PublishCreateEventAsync(long groupId, long epgId, long updaterId)
+            => PublishKafkaCreateOrUpdateEventsAsync(
+                groupId,
+                CrudOperationType.CREATE_OPERATION,
+                new[] { epgId },
+                updaterId);
 
-        public Task PublishCreateEventsAsync(long groupId, IReadOnlyCollection<long> epgIds)
-        {
-            return PublishKafkaCreateOrUpdateEventsAsync(groupId, CrudOperationType.CREATE_OPERATION, epgIds);
-        }
+        public Task PublishCreateEventsAsync(long groupId, IReadOnlyCollection<long> epgIds, long updaterId)
+            => PublishKafkaCreateOrUpdateEventsAsync(groupId, CrudOperationType.CREATE_OPERATION, epgIds, updaterId);
 
-        public Task PublishUpdateEventAsync(long groupId, long epgId)
-        {
-            return PublishKafkaCreateOrUpdateEventsAsync(groupId, CrudOperationType.UPDATE_OPERATION, new[] { epgId });
-        }
+        public Task PublishUpdateEventAsync(long groupId, long epgId, long updaterId)
+            => PublishKafkaCreateOrUpdateEventsAsync(
+                groupId,
+                CrudOperationType.UPDATE_OPERATION,
+                new[] { epgId },
+                updaterId);
 
-        public Task PublishUpdateEventsAsync(long groupId, IReadOnlyCollection<long> epgIds)
-        {
-            return PublishKafkaCreateOrUpdateEventsAsync(groupId, CrudOperationType.UPDATE_OPERATION, epgIds);
-        }
+        public Task PublishUpdateEventsAsync(long groupId, IReadOnlyCollection<long> epgIds, long updaterId)
+            => PublishKafkaCreateOrUpdateEventsAsync(groupId, CrudOperationType.UPDATE_OPERATION, epgIds, updaterId);
 
-        public Task PublishDeleteEventAsync(long groupId, long epgId)
-        {
-            return PublishDeleteEventsAsync(groupId, new[] { epgId });
-        }
+        public Task PublishDeleteEventAsync(long groupId, long epgId, long updaterId)
+            => PublishDeleteEventsAsync(groupId, new[] { epgId }, updaterId);
 
-        public Task PublishDeleteEventsAsync(long groupId, IReadOnlyCollection<long> epgIds)
+        public Task PublishDeleteEventsAsync(long groupId, IReadOnlyCollection<long> epgIds, long updaterId)
         {
             if (_programAssetProducer == null)
             {
@@ -70,7 +74,8 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
                 {
                     Id = epgId,
                     PartnerId = groupId,
-                    Operation = CrudOperationType.DELETE_OPERATION
+                    Operation = CrudOperationType.DELETE_OPERATION,
+                    UpdaterId = updaterId
                 };
 
                 var task = _programAssetProducer.ProduceAsync(ProgramAsset.GetTopic(), programAssetEvent.GetPartitioningKey(), programAssetEvent);
@@ -80,9 +85,14 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
             return Task.WhenAll(publishTasks);
         }
 
-        private Task PublishKafkaCreateOrUpdateEventsAsync(long groupId, long operation, IReadOnlyCollection<long> epgIds)
+        private Task PublishKafkaCreateOrUpdateEventsAsync(
+            long groupId,
+            long operation,
+            IReadOnlyCollection<long> epgIds,
+            long updaterId)
         {
-            var epgAssets = _epgAssetManager.GetEpgAssets(groupId, epgIds).ToArray();
+            var epgAssets = _epgAssetManager.GetEpgAssets(groupId, epgIds, new List<string> { "*" })
+                .ToArray();
 
             var assets = epgAssets
                 .Where(x => x.LinearAssetId.HasValue)
@@ -107,14 +117,19 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
 
                 var liveAsset = liveAssets?.FirstOrDefault(x => x.Id == epgAsset.LinearAssetId);
 
-                var task = PublishKafkaCreateOrUpdateEventAsync(groupId, operation, liveAsset, epgAsset);
+                var task = PublishKafkaCreateOrUpdateEventAsync(groupId, operation, liveAsset, epgAsset, updaterId);
                 publishTasks.Add(task);
             }
 
             return Task.WhenAll(publishTasks);
         }
 
-        private Task PublishKafkaCreateOrUpdateEventAsync(long groupId, long operation, LiveAsset liveAsset, EpgAsset epgAsset)
+        private Task PublishKafkaCreateOrUpdateEventAsync(
+            long groupId,
+            long operation,
+            LiveAsset liveAsset,
+            EpgAsset epgAsset,
+            long updaterId)
         {
             if (_programAssetProducer == null)
             {
@@ -128,21 +143,9 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
                 return Task.CompletedTask;
             }
 
-            var expirationDate = epgAsset.CatchUpEnabled == true
-                ? epgAsset.EndDate?.AddMinutes(liveAsset.SummedCatchUpBuffer)
-                : epgAsset.EndDate;
-            var programAssetEvent = new ProgramAsset
-            {
-                Id = epgAsset.Id,
-                EndDate = epgAsset.EndDate?.ToUtcUnixTimestampSeconds(),
-                ExpirationDate = expirationDate?.ToUtcUnixTimestampSeconds(),
-                ExternalOfferIds = (epgAsset.ExternalOfferIds ?? new List<string>(0)).ToArray(),
-                PartnerId = groupId,
-                StartDate = epgAsset.StartDate?.ToUtcUnixTimestampSeconds(),
-                Operation = operation
-            };
+            var @event = _programCrudEventMapper.Map(epgAsset, liveAsset, groupId, updaterId, operation);
 
-            return _programAssetProducer.ProduceAsync(ProgramAsset.GetTopic(), programAssetEvent.GetPartitioningKey(), programAssetEvent);
+            return _programAssetProducer.ProduceAsync(ProgramAsset.GetTopic(), @event.GetPartitioningKey(), @event);
         }
     }
 }

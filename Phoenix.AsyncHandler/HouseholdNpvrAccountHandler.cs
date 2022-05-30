@@ -20,13 +20,13 @@ namespace Phoenix.AsyncHandler
             _logger = logger;
         }
 
-        protected override long GetOperation(Household value) => value.Operation.Value;
+        protected override long GetOperation(Household value) => value.Operation;
 
         protected override HandleResult Create(ConsumeResult<string, Household> consumeResult)
         {
             var household = consumeResult.GetValue();
             
-            var groupId = (int)household.PartnerId.Value;
+            var groupId = (int)household.PartnerId;
             var domainId = (int)household.Id.Value;
             var dlmId = (int)household.LimitationModuleId.Value;
 
