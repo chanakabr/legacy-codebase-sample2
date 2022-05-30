@@ -49,6 +49,7 @@ using WebAPI.Models.ConditionalAccess.FilterActions.Assets;
 using WebAPI.Models.ConditionalAccess.FilterActions.Files;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
+using WebAPI.Models.LiveToVod;
 using WebAPI.Models.Api;
 using WebAPI.Models.Catalog.SearchPriorityGroup;
 
@@ -48658,6 +48659,182 @@ namespace WebAPI.EventNotifications
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            return ret;
+        }
+    }
+}
+
+namespace WebAPI.Models.LiveToVod
+{
+    public partial class KalturaLiveToVodFullConfiguration
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("isL2vEnabled")))
+            {
+                ret.Add("isL2vEnabled", "\"isL2vEnabled\": " + IsLiveToVodEnabled.ToString().ToLower());
+            }
+            if(LinearAssets != null && (retrievedProperties == null || retrievedProperties.Contains("linearAssets")))
+            {
+                propertyValue = "[" + String.Join(", ", LinearAssets.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("linearAssets", "\"linearAssets\": " + propertyValue);
+            }
+            if(MetadataClassifier != null && (retrievedProperties == null || retrievedProperties.Contains("metadataClassifier")))
+            {
+                ret.Add("metadataClassifier", "\"metadataClassifier\": " + "\"" + EscapeJson(MetadataClassifier) + "\"");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("retentionPeriodDays")))
+            {
+                ret.Add("retentionPeriodDays", "\"retentionPeriodDays\": " + RetentionPeriodDays);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("isL2vEnabled")))
+            {
+                ret.Add("isL2vEnabled", "<isL2vEnabled>" + IsLiveToVodEnabled.ToString().ToLower() + "</isL2vEnabled>");
+            }
+            if(LinearAssets != null && (retrievedProperties == null || retrievedProperties.Contains("linearAssets")))
+            {
+                propertyValue = LinearAssets.Count > 0 ? "<item>" + String.Join("</item><item>", LinearAssets.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("linearAssets", "<linearAssets>" + propertyValue + "</linearAssets>");
+            }
+            if(MetadataClassifier != null && (retrievedProperties == null || retrievedProperties.Contains("metadataClassifier")))
+            {
+                ret.Add("metadataClassifier", "<metadataClassifier>" + EscapeXml(MetadataClassifier) + "</metadataClassifier>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("retentionPeriodDays")))
+            {
+                ret.Add("retentionPeriodDays", "<retentionPeriodDays>" + RetentionPeriodDays + "</retentionPeriodDays>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaLiveToVodLinearAssetConfiguration
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(IsLiveToVodEnabled.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isL2vEnabled")))
+            {
+                ret.Add("isL2vEnabled", "\"isL2vEnabled\": " + IsLiveToVodEnabled.ToString().ToLower());
+            }
+            if(LinearAssetId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("linearAssetId")))
+            {
+                ret.Add("linearAssetId", "\"linearAssetId\": " + LinearAssetId);
+            }
+            if(RetentionPeriodDays.HasValue && (retrievedProperties == null || retrievedProperties.Contains("retentionPeriodDays")))
+            {
+                ret.Add("retentionPeriodDays", "\"retentionPeriodDays\": " + RetentionPeriodDays);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(IsLiveToVodEnabled.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isL2vEnabled")))
+            {
+                ret.Add("isL2vEnabled", "<isL2vEnabled>" + IsLiveToVodEnabled.ToString().ToLower() + "</isL2vEnabled>");
+            }
+            if(LinearAssetId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("linearAssetId")))
+            {
+                ret.Add("linearAssetId", "<linearAssetId>" + LinearAssetId + "</linearAssetId>");
+            }
+            if(RetentionPeriodDays.HasValue && (retrievedProperties == null || retrievedProperties.Contains("retentionPeriodDays")))
+            {
+                ret.Add("retentionPeriodDays", "<retentionPeriodDays>" + RetentionPeriodDays + "</retentionPeriodDays>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaLiveToVodPartnerConfiguration
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(IsLiveToVodEnabled.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isL2vEnabled")))
+            {
+                ret.Add("isL2vEnabled", "\"isL2vEnabled\": " + IsLiveToVodEnabled.ToString().ToLower());
+            }
+            if(MetadataClassifier != null && (retrievedProperties == null || retrievedProperties.Contains("metadataClassifier")))
+            {
+                ret.Add("metadataClassifier", "\"metadataClassifier\": " + "\"" + EscapeJson(MetadataClassifier) + "\"");
+            }
+            if(RetentionPeriodDays.HasValue && (retrievedProperties == null || retrievedProperties.Contains("retentionPeriodDays")))
+            {
+                ret.Add("retentionPeriodDays", "\"retentionPeriodDays\": " + RetentionPeriodDays);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(IsLiveToVodEnabled.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isL2vEnabled")))
+            {
+                ret.Add("isL2vEnabled", "<isL2vEnabled>" + IsLiveToVodEnabled.ToString().ToLower() + "</isL2vEnabled>");
+            }
+            if(MetadataClassifier != null && (retrievedProperties == null || retrievedProperties.Contains("metadataClassifier")))
+            {
+                ret.Add("metadataClassifier", "<metadataClassifier>" + EscapeXml(MetadataClassifier) + "</metadataClassifier>");
+            }
+            if(RetentionPeriodDays.HasValue && (retrievedProperties == null || retrievedProperties.Contains("retentionPeriodDays")))
+            {
+                ret.Add("retentionPeriodDays", "<retentionPeriodDays>" + RetentionPeriodDays + "</retentionPeriodDays>");
+            }
             return ret;
         }
     }

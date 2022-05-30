@@ -61,6 +61,7 @@ using WebAPI.Models.ConditionalAccess.FilterActions.Assets;
 using WebAPI.Models.ConditionalAccess.FilterActions.Files;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
+using WebAPI.Models.LiveToVod;
 using WebAPI.Models.Api;
 using WebAPI.Models.Catalog.SearchPriorityGroup;
 
@@ -4925,6 +4926,44 @@ namespace WebAPI.Reflection
                             return "trickPlayBuffer";
                         case "TrickPlayEnabled":
                             return "enableTrickPlay";
+                    }
+                    break;
+                    
+                case "KalturaLiveToVodFullConfiguration":
+                    switch(property.Name)
+                    {
+                        case "IsLiveToVodEnabled":
+                            return "isL2vEnabled";
+                        case "LinearAssets":
+                            return "linearAssets";
+                        case "MetadataClassifier":
+                            return "metadataClassifier";
+                        case "RetentionPeriodDays":
+                            return "retentionPeriodDays";
+                    }
+                    break;
+                    
+                case "KalturaLiveToVodLinearAssetConfiguration":
+                    switch(property.Name)
+                    {
+                        case "IsLiveToVodEnabled":
+                            return "isL2vEnabled";
+                        case "LinearAssetId":
+                            return "linearAssetId";
+                        case "RetentionPeriodDays":
+                            return "retentionPeriodDays";
+                    }
+                    break;
+                    
+                case "KalturaLiveToVodPartnerConfiguration":
+                    switch(property.Name)
+                    {
+                        case "IsLiveToVodEnabled":
+                            return "isL2vEnabled";
+                        case "MetadataClassifier":
+                            return "metadataClassifier";
+                        case "RetentionPeriodDays":
+                            return "retentionPeriodDays";
                     }
                     break;
                     
@@ -11171,6 +11210,32 @@ namespace WebAPI.Reflection
                         case "sendupdatednotification":
                             RolesManager.ValidateActionPermitted("lineup", "sendUpdatedNotification", WebAPI.Managers.eKSValidation.All);
                             return LineupController.SendUpdatedNotification((string) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "livetovod":
+                    switch(action)
+                    {
+                        case "getconfiguration":
+                            RolesManager.ValidateActionPermitted("liveToVod", "getConfiguration", WebAPI.Managers.eKSValidation.All);
+                            return LiveToVodController.GetConfiguration();
+                            
+                        case "getlinearassetconfiguration":
+                            RolesManager.ValidateActionPermitted("liveToVod", "getLinearAssetConfiguration", WebAPI.Managers.eKSValidation.All);
+                            return LiveToVodController.GetLinearAssetConfiguration((long) methodParams[0]);
+                            
+                        case "getpartnerconfiguration":
+                            RolesManager.ValidateActionPermitted("liveToVod", "getPartnerConfiguration", WebAPI.Managers.eKSValidation.All);
+                            return LiveToVodController.GetPartnerConfiguration();
+                            
+                        case "updatelinearassetconfiguration":
+                            RolesManager.ValidateActionPermitted("liveToVod", "updateLinearAssetConfiguration", WebAPI.Managers.eKSValidation.All);
+                            return LiveToVodController.UpdateLinearAssetConfiguration((KalturaLiveToVodLinearAssetConfiguration) methodParams[0]);
+                            
+                        case "updatepartnerconfiguration":
+                            RolesManager.ValidateActionPermitted("liveToVod", "updatePartnerConfiguration", WebAPI.Managers.eKSValidation.All);
+                            return LiveToVodController.UpdatePartnerConfiguration((KalturaLiveToVodPartnerConfiguration) methodParams[0]);
                             
                     }
                     break;
@@ -18884,6 +18949,41 @@ namespace WebAPI.Reflection
                             ret.Add("regionIds", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(string),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "livetovod":
+                    switch(action)
+                    {
+                        case "getconfiguration":
+                            return ret;
+                            
+                        case "getlinearassetconfiguration":
+                            ret.Add("linearAssetId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "getpartnerconfiguration":
+                            return ret;
+                            
+                        case "updatelinearassetconfiguration":
+                            ret.Add("configuration", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaLiveToVodLinearAssetConfiguration),
+                            });
+                            return ret;
+                            
+                        case "updatepartnerconfiguration":
+                            ret.Add("configuration", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaLiveToVodPartnerConfiguration),
                             });
                             return ret;
                             

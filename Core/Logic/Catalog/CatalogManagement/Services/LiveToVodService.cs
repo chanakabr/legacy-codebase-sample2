@@ -12,13 +12,10 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
 {
     public class LiveToVodService : ILiveToVodService
     {
-        public const string LIVE_TO_VOD_ASSET_STRUCT_SYSTEM_NAME = "LiveToVOD";
+        public const string LIVE_TO_VOD_ASSET_STRUCT_SYSTEM_NAME = "LiveToVod";
 
         private static readonly Lazy<LiveToVodService> LazyInstance = new Lazy<LiveToVodService>(
-            () => new LiveToVodService(
-                AssetStructRepository.Instance,
-                CatalogManager.Instance,
-                new KLogger(nameof(LiveToVodService))),
+            () => new LiveToVodService(AssetStructRepository.Instance, CatalogManager.Instance),
             LazyThreadSafetyMode.PublicationOnly);
 
         public static LiveToVodService Instance => LazyInstance.Value;
@@ -26,6 +23,11 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
         private readonly IAssetStructRepository _assetStructRepository;
         private readonly ICatalogManager _catalogManager;
         private readonly IKLogger _logger;
+        
+        public LiveToVodService(IAssetStructRepository assetStructRepository, ICatalogManager catalogManager) 
+            : this(assetStructRepository, catalogManager, new KLogger(nameof(LiveToVodService)))
+        {
+        }
 
         public LiveToVodService(IAssetStructRepository assetStructRepository, ICatalogManager catalogManager, IKLogger logger)
         {
@@ -56,11 +58,20 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
                     response.SetStatus(eResponseStatus.AssetStructSystemNameAlreadyInUse, eResponseStatus.AssetStructSystemNameAlreadyInUse.ToString());
                     return response;
                 }
+                
+                var metaIdsToAdd = catalogGroupCache.TopicsMapBySystemNameAndByType
+                    .Where(x => AssetManager.BasicMetasSystemNamesToType.ContainsKey(x.Key)
+                        && x.Value.ContainsKey(AssetManager.BasicMetasSystemNamesToType[x.Key]))
+                    .Select(x => x.Value[AssetManager.BasicMetasSystemNamesToType[x.Key]].Id)
+                    .ToHashSet();
+                if (programAssetStruct.MetaIds != null)
+                {
+                    metaIdsToAdd.UnionWith(programAssetStruct.MetaIds);
+                }
 
-                var topicsToAdd = programAssetStruct
-                    .MetaIds?
+                var topicsToAdd = metaIdsToAdd
                     .Select((x, i) => new KeyValuePair<long, int>(x, ++i))
-                    .ToList() ?? new List<KeyValuePair<long, int>>();
+                    .ToList();
 
                 var liveToVodAssetStruct = new AssetStruct
                 {
@@ -76,10 +87,32 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
                     liveToVodAssetStruct,
                     new List<KeyValuePair<string, string>>(),
                     topicsToAdd);
+                
+                _catalogManager.InvalidateCatalogGroupCache(groupId, response.Status, true, response.Object);
             }
             catch (Exception e)
             {
                 _logger.Error($"Failed AddLiveToVodAssetStruct for groupId: {groupId}", e);
+            }
+
+            return response;
+        }
+
+        public GenericResponse<AssetStruct> GetLiveToVodAssetStruct(int groupId)
+        {
+            var response = new GenericResponse<AssetStruct>();
+
+            var assetStructs = _assetStructRepository.GetAssetStructsByGroupId(groupId);
+            if (assetStructs == null)
+            {
+                _logger.Error($"{nameof(IAssetStructRepository.GetAssetStructsByGroupId)} failed. {nameof(groupId)}={groupId}.");
+            }
+            else
+            {
+                var liveToVodAssetStruct = assetStructs.FirstOrDefault(x => x.SystemName == LIVE_TO_VOD_ASSET_STRUCT_SYSTEM_NAME);
+                response = liveToVodAssetStruct == null
+                    ? new GenericResponse<AssetStruct>(eResponseStatus.AssetStructDoesNotExist)
+                    : new GenericResponse<AssetStruct>(Status.Ok, liveToVodAssetStruct);
             }
 
             return response;

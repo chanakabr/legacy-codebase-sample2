@@ -32,29 +32,13 @@ namespace ApiLogic.Pricing.Handlers
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly Lazy<PagoManager> lazy = new Lazy<PagoManager>(() =>
-                            new PagoManager(new ProgramAssetGroupOfferRepository(SetMongoConnectionString()),
+                            new PagoManager(ProgramAssetGroupOfferRepository.Instance,
                                                   GroupSettingsManager.Instance,
                                                   PriceDetailsManager.Instance,
                                                   Core.Catalog.CatalogManagement.FileManager.Instance,
                                                   Core.Pricing.Module.Instance,
                                                   api.Instance),
                             LazyThreadSafetyMode.PublicationOnly);
-
-        private static string SetMongoConnectionString()
-        {
-            // sample of mongoDB connection string -->   mongodb://username:password@hostName:port/?replicaSet=myRepl
-            var connectionString = $"mongodb://{ApplicationConfiguration.Current.MongoDBConfiguration.Username.Value}:" +
-               $"{ApplicationConfiguration.Current.MongoDBConfiguration.Password.Value}@" +
-               $"{ApplicationConfiguration.Current.MongoDBConfiguration.HostName.Value}:" +
-               $"{ApplicationConfiguration.Current.MongoDBConfiguration.Port.Value}";
-
-            if (!string.IsNullOrEmpty(ApplicationConfiguration.Current.MongoDBConfiguration.replicaSetName.Value))
-            {
-                return $"{connectionString}?replicaSet={ApplicationConfiguration.Current.MongoDBConfiguration.replicaSetName.Value}";
-            }
-
-            return connectionString;
-        }
 
         private readonly IPagoRepository _repository;
         private readonly IGroupSettingsManager _groupSettingsManager;

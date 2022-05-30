@@ -51,6 +51,7 @@ using WebAPI.Models.ConditionalAccess.FilterActions.Assets;
 using WebAPI.Models.ConditionalAccess.FilterActions.Files;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
+using WebAPI.Models.LiveToVod;
 using WebAPI.Models.Api;
 using WebAPI.Models.Catalog.SearchPriorityGroup;
 
@@ -1528,6 +1529,15 @@ namespace WebAPI.Reflection
                     
                 case "KalturaLiveAsset":
                     return new KalturaLiveAsset(parameters, true);
+                    
+                case "KalturaLiveToVodFullConfiguration":
+                    return new KalturaLiveToVodFullConfiguration(parameters, true);
+                    
+                case "KalturaLiveToVodLinearAssetConfiguration":
+                    return new KalturaLiveToVodLinearAssetConfiguration(parameters, true);
+                    
+                case "KalturaLiveToVodPartnerConfiguration":
+                    return new KalturaLiveToVodPartnerConfiguration(parameters, true);
                     
                 case "KalturaLoginResponse":
                     return new KalturaLoginResponse(parameters, true);
@@ -41960,6 +41970,84 @@ namespace WebAPI.EventNotifications
     {
         public KalturaHttpNotification(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+        }
+    }
+}
+
+namespace WebAPI.Models.LiveToVod
+{
+    public partial class KalturaLiveToVodFullConfiguration
+    {
+        public KalturaLiveToVodFullConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("isL2vEnabled") && parameters["isL2vEnabled"] != null)
+                {
+                    IsLiveToVodEnabled = (Boolean) Convert.ChangeType(parameters["isL2vEnabled"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("retentionPeriodDays") && parameters["retentionPeriodDays"] != null)
+                {
+                    RetentionPeriodDays = (Int32) Convert.ChangeType(parameters["retentionPeriodDays"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("metadataClassifier") && parameters["metadataClassifier"] != null)
+                {
+                    MetadataClassifier = (String) Convert.ChangeType(parameters["metadataClassifier"], typeof(String));
+                }
+                if (parameters.ContainsKey("linearAssets") && parameters["linearAssets"] != null)
+                {
+                    if (parameters["linearAssets"] is JArray)
+                    {
+                        LinearAssets = OTTObjectBuilder.buildList<KalturaLiveToVodLinearAssetConfiguration>(typeof(KalturaLiveToVodLinearAssetConfiguration), (JArray) parameters["linearAssets"]);
+                    }
+                    else if (parameters["linearAssets"] is IList)
+                    {
+                        LinearAssets = OTTObjectBuilder.buildList(typeof(KalturaLiveToVodLinearAssetConfiguration), parameters["linearAssets"] as object[]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaLiveToVodLinearAssetConfiguration
+    {
+        public KalturaLiveToVodLinearAssetConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("linearAssetId") && parameters["linearAssetId"] != null)
+                {
+                    LinearAssetId = (Int64) Convert.ChangeType(parameters["linearAssetId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("isL2vEnabled") && parameters["isL2vEnabled"] != null)
+                {
+                    IsLiveToVodEnabled = (Boolean) Convert.ChangeType(parameters["isL2vEnabled"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("retentionPeriodDays") && parameters["retentionPeriodDays"] != null)
+                {
+                    RetentionPeriodDays = (Int32) Convert.ChangeType(parameters["retentionPeriodDays"], typeof(Int32));
+                }
+            }
+        }
+    }
+    public partial class KalturaLiveToVodPartnerConfiguration
+    {
+        public KalturaLiveToVodPartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("isL2vEnabled") && parameters["isL2vEnabled"] != null)
+                {
+                    IsLiveToVodEnabled = (Boolean) Convert.ChangeType(parameters["isL2vEnabled"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("retentionPeriodDays") && parameters["retentionPeriodDays"] != null)
+                {
+                    RetentionPeriodDays = (Int32) Convert.ChangeType(parameters["retentionPeriodDays"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("metadataClassifier") && parameters["metadataClassifier"] != null)
+                {
+                    MetadataClassifier = (String) Convert.ChangeType(parameters["metadataClassifier"], typeof(String));
+                }
+            }
         }
     }
 }

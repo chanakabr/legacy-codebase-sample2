@@ -1,13 +1,14 @@
-﻿using ApiObjects.Pricing;
-using Microsoft.Extensions.DependencyInjection;
-using MongoDB.Driver;
-using OTT.Lib.MongoDB;
-using Phx.Lib.Log;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
+using ApiObjects.Pricing;
+using DAL.MongoDB;
+using MongoDB.Driver;
+using OTT.Lib.MongoDB;
+using Phx.Lib.Log;
 
 namespace DAL.Pricing
 {
@@ -35,52 +36,27 @@ namespace DAL.Pricing
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private const string CollectionName = "program_asset_group_offers";
-        private const string DBName = "offers";
-        private IMongoDbClientFactory _service;
+        private readonly IMongoDbClientFactory _service;
 
-        public ProgramAssetGroupOfferRepository(string connectionString)
+        private static readonly Lazy<IPagoRepository> LazyInstance = new Lazy<IPagoRepository>(
+            () => new ProgramAssetGroupOfferRepository(
+                ClientFactoryBuilder.Instance.GetClientFactory(
+                    DatabaseProperties.DATABASE,
+                    DatabaseProperties.CollectionProperties,
+                    TcmConnectionStringHelper.Instance)),
+            LazyThreadSafetyMode.PublicationOnly);
+
+        public static IPagoRepository Instance => LazyInstance.Value;
+
+        public ProgramAssetGroupOfferRepository(IMongoDbClientFactory clientFactory)
         {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddMongoDbClientFactory(new MongoDbConfiguration
-            {
-                ConnectionString = connectionString,
-                CollectionProps =
-                {
-                    {
-                        CollectionName, new MongoDbConfiguration.CollectionProperties
-                        {
-                            DisableLogicalDelete = false,
-                            DisableAutoTimestamps = false,
-                            IndexBuilder = (builder) =>
-                            {
-                                builder.CreateIndex<ProgramAssetGroupOffer>( o =>
-                                    o.Ascending(f => f.ExternalId), new MongoDbCreateIndexOptions<ProgramAssetGroupOffer>
-                                    {
-                                        Unique = true,
-                                        PartialFilterExpression = b=> b.Exists(a=>a.ExternalId) & b.Type(a=>a.ExternalId,"string") & b.Gt<object>(a=>a.ExternalId,0)
-                                        });
-
-                             builder.CreateIndex<ProgramAssetGroupOffer>( o =>
-                                    o.Ascending(f => f.ExternalOfferId), new MongoDbCreateIndexOptions<ProgramAssetGroupOffer>
-                                    {
-                                        Unique = true,
-                                        PartialFilterExpression = b=> b.Exists(a=>a.ExternalOfferId) & b.Type(a=>a.ExternalOfferId,"string") & b.Gt<object>(a=>a.ExternalOfferId,0)
-                                        });
-                            }
-                        }
-                    }
-                }
-            }, DBName);
-
-            var p = serviceCollection.BuildServiceProvider();
-            _service = p.GetService<IMongoDbClientFactory>();
+            _service = clientFactory;
         }
 
         private long GetNextPagoId(int partnerId)
         {
             var factory = _service.NewMongoDbClient(partnerId, log);
-            return factory.GetNextId(CollectionName);
+            return factory.GetNextId(DatabaseProperties.PAGO_COLLECTION);
         }
 
         public long AddPago(int partnerId, ProgramAssetGroupOffer pago)
@@ -90,7 +66,7 @@ namespace DAL.Pricing
             pago.UpdateDate = DateTime.UtcNow;
 
             var factory = _service.NewMongoDbClient(partnerId, log);
-            factory.InsertOne(CollectionName, pago);
+            factory.InsertOne(DatabaseProperties.PAGO_COLLECTION, pago);
 
             return pago.Id;
         }
@@ -100,7 +76,7 @@ namespace DAL.Pricing
             var factory = _service.NewMongoDbClient(partnerId, log);
             try
             {
-                factory.DeleteOne<ProgramAssetGroupOffer>(CollectionName, f => f.Eq(o => o.Id, id));
+                factory.DeleteOne<ProgramAssetGroupOffer>(DatabaseProperties.PAGO_COLLECTION, f => f.Eq(o => o.Id, id));
             }
             catch (Exception)
             {
@@ -114,7 +90,7 @@ namespace DAL.Pricing
         {
             var factory = _service.NewMongoDbClient(partnerId, log);
             var updateResult = factory.UpdateOne<ProgramAssetGroupOffer>(
-                CollectionName,
+                DatabaseProperties.PAGO_COLLECTION,
                 f => f.Eq(o => o.Id, id),
                 u => u.Set(o => o.VirtualAssetId, assetId));
         }
@@ -125,7 +101,7 @@ namespace DAL.Pricing
 
             var factory = _service.NewMongoDbClient(partnerId, log);
             var updateResult = factory.UpdateOne<ProgramAssetGroupOffer>(
-                CollectionName,
+                DatabaseProperties.PAGO_COLLECTION,
                 f => f.Eq(o => o.Id, pago.Id),
                 u => SetUpdateExpression(pago, u));
 
@@ -171,14 +147,14 @@ namespace DAL.Pricing
         {
             var factory = _service.NewMongoDbClient(partnerId, log);
 
-            return factory.Find<ProgramAssetGroupOffer>(CollectionName, f => f.Eq(o => o.Id, id)).SingleOrDefault() != null;
+            return factory.Find<ProgramAssetGroupOffer>(DatabaseProperties.PAGO_COLLECTION, f => f.Eq(o => o.Id, id)).SingleOrDefault() != null;
         }
 
         public long GetPagoByExternalId(int partnerId, string externalId)
         {
             var factory = _service.NewMongoDbClient(partnerId, log);
 
-            var pago = factory.Find<ProgramAssetGroupOffer>(CollectionName, f => f.Eq(o => o.ExternalId, externalId)).SingleOrDefault();
+            var pago = factory.Find<ProgramAssetGroupOffer>(DatabaseProperties.PAGO_COLLECTION, f => f.Eq(o => o.ExternalId, externalId)).SingleOrDefault();
 
             if (pago != null)
             {
@@ -193,7 +169,7 @@ namespace DAL.Pricing
             Dictionary<long, bool> res = null;
             var factory = _service.NewMongoDbClient(partnerId, log);
 
-            var pagos = factory.Find<ProgramAssetGroupOffer>(CollectionName, f => f.Empty).ToList<ProgramAssetGroupOffer>();
+            var pagos = factory.Find<ProgramAssetGroupOffer>(DatabaseProperties.PAGO_COLLECTION, f => f.Empty).ToList<ProgramAssetGroupOffer>();
             if (pagos.Count > 0)
             {
                 res = new Dictionary<long, bool>();
@@ -209,14 +185,14 @@ namespace DAL.Pricing
         {
             var factory = _service.NewMongoDbClient(partnerId, log);
 
-            return factory.Find<ProgramAssetGroupOffer>(CollectionName, f => f.Where(i => programAssetGroupOfferIds.Contains(i.Id))).ToList<ProgramAssetGroupOffer>();
+            return factory.Find<ProgramAssetGroupOffer>(DatabaseProperties.PAGO_COLLECTION, f => f.Where(i => programAssetGroupOfferIds.Contains(i.Id))).ToList<ProgramAssetGroupOffer>();
         }
 
         public long GetPagoByExternaOfferlId(int partnerId, string externaOfferId)
         {
             var factory = _service.NewMongoDbClient(partnerId, log);
 
-            var pago = factory.Find<ProgramAssetGroupOffer>(CollectionName, f => f.Eq(o => o.ExternalOfferId, externaOfferId)).SingleOrDefault();
+            var pago = factory.Find<ProgramAssetGroupOffer>(DatabaseProperties.PAGO_COLLECTION, f => f.Eq(o => o.ExternalOfferId, externaOfferId)).SingleOrDefault();
 
             if (pago != null)
             {
