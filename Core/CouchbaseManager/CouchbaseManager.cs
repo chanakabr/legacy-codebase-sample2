@@ -13,6 +13,7 @@ using System.Threading;
 using Couchbase.N1QL;
 using System.Linq;
 using System.Threading.Tasks;
+using CouchbaseManager.Exceptions;
 using Phx.Lib.Appconfig;
 using CouchbaseManager.Models;
 
@@ -58,6 +59,7 @@ namespace CouchbaseManager
         public const string COUCHBASE_APP_CONFIG = "CouchbaseSectionMapping";
         private const string TCM_KEY_FORMAT = "cb_{0}.{1}";
         private const double GET_LOCK_TS_SECONDS = 5;
+        private const int CACHE_KEY_MAX_SIZE = 250;
 
         /// <summary>
         /// Defines duration of a month in seconds, see http://docs.couchbase.com/developer/dev-guide-3.0/doc-expiration.html
@@ -900,16 +902,22 @@ namespace CouchbaseManager
 
         public bool Set<T>(string key, T value, uint expiration)
         {
+            return Set(key, value, expiration, null);
+        }
+
+        public bool Set<T>(string key, T value, uint expiration, JsonSerializerSettings jsonSerializerSettings)
+        {
             bool result = false;
 
-            var bucket = ClusterHelper.GetBucket(bucketName);
             IOperationResult setResult;
-            expiration = FixExpirationTime(expiration);
-
-            string cbDescription = string.Format("bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
-            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.UPDATE, Database = cbDescription })
+            try
             {
-                setResult = bucket.Upsert(key, value, expiration);
+                setResult = Upsert(key, value, expiration, jsonSerializerSettings);
+            }
+            catch (KeySizeExceededException exception)
+            {
+                log.Error(exception.Message);
+                return false;
             }
 
             if (setResult != null)
@@ -931,40 +939,27 @@ namespace CouchbaseManager
 
             return result;
         }
-
-        public bool Set<T>(string key, T value, uint expiration, JsonSerializerSettings jsonSerializerSettings)
+        
+        private IOperationResult Upsert<T>(string key, T value, uint expiration, JsonSerializerSettings jsonSerializerSettings = null)
         {
-            bool result = false;
+            if (key?.Length > CACHE_KEY_MAX_SIZE)
+            {
+                throw new KeySizeExceededException(key);
+            }
 
             var bucket = ClusterHelper.GetBucket(bucketName);
-            IOperationResult setResult;
             expiration = FixExpirationTime(expiration);
-
+            
             string cbDescription = string.Format("bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.UPDATE, Database = cbDescription })
             {
-                string serializedValue = ObjectToJson(value, jsonSerializerSettings);
-                setResult = bucket.Upsert(key, serializedValue, expiration);
-            }
-
-            if (setResult != null)
-            {
-                if (setResult.Exception != null)
+                if (jsonSerializerSettings == null)
                 {
-                    if (!(setResult.Exception is CasMismatchException))
-                        HandleException(key, setResult);
+                    return bucket.Upsert(key, value, expiration);
                 }
-
-                if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
-                    result = setResult.Success;
-                else
-                {
-                    eResultStatus status = eResultStatus.ERROR;
-                    HandleStatusCode(setResult, ref status, key);
-                }
+            
+                return bucket.Upsert(key, ObjectToJson(value, jsonSerializerSettings), expiration);
             }
-
-            return result;
         }
 
         public bool Set<T>(string key, T value, bool unlock, out ulong outCas, uint expiration = 0, ulong cas = 0)

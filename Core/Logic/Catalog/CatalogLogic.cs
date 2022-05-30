@@ -59,6 +59,7 @@ using ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority;
 using ApiLogic.IndexManager.Sorting;
 using ElasticSearch.Searcher;
 using ElasticSearch.Utils;
+using Microsoft.Extensions.Logging;
 using OrderDir = ApiObjects.SearchObjects.OrderDir;
 
 namespace Core.Catalog
@@ -109,6 +110,7 @@ namespace Core.Catalog
         private static readonly string PERMITTED_WATCH_RULES_KEY = "PermittedWatchRules";
 
         private const int DEFAULT_SEARCHER_MAX_RESULTS_SIZE = 10000;
+        private const int MD5_HASH_SIZE_BYTES = 32;
 
         internal const int DEFAULT_PWWAWP_MAX_RESULTS_SIZE = 8;
         internal const int DEFAULT_PWLALP_MAX_RESULTS_SIZE = 8;
@@ -6706,6 +6708,36 @@ namespace Core.Catalog
             return new Tuple<UnifiedSearchResponse, bool>(cachedResult, result);
         }
 
+        private static string GetDeviceRulesCacheKey(int groupId, int domainId, string udid)
+        {
+            if (string.IsNullOrEmpty(udid))
+            {
+                return null;
+            }
+
+            List<int> deviceRules = Api.api.GetDeviceAllowedRuleIDs(groupId, udid, domainId);
+
+            if (deviceRules == null || deviceRules.Count == 0)
+            {
+                return null;
+            }
+
+            var deviceRulesCacheVal = string.Join("|", deviceRules.OrderBy(r => r));
+            if (deviceRulesCacheVal.Length > MD5_HASH_SIZE_BYTES)
+            {
+                try
+                {
+                    deviceRulesCacheVal = EncryptUtils.HashMD5(deviceRulesCacheVal);
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Failed to MD5 Device Rules for personal ES cache", ex);
+                    throw;
+                }
+            }
+            return deviceRulesCacheVal;
+        }
+
         private static string GetChannelSearchCacheKey(int groupId, string channelId, string userId, int domainId,
             string udid, string ip, string ksql, UnifiedSearchDefinitions unifiedSearchDefinitions,
             List<string> personalData, int langId, long lastUpdateDate)
@@ -6719,7 +6751,7 @@ namespace Core.Catalog
                      unifiedSearchDefinitions.assetUserRuleIds.Count > 0))
                 {
                     StringBuilder cacheKey = new StringBuilder();
-                    cacheKey.AppendFormat("channel={0}", channelId);
+                    cacheKey.AppendFormat("ch={0}", channelId);
                     cacheKey.AppendFormat("_gId={0}", groupId);
                     cacheKey.Append($"_l={langId}");  //BEO-11556
                     
@@ -6727,10 +6759,10 @@ namespace Core.Catalog
                     {
                         cacheKey.Append($"_ud={lastUpdateDate}");  
                     }
-
-                    cacheKey.AppendFormat("_paging={0}|{1}", unifiedSearchDefinitions.pageIndex,
-                        unifiedSearchDefinitions.pageSize);
-                    cacheKey.AppendFormat("_order={0}|{1}", unifiedSearchDefinitions.order.m_eOrderBy,
+                    
+                    cacheKey.AppendFormat("_p={0}|{1}", unifiedSearchDefinitions.pageIndex,
+                            unifiedSearchDefinitions.pageSize);
+                    cacheKey.AppendFormat("_or={0}|{1}", unifiedSearchDefinitions.order.m_eOrderBy,
                         unifiedSearchDefinitions.order.m_eOrderDir);
                     if (unifiedSearchDefinitions.order.m_eOrderBy == OrderBy.META)
                     {
@@ -6738,13 +6770,17 @@ namespace Core.Catalog
                         // IRA: what else with ordering
                     }
 
-                    if (!string.IsNullOrEmpty(udid))
+                    try
                     {
-                        List<int> deviceRules = Api.api.GetDeviceAllowedRuleIDs(groupId, udid, domainId);
-                        if (deviceRules != null && deviceRules.Count > 0)
+                        var deviceRulesCacheVal = GetDeviceRulesCacheKey(groupId, domainId, udid);
+                        if (deviceRulesCacheVal != null)
                         {
-                            cacheKey.AppendFormat("_deviceRules={0}", string.Join("|", deviceRules.OrderBy(r => r)));
+                            cacheKey.AppendFormat("_dr={0}", deviceRulesCacheVal);
                         }
+                    }
+                    catch (Exception e)
+                    {
+                        return key;
                     }
 
                     if (personalData.Contains(NamingHelper.ENTITLED_ASSETS_FIELD))
@@ -6763,7 +6799,7 @@ namespace Core.Catalog
                                     ConditionalAccess.Module.GetUserBundles(groupId, domainId, null);
                                 if (bundelsResponse.status.Code == (int) eResponseStatus.OK)
                                 {
-                                    cacheKey.AppendFormat("_entitlements={0}",
+                                    cacheKey.AppendFormat("_e={0}",
                                         bundelsResponse.channels != null && bundelsResponse.channels.Count > 0
                                             ? string.Join("|", bundelsResponse.channels.OrderBy(c => c))
                                             : "0");
@@ -6775,7 +6811,7 @@ namespace Core.Catalog
                     if (personalData.Contains(NamingHelper.GEO_BLOCK_FIELD))
                     {
                         int countryId = Utils.GetIP2CountryId(groupId, ip);
-                        cacheKey.AppendFormat("_countryId={0}", countryId);
+                        cacheKey.AppendFormat("_cId={0}", countryId);
                     }
 
                     if (personalData.Contains(NamingHelper.PARENTAL_RULES_FIELD))
@@ -6792,7 +6828,7 @@ namespace Core.Catalog
 
                         if (parentalRulesCacheResult && ruleIds != null && ruleIds.Count > 0)
                         {
-                            cacheKey.AppendFormat("_parentalRules={0}", string.Join("|", ruleIds.Keys.OrderBy(r => r)));
+                            cacheKey.AppendFormat("_pr={0}", string.Join("|", ruleIds.Keys.OrderBy(r => r)));
                         }
                     }
 
@@ -6815,7 +6851,7 @@ namespace Core.Catalog
                     if (unifiedSearchDefinitions.assetUserRuleIds != null &&
                         unifiedSearchDefinitions.assetUserRuleIds.Count > 0)
                     {
-                        cacheKey.AppendFormat("_assetUserRules={0}",
+                        cacheKey.AppendFormat("_aur={0}",
                             string.Join("|", unifiedSearchDefinitions.assetUserRuleIds.OrderBy(r => r)));
                     }
 
@@ -6839,20 +6875,24 @@ namespace Core.Catalog
                     StringBuilder cacheKey = new StringBuilder("search");
                     cacheKey.AppendFormat("_gId={0}", groupId);
                     cacheKey.AppendFormat($"_l={langId}"); //BEO-11556
-                    cacheKey.AppendFormat("_paging={0}|{1}", unifiedSearchDefinitions.pageIndex, unifiedSearchDefinitions.pageSize);
+                    cacheKey.AppendFormat("_p={0}|{1}", unifiedSearchDefinitions.pageIndex, unifiedSearchDefinitions.pageSize);
                     cacheKey.Append(BuildOrderCacheKeyPart(unifiedSearchDefinitions));
                     if (assetTypes != null && assetTypes.Count > 0)
                     {
-                        cacheKey.AppendFormat("_types={0}", string.Join("|", assetTypes.OrderBy(at => at)));
+                        cacheKey.AppendFormat("_t={0}", string.Join("|", assetTypes.OrderBy(at => at)));
                     }
 
-                    if (!string.IsNullOrEmpty(udid))
+                    try
                     {
-                        List<int> deviceRules = Api.api.GetDeviceAllowedRuleIDs(groupId, udid, domainId);
-                        if (deviceRules != null && deviceRules.Count > 0)
+                        var deviceRulesCacheVal = GetDeviceRulesCacheKey(groupId, domainId, udid);
+                        if (deviceRulesCacheVal != null)
                         {
-                            cacheKey.AppendFormat("_deviceRules={0}", string.Join("|", deviceRules.OrderBy(r => r)));
+                            cacheKey.AppendFormat("_dr={0}", deviceRulesCacheVal);
                         }
+                    }
+                    catch (Exception e)
+                    {
+                        return key;
                     }
 
                     if (personalData.Contains(NamingHelper.ENTITLED_ASSETS_FIELD))
@@ -6885,7 +6925,7 @@ namespace Core.Catalog
                                         return key;
                                     }
 
-                                    cacheKey.Append($"_entitlements={entitlementsMd5}");
+                                    cacheKey.Append($"_e={entitlementsMd5}");
                                 }
                             }
                         }
@@ -6894,7 +6934,7 @@ namespace Core.Catalog
                     if (personalData.Contains(NamingHelper.GEO_BLOCK_FIELD))
                     {
                         int countryId = Utils.GetIP2CountryId(groupId, ip);
-                        cacheKey.AppendFormat("_countryId={0}", countryId);
+                        cacheKey.AppendFormat("_cId={0}", countryId);
                     }
 
                     if (personalData.Contains(NamingHelper.PARENTAL_RULES_FIELD))
@@ -6911,7 +6951,7 @@ namespace Core.Catalog
 
                         if (parentalRulesCacheResult && ruleIds != null && ruleIds.Count > 0)
                         {
-                            cacheKey.AppendFormat("_parentalRules={0}", string.Join("|", ruleIds.Keys.OrderBy(r => r)));
+                            cacheKey.AppendFormat("_pr={0}", string.Join("|", ruleIds.Keys.OrderBy(r => r)));
                         }
                     }
 
@@ -6934,7 +6974,7 @@ namespace Core.Catalog
                     if (unifiedSearchDefinitions.assetUserRuleIds != null &&
                         unifiedSearchDefinitions.assetUserRuleIds.Count > 0)
                     {
-                        cacheKey.AppendFormat("_assetUserRules={0}",
+                        cacheKey.AppendFormat("_aur={0}",
                             string.Join("|", unifiedSearchDefinitions.assetUserRuleIds.OrderBy(r => r)));
                     }
 
