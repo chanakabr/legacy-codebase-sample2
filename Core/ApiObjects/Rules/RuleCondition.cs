@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace ApiObjects.Rules
@@ -13,6 +14,11 @@ namespace ApiObjects.Rules
 
         [JsonProperty("Description")]
         public string Description { get; set; }
+
+        public virtual bool IsRuleConditionEquals(RuleConditionType type)
+        {
+            return Type.Equals(type);
+        }
     }
 
     [Serializable]
@@ -42,6 +48,11 @@ namespace ApiObjects.Rules
         public OrCondition()
         {
             Type = RuleConditionType.Or;
+        }
+
+        public override bool IsRuleConditionEquals(RuleConditionType type)
+        {
+            return base.IsRuleConditionEquals(type) || Conditions.Any(x => x.IsRuleConditionEquals(type));
         }
     }
 

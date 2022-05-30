@@ -7,10 +7,11 @@ using System.Runtime.Serialization;
 namespace ApiObjects.Rules
 {
     [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class AssetRule : Rule
     {
-        [JsonProperty(PropertyName = "Conditions", 
-                      TypeNameHandling = TypeNameHandling.Auto, 
+        [JsonProperty(PropertyName = "Conditions",
+                      TypeNameHandling = TypeNameHandling.Auto,
                       ItemTypeNameHandling = TypeNameHandling.Auto,
                       ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
         public List<RuleCondition> Conditions { get; set; }
@@ -20,28 +21,25 @@ namespace ApiObjects.Rules
                       ItemTypeNameHandling = TypeNameHandling.Auto,
                       ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
         public List<AssetRuleAction> Actions { get; set; }
-        
-        public bool HasCountryConditions()
+
+        public bool IsConditionExists(RuleConditionType type)
         {
-            if (this.Conditions != null && this.Conditions.Count > 0)
+            if (Conditions != null && Conditions.Any())
             {
-                return this.Conditions.Exists(x => x.Type == RuleConditionType.Country);
+                return Conditions.Any(x => x.IsRuleConditionEquals(type));
             }
 
             return false;
         }
-    }
-    
-    [Serializable]
-    public class AssetRuleTypeMapping
-    {
-        [JsonProperty("Id")]
-        public long Id { get; set; }
 
-        [JsonProperty("TypeIdIn")]
-        public List<int> TypeIdIn { get; set; }
+        public bool IsActionExists(RuleActionType type)
+        {
+            if (Actions != null && Actions.Any())
+            {
+                return Actions.Exists(x => x.Type.Equals(type));
+            }
 
-        [JsonProperty("ActionTypeIdIn")]
-        public HashSet<int> ActionTypeIdIn { get; set; }
+            return false;
+        }
     }
 }

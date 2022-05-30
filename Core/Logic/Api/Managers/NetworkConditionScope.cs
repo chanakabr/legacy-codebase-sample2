@@ -23,6 +23,7 @@ namespace Core.Api.Managers
                 case IpRangeCondition c: return ConditionsEvaluator.Evaluate(this, c);
                 case IpV6RangeCondition c: return ConditionsEvaluator.Evaluate(this, c);
                 case OrCondition c: return ConditionsEvaluator.Evaluate(this, c);
+                case AssetCondition c: return false; //BEO-12007 - Ignore asset condition when evaluate network scope
                 default: throw new NotImplementedException($"Evaluation for condition type {condition.Type} was not implemented in NetworkConditionScope");
             }
         }

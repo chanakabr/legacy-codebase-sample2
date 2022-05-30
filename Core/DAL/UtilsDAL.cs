@@ -21,6 +21,8 @@ namespace DAL
         private const int RETRY_LIMIT = 5;
         private const int NUM_OF_TRIES = 3;
         private const string MAIN_CONNECTION_STRING = "MAIN_CONNECTION_STRING";
+        private static readonly JsonSerializerSettings jsonSerializerSettings =
+            new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
 
         #region Generic Methods
 
@@ -28,7 +30,7 @@ namespace DAL
                                                             bool compress = false, int limitMaxNumOfInsertTries = -1, Func<int, TimeSpan> retryStrategy = null) where T : new()
         {
             var internalCouchBaseManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
-            var cbManager = compress ? (ICouchbaseManager) new CompressionCouchbaseManager(internalCouchBaseManager) : internalCouchBaseManager;
+            var cbManager = compress ? (ICouchbaseManager)new CompressionCouchbaseManager(internalCouchBaseManager) : internalCouchBaseManager;
             var numOfTries = 0;
             int maxNumOfInsertTries = Math.Max(limitMaxNumOfInsertTries, ApplicationConfiguration.Current.CbMaxInsertTries.Value);
             ulong version;
@@ -97,7 +99,6 @@ namespace DAL
             var cbManager = new CompressionCouchbaseManager(internalCouchbaseManager);
 
             int numOfTries = 0;
-            var jsonSerializerSettings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto };
             T responseT = default(T);
             getResult = eResultStatus.ERROR;
 
@@ -163,7 +164,6 @@ namespace DAL
 
             var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
             int numOfTries = 0;
-            JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
 
             try
             {
@@ -180,13 +180,13 @@ namespace DAL
 
                             foreach (var cbValue in cbValues)
                             {
-                                try
+                                if (Json.TryDeserialize<T>(cbValue.Value, out var deserializedObject))
                                 {
-                                    objectsList.Add(JsonConvert.DeserializeObject<T>(cbValue.Value, jsonSerializerSettings));
+                                    objectsList.Add(deserializedObject);
                                 }
-                                catch (Exception ex)
+                                else
                                 {
-                                    log.Error(string.Format("Error while trying to DeserializeObject. key: {0}, value: {1}.", cbValue.Key, cbValue.Value), ex);
+                                    log.Error($"Error while trying to DeserializeObject. key: {cbValue.Key}, value: {cbValue.Value}.");
                                 }
                             }
 
@@ -227,7 +227,7 @@ namespace DAL
             if (objectToSave != null)
             {
                 var internalCouchbaseManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
-                var cbManager = compress ? (ICouchbaseManager) new CompressionCouchbaseManager(internalCouchbaseManager) : internalCouchbaseManager;
+                var cbManager = compress ? (ICouchbaseManager)new CompressionCouchbaseManager(internalCouchbaseManager) : internalCouchbaseManager;
                 int numOfTries = 0;
                 int maxNumOfInsertTries = ApplicationConfiguration.Current.CbMaxInsertTries.Value;
 
@@ -237,7 +237,6 @@ namespace DAL
                     string serializeObject = string.Empty;
                     if (serializeToString)
                     {
-                        JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
                         serializeObject = JsonConvert.SerializeObject(objectToSave, jsonSerializerSettings);
                     }
 

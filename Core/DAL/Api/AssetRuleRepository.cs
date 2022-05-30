@@ -23,7 +23,6 @@ namespace DAL.Api
         AssetRule GetAssetRule(long assetRuleId);
         bool DeleteAssetRule(int groupId, long id);
         bool UpdateAssetRule(int groupId, AssetRule assetRule, bool withActions = true);
-        List<AssetRuleTypeMapping> GetAssetRuleType(IEnumerable<long> assetRuleIds);
         List<AssetRule> GetAllAssetRules();
     }
 
@@ -185,19 +184,8 @@ namespace DAL.Api
         {
             if (assetRule != null && assetRule.Id > 0 && assetRule.Conditions != null && assetRule.Conditions.Count > 0)
             {
-                AssetRuleTypeMapping assetRuleTypeMapping = new AssetRuleTypeMapping()
-                {
-                    Id = assetRule.Id,
-                    TypeIdIn = new List<int>(assetRule.Conditions.Select(x => (int)x.Type)),
-                    ActionTypeIdIn = new HashSet<int>(assetRule.Actions.Select(x => (int)x.Type))
-                };
-
-                string assetRuleTypeKey = GetAssetRuleTypeKey(assetRule.Id);
-                if (UtilsDal.SaveObjectInCB<AssetRuleTypeMapping>(eCouchbaseBucket.OTT_APPS, assetRuleTypeKey, assetRuleTypeMapping, true))
-                {
-                    string assetRuleKey = GetAssetRuleKey(assetRule.Id);
-                    return UtilsDal.SaveObjectInCB<AssetRule>(eCouchbaseBucket.OTT_APPS, assetRuleKey, assetRule, true);
-                }
+                var assetRuleKey = GetAssetRuleKey(assetRule.Id);
+                return UtilsDal.SaveObjectInCB<AssetRule>(eCouchbaseBucket.OTT_APPS, assetRuleKey, assetRule, true);
             }
 
             return false;
@@ -230,9 +218,7 @@ namespace DAL.Api
         private bool DeleteAssetRuleCB(int groupId, long assetRuleId)
         {
             string assetRuleKey = GetAssetRuleKey(assetRuleId);
-            string assetRuleTypeKey = GetAssetRuleTypeKey(assetRuleId);
-            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, assetRuleKey) &&
-                   UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, assetRuleTypeKey);
+            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, assetRuleKey);
         }
 
         public bool UpdateAssetRule(int groupId, AssetRule assetRule, bool withActions = true)
@@ -287,22 +273,6 @@ namespace DAL.Api
                 }
             }
             return assetRules;
-        }
-
-        private static string GetAssetRuleTypeKey(long assetRuleId)
-        {
-            return string.Format("asset_rule_type:{0}", assetRuleId);
-        }
-
-        public List<AssetRuleTypeMapping> GetAssetRuleType(IEnumerable<long> assetRuleIds)
-        {
-            List<string> assetRuleKeys = new List<string>();
-            foreach (var assetRuleId in assetRuleIds)
-            {
-                assetRuleKeys.Add(GetAssetRuleTypeKey(assetRuleId));
-            }
-
-            return UtilsDal.GetObjectListFromCB<AssetRuleTypeMapping>(eCouchbaseBucket.OTT_APPS, assetRuleKeys, true);
         }
     }
 }

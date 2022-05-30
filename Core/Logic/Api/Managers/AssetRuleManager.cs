@@ -718,7 +718,7 @@ namespace Core.Api.Managers
                     response.Set((int)eResponseStatus.AssetRuleStatusNotWritable, "Cannot update or delete asset rule when in progress");
                 }
 
-                if (assetRule.HasCountryConditions())
+                if (assetRule.IsConditionExists(RuleConditionType.Country))
                 {
                     ResetMediaCountries(groupId, assetRule.Id);
                 }
@@ -752,7 +752,7 @@ namespace Core.Api.Managers
                 }
 
                 assetRule.GroupId = groupId;
-                if (assetRule.HasCountryConditions())
+                if (assetRule.IsConditionExists(RuleConditionType.Country))
                 {
                     HandleRuleUpdateStatus(groupId, ref assetRule);
                 }
@@ -1003,48 +1003,24 @@ namespace Core.Api.Managers
                                 allAssetRules = null;
                                 log.ErrorFormat("GetAllAssetRules - GetAllAssetRulesDB - Failed get data from cache. groupId: {0}", groupId);
                             }
-                            else if (allAssetRulesDB.Count > 0)
+                            else if (allAssetRulesDB.Any())
                             {
-                                IEnumerable<AssetRule> filteredAssetRules = allAssetRulesDB;
-
                                 if (groupId > 0)
                                 {
-                                    filteredAssetRules = allAssetRulesDB.Where(x => x.GroupId == groupId);
+                                    allAssetRulesDB = allAssetRulesDB.Where(x => x.GroupId == groupId).ToList();
                                 }
 
-                                List<long> ruleIds = null;
-                                bool filterActions = false;
-                                var rulesTypes = _repository.GetAssetRuleType(filteredAssetRules.Select(x => x.Id));
-                                if (rulesTypes != null && rulesTypes.Count > 0)
+                                allAssetRules = _repository.GetAssetRules(allAssetRulesDB.Select(x => x.Id));
+
+                                if (allAssetRules != null && allAssetRules.Any())
                                 {
-                                    filterActions = ruleActionType.HasValue && rulesTypes.Count(x => x.ActionTypeIdIn == null || x.ActionTypeIdIn.Count == 0) > 0;
-
-                                    if (!filterActions)
+                                    if (assetRuleConditionType.HasValue)
                                     {
-                                        ruleIds = rulesTypes.Where(x => x.TypeIdIn.Contains((int)assetRuleConditionType) &&
-                                                                                       (x.ActionTypeIdIn == null ? true :
-                                                                                            ruleActionType.HasValue ? x.ActionTypeIdIn.Contains((int)ruleActionType) : true &&
-                                                                                            x.ActionTypeIdIn.All(y => RuleActionsTypes.Contains(y))))
-                                                                           .Select(x => x.Id).ToList();
+                                        allAssetRules = allAssetRules.Where(ar => ar.IsConditionExists(assetRuleConditionType.Value)).ToList();
                                     }
-                                    else
+                                    if (ruleActionType.HasValue)
                                     {
-                                        ruleIds = rulesTypes.Where(x => x.TypeIdIn.Contains((int)assetRuleConditionType)).Select(x => x.Id).ToList();
-                                    }
-
-                                }
-
-                                if (ruleIds != null && ruleIds.Any())
-                                {
-                                    var assetRulesCB = _repository.GetAssetRules(ruleIds);
-                                    if (assetRulesCB != null && assetRulesCB.Count > 0)
-                                    {
-                                        allAssetRules = assetRulesCB;
-
-                                        if (filterActions)
-                                        {
-                                            allAssetRules = allAssetRules.Where(x => x.Actions.Any(a => a.Type == ruleActionType.Value)).ToList();
-                                        }
+                                        allAssetRules = allAssetRules.Where(ar => ar.IsActionExists(ruleActionType.Value)).ToList();
                                     }
                                 }
                             }
@@ -1057,7 +1033,7 @@ namespace Core.Api.Managers
             catch (Exception ex)
             {
                 allAssetRules = null;
-                log.Error(string.Format("GetAllAssetRules faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+                log.Error(string.Format("GetAllAssetRules failed params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
             return new Tuple<List<AssetRule>, bool>(allAssetRules, allAssetRules != null);
