@@ -1949,10 +1949,10 @@ namespace Core.ConditionalAccess
                                     }
                                     else if (tempPrice.m_dPrice == lowestPrice.m_dPrice)
                                     {
-                                        int numberOfRecurring = campaign.Promotion.NumberOfRecurring ?? -1;
+                                        int numberOfRecurring = campaign == null ? -1 : campaign.Promotion.NumberOfRecurring ?? -1;
                                         int newNumberOfRecurring = promotedCampaign.Promotion.NumberOfRecurring ?? -1;
 
-                                        isLowest = (newNumberOfRecurring > numberOfRecurring) ||
+                                        isLowest = campaign == null || (newNumberOfRecurring > numberOfRecurring) ||
                                             (newNumberOfRecurring == numberOfRecurring && promotedCampaign.EndDate > campaign.EndDate);
                                     }
 

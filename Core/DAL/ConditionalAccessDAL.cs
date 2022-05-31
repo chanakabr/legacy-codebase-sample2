@@ -3532,6 +3532,12 @@ namespace DAL
             return UtilsDal.DeleteObjectFromCB(CouchbaseManager.eCouchbaseBucket.OTT_APPS, key);
         }
 
+        public static bool DeleteRecurringRenewDetails(long purchaseId)
+        {
+            string key = UtilsDal.GetRecurringRenewDetailsKey(purchaseId);
+            return UtilsDal.DeleteObjectFromCB(CouchbaseManager.eCouchbaseBucket.OTT_APPS, key);
+        }
+
         public static bool SaveRecurringRenewDetails(RecurringRenewDetails recurringRenewDetails, long purchaseId)
         {
             string key = UtilsDal.GetRecurringRenewDetailsKey(purchaseId);

@@ -2037,43 +2037,26 @@ namespace Core.ConditionalAccess
                             #endregion
 
                             #region Campaign
-                            if (recurringData.CampaignDetails?.Id > 0)
+
+                            //customDataCampaign
+                            long campaignId = 0;
+                            if (recurringData.CampaignDetails?.Id > 0 || (!string.IsNullOrEmpty(customDataCampaign) && long.TryParse(customDataCampaign, out campaignId)))
                             {
-                                CampaignEntitlementDiscountDetails cedd = new CampaignEntitlementDiscountDetails() { Id = recurringData.CampaignDetails.Id };
-
-                                if (freeTrail)
+                                int lifeCycle = 0, leftRecurring = 0;
+                                if (campaignId == 0)
                                 {
-                                    cedd.StartDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate);
+                                    campaignId = recurringData.CampaignDetails.Id;
+                                    if (subscription.m_MultiSubscriptionUsageModule.Length == 1)
+                                    {
+                                        lifeCycle = subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle;
+                                        leftRecurring = recurringData.CampaignDetails.LeftRecurring;
+                                    }
                                 }
 
-                                if (subscription.m_MultiSubscriptionUsageModule.Length == 1)
-                                {
-                                    cedd.EndDate = GetEntitlementPriceDetailsEndDate(subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle, recurringData.CampaignDetails.LeftRecurring, entitlement.endDate);
-                                }
-
-                                //get campaign by id
-                                CampaignIdInFilter campaignFilter = new CampaignIdInFilter()
-                                {
-                                    IdIn = new List<long>() { recurringData.CampaignDetails.Id },
-                                    IsAllowedToViewInactiveCampaigns = true
-                                };
-
-                                ApiObjects.Base.ContextData contextData = new ApiObjects.Base.ContextData(groupId);
-
-                                var campaigns = ApiLogic.Users.Managers.CampaignManager.Instance.ListCampaingsByIds(contextData, campaignFilter);
-
-                                if (campaigns.HasObjects())
-                                {
-                                    Price priceBeforeCouponDiscount = subOriginalPrice;
-
-                                    var discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)(campaigns.Objects[0].Promotion.DiscountModuleId), countryCode, subOriginalPrice.m_oCurrency.m_sCurrencyCD3);
-
-                                    Price priceResult = Utils.GetPriceAfterDiscount(priceBeforeCouponDiscount, discountModule, 0);
-                                    cedd.Amount = subOriginalPrice.m_dPrice - priceResult.m_dPrice;
-                                }
-
+                                CampaignEntitlementDiscountDetails cedd = GetCampaignEntitlementDiscountDetails(groupId, entitlement, countryCode, subOriginalPrice, (int)campaignId, lifeCycle, leftRecurring, freeTrail);
                                 entitlementPriceDetails.AddDiscountDetails(cedd);
                             }
+
                             #endregion
 
                             #region Compensation
@@ -2141,41 +2124,11 @@ namespace Core.ConditionalAccess
                         }
                         #endregion
 
-                        #region Campaign
                         if (!string.IsNullOrEmpty(customDataCampaign) && int.TryParse(customDataCampaign, out int campaignId))
                         {
-                            CampaignEntitlementDiscountDetails cedd = new CampaignEntitlementDiscountDetails()
-                            {
-                                Id = campaignId,
-                                EndDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate)
-                            };
-
-                            //get campaign by id
-
-                            CampaignIdInFilter campaignFilter = new CampaignIdInFilter()
-                            {
-                                IdIn = new List<long>() { campaignId },
-                                IsAllowedToViewInactiveCampaigns = true
-                            };
-
-                            ApiObjects.Base.ContextData contextData = new ApiObjects.Base.ContextData(groupId);
-
-                            var campaigns = ApiLogic.Users.Managers.CampaignManager.Instance.ListCampaingsByIds(contextData, campaignFilter);
-
-                            if (campaigns.HasObjects())
-                            {
-                                Price priceBeforeCouponDiscount = subOriginalPrice;
-
-                                var discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)(campaigns.Objects[0].Promotion.DiscountModuleId), countryCode, subOriginalPrice.m_oCurrency.m_sCurrencyCD3);
-
-                                Price priceResult = Utils.GetPriceAfterDiscount(priceBeforeCouponDiscount, discountModule, 0);
-                                cedd.Amount = subOriginalPrice.m_dPrice - priceResult.m_dPrice;
-                            }
-
+                            var cedd = GetCampaignEntitlementDiscountDetails(groupId, entitlement, countryCode, subOriginalPrice, campaignId);
                             entitlementPriceDetails.AddDiscountDetails(cedd);
                         }
-                        #endregion
-
                     }
                 }
             }
@@ -2185,6 +2138,40 @@ namespace Core.ConditionalAccess
             }
 
             return entitlementPriceDetails;
+        }
+
+        private static CampaignEntitlementDiscountDetails GetCampaignEntitlementDiscountDetails(int groupId, Entitlement entitlement, string countryCode, Price subOriginalPrice, int campaignId, int lifeCycle = 0, int leftRecurring=0, bool freeTrail=false)
+        {
+            var cedd = new CampaignEntitlementDiscountDetails()
+            { 
+                Id = campaignId,
+                EndDate = GetEntitlementPriceDetailsEndDate(lifeCycle, leftRecurring, entitlement.endDate)
+            };
+
+            if (freeTrail)
+            {
+                cedd.StartDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate);
+            }
+
+            //get campaign by id
+            var campaignFilter = new CampaignIdInFilter()
+            {
+                IdIn = new List<long>() { campaignId },
+                IsAllowedToViewInactiveCampaigns = true
+            };
+
+            var contextData = new ApiObjects.Base.ContextData(groupId);
+            var campaigns = ApiLogic.Users.Managers.CampaignManager.Instance.ListCampaingsByIds(contextData, campaignFilter);
+
+            if (campaigns.HasObjects())
+            {
+                Price priceBeforeCouponDiscount = subOriginalPrice;
+                var discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)(campaigns.Objects[0].Promotion.DiscountModuleId), countryCode, subOriginalPrice.m_oCurrency.m_sCurrencyCD3);
+                Price priceResult = Utils.GetPriceAfterDiscount(priceBeforeCouponDiscount, discountModule, 0);
+                cedd.Amount = subOriginalPrice.m_dPrice - priceResult.m_dPrice;
+            }
+
+            return cedd;
         }
 
         private static void GetDataFromCustomData(string customData, out double customDataPrice, out string customDataCurrency, out string countryCode,

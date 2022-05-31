@@ -116,7 +116,7 @@ namespace Core.ConditionalAccess
         public const string RECURRING_NUMBER = "recurringnumber";
         public const string IS_ORIGINAL_BROADCAST_KEY = "isOriginalBroadcast";
         public const string IS_ORIGINAL_BROADCAST_VALUE = "true";
-        public const string CAMPAIGN_CODE = "campcode";
+        public const string CAMPAIGN_CODE = "campaign";
         public const string COMPANSATION_CODE = "compensation";
 
         protected const int PAYMENT_GATEWAY = 1000;
@@ -3737,7 +3737,7 @@ namespace Core.ConditionalAccess
                             use = true;
                         }
                     }
-                    else if (campaignDetails.Remainder > 0)
+                    else if (campaignDetails.Remainder > 0 && !campaignDetails.IsUseRemainder)
                     {
                         renewDetails.RecurringData.CampaignDetails.IsUseRemainder = true;
                         renewDetails.Price = Math.Max(renewDetails.Price - campaignDetails.Remainder, 0);
@@ -18570,6 +18570,7 @@ namespace Core.ConditionalAccess
             {
                 string key = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, householdId);
                 LayeredCache.Instance.SetInvalidationKey(key);
+                ConditionalAccessDAL.DeleteRecurringRenewDetails(purchaseId);
             }
 
             SubscriptionPurchase subscriptionPurchase = new Modules.SubscriptionPurchase(this.m_nGroupID)
