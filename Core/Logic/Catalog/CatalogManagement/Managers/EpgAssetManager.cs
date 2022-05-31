@@ -229,7 +229,7 @@ namespace Core.Catalog.CatalogManagement
                 var linearChannelSettingsForEpgCb = Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, new List<string>() { epgCbToAdd.ChannelID.ToString() });
                 bool indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertProgram(
                                       epgsToIndex,
-                                      Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, new List<string>() { epgCbToAdd.ChannelID.ToString() })
+                                      linearChannelSettingsForEpgCb
                                       );
 
                 InvalidateEpgs(groupId,

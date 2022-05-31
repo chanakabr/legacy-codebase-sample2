@@ -1707,39 +1707,39 @@ namespace Core.Catalog.CatalogManagement
             return languagesValues.Where(z => z.m_sLanguageCode3 == language.Code).Select(z => z.m_sValue);
         }
 
+        private static readonly string DateTimeType = MetaType.DateTime.ToString();
+        private static readonly string BoolType = MetaType.Bool.ToString();
+        private static readonly string NumberType = MetaType.Number.ToString();
+        private static readonly string StringType = MetaType.String.ToString();
         private static Dictionary<string, string> GetMetasForLanguage(LanguageObj language, List<Metas> metas)
         {
-            Dictionary<string, string> languageMetas = new Dictionary<string, string>();
+            var languageMetas = new Dictionary<string, string>();
             if (metas == null || metas.Count == 0) return languageMetas;
-
-            var dateTimeType = MetaType.DateTime.ToString();
-            var boolType = MetaType.Bool.ToString();
-            var numberType = MetaType.Number.ToString();
-
+            
             foreach (Metas meta in metas)
             {
-                var tagName = meta.m_oTagMeta.m_sName;
-                var tagType = meta.m_oTagMeta.m_sType;
+                var metaName = meta.m_oTagMeta.m_sName;
+                var metaType = meta.m_oTagMeta.m_sType;
 
-                if (tagType == dateTimeType
+                if (metaType == DateTimeType
                     && DateTime.TryParseExact(meta.m_sValue, DateUtils.MAIN_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out var date))
                 {
-                    languageMetas.Add(tagName, date.ToESDateFormat());
+                    languageMetas.Add(metaName, date.ToESDateFormat());
                 }
-                else if (tagType == boolType || tagType == numberType)
+                else if (metaType == BoolType || metaType == NumberType || metaType == StringType)
                 {
-                    languageMetas.TryAdd(tagName, meta.m_sValue);
+                    languageMetas.TryAdd(metaName, meta.m_sValue);
                 }
                 else
                 {
                     if (language.IsDefault)
                     {
-                        languageMetas.Add(tagName, meta.m_sValue);
+                        languageMetas.Add(metaName, meta.m_sValue);
                     }
                     else if (meta.Value != null)
                     {
                         var values = GetValuesForLanguage(language, meta.Value);
-                        if (values.Count() == 1) languageMetas.Add(tagName, values.First());
+                        if (values.Count() == 1) languageMetas.Add(metaName, values.First());
                     }
                 }
             }
