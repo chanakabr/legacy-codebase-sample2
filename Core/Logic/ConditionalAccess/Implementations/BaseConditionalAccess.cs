@@ -120,6 +120,7 @@ namespace Core.ConditionalAccess
         public const string COMPANSATION_CODE = "compensation";
 
         protected const int PAYMENT_GATEWAY = 1000;
+        List<TstvRecordingStatus> ALLOWED_RECORDING_UPDATE_STATUSES = new List<TstvRecordingStatus> { TstvRecordingStatus.Recorded, TstvRecordingStatus.Scheduled, TstvRecordingStatus.Recording };
 
         #region Abstract methods
         protected abstract BillingResponse HandleBaseRenewMPPBillingCharge(string sSiteGuid, double dPrice,
@@ -15326,13 +15327,14 @@ namespace Core.ConditionalAccess
                 recording.Id = domainRecordingId;
 
                 // Validate recording is in "Recorded" status
-                if (recording.RecordingStatus != TstvRecordingStatus.Recorded)
+                // BEO-12077 - Include Scheduled & Recording
+                if (!ALLOWED_RECORDING_UPDATE_STATUSES.Contains(recording.RecordingStatus))
                 {
                     log.DebugFormat(
                         "RecordingStatus is not valid for protection, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}",
                         domainRecordingId, domainID, userId, recording.ToString());
                     recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid,
-                        "Protection failed, only recording in status Recorded can be protected");
+                        $"Protection failed, only recording in status [{string.Join(",", ALLOWED_RECORDING_UPDATE_STATUSES)}] can be protected");
 
                     return recording;
                 }
