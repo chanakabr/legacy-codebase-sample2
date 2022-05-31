@@ -29,10 +29,14 @@ namespace ApiLogic.Catalog
             SessionCharacteristicKey = sessionCharacteristicKey;
         }
 
+        public static UserSearchContext GetByUserId(long userId)
+        {
+            return new UserSearchContext(0, userId, 0, null, null, true, false, false, false, true, null);
+        }
+
         public override string ToString()
         {
-            return
-                $"{{{nameof(DomainId)}:{DomainId}, {nameof(UserId)}:{UserId}, {nameof(LanguageId)}:{LanguageId}, {nameof(Udid)}:{Udid}, {nameof(UserIp)}:{UserIp}, {nameof(IgnoreEndDate)}:{IgnoreEndDate}, {nameof(UseStartDate)}:{UseStartDate}, {nameof(UseFinal)}:{UseFinal}, {nameof(GetOnlyActiveAssets)}:{GetOnlyActiveAssets}, {nameof(IsAllowedToViewInactiveAssets)}:{IsAllowedToViewInactiveAssets}, {nameof(SessionCharacteristicKey)}:{SessionCharacteristicKey}}}";
+            return $"{{{nameof(DomainId)}:{DomainId}, {nameof(UserId)}:{UserId}, {nameof(LanguageId)}:{LanguageId}, {nameof(Udid)}:{Udid}, {nameof(UserIp)}:{UserIp}, {nameof(IgnoreEndDate)}:{IgnoreEndDate}, {nameof(UseStartDate)}:{UseStartDate}, {nameof(UseFinal)}:{UseFinal}, {nameof(GetOnlyActiveAssets)}:{GetOnlyActiveAssets}, {nameof(IsAllowedToViewInactiveAssets)}:{IsAllowedToViewInactiveAssets}, {nameof(SessionCharacteristicKey)}:{SessionCharacteristicKey}}}";
         }
     }
 }

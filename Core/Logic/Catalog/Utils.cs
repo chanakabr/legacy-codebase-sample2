@@ -18,6 +18,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
+using ApiLogic.Api.Managers.Rule;
 using Tvinci.Core.DAL;
 
 namespace Core.Catalog
@@ -1356,6 +1357,8 @@ namespace Core.Catalog
                 var catalogSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
 
                 var catalogSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, catalogSignatureString);
+
+                filterQuery = FilterAsset.Instance.UpdateKsql(filterQuery, (int)groupId, searchContext.SessionCharacteristicKey);
 
                 try
                 {

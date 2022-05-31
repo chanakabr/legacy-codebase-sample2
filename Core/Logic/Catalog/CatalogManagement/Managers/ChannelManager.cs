@@ -14,7 +14,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading;
+using ApiLogic.Catalog;
 using GroupsCacheManager.Mappers;
 using Tvinci.Core.DAL;
 using static ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData;
@@ -622,7 +624,7 @@ namespace Core.Catalog.CatalogManagement
                     // remove rule
                     channel.AssetUserRuleId = 0;
                     // update channel
-                    channelResponse = UpdateChannel(groupId, channel.m_nChannelID, channel, userId);
+                    channelResponse = UpdateChannel(groupId, channel.m_nChannelID, channel, UserSearchContext.GetByUserId(userId));
                     if (channelResponse != null && channelResponse.Status != null && channelResponse.Status.Code != (int)eResponseStatus.OK)
                     {
                         log.ErrorFormat("Error while RemoveAssetRuleIdFromChannel. groupId {0}, channel {1}, rule {2}, user {3}", groupId, channel.m_nChannelID, ruleId, userId);
@@ -793,7 +795,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static GenericResponse<Channel> AddChannel(int groupId, Channel channelToAdd, long userId)
+        public static GenericResponse<Channel> AddChannel(int groupId, Channel channelToAdd, UserSearchContext searchContext)
         {
             GenericResponse<Channel> response = new GenericResponse<Channel>();
 
@@ -865,7 +867,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         if (channelToAdd.m_lManualMedias?.Count > 0)
                         {
-                            Status assetStatus = ValidateMediasForManualChannel(groupId, channelToAdd.m_lManualMedias, out mediaIdsToOrderNum);
+                            Status assetStatus = ValidateMediasForManualChannel(groupId, channelToAdd.m_lManualMedias, searchContext, out mediaIdsToOrderNum);
                             if (!assetStatus.IsOkStatusCode())
                             {
                                 response.SetStatus(assetStatus);
@@ -875,7 +877,7 @@ namespace Core.Catalog.CatalogManagement
 
                         if (channelToAdd.ManualAssets?.Count > 0)
                         {
-                            Status assetStatus = ValidateAssetsForManualChannel(groupId, channelToAdd.ManualAssets);
+                            Status assetStatus = ValidateAssetsForManualChannel(groupId, channelToAdd.ManualAssets, searchContext);
                             if (!assetStatus.IsOkStatusCode())
                             {
                                 response.SetStatus(assetStatus);
@@ -915,12 +917,12 @@ namespace Core.Catalog.CatalogManagement
 
                 string groupBy = channelToAdd.searchGroupBy != null && channelToAdd.searchGroupBy.groupBy != null && channelToAdd.searchGroupBy.groupBy.Count == 1 ? channelToAdd.searchGroupBy.groupBy.First() : null;
 
-                long assetUserRuleId = AssetUserRuleManager.GetAssetUserRule(groupId, userId, true);
+                long assetUserRuleId = AssetUserRuleManager.GetAssetUserRule(groupId, searchContext.UserId, true);
                 if (channelToAdd.AssetUserRuleId.HasValue && channelToAdd.AssetUserRuleId.Value > 0)
                 {
                     if (assetUserRuleId > 0 && assetUserRuleId != channelToAdd.AssetUserRuleId)
                     {
-                        log.DebugFormat("User {0} not allowed on channel. ruleId {1}.", userId, assetUserRuleId);
+                        log.DebugFormat("User {0} not allowed on channel. ruleId {1}.", searchContext.UserId, assetUserRuleId);
 
                         response.SetStatus(eResponseStatus.ActionIsNotAllowed, ACTION_IS_NOT_ALLOWED);
                         return response;
@@ -958,7 +960,7 @@ namespace Core.Catalog.CatalogManagement
                     languageCodeToName,
                     languageCodeToDescription,
                     mediaIdsToOrderNum,
-                    userId,
+                    searchContext.UserId,
                     channelToAdd.SupportSegmentBasedOrdering,
                     channelToAdd.AssetUserRuleId,
                     channelToAdd.MetaData != null,
@@ -988,7 +990,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (response.Object != null && response.Object.m_nChannelID > 0)
                 {
-                    long virtualAssetId = CreateVirtualChannel(groupId, userId, response.Object);
+                    long virtualAssetId = CreateVirtualChannel(groupId, searchContext.UserId, response.Object);
 
                     if (virtualAssetId > 0)
                     {
@@ -1003,7 +1005,7 @@ namespace Core.Catalog.CatalogManagement
                         log.ErrorFormat($"Failed invalidating group channels key for group {groupId}");
                     }
 
-                    bool updateResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertChannel(response.Object.m_nChannelID, response.Object, userId);
+                    bool updateResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertChannel(response.Object.m_nChannelID, response.Object, searchContext.UserId);
                     if (!updateResult)
                     {
                         log.ErrorFormat("Failed update channel index with id: {0} after AddChannel", response.Object.m_nChannelID);
@@ -1026,7 +1028,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public GenericResponse<Channel> UpdateChannel(int groupId, int channelId, Channel channelToUpdate, long userId, bool isForMigration = false, bool isFromAsset = false)
+        public GenericResponse<Channel> UpdateChannel(int groupId, int channelId, Channel channelToUpdate, UserSearchContext searchContext, bool isForMigration = false, bool isFromAsset = false)
         {
             GenericResponse<Channel> response = new GenericResponse<Channel>();
             Channel currentChannel = null;
@@ -1051,7 +1053,7 @@ namespace Core.Catalog.CatalogManagement
                 if (!isForMigration)
                 {
                     //isAllowedToViewInactiveAssets = true because only operator can update channel
-                    response = GetChannelById(groupId, channelId, true, userId);
+                    response = GetChannelById(groupId, channelId, true, searchContext.UserId);
                     if (response != null && response.Status != null && response.Status.Code != (int)eResponseStatus.OK)
                     {
                         return response;
@@ -1118,12 +1120,8 @@ namespace Core.Catalog.CatalogManagement
                         {
                             mediaIdsToOrderNum = new List<KeyValuePair<long, int>>();
                             if (channelToUpdate.m_lManualMedias.Count > 0)
-
-
-
-
                             {
-                                Status assetStatus = ValidateMediasForManualChannel(groupId, channelToUpdate.m_lManualMedias, out mediaIdsToOrderNum);
+                                Status assetStatus = ValidateMediasForManualChannel(groupId, channelToUpdate.m_lManualMedias, searchContext, out mediaIdsToOrderNum);
                                 if (!assetStatus.IsOkStatusCode())
                                 {
                                     response.SetStatus(assetStatus);
@@ -1134,7 +1132,7 @@ namespace Core.Catalog.CatalogManagement
 
                         if (channelToUpdate.ManualAssets?.Count > 0)
                         {
-                            Status assetStatus = ValidateAssetsForManualChannel(groupId, channelToUpdate.ManualAssets);
+                            Status assetStatus = ValidateAssetsForManualChannel(groupId, channelToUpdate.ManualAssets, searchContext);
                             if (!assetStatus.IsOkStatusCode())
                             {
                                 response.SetStatus(assetStatus);
@@ -1209,7 +1207,7 @@ namespace Core.Catalog.CatalogManagement
                     languageCodeToName,
                     languageCodeToDescription,
                     mediaIdsToOrderNum,
-                    userId,
+                    searchContext.UserId,
                     channelToUpdate.SupportSegmentBasedOrdering,
                     channelToUpdate.AssetUserRuleId,
                     assetTypesValuesInd,
@@ -1264,7 +1262,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         if (!isFromAsset)
                         {
-                            UpdateVirtualAsset(groupId, userId, response.Object);
+                            UpdateVirtualAsset(groupId, searchContext.UserId, response.Object);
                         }
 
                         if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupChannelsInvalidationKey(groupId)))
@@ -1278,7 +1276,7 @@ namespace Core.Catalog.CatalogManagement
                                                 channelId, LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId));
                         }
 
-                        bool updateResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertChannel(response.Object.m_nChannelID, response.Object, userId);
+                        bool updateResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertChannel(response.Object.m_nChannelID, response.Object, searchContext.UserId);
                         if (!updateResult)
                         {
                             log.ErrorFormat("Failed update channel index with id: {0} after UpdateChannel", channelId);
@@ -1489,43 +1487,61 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static Status ValidateMediasForManualChannel(int groupId, List<GroupsCacheManager.ManualMedia> manualMedias, out List<KeyValuePair<long, int>> mediaIdsToOrderNum)
+        private static Status ValidateMediasForManualChannel(int groupId, List<GroupsCacheManager.ManualMedia> manualMedias, UserSearchContext searchContext, out List<KeyValuePair<long, int>> mediaIdsToOrderNum)
         {
             mediaIdsToOrderNum = new List<KeyValuePair<long, int>>();
-            List<KeyValuePair<ApiObjects.eAssetTypes, long>> assets = new List<KeyValuePair<ApiObjects.eAssetTypes, long>>();
+            var assets = new List<ManualAsset>();
             foreach (GroupsCacheManager.ManualMedia manualMedia in manualMedias)
             {
-                long mediaId;
-                if (long.TryParse(manualMedia.m_sMediaId, out mediaId) && mediaId > 0)
+                if (long.TryParse(manualMedia.m_sMediaId, out var mediaId) && mediaId > 0)
                 {
-                    assets.Add(new KeyValuePair<ApiObjects.eAssetTypes, long>(ApiObjects.eAssetTypes.MEDIA, mediaId));
+                    assets.Add(new ManualAsset { AssetType = eAssetTypes.MEDIA, AssetId = mediaId, OrderNum = manualMedia.m_nOrderNum });
                     mediaIdsToOrderNum.Add(new KeyValuePair<long, int>(mediaId, manualMedia.m_nOrderNum));
                 }
             }
 
-            if (assets.Count > 0)
-            {
-                // isAllowedToViewInactiveAssets = true becuase only operator can add channel
-                List<Asset> existingAssets = AssetManager.GetAssets(groupId, assets, true);
-                if (existingAssets == null || existingAssets.Count == 0 || existingAssets.Count != manualMedias.Count)
-                {
-                    List<long> missingAssetIds = existingAssets != null ? assets.Select(x => x.Value).Except(existingAssets.Select(x => x.Id)).ToList() : assets.Select(x => x.Value).ToList();
-                    return new Status() { Code = (int)eResponseStatus.AssetDoesNotExist, Message = $"AssetDoesNotExist  Ids: {string.Join(",", missingAssetIds)}" };
-                }
-            }
+            var status = ValidateAssetsForManualChannel(groupId, assets, searchContext);
 
-            return new Status(eResponseStatus.OK);
+            return status;
         }
 
-        private static Status ValidateAssetsForManualChannel(int groupId, List<ManualAsset> manualAssets)
+        private static Status ValidateAssetsForManualChannel(long groupId, IReadOnlyCollection<ManualAsset> assets, UserSearchContext searchContext)
         {
-            // isAllowedToViewInactiveAssets = true becuase only operator can add channel
-            var assets = manualAssets.Select(x => new KeyValuePair<eAssetTypes, long>(x.AssetType, x.AssetId)).ToList();
-            List<Asset> existingAssets = AssetManager.GetAssets(groupId, assets, true, false);
-            if (existingAssets == null || existingAssets.Count == 0 || existingAssets.Count != manualAssets.Count)
+            var mediaIds = assets
+                .Where(x => x.AssetType == eAssetTypes.MEDIA)
+                .Select(x => x.AssetId)
+                .ToArray();
+            var epgIds = assets
+                .Where(x => x.AssetType == eAssetTypes.EPG)
+                .Select(x => x.AssetId)
+                .ToArray();
+
+            var ksqlFilter = new StringBuilder("(or ");
+            if (mediaIds.Any())
             {
-                List<long> missingAssetIds = existingAssets != null ? manualAssets.Select(x => x.AssetId).Except(existingAssets.Select(x => x.Id)).ToList() : manualAssets.Select(x => x.AssetId).ToList();
-                return new Status() { Code = (int)eResponseStatus.AssetDoesNotExist, Message = $"AssetDoesNotExist  Ids: {string.Join(",", missingAssetIds)}" };
+                ksqlFilter.AppendFormat($"(and asset_type='media' media_id:'{string.Join(",", mediaIds)}')");
+            }
+
+            if (epgIds.Any())
+            {
+                ksqlFilter.AppendFormat($"(and asset_type='epg' epg_id:'{string.Join(",", epgIds)}')");
+            }
+
+            ksqlFilter.Append(")");
+            
+            var searchResult = Utils.SearchAssets(groupId, searchContext, ksqlFilter.ToString());
+
+            var missingMediaIds = mediaIds
+                .Concat(epgIds)
+                .Except(searchResult.Select(x => long.Parse(x.AssetId)))
+                .ToArray();
+            if (missingMediaIds.Any())
+            {
+                return new Status
+                {
+                    Code = (int)eResponseStatus.AssetDoesNotExist,
+                    Message = $"AssetDoesNotExist Ids: {string.Join(",", missingMediaIds)}"
+                };
             }
 
             return new Status(eResponseStatus.OK);

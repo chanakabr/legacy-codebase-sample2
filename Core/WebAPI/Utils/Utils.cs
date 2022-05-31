@@ -5,8 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Web;
+using ApiLogic.Catalog;
 using KalturaRequestContext;
 using TVinciShared;
+using WebAPI.ClientManagers;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
@@ -449,6 +451,21 @@ namespace WebAPI.Utils
             var compareWithMaxValue = value.CompareTo(maxValue);
 
             return compareWithMinValue >= 0 && compareWithMaxValue <= 0;
+        }
+
+        public static UserSearchContext GetUserSearchContext()
+        {
+            var groupId = KS.GetFromRequest().GroupId;
+            var domainId = KS.GetContextData().DomainId ?? 0;
+            var userId = GetUserIdFromKs();
+            var languageId = GetLanguageId(groupId, KS.GetContextData().Language);
+            var udid = KS.GetContextData().Udid;
+            var userIp = GetClientIP();
+            var isAllowedToViewInactiveAssets = IsAllowedToViewInactiveAssets(groupId, userId.ToString(), true);
+            var group = GroupsManager.Instance.GetGroup(groupId);
+            var sessionCharacteristicKey = KSUtils.ExtractKSPayload(KS.GetFromRequest()).SessionCharacteristicKey;
+
+            return new UserSearchContext(domainId, userId, languageId, udid, userIp, false, group.UseStartDate, false, group.GetOnlyActiveAssets, isAllowedToViewInactiveAssets, sessionCharacteristicKey);
         }
     }
 }

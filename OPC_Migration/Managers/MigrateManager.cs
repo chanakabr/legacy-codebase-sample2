@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Catalog;
+using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.Response;
 using Core.Catalog;
@@ -1099,7 +1100,7 @@ namespace OPC_Migration
                             }
                         }
                         
-                        GenericResponse<Channel> response = ChannelManager.Instance.UpdateChannel(groupId, channel.m_nChannelID, channel, Utils.UPDATING_USER_ID, true);
+                        GenericResponse<Channel> response = ChannelManager.Instance.UpdateChannel(groupId, channel.m_nChannelID, channel, UserSearchContext.GetByUserId(Utils.UPDATING_USER_ID), true);
                         if (!response.HasObject() || response.Object.m_nChannelID != channel.m_nChannelID)
                         {
                             log.ErrorFormat("Failed to update channel with id: {0}, will retry synchronously", channel.m_nChannelID);
@@ -1112,7 +1113,7 @@ namespace OPC_Migration
                         log.DebugFormat("Retrying update of failed channels");
                         foreach (Channel channel in failedChannels)
                         {
-                            GenericResponse<Channel> response = ChannelManager.Instance.UpdateChannel(groupId, channel.m_nChannelID, channel, Utils.UPDATING_USER_ID, true);
+                            GenericResponse<Channel> response = ChannelManager.Instance.UpdateChannel(groupId, channel.m_nChannelID, channel, UserSearchContext.GetByUserId(Utils.UPDATING_USER_ID), true);
                             if (!response.HasObject() || response.Object.m_nChannelID != channel.m_nChannelID)
                             {
                                 log.ErrorFormat("Failed to update channel with id: {0}", channel.m_nChannelID);

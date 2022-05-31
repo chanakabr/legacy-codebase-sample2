@@ -3769,7 +3769,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaChannel InsertChannel(int groupId, KalturaChannel channel, long userId)
+        internal KalturaChannel InsertChannel(int groupId, KalturaChannel channel, UserSearchContext searchContext)
         {
             KalturaChannel result = null;
             GenericResponse<Channel> response = null;
@@ -3779,7 +3779,7 @@ namespace WebAPI.Clients
                 Channel channelToAdd = Mapper.Map<Channel>(channel);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ChannelManager.AddChannel(groupId, channelToAdd, userId);
+                    response = ChannelManager.AddChannel(groupId, channelToAdd, searchContext);
                 }
             }
             catch (Exception ex)
@@ -3812,7 +3812,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaChannel UpdateChannel(int groupId, int id, KalturaChannel channel, long userId)
+        internal KalturaChannel UpdateChannel(int groupId, int id, KalturaChannel channel, UserSearchContext searchContext)
         {
             KalturaChannel result = null;
             GenericResponse<Channel> response = null;
@@ -3828,7 +3828,7 @@ namespace WebAPI.Clients
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ChannelManager.Instance.UpdateChannel(groupId, id, channelToUpdate, userId);
+                    response = ChannelManager.Instance.UpdateChannel(groupId, id, channelToUpdate, searchContext);
                 }
             }
             catch (Exception ex)

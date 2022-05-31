@@ -24,10 +24,8 @@ using System.Threading;
 using System.Xml;
 using ApiLogic.Api.Managers.Rule;
 using ApiLogic.Catalog;
-using ApiObjects.Rules;
 using ApiObjects.SearchPriorityGroups;
 using FeatureFlag;
-using Ott.Lib.FeatureToggle.Managers;
 using Tvinci.Core.DAL;
 using TVinciShared;
 
@@ -2160,7 +2158,7 @@ namespace Core.Catalog.CatalogManagement
                     channel.m_sDescription = asset.Description;
                     channel.DescriptionInOtherLanguages = asset.DescriptionsWithLanguages;
 
-                    GenericResponse<GroupsCacheManager.Channel> channelUpdateResponse = ChannelManager.Instance.UpdateChannel(groupId, channel.m_nChannelID, channel, userId, false, true);
+                    GenericResponse<GroupsCacheManager.Channel> channelUpdateResponse = ChannelManager.Instance.UpdateChannel(groupId, channel.m_nChannelID, channel, UserSearchContext.GetByUserId(userId), false, true);
 
                     if (!channelUpdateResponse.IsOkStatusCode())
                     {
@@ -3664,8 +3662,7 @@ namespace Core.Catalog.CatalogManagement
 
             ksqlBuilder.Append(")");
 
-            var filterQuery = FilterAsset.Instance.UpdateKsql(ksqlBuilder.ToString(), (int)groupId, searchContext.SessionCharacteristicKey);
-            var searchResult = Utils.SearchAssets(groupId, searchContext, filterQuery);
+            var searchResult = Utils.SearchAssets(groupId, searchContext, ksqlBuilder.ToString());
             var assetsRequestQuery = searchResult.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, long.Parse(x.AssetId)));
             var assets = GetAssets((int)groupId, assetsRequestQuery.ToList(), searchContext.IsAllowedToViewInactiveAssets) ?? Enumerable.Empty<Asset>();
 

@@ -59,22 +59,13 @@ namespace WebAPI.Controllers
             }
 
             var groupId = KS.GetFromRequest().GroupId;
-            var domainId = KS.GetContextData().DomainId ?? 0;
             var regionId = KSUtils.ExtractKSPayload().RegionId;
-            var userId = Utils.Utils.GetUserIdFromKs();
-            var languageId = Utils.Utils.GetLanguageId(groupId, KS.GetContextData().Language);
-            var udid = KS.GetContextData().Udid;
-            var userIp = Utils.Utils.GetClientIP();
-            var isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userId.ToString(), true);
-            var group = GroupsManager.Instance.GetGroup(groupId);
-            var sessionCharacteristicKey = KSUtils.ExtractKSPayload(KS.GetFromRequest()).SessionCharacteristicKey;
-
-            var searchContext = new UserSearchContext(domainId, userId, languageId, udid, userIp, false, group.UseStartDate, false, group.GetOnlyActiveAssets, isAllowedToViewInactiveAssets, sessionCharacteristicKey);
+            var searchContext = Utils.Utils.GetUserSearchContext();
 
             var response = ClientsManager.CatalogClient().GetLineup(groupId, regionId, searchContext, pageIndex.Value - 1, pageSize.Value);
             if (response.Objects.Count > 0)
             {
-                _mediaFileFilter.FilterAssetFiles(response.Objects, groupId, sessionCharacteristicKey);
+                _mediaFileFilter.FilterAssetFiles(response.Objects, groupId, searchContext.SessionCharacteristicKey);
             }
 
             return response;

@@ -173,7 +173,8 @@ namespace WebAPI.Controllers
             KalturaChannel response = null;
             if (isManualChannelOrDynamicChannel)
             {
-                response = ClientsManager.CatalogClient().InsertChannel(groupId, channel, userId);
+                var searchContext = Utils.Utils.GetUserSearchContext();
+                response = ClientsManager.CatalogClient().InsertChannel(groupId, channel, searchContext);
             }
             else
             {
@@ -234,7 +235,8 @@ namespace WebAPI.Controllers
             KalturaChannel response = null;
             if (isManualChannelOrDynamicChannel)
             {
-                response = ClientsManager.CatalogClient().UpdateChannel(groupId, id, channel, userId);
+                var searchContext = Utils.Utils.GetUserSearchContext();
+                response = ClientsManager.CatalogClient().UpdateChannel(groupId, id, channel, searchContext);
             }
             else
             {
