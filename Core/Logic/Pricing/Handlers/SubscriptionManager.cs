@@ -262,6 +262,8 @@ namespace ApiLogic.Pricing.Handlers
                 }
                 #endregion PricePlanIds
 
+                subscriptionToInsert.ProrityInOrder = subscriptionToInsert.ProrityInOrder.HasValue ? subscriptionToInsert.ProrityInOrder : 1;
+
                 int id = _repository.AddSubscription(contextData.GroupId, contextData.UserId.Value, subscriptionToInsert, basePricePlanId, basePriceCodeId, isRecurring, extDiscountId);
                 if (id == 0)
                 {
@@ -570,6 +572,8 @@ namespace ApiLogic.Pricing.Handlers
                     return response;
                 }
             }
+
+            subscriptionToUpdate.ProrityInOrder = subscriptionToUpdate.ProrityInOrder.HasValue ? subscriptionToUpdate.ProrityInOrder : subscription.m_Priority;
 
             bool success = _repository.UpdateSubscription(contextData.GroupId, contextData.UserId.Value, subscriptionToUpdate, basePricePlanId, basePriceCodeId, isRecurring,
                 nullableStartDate, nullableEndDate, extDiscountId);
