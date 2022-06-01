@@ -138,6 +138,10 @@ namespace DAL.Api
                 assetRuleKeys.Add(GetAssetRuleKey(assetRuleId));
             }
 
+            //No hits
+            if (!assetRuleKeys.Any())
+                return new List<AssetRule>();
+
             return UtilsDal.GetObjectListFromCB<AssetRule>(eCouchbaseBucket.OTT_APPS, assetRuleKeys, true);
         }
 
