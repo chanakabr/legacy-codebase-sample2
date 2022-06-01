@@ -33,6 +33,7 @@ using WebAPI.Models.Catalog;
 using WebAPI.Models.Pricing;
 using WebAPI.Models.Segmentation;
 using WebAPI.Models.AssetPersonalMarkup;
+using WebAPI.Models.AssetSelection;
 using WebAPI.Models.Catalog.Ordering;
 using WebAPI.Models.Users;
 using WebAPI.Models.Partner;
@@ -29996,6 +29997,44 @@ namespace WebAPI.Models.Catalog
             return ret;
         }
     }
+    public partial class KalturaPersonalAssetSelectionFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("slotNumberEqual")))
+            {
+                ret.Add("slotNumberEqual", "\"slotNumberEqual\": " + SlotNumberEqual);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("slotNumberEqual")))
+            {
+                ret.Add("slotNumberEqual", "<slotNumberEqual>" + SlotNumberEqual + "</slotNumberEqual>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaPersonalAssetWithHolder
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -38273,6 +38312,64 @@ namespace WebAPI.Models.AssetPersonalMarkup
             if((retrievedProperties == null || retrievedProperties.Contains("productType")))
             {
                 ret.Add("productType", "<productType>" + "" + Enum.GetName(typeof(KalturaTransactionType), ProductType) + "" + "</productType>");
+            }
+            return ret;
+        }
+    }
+}
+
+namespace WebAPI.Models.AssetSelection
+{
+    public partial class KalturaAssetPersonalSelection
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("assetId")))
+            {
+                ret.Add("assetId", "\"assetId\": " + AssetId);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("assetType")))
+            {
+                ret.Add("assetType", "\"assetType\": " + "\"" + Enum.GetName(typeof(KalturaAssetType), AssetType) + "\"");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("updateDate")))
+            {
+                ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("assetId")))
+            {
+                ret.Add("assetId", "<assetId>" + AssetId + "</assetId>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("assetType")))
+            {
+                ret.Add("assetType", "<assetType>" + "" + Enum.GetName(typeof(KalturaAssetType), AssetType) + "" + "</assetType>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("updateDate")))
+            {
+                ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
             }
             return ret;
         }

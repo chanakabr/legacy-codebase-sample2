@@ -7,8 +7,6 @@ using ApiObjects;
 using ApiObjects.Rules;
 using AutoMapper;
 using Core.Catalog.CatalogManagement;
-using WebAPI.Exceptions;
-using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
 
@@ -65,7 +63,7 @@ namespace WebAPI.Managers
             var filterRuleCondition = new FilterRuleCondition(groupId, sessionCharacteristicKey);
             var playbackRules = _filterRuleStorage.GetFilterFileRulesForPlayback(filterRuleCondition);
 
-            return FilterAssetFilesForUser(mediaFiles, playbackRules, ToEAssetType(assetType), fileTypes).ToList();
+            return FilterAssetFilesForUser(mediaFiles, playbackRules, AssetTypeMapper.ToEAssetType(assetType), fileTypes).ToList();
         }
 
         private IEnumerable<T> FilterAssetFilesForUser<T>(IEnumerable<T> mediaFiles, IReadOnlyCollection<AssetRuleAction> rules, eAssetTypes assetType, FileManager.FileTypes fileTypes) where T : KalturaMediaFile
@@ -77,7 +75,7 @@ namespace WebAPI.Managers
 
         private void FilterMediaFile(KalturaAsset asset, FileManager.FileTypes fileTypes, IReadOnlyCollection<AssetRuleAction> discoveryRules, IReadOnlyCollection<AssetRuleAction> playbackRules)
         {
-            var assetType = ToEAssetType(asset.Type);
+            var assetType = AssetTypeMapper.ToEAssetType(asset.Type);
             var mediaFiles = FilterAssetFilesForUser(asset.MediaFiles, discoveryRules, assetType, fileTypes);
             asset.MediaFiles = CreateDiscoveryMediaFiles(mediaFiles, playbackRules, assetType, fileTypes)?.ToList();
         }
@@ -104,32 +102,6 @@ namespace WebAPI.Managers
             discoveryMediaFile.IsPlaybackable = FileMatchUser(rules, assetType, mediaFile, fileTypes);
 
             return discoveryMediaFile;
-        }
-
-        private static eAssetTypes ToEAssetType(int? assetTypeId)
-        {
-            switch (assetTypeId)
-            {
-                case null: return eAssetTypes.UNKNOWN;
-                case 0: return eAssetTypes.EPG;
-                case 1: return eAssetTypes.NPVR;
-                default: return eAssetTypes.MEDIA;
-            }
-        }
-
-        private static eAssetTypes ToEAssetType(KalturaAssetType assetType)
-        {
-            switch (assetType)
-            {
-                case KalturaAssetType.media:
-                    return eAssetTypes.MEDIA;
-                case KalturaAssetType.recording:
-                    return eAssetTypes.NPVR;
-                case KalturaAssetType.epg:
-                    return eAssetTypes.EPG;
-                default:
-                    throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown Asset Type: {assetType}.");
-            }
         }
     }
 }

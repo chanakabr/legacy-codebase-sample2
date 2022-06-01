@@ -4,6 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ApiLogic.Api.Managers.Rule;
+using ApiObjects;
+using ApiObjects.User;
+using AssetSelectionGrpcClientWrapper;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -27,6 +31,10 @@ namespace WebAPI.Controllers
     public class AssetController : IKalturaController
     {
         private static readonly IMediaFileFilter _mediaFileFilter = MediaFileFilter.Instance;
+        
+        private static readonly KalturaAssetListResponse EmptyList = new KalturaAssetListResponse();
+        private static readonly KalturaAssetOrder[] DefaultOrder = { new KalturaAssetOrder { OrderBy = KalturaAssetOrderByType.RELEVANCY_DESC } };
+        private static readonly BadRequestException InvalidSlotNumber = new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, nameof(KalturaPersonalAssetSelectionFilter.SlotNumberEqual), 1);
 
         /// <summary>
         /// Returns media or EPG assets. Filters by media identifiers or by EPG internal or external identifier.
@@ -190,6 +198,93 @@ namespace WebAPI.Controllers
             {
                 ErrorUtils.HandleClientException(ex);
             }
+
+            return response;
+        }
+
+        
+        /// <summary>
+        /// Returns recent selected assets
+        /// </summary>
+        /// <param name="filter">Filtering the assets request</param>
+        /// <remarks></remarks>
+        [Action("listPersonalSelection")]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [ApiAuthorize(eKSValidation.Expiration)]
+        [Throws(eResponseStatus.SyntaxError)]
+        [Throws(eResponseStatus.BadSearchRequest)]
+        [Throws(eResponseStatus.IndexMissing)]
+        static public KalturaAssetListResponse ListPersonalSelection(KalturaPersonalAssetSelectionFilter filter)
+        {
+            if (filter.SlotNumberEqual <= 0) throw InvalidSlotNumber;
+            
+            var contextData = KS.GetContextData();
+
+            if (contextData.UserId == null || contextData.UserId.Value.IsAnonymous()) return EmptyList;
+            
+            var userAssets = AssetSelectionClientInstance.Get()
+                .GetUserAssetSelections(contextData.GroupId, contextData.UserId.Value, filter.SlotNumberEqual);
+            if (userAssets.Count == 0) return EmptyList;
+            
+            // copy-paste from KalturaSearchAssetFilter, but with SpecificAssets
+            var userId = contextData.UserId.ToString();
+            var specificAssets = userAssets.Select(_ => new KeyValuePair<eAssetTypes, long>(_.AssetType, _.AssetId)).ToList();
+            var pageSize = userAssets.Count;
+            var assetTypes = userAssets.Select(_ => _.AssetType).Distinct();
+            var assetTypesKsql = KsqlBuilder.Or(assetTypes.Select(KsqlBuilder.AssetType));
+            
+            var searchAssetFilter = new SearchAssetsFilter
+            {
+                GroupId = contextData.GroupId,
+                SiteGuid = userId,
+                DomainId = (int)(contextData.DomainId ?? 0),
+                Udid = contextData.Udid,
+                Language = contextData.Language,
+                PageIndex = 0,
+                PageSize = pageSize,
+                Filter = FilterAsset.Instance.UpdateKsql(assetTypesKsql, contextData.GroupId, contextData.SessionCharacteristicKey),
+                AssetTypes = null,
+                EpgChannelIds = null,
+                ManagementData = contextData.ManagementData,
+                GroupBy = null,
+                IsAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(contextData.GroupId, userId, true),
+                IgnoreEndDate = false,
+                GroupByType = GroupingOption.Omit,
+                IsPersonalListSearch = false,
+                UseFinal = false,
+                ShouldApplyPriorityGroups = false,
+                ResponseProfile = null,
+                OrderingParameters = DefaultOrder,
+                GroupByOrder = null,
+                SpecificAssets = specificAssets
+            };
+            
+            var response = ClientsManager.CatalogClient().SearchAssets(searchAssetFilter);
+            
+            if (response.Objects == null || response.Objects.Count == 0) return EmptyList;
+
+            // asset-selection service returns assets in a specific order, so rearrange assets by this order  
+            var idToAsset = response.Objects.ToDictionary(
+                key => (key.Id.Value, AssetTypeMapper.ToEAssetType(key.Type)),
+                value => value);
+
+            var assetList = new List<KalturaAsset>();
+            foreach (var userAsset in userAssets)
+            {
+                if (idToAsset.TryGetValue((userAsset.AssetId, userAsset.AssetType), out var asset))
+                {
+                    assetList.Add(asset);
+                }
+            }
+
+            response.Objects = assetList;
+            response.TotalCount = assetList.Count;
+            
+            //copy-paste from asset.list
+            _mediaFileFilter.FilterAssetFiles(response.Objects, contextData.GroupId, contextData.SessionCharacteristicKey);
+
+            var clientTag = OldStandardAttribute.getCurrentClientTag();
+            response.Objects.ForEach(asset => asset.Metas = ModifyAlias(contextData.GroupId, clientTag, asset));
 
             return response;
         }

@@ -1,4 +1,4 @@
-using ApiLogic.Catalog;
+﻿using ApiLogic.Catalog;
 using ApiLogic.Catalog.CatalogManagement.Managers;
 using ApiLogic.Catalog.CatalogManagement.Services;
 using ApiLogic.IndexManager.QueryBuilders;
@@ -824,7 +824,8 @@ namespace WebAPI.Clients
                 isAllowedToViewInactiveAssets = searchAssetsFilter.IsAllowedToViewInactiveAssets,
                 shouldIgnoreEndDate = searchAssetsFilter.IgnoreEndDate && !searchAssetsFilter.UseFinal,
                 isGroupingOptionInclude = searchAssetsFilter.GroupByType == GroupingOption.Include,
-                orderingParameters = KalturaOrderMapper.Instance.MapParameters(searchAssetsFilter.OrderingParameters)
+                orderingParameters = KalturaOrderMapper.Instance.MapParameters(searchAssetsFilter.OrderingParameters),
+                specificAssets = searchAssetsFilter.SpecificAssets,
             };
 
             // for testing purposes
@@ -917,7 +918,8 @@ namespace WebAPI.Clients
                 },
                 isAllowedToViewInactiveAssets = searchAssetFilter.IsAllowedToViewInactiveAssets,
                 isGroupingOptionInclude = searchAssetFilter.GroupByType == GroupingOption.Include,
-                orderingParameters = KalturaOrderMapper.Instance.MapParameters(searchAssetFilter.OrderingParameters)
+                orderingParameters = KalturaOrderMapper.Instance.MapParameters(searchAssetFilter.OrderingParameters),
+                specificAssets = searchAssetFilter.SpecificAssets,
             };
 
             // fire unified search request

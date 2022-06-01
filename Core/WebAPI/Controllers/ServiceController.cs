@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
+using Grpc.Core;
 using KalturaRequestContext;
+using Newtonsoft.Json;
 using Phx.Lib.Log;
+using WebAPI.App_Start;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Reflection;
@@ -25,6 +29,9 @@ namespace WebAPI.Controllers
     [ApiExplorerSettings(IgnoreApi = true)]
     public class ServiceController : ApiController
     {
+        private const string ERR_ARG_PREFIX = "x-kaltura-error-arg-";
+        private const string ERR_ARGS_TRAIL_KEY = "x-kaltura-error-args";
+
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [ApiExplorerSettings(IgnoreApi = true)]
@@ -108,6 +115,11 @@ namespace WebAPI.Controllers
                 var apiException = new ApiException(ex);
                 throw apiException;
             }
+            catch (RpcException re)
+            {
+                log.Debug($"Caught Rpc Exception [{re.Message}]", re);
+                throw BuildApiExceptionFromRpc(re);
+            }
             catch (Exception ex)
             {
                 log.Error("Failed to perform action", ex);
@@ -185,6 +197,11 @@ namespace WebAPI.Controllers
                 var apiException = new ApiException(ex, HttpStatusCode.NotFound);
                 throw apiException;
             }
+            catch (RpcException re)
+            {
+                log.Debug($"Caught Rpc Exception [{re.Message}]", re);
+                throw BuildApiExceptionFromRpc(re);
+            }
             catch (Exception ex)
             {
                 log.Error("Failed to perform action", ex);
@@ -207,6 +224,43 @@ namespace WebAPI.Controllers
             }
 
             return response;
+        }
+
+        private static ApiException BuildApiExceptionFromRpc(RpcException exception)
+        {
+            return new ApiException
+            {
+                Code = (int) exception.StatusCode,
+                Message = exception.Status.Detail,
+                Args = GetExceptionArgs(exception)
+            };
+        }
+
+        private static KalturaApiExceptionArg[] GetExceptionArgs(RpcException exception)
+        {
+            var errorArgsTrailer = exception.Trailers?.FirstOrDefault(t => t.Key == ERR_ARGS_TRAIL_KEY);
+            if (errorArgsTrailer != null)
+            {
+                var errorArgs = JsonConvert.DeserializeObject<Dictionary<string, string>>(errorArgsTrailer.Value);
+
+                return errorArgs?
+                    .Select(t => new KalturaApiExceptionArg { name = t.Key, value = t.Value })
+                    .ToArray();
+            }
+
+            // backward compatibility
+            if (exception.Trailers?.Any() == true)
+            {
+                var relevantTrailers = exception.Trailers.Where(t => t.Key?.StartsWith(ERR_ARG_PREFIX) == true).ToArray();
+
+                if (relevantTrailers.Any())
+                {
+                    return relevantTrailers
+                        .Select(t => new KalturaApiExceptionArg { name = t.Key.Replace(ERR_ARG_PREFIX, ""), value = t.Value }).ToArray();
+                }
+            }
+
+            return null;
         }
     }
 }

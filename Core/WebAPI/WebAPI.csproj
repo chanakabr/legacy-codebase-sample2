@@ -58,6 +58,7 @@
     <ProjectReference Include="..\..\Core\TvinciCache\TvinciCache.csproj" />
     <ProjectReference Include="..\..\Core\TVinciShared\TVinciShared.csproj" />
     <ProjectReference Include="..\..\Core\SessionManager\SessionManager.csproj" />
+    <ProjectReference Include="..\..\Core\AssetSelectionGrpcClientWrapper\AssetSelectionGrpcClientWrapper.csproj" />
     <ProjectReference Include="..\..\Core\LiveToVod\LiveToVod.csproj" />
   </ItemGroup>
   <ItemGroup>

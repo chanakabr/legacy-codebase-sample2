@@ -11,17 +11,16 @@ namespace GrpcClientCommon
     public class GrpcRequestInterceptor : Interceptor
     {
         private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private RetryPolicy _grpcRetryPolicy;
+        private readonly RetryPolicy _grpcRetryPolicy;
 
-        public GrpcRequestInterceptor(int retryCount)
+        public GrpcRequestInterceptor(string address, int retryCount)
         {
             // Catch only transient errors that can be retried
             _grpcRetryPolicy = RetryPolicy
                 .Handle<RpcException>(ex => ex.StatusCode == StatusCode.Unavailable || ex.StatusCode == StatusCode.DeadlineExceeded)
                 .Retry(retryCount, (ex, attempt) =>
                 {
-                    _logger.Warn($"Error while calling grpc, retry [{attempt}/{retryCount}]", ex);
-                    _logger.Warn($"");
+                    _logger.Warn($"Error while calling grpc. address:[{address}]. retry [{attempt}/{retryCount}]", ex);
                 });
         }
 

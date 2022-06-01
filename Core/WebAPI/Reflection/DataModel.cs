@@ -45,6 +45,7 @@ using WebAPI.Models.Catalog;
 using WebAPI.Models.Pricing;
 using WebAPI.Models.Segmentation;
 using WebAPI.Models.AssetPersonalMarkup;
+using WebAPI.Models.AssetSelection;
 using WebAPI.Models.Catalog.Ordering;
 using WebAPI.Models.Users;
 using WebAPI.Models.Partner;
@@ -694,6 +695,18 @@ namespace WebAPI.Reflection
                     {
                         case "AssetsIn":
                             return "assetsIn";
+                    }
+                    break;
+                    
+                case "KalturaAssetPersonalSelection":
+                    switch(property.Name)
+                    {
+                        case "AssetId":
+                            return "assetId";
+                        case "AssetType":
+                            return "assetType";
+                        case "UpdateDate":
+                            return "updateDate";
                     }
                     break;
                     
@@ -6159,6 +6172,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaPersonalAssetSelectionFilter":
+                    switch(property.Name)
+                    {
+                        case "SlotNumberEqual":
+                            return "slotNumberEqual";
+                    }
+                    break;
+                    
                 case "KalturaPersonalFeedListResponse":
                     switch(property.Name)
                     {
@@ -9329,6 +9350,10 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("asset", "listOldStandard", WebAPI.Managers.eKSValidation.All);
                             return AssetController.ListOldStandard((KalturaAssetInfoFilter) methodParams[0], (List<KalturaCatalogWithHolder>) methodParams[1], (Nullable<KalturaOrder>) methodParams[2], (KalturaFilterPager) methodParams[3]);
                             
+                        case "listpersonalselection":
+                            RolesManager.ValidateActionPermitted("asset", "listPersonalSelection", WebAPI.Managers.eKSValidation.Expiration);
+                            return AssetController.ListPersonalSelection((KalturaPersonalAssetSelectionFilter) methodParams[0]);
+                            
                         case "related":
                             RolesManager.ValidateActionPermitted("asset", "related", WebAPI.Managers.eKSValidation.All);
                             return AssetController.Related((int) methodParams[0], (string) methodParams[1], (KalturaFilterPager) methodParams[2], (List<KalturaIntegerValue>) methodParams[3], (List<KalturaCatalogWithHolder>) methodParams[4]);
@@ -9434,6 +9459,26 @@ namespace WebAPI.Reflection
                         case "list":
                             RolesManager.ValidateActionPermitted("assetPersonalMarkup", "list", WebAPI.Managers.eKSValidation.All);
                             return AssetPersonalMarkupController.List((KalturaAssetPersonalMarkupSearchFilter) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "assetpersonalselection":
+                    switch(action)
+                    {
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("assetPersonalSelection", "delete", WebAPI.Managers.eKSValidation.All);
+                            AssetPersonalSelectionController.Delete((long) methodParams[0], (KalturaAssetType) methodParams[1], (int) methodParams[2]);
+                            return null;
+                            
+                        case "deleteall":
+                            RolesManager.ValidateActionPermitted("assetPersonalSelection", "deleteAll", WebAPI.Managers.eKSValidation.All);
+                            AssetPersonalSelectionController.Delete((int) methodParams[0]);
+                            return null;
+                            
+                        case "upsert":
+                            RolesManager.ValidateActionPermitted("assetPersonalSelection", "upsert", WebAPI.Managers.eKSValidation.All);
+                            return AssetPersonalSelectionController.Upsert((long) methodParams[0], (KalturaAssetType) methodParams[1], (int) methodParams[2]);
                             
                     }
                     break;
@@ -14609,6 +14654,14 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
+                        case "listpersonalselection":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPersonalAssetSelectionFilter),
+                            });
+                            return ret;
+                            
                         case "related":
                             ret.Add("media_id", new MethodParam(){
                                 NewName = newParamName,
@@ -15046,6 +15099,51 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAssetPersonalMarkupSearchFilter),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "assetpersonalselection":
+                    switch(action)
+                    {
+                        case "delete":
+                            ret.Add("assetId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("assetType", new MethodParam(){
+                                NewName = newParamName,
+                                IsEnum = true,
+                                Type = typeof(KalturaAssetType),
+                            });
+                            ret.Add("slotNumber", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "deleteall":
+                            ret.Add("slotNumber", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "upsert":
+                            ret.Add("assetId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("assetType", new MethodParam(){
+                                NewName = newParamName,
+                                IsEnum = true,
+                                Type = typeof(KalturaAssetType),
+                            });
+                            ret.Add("slotNumber", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
                             });
                             return ret;
                             

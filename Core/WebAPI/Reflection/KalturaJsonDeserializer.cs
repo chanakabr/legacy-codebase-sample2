@@ -35,6 +35,7 @@ using WebAPI.Models.Catalog;
 using WebAPI.Models.Pricing;
 using WebAPI.Models.Segmentation;
 using WebAPI.Models.AssetPersonalMarkup;
+using WebAPI.Models.AssetSelection;
 using WebAPI.Models.Catalog.Ordering;
 using WebAPI.Models.Users;
 using WebAPI.Models.Partner;
@@ -248,6 +249,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaAssetPersonalMarkupSearchFilter":
                     return new KalturaAssetPersonalMarkupSearchFilter(parameters, true);
+                    
+                case "KalturaAssetPersonalSelection":
+                    return new KalturaAssetPersonalSelection(parameters, true);
                     
                 case "KalturaAssetPrice":
                     return new KalturaAssetPrice(parameters, true);
@@ -1820,6 +1824,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaPersonalAssetRequest":
                     return new KalturaPersonalAssetRequest(parameters, true);
+                    
+                case "KalturaPersonalAssetSelectionFilter":
+                    return new KalturaPersonalAssetSelectionFilter(parameters, true);
                     
                 case "KalturaPersonalAssetWithHolder":
                     return new KalturaPersonalAssetWithHolder(parameters, true);
@@ -25409,6 +25416,19 @@ namespace WebAPI.Models.Catalog
             }
         }
     }
+    public partial class KalturaPersonalAssetSelectionFilter
+    {
+        public KalturaPersonalAssetSelectionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("slotNumberEqual") && parameters["slotNumberEqual"] != null)
+                {
+                    SlotNumberEqual = (Int32) Convert.ChangeType(parameters["slotNumberEqual"], typeof(Int32));
+                }
+            }
+        }
+    }
     public partial class KalturaPersonalAssetWithHolder
     {
         public KalturaPersonalAssetWithHolder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
@@ -33446,6 +33466,86 @@ namespace WebAPI.Models.AssetPersonalMarkup
                 {
                     IsEntitledSchemaProperty.Validate("isEntitled", parameters["isEntitled"]);
                     IsEntitled = (Boolean) Convert.ChangeType(parameters["isEntitled"], typeof(Boolean));
+                }
+            }
+        }
+    }
+}
+
+namespace WebAPI.Models.AssetSelection
+{
+    public partial class KalturaAssetPersonalSelection
+    {
+        private static RuntimeSchemePropertyAttribute AssetIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetPersonalSelection")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute AssetTypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetPersonalSelection")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetPersonalSelection")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaAssetPersonalSelection(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("assetId") && parameters["assetId"] != null)
+                {
+                    AssetIdSchemaProperty.Validate("assetId", parameters["assetId"]);
+                    AssetId = (Int64) Convert.ChangeType(parameters["assetId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("assetType") && parameters["assetType"] != null)
+                {
+                    AssetTypeSchemaProperty.Validate("assetType", parameters["assetType"]);
+                    if(string.IsNullOrEmpty(parameters["assetType"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "assetType");
+                    }
+
+                    AssetType = (KalturaAssetType) Enum.Parse(typeof(KalturaAssetType), parameters["assetType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetType), AssetType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", AssetType, typeof(KalturaAssetType)));
+                    }
+                }
+                if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
+                {
+                    UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
+                    UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
             }
         }

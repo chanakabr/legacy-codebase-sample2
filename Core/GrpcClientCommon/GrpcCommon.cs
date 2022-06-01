@@ -16,7 +16,7 @@ namespace GrpcClientCommon
             var credentials = GetSslCredentials(certFilePath);
 
             var channel = new Channel(address, credentials)
-                .Intercept(new GrpcRequestInterceptor(retryCount));
+                .Intercept(new GrpcRequestInterceptor(address, retryCount));
             return channel;
         }
 
