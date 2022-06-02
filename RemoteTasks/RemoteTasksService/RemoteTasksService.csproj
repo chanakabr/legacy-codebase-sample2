@@ -50,6 +50,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>CdrNotificationHandlerDll\CdrNotificationHandler.dll</HintPath>
     </Reference>
+    <Reference Include="Google.Protobuf, Version=3.18.0.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Protobuf.3.18.0\lib\net45\Google.Protobuf.dll</HintPath>
+    </Reference>
     <Reference Include="Jaeger.Communication.Thrift, Version=1.0.2.0, Culture=neutral, PublicKeyToken=9516061555a213a8, processorArchitecture=MSIL">
       <HintPath>..\packages\Jaeger.Communication.Thrift.1.0.2\lib\netstandard2.0\Jaeger.Communication.Thrift.dll</HintPath>
     </Reference>
