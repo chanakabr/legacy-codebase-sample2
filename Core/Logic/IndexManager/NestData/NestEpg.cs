@@ -63,12 +63,15 @@ namespace ApiLogic.IndexManager.NestData
 
         [PropertyName("recording_id")]
         public long? RecordingId { get; set; }
-        
+
         [PropertyName("regions")]
         public List<int> Regions{ get; set; }
 
         [PropertyName("__expiration")]
         public long? Expiration { get; set; }
+
+        [PropertyName("external_offer_ids")]
+        public List<string> ExternalOfferIds { get; set; }
 
         #endregion
 
@@ -76,7 +79,7 @@ namespace ApiLogic.IndexManager.NestData
 
         // used by autommaper for migration consumer
         public NestEpg() { }
-        
+
         public NestEpg(EpgCB epgCb, int languageId, bool isOpc = false, bool withRouting = true,
             string esDateOnlyFormat = "", long? recordingId = null, long? expiryUnixTimeStamp = null)
         {
@@ -106,7 +109,7 @@ namespace ApiLogic.IndexManager.NestData
             CouchbaseDocumentId = epgCb.DocumentId;
             IsAutoFill = epgCb.IsAutoFill;
             EnableCDVR = epgCb.EnableCDVR;
-            EnableCatchUp = epgCb.EnableCatchUp; 
+            EnableCatchUp = epgCb.EnableCatchUp;
             Suppressed = epgCb.Suppressed;
             Regions = epgCb.regions;
 
@@ -163,7 +166,7 @@ namespace ApiLogic.IndexManager.NestData
             LanguageId = languageId;
 
             ulong assetId = this.EpgID;
-            
+
             if (recordingId.HasValue)
             {
                 RecordingId = recordingId.Value;
@@ -176,6 +179,8 @@ namespace ApiLogic.IndexManager.NestData
             }
 
             this.DocumentId = $"{assetId}_{this.Language}";
+
+            ExternalOfferIds = epgCb.ExternalOfferIds ?? new List<string>();
         }
 
         #endregion
