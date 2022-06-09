@@ -198,6 +198,7 @@ stage('Unified-CI'){
             },
             failFast: true)
         stage('Trigger Wrapper'){
+            COMMITER = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
             triggerWrapper()
         }
     }
@@ -315,7 +316,8 @@ def triggerWrapper(){
     build job: 'OTT-BE-Sanity-Wrapper', parameters: [
                                                 string(name: 'BRANCH', value: "${BRANCH_NAME}"),
                                                 string(name: 'AUTOKILL', value: "true"),
-                                                string(name: 'Linux', value: "true")
+                                                string(name: 'Linux', value: "true"),
+                                                string(name: 'COMMITER', value: "${COMMITER}")
                                                 ], wait: false
 }
 
