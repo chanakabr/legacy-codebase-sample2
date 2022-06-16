@@ -24,7 +24,7 @@ namespace Core.Notification
 
         public static List<DbAnnouncement> GetAnnouncements(int groupId)
         {
-            return NotificationDal.GetAnnouncements(groupId);
+            return NotificationDal.Instance.GetAnnouncements(groupId);
         }
 
         public static bool SetUserInboxMessage(int groupId, InboxMessage message)
@@ -39,7 +39,7 @@ namespace Core.Notification
 
         public static InboxMessage GetUserInboxMessage(int groupId, int userId, string messageId)
         {
-            return NotificationDal.GetUserInboxMessage(groupId, userId, messageId);
+            return NotificationDal.Instance.GetUserInboxMessage(groupId, userId, messageId);
         }
 
         public static bool UpdateInboxMessageState(int groupId, int userId, string messageId, eMessageState state)

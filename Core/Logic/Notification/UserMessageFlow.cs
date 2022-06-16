@@ -373,7 +373,7 @@ namespace Core.Notification
             // remove old follow series 
             int numOfFollowSeriesToRemove = 0;
             List<DbAnnouncement> dbFollowSeries = null;
-            NotificationCache.TryGetAnnouncements(groupId, ref dbFollowSeries);
+            NotificationCache.Instance().TryGetAnnouncements(groupId, ref dbFollowSeries);
 
             if (userNotificationData != null &&
                 userNotificationData.Announcements != null &&
@@ -1184,7 +1184,7 @@ namespace Core.Notification
                             {
                                 // add result to follow announcements (if its a follow push announcement)
                                 List<DbAnnouncement> notifications = null;
-                                NotificationCache.TryGetAnnouncements(groupId, ref notifications);
+                                NotificationCache.Instance().TryGetAnnouncements(groupId, ref notifications);
                                 if (notifications != null && notifications.FirstOrDefault(x => x.ID == subscription.ExternalId) != null)
                                 {
                                     deviceData.SubscribedAnnouncements.Add(new NotificationSubscription()
@@ -1585,7 +1585,7 @@ namespace Core.Notification
             if (userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value && !string.IsNullOrEmpty(userNotificationData.UserData.Email))
             {
                 List<DbAnnouncement> announcements = new List<DbAnnouncement>(); ;
-                NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+                NotificationCache.Instance().TryGetAnnouncements(groupId, ref announcements);
                 if (announcements != null)
                 {
                     DbAnnouncement mailAnnouncement = announcements.FirstOrDefault(a => a.RecipientsType == eAnnouncementRecipientsType.Mail);
@@ -2061,7 +2061,7 @@ namespace Core.Notification
                         {
                             // add result to follow announcements (if its a follow push announcement)
                             List<DbAnnouncement> notifications = null;
-                            NotificationCache.TryGetAnnouncements(groupId, ref notifications);
+                            NotificationCache.Instance().TryGetAnnouncements(groupId, ref notifications);
                             if (notifications != null && notifications.FirstOrDefault(x => x.ID == subscription.ExternalId) != null)
                             {
                                 smsNotificationData.SubscribedAnnouncements.Add(new NotificationSubscription()
@@ -2125,7 +2125,7 @@ namespace Core.Notification
 
                     // add result to follow announcements (if its a follow push announcement)
                     List<DbAnnouncement> notifications = null;
-                    NotificationCache.TryGetAnnouncements(groupId, ref notifications);
+                    NotificationCache.Instance().TryGetAnnouncements(groupId, ref notifications);
                     if (notifications != null && notifications.FirstOrDefault(x => x.ID == subscription.ExternalId) != null)
                     {
                         smsNotificationData.SubscribedAnnouncements.Add(new NotificationSubscription()

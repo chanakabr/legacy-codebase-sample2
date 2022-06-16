@@ -84,7 +84,7 @@ namespace Core.Notification
 
             // get announcements
             List<DbAnnouncement> announcements = new List<DbAnnouncement>();
-            NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+            NotificationCache.Instance().TryGetAnnouncements(groupId, ref announcements);
             if (announcements != null)
                 announcements = announcements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.All || notificationIds.Contains(x.ID)).ToList();
 

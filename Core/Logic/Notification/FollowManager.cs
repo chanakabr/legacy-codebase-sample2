@@ -185,7 +185,7 @@ namespace Core.Notification
                         RecipientsType = eAnnouncementRecipientsType.Other,
                         MailExternalId = mailExternalAnnouncementId
                     };
-
+                    
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
@@ -221,7 +221,7 @@ namespace Core.Notification
             {
                 // get announcement from DB
                 List<DbAnnouncement> dbAnnouncements = null;
-                NotificationCache.TryGetAnnouncements(groupId, ref dbAnnouncements);
+                NotificationCache.Instance().TryGetAnnouncements(groupId, ref dbAnnouncements);
 
                 if (dbAnnouncements != null)
                 {
@@ -295,7 +295,7 @@ namespace Core.Notification
 
             // get announcement from DB
             List<DbAnnouncement> announcements = null;
-            NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+            NotificationCache.Instance().TryGetAnnouncements(groupId, ref announcements);
 
             // get user announcement
             DbAnnouncement userDbAnnouncement = null;
@@ -345,7 +345,7 @@ namespace Core.Notification
         {
             // get announcement from DB
             List<DbAnnouncement> announcements = null;
-            NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+            NotificationCache.Instance().TryGetAnnouncements(groupId, ref announcements);
 
             // get user announcement
             DbAnnouncement userDbAnnouncement = null;
@@ -422,7 +422,7 @@ namespace Core.Notification
 
             // get announcement of message
             List<DbAnnouncement> dbAnnouncements = null;
-            NotificationCache.TryGetAnnouncements(groupId, ref dbAnnouncements);
+            NotificationCache.Instance().TryGetAnnouncements(groupId, ref dbAnnouncements);
             if (dbAnnouncements != null)
                 dbAnnouncements = dbAnnouncements.Where(dbAnn => phrases.Contains(dbAnn.FollowPhrase)).ToList();
 
@@ -495,7 +495,7 @@ namespace Core.Notification
             var followPhrase = GetFollowPhrase(groupId, seriesName);
             DbAnnouncement announcement = null;
             List<DbAnnouncement> dbAnnouncements = null;
-            if (NotificationCache.TryGetAnnouncements(groupId, ref dbAnnouncements))
+            if (NotificationCache.Instance().TryGetAnnouncements(groupId, ref dbAnnouncements))
             {
                 announcement = dbAnnouncements.FirstOrDefault(x => x.FollowPhrase == followPhrase);
             }
@@ -590,7 +590,7 @@ namespace Core.Notification
 
             // get announcement from DB
             List<DbAnnouncement> dbAnnouncements = null;
-            NotificationCache.TryGetAnnouncements(groupId, ref dbAnnouncements);
+            NotificationCache.Instance().TryGetAnnouncements(groupId, ref dbAnnouncements);
 
             if (dbAnnouncements != null)
             {
@@ -883,13 +883,12 @@ namespace Core.Notification
         private static bool SendMessageAnnouncement(DbAnnouncement announcement, MessageAnnouncement message, long mediaId, int groupId)
         {
             var shouldSendMessageAnnouncement = true;
-            var previousAnnouncementMessageRows = NotificationDal.Get_MessageAnnouncementByAnnouncementAndReference(announcement.ID, mediaId.ToString());
-            if (previousAnnouncementMessageRows != null)
+            var previousAnnouncementMessages = NotificationDal.Get_MessageAnnouncementByAnnouncementAndReference(announcement.ID, mediaId.ToString());
+            if (previousAnnouncementMessages != null)
             {
                 // check for each message (should be a single message) if not sent and needs to update
-                foreach (DataRow row in previousAnnouncementMessageRows)
+                foreach (var messageAnnouncement in previousAnnouncementMessages)
                 {
-                    var messageAnnouncement = Utils.GetMessageAnnouncementFromDataRow(row);
                     if (messageAnnouncement.Status == eAnnouncementStatus.NotSent)
                     {
                         if (messageAnnouncement.StartTime == message.StartTime)
@@ -909,7 +908,8 @@ namespace Core.Notification
                             // updating message
                             messageAnnouncement.StartTime = message.StartTime;
                             messageAnnouncement.Message = message.Message;
-                            if (AnnouncementManager.UpdateMessageAnnouncement(groupId, messageAnnouncement.MessageAnnouncementId, messageAnnouncement, true, false).Status.IsOkStatusCode())
+                            if (AnnouncementManager.Instance.UpdateMessageAnnouncement(groupId, 
+                                messageAnnouncement.MessageAnnouncementId, messageAnnouncement, true, false).Status.IsOkStatusCode())
                             {
                                 log.DebugFormat("successfully updated previous message announcement. group ID: {0}, previous message: {1}, new message: {2}, new start time: {3}",
                                                 groupId, JsonConvert.SerializeObject(messageAnnouncement), message.Message, message.StartTime);
@@ -945,13 +945,15 @@ namespace Core.Notification
                 else
                 {
                     log.DebugFormat("successfully created new message announcement in queue. group ID: {0}, message: {1}", groupId, JsonConvert.SerializeObject(message));
-
                     // update announcement message sent date
                     if (!NotificationDal.UpdateAnnouncement(groupId, message.AnnouncementId, announcement.AutomaticIssueFollowNotification, DateTime.UtcNow))
                     {
                         log.ErrorFormat("Error while trying to update last announcement message sent date. GID: {0}, message: {1}", groupId, JsonConvert.SerializeObject(message));
                     }
 
+                    if (message.IncludeUserInbox)
+                        AnnouncementManager.Instance.InvalidateFollowMessageAnnouncement(groupId, message.AnnouncementId);
+                    
                     messageSent = true;
                 }
             }
@@ -1261,7 +1263,7 @@ namespace Core.Notification
                 DbAnnouncement announcementToFollow = null;
                 List<DbAnnouncement> dbAnnouncements = null;
 
-                if (NotificationCache.TryGetAnnouncements(followItem.GroupId, ref dbAnnouncements))
+                if (NotificationCache.Instance().TryGetAnnouncements(followItem.GroupId, ref dbAnnouncements))
                     announcementToFollow = dbAnnouncements.FirstOrDefault(ann => ann.FollowPhrase == followItem.FollowPhrase);
 
                 if (announcementToFollow == null)

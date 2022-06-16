@@ -18,7 +18,14 @@ namespace DAL
 {
     public interface INotificationDal
     {
-
+        MessageAnnouncement Update_MessageAnnouncement(int id, int groupId, int recipients, string name, string message, bool enabled, DateTime startTime,
+            string timezone, int updaterId, string resultMsgId, string imageUrl, bool includeMail, string mailTemplate, string mailSubject, bool includeIot, bool includeSms, bool includeUserInbox);
+        (List<MessageAnnouncement> Announcements, int TotalCount) Get_AllSystemAnnouncements(int groupId, int expirationDays = 0);
+        List<DbAnnouncement> GetAnnouncements(int groupId);
+        (List<MessageAnnouncement> messageAnnouncement, bool failRes) Get_MessageAnnouncementsByAnnouncementId(int announcementId, long utcNow, long startTime);
+        void Update_MessageAnnouncementStatus(int id, int groupId, bool enabled);
+        void Delete_MessageAnnouncement(long id, int groupId);
+        InboxMessage GetUserInboxMessage(int groupId, int userId, string messageId);
     }
 
     /// <summary>
@@ -894,7 +901,7 @@ namespace DAL
             return null;
         }
 
-        public static DataRow Get_MessageAnnouncement(long messageAnnouncementId, int groupId)
+        public static MessageAnnouncement Get_MessageAnnouncement(long messageAnnouncementId, int groupId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncementById");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -906,15 +913,86 @@ namespace DAL
                 DataTable dt = ds.Tables[0];
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    return dt.Rows[0];
+                    return GetMessageAnnouncementFromDataRow(dt.Rows[0]);
                 }
             }
 
             return null;
         }
 
-        public static List<DataRow> Get_MessageAllAnnouncements(int groupId, int pageSize, int pageIndex)
+        public (List<MessageAnnouncement> Announcements, int TotalCount) Get_AllSystemAnnouncements(int groupId, int expirationDays = 0)
         {
+            var response = new List<MessageAnnouncement>();
+            var total = 0;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_AllSystemAnnouncements");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            if(expirationDays > 0)
+                sp.AddParameter("@startFrom", DateTime.UtcNow.AddDays(-expirationDays));
+
+            sp.AddParameter("@systemDate", DateTime.UtcNow);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        var msg = GetMessageAnnouncementFromDataRow(row);
+                        response.Add(msg);
+                        total++;
+                    }
+                }
+            }
+
+            return (response, total);
+        }
+
+        private static MessageAnnouncement GetMessageAnnouncementFromDataRow(DataRow row)
+        {
+            var timezone = ODBCWrapper.Utils.GetSafeStr(row, "timezone");
+            var convertedTime = ODBCWrapper.Utils.ConvertFromUtc(ODBCWrapper.Utils.GetDateSafeVal(row, "start_time"), timezone);
+            var startTime = ODBCWrapper.Utils.DateTimeToUtcUnixTimestampSeconds(convertedTime);
+
+            var recipients = eAnnouncementRecipientsType.Other;
+            int dbRecipients = ODBCWrapper.Utils.GetIntSafeVal(row, "recipients");
+            if (Enum.IsDefined(typeof(eAnnouncementRecipientsType), dbRecipients))
+                recipients = (eAnnouncementRecipientsType)dbRecipients;
+
+            var status = eAnnouncementStatus.NotSent;
+            int dbStatus = ODBCWrapper.Utils.GetIntSafeVal(row, "sent");
+            if (Enum.IsDefined(typeof(eAnnouncementStatus), dbStatus))
+                status = (eAnnouncementStatus)dbStatus;
+
+            var msg = new MessageAnnouncement()
+            {
+                MessageAnnouncementId = ODBCWrapper.Utils.GetIntSafeVal(row, "id"),
+                Name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
+                Message = ODBCWrapper.Utils.GetSafeStr(row, "message"),
+                Enabled = (ODBCWrapper.Utils.GetIntSafeVal(row, "is_active") == 0) ? false : true,
+                StartTime = startTime,
+                Timezone = timezone,
+                Recipients = recipients,
+                Status = status,
+                MessageReference = ODBCWrapper.Utils.GetSafeStr(row, "message_reference"),
+                AnnouncementId = ODBCWrapper.Utils.GetIntSafeVal(row, "announcement_id"),
+                ImageUrl = ODBCWrapper.Utils.GetSafeStr(row, "image_url"),
+                MailSubject = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_SUBJECT"),
+                MailTemplate = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_TEMPLATE"),
+                IncludeMail = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_EMAIL") > 0) ? true : false),
+                IncludeSms = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_SMS") > 0) ? true : false),
+                IncludeIot = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_IOT") > 0) ? true : false),
+                IncludeUserInbox = ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_USER_INBOX") > 0
+            };
+
+            return msg;
+        }
+
+        public static List<MessageAnnouncement> Get_MessageAllAnnouncements(int groupId, int pageSize, int pageIndex, int expirationDays = 0)
+        {
+            var results = new List<MessageAnnouncement>();
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncements");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
@@ -938,15 +1016,19 @@ namespace DAL
                             ret.Add(dt.Rows[curr]);
                     }
 
-                    return ret;
+                    results.AddRange(ret.Select(x=> GetMessageAnnouncementFromDataRow(x)));
+                    return results;
                 }
             }
 
             return null;
         }
 
-        public static DataRowCollection Get_MessageAnnouncementByAnnouncementId(int announcementId)
+        public (List<MessageAnnouncement> messageAnnouncement, bool failRes) Get_MessageAnnouncementsByAnnouncementId(int announcementId, long utcNow, long startTime)
         {
+            var messages = new List<MessageAnnouncement>();
+            MessageAnnouncement msg = null;
+            var failRes = false;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncementByAnnouncementId");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             sp.AddParameter("@Announcement_ID", announcementId);
@@ -954,17 +1036,39 @@ namespace DAL
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
                 DataTable dt = ds.Tables[0];
+                // check in all series messages if any msg was sent in the last 24h
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    return dt.Rows;
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        msg = GetMessageAnnouncementFromDataRow(row);
+
+                        if (msg.Status == eAnnouncementStatus.Sent)
+                        {
+                            // if message already sent for asset in the last 24h and edited asset is also for the next 24h,
+                            // abort message.
+                            if ((utcNow - msg.StartTime) < new TimeSpan(24, 0, 0).TotalSeconds)
+                            {
+                                log.DebugFormat("HandleRecipientOtherTvSeries: Found a sent message in the last 24h, " +
+                                    "new message will not be sent. old msg name: {0}, old msg time: {1}, message time: {2}", 
+                                    msg.Name, msg.StartTime, startTime);
+                                // sent in last 24 hours abort
+                                failRes = true;
+                                continue;
+                            }
+                        }
+
+                        messages.Add(msg);
+                    }
                 }
             }
 
-            return null;
+            return (messages, failRes);
         }
 
-        public static DataRowCollection Get_MessageAnnouncementByAnnouncementAndReference(int announcementId, string messageReference)
+        public static List<MessageAnnouncement> Get_MessageAnnouncementByAnnouncementAndReference(int announcementId, string messageReference)
         {
+            var response = new List<MessageAnnouncement>();
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncementByAnnouncementAndReference");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             sp.AddParameter("@Announcement_ID", announcementId);
@@ -975,18 +1079,23 @@ namespace DAL
                 DataTable dt = ds.Tables[0];
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    return dt.Rows;
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        response.Add(GetMessageAnnouncementFromDataRow(row));
+                    }
+                    return response;
                 }
             }
 
             return null;
         }
 
-        public static int Get_MessageAllAnnouncementsCount(int groupId)
+        public static int Get_MessageAllAnnouncementsCount(int groupId, int expirationDays = 0)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncements");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
+
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
@@ -1000,7 +1109,7 @@ namespace DAL
             return 0;
         }
 
-        public static DataRow Insert_MessageAnnouncement(int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone,
+        public static MessageAnnouncement Insert_MessageAnnouncement(int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone,
             int updaterId, string messageReference, string resultMsgId, string imageUrl, bool includeMail, string mailTemplate, string mailSubject, bool includeSMS,
             bool includeIot, long announcement_id = 0, bool includeUserInbox = true)
         {
@@ -1036,10 +1145,10 @@ namespace DAL
             if (dt == null || dt.Rows == null || dt.Rows.Count == 0)
                 return null;
 
-            return dt.Rows[0];
+            return GetMessageAnnouncementFromDataRow(dt.Rows[0]);
         }
 
-        public static DataRow Update_MessageAnnouncement(int id, int groupId, int recipients, string name, string message, bool enabled, DateTime startTime,
+        public MessageAnnouncement Update_MessageAnnouncement(int id, int groupId, int recipients, string name, string message, bool enabled, DateTime startTime,
             string timezone, int updaterId, string resultMsgId, string imageUrl, bool includeMail, string mailTemplate, string mailSubject, bool includeIot, bool includeSms, bool includeUserInbox)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncement");
@@ -1069,10 +1178,10 @@ namespace DAL
             if (dt == null || dt.Rows == null || dt.Rows.Count == 0)
                 return null;
 
-            return dt.Rows[0];
+            return GetMessageAnnouncementFromDataRow(dt.Rows[0]);
         }
 
-        public static void Update_MessageAnnouncementStatus(int id, int groupId, bool enabled)
+        public void Update_MessageAnnouncementStatus(int id, int groupId, bool enabled)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -1101,7 +1210,7 @@ namespace DAL
             spInsert.ExecuteDataSet();
         }
 
-        public static void Delete_MessageAnnouncement(long id, int groupId)
+        public void Delete_MessageAnnouncement(long id, int groupId)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -1283,7 +1392,7 @@ namespace DAL
             return passed;
         }
 
-        public static List<DbAnnouncement> GetAnnouncements(int groupId)
+        public List<DbAnnouncement> GetAnnouncements(int groupId)
         {
             List<DbAnnouncement> result = new List<DbAnnouncement>();
 
@@ -1877,7 +1986,7 @@ namespace DAL
             return userMessages;
         }
 
-        public static InboxMessage GetUserInboxMessage(int groupId, int userId, string messageId)
+        public InboxMessage GetUserInboxMessage(int groupId, int userId, string messageId)
         {
             InboxMessage userInboxMessage = null;
             CouchbaseManager.eResultStatus status = eResultStatus.ERROR;
@@ -1950,7 +2059,7 @@ namespace DAL
             bool result = false;
             try
             {
-                var inboxMessage = GetUserInboxMessage(groupId, userId, messageId);
+                var inboxMessage = Instance.GetUserInboxMessage(groupId, userId, messageId);
                 if (inboxMessage == null)
                 {
                     log.ErrorFormat("couldn't update message state to {0}. inbox message wasn't found. key: {1}", messageState.ToString(), GetInboxMessageKey(groupId, userId, messageId));
@@ -2033,11 +2142,11 @@ namespace DAL
 
             return isSaveSuccess;
         }
-        
-        public static void RemoveArchiveCampaignFromInboxMessage(int groupId, long userId,  List<Campaign> archiveCampaigns)
+
+        public static void RemoveArchiveCampaignFromInboxMessage(int groupId, long userId, List<Campaign> archiveCampaigns)
         {
             CampaignInboxMessageMap campaignInboxMessageMap = GetCampaignInboxMessageMapCB(groupId, userId);
-            var archiveCampaignsId = archiveCampaigns.Select(x=> x.Id).ToHashSet();
+            var archiveCampaignsId = archiveCampaigns.Select(x => x.Id).ToHashSet();
             var archiveCampaignInboxMessageMap = campaignInboxMessageMap.Campaigns.Where(x => archiveCampaignsId.Contains(x.Key));
 
             Parallel.ForEach(archiveCampaignInboxMessageMap, inboxMessage =>
@@ -2064,18 +2173,18 @@ namespace DAL
         public static bool SaveToDeviceTriggerCampaignsUses(int groupId, string udid, long campaignId, long utcNow)
         {
             string key = $"device_campaign_uses_{groupId}_{udid}";
-            var isSaveSuccess = UtilsDal.SaveObjectWithVersionCheckInCB<DeviceTriggerCampaignsUses>(60*24*365, eCouchbaseBucket.NOTIFICATION, key, mapping =>
-            {
-                if (string.IsNullOrEmpty(mapping.Udid))
+            var isSaveSuccess = UtilsDal.SaveObjectWithVersionCheckInCB<DeviceTriggerCampaignsUses>(60 * 24 * 365, eCouchbaseBucket.NOTIFICATION, key, mapping =>
                 {
-                    mapping.Udid = udid;
-                }
+                    if (string.IsNullOrEmpty(mapping.Udid))
+                    {
+                        mapping.Udid = udid;
+                    }
 
-                if (!mapping.Uses.ContainsKey(campaignId))
-                {
-                    mapping.Uses.Add(campaignId, utcNow);
-                }
-            }, true);
+                    if (!mapping.Uses.ContainsKey(campaignId))
+                    {
+                        mapping.Uses.Add(campaignId, utcNow);
+                    }
+                }, true);
 
             return isSaveSuccess;
         }
@@ -2268,7 +2377,7 @@ namespace DAL
                 log.ErrorFormat("Error at GetEpisodeAssociationTag. groupId: {0}. Error {1}", groupId, ex);
             }
         }
-        
+
         public static (string episodeNumberMeta, string seasonNumberMeta) GetEpisodeAndSeasonNumberMetas(int groupId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetEpisodeAndSeasonNumberMetas");
@@ -2280,7 +2389,7 @@ namespace DAL
             {
                 var episodeNumberMeta = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "EPISODE_NUMBER_META");
                 var seasonNumberMeta = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "SEASON_NUMBER_META");
-                
+
                 return (episodeNumberMeta, seasonNumberMeta);
             }
 

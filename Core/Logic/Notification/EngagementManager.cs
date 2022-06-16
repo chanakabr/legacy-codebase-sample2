@@ -1347,7 +1347,7 @@ namespace Core.Notification
             }
 
             // validate partner inbox configuration is enabled  
-            if (!NotificationSettings.IsPartnerInboxEnabled(partnerId))
+            if (!NotificationSettings.Instance.IsPartnerInboxEnabled(partnerId))
             {
                 log.ErrorFormat("Partner inbox feature is off. GID: {0}, UID: {1}", partnerId, userEngagement.UserId);
                 return true;
@@ -1392,7 +1392,7 @@ namespace Core.Notification
                 UserId = userEngagement.UserId
             };
 
-            if (!NotificationDal.SetUserInboxMessage(partnerId, inboxMessage, NotificationSettings.GetInboxMessageTTLDays(partnerId)))
+            if (!NotificationDal.SetUserInboxMessage(partnerId, inboxMessage, NotificationSettings.Instance.GetInboxMessageTTLDays(partnerId)))
                 log.ErrorFormat("Error while setting churn inbox message. GID: {0}, InboxMessage: {1}", partnerId, JsonConvert.SerializeObject(inboxMessage));
             else
                 log.DebugFormat("Engagement inbox message was successfully sent. partner ID: {0}, user ID: {1}", partnerId, userEngagement.UserId);

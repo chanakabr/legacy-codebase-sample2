@@ -161,6 +161,10 @@
 
         public const string GET_PROGRAM_ASSET_GROUP_OFFERS = "GetProgramAssetGroupOffers";
 
+        public const string GET_ALL_MESSAGE_ANNOUNCEMENTS = "GetAllMessageAnnouncements";
+        public const string GET_USER_MESSAGES_STATUS = "GetUserMessagesStatus";
+        public const string GET_MESSAGE_FOLLOW_ANNOUNCEMENT_DB = "GetMessageFollowAnnouncementDB";
+
         #endregion
 
         #region Constant Invalidation Keys

@@ -144,7 +144,7 @@ namespace Core.Notification
             result = new List<AnnouncementSubscriptionData>();
 
             List<DbAnnouncement> announcements = null;
-            NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+            NotificationCache.Instance().TryGetAnnouncements(groupId, ref announcements);
             if (announcements != null)
                 announcements = announcements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.Sms || notificationIds.Contains(x.ID)).ToList();
 

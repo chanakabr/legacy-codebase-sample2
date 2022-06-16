@@ -30,6 +30,7 @@ namespace Core.Notification
     {
         NotificationPartnerSettingsResponse GetPartnerNotificationSettings(int groupId);
         List<ApiObjects.Meta> GetPartnerTopicInterests(int groupId);
+        bool TryGetAnnouncements(int groupId, ref List<DbAnnouncement> announcements);
     }
 
     public class NotificationCache : INotificationCache
@@ -448,7 +449,7 @@ namespace Core.Notification
             return assetType;
         }
 
-        internal static bool TryGetAnnouncements(int groupId, ref List<DbAnnouncement> announcements)
+        public bool TryGetAnnouncements(int groupId, ref List<DbAnnouncement> announcements)
         {
             bool res = false;
             try
@@ -476,7 +477,7 @@ namespace Core.Notification
                 {
                     int? groupId = funcParams["groupId"] as int?;
                     if (groupId.HasValue)
-                        announcements = NotificationDal.GetAnnouncements(groupId.Value);
+                        announcements = NotificationDal.Instance.GetAnnouncements(groupId.Value);
                 }
             }
             catch (Exception ex)

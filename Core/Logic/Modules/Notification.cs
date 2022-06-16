@@ -16,6 +16,7 @@ using ApiObjects.EventBus;
 using Phx.Lib.Appconfig;
 using ApiLogic.Notification.Managers;
 using System.Linq;
+using ApiLogic.Modules;
 
 namespace Core.Notification
 {
@@ -349,7 +350,6 @@ namespace Core.Notification
         {
             AddMessageAnnouncementResponse response = null;
 
-
             try
             {
                 response = AnnouncementManager.AddMessageAnnouncement(nGroupID, announcement);
@@ -409,7 +409,7 @@ namespace Core.Notification
             MessageAnnouncementResponse response = null;
             try
             {
-                response = AnnouncementManager.UpdateMessageAnnouncement(nGroupID, announcementId, announcement);
+                response = AnnouncementManager.Instance.UpdateMessageAnnouncement(nGroupID, announcementId, announcement);
             }
             catch (Exception ex)
             {
@@ -451,7 +451,7 @@ namespace Core.Notification
             ApiObjects.Response.Status response = null;
             try
             {
-                response = AnnouncementManager.UpdateMessageSystemAnnouncementStatus(nGroupID, id, status);
+                response = AnnouncementManager.Instance.UpdateMessageSystemAnnouncementStatus(nGroupID, id, status);
             }
             catch (Exception ex)
             {
@@ -471,7 +471,7 @@ namespace Core.Notification
             ApiObjects.Response.Status response = null;
             try
             {
-                response = AnnouncementManager.DeleteMessageAnnouncement(nGroupID, id);
+                response = AnnouncementManager.Instance.DeleteMessageAnnouncement(nGroupID, id);
             }
             catch (Exception ex)
             {
@@ -487,7 +487,7 @@ namespace Core.Notification
             GetAllMessageAnnouncementsResponse response = null;
             try
             {
-                response = AnnouncementManager.Get_AllMessageAnnouncements(nGroupID, pageSize, pageIndex, filter);
+                response = AnnouncementManager.Instance.Get_AllMessageAnnouncements(nGroupID, pageSize, pageIndex, filter);
             }
             catch (Exception ex)
             {
@@ -553,7 +553,7 @@ namespace Core.Notification
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
             try
             {
-                response = AnnouncementManager.CreateSystemAnnouncement(nGroupID);
+                response = AnnouncementManager.Instance.CreateSystemAnnouncement(nGroupID);
             }
             catch (Exception ex)
             {
@@ -691,7 +691,7 @@ namespace Core.Notification
             Status response = null;
             try
             {
-                response = MessageInboxManger.UpdateInboxMessage(nGroupID, userId, messageId, status);
+                response = MessageInboxManger.Instance.UpdateInboxMessageStatus(nGroupID, userId, messageId, status);
             }
             catch (Exception ex)
             {
@@ -706,7 +706,7 @@ namespace Core.Notification
             InboxMessageResponse response = null;
             try
             {
-                response = MessageInboxManger.GetInboxMessage(nGroupID, userId, messageId);
+                response = MessageInboxManger.Instance.GetInboxMessageCache(nGroupID, userId, messageId);
             }
             catch (Exception ex)
             {
@@ -721,7 +721,17 @@ namespace Core.Notification
             InboxMessageResponse response = null;
             try
             {
-                response = MessageInboxManger.GetInboxMessages(nGroupID, userId, pageSize, pageIndex, messageCategorys, CreatedAtGreaterThanOrEqual, CreatedAtLessThanOrEqual);
+                var _filter = new InboxMessagesFilter
+                {
+                    PageSize = pageSize,
+                    PageIndex = pageIndex,
+                    MessageCategorys = messageCategorys,
+                    CreatedAtGreaterThanOrEqual = CreatedAtGreaterThanOrEqual,
+                    CreatedAtLessThanOrEqual = CreatedAtLessThanOrEqual
+                };
+
+                response = MessageInboxManger.Instance.GetUserInboxCachedMessages(nGroupID, userId);
+                response = _filter.ApplyOnInboxMessageResponse(response);
             }
             catch (Exception ex)
             {

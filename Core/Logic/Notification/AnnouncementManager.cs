@@ -24,10 +24,19 @@ using System.Text;
 using System.Web;
 using ApiObjects.Catalog;
 using TVinciShared;
+using ApiObjects.Base;
+using CachingProvider.LayeredCache;
+using System.Threading;
 
 namespace Core.Notification
 {
-    public class AnnouncementManager
+    public interface IAnnouncementManager
+    {
+        GetAllMessageAnnouncementsResponse Get_AllMessageAnnouncements(int groupId, int pageSize, int pageIndex, MessageAnnouncementFilter filter);
+        List<InboxMessage> GetUserFollowedSeries(int groupId, int userId);
+    }
+
+    public class AnnouncementManager: IAnnouncementManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -47,6 +56,25 @@ namespace Core.Notification
         public const int PUSH_MESSAGE_EXPIRATION_MILLI_SEC = 3000;
         public const string EPG_DATETIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
 
+        private static readonly Lazy<AnnouncementManager> lazy = new Lazy<AnnouncementManager>(() =>
+            new AnnouncementManager(LayeredCache.Instance, NotificationDal.Instance, NotificationSettings.Instance, NotificationCache.Instance()),
+            LazyThreadSafetyMode.PublicationOnly);
+
+        private readonly ILayeredCache _layeredCache;
+        private readonly INotificationDal _notificationRepository;
+        private readonly INotificationSettings _notificationSettings;
+        private readonly INotificationCache _notificationCache;
+
+        public static AnnouncementManager Instance { get { return lazy.Value; } }
+
+        public AnnouncementManager(ILayeredCache layeredCache, INotificationDal notificationRepository, INotificationSettings notificationSettings, INotificationCache notificationCache)
+        {
+            _layeredCache = layeredCache;
+            _notificationRepository = notificationRepository;
+            _notificationSettings = notificationSettings;
+            _notificationCache = notificationCache;
+        }
+
         public static AddMessageAnnouncementResponse AddMessageAnnouncement(int groupId, MessageAnnouncement announcement, bool enforceMsgAllowedTime = false, bool validateMsgStartTime = true)
         {
             AddMessageAnnouncementResponse response = new AddMessageAnnouncementResponse();
@@ -58,7 +86,7 @@ namespace Core.Notification
                 announcement.StartTime = DateUtils.GetUtcUnixTimestampNow();
                 announcement.Timezone = TimeZoneInfo.Utc.Id;
             }
-            
+
             if (!ConvertStartTimeToUtc(ref announcement))
             {
                 response.Status = new Status((int)eResponseStatus.AnnouncementInvalidTimezone, "Invalid timezone");
@@ -147,7 +175,7 @@ namespace Core.Notification
             }
         }
 
-        public static MessageAnnouncementResponse UpdateMessageAnnouncement(int groupId, int announcementId, MessageAnnouncement announcement, bool enforceMsgAllowedTime = false, bool validateMsgStartTime = true)
+        public MessageAnnouncementResponse UpdateMessageAnnouncement(int groupId, int announcementId, MessageAnnouncement announcement, bool enforceMsgAllowedTime = false, bool validateMsgStartTime = true)
         {
             var response = new MessageAnnouncementResponse
             {
@@ -189,9 +217,11 @@ namespace Core.Notification
 
             DateTime announcementStartTime = DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime);
 
-            DataRow row = DAL.NotificationDal.Update_MessageAnnouncement(announcementId, groupId, (int)announcement.Recipients, announcement.Name, announcement.Message, announcement.Enabled, announcementStartTime, announcement.Timezone, 0, null,
+            announcement = _notificationRepository.Update_MessageAnnouncement(announcementId, groupId, (int)announcement.Recipients, announcement.Name, announcement.Message, announcement.Enabled, announcementStartTime, announcement.Timezone, 0, null,
                 announcement.ImageUrl, announcement.IncludeMail, announcement.MailTemplate, announcement.MailSubject, announcement.IncludeIot, announcement.IncludeSms, announcement.IncludeUserInbox);
-            announcement = Utils.GetMessageAnnouncementFromDataRow(row);
+
+            if(announcement.IncludeUserInbox)
+                SetSystemMessageAnnouncementsInvalidation(groupId);
 
             // add a new message to queue when new time updated
             if (announcement.StartTime != messageAnnouncementResponse.Object.StartTime)
@@ -208,10 +238,10 @@ namespace Core.Notification
             return response;
         }
 
-        public static Status UpdateMessageSystemAnnouncementStatus(int groupId, long id, bool status)
+        public Status UpdateMessageSystemAnnouncementStatus(int groupId, long id, bool status)
         {
             // validate system announcements are enabled
-            if (!NotificationSettings.IsPartnerSystemAnnouncementEnabled(groupId))
+            if (!_notificationSettings.IsPartnerSystemAnnouncementEnabled(groupId))
             {
                 log.ErrorFormat("UpdateMessageAnnouncementStatus  - partner system announcements are disabled. groupID = {0}", groupId);
                 return new Status((int)eResponseStatus.FeatureDisabled, "Feature Disabled");
@@ -232,12 +262,11 @@ namespace Core.Notification
                 return new Status((int)eResponseStatus.AnnouncementUpdateNotAllowed, "Announcement Update Not Allowed");
             }
 
-            DAL.NotificationDal.Update_MessageAnnouncementStatus(ODBCWrapper.Utils.GetIntSafeVal(dr, "id"), groupId, status);
-
+            _notificationRepository.Update_MessageAnnouncementStatus(ODBCWrapper.Utils.GetIntSafeVal(dr, "id"), groupId, status);
             return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
         }
 
-        public static Status DeleteMessageAnnouncement(int groupId, long id)
+        public Status DeleteMessageAnnouncement(int groupId, long id)
         {
             // validate system announcements are enabled
             var messageAnnouncementResponse = GetMessageAnnouncement(groupId, id);
@@ -246,12 +275,12 @@ namespace Core.Notification
                 return messageAnnouncementResponse.Status;
             }
 
-            NotificationDal.Delete_MessageAnnouncement(id, groupId);
+            _notificationRepository.Delete_MessageAnnouncement(id, groupId);
 
             return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
         }
 
-        private static bool HandleRecipientOtherTvSeries(int groupId, int messageId, long startTime, int announcementId, ref DataRow messageAnnouncementDataRow, ref string url, ref string ImageUrl, ref string sound,
+        private bool HandleRecipientOtherTvSeries(int groupId, int messageId, long startTime, int announcementId, ref DataRow messageAnnouncementDataRow, ref string url, ref string ImageUrl, ref string sound,
                                                          ref string category, out string annExternalId, out string singleQueueName, out bool failRes, out List<KeyValuePair<string, string>> mergeVars, out string mailExternalId)
         {
             failRes = false;
@@ -264,7 +293,7 @@ namespace Core.Notification
             // get topic push external id's of guests and logged in users
             List<DbAnnouncement> announcements = null;
             DbAnnouncement announcement = null;
-            NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+            _notificationCache.TryGetAnnouncements(groupId, ref announcements);
             if (announcements != null)
                 announcement = announcements.FirstOrDefault(x => x.ID == announcementId);
 
@@ -318,27 +347,10 @@ namespace Core.Notification
             long utcNow = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             // get message announcements of announcement.
-            var drs = NotificationDal.Get_MessageAnnouncementByAnnouncementId(announcementId);
-
-            // check in all series messages if any msg was sent in the last 24h
-            if (drs != null && drs.Count > 0)
+            var drs = _notificationRepository.Get_MessageAnnouncementsByAnnouncementId(announcementId, utcNow, startTime);
+            if (drs.failRes)
             {
-                foreach (DataRow row in drs)
-                {
-                    MessageAnnouncement msg = Utils.GetMessageAnnouncementFromDataRow(row);
-
-                    if (msg.Status == eAnnouncementStatus.Sent)
-                    {
-                        // if message already sent for asset in the last 24h and edited asset is also for the next 24h, abort message.
-                        if ((utcNow - msg.StartTime) < new TimeSpan(24, 0, 0).TotalSeconds)
-                        {
-                            log.DebugFormat("HandleRecipientOtherTvSeries: Found a sent message in the last 24h, new message will not be sent. old msg name: {0}, old msg time: {1}, message time: {2}", msg.Name, msg.StartTime, startTime);
-                            // sent in last 24 hours abort
-                            failRes = true;
-                            return false;
-                        }
-                    }
-                }
+                return false;
             }
 
             log.DebugFormat("HandleRecipientOtherTvSeries: about to send message announcement for: group {0}, asset: {1}, id: {2}", groupId, assetId, messageId);
@@ -388,7 +400,7 @@ namespace Core.Notification
             return true;
         }
 
-        public static GetAllMessageAnnouncementsResponse Get_AllMessageAnnouncements(int groupId, int pageSize, int pageIndex, MessageAnnouncementFilter filter)
+        public GetAllMessageAnnouncementsResponse Get_AllMessageAnnouncements(int groupId, int pageSize, int pageIndex, MessageAnnouncementFilter filter)
         {
             GetAllMessageAnnouncementsResponse ret = new GetAllMessageAnnouncementsResponse
             {
@@ -396,7 +408,7 @@ namespace Core.Notification
             };
 
             // validate system announcements are enabled
-            if (!NotificationSettings.IsPartnerSystemAnnouncementEnabled(groupId))
+            if (!_notificationSettings.IsPartnerSystemAnnouncementEnabled(groupId))
             {
                 log.Error($"Get_AllMessageAnnouncements  - partner system announcements are disabled. groupID = {groupId}");
                 ret.Status = new Status((int)eResponseStatus.FeatureDisabled, "Feature Disabled");
@@ -435,20 +447,141 @@ namespace Core.Notification
                 }
             }
 
-            List<DataRow> rows = NotificationDal.Get_MessageAllAnnouncements(groupId, pageSize, pageIndex);
-
-            if (rows != null)
-            {
-                foreach (DataRow row in rows)
-                {
-                    var msg = Utils.GetMessageAnnouncementFromDataRow(row);
-                    ret.messageAnnouncements.Add(msg);
-                }
-
-                ret.totalCount = NotificationDal.Get_MessageAllAnnouncementsCount(groupId);
-            }
+            var ctx = new ContextData(groupId);
+            ret = ListSystemMessageAnnouncements(ctx);
+            ret.totalCount = ret.messageAnnouncements.Count;
 
             return ret;
+        }
+
+        private GetAllMessageAnnouncementsResponse ListSystemMessageAnnouncements(ContextData contextData)
+        {
+            GetAllMessageAnnouncementsResponse inboxMessages = null;
+
+            var key = LayeredCacheKeys.GetSystemMessageAnnouncementsKey(contextData.GroupId);
+            var cacheResult = _layeredCache.Get(key,
+                                                ref inboxMessages,
+                                                GetAllSystemMessageAnnouncements,
+                                                new Dictionary<string, object>() {
+                                                        { "groupId", contextData.GroupId },
+                                                },
+                                                contextData.GroupId,
+                                                LayeredCacheConfigNames.GET_ALL_MESSAGE_ANNOUNCEMENTS,
+                                                new List<string>() {
+                                                        LayeredCacheKeys.GetSystemMessageAnnouncementsInvalidationKey(contextData.GroupId)
+                                                });
+
+            return inboxMessages ?? new GetAllMessageAnnouncementsResponse();
+        }
+
+        private Tuple<GetAllMessageAnnouncementsResponse, bool> GetAllSystemMessageAnnouncements(Dictionary<string, object> arg)
+        {
+            var response = new GetAllMessageAnnouncementsResponse();
+
+            var groupId = (int)arg["groupId"];
+            var limit = _notificationSettings.GetInboxMessageTTLDays(groupId);
+            var (Announcements, TotalCount) = _notificationRepository.Get_AllSystemAnnouncements(groupId, limit);
+            response.messageAnnouncements = Announcements;
+            response.totalCount = TotalCount;
+
+            return new Tuple<GetAllMessageAnnouncementsResponse, bool>(response, response != null);
+        }
+
+        public List<InboxMessage> GetUserFollowedSeries(int groupId, int userId)
+        {
+            if (!Utils.GetUserNotificationData(groupId, userId, out var userNotificationData).IsOkStatusCode())
+                return new List<InboxMessage>();
+
+            var response = new List<InboxMessage>();
+            var ttl = _notificationSettings.GetInboxMessageTTLDays(groupId);
+
+            //Validate Announcements
+            var groupAnnouncements = _notificationRepository.GetAnnouncements(groupId);
+            if (groupAnnouncements == null || groupAnnouncements.IsEmpty())
+                return response;
+
+            var groupAnnouncementsIds = groupAnnouncements.Select(x => (long)x.ID).ToList();
+
+            var userAnnouncements = userNotificationData.Announcements.Select(x => x.AnnouncementId).ToList();
+            var innerJoin = groupAnnouncementsIds.Intersect(userAnnouncements).ToList();
+
+            var userNotificationAnnouncements = userNotificationData.Announcements
+                .Where(x => innerJoin.Contains(x.AnnouncementId));
+
+            foreach (var followAnnouncement in userNotificationAnnouncements)
+            {
+                var _messageAnnouncements = GetFollowMessageAnnouncementCache(groupId, followAnnouncement.AnnouncementId);
+                if (!_messageAnnouncements.IsOkStatusCode())
+                {
+                    log.Error($"Failed to GetFollowMessageAnnouncementCache with AnnouncementId: {followAnnouncement.AnnouncementId}");
+                    continue;
+                }
+
+                foreach (var ma in _messageAnnouncements.Objects)
+                {
+                    response.Add(
+                    new InboxMessage
+                    {
+                        Id = ma.MessageAnnouncementId.ToString(),
+                        Category = eMessageCategory.Followed,
+                        Message = ma.Message,
+                        ExpirationDate = DateUtils.UtcUnixTimestampSecondsToDateTime(ma.StartTime)
+                                                    .AddDays(ttl),
+                        ImageUrl = ma.ImageUrl,
+                        UserId = userId,
+                        CreatedAtSec = ma.StartTime
+                    });
+                }
+            }
+
+            return response;
+        }
+
+        public void SetSystemMessageAnnouncementsInvalidation(int partnerId)
+        {
+            var invalidationKey = LayeredCacheKeys.GetSystemMessageAnnouncementsInvalidationKey(partnerId);
+            if (!_layeredCache.SetInvalidationKey(invalidationKey))
+            {
+                log.Error($"Failed to set invalidation key for GetSystemMessageAnnouncementsInvalidationKey with invalidationKey: {invalidationKey}");
+            }
+        }
+
+        public GenericListResponse<MessageAnnouncement> GetFollowMessageAnnouncementCache(int groupId, long announcementId)
+        {
+            List<MessageAnnouncement> response = null;
+
+            var key = LayeredCacheKeys.GetFollowMessageAnnouncementKey(groupId, announcementId);
+            var cacheResult = _layeredCache.Get(key,
+                                                ref response,
+                                                GetMessageFollowAnnouncementDB,
+                                                new Dictionary<string, object>() {
+                                                        { "groupId", groupId },
+                                                        { "id", announcementId },
+                                                },
+                                                groupId,
+                                                LayeredCacheConfigNames.GET_MESSAGE_FOLLOW_ANNOUNCEMENT_DB,
+                                                new List<string>() {
+                                                        LayeredCacheKeys.GetFollowMessageAnnouncementInvalidationKey(groupId, announcementId)
+                                                });
+
+            var _status = new Status(response != null ? eResponseStatus.OK : eResponseStatus.AnnouncementNotFound);
+            return new GenericListResponse<MessageAnnouncement>(_status, response) { TotalItems = response.Count };
+        }
+
+        private Tuple<List<MessageAnnouncement>, bool> GetMessageFollowAnnouncementDB(Dictionary<string, object> arg)
+        {
+            int.TryParse(arg["groupId"].ToString(), out var groupId);
+            long.TryParse(arg["id"].ToString(), out var announcementId);
+            var response = GetMessageAnnouncementsByAnnouncementId(groupId, announcementId);
+
+            return new Tuple<List<MessageAnnouncement>, bool>(response?.Objects, response.IsOkStatusCode());
+        }
+
+        public void InvalidateFollowMessageAnnouncement(int groupId, long announcementId)
+        {
+            var key = LayeredCacheKeys.GetFollowMessageAnnouncementInvalidationKey(groupId, announcementId);
+            if (!LayeredCache.Instance.SetInvalidationKey(key))
+                log.Warn($"Failed to invalidate InvalidateFollowMessageAnnouncement with key: {key}");
         }
 
         private static MessageAnnouncement AddMessageAnnouncementToDB(int groupId, MessageAnnouncement announcement)
@@ -456,10 +589,10 @@ namespace Core.Notification
             try
             {
                 DateTime announcementStartTime = DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime);
-                DataRow row = DAL.NotificationDal.Insert_MessageAnnouncement(groupId, (int)announcement.Recipients, announcement.Name, announcement.Message,
+               var newRow = DAL.NotificationDal.Insert_MessageAnnouncement(groupId, (int)announcement.Recipients, announcement.Name, announcement.Message,
                     announcement.Enabled, announcementStartTime, announcement.Timezone, 0, announcement.MessageReference, null,
                     announcement.ImageUrl, announcement.IncludeMail, announcement.MailTemplate, announcement.MailSubject, announcement.IncludeSms, announcement.IncludeIot, announcement.AnnouncementId, announcement.IncludeUserInbox);
-                return Core.Notification.Utils.GetMessageAnnouncementFromDataRow(row);
+                return newRow;
             }
             catch (Exception ex)
             {
@@ -528,17 +661,17 @@ namespace Core.Notification
             return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
         }
 
-        public static Status CreateSystemAnnouncement(int groupId)
+        public Status CreateSystemAnnouncement(int groupId)
         {
             try
             {
                 List<DbAnnouncement> dbAnnouncements = null;
-                NotificationCache.TryGetAnnouncements(groupId, ref dbAnnouncements);
+                _notificationCache.TryGetAnnouncements(groupId, ref dbAnnouncements);
                 string announcementName = string.Empty;
                 string externalAnnouncementId = string.Empty;
 
                 // validate system announcements are enabled
-                if (!NotificationSettings.IsPartnerSystemAnnouncementEnabled(groupId))
+                if (!_notificationSettings.IsPartnerSystemAnnouncementEnabled(groupId))
                 {
                     log.ErrorFormat("CreateSystemAnnouncement  - partner system announcements are disabled. groupID = {0}", groupId);
                     return new Status((int)eResponseStatus.FeatureDisabled, "Feature Disabled");
@@ -685,7 +818,7 @@ namespace Core.Notification
             string imageUrl = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "image_url");
 
             List<DbAnnouncement> announcements = null;
-            NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+            NotificationCache.Instance().TryGetAnnouncements(groupId, ref announcements);
 
             switch (recipients)
             {
@@ -706,22 +839,11 @@ namespace Core.Notification
                         }
 
                         // send inbox messages
-                        if (includeUserInbox && NotificationSettings.IsPartnerInboxEnabled(groupId))
+                        if (includeUserInbox && NotificationSettings.Instance.IsPartnerInboxEnabled(groupId))
                         {
-                            InboxMessage inboxMessage = new InboxMessage()
-                            {
-                                Category = eMessageCategory.SystemAnnouncement,
-                                CreatedAtSec = currentTimeSec,
-                                Id = ODBCWrapper.Utils.GetIntSafeVal(messageAnnouncementDataRow, "ID").ToString(),
-                                Message = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"),
-                                State = eMessageState.Unread,
-                                UpdatedAtSec = currentTimeSec,
-                                Url = url,
-                                ImageUrl = imageUrl
-                            };
-
-                            if (!NotificationDal.SetSystemAnnouncementMessage(groupId, inboxMessage, NotificationSettings.GetInboxMessageTTLDays(groupId)))
-                                log.ErrorFormat("Error while setting system announcement inbox message. GID: {0}, InboxMessage: {1}", groupId, JsonConvert.SerializeObject(inboxMessage));
+                            Instance.SetSystemMessageAnnouncementsInvalidation(groupId);
+                            log.Debug($"Invalidating cache due to: Setting system announcement inbox message. " +
+                                $"groupId: {groupId}, messageId: {messageId}");
                         }
 
                         if (NotificationSettings.IsPartnerMailNotificationEnabled(groupId) && includeMail)
@@ -798,22 +920,11 @@ namespace Core.Notification
                         }
 
                         // send inbox messages
-                        if (includeUserInbox && NotificationSettings.IsPartnerInboxEnabled(groupId))
+                        if (includeUserInbox && NotificationSettings.Instance.IsPartnerInboxEnabled(groupId))
                         {
-                            InboxMessage inboxMessage = new InboxMessage()
-                            {
-                                Category = eMessageCategory.SystemAnnouncement,
-                                CreatedAtSec = currentTimeSec,
-                                Id = ODBCWrapper.Utils.GetIntSafeVal(messageAnnouncementDataRow, "ID").ToString(),
-                                Message = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"),
-                                State = eMessageState.Unread,
-                                UpdatedAtSec = currentTimeSec,
-                                Url = url,
-                                ImageUrl = imageUrl
-                            };
-
-                            if (!NotificationDal.SetSystemAnnouncementMessage(groupId, inboxMessage, NotificationSettings.GetInboxMessageTTLDays(groupId)))
-                                log.ErrorFormat("Error while setting system announcement inbox message. GID: {0}, InboxMessage: {1}", groupId, JsonConvert.SerializeObject(inboxMessage));
+                            Instance.SetSystemMessageAnnouncementsInvalidation(groupId);
+                            log.Debug($"Invalidating cache due to: Setting system announcement inbox message. " +
+                                $"groupId: {groupId}, messageId: {messageId}");
                         }
 
                         if (NotificationSettings.IsPartnerMailNotificationEnabled(groupId) && includeMail)
@@ -852,7 +963,7 @@ namespace Core.Notification
 
                         List<KeyValuePair<string, string>> mergeVars = null;
                         string mailExternalId = string.Empty;
-                        if (!HandleRecipientOtherTvSeries(groupId, messageId, startTime, announcementId, ref messageAnnouncementDataRow, ref url, ref imageUrl, ref sound, ref category, out singleTopicExternalId,
+                        if (!Instance.HandleRecipientOtherTvSeries(groupId, messageId, startTime, announcementId, ref messageAnnouncementDataRow, ref url, ref imageUrl, ref sound, ref category, out singleTopicExternalId,
                             out singleQueueName, out res, out mergeVars, out mailExternalId))
                         {
                             DAL.NotificationDal.Update_MessageAnnouncementActiveStatus(groupId, messageId, 0);
@@ -869,36 +980,10 @@ namespace Core.Notification
 
                         // send inbox messages
                         //BEO-11019
-                        if (includeUserInbox && NotificationSettings.IsPartnerInboxEnabled(groupId))
+                        if (includeUserInbox && NotificationSettings.Instance.IsPartnerInboxEnabled(groupId))
                         {
-                            List<int> followingUserIds = NotificationDal.GetUsersFollowNotificationView(groupId, announcementId);
-                            if (followingUserIds != null)
-                                foreach (var userId in followingUserIds)
-                                {
-                                    InboxMessage inboxMessage = new InboxMessage()
-                                    {
-                                        Category = eMessageCategory.Followed,
-                                        CreatedAtSec = currentTimeSec,
-                                        Id = Guid.NewGuid().ToString(),
-                                        Message = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"),
-                                        State = eMessageState.Unread,
-                                        UpdatedAtSec = currentTimeSec,
-                                        Url = url,
-                                        UserId = userId,
-                                        ImageUrl = imageUrl
-                                    };
-
-                                    int TtlDays = NotificationSettings.GetInboxMessageTTLDays(groupId);
-                                    
-                                    if (!NotificationDal.SetUserInboxMessage(groupId, inboxMessage, TtlDays))
-                                    {
-                                        log.ErrorFormat("Error while setting user follow series inbox message. GID: {0}, InboxMessage: {1}",
-                                            groupId,
-                                            JsonConvert.SerializeObject(inboxMessage));
-                                    }
-                                    else
-                                        log.DebugFormat("Successfully inserted user message inbox. Group ID: {0}, Inbox message: {1},  TTL in days: {2}", groupId, JsonConvert.SerializeObject(inboxMessage), TtlDays);
-                                }
+                            log.Debug($"Skipping SetUserInboxMessageFromView, groupId: {groupId}, " +
+                                $"startTime: {startTime}, messageId: {messageId}");
                         }
 
                         if (NotificationSettings.IsPartnerMailNotificationEnabled(groupId) && !string.IsNullOrEmpty(mailExternalId))
@@ -939,13 +1024,13 @@ namespace Core.Notification
 
             string resultMsgIds = "";
 
-            //send IOT message
-            if (NotificationSettings.IsPartnerIotNotificationEnabled(groupId) && includeIot)
+            //send IoT system announcement message
+            if (includeIot && NotificationSettings.IsPartnerIotNotificationEnabled(groupId)
+                && announcements.Any(ann => ann.RecipientsType == eAnnouncementRecipientsType.All ||
+                ann.RecipientsType == eAnnouncementRecipientsType.LoggedIn))
             {
-                PublishIotSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements,
-                    ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), url, sound, category, imageUrl);
+                PublishIotSystemAnnouncement(groupId, ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"));
             }
-
 
             // send push messages
             if (NotificationSettings.IsPartnerPushEnabled(groupId) || NotificationSettings.IsPartnerSmsNotificationEnabled(groupId))
@@ -1032,30 +1117,15 @@ namespace Core.Notification
             }
         }
 
-        private static void PublishIotSystemAnnouncement(int groupId, DataRow messageAnnouncementDataRow, List<DbAnnouncement> announcements,
-            string alert, string url, string sound, string category, string imageUrl)
+        private static void PublishIotSystemAnnouncement(int groupId, string message)
         {
-            DbAnnouncement iotAnnouncement = null;
+            var result = NotificationAdapter.IotPublishAnnouncement(groupId, message, IotManager.SYSTEM_ANNOUNCEMENT);
+            var _print = $"{message.Substring(0, Math.Min(message.Length, 10))}...";//Shorten message for log
 
-            if (announcements != null)
-                iotAnnouncement = announcements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.All
-                || x.RecipientsType == eAnnouncementRecipientsType.LoggedIn
-                || x.RecipientsType == eAnnouncementRecipientsType.Other);
-
-            if (iotAnnouncement != null)
-            {
-                var result = NotificationAdapter.IotPublishAnnouncement(groupId,
-                    ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), IotManager.SYSTEM_ANNOUNCEMENT);
-
-                if (!result)
-                {
-                    log.Error($"Failed to send IOT system announcement to adapter. annoucementId = {iotAnnouncement.ID}");
-                }
-                else
-                {
-                    log.Debug($"Successfully sent IOT system announcement. announcementId: {iotAnnouncement.ID}");
-                }
-            }
+            if (result)
+                log.Debug($"Successfully sent IoT system announcement. message = {_print}");
+            else
+                log.Error($"Failed to send IoT system announcement. message = {_print}");
         }
 
         private static void PublishMailSystemAnnouncement(int groupId, DataRow messageAnnouncementDataRow, List<DbAnnouncement> announcements, string template, string subject)
@@ -1092,7 +1162,7 @@ namespace Core.Notification
             // get announcement
             List<DbAnnouncement> announcements = null;
             DbAnnouncement announcement = null;
-            NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+            NotificationCache.Instance().TryGetAnnouncements(groupId, ref announcements);
 
             if (announcements != null)
                 announcement = announcements.FirstOrDefault(x => x.ID == announcementId);
@@ -1175,7 +1245,7 @@ namespace Core.Notification
             {
                 // get all announcements
                 List<DbAnnouncement> announcements = null;
-                NotificationCache.TryGetAnnouncements(partnerSettings.PartnerId, ref announcements);
+                NotificationCache.Instance().TryGetAnnouncements(partnerSettings.PartnerId, ref announcements);
                 if (announcements == null)
                 {
                     log.ErrorFormat("Error getting announcements. GID {0}", partnerSettings.PartnerId);
@@ -1275,7 +1345,7 @@ namespace Core.Notification
                 // get announcement
                 List<DbAnnouncement> announcements = null;
                 DbAnnouncement announcement = null;
-                NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+                NotificationCache.Instance().TryGetAnnouncements(groupId, ref announcements);
 
                 if (announcements != null)
                     announcement = announcements.FirstOrDefault(x => x.ID == announcementId);
@@ -1336,7 +1406,7 @@ namespace Core.Notification
                 // get announcement
                 List<DbAnnouncement> announcements = null;
                 DbAnnouncement announcement = null;
-                NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+                NotificationCache.Instance().TryGetAnnouncements(groupId, ref announcements);
 
                 if (announcements != null)
                     announcement = announcements.FirstOrDefault(x => x.ID == announcementId);
@@ -1376,7 +1446,7 @@ namespace Core.Notification
                 // get announcements
                 List<DbAnnouncement> announcements = null;
                 List<DbAnnouncement> topicAnnouncements = null;
-                NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+                NotificationCache.Instance().TryGetAnnouncements(groupId, ref announcements);
 
                 if (announcements != null)
                     topicAnnouncements = announcements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.Other).ToList();
@@ -1479,7 +1549,7 @@ namespace Core.Notification
 
             List<DbAnnouncement> announcements = null;
             DbAnnouncement announcement = null;
-            NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+            NotificationCache.Instance().TryGetAnnouncements(groupId, ref announcements);
 
             if (announcements != null)
                 announcement = announcements.FirstOrDefault(x => x.ID == announcementId);
@@ -1540,7 +1610,7 @@ namespace Core.Notification
 
             // get all announcements
             List<DbAnnouncement> announcements = null;
-            NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+            NotificationCache.Instance().TryGetAnnouncements(groupId, ref announcements);
             if (announcements == null)
             {
                 log.Error("GetPushWebParams: announcements were not found.");
@@ -1690,21 +1760,21 @@ namespace Core.Notification
             return Status.Ok;
         }
 
-        public static GenericResponse<MessageAnnouncement> GetMessageAnnouncement(int groupId, long id)
+        public GenericResponse<MessageAnnouncement> GetMessageAnnouncement(int groupId, long id)
         {
             var response = new GenericResponse<MessageAnnouncement>();
 
             try
             {
                 // validate system announcements are enabled
-                if (!NotificationSettings.IsPartnerSystemAnnouncementEnabled(groupId))
+                if (!_notificationSettings.IsPartnerSystemAnnouncementEnabled(groupId))
                 {
                     log.Error($"GetMessageAnnouncement - partner system announcements are disabled. groupId={groupId}");
                     response.SetStatus(eResponseStatus.FeatureDisabled, "Feature Disabled");
                     return response;
                 }
 
-                DataRow dr = NotificationDal.Get_MessageAnnouncement(id, groupId);
+                var dr = NotificationDal.Get_MessageAnnouncement(id, groupId);
                 if (dr == null)
                 {
                     log.Error($"Announcement not exist in DB: group: {groupId}, Id: {id}");
@@ -1712,13 +1782,51 @@ namespace Core.Notification
                     return response;
                 }
 
-                response.Object = Utils.GetMessageAnnouncementFromDataRow(dr);
+                response.Object = dr;
                 response.SetStatus(eResponseStatus.OK);
             }
             catch (Exception ex)
             {
                 response.SetStatus(eResponseStatus.Error);
                 log.Error($"An Exception was occurred in GetMessageAnnouncement. groupId:{groupId}, id:{id}.", ex);
+            }
+
+            return response;
+        }
+
+        public GenericListResponse<MessageAnnouncement> GetMessageAnnouncementsByAnnouncementId(int groupId, long announcementId)
+        {
+            var response = new GenericListResponse<MessageAnnouncement>();
+
+            try
+            {
+                // validate system announcements are enabled
+                if (!_notificationSettings.IsPartnerSystemAnnouncementEnabled(groupId))
+                {
+                    log.Error($"GetMessageAnnouncement - partner system announcements are disabled. groupId={groupId}");
+                    response.SetStatus(eResponseStatus.FeatureDisabled, "Feature Disabled");
+                    return response;
+                }
+
+                var utcNow = DateUtils.GetUtcUnixTimestampNow();
+                var announcements = _notificationRepository.Get_MessageAnnouncementsByAnnouncementId((int)announcementId, utcNow, utcNow);
+
+                if (announcements.failRes && 
+                    (announcements.messageAnnouncement == null || !announcements.messageAnnouncement.Any()))
+                {
+                    log.Error($"Announcement not exist in DB: group: {groupId}, Id: {announcementId}");
+                    response.SetStatus(eResponseStatus.AnnouncementNotFound, ANNOUNCEMENT_NOT_FOUND);
+                    return response;
+                }
+
+                response.Objects = announcements.messageAnnouncement;
+                response.TotalItems = announcements.messageAnnouncement.Count;
+                response.SetStatus(eResponseStatus.OK);
+            }
+            catch (Exception ex)
+            {
+                response.SetStatus(eResponseStatus.Error);
+                log.Error($"An Exception was occurred in GetMessageAnnouncement. groupId:{groupId}, announcement Id:{announcementId}.", ex);
             }
 
             return response;

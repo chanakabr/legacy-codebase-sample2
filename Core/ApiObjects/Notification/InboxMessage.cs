@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System;
 
 namespace ApiObjects.Notification
 {
@@ -14,6 +15,7 @@ namespace ApiObjects.Notification
         public long UpdatedAtSec { get; set; }
         public eMessageState State { get; set; }
         public long? CampaignId { get; set; }
+        public DateTime ExpirationDate { get; set; }
     }
 
     public class CampaignInboxMessageMap

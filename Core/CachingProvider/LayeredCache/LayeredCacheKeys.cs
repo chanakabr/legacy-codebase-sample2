@@ -766,6 +766,21 @@ namespace CachingProvider.LayeredCache
         {
             return $"group_campaign_{groupId}_type_{campaignType}";
         }
+        
+        public static string GetUserMessagesStatusKey(int groupId, int userId)
+        {
+            return $"{groupId}_user_messages_status_{userId}";
+        }
+
+        public static string GetSystemMessageAnnouncementsKey(int groupId)
+        {
+            return $"{groupId}_system_message_announcements";
+        }
+        
+        public static string GetFollowMessageAnnouncementKey(int groupId, long announcementId)
+        {
+            return $"{groupId}_follow_message_announcement_{announcementId}";
+        }
 
         public static string GetCampaignKey(int groupId, long campaignId)
         {
@@ -1012,6 +1027,21 @@ namespace CachingProvider.LayeredCache
         public static string GetAnnouncementsInvalidationKey(int groupId)
         {
             return string.Format("invalidationKeyAnnounecements_groupId_{0}", groupId);
+        }
+        
+        public static string GetUserMessagesStatusInvalidationKey(int groupId, int userId)
+        {
+            return $"invalidationKey_{groupId}_User_Messages_Status_{userId}";
+        }
+
+        public static string GetSystemMessageAnnouncementsInvalidationKey(int groupId)
+        {
+            return $"invalidationKey_{groupId}_system_message_announcements";
+        }
+
+        public static string GetFollowMessageAnnouncementInvalidationKey(int groupId, long announcementId)
+        {
+            return $"invalidationKey_{groupId}_follow_message_announcements_{announcementId}";
         }
 
         public static string GetSubscriptionSetInvalidationKey(int groupId, long setId)

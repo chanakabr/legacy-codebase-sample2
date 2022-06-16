@@ -11,10 +11,18 @@ using ApiLogic.Repositories;
 using Core.Catalog.CatalogManagement;
 using ApiObjects;
 using Core.Catalog;
+using System.Threading;
 
 namespace Core.Notification
 {
-    public class NotificationSettings
+    public interface INotificationSettings
+    {
+        int GetInboxMessageTTLDays(int groupId);
+        bool IsPartnerSystemAnnouncementEnabled(int groupId);
+        bool IsPartnerInboxEnabled(int groupId);
+    }
+
+    public class NotificationSettings: INotificationSettings
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int MAX_MESSAGE_TTL_DAYS = 90;
@@ -23,6 +31,18 @@ namespace Core.Notification
         private const string INVALID_MESSAGE_TTL = "Invalid message ttl";
         private const string INVALID_REMINDERS_PREPADDING_SEC = "Invalid pre-padding value";
         private const string MAIL_NOTIFICATION_ADAPTER_NOT_EXIST = "Mail notification adapter not exist";
+
+        private static readonly Lazy<NotificationSettings> lazy = new Lazy<NotificationSettings>(() =>
+            new NotificationSettings(NotificationCache.Instance()), LazyThreadSafetyMode.PublicationOnly);
+
+        private readonly INotificationCache _notificationCache;
+
+        public static NotificationSettings Instance { get { return lazy.Value; } }
+
+        public NotificationSettings(INotificationCache notificationCache)
+        {
+            _notificationCache = notificationCache;
+        }
 
         public static Status UpdateNotificationPartnerSettings(int groupId, NotificationPartnerSettings settings)
         {
@@ -351,7 +371,7 @@ namespace Core.Notification
             return isPartnerPushEnabled;
         }
 
-        public static bool IsPartnerSystemAnnouncementEnabled(int groupId)
+        public bool IsPartnerSystemAnnouncementEnabled(int groupId)
         {
             var partnerSettingsResponse = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
             if (partnerSettingsResponse != null &&
@@ -365,9 +385,9 @@ namespace Core.Notification
             return false;
         }
 
-        public static bool IsPartnerInboxEnabled(int groupId)
+        public bool IsPartnerInboxEnabled(int groupId)
         {
-            var partnerSettingsResponse = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
+            var partnerSettingsResponse = _notificationCache.GetPartnerNotificationSettings(groupId);
             if (partnerSettingsResponse != null &&
                 partnerSettingsResponse.settings != null &&
                 partnerSettingsResponse.settings.IsInboxEnabled.HasValue &&
@@ -393,7 +413,7 @@ namespace Core.Notification
             return false;
         }
 
-        public static int GetInboxMessageTTLDays(int groupId)
+        public int GetInboxMessageTTLDays(int groupId)
         {
             var partnerSettingsResponse = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
             if (partnerSettingsResponse != null &&

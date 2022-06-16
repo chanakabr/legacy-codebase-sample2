@@ -52,7 +52,8 @@ namespace APILogic.Notification
 
         private static readonly Lazy<TopicInterestManager> lazy = new Lazy<TopicInterestManager>(() => new TopicInterestManager(
                                                                     GroupSettingsManager.Instance,
-                                                                    CatalogManager.Instance),
+                                                                    CatalogManager.Instance,
+                                                                    NotificationSettings.Instance),
                                                                     LazyThreadSafetyMode.PublicationOnly);
 
 
@@ -60,12 +61,13 @@ namespace APILogic.Notification
 
         private readonly IGroupSettingsManager _groupSettingsManager;
         private readonly ICatalogManager _catalogManager;
+        private readonly INotificationSettings _notificationSettings;
 
-        private TopicInterestManager(IGroupSettingsManager groupSettingsManager, ICatalogManager catalogManager)
+        private TopicInterestManager(IGroupSettingsManager groupSettingsManager, ICatalogManager catalogManager, INotificationSettings notificationSettings)
         {
             _groupSettingsManager = groupSettingsManager;
             _catalogManager = catalogManager;
-
+            _notificationSettings = notificationSettings;
         }
 
         public GenericResponse<UserInterest> AddUserInterest(int partnerId, int userId, UserInterest newUserInterest)
@@ -1538,7 +1540,7 @@ namespace APILogic.Notification
             }
 
             // send inbox messages
-            if (NotificationSettings.IsPartnerInboxEnabled(partnerId))
+            if (NotificationSettings.Instance.IsPartnerInboxEnabled(partnerId))
             {
                 List<int> users = InterestDal.GetUsersListbyInterestId(partnerId, interestNotification.Id);
                 if (users != null)
@@ -1557,7 +1559,7 @@ namespace APILogic.Notification
                             UserId = userId
                         };
 
-                        if (!NotificationDal.SetUserInboxMessage(partnerId, inboxMessage, NotificationSettings.GetInboxMessageTTLDays(partnerId)))
+                        if (!NotificationDal.SetUserInboxMessage(partnerId, inboxMessage, NotificationSettings.Instance.GetInboxMessageTTLDays(partnerId)))
                         {
                             log.ErrorFormat("Error while setting user interest inbox message. GID: {0}, InboxMessage: {1}",
                                 partnerId,
@@ -1565,6 +1567,7 @@ namespace APILogic.Notification
                         }
                     }
                 }
+                AnnouncementManager.Instance.InvalidateFollowMessageAnnouncement(partnerId, interestNotification.Id);
             }
 
             return true;

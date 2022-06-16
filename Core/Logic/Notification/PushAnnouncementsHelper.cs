@@ -153,7 +153,7 @@ namespace Core.Notification
             // get guest announcement external token from DB 
             List<DbAnnouncement> announcements = null;
             DbAnnouncement guestAnnouncement = null;
-            NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+            NotificationCache.Instance().TryGetAnnouncements(groupId, ref announcements);
             if (announcements != null)
                 guestAnnouncement = announcements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.Guests);
 
@@ -244,7 +244,7 @@ namespace Core.Notification
             result = new List<AnnouncementSubscriptionData>();
 
             List<DbAnnouncement> announcements = null;
-            NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+            NotificationCache.Instance().TryGetAnnouncements(groupId, ref announcements);
             if (announcements != null)
                 announcements = announcements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn || notificationIds.Contains(x.ID)).ToList();
 

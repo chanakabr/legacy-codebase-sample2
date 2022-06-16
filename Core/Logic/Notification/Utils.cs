@@ -45,46 +45,6 @@ namespace Core.Notification
             }
         }
 
-        public static MessageAnnouncement GetMessageAnnouncementFromDataRow(DataRow row)
-        {
-            var timezone = ODBCWrapper.Utils.GetSafeStr(row, "timezone");
-            var convertedTime = ODBCWrapper.Utils.ConvertFromUtc(ODBCWrapper.Utils.GetDateSafeVal(row, "start_time"), timezone);
-            var startTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(convertedTime);
-
-            var recipients = eAnnouncementRecipientsType.Other;
-            int dbRecipients = ODBCWrapper.Utils.GetIntSafeVal(row, "recipients");
-            if (Enum.IsDefined(typeof(eAnnouncementRecipientsType), dbRecipients))
-                recipients = (eAnnouncementRecipientsType)dbRecipients;
-
-            var status = eAnnouncementStatus.NotSent;
-            int dbStatus = ODBCWrapper.Utils.GetIntSafeVal(row, "sent");
-            if (Enum.IsDefined(typeof(eAnnouncementStatus), dbStatus))
-                status = (eAnnouncementStatus)dbStatus;
-
-            var msg = new MessageAnnouncement()
-            {
-                MessageAnnouncementId = ODBCWrapper.Utils.GetIntSafeVal(row, "id"),
-                Name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
-                Message = ODBCWrapper.Utils.GetSafeStr(row, "message"),
-                Enabled = (ODBCWrapper.Utils.GetIntSafeVal(row, "is_active") == 0) ? false : true,
-                StartTime = startTime,
-                Timezone = timezone,
-                Recipients = recipients,
-                Status = status,
-                MessageReference = ODBCWrapper.Utils.GetSafeStr(row, "message_reference"),
-                AnnouncementId = ODBCWrapper.Utils.GetIntSafeVal(row, "announcement_id"),
-                ImageUrl = ODBCWrapper.Utils.GetSafeStr(row, "image_url"),
-                MailSubject = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_SUBJECT"),
-                MailTemplate = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_TEMPLATE"),
-                IncludeMail = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_EMAIL") > 0) ? true : false),
-                IncludeSms = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_SMS") > 0) ? true : false),
-                IncludeIot = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_IOT") > 0) ? true : false),
-                IncludeUserInbox = ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_USER_INBOX") > 0
-            };
-
-            return msg;
-        }
-
         ///<summary>
         /// Base 64 Encoding with URL and Filename Safe Alphabet using UTF-8 character set.
         ///</summary>
