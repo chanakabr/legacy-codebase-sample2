@@ -198,6 +198,7 @@ stage('Unified-CI'){
             },
             failFast: true)
         stage('Trigger Wrapper'){
+            git branch: "${BRANCH_NAME}", credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend'
             COMMITER = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
             triggerWrapper()
         }
