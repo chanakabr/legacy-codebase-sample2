@@ -112,6 +112,18 @@ namespace Core.Recordings
             return Math.Abs((int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds);
         }
 
+        public static long GetRecordingDurationWithPaddingSeconds(int groupId, Recording recording, TimeShiftedTvPartnerSettings accountSettings)
+        {
+            var result = GetRecordingDurationSeconds(recording);
+
+            if (accountSettings.PaddingBeforeProgramStarts.HasValue)
+                result += (int)accountSettings.PaddingBeforeProgramStarts.Value;
+            if (accountSettings.PaddingAfterProgramEnds.HasValue)
+                result += (int)accountSettings.PaddingAfterProgramEnds.Value;
+
+            return result;
+        }
+
         public ApiObjects.TimeShiftedTv.DomainQuotaResponse GetDomainQuotaResponse(int groupId, long domainId)
         {
             ApiObjects.TimeShiftedTv.DomainQuotaResponse response = new DomainQuotaResponse();
@@ -339,34 +351,31 @@ namespace Core.Recordings
             return bRes;
         }
 
-        private List<Recording> DeleteDomainOldestRecordings(int groupId, long domainId, int recordingQuota, DomainRecordingStatus domainRecordingStatus = DomainRecordingStatus.Deleted)
+        private List<Recording> DeleteDomainOldestRecordings(int groupId, long domainId, int newRecordingDuration, DomainRecordingStatus domainRecordingStatus = DomainRecordingStatus.Deleted)
         {
             List<Recording> deletedRecordings = null;
             try
             {
-                List<long> domainRecordingIds = new List<long>();
                 List<TstvRecordingStatus> recordingStatuses = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recorded };
                 Dictionary<long, Recording> domainRecordingIdToRecordingMap = Utils.GetDomainRecordingsByTstvRecordingStatuses(groupId, domainId, recordingStatuses);
                 if (domainRecordingIdToRecordingMap != null && domainRecordingIdToRecordingMap.Count > 0)
                 {
-                    int tempQuotaOverage = 0;
+                    long quotaClearanceSeconds = 0;
                     long currentUtcTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
-                    var ordered = domainRecordingIdToRecordingMap.OrderBy(x => x.Value.ViewableUntilDate.HasValue ? x.Value.ViewableUntilDate.Value : 0);
+                    var ordered = domainRecordingIdToRecordingMap.OrderBy(x => x.Value.CreateDate)
+                        .Where(rec => !IsRecordingProtected(rec.Value, currentUtcTime));
+
+                    List<long> domainRecordingIds = new List<long>();
+
                     if (ordered != null)
                     {
                         // build list of domain recordings id - Least as needed   
                         Dictionary<long, Recording> recordings = ordered.ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Value);
-                        int recordingDuration = 0;
+                        long recordingDuration = 0;
+                        var accountSettings = Utils.GetTimeShiftedTvPartnerSettings(groupId);
 
                         foreach (KeyValuePair<long, Recording> recording in recordings)
                         {
-                            // check if record is protected - ignore it 
-                            if (!recording.Value.ViewableUntilDate.HasValue || recording.Value.ViewableUntilDate.Value == 0 ||
-                                (recording.Value.ProtectedUntilDate.HasValue && recording.Value.ProtectedUntilDate.Value > currentUtcTime))
-                            {
-                                continue;
-                            }
-
                             domainRecordingIds.Add(recording.Key);
                             if (deletedRecordings == null)
                             {
@@ -375,26 +384,26 @@ namespace Core.Recordings
 
                             deletedRecordings.Add(recording.Value);
 
-                            recordingDuration = GetRecordingDurationSeconds(recording.Value);
-                            tempQuotaOverage += recordingDuration;
+                            recordingDuration = GetRecordingDurationWithPaddingSeconds(groupId, recording.Value, accountSettings);
+                            quotaClearanceSeconds += recordingDuration;
 
-                            if (tempQuotaOverage >= recordingQuota)
+                            if (quotaClearanceSeconds >= newRecordingDuration)
                             {
                                 break;
                             }
                         }
                     }
 
-                    if (tempQuotaOverage >= recordingQuota)
+                    if (quotaClearanceSeconds >= newRecordingDuration)
                     {
                         // delete all and DecreaseDomainUsedQuota
                         if (domainRecordingIds != null && domainRecordingIds.Count > 0)
                         {
-                            log.DebugFormat("try to deleted domainRecordingIds: {0}, QuotaOverageDuration : {1}", string.Join(",", domainRecordingIds), tempQuotaOverage);
+                            log.DebugFormat("try to deleted domainRecordingIds: {0}, QuotaOverageDuration : {1}", string.Join(",", domainRecordingIds), quotaClearanceSeconds);
                             if (!RecordingsDAL.DeleteDomainRecording(domainRecordingIds, domainRecordingStatus))
                             {
                                 deletedRecordings = null;
-                                log.ErrorFormat("fail in DeleteDomainOldestRecordings to perform delete domainRecordingID = {0}", string.Join(",", domainRecordingIds));
+                                log.ErrorFormat("Fail in DeleteDomainOldestRecordings to perform delete domainRecordingID = {0}", string.Join(",", domainRecordingIds));
                             }
                         }
                     }
@@ -411,6 +420,15 @@ namespace Core.Recordings
             }
 
             return deletedRecordings;
+        }
+
+        private bool IsRecordingProtected(Recording recording, long currentUtcTime)
+        {
+            if (recording == null) return false;
+
+            // check if record is protected - ignore it 
+            return (!recording.ViewableUntilDate.HasValue || recording.ViewableUntilDate.Value == 0 ||
+                (recording.ProtectedUntilDate.HasValue && recording.ProtectedUntilDate.Value > currentUtcTime));
         }
 
         #endregion
