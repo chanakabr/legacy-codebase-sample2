@@ -226,6 +226,135 @@ namespace ElasticSearch.Common
                 index = eMappingIndex.not_analyzed
             });
 
+            var liveToVod = new InnerMappingPropertyV2()
+            {
+                name = "live_to_vod"
+            };
+            liveToVod.AddProperty(new BasicMappingPropertyV2()
+            {
+                name = "linear_asset_id",
+                index = eMappingIndex.not_analyzed,
+                type = eESFieldType.LONG
+            });
+
+            liveToVod.AddProperty(new BasicMappingPropertyV2()
+            {
+                name = "epg_channel_id",
+                index = eMappingIndex.not_analyzed,
+                type = eESFieldType.LONG
+            });
+
+            var cridProperty = new FieldsMappingPropertyV2
+            {
+                name = "crid",
+                type = eESFieldType.STRING,
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER,
+                null_value = ""
+            };
+
+            cridProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "crid",
+                type = eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
+            });
+
+            cridProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "lowercase",
+                type = eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
+            });
+
+            cridProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "phrase_autocomplete",
+                type = eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
+                analyzer = PHRASE_STARTS_WITH_ANALYZER
+            });
+
+            if (!string.IsNullOrEmpty(defaultAutocompleteIndexAnalyzer) && !string.IsNullOrEmpty(defaultAutocompleteSearchAnalyzer))
+            {
+                cridProperty.fields.Add(new BasicMappingPropertyV2()
+                {
+                    name = "autocomplete",
+                    type = eESFieldType.STRING,
+                    null_value = "",
+                    index = eMappingIndex.analyzed,
+                    search_analyzer = defaultAutocompleteSearchAnalyzer,
+                    analyzer = defaultAutocompleteIndexAnalyzer
+                });
+            }
+
+            liveToVod.AddProperty(cridProperty);
+            var epgIdProperty = new FieldsMappingPropertyV2()
+            {
+                name = "epg_id",
+                type = eESFieldType.STRING,
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER,
+                null_value = ""
+            };
+
+            epgIdProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "epg_id",
+                type = eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
+            });
+
+            epgIdProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "lowercase",
+                type = eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
+            });
+
+            epgIdProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "phrase_autocomplete",
+                type = eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
+                analyzer = PHRASE_STARTS_WITH_ANALYZER
+            });
+
+            liveToVod.AddProperty(epgIdProperty);
+            liveToVod.AddProperty(new BasicMappingPropertyV2()
+            {
+                name = "orig_start_date",
+                type = eESFieldType.DATE,
+                index = eMappingIndex.not_analyzed,
+                format = DATE_FORMAT
+            });
+            liveToVod.AddProperty(new BasicMappingPropertyV2()
+            {
+                name = "orig_end_date",
+                type = eESFieldType.DATE,
+                index = eMappingIndex.not_analyzed,
+                format = DATE_FORMAT
+            });
+            mappingObj.AddProperty(liveToVod);
+
             ElasticSearch.Common.FieldsMappingPropertyV2 nameProperty = new FieldsMappingPropertyV2()
             {
                 name = AddSuffix("name", suffix),

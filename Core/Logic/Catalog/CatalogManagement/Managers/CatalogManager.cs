@@ -599,7 +599,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (update)
                 {
-                    AssetManager.UpdateAsset(groupId, childAsset.Id, childAsset, userId, false, false);
+                    AssetManager.Instance.UpdateAsset(groupId, childAsset.Id, childAsset, userId, false, false);
                 }
             }
         }
@@ -865,7 +865,7 @@ namespace Core.Catalog.CatalogManagement
                 return true;
             }
 
-            GenericResponse<Asset> asset = AssetManager.GetAsset(groupId, assetId, eAssetTypes.MEDIA, true);
+            GenericResponse<Asset> asset = AssetManager.Instance.GetAsset(groupId, assetId, eAssetTypes.MEDIA, true);
 
             if (asset.Status.Code != (int)eResponseStatus.OK || asset.Object == null)
             {
@@ -2641,7 +2641,7 @@ namespace Core.Catalog.CatalogManagement
 
             foreach (long assetId in parentAssetsIds)
             {
-                GenericResponse<Asset> mediaAsset = AssetManager.GetAsset(groupId, assetId, eAssetTypes.MEDIA, true);
+                GenericResponse<Asset> mediaAsset = AssetManager.Instance.GetAsset(groupId, assetId, eAssetTypes.MEDIA, true);
 
                 if (mediaAsset.Status.Code != (int)eResponseStatus.OK || mediaAsset.Object == null)
                 {
@@ -2904,7 +2904,7 @@ namespace Core.Catalog.CatalogManagement
 
                             if (!string.IsNullOrEmpty(locationTagName))
                             {
-                                var assetResponse = AssetManager.GetAsset(groupId, userMediaMark.AssetID, userMediaMark.AssetType, true);
+                                var assetResponse = AssetManager.Instance.GetAsset(groupId, userMediaMark.AssetID, userMediaMark.AssetType, true);
                                 if (assetResponse.HasObject() && assetResponse.Object.Metas != null)
                                 {
                                     if (userMediaMark.AssetType == eAssetTypes.EPG)
@@ -2927,7 +2927,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     if (asset == null)
                     {
-                        var assetResponse = AssetManager.GetAsset(groupId, userMediaMark.AssetID, userMediaMark.AssetType, true);
+                        var assetResponse = AssetManager.Instance.GetAsset(groupId, userMediaMark.AssetID, userMediaMark.AssetType, true);
                         if (assetResponse.HasObject() && assetResponse.Object.Metas != null)
                         {
                             asset = assetResponse.Object as EpgAsset;

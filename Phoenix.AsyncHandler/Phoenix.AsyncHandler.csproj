@@ -35,6 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Core\LiveToVod\LiveToVod.csproj" />
     <ProjectReference Include="..\Core\Logic\ApiLogic.csproj" />
   </ItemGroup>
 

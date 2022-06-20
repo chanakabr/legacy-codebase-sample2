@@ -4956,6 +4956,28 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaLiveToVodInfoAsset":
+                    switch(property.Name)
+                    {
+                        case "Crid":
+                            return "crid";
+                        case "EpgChannelId":
+                            return "epgChannelId";
+                        case "EpgId":
+                            return "epgId";
+                        case "LinearAssetId":
+                            return "linearAssetId";
+                        case "OriginalEndDate":
+                            return "originalEndDate";
+                        case "OriginalStartDate":
+                            return "originalStartDate";
+                        case "PaddingAfterProgramEnds":
+                            return "paddingAfterProgramEnds";
+                        case "PaddingBeforeProgramStarts":
+                            return "paddingBeforeProgramStarts";
+                    }
+                    break;
+                    
                 case "KalturaLiveToVodLinearAssetConfiguration":
                     switch(property.Name)
                     {
@@ -5053,6 +5075,8 @@ namespace WebAPI.Reflection
                             return "geoBlockRuleId";
                         case "InheritancePolicy":
                             return "inheritancePolicy";
+                        case "LiveToVod":
+                            return "liveToVod";
                         case "Status":
                             return "status";
                         case "TrickPlayBuffer":

@@ -17,6 +17,7 @@ namespace Core.Catalog.CatalogManagement
             DataTable updateDateTable,
             DataTable linearAssetTable,
             DataTable nameRelatedEntitiesTable,
+            DataTable liveToVodAssetTable,
             bool isForIndex = false,
             bool isForMigration = false);
 

@@ -14,7 +14,9 @@ namespace Core.Catalog
             CatalogLogic.EXTERNALID,
             CatalogLogic.ENTRYID,
             "....",
-            CatalogLogic.EXTERNAL_OFFER_ID
+            CatalogLogic.EXTERNAL_OFFER_ID,
+            CatalogLogic.L2V_CRID,
+            CatalogLogic.L2V_EPG_ID
         };
 
         public static readonly HashSet<string> ReservedUnifiedSearchNumericFields = new HashSet<string>
@@ -30,7 +32,9 @@ namespace Core.Catalog
             CatalogLogic.STATUS,
             CatalogLogic.RECORDING_ID,
             NamingHelper.ENABLE_CDVR,
-            NamingHelper.ENABLE_CATCHUP
+            NamingHelper.ENABLE_CATCHUP,
+            CatalogLogic.L2V_LINEAR_ASSET_ID,
+            CatalogLogic.L2V_EPG_CHANNEL_ID
         };
 
         public static readonly HashSet<string> ReservedUnifiedDateFields = new HashSet<string>
@@ -42,7 +46,9 @@ namespace Core.Catalog
             CatalogLogic.CATALOGSTARTDATETIME,
             CatalogLogic.CATALOGENDDATETIME,
             CatalogLogic.END_DATE,
-            CatalogLogic.LASTMODIFIED
+            CatalogLogic.LASTMODIFIED,
+            CatalogLogic.L2V_ORIGINAL_START_DATE,
+            CatalogLogic.L2V_ORIGINAL_END_DATE
         };
     }
 }

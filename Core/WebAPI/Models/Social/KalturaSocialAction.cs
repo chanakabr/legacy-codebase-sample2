@@ -10,7 +10,6 @@ namespace WebAPI.Models.Social
     [XmlInclude(typeof(KalturaSocialActionRate))]
     public partial class KalturaSocialAction : KalturaOTTObject
     {
-
         /// <summary>
         /// social action document id
         /// </summary>
@@ -60,47 +59,5 @@ namespace WebAPI.Models.Social
         [XmlElement(ElementName = "url")]
         [SchemeProperty(WriteOnly = true)]
         public string Url { get; set; }
-
-        public override string ToString()
-        {
-            string res = $"actionType : {ActionType.ToString()}, Time :{Time}, AssetId : {AssetId}, AssetType : {AssetType}, Url : {Url}";
-            return res;  
-        }
-    }
-
-    public partial class KalturaSocialActionRate : KalturaSocialAction
-    {
-        /// <summary>
-        /// The value of the rating
-        /// </summary>
-        [DataMember(Name = "rate")]
-        [JsonProperty("rate")]
-        [XmlElement(ElementName = "rate")]
-        public int Rate { get; set; }
-
-        public KalturaSocialActionRate(int value) : base(null)
-        {
-            Rate = value;
-        }
-
-        protected override void Init()
-        {
-            base.Init();
-            ActionType = KalturaSocialActionType.RATE;            
-        }
-
-        public override string ToString()
-        {
-            string res = string.Format("{0}, Rate Value = {1} ", base.ToString(), Rate);
-            return res;
-        }
-    }
- 
-    public enum KalturaSocialActionType
-    {
-        LIKE,
-        WATCH,
-        RATE,        
-        SHARE       
     }
 }

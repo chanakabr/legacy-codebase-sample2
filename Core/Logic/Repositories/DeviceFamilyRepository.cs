@@ -16,7 +16,7 @@ namespace ApiLogic.Repositories
     public class DeviceFamilyRepository : IDeviceFamilyRepository
     {
         private static readonly Lazy<DeviceFamilyRepository> LazyInstance = new Lazy<DeviceFamilyRepository>(
-            () => new DeviceFamilyRepository(DeviceFamilyDal.Instance, LayeredCache.Instance, new KLogger(nameof(DeviceFamilyRepository))),
+            () => new DeviceFamilyRepository(DeviceFamilyDal.Instance, LayeredCache.Instance),
             LazyThreadSafetyMode.PublicationOnly);
 
         private readonly IDeviceFamilyDal _deviceFamilyDal;
@@ -24,6 +24,11 @@ namespace ApiLogic.Repositories
         private readonly ILogger _logger;
 
         public static IDeviceFamilyRepository Instance => LazyInstance.Value;
+        
+        public DeviceFamilyRepository(IDeviceFamilyDal deviceFamilyDal, ILayeredCache cache)
+            : this(deviceFamilyDal, cache, new KLogger(nameof(DeviceFamilyRepository)))
+        {
+        }
 
         public DeviceFamilyRepository(IDeviceFamilyDal deviceFamilyDal, ILayeredCache cache, ILogger logger)
         {

@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ApiLogic.IndexManager.Helpers;
 using ApiObjects.SearchObjects;
 using ElasticSearch.NEST;
 using MoreLinq;
 using MoreLinq.Extensions;
 using Nest;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using TVinciShared;
 using ESUtils = ElasticSearch.Common.Utils;
 
@@ -26,7 +26,7 @@ namespace ApiLogic.IndexManager.NestData
         [PropertyName("device_rule_id")]
         public int DeviceRuleId { get; set; }
 
-        [PropertyName("epg_identifier")]
+        [PropertyName(NamingHelper.EPG_IDENTIFIER)]
         public string EpgIdentifier { get; set; }
 
         [PropertyName("user_types")]
@@ -83,7 +83,10 @@ namespace ApiLogic.IndexManager.NestData
         [PropertyName("rating")]
         public double Rating { get; set; }
 
-        public NestMedia(ApiObjects.SearchObjects.Media media, string languageCode, int languageId)
+        [PropertyName("live_to_vod")]
+        public NestLiveToVodProperties LiveToVodProperties { get; set; }
+
+        public NestMedia(Media media, string languageCode, int languageId)
         {
             MediaId = media.m_nMediaID;
             MediaTypeId = media.m_nMediaTypeID;
@@ -154,6 +157,19 @@ namespace ApiLogic.IndexManager.NestData
             CacheDate = DateTime.UtcNow;
 
             DocumentId = $"{MediaId}_{languageCode}";
+            // live to vod
+            if (media.L2vLinearAssetId.HasValue)
+            {
+                LiveToVodProperties = new NestLiveToVodProperties
+                {
+                    LinearAssetId = media.L2vLinearAssetId.Value,
+                    EpgChannelId = media.L2vEpgChannelId.Value,
+                    EpgId = media.L2vEpgId,
+                    Crid = media.L2vCrid,
+                    OriginalEndDate = DateTime.ParseExact(media.L2vOriginalEndDate, ESUtils.ES_DATE_FORMAT, null),
+                    OriginalStartDate = DateTime.ParseExact(media.L2vOriginalStartDate, ESUtils.ES_DATE_FORMAT, null)
+                };
+            }
         }
 
         private List<int> GetUserTypesFromString(string userTypes)

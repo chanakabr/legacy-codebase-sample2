@@ -914,6 +914,9 @@ namespace CachingProvider.LayeredCache
         {
             return $"device_brands_{groupId}";
         }
+        
+        public static string GetLiveToVodFullConfigurationKey(long groupId)
+            => $"live_to_vod_full_configuration_{groupId}";
 
         #endregion
 
@@ -1720,6 +1723,9 @@ namespace CachingProvider.LayeredCache
         {
             return $"invalidationKey_DeviceBrands_{groupId}";
         }
+        
+        public static string GetLiveToVodFullConfigurationInvalidationKey(long groupId)
+            => $"invalidationKey_GetLiveToVodFullConfiguration_{groupId}";
 
         public static string GetMediaAssetUserRulesInvalidationKey(int groupId, long mediaId)
         {

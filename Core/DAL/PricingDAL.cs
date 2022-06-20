@@ -125,7 +125,7 @@ namespace DAL
 
         public static PricingDAL Instance { get { return lazy.Value; } }
 
-        private PricingDAL()
+        public PricingDAL()
         {
         }
 

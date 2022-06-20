@@ -685,6 +685,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ChannelType, opt => opt.ResolveUsing(src => ConvertToKalturaLinearChannelType(src.ChannelType)))
                 .ForMember(dest => dest.ExternalIds, opt => opt.MapFrom(src => src.EpgChannelId));
 
+            cfg.CreateMap<LiveToVodAsset, KalturaMediaAsset>()
+                .IncludeBase<MediaAsset, KalturaMediaAsset>()
+                .ForMember(dest => dest.LiveToVod, opt => opt.MapFrom(s => s));
+
+            cfg.CreateMap<LiveToVodAsset, KalturaLiveToVodInfoAsset>()
+                .ForMember(dest => dest.LinearAssetId, opt => opt.MapFrom(src => src.LinearAssetId))
+                .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.EpgIdentifier))
+                .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => src.EpgChannelId))
+                .ForMember(dest => dest.Crid, opt => opt.MapFrom(src => src.Crid))
+                .ForMember(dest => dest.OriginalStartDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.OriginalStartDate)))
+                .ForMember(dest => dest.OriginalEndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.OriginalEndDate)))
+                .ForMember(dest => dest.PaddingBeforeProgramStarts, opt => opt.MapFrom(src => src.PaddingBeforeProgramStarts))
+                .ForMember(dest => dest.PaddingAfterProgramEnds, opt => opt.MapFrom(src => src.PaddingAfterProgramEnds));
+
             //LineupChannelAsset to KalturaLineupChannelAsset
             cfg.CreateMap<LineupChannelAsset, KalturaLineupChannelAsset>()
                 .IncludeBase<LiveAsset, KalturaLiveAsset>()

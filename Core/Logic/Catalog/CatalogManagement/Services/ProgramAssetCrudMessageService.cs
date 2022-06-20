@@ -17,21 +17,21 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
     {
         private readonly IAssetManager _assetManager;
         private readonly IEpgAssetManager _epgAssetManager;
-        private readonly IProgramCrudEventMapper _programCrudEventMapper;
+        private readonly IProgramAssetCrudEventMapper _assetCrudEventMapper;
         private readonly IKafkaProducer<string, ProgramAsset> _programAssetProducer;
         private readonly ILogger _logger;
 
         public ProgramAssetCrudMessageService(
             IAssetManager assetManager,
             IEpgAssetManager epgAssetManager,
-            IProgramCrudEventMapper programCrudEventMapper,
+            IProgramAssetCrudEventMapper assetCrudEventMapper,
             IKafkaProducerFactory producerFactory,
             IKafkaContextProvider contextProvider,
             ILogger logger)
         {
             _assetManager = assetManager;
             _epgAssetManager = epgAssetManager;
-            _programCrudEventMapper = programCrudEventMapper;
+            _assetCrudEventMapper = assetCrudEventMapper;
             _programAssetProducer = producerFactory.Get<string, ProgramAsset>(contextProvider, Partitioner.Murmur2Random);
             _logger = logger;
         }
@@ -143,7 +143,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
                 return Task.CompletedTask;
             }
 
-            var @event = _programCrudEventMapper.Map(epgAsset, liveAsset, groupId, updaterId, operation);
+            var @event = _assetCrudEventMapper.Map(epgAsset, liveAsset, groupId, updaterId, operation);
 
             return _programAssetProducer.ProduceAsync(ProgramAsset.GetTopic(), @event.GetPartitioningKey(), @event);
         }

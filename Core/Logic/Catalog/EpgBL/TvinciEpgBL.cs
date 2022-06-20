@@ -1161,9 +1161,15 @@ namespace EpgBL
                  //ES holds the current document in CB so we go there to take it
                 result = indexManager.GetEpgCBDocumentIdsByEpgId(epgIds, langCodes);
                 //all vlues that are long get epgcbkeyssv1
-                var allLongTypeResults = result.Where(x => long.TryParse(x, out var res)).Select(long.Parse);
-                var epgCbKeys = GetEpgsCBKeysV1(allLongTypeResults, langCodes);
-                result = result.ToHashSet().Union(epgCbKeys).ToList();
+                result = result.SelectMany(x =>
+                {
+                    return long.TryParse(x, out var parsedEpgId)
+                        ? GetEpgsCBKeysV1(new[] {parsedEpgId}, langCodes)
+                        : new List<string>
+                        {
+                            x.ToString()
+                        };
+                }).ToList();
             }
             else
             {

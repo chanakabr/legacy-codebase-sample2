@@ -24,6 +24,7 @@ namespace Core.ConditionalAccess
         {
             DomainPpvEntitlements = new PPVEntitlements();
             DomainBundleEntitlements = new BundleEntitlements();
+            PagoEntitlements = new Dictionary<long, PagoEntitlement>();
         }
 
 

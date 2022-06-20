@@ -28805,6 +28805,100 @@ namespace WebAPI.Models.Catalog
             return ret;
         }
     }
+    public partial class KalturaLiveToVodInfoAsset
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Crid != null && (retrievedProperties == null || retrievedProperties.Contains("crid")))
+            {
+                ret.Add("crid", "\"crid\": " + "\"" + EscapeJson(Crid) + "\"");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("epgChannelId")))
+            {
+                ret.Add("epgChannelId", "\"epgChannelId\": " + EpgChannelId);
+            }
+            if(EpgId != null && (retrievedProperties == null || retrievedProperties.Contains("epgId")))
+            {
+                ret.Add("epgId", "\"epgId\": " + "\"" + EscapeJson(EpgId) + "\"");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("linearAssetId")))
+            {
+                ret.Add("linearAssetId", "\"linearAssetId\": " + LinearAssetId);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("originalEndDate")))
+            {
+                ret.Add("originalEndDate", "\"originalEndDate\": " + OriginalEndDate);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("originalStartDate")))
+            {
+                ret.Add("originalStartDate", "\"originalStartDate\": " + OriginalStartDate);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("paddingAfterProgramEnds")))
+            {
+                ret.Add("paddingAfterProgramEnds", "\"paddingAfterProgramEnds\": " + PaddingAfterProgramEnds);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("paddingBeforeProgramStarts")))
+            {
+                ret.Add("paddingBeforeProgramStarts", "\"paddingBeforeProgramStarts\": " + PaddingBeforeProgramStarts);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Crid != null && (retrievedProperties == null || retrievedProperties.Contains("crid")))
+            {
+                ret.Add("crid", "<crid>" + EscapeXml(Crid) + "</crid>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("epgChannelId")))
+            {
+                ret.Add("epgChannelId", "<epgChannelId>" + EpgChannelId + "</epgChannelId>");
+            }
+            if(EpgId != null && (retrievedProperties == null || retrievedProperties.Contains("epgId")))
+            {
+                ret.Add("epgId", "<epgId>" + EscapeXml(EpgId) + "</epgId>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("linearAssetId")))
+            {
+                ret.Add("linearAssetId", "<linearAssetId>" + LinearAssetId + "</linearAssetId>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("originalEndDate")))
+            {
+                ret.Add("originalEndDate", "<originalEndDate>" + OriginalEndDate + "</originalEndDate>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("originalStartDate")))
+            {
+                ret.Add("originalStartDate", "<originalStartDate>" + OriginalStartDate + "</originalStartDate>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("paddingAfterProgramEnds")))
+            {
+                ret.Add("paddingAfterProgramEnds", "<paddingAfterProgramEnds>" + PaddingAfterProgramEnds + "</paddingAfterProgramEnds>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("paddingBeforeProgramStarts")))
+            {
+                ret.Add("paddingBeforeProgramStarts", "<paddingBeforeProgramStarts>" + PaddingBeforeProgramStarts + "</paddingBeforeProgramStarts>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaManualChannel
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -28949,6 +29043,11 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("inheritancePolicy", "\"inheritancePolicy\": " + "\"" + Enum.GetName(typeof(KalturaAssetInheritancePolicy), InheritancePolicy) + "\"");
             }
+            if(LiveToVod != null && (retrievedProperties == null || retrievedProperties.Contains("liveToVod")))
+            {
+                propertyValue = LiveToVod.ToJson(currentVersion, omitObsolete);
+                ret.Add("liveToVod", "\"liveToVod\": " + propertyValue);
+            }
             if(Status.HasValue && (retrievedProperties == null || retrievedProperties.Contains("status")))
             {
                 ret.Add("status", "\"status\": " + Status.ToString().ToLower());
@@ -29015,6 +29114,11 @@ namespace WebAPI.Models.Catalog
             if(InheritancePolicy.HasValue && (retrievedProperties == null || retrievedProperties.Contains("inheritancePolicy")))
             {
                 ret.Add("inheritancePolicy", "<inheritancePolicy>" + "" + Enum.GetName(typeof(KalturaAssetInheritancePolicy), InheritancePolicy) + "" + "</inheritancePolicy>");
+            }
+            if(LiveToVod != null && (retrievedProperties == null || retrievedProperties.Contains("liveToVod")))
+            {
+                propertyValue = LiveToVod.ToXml(currentVersion, omitObsolete);
+                ret.Add("liveToVod", "<liveToVod>" + propertyValue + "</liveToVod>");
             }
             if(Status.HasValue && (retrievedProperties == null || retrievedProperties.Contains("status")))
             {

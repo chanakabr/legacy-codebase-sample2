@@ -17,23 +17,29 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using TVinciShared;
 
 namespace Core.Pricing
 {
-    public class PriceManager
+    public class PriceManager : IPriceManager
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger log = new KLogger(nameof(PriceManager));
         private const string ASSET_FILE_PPV_NOT_EXIST = "Asset file ppv doesn't exist";
 
+        private static Lazy<IPriceManager> _lazy = new Lazy<IPriceManager>(
+            () => new PriceManager(),
+            LazyThreadSafetyMode.PublicationOnly);
 
-        public static GenericResponse<AssetFilePpv> AddAssetFilePPV(int groupId, long mediaFileId, long ppvModuleId, DateTime? startDate, DateTime? endDate)
+        public static IPriceManager Instance => _lazy.Value;
+
+        public GenericResponse<AssetFilePpv> AddAssetFilePPV(int groupId, AssetFilePpv assetFilePpv)
         {
             GenericResponse<AssetFilePpv> response = new GenericResponse<AssetFilePpv>();
             try
             {
                 // Validate mediaFileId && ppvModuleId
-                Status status = ValidateAssetFilePPV(groupId, mediaFileId, ppvModuleId);
+                Status status = ValidateAssetFilePPV(groupId, assetFilePpv.AssetFileId, assetFilePpv.PpvModuleId);
                 if (status != null && status.Code != (int)eResponseStatus.OK)
                 {
                     response.SetStatus(status.Code, status.Message);
@@ -41,28 +47,29 @@ namespace Core.Pricing
                 }
 
                 // validate ppvModuleId && mediaFileId not already exist
-                bool isExist = IsAssetFilePpvExist(groupId, mediaFileId, ppvModuleId);
+                bool isExist = IsAssetFilePpvExist(groupId, assetFilePpv.AssetFileId, assetFilePpv.PpvModuleId);
                 if (isExist)
                 {
-                    log.ErrorFormat("Error. mediaFileId {0} && ppvModuleId {1} already exist for groupId: {2}", mediaFileId, ppvModuleId, groupId);
+                    log.ErrorFormat("Error. mediaFileId {0} && ppvModuleId {1} already exist for groupId: {2}", assetFilePpv.AssetFileId, assetFilePpv.PpvModuleId, groupId);
                     response.SetStatus(eResponseStatus.Error, "AssetFilePpv already exist");
                     return response;
                 }
 
-                DataTable dt = PricingDAL.AddAssetFilePPV(groupId, mediaFileId, ppvModuleId, startDate, endDate);
+                DataTable dt = PricingDAL.AddAssetFilePPV(
+                    groupId, assetFilePpv.AssetFileId, assetFilePpv.PpvModuleId, assetFilePpv.StartDate, assetFilePpv.EndDate);
 
                 if (dt == null || dt.Rows.Count == 0)
                 {
-                    log.ErrorFormat("Error while AddAssetFilePPV. groupId: {0}, mediaFileId: {1}, ppvModuleId: {2}", groupId, mediaFileId, ppvModuleId);
+                    log.ErrorFormat("Error while AddAssetFilePPV. groupId: {0}, mediaFileId: {1}, ppvModuleId: {2}", groupId, assetFilePpv.AssetFileId, assetFilePpv.PpvModuleId);
                     return response;
                 }
 
-                response.Object = new AssetFilePpv()
+                response.Object = new AssetFilePpv
                 {
-                    AssetFileId = mediaFileId,
-                    PpvModuleId = ppvModuleId,
-                    StartDate = startDate,
-                    EndDate = endDate
+                    AssetFileId = assetFilePpv.AssetFileId,
+                    EndDate = assetFilePpv.EndDate,
+                    StartDate = assetFilePpv.StartDate,
+                    PpvModuleId = assetFilePpv.PpvModuleId
                 };
 
                 response.Status.Code = (int)eResponseStatus.OK;
@@ -70,13 +77,13 @@ namespace Core.Pricing
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed AddAssetFilePPV. groupId: {0}, mediaFileId: {1}, ppvModuleId: {2}. ex :{3}", groupId, mediaFileId, ppvModuleId, ex);
+                log.ErrorFormat("Failed AddAssetFilePPV. groupId: {0}, mediaFileId: {1}, ppvModuleId: {2}. ex :{3}", groupId,assetFilePpv.AssetFileId, assetFilePpv.PpvModuleId, ex);
             }
 
             return response;
         }
 
-        public static GenericResponse<AssetFilePpv> UpdateAssetFilePPV(int groupId, AssetFilePpv request)
+        public GenericResponse<AssetFilePpv> UpdateAssetFilePPV(int groupId, AssetFilePpv request)
         {
             GenericResponse<AssetFilePpv> response = new GenericResponse<AssetFilePpv>();
             try
@@ -121,7 +128,7 @@ namespace Core.Pricing
             return response;
         }
 
-        public static Status DeleteAssetFilePPV(int groupId, long mediaFileId, long ppvModuleId)
+        public Status DeleteAssetFilePPV(int groupId, long mediaFileId, long ppvModuleId)
         {
             Status status = new Status();
             try
@@ -155,7 +162,7 @@ namespace Core.Pricing
             return status;
         }
 
-        public static GenericListResponse<AssetFilePpv> GetAssetFilePPVList(int groupId, long assetId, long assetFileId)
+        public GenericListResponse<AssetFilePpv> GetAssetFilePPVList(int groupId, long assetId, long assetFileId)
         {
             GenericListResponse<AssetFilePpv> response = new GenericListResponse<AssetFilePpv>();
             response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -168,7 +175,7 @@ namespace Core.Pricing
                 if (assetId > 0)
                 {
                     // check if assetId exist
-                    GenericResponse<Asset> assetResponse = AssetManager.GetAsset(groupId, assetId, eAssetTypes.MEDIA, true);
+                    GenericResponse<Asset> assetResponse = AssetManager.Instance.GetAsset(groupId, assetId, eAssetTypes.MEDIA, true);
                     if (assetResponse != null && assetResponse.Status != null && assetResponse.Status.Code != (int)eResponseStatus.OK)
                     {
                         response.SetStatus(assetResponse.Status);

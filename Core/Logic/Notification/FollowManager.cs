@@ -763,7 +763,7 @@ namespace Core.Notification
                 return statusResult;
             }
 
-            var assetResponse = AssetManager.GetAsset(groupId, assetId, eAssetTypes.MEDIA, false);
+            var assetResponse = AssetManager.Instance.GetAsset(groupId, assetId, eAssetTypes.MEDIA, false);
             if (!assetResponse.HasObject())
             {
                 return assetResponse.Status;

@@ -21,7 +21,7 @@ namespace ApiLogic.Catalog.NextEpisode
             var response = new GenericResponse<UserWatchHistory>();
 
             string seriesId = string.Empty;
-            var assetResponse = AssetManager.GetAsset(groupId, assetId, eAssetTypes.MEDIA, false);
+            var assetResponse = AssetManager.Instance.GetAsset(groupId, assetId, eAssetTypes.MEDIA, false);
             if (!assetResponse.HasObject())
             {
                 response.SetStatus(assetResponse.Status);

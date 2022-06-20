@@ -46,7 +46,7 @@ namespace Core.Catalog
         
         private const string ES_TESTING_VERSION = "ES_TESTING_VERSION";
 
-        private IndexManagerFactory()
+        public IndexManagerFactory()
         {
             _indexManagerInstance = new ConcurrentDictionary<string, IIndexManager>();
             _esTestingVersion = TryGetEsTestingVersion();

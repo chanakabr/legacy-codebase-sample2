@@ -106,6 +106,17 @@ namespace Core.Catalog
         public static readonly string EXTERNAL_OFFER_ID = "external_offer_id";
         public static readonly string EXTERNAL_OFFER_IDS = "external_offer_ids";
 
+        public static readonly string L2V_LINEAR_ASSET_ID =
+            $"{NamingHelper.LIVE_TO_VOD_PREFIX}.{NamingHelper.LINEAR_ASSET_ID}";
+        public static readonly string L2V_EPG_CHANNEL_ID =
+            $"{NamingHelper.LIVE_TO_VOD_PREFIX}.{NamingHelper.EPG_CHANNEL_ID}";
+        public static readonly string L2V_CRID = $"{NamingHelper.LIVE_TO_VOD_PREFIX}.{NamingHelper.CRID}";
+        public static readonly string L2V_EPG_ID = $"{NamingHelper.LIVE_TO_VOD_PREFIX}.{NamingHelper.EPG_ID}";
+        public static readonly string L2V_ORIGINAL_START_DATE =
+            $"{NamingHelper.LIVE_TO_VOD_PREFIX}.{NamingHelper.ORIGINAL_START_DATE}";
+        public static readonly string L2V_ORIGINAL_END_DATE =
+            $"{NamingHelper.LIVE_TO_VOD_PREFIX}.{NamingHelper.ORIGINAL_END_DATE}";
+
         private static readonly string LINEAR_MEDIA_TYPES_KEY = "LinearMediaTypes";
         private static readonly string PERMITTED_WATCH_RULES_KEY = "PermittedWatchRules";
 
@@ -2750,7 +2761,7 @@ namespace Core.Catalog
                 metasToIgnore.Add(CatalogManagement.AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME);
                 metasToIgnore.Add(CatalogManagement.AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME);
                 GenericResponse<Asset> assetResponse =
-                    AssetManager.GetAsset(groupId, mediaId, eAssetTypes.MEDIA, false);
+                    AssetManager.Instance.GetAsset(groupId, mediaId, eAssetTypes.MEDIA, false);
                 if (assetResponse == null || assetResponse.Status == null ||
                     assetResponse.Status.Code != (int) eResponseStatus.OK || assetResponse.Object == null)
                 {
@@ -7681,6 +7692,10 @@ namespace Core.Catalog
                         else if (searchKeyLowered == LASTMODIFIED)
                         {
                             searchKey.Field = UPDATE_DATE;
+                        }
+                        else if (searchKeyLowered == L2V_ORIGINAL_START_DATE || searchKeyLowered == L2V_ORIGINAL_END_DATE)
+                        {
+                            searchKey.Field = searchKeyLowered;
                         }
 
                         if (mustBeAllowedToViewInactiveAssets && !definitions.isAllowedToViewInactiveAssets)

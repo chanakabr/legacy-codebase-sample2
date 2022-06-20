@@ -37,6 +37,16 @@ namespace ApiLogic.IndexManager.Helpers
         public const string ENABLE_CATCHUP = "enable_catchup";
 
         public const string EPG_IDENTIFIER = "epg_identifier";
+
+        // live to vod
+        public const string LIVE_TO_VOD_PREFIX = "live_to_vod";
+        public const string LINEAR_ASSET_ID = "linear_asset_id";
+        public const string EPG_CHANNEL_ID = "epg_channel_id";
+        public const string CRID = "crid";
+        public const string ORIGINAL_START_DATE = "orig_start_date";
+        public const string ORIGINAL_END_DATE = "orig_end_date";
+        public const string EPG_ID = "epg_id";
+
         private const string EPG_V2_PAST_INDEX_NAME_SUFFIX = "past";
         private const string EPG_V2_FUTURE_INDEX_NAME_SUFFIX = "future";
 

@@ -1537,6 +1537,9 @@ namespace WebAPI.Reflection
                 case "KalturaLiveToVodFullConfiguration":
                     return new KalturaLiveToVodFullConfiguration(parameters, true);
                     
+                case "KalturaLiveToVodInfoAsset":
+                    return new KalturaLiveToVodInfoAsset(parameters, true);
+                    
                 case "KalturaLiveToVodLinearAssetConfiguration":
                     return new KalturaLiveToVodLinearAssetConfiguration(parameters, true);
                     
@@ -24359,6 +24362,47 @@ namespace WebAPI.Models.Catalog
             }
         }
     }
+    public partial class KalturaLiveToVodInfoAsset
+    {
+        public KalturaLiveToVodInfoAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("linearAssetId") && parameters["linearAssetId"] != null)
+                {
+                    LinearAssetId = (Int64) Convert.ChangeType(parameters["linearAssetId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("epgId") && parameters["epgId"] != null)
+                {
+                    EpgId = (String) Convert.ChangeType(parameters["epgId"], typeof(String));
+                }
+                if (parameters.ContainsKey("epgChannelId") && parameters["epgChannelId"] != null)
+                {
+                    EpgChannelId = (Int64) Convert.ChangeType(parameters["epgChannelId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("crid") && parameters["crid"] != null)
+                {
+                    Crid = (String) Convert.ChangeType(parameters["crid"], typeof(String));
+                }
+                if (parameters.ContainsKey("originalStartDate") && parameters["originalStartDate"] != null)
+                {
+                    OriginalStartDate = (Int64) Convert.ChangeType(parameters["originalStartDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("originalEndDate") && parameters["originalEndDate"] != null)
+                {
+                    OriginalEndDate = (Int64) Convert.ChangeType(parameters["originalEndDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("paddingBeforeProgramStarts") && parameters["paddingBeforeProgramStarts"] != null)
+                {
+                    PaddingBeforeProgramStarts = (Int64) Convert.ChangeType(parameters["paddingBeforeProgramStarts"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("paddingAfterProgramEnds") && parameters["paddingAfterProgramEnds"] != null)
+                {
+                    PaddingAfterProgramEnds = (Int64) Convert.ChangeType(parameters["paddingAfterProgramEnds"], typeof(Int64));
+                }
+            }
+        }
+    }
     public partial class KalturaManualChannel
     {
         private static RuntimeSchemePropertyAttribute AssetsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaManualChannel")
@@ -24545,6 +24589,19 @@ namespace WebAPI.Models.Catalog
             MinItems = -1,
             MaxItems = -1,
         };
+        private static RuntimeSchemePropertyAttribute LiveToVodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaAsset")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
         public KalturaMediaAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
@@ -24620,6 +24677,18 @@ namespace WebAPI.Models.Catalog
                     if (!Enum.IsDefined(typeof(KalturaAssetInheritancePolicy), InheritancePolicy))
                     {
                         throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", InheritancePolicy, typeof(KalturaAssetInheritancePolicy)));
+                    }
+                }
+                if (parameters.ContainsKey("liveToVod") && parameters["liveToVod"] != null)
+                {
+                    LiveToVodSchemaProperty.Validate("liveToVod", parameters["liveToVod"]);
+                    if (parameters["liveToVod"] is JObject)
+                    {
+                        LiveToVod = (KalturaLiveToVodInfoAsset) Deserializer.deserialize(typeof(KalturaLiveToVodInfoAsset), ((JObject) parameters["liveToVod"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["liveToVod"] is IDictionary)
+                    {
+                        LiveToVod = (KalturaLiveToVodInfoAsset) Deserializer.deserialize(typeof(KalturaLiveToVodInfoAsset), (Dictionary<string, object>) parameters["liveToVod"]);
                     }
                 }
             }

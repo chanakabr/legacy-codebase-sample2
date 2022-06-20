@@ -31,6 +31,24 @@ namespace ElasticSearch.Common
         public virtual string SerializeMediaObject(Media media, string suffix = null)
         {
             StringBuilder recordBuilder = new StringBuilder();
+
+            void AddIfNotNullWithQuotes<T>(string key, T value) where T : class
+            {
+                if (value != null)
+                {
+                    recordBuilder.Append($"\"{key}\": \"{value}\",");
+                }
+            }
+
+            void AddIfNotNull<T>(string key, T value)
+            {
+                if (value != null)
+                {
+                    recordBuilder.Append($"\"{key}\": {value},");
+                }
+            }
+
+
             recordBuilder.Append("{ ");
             recordBuilder.AppendFormat("\"media_id\": {0}, \"group_id\": {1}, \"media_type_id\": {2}, \"wp_type_id\": {3}, \"is_active\": {4}, " +
                 "\"device_rule_id\": {5}, \"like_counter\": {6}, \"views\": {7}, \"rating\": {8}, \"votes\": {9}, \"start_date\": \"{10}\", " +
@@ -278,6 +296,23 @@ namespace ElasticSearch.Common
             if (media.inheritancePolicy.HasValue)
             {
                 recordBuilder.AppendFormat(", \"inheritance_policy\": {0}", media.inheritancePolicy.Value);
+            }
+
+            #endregion
+
+            #region live to vod
+
+            if (media.L2vLinearAssetId.HasValue) // validate random l2v property
+            {
+                recordBuilder.Append(", \"live_to_vod\": {");
+                AddIfNotNull("linear_asset_id", media.L2vLinearAssetId);
+                AddIfNotNull("epg_channel_id", media.L2vEpgChannelId);
+                AddIfNotNullWithQuotes("epg_id", media.L2vEpgId);
+                AddIfNotNullWithQuotes("crid", media.L2vCrid);
+                AddIfNotNullWithQuotes("orig_start_date", media.L2vOriginalStartDate);
+                AddIfNotNullWithQuotes("orig_end_date", media.L2vOriginalEndDate);
+                recordBuilder.Remove(recordBuilder.Length - 1, 1);
+                recordBuilder.Append("}");
             }
 
             #endregion

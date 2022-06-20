@@ -63,6 +63,9 @@ namespace Core.Catalog
         [JsonProperty("ReferenceId")]
         public long ReferenceId { get; set; }
 
+        [JsonProperty("SourceUrl")]
+        public string SourceUrl { get; set; }
+
         public Image() { }
 
         public Image(Image imageToCopy)
@@ -82,6 +85,7 @@ namespace Core.Catalog
             this.Url = imageToCopy.Url;
             this.Version = imageToCopy.Version;
             this.Width = imageToCopy.Width;
+            this.SourceUrl = imageToCopy.SourceUrl;
         }
     }
 }

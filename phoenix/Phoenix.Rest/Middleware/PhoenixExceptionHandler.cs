@@ -2,6 +2,7 @@
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
+using ApiObjects.Response;
 using Core.Middleware;
 using KalturaRequestContext;
 using Phx.Lib.Log;
@@ -62,7 +63,23 @@ namespace Phoenix.Rest.Middleware
             context.Items[INTERNAL_ERROR_CODE] = code;
             context.Response.Headers.Add("X-Kaltura-App", $"exiting on error {code} - {message}");
             context.Response.Headers.Add("X-Kaltura", $"error-{code}");
-
+            
+            context.Response.Headers.Add("x-kaltura-error-code", code.ToString());
+            context.Response.Headers.Add("x-kaltura-error-msg", message);
+            string enumName = "";
+            if(Enum.IsDefined(typeof(eResponseStatus), code))
+            {
+                enumName = Enum.GetName(typeof(eResponseStatus), code);
+            }
+            else if(Enum.IsDefined(typeof(StatusCode), code))
+            {
+                enumName = Enum.GetName(typeof(StatusCode), code);
+            }
+            if (!string.IsNullOrEmpty(enumName))
+            {
+                context.Response.Headers.Add("x-kaltura-error-name", enumName);
+            }
+            
             // get proper response formatter but make sure errors should be only xml or json ...
             context.Request.Headers.TryGetValue("accept", out var acceptHeader);
             ctx.Format ??= context.Items[RequestContextConstants.REQUEST_FORMAT]?.ToString();

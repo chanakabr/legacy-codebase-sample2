@@ -753,17 +753,17 @@ namespace ApiLogic.IndexManager.QueryBuilders
                         var matchQuery = queryContainerDescriptor.Match(match => match.Field(field).Operator(Operator.And).Query(value.ToString()));
                         result = queryContainerDescriptor.Bool(b => b.MustNot(matchQuery));
                     }
-                    // "bool" with "must_not" when no equals
-                    else if (leaf.operand == ApiObjects.ComparisonOperator.NotEquals && leaf.shouldLowercase)
+                    else if (leaf.operand == ComparisonOperator.NotEquals)
                     {
-                        field = $"{field}.lowercase";
+                        if (leaf.shouldLowercase)
+                        {
+                            field = $"{field}.lowercase";
+                        }
 
                         var matchQuery = queryContainerDescriptor.Match(match => match.Field(field).Operator(Operator.And).Query(value.ToString()));
                         result = queryContainerDescriptor.Bool(b => b.MustNot(matchQuery));
                     }
-                    // "Term" when search is equals/not equals
-                    else if (leaf.operand == ApiObjects.ComparisonOperator.Equals ||
-                        leaf.operand == ApiObjects.ComparisonOperator.NotEquals)
+                    else if (leaf.operand == ComparisonOperator.Equals)
                     {
                         result = queryContainerDescriptor.Term(field, value);
                     }

@@ -571,7 +571,7 @@ namespace Core.Catalog.CatalogManagement
             virtualAsset.Description = channel.m_sDescription;
             virtualAsset.DescriptionsWithLanguages = channel.DescriptionInOtherLanguages;
 
-            GenericResponse<Asset> assetUpdateResponse = AssetManager.UpdateAsset(groupId, virtualAsset.Id, virtualAsset, userId, false, false, false, true);
+            GenericResponse<Asset> assetUpdateResponse = AssetManager.Instance.UpdateAsset(groupId, virtualAsset.Id, virtualAsset, userId, false, false, false, true);
 
             if (!assetUpdateResponse.IsOkStatusCode())
             {
@@ -671,7 +671,7 @@ namespace Core.Catalog.CatalogManagement
                     m_sValue = channelId
                 });
 
-                GenericResponse<Asset> virtualChannelResponse = AssetManager.AddAsset(groupId, virtualChannel, userId);
+                GenericResponse<Asset> virtualChannelResponse = AssetManager.Instance.AddAsset(groupId, virtualChannel, userId);
                 if (!virtualChannelResponse.HasObject())
                 {
                     log.ErrorFormat("Failed create Virtual asset for channel id {0}", channelId);
@@ -695,7 +695,7 @@ namespace Core.Catalog.CatalogManagement
 
             if (channel.VirtualAssetId.HasValue)
             {
-                assetResponse = AssetManager.GetAsset(groupId, channel.VirtualAssetId.Value, eAssetTypes.MEDIA, true);
+                assetResponse = AssetManager.Instance.GetAsset(groupId, channel.VirtualAssetId.Value, eAssetTypes.MEDIA, true);
 
                 if (assetResponse.HasObject())
                 {
@@ -721,7 +721,7 @@ namespace Core.Catalog.CatalogManagement
                 return asset;
             }
 
-            assetResponse = AssetManager.GetAsset(groupId, long.Parse(assets[0].AssetId), eAssetTypes.MEDIA, true);
+            assetResponse = AssetManager.Instance.GetAsset(groupId, long.Parse(assets[0].AssetId), eAssetTypes.MEDIA, true);
 
             if (!assetResponse.HasObject())
             {
@@ -1388,7 +1388,7 @@ namespace Core.Catalog.CatalogManagement
                             Asset virtualChannel = GetVirtualAsset(groupId, userId, channelResponse.Object, out needToCreateVirtualAsset);
                             if (virtualChannel != null)
                             {
-                                Status status = AssetManager.DeleteAsset(groupId, virtualChannel.Id, eAssetTypes.MEDIA, userId, true);
+                                Status status = AssetManager.Instance.DeleteAsset(groupId, virtualChannel.Id, eAssetTypes.MEDIA, userId, true);
                                 if (status == null || !status.IsOkStatusCode())
                                 {
                                     log.ErrorFormat("Failed delete virtual asset {0}. for channel {1}", virtualChannel.Id, channelId);

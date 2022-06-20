@@ -243,7 +243,7 @@ namespace Core.Catalog.CatalogManagement
 
                 SendActionEvent(groupId, newEpgId, eAction.On);
                 
-                result = AssetManager.GetAsset(groupId, newEpgId, eAssetTypes.EPG, true);
+                result = AssetManager.Instance.GetAsset(groupId, newEpgId, eAssetTypes.EPG, true);
                 if (result.IsOkStatusCode())
                 {
                     _messageService.PublishCreateEventAsync(groupId, newEpgId, userId).GetAwaiter().GetResult();
@@ -417,7 +417,7 @@ namespace Core.Catalog.CatalogManagement
                 SendActionEvent(groupId, oldEpgAsset.Id, eAction.Update);
 
                 // get updated epgAsset
-                result = AssetManager.GetAsset(groupId, epgAssetToUpdate.Id, eAssetTypes.EPG, true);
+                result = AssetManager.Instance.GetAsset(groupId, epgAssetToUpdate.Id, eAssetTypes.EPG, true);
                 if (result.IsOkStatusCode())
                 {
                     _messageService.PublishUpdateEventAsync(groupId, epgAssetToUpdate.Id, userId).GetAwaiter().GetResult();
@@ -577,6 +577,7 @@ namespace Core.Catalog.CatalogManagement
                             epgsToUpdate.Select(item => item.ChannelID.ToString()).Distinct().ToList(), false);
                     }
 
+                    _messageService.PublishUpdateEventAsync(groupId, epgAsset.Id, userId).GetAwaiter().GetResult();
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
@@ -1007,7 +1008,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             long linearAssetId = epgAssetToAdd.LinearAssetId ?? 0;
-            var linearAssetResult = AssetManager.GetAsset(groupId, linearAssetId, eAssetTypes.MEDIA, true);
+            var linearAssetResult = AssetManager.Instance.GetAsset(groupId, linearAssetId, eAssetTypes.MEDIA, true);
 
             if (!linearAssetResult.HasObject() || !(linearAssetResult.Object is LiveAsset))
             {
@@ -1729,7 +1730,6 @@ namespace Core.Catalog.CatalogManagement
             {
                 RemoveTopicsFromProgramEpgCB(epgCB, programMetas, programTags, catalogGroupCache.GetDefaultLanguage().Code);
             }
-            _messageService.PublishUpdateEventAsync(groupId, epgId, userId).GetAwaiter().GetResult();
 
             return epgCbList;
         }
@@ -1774,7 +1774,7 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        internal static void UpdateProgramAssetPictures(int groupId, long userId, Image image)
+        internal static void UpdateProgramAssetPictures(int groupId, long userId, Image image, string sourceUrl)
         {
             var docId = GetEpgCBKey(groupId, image.ImageObjectId);
             var program = EpgDal.GetEpgCB(docId);
@@ -1790,6 +1790,7 @@ namespace Core.Catalog.CatalogManagement
                         {
                             pic.Version = image.Version;
                             pic.ImageTypeId = image.ImageTypeId;
+                            pic.SourceUrl = sourceUrl;
                         }
                     }
                 }
@@ -1807,7 +1808,8 @@ namespace Core.Catalog.CatalogManagement
                         Url = image.ContentId,
                         Version = 0,
                         Ratio = image.RatioName,
-                        ImageTypeId = image.ImageTypeId
+                        ImageTypeId = image.ImageTypeId,
+                        SourceUrl = sourceUrl
                     };
 
                     bool picReplaced = false;
@@ -2015,7 +2017,7 @@ namespace Core.Catalog.CatalogManagement
             _messageService = new ProgramAssetCrudMessageService(
                 AssetManager.Instance,
                 Instance,
-                ProgramCrudEventMapper.Instance,
+                ProgramAssetCrudEventMapper.Instance,
                 KafkaProducerFactoryInstance.Get(),
                 contextProvider,
                 new KLogger(nameof(ProgramAssetCrudMessageService)));

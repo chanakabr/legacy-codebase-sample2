@@ -101,6 +101,12 @@ namespace Phoenix.Generated.Api.Events.Crud.ProgramAsset
         [JsonProperty("imageTypeId")]
         public long ImageTypeId { get; set; }
 
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        public string Name { get; set; }
+
+        [JsonProperty("sourceUrl", NullValueHandling = NullValueHandling.Ignore)]
+        public string SourceUrl { get; set; }
+
         [JsonProperty("status")]
         public Status Status { get; set; }
 

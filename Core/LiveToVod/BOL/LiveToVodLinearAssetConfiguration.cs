@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace LiveToVod.BOL
 {
     public class LiveToVodLinearAssetConfiguration
@@ -8,6 +10,7 @@ namespace LiveToVod.BOL
 
         public int? RetentionPeriodDays { get; }
 
+        [JsonConstructor]
         public LiveToVodLinearAssetConfiguration(long linearAssetId, bool isLiveToVodEnabled, int? retentionPeriodDays)
         {
             LinearAssetId = linearAssetId;

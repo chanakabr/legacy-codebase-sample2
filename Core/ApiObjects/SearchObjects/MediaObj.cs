@@ -82,6 +82,14 @@ namespace ApiObjects.SearchObjects
         /// suppressed value
         /// </summary>
         public string suppressed;
+
+        // live to vod properties
+        public long? L2vEpgChannelId { get; set; }
+        public string L2vEpgId { get; set; }
+        public long? L2vLinearAssetId { get; set; }
+        public string L2vCrid { get; set; }
+        public string L2vOriginalStartDate { get; set; }
+        public string L2vOriginalEndDate { get; set; }
         #endregion
 
         #region Ctor
@@ -163,7 +171,13 @@ namespace ApiObjects.SearchObjects
                 allowedCountries = this.allowedCountries,
                 blockedCountries = this.blockedCountries,
                 inheritancePolicy = this.inheritancePolicy,
-                suppressed = this.suppressed
+                suppressed = this.suppressed,
+                L2vLinearAssetId = this.L2vLinearAssetId,
+                L2vEpgId = this.L2vEpgId,
+                L2vEpgChannelId = this.L2vEpgChannelId,
+                L2vCrid = this.L2vCrid,
+                L2vOriginalStartDate = this.L2vOriginalStartDate,
+                L2vOriginalEndDate = this.L2vOriginalEndDate
             };
 
             clone.m_dMeatsValues = (from meta in this.m_dMeatsValues select meta).ToDictionary(x => x.Key, x => x.Value);

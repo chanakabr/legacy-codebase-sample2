@@ -56,12 +56,16 @@ namespace ApiObjects.Epg
         [XmlIgnore]
         public string BaseUrl { get; set; }
 
+        [DataMember]
+        public string SourceUrl { get; set; }
+
         public EpgPicture()
         {
             PicHeight = 0;
             PicWidth = 0;
             Ratio = string.Empty;
             Url = string.Empty;
+            SourceUrl = string.Empty;
             PicID = 0;
             RatioId = 0;
         }

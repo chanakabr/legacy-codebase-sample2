@@ -695,7 +695,7 @@ namespace OPC_Migration
                         }
 
 
-                        GenericResponse<Asset> response = AssetManager.UpdateAsset(groupId, mediaAsset.Id, isLiveAsset ? liveAsset : mediaAsset, Utils.UPDATING_USER_ID, false, true, true);
+                        GenericResponse<Asset> response = AssetManager.Instance.UpdateAsset(groupId, mediaAsset.Id, isLiveAsset ? liveAsset : mediaAsset, Utils.UPDATING_USER_ID, false, true, true);
                         if (!response.HasObject() || response.Object.Id != mediaAsset.Id)
                         {
                             string responseStatus = response.Status != null ? response.Status.ToString() : "null";
@@ -717,7 +717,7 @@ namespace OPC_Migration
                         log.DebugFormat("Retrying update of failed liveAssets");
                         foreach (LiveAsset assetToRetry in failedLiveAssets)
                         {
-                            GenericResponse<Asset> response = AssetManager.UpdateAsset(groupId, assetToRetry.Id, assetToRetry, Utils.UPDATING_USER_ID, false, true, true);
+                            GenericResponse<Asset> response = AssetManager.Instance.UpdateAsset(groupId, assetToRetry.Id, assetToRetry, Utils.UPDATING_USER_ID, false, true, true);
                             if (!response.HasObject() || response.Object.Id != assetToRetry.Id)
                             {
                                 string responseStatus = response.Status != null ? response.Status.ToString() : "null";
@@ -732,7 +732,7 @@ namespace OPC_Migration
                         log.DebugFormat("Retrying update of failed mediaAssets");
                         foreach (MediaAsset assetToRetry in failedMediaAssets)
                         {
-                            GenericResponse<Asset> response = AssetManager.UpdateAsset(groupId, assetToRetry.Id, assetToRetry, Utils.UPDATING_USER_ID, false, true, true);
+                            GenericResponse<Asset> response = AssetManager.Instance.UpdateAsset(groupId, assetToRetry.Id, assetToRetry, Utils.UPDATING_USER_ID, false, true, true);
                             if (!response.HasObject() || response.Object.Id != assetToRetry.Id)
                             {
                                 string responseStatus = response.Status != null ? response.Status.ToString() : "null";

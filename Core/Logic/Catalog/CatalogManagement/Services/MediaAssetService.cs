@@ -39,6 +39,7 @@ namespace Core.Catalog.CatalogManagement
             DataTable updateDateTable,
             DataTable linearAssetTable,
             DataTable nameRelatedEntitiesTable,
+            DataTable liveToVodAssetTable,
             bool isForIndex = false,
             bool isForMigration = false)
         {
@@ -230,6 +231,10 @@ namespace Core.Catalog.CatalogManagement
             {
                 result = CreateLinearMediaAsset(groupId, result, linearAssetTable);
             }
+            else if (liveToVodAssetTable?.Rows.Count > 0)
+            {
+                result = CreateLiveToVodAsset(groupId, result, liveToVodAssetTable);
+            }
 
             return result;
         }
@@ -263,6 +268,7 @@ namespace Core.Catalog.CatalogManagement
                 var imagesTable = GetDataRows(dataSet, 5);
                 var linearMediasTable = GetDataRows(dataSet, 6);
                 var relatedEntitiesTable = GetDataRows(dataSet, 7);
+                var liveToVodMediasTable = GetDataRows(dataSet, 8);
 
                 foreach (DataRow basicDataRow in dataSet.Tables[0].Rows)
                 {
@@ -283,7 +289,8 @@ namespace Core.Catalog.CatalogManagement
                             GetTableByAssetDataRows(imagesTable, "ASSET_ID", id, dataSet, 5),
                             null,
                             GetTableByAssetDataRows(linearMediasTable, "MEDIA_ID", id, dataSet, 7),
-                            GetTableByAssetDataRows(relatedEntitiesTable, "ASSET_ID", id, dataSet, 8));
+                            GetTableByAssetDataRows(relatedEntitiesTable, "ASSET_ID", id, dataSet, 8),
+                            GetTableByAssetDataRows(liveToVodMediasTable, "MEDIA_ID", id, dataSet, 9));
                         if (mediaAsset != null)
                         {
                             mediaAsset.IndexStatus = AssetIndexStatus.Ok;
@@ -352,6 +359,31 @@ namespace Core.Catalog.CatalogManagement
                 channelType);
 
             return result;
+        }
+
+        public LiveToVodAsset CreateLiveToVodAsset(long partnerId, MediaAsset mediaAsset, DataTable dataTable)
+        {
+            var dataRow = dataTable.Rows[0];
+            var liveToVodAsset = new LiveToVodAsset(mediaAsset)
+            {
+                EpgId = ODBCWrapper.Utils.GetLongSafeVal(dataRow, "EPG_ID"),
+                EpgIdentifier = ODBCWrapper.Utils.GetSafeStr(dataRow, "EPG_IDENTIFIER"),
+                LinearAssetId = ODBCWrapper.Utils.GetLongSafeVal(dataRow, "LINEAR_ASSET_ID"),
+                EpgChannelId = ODBCWrapper.Utils.GetLongSafeVal(dataRow, "EPG_CHANNEL_ID"),
+                Crid = ODBCWrapper.Utils.GetSafeStr(dataRow, "CRID"),
+                OriginalStartDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "ORIGINAL_START_DATE"),
+                OriginalEndDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "ORIGINAL_END_DATE"),
+                PaddingBeforeProgramStarts = ODBCWrapper.Utils.GetLongSafeVal(dataRow, "PADDING_BEFORE_PROGRAM_STARTS"),
+                PaddingAfterProgramEnds = ODBCWrapper.Utils.GetLongSafeVal(dataRow, "PADDING_AFTER_PROGRAM_ENDS")
+            };
+
+            var updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dataRow, "UPDATE_DATE");
+            if (updateDate.HasValue && (!mediaAsset.UpdateDate.HasValue || updateDate.Value > mediaAsset.UpdateDate.Value))
+            {
+                liveToVodAsset.UpdateDate = updateDate;
+            }
+
+            return liveToVodAsset;
         }
 
         private bool TryGetMediaTypeFromAssetStructId(long groupId, long assetStructId, CatalogGroupCache catalogGroupCache, out MediaType mediaType)

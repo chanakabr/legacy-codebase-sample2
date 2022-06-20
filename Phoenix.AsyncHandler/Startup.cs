@@ -1,5 +1,27 @@
 ﻿using System;
+using ApiLogic.Api.Managers;
+using ApiLogic.Catalog.CatalogManagement.Managers;
+using ApiLogic.Catalog.CatalogManagement.Repositories;
+using ApiLogic.Catalog.CatalogManagement.Services;
+using ApiLogic.Catalog.CatalogManagement.Validators;
+using ApiLogic.EPG;
+using ApiLogic.Pricing.Handlers;
+using ApiLogic.Repositories;
+using CachingProvider.LayeredCache;
+using Core.Api;
+using Core.Catalog;
+using Core.Catalog.Cache;
+using Core.Catalog.CatalogManagement;
+using Core.GroupManagers;
+using Core.Pricing;
 using Core.Users.Cache;
+using DAL;
+using DAL.MongoDB;
+using ElasticSearch.Utilities;
+using GroupsCacheManager;
+using LiveToVod;
+using LiveToVod.BOL;
+using LiveToVod.DAL;
 using log4net.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -8,9 +30,11 @@ using OTT.Lib.Kafka;
 using Phoenix.AsyncHandler.Kafka;
 using Phoenix.AsyncHandler.Pricing;
 using Phoenix.Generated.Api.Events.Crud.Household;
+using Phoenix.Generated.Api.Events.Crud.ProgramAsset;
 using Phoenix.Generated.Api.Events.Logical.appstoreNotification;
 using Phx.Lib.Appconfig;
 using Phx.Lib.Log;
+using Module = Core.Pricing.Module;
 
 namespace Phoenix.AsyncHandler
 {
@@ -44,7 +68,62 @@ namespace Phoenix.AsyncHandler
         {
             services.AddSingleton(p => DomainsCache.Instance());
             services.AddScoped<IKafkaContextProvider, AsyncHandlerKafkaContextProvider>();
-            
+
+            services.AddKafkaProducerFactory(KafkaConfig.Get());
+            services
+                .AddSingleton(p => DomainsCache.Instance())
+                .AddScoped<ILiveToVodAssetManager, LiveToVodAssetManager>()
+                .AddScoped<ILiveToVodAssetRepository, LiveToVodAssetRepository>()
+                .AddScoped<ILiveToVodAssetCrudMessagePublisher, LiveToVodAssetCrudMessagePublisher>()
+                .AddScoped<ILiveToVodImageService, LiveToVodImageService>()
+                .AddScoped<IImageManager, Core.Catalog.CatalogManagement.ImageManager>()
+                .AddScoped<ITtlService, TtlService>()
+                .AddScoped<ILiveToVodAssetFileService, LiveToVodAssetFileService>()
+                .AddScoped<IMediaFileTypeManager, FileManager>()
+                .AddScoped<IPriceManager, PriceManager>()
+                .AddScoped<ILiveToVodPpvModuleParser, LiveToVodPpvModuleParser>()
+                .AddScoped<IPpvManager, PpvManager>()
+                .AddScoped<IPpvManagerRepository, PricingDAL>()
+                .AddScoped<IPriceDetailsManager, PriceDetailsManager>()
+                .AddScoped<IPriceDetailsRepository, PricingDAL>()
+                .AddScoped<IGeneralPartnerConfigManager, GeneralPartnerConfigManager>()
+                .AddScoped<IGeneralPartnerConfigRepository, ApiDAL>()
+                .AddScoped<IDeviceFamilyRepository, DeviceFamilyRepository>()
+                .AddScoped<IDeviceFamilyDal, DeviceFamilyDal>()
+                .AddScoped<ICountryManager, api>()
+                .AddScoped<IDiscountDetailsManager, DiscountDetailsManager>()
+                .AddScoped<IDiscountDetailsRepository, PricingDAL>()
+                .AddScoped<IUsageModuleManager, UsageModuleManager>()
+                .AddScoped<IModuleManagerRepository, PricingDAL>()
+                .AddScoped<IModuleManagerRepository, PricingDAL>()
+                .AddScoped<IPricingModule, Module>()
+                .AddScoped<IVirtualAssetManager, api>()
+                .AddScoped<IPriceDetailsRepository, PricingDAL>()
+                .AddScoped<IProgramAssetCrudEventMapper, ProgramAssetCrudEventMapper>()
+                .AddScoped<IAssetManager, AssetManager>()
+                .AddScoped<IIndexManagerFactory, IndexManagerFactory>()
+                .AddScoped<ILiveToVodManager, LiveToVodManager>()
+                .AddScoped<ILiveToVodService, LiveToVodService>()
+                // catalog manager
+                .AddScoped<ICatalogManager, CatalogManager>()
+                .AddScoped<ILabelRepository, LabelRepository>()
+                .AddScoped<ILabelDal, LabelDal>()
+                .AddSingleton<ILayeredCache, LayeredCache>()
+                .AddScoped<IAssetStructValidator, AssetStructValidator>()
+                .AddScoped<IAssetStructMetaRepository, AssetStructMetaRepository>()
+                .AddScoped<IAssetStructRepository, AssetStructRepository>()
+                .AddScoped<IGroupSettingsManager, GroupSettingsManager>()
+                .AddScoped<IEpgV2PartnerConfigurationManager>(serviceProvider => EpgV2PartnerConfigurationManager.Instance)
+                .AddScoped<IGroupManager, GroupManager>()
+                .AddSingleton<ICatalogCache, CatalogCache>()
+                // live to vod
+                .AddScoped<IConnectionStringHelper, TcmConnectionStringHelper>()
+                .AddScoped<IClientFactoryBuilder, ClientFactoryBuilder>()
+                .AddScoped<IRepository>(provider => new Repository(
+                    provider
+                        .GetService<IClientFactoryBuilder>()
+                        .GetClientFactory(DatabaseProperties.DATABASE, provider.GetService<IConnectionStringHelper>())));
+
             return services;
         }
 
@@ -52,6 +131,7 @@ namespace Phoenix.AsyncHandler
         {
             services.AddKafkaHandler<HouseholdNpvrAccountHandler, Household>("household-npvr-account", Household.GetTopic());
             services.AddKafkaHandler<EntitlementLogicalHandler, AppstoreNotification>("appstore-notification", AppstoreNotification.GetTopic());
+            services.AddKafkaHandler<LiveToVodAssetHandler, ProgramAsset>("live-to-vod-asset", ProgramAsset.GetTopic());
             return services;
         }
 

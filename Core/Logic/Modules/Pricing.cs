@@ -56,7 +56,7 @@ namespace Core.Pricing
 
         public static Module Instance { get { return lazy.Value; } }
 
-        private Module()
+        public Module()
         {
         }
 

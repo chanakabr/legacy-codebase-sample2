@@ -237,7 +237,7 @@ namespace WebAPI.Clients
         public KalturaAsset AddAsset(int groupId, KalturaAsset asset, long userId)
         {
             Func<Asset, GenericResponse<Asset>> addAssetFunc = (Asset assetToAdd) =>
-                AssetManager.AddAsset(groupId, assetToAdd, userId);
+                AssetManager.Instance.AddAsset(groupId, assetToAdd, userId);
 
             KalturaAsset result =
                 ClientUtils.GetResponseFromWS<KalturaAsset, Asset>(asset, addAssetFunc);
@@ -250,7 +250,7 @@ namespace WebAPI.Clients
             Func<Status> deleteAssetFunc = delegate ()
             {
                 eAssetTypes assetType = CatalogMappings.ConvertToAssetTypes(assetReferenceType);
-                return AssetManager.DeleteAsset(groupId, id, assetType, userId);
+                return AssetManager.Instance.DeleteAsset(groupId, id, assetType, userId);
             };
 
             return ClientUtils.GetResponseStatusFromWS(deleteAssetFunc);
@@ -278,7 +278,7 @@ namespace WebAPI.Clients
                         if (opcAccount)
                         {
                             eAssetTypes assetType = CatalogMappings.ConvertToAssetTypes(assetReferenceType);
-                            response = AssetManager.GetAsset(groupId, id, assetType, isAllowedToViewInactiveAssets);
+                            response = AssetManager.Instance.GetAsset(groupId, id, assetType, isAllowedToViewInactiveAssets);
                         }
                         else
                         {
@@ -350,7 +350,7 @@ namespace WebAPI.Clients
         public KalturaAsset UpdateAsset(int groupId, long id, KalturaAsset asset, long userId)
         {
             Func<Asset, GenericResponse<Asset>> updateAssetFunc = (Asset assetToUpdate) =>
-                AssetManager.UpdateAsset(groupId, id, assetToUpdate, userId);
+                AssetManager.Instance.UpdateAsset(groupId, id, assetToUpdate, userId);
 
             KalturaAsset result =
                 ClientUtils.GetResponseFromWS<KalturaAsset, Asset>(asset, updateAssetFunc);
@@ -366,7 +366,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = AssetManager.GetAsset(groupId, epgId, eAssetTypes.EPG, isAllowedToViewInactiveAssets);
+                    response = AssetManager.Instance.GetAsset(groupId, epgId, eAssetTypes.EPG, isAllowedToViewInactiveAssets);
                 }
             }
             catch (Exception ex)
@@ -3654,7 +3654,7 @@ namespace WebAPI.Clients
         internal KalturaMediaFile AddMediaFile(int groupId, KalturaMediaFile assetFile, long userId)
         {
             Func<AssetFile, GenericResponse<AssetFile>> insertMediaFileFunc = (AssetFile assetFileToAdd) =>
-                FileManager.InsertMediaFile(groupId, userId, assetFileToAdd);
+                FileManager.Instance.InsertMediaFile(groupId, userId, assetFileToAdd);
 
             KalturaMediaFile result =
                 ClientUtils.GetResponseFromWS<KalturaMediaFile, AssetFile>(assetFile, insertMediaFileFunc);
@@ -3664,7 +3664,7 @@ namespace WebAPI.Clients
 
         internal bool DeleteMediaFile(int groupId, long userId, long id)
         {
-            Func<Status> deleteMediaFileFunc = () => FileManager.DeleteMediaFile(groupId, userId, id);
+            Func<Status> deleteMediaFileFunc = () => FileManager.Instance.DeleteMediaFile(groupId, userId, id);
             return ClientUtils.GetResponseStatusFromWS(deleteMediaFileFunc);
         }
 
@@ -3673,7 +3673,7 @@ namespace WebAPI.Clients
             assetFile.Id = (int)id;
 
             Func<AssetFile, GenericResponse<AssetFile>> updateMediaFileFunc = (AssetFile assetFileToUpdate) =>
-                FileManager.UpdateMediaFile(groupId, assetFileToUpdate, userId);
+                FileManager.Instance.UpdateMediaFile(groupId, assetFileToUpdate, userId);
 
             KalturaMediaFile result =
                 ClientUtils.GetResponseFromWS<KalturaMediaFile, AssetFile>(assetFile, updateMediaFileFunc);

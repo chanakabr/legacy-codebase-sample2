@@ -14,6 +14,12 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
     {
         public const string LIVE_TO_VOD_ASSET_STRUCT_SYSTEM_NAME = "LiveToVod";
 
+        private static readonly IReadOnlyCollection<string> LiveToVodFeatures = new HashSet<string>
+        {
+            "supportPlayback",
+            "includeInVodTab"
+        };
+
         private static readonly Lazy<LiveToVodService> LazyInstance = new Lazy<LiveToVodService>(
             () => new LiveToVodService(AssetStructRepository.Instance, CatalogManager.Instance),
             LazyThreadSafetyMode.PublicationOnly);
@@ -78,7 +84,8 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
                     Name = "Live To VOD",
                     SystemName = LIVE_TO_VOD_ASSET_STRUCT_SYSTEM_NAME,
                     IsPredefined = false,
-                    PluralName = "Live To VOD assets"
+                    PluralName = "Live To VOD assets",
+                    Features = LiveToVodFeatures.ToHashSet()
                 };
 
                 response = _assetStructRepository.InsertAssetStruct(

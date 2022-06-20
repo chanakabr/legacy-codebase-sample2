@@ -133,5 +133,14 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "InheritancePolicy", IsNullable = true)]
         [SchemeProperty(IsNullable = true)]
         public KalturaAssetInheritancePolicy? InheritancePolicy { get; set; }
+
+        /// <summary>
+        ///  Live to VOD (if present)
+        /// </summary>
+        [DataMember(Name = "liveToVod")]
+        [JsonProperty("liveToVod")]
+        [XmlElement(ElementName = "liveToVod", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
+        public KalturaLiveToVodInfoAsset LiveToVod { get; set; }
     }
 }

@@ -18,6 +18,10 @@ namespace Core.Catalog.CatalogManagement
     public interface IMediaFileTypeManager
     {
         GenericListResponse<MediaFileType> GetMediaFileTypes(int groupId);
+        GenericResponse<AssetFile> InsertMediaFile(int groupId, long userId, AssetFile assetFileToAdd, bool isFromIngest = false);
+        Status DeleteMediaFile(int groupId, long userId, long id);
+        GenericResponse<AssetFile> UpdateMediaFile(int groupId, AssetFile assetFileToUpdate, long userId, bool isFromIngest = false, AssetFile currentAssetFile = null);
+        void DoFreeItemIndexUpdateIfNeeded(int groupId, int assetId, DateTime? previousStartDate, DateTime? startDate, DateTime? previousEndDate, DateTime? endDate);
     }
     public class FileManager : IMediaFileTypeManager
     {
@@ -26,11 +30,7 @@ namespace Core.Catalog.CatalogManagement
 
         private static readonly Lazy<FileManager> lazy = new Lazy<FileManager>(() => new FileManager(), LazyThreadSafetyMode.PublicationOnly);
 
-        public static FileManager Instance { get { return lazy.Value; } }
-
-        private FileManager()
-        {
-        }
+        public static FileManager Instance => lazy.Value;
 
         #region Private Methods
 
@@ -300,7 +300,7 @@ namespace Core.Catalog.CatalogManagement
             ;
         }
 
-        private static void DoFreeItemIndexUpdateIfNeeded(int groupId, int assetId, DateTime? previousStartDate, DateTime? startDate, DateTime? previousEndDate, DateTime? endDate)
+        public void DoFreeItemIndexUpdateIfNeeded(int groupId, int assetId, DateTime? previousStartDate, DateTime? startDate, DateTime? previousEndDate, DateTime? endDate)
         {
             // check if changes in the start date require future index update call, incase updatedStartDate is in more than 2 years we don't update the index (per Ira's request)
             if (RabbitHelper.IsFutureIndexUpdate(previousStartDate, startDate))
@@ -611,7 +611,7 @@ namespace Core.Catalog.CatalogManagement
 
         }
 
-        public static GenericResponse<AssetFile> InsertMediaFile(int groupId, long userId, AssetFile assetFileToAdd, bool isFromIngest = false)
+        public GenericResponse<AssetFile> InsertMediaFile(int groupId, long userId, AssetFile assetFileToAdd, bool isFromIngest = false)
         {
             GenericResponse<AssetFile> result = new GenericResponse<AssetFile>();
             try
@@ -619,7 +619,7 @@ namespace Core.Catalog.CatalogManagement
                 if (!isFromIngest)
                 {
                     // validate that asset exist - isAllowedToViewInactiveAssets = true becuase only operator can insert media file
-                    GenericResponse<Asset> assetResponse = AssetManager.GetAsset(groupId, assetFileToAdd.AssetId, eAssetTypes.MEDIA, true);
+                    GenericResponse<Asset> assetResponse = AssetManager.Instance.GetAsset(groupId, assetFileToAdd.AssetId, eAssetTypes.MEDIA, true);
                     if (assetResponse == null || !assetResponse.HasObject())
                     {
                         result.SetStatus(eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
@@ -716,7 +716,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static Status DeleteMediaFile(int groupId, long userId, long id)
+        public Status DeleteMediaFile(int groupId, long userId, long id)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -755,7 +755,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static GenericResponse<AssetFile> UpdateMediaFile(int groupId, AssetFile assetFileToUpdate, long userId, bool isFromIngest = false, AssetFile currentAssetFile = null)
+        public GenericResponse<AssetFile> UpdateMediaFile(int groupId, AssetFile assetFileToUpdate, long userId, bool isFromIngest = false, AssetFile currentAssetFile = null)
         {
             GenericResponse<AssetFile> result = new GenericResponse<AssetFile>();
             try

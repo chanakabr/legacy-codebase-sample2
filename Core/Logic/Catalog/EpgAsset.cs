@@ -293,7 +293,8 @@ namespace Core.Catalog
                                 ImageObjectType = epgPicture.IsProgramImage ? eAssetImageType.Program : eAssetImageType.ProgramGroup,
                                 ImageObjectId = this.Id,
                                 ReferenceId = epgPicture.PicID,
-                                ImageTypeId = epgPicture.ImageTypeId
+                                ImageTypeId = epgPicture.ImageTypeId,
+                                SourceUrl = epgPicture.SourceUrl
                             });
                         }
                         else
@@ -312,7 +313,8 @@ namespace Core.Catalog
                                     ImageObjectType = epgPicture.IsProgramImage ? eAssetImageType.Program : eAssetImageType.ProgramGroup,
                                     ImageObjectId = this.Id,
                                     ReferenceId = epgPicture.PicID,
-                                    ImageTypeId = epgPicture.ImageTypeId
+                                    ImageTypeId = epgPicture.ImageTypeId,
+                                    SourceUrl = epgPicture.SourceUrl
                                 });
                             }
                         }

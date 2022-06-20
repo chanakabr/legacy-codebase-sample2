@@ -161,7 +161,7 @@ namespace Core.Api
 
         public static api Instance { get { return lazy.Value; } }
 
-        protected api()
+        public api()
         {
         }
 
@@ -7760,7 +7760,7 @@ namespace Core.Api
                         Asset virtualChannel = GetChannelVirtualAsset(groupId, userId, originalExternalChannel, out needToCreateVirtualAsset);
                         if (virtualChannel != null)
                         {
-                            Status status = AssetManager.DeleteAsset(groupId, virtualChannel.Id, eAssetTypes.MEDIA, userId, true);
+                            Status status = AssetManager.Instance.DeleteAsset(groupId, virtualChannel.Id, eAssetTypes.MEDIA, userId, true);
                             if (status == null || !status.IsOkStatusCode())
                             {
                                 log.ErrorFormat("Failed delete virtual asset {0}. for external channel {1}", virtualChannel.Id, externalChannelId);
@@ -11646,7 +11646,7 @@ namespace Core.Api
 
             virtualAsset.Name = channel.Name;
 
-            GenericResponse<Asset> assetUpdateResponse = AssetManager.UpdateAsset(groupId, virtualAsset.Id, virtualAsset, userId, false, false, false, true);
+            GenericResponse<Asset> assetUpdateResponse = AssetManager.Instance.UpdateAsset(groupId, virtualAsset.Id, virtualAsset, userId, false, false, false, true);
 
             if (!assetUpdateResponse.IsOkStatusCode())
             {
@@ -11679,7 +11679,7 @@ namespace Core.Api
                 return asset;
             }
 
-            GenericResponse<Asset> assetResponse = AssetManager.GetAsset(groupId, long.Parse(assets[0].AssetId), eAssetTypes.MEDIA, true);
+            GenericResponse<Asset> assetResponse = AssetManager.Instance.GetAsset(groupId, long.Parse(assets[0].AssetId), eAssetTypes.MEDIA, true);
 
             if (!assetResponse.HasObject())
             {
@@ -11860,12 +11860,12 @@ namespace Core.Api
 
         public VirtualAssetInfoResponse AddVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo, string type = null)
         {
-            return AssetManager.AddVirtualAsset(groupId, virtualAssetInfo, type);
+            return AssetManager.Instance.AddVirtualAsset(groupId, virtualAssetInfo, type);
         }
 
         public VirtualAssetInfoResponse UpdateVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
         {
-            return AssetManager.UpdateVirtualAsset(groupId, virtualAssetInfo);
+            return AssetManager.Instance.UpdateVirtualAsset(groupId, virtualAssetInfo);
         }
 
         public VirtualAssetInfoResponse DeleteVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)

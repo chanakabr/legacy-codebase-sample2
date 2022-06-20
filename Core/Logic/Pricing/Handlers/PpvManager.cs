@@ -18,7 +18,7 @@ using Phx.Lib.Log;
 
 namespace ApiLogic.Pricing.Handlers
 {
-    public class PpvManager
+    public class PpvManager : IPpvManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         

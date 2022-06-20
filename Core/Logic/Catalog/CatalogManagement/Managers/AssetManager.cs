@@ -24,6 +24,7 @@ using System.Threading;
 using System.Xml;
 using ApiLogic.Api.Managers.Rule;
 using ApiLogic.Catalog;
+using ApiLogic.Catalog.CatalogManagement.Services;
 using ApiObjects.SearchPriorityGroups;
 using FeatureFlag;
 using Tvinci.Core.DAL;
@@ -80,6 +81,7 @@ namespace Core.Catalog.CatalogManagement
         private const string TABLE_NAME_RELATED_ENTITIES = "RELATED_ENTITIES";
         private const string TABLE_NAME_LINEAR = "LINEAR";
         private const string TABLE_NAME_GEO_AVAILABILITY = "GEO_AVAILABILITY";
+        private const string TABLE_NAME_LIVE_TO_VOD = "LIVE_TO_VOD";
 
         public static readonly Dictionary<string, string> BasicMediaAssetMetasSystemNameToName = new Dictionary<string, string>()
         {
@@ -116,10 +118,6 @@ namespace Core.Catalog.CatalogManagement
 
         #endregion
 
-        private AssetManager()
-        {
-        }
-
         #region Internal Methods
 
         public bool InvalidateAsset(eAssetTypes assetType, int groupId, long assetId, [System.Runtime.CompilerServices.CallerMemberName] string callingMethod = "")
@@ -147,7 +145,7 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        public static VirtualAssetInfoResponse AddVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo, string type = null)
+        public VirtualAssetInfoResponse AddVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo, string type = null)
         {
             VirtualAssetInfoResponse virtualAssetInfoResponse = new VirtualAssetInfoResponse()
             {
@@ -325,7 +323,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (virtualAsset != null)
                 {
-                    Status status = AssetManager.DeleteAsset(groupId, virtualAsset.Id, eAssetTypes.MEDIA, virtualAssetInfo.UserId, true);
+                    Status status = AssetManager.Instance.DeleteAsset(groupId, virtualAsset.Id, eAssetTypes.MEDIA, virtualAssetInfo.UserId, true);
                     if (status == null || !status.IsOkStatusCode())
                     {
                         log.Debug($"Failed delete virtual asset {virtualAsset.Id}. for virtualAssetInfo {virtualAssetInfo.ToString()}, status:{status.ToString()}");
@@ -347,7 +345,7 @@ namespace Core.Catalog.CatalogManagement
 
         }
 
-        public static VirtualAssetInfoResponse UpdateVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
+        public VirtualAssetInfoResponse UpdateVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
         {
             VirtualAssetInfoResponse response = new VirtualAssetInfoResponse()
             {
@@ -384,7 +382,7 @@ namespace Core.Catalog.CatalogManagement
             virtualAsset.Name = virtualAssetInfo.Name;
             virtualAsset.Description = virtualAssetInfo.Description;
 
-            GenericResponse<Asset> assetUpdateResponse = AssetManager.UpdateAsset(groupId, virtualAsset.Id, virtualAsset, virtualAssetInfo.UserId);
+            GenericResponse<Asset> assetUpdateResponse = AssetManager.Instance.UpdateAsset(groupId, virtualAsset.Id, virtualAsset, virtualAssetInfo.UserId);
 
             if (!assetUpdateResponse.IsOkStatusCode())
             {
@@ -426,7 +424,9 @@ namespace Core.Catalog.CatalogManagement
                 null,
                 null,
                 tables[TABLE_NAME_RELATED_ENTITIES],
-                false, isForMigration);
+                tables[TABLE_NAME_LIVE_TO_VOD],
+                false,
+                isForMigration);
 
             if (result.Object != null)
             {
@@ -503,21 +503,6 @@ namespace Core.Catalog.CatalogManagement
             {
                 result = new Status(eResponseStatus.StartDateShouldBeLessThanEndDate, eResponseStatus.StartDateShouldBeLessThanEndDate.ToString());
                 return result;
-            }
-
-            // in case isFromIngest = true. need to filter out the protected metas and tags. Should not update their values.
-            List<AssetStructMeta> protectedAssetStructMeta = new List<AssetStructMeta>();
-            if (isFromIngest && assetStruct.AssetStructMetas != null && assetStruct.AssetStructMetas.Count > 0)
-            {
-                protectedAssetStructMeta = assetStruct.AssetStructMetas.Values.Where(x => x.ProtectFromIngest.HasValue && x.ProtectFromIngest.Value).ToList();
-                if (protectedAssetStructMeta != null && protectedAssetStructMeta.Count > 0)
-                {
-                    List<long> protectedMetasAndTagsById = protectedAssetStructMeta.Select(x => x.MetaId).ToList(); ;
-                    List<string> protectedMetasAndTagsByName = catalogGroupCache.TopicsMapById.Where(x => protectedMetasAndTagsById.Contains(x.Key)).Select(y => y.Value.SystemName).ToList();
-
-                    asset.Metas.RemoveAll(x => protectedMetasAndTagsByName.Contains(x.m_oTagMeta.m_sName));
-                    asset.Tags.RemoveAll(x => protectedMetasAndTagsByName.Contains(x.m_oTagMeta.m_sName));
-                }
             }
 
             List<Metas> metasToAdd = asset.Metas != null && currentAssetMetasAndTags != null ? asset.Metas.Where(x => !currentAssetMetasAndTags.Contains(x.m_oTagMeta.m_sName)).ToList() : new List<Metas>();
@@ -1241,6 +1226,12 @@ namespace Core.Catalog.CatalogManagement
                     currentAssetMetasAndTags.UnionWith(currentAsset.RelatedEntities.Select(x => x.TagMeta.m_sName));
                 }
 
+                // in case isFromIngest = true. need to filter out the protected metas and tags. Should not update their values.
+                if (isFromIngest)
+                {
+                    MediaIngestProtectProcessor.Instance.ProcessIngestProtect(currentAsset, assetToUpdate, catalogGroupCache);
+                }
+
                 Status validateAssetTopicsResult = ValidateMediaAssetForUpdate(groupId, catalogGroupCache, ref assetStruct, assetToUpdate, currentAssetMetasAndTags, ref metasXmlDocToAdd,
                                                         ref tagsXmlDocToAdd, ref metasXmlDocToUpdate, ref tagsXmlDocToUpdate, ref assetCatalogStartDate,
                                                         ref assetFinalEndDate, ref relatedEntitiesXmlDocToAdd, ref relatedEntitiesXmlDocToUpdate, currentAsset, userId, out var startDate, out var endDate, isFromIngest);
@@ -1438,9 +1429,9 @@ namespace Core.Catalog.CatalogManagement
 
             try
             {
-                if (ds == null || ds.Tables == null || ds.Tables.Count < 6)
+                if (ds == null || ds.Tables == null || ds.Tables.Count < 7)
                 {
-                    log.WarnFormat("CreateGroupMediaMapFromDataSet didn't receive dataset with 6 or more tables");
+                    log.WarnFormat("CreateGroupMediaMapFromDataSet didn't receive dataset with 7 or more tables");
                     return null;
                 }
 
@@ -1500,6 +1491,13 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
+                var liveToVodProperties = new DataTable().AsEnumerable();
+                // l2v table
+                if (ds.Tables[7]?.Rows?.Count > 0)
+                {
+                    liveToVodProperties = ds.Tables[7].AsEnumerable();
+                }
+
                 Dictionary<long, List<int>> linearChannelsRegionsMapping = null;
 
                 if (catalogGroupCache.IsRegionalizationEnabled)
@@ -1529,6 +1527,9 @@ namespace Core.Catalog.CatalogManagement
                             var assetUpdateDateRow = assetUpdateDate.Where(row => (long)row["ID"] == id);
                             tables.Add(TABLE_NAME_UPDATE_DATE, assetUpdateDateRow.Any() ? assetUpdateDateRow.CopyToDataTable() : ds.Tables[5].Clone());
 
+                            var liveToVodPropertiesRow = liveToVodProperties.Where(row => (long)row["MEDIA_ID"] == id).ToList();
+                            tables.Add(TABLE_NAME_LIVE_TO_VOD, liveToVodPropertiesRow.Any() ? liveToVodPropertiesRow.CopyToDataTable() : ds.Tables[7].Clone());
+
                             var mediaAsset = MediaAssetServiceLazy.Value.CreateMediaAsset(
                                 groupId,
                                 tables[TABLE_NAME_BASIC],
@@ -1541,6 +1542,7 @@ namespace Core.Catalog.CatalogManagement
                                 tables[TABLE_NAME_UPDATE_DATE],
                                 null,
                                 null,
+                                tables[TABLE_NAME_LIVE_TO_VOD],
                                 true);
                             if (mediaAsset != null)
                             {
@@ -1663,7 +1665,17 @@ namespace Core.Catalog.CatalogManagement
                     regions = regions
                 };
 
-                Catalog.Utils.ExtractSuppressedValue(catalogGroupCache, media);
+                if (mediaAsset is LiveToVodAsset liveToVodAsset)
+                {
+                    media.L2vLinearAssetId = liveToVodAsset.LinearAssetId;
+                    media.L2vEpgChannelId = liveToVodAsset.EpgChannelId;
+                    media.L2vEpgId = liveToVodAsset.EpgIdentifier;
+                    media.L2vCrid = liveToVodAsset.Crid;
+                    media.L2vOriginalEndDate = liveToVodAsset.OriginalEndDate.ToESDateFormat();
+                    media.L2vOriginalStartDate = liveToVodAsset.OriginalStartDate.ToESDateFormat();
+                }
+
+                Utils.ExtractSuppressedValue(catalogGroupCache, media);
 
                 languageToMedia.Add(language.ID, media);
             }
@@ -1987,7 +1999,7 @@ namespace Core.Catalog.CatalogManagement
                 UnifiedSearchResult[] assets = Core.Catalog.Utils.SearchAssets(groupId, filter, 0, 0, false, true);
                 if (assets != null && assets.Length > 0)
                 {
-                    GenericResponse<Asset> response = AssetManager.GetAsset(groupId, long.Parse(assets[0].AssetId), eAssetTypes.MEDIA, true);
+                    GenericResponse<Asset> response = AssetManager.Instance.GetAsset(groupId, long.Parse(assets[0].AssetId), eAssetTypes.MEDIA, true);
                     if (response.Status.Code != (int)eResponseStatus.OK || response.Object == null)
                     {
                         log.ErrorFormat("Failed to get ");
@@ -2397,9 +2409,9 @@ namespace Core.Catalog.CatalogManagement
                 return CreateAssetResponseStatusFromResult(id);
             }
 
-            if (ds.Tables.Count < 8)
+            if (ds.Tables.Count < 9)
             {
-                log.Warn($"{nameof(BuildTableDicAfterInsertMediaAsset)} received dataset with {ds.Tables.Count} tables but expects 8 or more.");
+                log.Warn($"{nameof(BuildTableDicAfterInsertMediaAsset)} received dataset with {ds.Tables.Count} tables but expects 9 or more.");
                 return null;
             }
 
@@ -2412,6 +2424,7 @@ namespace Core.Catalog.CatalogManagement
             tables.Add(TABLE_NAME_IMAGES, ds.Tables[5]);
             tables.Add(TABLE_NAME_NEW_TAGS, ds.Tables[6]);
             tables.Add(TABLE_NAME_RELATED_ENTITIES, ds.Tables[7]);
+            tables.Add(TABLE_NAME_LIVE_TO_VOD, ds.Tables[8]);
 
             return new Status((int)eResponseStatus.OK);
         }
@@ -2439,9 +2452,9 @@ namespace Core.Catalog.CatalogManagement
                 return CreateAssetResponseStatusFromResult(id);
             }
 
-            if (ds.Tables.Count < 8)
+            if (ds.Tables.Count < 9)
             {
-                log.Warn($"{nameof(BuildTableDicAfterUpdateMediaAsset)} received dataset with {ds.Tables.Count} tables associated with assetId {assetId} but expects 8 or more.");
+                log.Warn($"{nameof(BuildTableDicAfterUpdateMediaAsset)} received dataset with {ds.Tables.Count} tables associated with assetId {assetId} but expects 9 or more.");
                 return new Status((int)eResponseStatus.Error);
             }
 
@@ -2454,6 +2467,7 @@ namespace Core.Catalog.CatalogManagement
             tables.Add(TABLE_NAME_IMAGES, ds.Tables[5]);
             tables.Add(TABLE_NAME_NEW_TAGS, ds.Tables[6]);
             tables.Add(TABLE_NAME_RELATED_ENTITIES, ds.Tables[7]);
+            tables.Add(TABLE_NAME_LIVE_TO_VOD, ds.Tables[8]);
 
             return new Status((int)eResponseStatus.OK);
         }
@@ -2481,6 +2495,7 @@ namespace Core.Catalog.CatalogManagement
             tables.Add(TABLE_NAME_FILES, ds.Tables[3]);
             tables.Add(TABLE_NAME_UPDATE_DATE, ds.Tables[5]);
             tables.Add(TABLE_NAME_GEO_AVAILABILITY, ds.Tables[6]);
+            tables.Add(TABLE_NAME_LIVE_TO_VOD, ds.Tables[7]);
 
             return new Status((int)eResponseStatus.OK);
         }
@@ -2577,7 +2592,7 @@ namespace Core.Catalog.CatalogManagement
 
             if (virtualAssetInfo.DuplicateAssetId.HasValue)
             {
-                GenericResponse<Asset> duplicatedAssetResponse = GetAsset(groupId, virtualAssetInfo.DuplicateAssetId.Value, eAssetTypes.MEDIA, true);
+                GenericResponse<Asset> duplicatedAssetResponse = Instance.GetAsset(groupId, virtualAssetInfo.DuplicateAssetId.Value, eAssetTypes.MEDIA, true);
                 if (!duplicatedAssetResponse.HasObject())
                 {
                     log.Debug($"GetVirtualAsset. duplicated virtual Asset not found. groupId {groupId}, DuplicateAssetId {virtualAssetInfo.DuplicateAssetId}");
@@ -2632,7 +2647,7 @@ namespace Core.Catalog.CatalogManagement
                 return response;
             }
 
-            GenericResponse<Asset> assetResponse = AssetManager.GetAsset(groupId, long.Parse(assets[0].AssetId), eAssetTypes.MEDIA, true);
+            GenericResponse<Asset> assetResponse = AssetManager.Instance.GetAsset(groupId, long.Parse(assets[0].AssetId), eAssetTypes.MEDIA, true);
 
             if (!assetResponse.HasObject())
             {
@@ -2733,7 +2748,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static GenericResponse<Asset> GetAsset(int groupId, long id, eAssetTypes assetType, bool isAllowedToViewInactiveAssets)
+        public GenericResponse<Asset> GetAsset(int groupId, long id, eAssetTypes assetType, bool isAllowedToViewInactiveAssets)
         {
             GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
@@ -2990,6 +3005,7 @@ namespace Core.Catalog.CatalogManagement
                     tables[TABLE_NAME_UPDATE_DATE],
                     null,
                     null,
+                    tables[TABLE_NAME_LIVE_TO_VOD],
                     true);
                 if (mediaAsset != null)
                 {
@@ -3062,7 +3078,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static GenericResponse<Asset> AddAsset(int groupId, Asset assetToAdd, long userId, bool isFromIngest = false)
+        public GenericResponse<Asset> AddAsset(int groupId, Asset assetToAdd, long userId, bool isFromIngest = false)
         {
             GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
@@ -3144,7 +3160,7 @@ namespace Core.Catalog.CatalogManagement
                 false);
         }
 
-        public static GenericResponse<Asset> UpdateAsset(int groupId, long id, Asset assetToUpdate, long userId, bool isFromIngest = false,
+        public GenericResponse<Asset> UpdateAsset(int groupId, long id, Asset assetToUpdate, long userId, bool isFromIngest = false,
                                                         bool isCleared = false, bool isForMigration = false, bool isFromChannel = false)
         {
             GenericResponse<Asset> result = new GenericResponse<Asset>();
@@ -3277,7 +3293,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static Status DeleteAsset(int groupId, long id, eAssetTypes assetType, long userId, bool isFromChannel = false)
+        public Status DeleteAsset(int groupId, long id, eAssetTypes assetType, long userId, bool isFromChannel = false)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
@@ -3359,7 +3375,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 // validate that asset exist
                 // isAllowedToViewInactiveAssets = true because only operator can remove topics from asset 
-                var currentAsset = AssetManager.GetAsset(groupId, id, assetType, true);
+                var currentAsset = AssetManager.Instance.GetAsset(groupId, id, assetType, true);
                 if (!currentAsset.HasObject())
                 {
                     result = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
@@ -3452,7 +3468,7 @@ namespace Core.Catalog.CatalogManagement
                         Instance.InvalidateAsset(eAssetTypes.MEDIA, groupId, id);
 
                         //Get updated Asset
-                        var assetResponse = AssetManager.GetAsset(groupId, mediaAsset.Id, eAssetTypes.MEDIA, true);
+                        var assetResponse = AssetManager.Instance.GetAsset(groupId, mediaAsset.Id, eAssetTypes.MEDIA, true);
                         if (assetResponse != null && assetResponse.HasObject() && assetResponse.Object is MediaAsset)
                         {
                             // if need UpdateAssetInheritancePolicy

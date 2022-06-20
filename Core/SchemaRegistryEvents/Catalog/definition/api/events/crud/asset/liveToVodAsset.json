@@ -1,0 +1,12 @@
+{
+  "$id": "http://ott.service.phoenix/api/events/crud/asset/liveToVodAsset",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LiveToVodAsset",
+  "type": "object",
+  "description": "An event used to reflect a crud operation in a live to vod asset",
+  "allOf": [
+    {
+      "$ref": "ott-schema-registry/events/crud/asset/liveToVodAsset"
+    }
+  ]
+}

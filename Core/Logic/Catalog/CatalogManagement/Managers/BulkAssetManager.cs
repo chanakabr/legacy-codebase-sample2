@@ -39,7 +39,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (mediaAsset.Id == 0)
                 {
-                    var addAsset = AssetManager.AddAsset(groupId, mediaAsset, userId, true);
+                    var addAsset = AssetManager.Instance.AddAsset(groupId, mediaAsset, userId, true);
                     if (!addAsset.HasObject())
                     {
                         log.Debug("UpsertMediaAsset - AddAsset faild");
@@ -70,7 +70,7 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
 
-                    var updateAsset = AssetManager.UpdateAsset(groupId, mediaAsset.Id, mediaAsset, userId, true, isCleared);
+                    var updateAsset = AssetManager.Instance.UpdateAsset(groupId, mediaAsset.Id, mediaAsset, userId, true, isCleared);
                     if (!updateAsset.HasObject())
                     {
                         log.Debug("UpdateMediaAsset - UpdateAsset faild");
@@ -256,7 +256,7 @@ namespace Core.Catalog.CatalogManagement
                                 }
                                 else
                                 {
-                                    var insertMediaFileResponse = FileManager.InsertMediaFile(groupId, userId, filesToHandle[assetFileTypeId].Item1, true);
+                                    var insertMediaFileResponse = FileManager.Instance.InsertMediaFile(groupId, userId, filesToHandle[assetFileTypeId].Item1, true);
                                     if (!insertMediaFileResponse.HasObject())
                                     {
                                         log.ErrorFormat("Failed InsertMediaFile after DeleteMediaFile (required to erase) for assetId {0}, assetFile.typeName {1}.", assetId, fileTypeName);
@@ -272,7 +272,7 @@ namespace Core.Catalog.CatalogManagement
                             else
                             {
                                 filesToHandle[assetFileTypeId].Item1.Id = assetFile.Id;
-                                var updateMediaFileResponse = FileManager.UpdateMediaFile(groupId, filesToHandle[assetFileTypeId].Item1, userId, true, assetFile);
+                                var updateMediaFileResponse = FileManager.Instance.UpdateMediaFile(groupId, filesToHandle[assetFileTypeId].Item1, userId, true, assetFile);
                                 if (!updateMediaFileResponse.HasObject())
                                 {
                                     log.ErrorFormat("Failed UpdateMediaFile for assetId {0}, assetFile.typeName {1}.", assetId, fileTypeName);
@@ -301,7 +301,7 @@ namespace Core.Catalog.CatalogManagement
                 foreach (var assetFileToAdd in filesToHandle)
                 {
                     assetFileToAdd.Value.Item1.AssetId = assetId;
-                    var insertMediaFileResponse = FileManager.InsertMediaFile(groupId, userId, assetFileToAdd.Value.Item1, true);
+                    var insertMediaFileResponse = FileManager.Instance.InsertMediaFile(groupId, userId, assetFileToAdd.Value.Item1, true);
                     if (!insertMediaFileResponse.HasObject())
                     {
                         log.ErrorFormat("Failed InsertMediaFile for assetId {0}, assetFile.typeName {1}.", assetId, assetFileToAdd.Value.Item1.GetTypeName());

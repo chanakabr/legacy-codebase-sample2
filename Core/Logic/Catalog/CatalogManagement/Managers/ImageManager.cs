@@ -37,7 +37,7 @@ namespace Core.Catalog.CatalogManagement
 
         public static ImageManager Instance { get { return lazy.Value; } }
 
-        private ImageManager(ITtlService ttlService)
+        public ImageManager(ITtlService ttlService)
         {
             _ttlService = ttlService;
         }
@@ -984,7 +984,7 @@ namespace Core.Catalog.CatalogManagement
                 if (imageToAdd.ImageObjectType == eAssetImageType.Media && imageToAdd.ImageObjectId > 0)
                 {
                     // isAllowedToViewInactiveAssets = true because only operator can add image
-                    GenericResponse<Asset> asset = AssetManager.GetAsset(groupId, imageToAdd.ImageObjectId, eAssetTypes.MEDIA, true);
+                    GenericResponse<Asset> asset = AssetManager.Instance.GetAsset(groupId, imageToAdd.ImageObjectId, eAssetTypes.MEDIA, true);
                     if (asset.Status.Code != (int)eResponseStatus.OK)
                     {
                         log.ErrorFormat("Asset not found. assetId = {0}, assetType = {1}", imageToAdd.ImageObjectId, imageToAdd.ImageObjectType);
@@ -1007,7 +1007,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (imageToAdd.ImageObjectType == eAssetImageType.Program && imageToAdd.ImageObjectId > 0)
                 {
-                    GenericResponse<Asset> asset = AssetManager.GetAsset(groupId, imageToAdd.ImageObjectId, eAssetTypes.EPG, true);
+                    GenericResponse<Asset> asset = AssetManager.Instance.GetAsset(groupId, imageToAdd.ImageObjectId, eAssetTypes.EPG, true);
                     if (asset.Status.Code != (int)eResponseStatus.OK)
                     {
                         log.ErrorFormat("Asset not found. assetId = {0}, assetType = {1}", imageToAdd.ImageObjectId, imageToAdd.ImageObjectType);
@@ -1176,7 +1176,7 @@ namespace Core.Catalog.CatalogManagement
 
                     if (image.ImageObjectType == eAssetImageType.Program)
                     {
-                        EpgAssetManager.UpdateProgramAssetPictures(groupId, userId, image);
+                        EpgAssetManager.UpdateProgramAssetPictures(groupId, userId, image, url);
                     }
 
                     // invalidate asset with this image

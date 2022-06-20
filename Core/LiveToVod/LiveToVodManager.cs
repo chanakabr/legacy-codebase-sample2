@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using ApiLogic.Catalog.CatalogManagement.Services;
 using ApiObjects.Response;
+using CachingProvider.LayeredCache;
+using LinqToTwitter;
 using LiveToVod.BOL;
 using LiveToVod.DAL;
 using Microsoft.Extensions.Logging;
@@ -13,24 +16,30 @@ namespace LiveToVod
     public class LiveToVodManager : ILiveToVodManager
     {
         private static readonly Lazy<LiveToVodManager> Lazy = new Lazy<LiveToVodManager>(
-            () => new LiveToVodManager(Repository.Instance, LiveToVodService.Instance),
+            () => new LiveToVodManager(Repository.Instance, LiveToVodService.Instance, LayeredCache.Instance),
             LazyThreadSafetyMode.PublicationOnly);
 
         private readonly IRepository _repository;
         private readonly ILiveToVodService _liveToVodService;
+        private readonly ILayeredCache _layeredCache;
         private readonly ILogger _logger;
 
         public static ILiveToVodManager Instance => Lazy.Value;
 
-        public LiveToVodManager(IRepository repository, ILiveToVodService liveToVodService)
-            : this(repository, liveToVodService, new KLogger(nameof(LiveToVodManager)))
+        public LiveToVodManager(IRepository repository, ILiveToVodService liveToVodService, ILayeredCache layeredCache)
+            : this(repository, liveToVodService, layeredCache, new KLogger(nameof(LiveToVodManager)))
         {
         }
         
-        public LiveToVodManager(IRepository repository, ILiveToVodService liveToVodService, ILogger logger)
+        public LiveToVodManager(
+            IRepository repository,
+            ILiveToVodService liveToVodService,
+            ILayeredCache layeredCache,
+            ILogger logger)
         {
             _repository = repository;
             _liveToVodService = liveToVodService;
+            _layeredCache = layeredCache;
             _logger = logger;
         }
 
@@ -69,7 +78,7 @@ namespace LiveToVod
             if (linearAssetConfiguration == null)
             {
                 _logger.LogWarning($"{nameof(LiveToVodLinearAssetConfiguration)} has not been found. {nameof(partnerId)}={partnerId}, {nameof(linearAssetId)}={linearAssetId}.");
-                linearAssetConfiguration = new LiveToVodLinearAssetConfiguration(linearAssetId, partnerConfiguration.IsLiveToVodEnabled, null);
+                linearAssetConfiguration = new LiveToVodLinearAssetConfiguration(linearAssetId, false, null);
             }
 
             var result = CreateOverridenLinearAssetConfiguration(partnerConfiguration, linearAssetConfiguration);
@@ -99,6 +108,11 @@ namespace LiveToVod
                 {
                     _logger.LogError($"{nameof(UpdateLinearAssetConfiguration)} failed. {nameof(partnerId)}={partnerId}, {nameof(LiveToVodLinearAssetConfiguration.LinearAssetId)}={config.LinearAssetId}, {nameof(updaterId)}={updaterId}.");
                 }
+                else
+                {
+                    _layeredCache.SetInvalidationKey(
+                        LayeredCacheKeys.GetLiveToVodFullConfigurationInvalidationKey(partnerId));
+                }
             }
             else
             {
@@ -109,6 +123,63 @@ namespace LiveToVod
 
             return linearAssetConfig;
         }
+
+        public LiveToVodFullConfiguration GetCachedFullConfiguration(long partnerId)
+        {
+            try
+            {
+                LiveToVodFullConfiguration configuration = null;
+                var key = LayeredCacheKeys.GetLiveToVodFullConfigurationKey(partnerId);
+                var invalidationKeys = new List<string>
+                {
+                    LayeredCacheKeys.GetLiveToVodFullConfigurationInvalidationKey(partnerId)
+                };
+                var cacheResult = _layeredCache.Get(
+                    key,
+                    ref configuration,
+                    GetFullConfiguration,
+                    new Dictionary<string, object> { { "partnerId", partnerId } },
+                    (int)partnerId,
+                    LayeredCacheConfigNames.GET_LIVE_TO_VOD_FULL_CONFIGURATION_CACHE_CONFIG_NAME,
+                    invalidationKeys);
+
+                if (cacheResult)
+                {
+                    return configuration;
+                }
+                
+                _logger.LogError($"{nameof(List)} - Failed to get live to vod full configuration: {nameof(partnerId)}={partnerId}.");
+
+                return null;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error while executing {nameof(List)}: {e.Message}.");
+
+                return null;
+            }
+        }
+        
+        private Tuple<LiveToVodFullConfiguration, bool> GetFullConfiguration(Dictionary<string, object> funcParams)
+        {
+            try
+            {
+                var partnerId = (long)funcParams["partnerId"];
+                var configuration = GetFullConfiguration(partnerId);
+
+                return new Tuple<LiveToVodFullConfiguration, bool>(configuration, true);
+            }
+            catch (Exception e)
+            {
+                var parameters = funcParams != null
+                    ? string.Join(";", funcParams.Select(x => $"{{key: {x.Key}, value:{x.Value}}}"))
+                    : string.Empty;
+                _logger.LogError(e, $"Error while executing {nameof(GetFullConfiguration)}({parameters}): {e.Message}.");
+            }
+
+            return new Tuple<LiveToVodFullConfiguration, bool>(null, false);
+        }
+
 
         private bool TryUpdatePartnerConfiguration(long partnerId, LiveToVodPartnerConfiguration config, long updaterId)
         {
@@ -155,6 +226,11 @@ namespace LiveToVod
             if (!isUpdated)
             {
                 _logger.LogError($"{nameof(UpdatePartnerConfiguration)} failed. {nameof(partnerId)}={partnerId}, {nameof(updaterId)}={updaterId}.");
+            }
+            else
+            {
+                _layeredCache.SetInvalidationKey(
+                    LayeredCacheKeys.GetLiveToVodFullConfigurationInvalidationKey(partnerId));
             }
         }
 

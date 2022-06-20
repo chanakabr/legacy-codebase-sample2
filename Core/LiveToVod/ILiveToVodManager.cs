@@ -9,5 +9,6 @@ namespace LiveToVod
         LiveToVodLinearAssetConfiguration GetLinearAssetConfiguration(long partnerId, long linearAssetId);
         LiveToVodPartnerConfiguration UpdatePartnerConfiguration(long partnerId, LiveToVodPartnerConfiguration config, long updaterId);
         LiveToVodLinearAssetConfiguration UpdateLinearAssetConfiguration(long partnerId, LiveToVodLinearAssetConfiguration config, long updaterId);
+        LiveToVodFullConfiguration GetCachedFullConfiguration(long partnerId);
     }
 }

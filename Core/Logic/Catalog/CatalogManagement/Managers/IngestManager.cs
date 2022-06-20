@@ -214,7 +214,7 @@ namespace Core.Catalog.CatalogManagement
             string mediaType = media.Basic.MediaType;
             if (mediaId != 0)
             {
-                var assetRespone = AssetManager.GetAsset(groupId, mediaId, eAssetTypes.MEDIA, true);
+                var assetRespone = AssetManager.Instance.GetAsset(groupId, mediaId, eAssetTypes.MEDIA, true);
                 if (assetRespone.HasObject() && assetRespone.Object is MediaAsset)
                 {
                     mediaType = (assetRespone.Object as MediaAsset).MediaType.m_sTypeName;
@@ -495,7 +495,7 @@ namespace Core.Catalog.CatalogManagement
             var config = Core.Api.Module.GetGeneralPartnerConfiguration(groupId);
             if (config.HasObjects() && config.Objects[0].DeleteMediaPolicy.HasValue && config.Objects[0].DeleteMediaPolicy.Value == DeleteMediaPolicy.Delete)
             {
-                deleteStatus = AssetManager.DeleteAsset(groupId, mediaId, eAssetTypes.MEDIA, USER_ID);
+                deleteStatus = AssetManager.Instance.DeleteAsset(groupId, mediaId, eAssetTypes.MEDIA, USER_ID);
             }
             else
             {

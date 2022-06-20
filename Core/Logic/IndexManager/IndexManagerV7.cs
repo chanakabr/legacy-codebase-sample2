@@ -5346,6 +5346,13 @@ namespace Core.Catalog
             Dictionary<string, Analyzer> analyzers)
         {
             PropertiesDescriptor<NestMedia> propertiesDescriptor = new PropertiesDescriptor<NestMedia>();
+            var liveToVodPropertiesDescriptor = new PropertiesDescriptor<NestLiveToVodProperties>()
+                .Date(x => x.Name(NamingHelper.ORIGINAL_START_DATE))
+                .Date(x => x.Name(NamingHelper.ORIGINAL_END_DATE))
+                .Keyword(x => InitializeDefaultTextPropertyDescriptor<string>(NamingHelper.CRID))
+                .Keyword(x => InitializeDefaultTextPropertyDescriptor<string>(NamingHelper.EPG_ID))
+                .Number(x => x.Name(NamingHelper.LINEAR_ASSET_ID).Type(NumberType.Long))
+                .Number(x => x.Name(NamingHelper.EPG_CHANNEL_ID).Type(NumberType.Long));
 
             propertiesDescriptor
                 .Keyword(x => x.Name(m => m.DocumentId))
@@ -5369,7 +5376,8 @@ namespace Core.Catalog
                 .Date(x => x.Name("update_date"))
                 .Date(x => x.Name("catalog_start_date"))
                 .Date(x => x.Name("final_date"))
-                ;
+
+                .Object<NestLiveToVodProperties>(x => x.Name(NamingHelper.LIVE_TO_VOD_PREFIX).Properties(properties => liveToVodPropertiesDescriptor));
 
             InitializeTextField("external_id", propertiesDescriptor,
                 DEFAULT_INDEX_ANALYZER, DEFAULT_SEARCH_ANALYZER, DEFAULT_AUTOCOMPLETE_ANALYZER, DEFAULT_AUTOCOMPLETE_SEARCH_ANALYZER, true);

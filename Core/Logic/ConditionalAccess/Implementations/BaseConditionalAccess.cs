@@ -7898,7 +7898,7 @@ namespace Core.ConditionalAccess
 
                     if (Catalog.CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(m_nGroupID))
                     {
-                        GenericResponse<Catalog.Asset> assetResponse = Catalog.CatalogManagement.AssetManager.GetAsset(m_nGroupID, nMediaID, eAssetTypes.MEDIA, true);
+                        GenericResponse<Catalog.Asset> assetResponse = Catalog.CatalogManagement.AssetManager.Instance.GetAsset(m_nGroupID, nMediaID, eAssetTypes.MEDIA, true);
                         if (assetResponse?.Object != null)
                         {
                             res.m_sPurchasedItemName = assetResponse.Object.Name;

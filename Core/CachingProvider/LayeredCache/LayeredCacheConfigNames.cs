@@ -152,6 +152,7 @@
         public const string LIST_SEARCH_PRIORITY_GROUPS_MAPPINGS = "ListSearchPriorityGroupsMappings";
         public const string GET_DEVICE_FAMILIES_CACHE_CONFIG_NAME = "GetDeviceFamilies";
         public const string GET_DEVICE_BRANDS_CACHE_CONFIG_NAME = "GetDeviceBrands";
+        public const string GET_LIVE_TO_VOD_FULL_CONFIGURATION_CACHE_CONFIG_NAME = "GetLiveToVodFullConfiguration";
 
         // DON'T you ever change the value of this static var even when its not aligned, changing will require sync integration and change tcm config
         public const string GET_MICROSERVICES_CANARY_CONFIGURATION = "GetCanaryConfiguration";
