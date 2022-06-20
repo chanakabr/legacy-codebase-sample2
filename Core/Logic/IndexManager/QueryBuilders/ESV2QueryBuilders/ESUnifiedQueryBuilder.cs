@@ -13,13 +13,13 @@ using ElasticSearch.Searcher;
 using Nest;
 using ApiLogic.IndexManager.Helpers;
 using ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders;
-using ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority;
 using ApiLogic.IndexManager.Sorting;
+using ApiObjects;
 using ElasticSearch.Utils;
 
 namespace ApiLogic.IndexManager.QueryBuilders
 {
-    public class ESUnifiedQueryBuilder
+    public class ESUnifiedQueryBuilder : BaseEsUnifiedQueryBuilder
     {
         #region Consts and readonlys 
 
@@ -38,6 +38,12 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
         protected static readonly Dictionary<string, string> NONE_PHONETIC_LANGUAGES 
             = new Dictionary<string, string> { { "heb", @"[\u0590-\u05FF]+" } };
+
+        private static eFieldType[] LanguageSpecificGroupByFieldTypes => new []
+        {
+            eFieldType.LanguageSpecificField, eFieldType.Tag, eFieldType.StringMeta
+        };
+
 
         protected static readonly ESPrefix epgPrefixTerm = new ESPrefix()
         {
@@ -63,29 +69,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
         protected static int MAX_RESULTS;
 
-        public UnifiedSearchDefinitions SearchDefinitions
-        {
-            get;
-            set;
-        }
-
         public int GroupID
-        {
-            get;
-            set;
-        }
-        public int PageSize
-        {
-            get;
-            set;
-        }
-        public int PageIndex
-        {
-            get;
-            set;
-        }
-
-        public int From
         {
             get;
             set;
@@ -121,17 +105,6 @@ namespace ApiLogic.IndexManager.QueryBuilders
             set;
         }
 
-        public bool GetAllDocuments
-        {
-            get;
-            set;
-        }
-        public bool ShouldPageGroups
-        {
-            get;
-            set;
-        }
-
         #endregion
 
         #region Ctor
@@ -153,7 +126,13 @@ namespace ApiLogic.IndexManager.QueryBuilders
         /// Regular constructor to initialize with definitions
         /// </summary>
         /// <param name="definitions"></param>
-        public ESUnifiedQueryBuilder(UnifiedSearchDefinitions definitions, int groupId = 0)
+        public ESUnifiedQueryBuilder(
+            IEsSortingService esSortingService,
+            ISortingAdapter sortingAdapter,
+            IUnifiedQueryBuilderInitializer queryInitializer,
+            UnifiedSearchDefinitions definitions,
+            int groupId = 0)
+            : base(esSortingService, sortingAdapter, queryInitializer)
         {
             this.SearchDefinitions = definitions;
             this.GroupID = definitions?.groupId ?? groupId;
@@ -213,6 +192,9 @@ namespace ApiLogic.IndexManager.QueryBuilders
             {
                 this.ReturnFields.Add(string.Format("\"name_{0}\"", this.SearchDefinitions.langauge.Code));
             }
+
+            this.ReturnFields.AddRange(EsSortingService.BuildExtraReturnFields(OrderByFields));
+            this.ReturnFields = this.ReturnFields.Distinct().ToList();
 
             // This is a query-filter.
             // First comes query
@@ -297,9 +279,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
             var isBoostScoreValues = this.SearchDefinitions.boostScoreValues != null && this.SearchDefinitions.boostScoreValues.Count > 0;
             var isPriorityGroupMappingsDefined = this.SearchDefinitions.PriorityGroupsMappings != null && this.SearchDefinitions.PriorityGroupsMappings.Any();
             bool functionScoreSort = isBoostScoreValues || isPriorityGroupMappingsDefined;
-            // TODO: SortingAdapter is a temporary solution, but if it's required to inject services here then SearchDefinitions should be moved to method parameters.
-            var esOrderFields = SortingAdapter.Instance.ResolveOrdering(SearchDefinitions);
-            var sortString = EsSortingService.Instance.GetSorting(esOrderFields, functionScoreSort);
+            var sortString = EsSortingService.GetSorting(OrderByFields, functionScoreSort);
 
             filteredQueryBuilder.AppendFormat("{0}, ", sortString);
 
@@ -392,17 +372,17 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
                             currentAggregation.SubAggrgations = new List<ESBaseAggsItem>
                             {
-                                new ESTopHitsAggregation
+                                new ESTopHitsAggregation(EsSortingService)
                                 {
                                     Name = ESTopHitsAggregation.DEFAULT_NAME,
                                     Size = topHitsSize,
                                     // order just like regular search
-                                    EsOrderByFields = esOrderFields,
+                                    EsOrderByFields = OrderByFields,
                                     SourceIncludes = this.ReturnFields
                                 }
                             };
 
-                            var orderAggregationParameters = GetOrderAggregationParameters(esOrderFields);
+                            var orderAggregationParameters = GetOrderAggregationParameters(OrderByFields);
                             if (orderAggregationParameters?.OrderAggregation != null)
                             {
                                 currentAggregation.SubAggrgations.Add(orderAggregationParameters.OrderAggregation);
@@ -2748,5 +2728,38 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
         #endregion
 
+        public override void SetPagingForUnifiedSearch() => QueryInitializer.SetPagingForUnifiedSearch(this);
+
+        public override void SetGroupByValuesForUnifiedSearch()
+        {
+            if (SearchDefinitions.groupBy != null && SearchDefinitions.groupBy.Any())
+            {
+                foreach (var groupBy in SearchDefinitions.groupBy)
+                {
+                    SetGroupByValue(groupBy, SearchDefinitions.langauge);
+                }
+
+                if (SearchDefinitions.distinctGroup != null)
+                {
+                    SetGroupByValue(SearchDefinitions.distinctGroup, SearchDefinitions.langauge);
+                    SearchDefinitions.extraReturnFields.Add(SearchDefinitions.distinctGroup.Value);
+                }
+            }
+        }
+
+        private static void SetGroupByValue(GroupByDefinition groupBy, LanguageObj language)
+        {
+            var key = groupBy.Key.ToLower();
+            var type = groupBy.Type;
+            var isLanguageSpecific = LanguageSpecificGroupByFieldTypes.Contains(groupBy.Type);
+            string value = GetElasticsearchFieldName(isLanguageSpecific, language, key, type);
+
+            if (groupBy.Type == eFieldType.Tag || groupBy.Type == eFieldType.StringMeta)
+            {
+                value = $"{value}.lowercase";
+            }
+
+            groupBy.Value = value;
+        }
     }
 }

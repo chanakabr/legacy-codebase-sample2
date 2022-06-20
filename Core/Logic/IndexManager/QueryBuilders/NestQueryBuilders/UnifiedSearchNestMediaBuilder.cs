@@ -6,6 +6,7 @@ using ApiLogic.IndexManager.Helpers;
 using ApiLogic.IndexManager.NestData;
 using ApiLogic.IndexManager.QueryBuilders.NestQueryBuilders.Queries;
 using ApiObjects.SearchObjects;
+using ElasticSearch.NEST;
 using Phx.Lib.Appconfig;
 using Phx.Lib.Log;
 using Nest;

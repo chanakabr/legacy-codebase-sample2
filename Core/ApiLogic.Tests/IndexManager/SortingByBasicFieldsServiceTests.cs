@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ApiLogic.IndexManager.Models;
 using ApiLogic.IndexManager.Sorting;
 using ApiObjects;
 using ApiObjects.SearchObjects;
+using Core.Catalog.Response;
 using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 using FluentAssertions;
@@ -36,7 +38,7 @@ namespace ApiLogic.Tests.IndexManager
             var sortingByBasicFieldsService = new SortingByBasicFieldsService();
 
             Action act = () => sortingByBasicFieldsService.ListOrderedIdsWithSortValues(
-                Enumerable.Empty<ElasticSearchApi.ESAssetDocument>(),
+                Enumerable.Empty<ExtendedUnifiedSearchResult>(),
                 esOrderByField);
 
             act.Should().Throw<NotImplementedException>();
@@ -51,6 +53,28 @@ namespace ApiLogic.Tests.IndexManager
             var sortingByBasicFieldsService = new SortingByBasicFieldsService();
 
             var actualResult = sortingByBasicFieldsService.ListOrderedIdsWithSortValues(esDocuments, orderByField);
+
+            actualResult.Should().BeEquivalentTo(expectedResult, options => options.WithStrictOrdering());
+        }
+        
+        [TestCaseSource(nameof(SortingData))]
+        public void ListOrderedIdsWithSortValuesExtended_ReturnsExpectedResult(
+            IEnumerable<ElasticSearchApi.ESAssetDocument> esDocuments,
+            IEsOrderByField orderByField,
+            IEnumerable<(long id, string sortValue)> expectedResult)
+        {
+            var sortingByBasicFieldsService = new SortingByBasicFieldsService();
+
+            var extendedUnifiedSearchResults = esDocuments.Select(x =>
+            {
+                var unifiedSearchResult = new UnifiedSearchResult
+                {
+                    AssetId = x.asset_id.ToString(),
+                    Score = x.score
+                };
+                return new ExtendedUnifiedSearchResult(unifiedSearchResult, x);
+            }).ToArray();
+            var actualResult = sortingByBasicFieldsService.ListOrderedIdsWithSortValues(extendedUnifiedSearchResults, orderByField);
 
             actualResult.Should().BeEquivalentTo(expectedResult, options => options.WithStrictOrdering());
         }
@@ -145,16 +169,6 @@ namespace ApiLogic.Tests.IndexManager
                 shuffledDocuments,
                 new EsOrderByField(OrderBy.START_DATE, OrderDir.ASC),
                 GetExpectedResult(x => x.start_date.ToString()).Reverse());
-
-            yield return new TestCaseData(
-                shuffledDocuments,
-                new EsOrderByField(OrderBy.EPG_ID, OrderDir.DESC),
-                GetExpectedResult(x => x.asset_id.ToString()));
-
-            yield return new TestCaseData(
-                shuffledDocuments,
-                new EsOrderByField(OrderBy.MEDIA_ID, OrderDir.ASC),
-                GetExpectedResult(x => x.asset_id.ToString()).Reverse());
 
             yield return new TestCaseData(
                 shuffledDocuments,

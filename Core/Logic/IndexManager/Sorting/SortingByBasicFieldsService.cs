@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using ApiLogic.IndexManager.Models;
 using ApiObjects.SearchObjects;
+using Core.Catalog.Response;
 using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 
@@ -20,15 +22,32 @@ namespace ApiLogic.IndexManager.Sorting
 
         public static ISortingByBasicFieldsService Instance => LazyInstance.Value;
 
+        [Obsolete]
         public IEnumerable<(long id, string sortValue)> ListOrderedIdsWithSortValues(
             IEnumerable<ElasticSearchApi.ESAssetDocument> esAssetDocuments,
             IEsOrderByField field)
-            => GetSortedResult(esAssetDocuments, field)
-                ?? throw new NotImplementedException(
-                    $"It is not possible to determine how to order results in {nameof(SortingByBasicFieldsService)}.");
+        {
+            var extendedUnifiedSearchResults = esAssetDocuments.Select(x =>
+            {
+                var fakeUnifiedSearchResult = new UnifiedSearchResult
+                {
+                    AssetId = x.asset_id.ToString()
+                };
+
+                return new ExtendedUnifiedSearchResult(fakeUnifiedSearchResult, x);
+            }).ToArray();
+            return GetSortedResult(extendedUnifiedSearchResults, field)
+                   ?? throw new NotImplementedException(
+                       $"It is not possible to determine how to order results in {nameof(SortingByBasicFieldsService)}.");
+        }
+
+        public IEnumerable<(long id, string sortValue)> ListOrderedIdsWithSortValues(IEnumerable<ExtendedUnifiedSearchResult> extendedUnifiedSearchResults, IEsOrderByField field) =>
+            GetSortedResult(extendedUnifiedSearchResults, field)
+            ?? throw new NotImplementedException(
+                $"It is not possible to determine how to order results in {nameof(SortingByBasicFieldsService)}.");
 
         private static IEnumerable<(long id, string sortValue)> GetSortedResult(
-            IEnumerable<ElasticSearchApi.ESAssetDocument> esAssetDocuments,
+            IEnumerable<ExtendedUnifiedSearchResult> esAssetDocuments,
             IEsOrderByField field)
         {
             switch (field)
@@ -43,8 +62,8 @@ namespace ApiLogic.IndexManager.Sorting
         }
 
         private static IEnumerable<(long id, string sortValue)> Sort<T>(
-            IEnumerable<ElasticSearchApi.ESAssetDocument> esAssetDocuments,
-            Func<ElasticSearchApi.ESAssetDocument, T> valueSelector,
+            IEnumerable<ExtendedUnifiedSearchResult> esAssetDocuments,
+            Func<ExtendedUnifiedSearchResult, T> valueSelector,
             OrderDir orderDir)
         {
             var orderedItems = orderDir == OrderDir.ASC
@@ -52,58 +71,61 @@ namespace ApiLogic.IndexManager.Sorting
                 : esAssetDocuments.OrderByDescending(valueSelector);
 
             return orderedItems
-                .ThenByDescending(x => x.id)
-                .Select(x => ((long id, string value))(x.asset_id, valueSelector(x)?.ToString()))
+                .ThenByDescending(x => x.AssetId)
+                .Select(x => ((long id, string value))(x.AssetId, valueSelector(x)?.ToString()))
                 .ToArray();
         }
 
         private static T ExtractFromExtraFields<T>(
-            ElasticSearchApi.ESAssetDocument document,
-            string metaName,
+            ExtendedUnifiedSearchResult document,
+            EsOrderByMetaField orderByField,
             Func<string, T> parseValue)
-            => document.extraReturnFields.TryGetValue(metaName, out var value) ? parseValue(value) : default;
+        {
+            var metaValue = document.DocAdapter.GetMetaValue(orderByField);
+            return !string.IsNullOrEmpty(metaValue) ? parseValue(metaValue) : default;
+        }
 
         private static IEnumerable<(long id, string sortValue)> Sort(
-            IEnumerable<ElasticSearchApi.ESAssetDocument> documents,
+            IEnumerable<ExtendedUnifiedSearchResult> documents,
             EsOrderByField esOrderByField)
         {
             IEnumerable<(long id, string sortValue)> SortInternal<T>(
-                Func<ElasticSearchApi.ESAssetDocument, T> valueSelector)
+                Func<ExtendedUnifiedSearchResult, T> valueSelector)
                 => Sort(documents, valueSelector, esOrderByField.OrderByDirection);
 
             // TODO: Please, be aware that the pretty the same switch clause is placed in SortingService class. If you change smth there, you might need changes in SortingService class as well.
             switch (esOrderByField.OrderByField)
             {
                 case OrderBy.ID:
-                    return SortInternal(document => long.Parse(document.id));
+                    return SortInternal(document => long.Parse(document.DocAdapter.Id));
                 case OrderBy.START_DATE:
-                    return SortInternal(document => document.start_date);
+                    return SortInternal(document => document.DocAdapter.StartDate);
                 case OrderBy.NAME:
-                    return SortInternal(document => document.name);
+                    return SortInternal(document => document.DocAdapter.Name);
                 case OrderBy.CREATE_DATE:
-                    return SortInternal(document => ExtractFromExtraFields(
-                        document, nameof(OrderBy.CREATE_DATE).ToLower(), DateTimeConverter));
+                    return SortInternal(document => document.DocAdapter.CreateDate);
                 case OrderBy.UPDATE_DATE:
-                    return SortInternal(document => document.update_date);
-                case OrderBy.MEDIA_ID:
-                case OrderBy.EPG_ID:
-                    return SortInternal(document => document.asset_id);
+                    return SortInternal(document => document.DocAdapter.UpdateDate);
+                // TODO: This is used only for export sorting. 
+                // case OrderBy.MEDIA_ID:
+                // case OrderBy.EPG_ID:
+                //     return SortInternal(document => document.asset_id);
                 case OrderBy.NONE:
                 case OrderBy.RELATED:
-                    return SortInternal(document => document.score);
+                    return SortInternal(document => document.DocAdapter.Score);
                 default:
                     return null;
             }
         }
 
         private static IEnumerable<(long id, string sortValue)> SortByMeta(
-            IEnumerable<ElasticSearchApi.ESAssetDocument> documents,
+            IEnumerable<ExtendedUnifiedSearchResult> documents,
             EsOrderByMetaField esOrderByMetaField)
         {
             IEnumerable<(long id, string sortValue)> SortInternal<T>(Func<string, T> parseValue) =>
                 Sort(
                     documents,
-                    document => ExtractFromExtraFields(document, esOrderByMetaField.EsField, parseValue),
+                    document => ExtractFromExtraFields(document, esOrderByMetaField, parseValue),
                     esOrderByMetaField.OrderByDirection);
 
             if (esOrderByMetaField.MetaType == typeof(int))

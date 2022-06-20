@@ -19,6 +19,9 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using ApiLogic.IndexManager.Sorting;
+using ApiObjects.CanaryDeployment.Elasticsearch;
+using ElasticSearch.Utils;
 
 namespace ApiLogic.IndexManager.QueryBuilders
 {
@@ -35,27 +38,47 @@ namespace ApiLogic.IndexManager.QueryBuilders
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private static readonly Lazy<ChannelQueryBuilder> lazy = new Lazy<ChannelQueryBuilder>(() => new ChannelQueryBuilder(), LazyThreadSafetyMode.PublicationOnly);
+        private static readonly Lazy<ChannelQueryBuilder> LazyV2 = new Lazy<ChannelQueryBuilder>(
+            () => new ChannelQueryBuilder(ElasticsearchVersion.ES_2_3),
+            LazyThreadSafetyMode.PublicationOnly);
 
-        public static ChannelQueryBuilder Instance { get { return lazy.Value; } }
+        private static readonly Lazy<ChannelQueryBuilder> LazyV7 = new Lazy<ChannelQueryBuilder>(
+            () => new ChannelQueryBuilder(ElasticsearchVersion.ES_7),
+            LazyThreadSafetyMode.PublicationOnly);
+
+        public static ChannelQueryBuilder Instance(ElasticsearchVersion version)
+            => version == ElasticsearchVersion.ES_2_3 ? LazyV2.Value : LazyV7.Value;
 
 
         private IWatchRuleManager _watchRuleManager;
         private ICatalogManager _catalogManager;
         private IGroupManager _groupManager;
+        private readonly IEsSortingService _esSortingService;
+        private readonly ISortingAdapter _sortingAdapter;
+        private readonly IUnifiedQueryBuilderInitializer _queryInitializer;
 
-        public ChannelQueryBuilder()
+        public ChannelQueryBuilder(ElasticsearchVersion version)
         {
             _watchRuleManager = WatchRuleManager.Instance;
             _catalogManager = CatalogManager.Instance;
             _groupManager = new GroupManager();
+            _esSortingService = EsSortingService.Instance(version);
+            _sortingAdapter = SortingAdapter.Instance;
+            _queryInitializer = UnifiedQueryBuilderInitializer.Instance(version);
         }
 
-        public ChannelQueryBuilder(IWatchRuleManager watchRuleManager, ICatalogManager catalogManager, IGroupManager groupManager)
+        public ChannelQueryBuilder(
+            IWatchRuleManager watchRuleManager,
+            ICatalogManager catalogManager,
+            IGroupManager groupManager,
+            IEsSortingService esSortingService,
+            ISortingAdapter sortingAdapter)
         {
             _watchRuleManager = watchRuleManager;
             _catalogManager = catalogManager;
             _groupManager = groupManager;
+            _esSortingService = esSortingService;
+            _sortingAdapter = sortingAdapter;
         }
 
         public string GetChannelQueryString(ESMediaQueryBuilder mediaQueryParser, ESUnifiedQueryBuilder unifiedQueryBuilder,
@@ -372,9 +395,9 @@ namespace ApiLogic.IndexManager.QueryBuilders
                         definitions.langauge = GetDefaultLanguage(groupId);
                     }
 
-                    UnifiedSearchNestBuilder nestBuilder = new UnifiedSearchNestBuilder()
+                    var nestBuilder = new UnifiedSearchNestBuilder(_esSortingService, _sortingAdapter, _queryInitializer)
                     {
-                        Definitions = definitions
+                        SearchDefinitions = definitions
                     };
 
                     query = nestBuilder.GetQuery();

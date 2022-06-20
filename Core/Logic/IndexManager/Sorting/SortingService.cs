@@ -7,10 +7,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using ApiLogic.Catalog.IndexManager.GroupBy;
 using ApiLogic.IndexManager.Helpers;
+using ApiLogic.IndexManager.Models;
 using ApiLogic.IndexManager.Sorting.Stages;
+using ApiObjects.CanaryDeployment.Elasticsearch;
 using ApiObjects.SearchObjects;
 using Core.Catalog.Response;
-using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 using ElasticSearch.Utils;
 
@@ -23,13 +24,22 @@ namespace ApiLogic.IndexManager.Sorting
         private readonly ISortingAdapter _sortingAdapter;
         private readonly IEsSortingService _esSortingService;
 
-        private static readonly Lazy<ISortingService> LazyInstance =
+        private static readonly Lazy<ISortingService> LazyInstanceV2 =
             new Lazy<ISortingService>(
                 () => new SortingService(
-                    SortingByStatsService.Instance,
+                    SortingByStatsService.Instance(ElasticsearchVersion.ES_2_3),
                     SortingByBasicFieldsService.Instance,
                     SortingAdapter.Instance,
-                    EsSortingService.Instance),
+                    EsSortingService.Instance(ElasticsearchVersion.ES_2_3)),
+                LazyThreadSafetyMode.PublicationOnly);
+        
+        private static readonly Lazy<ISortingService> LazyInstanceV7 =
+            new Lazy<ISortingService>(
+                () => new SortingService(
+                    SortingByStatsService.Instance(ElasticsearchVersion.ES_7),
+                    SortingByBasicFieldsService.Instance,
+                    SortingAdapter.Instance,
+                    EsSortingService.Instance(ElasticsearchVersion.ES_7)),
                 LazyThreadSafetyMode.PublicationOnly);
 
         public SortingService(
@@ -41,17 +51,32 @@ namespace ApiLogic.IndexManager.Sorting
             _sortingByStatsService = sortingByStatsService ?? throw new ArgumentNullException(nameof(sortingByStatsService));
             _sortingByBasicFieldsService = sortingByBasicFieldsService ?? throw new ArgumentNullException(nameof(sortingByBasicFieldsService));
             _sortingAdapter = sortingAdapter ?? throw new ArgumentNullException(nameof(sortingAdapter));
-            _esSortingService = esSortingService  ?? throw new ArgumentNullException(nameof(esSortingService));
+            _esSortingService = esSortingService ?? throw new ArgumentNullException(nameof(esSortingService));
         }
 
-        public static ISortingService Instance => LazyInstance.Value;
-
-        public IReadOnlyCollection<long> GetReorderedAssetIds(
-            IEnumerable<UnifiedSearchResult> searchResults,
-            UnifiedSearchDefinitions definitions,
-            IDictionary<string, ElasticSearchApi.ESAssetDocument> assetIdToDocument)
+        public static ISortingService Instance(ElasticsearchVersion version)
         {
-            return GetReorderedAssetIdsInternal(searchResults, definitions, assetIdToDocument);
+            switch (version)
+            {
+                case ElasticsearchVersion.ES_2_3:
+                    return LazyInstanceV2.Value;
+                case ElasticsearchVersion.ES_7:
+                    return LazyInstanceV7.Value;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(version), version, null);
+            }
+        }
+
+        public IReadOnlyCollection<long> GetReorderedAssetIds(UnifiedSearchDefinitions definitions, IEnumerable<ExtendedUnifiedSearchResult> extendedUnifiedSearchResults)
+        {
+            return GetReorderedAssetIdsInternal(definitions, extendedUnifiedSearchResults);
+        }
+
+        public IReadOnlyCollection<UnifiedSearchResult> GetReorderedAssets(UnifiedSearchDefinitions definitions, IEnumerable<ExtendedUnifiedSearchResult> extendedUnifiedSearchResults)
+        {
+            var assetIds = GetReorderedAssetIds(definitions, extendedUnifiedSearchResults);
+            var extendedUnifiedSearchResultsDic = extendedUnifiedSearchResults.ToDictionary(x => x.AssetId);
+            return assetIds.Select(id => extendedUnifiedSearchResultsDic[id].Result).ToArray();
         }
 
         public bool IsSortingCompleted(UnifiedSearchDefinitions definitions)
@@ -59,8 +84,17 @@ namespace ApiLogic.IndexManager.Sorting
             return BuildSortingStages(definitions).All(s => s.Status == StageStatus.Completed);
         }
 
-        public IGroupBySearch GetGroupBySortingStrategy(IEsOrderByField orderByField)
+        public bool IsSortingCompatibleWithGroupBy(IReadOnlyCollection<IEsOrderByField> orderByFields)
+            => GetGroupBySortingStrategy(orderByFields) != null;
+
+        public IGroupBySearch GetGroupBySortingStrategy(IReadOnlyCollection<IEsOrderByField> orderByFields)
         {
+            if (orderByFields?.Count != 1)
+            {
+                return null;
+            }
+
+            var orderByField = orderByFields.Single();
             if (orderByField is EsOrderByField esOrderByField)
             {
                 return IndexManagerCommonHelpers.GetStrategy(esOrderByField.OrderByField);
@@ -106,36 +140,33 @@ namespace ApiLogic.IndexManager.Sorting
 
             // TODO: for now we skip sort value, which could be used for third, forth level sorting.
             return bucketsToReorder.Values.SelectMany(x => x)
-                .Select(x => (idSelector(x), (string)null))
+                .Select(x => (idSelector(x), (string) null))
                 .ToArray();
         }
 
         private long[] GetReorderedAssetIdsInternal(
-            IEnumerable<UnifiedSearchResult> searchResults,
             UnifiedSearchDefinitions definitions,
-            IDictionary<string, ElasticSearchApi.ESAssetDocument> assetIdToDocument)
+            IEnumerable<ExtendedUnifiedSearchResult> extendedUnifiedSearchResults)
         {
             var stages = BuildSortingStages(definitions);
             if (stages.Count > 1)
             {
-                return GetReorderedAssetIds(searchResults, definitions, assetIdToDocument, stages);
+                return GetReorderedAssetIds(extendedUnifiedSearchResults, definitions, stages);
             }
 
             var singleStage = stages.Single();
             return singleStage.Status == StageStatus.InProgress
-                ? GetSortedItemsByStatistics(
-                        searchResults,
-                        definitions,
-                        assetIdToDocument,
-                        singleStage.OrderByField)
-                    .Select(x => x.id).ToArray()
+                ? GetSortedItemsByStatistics(definitions,
+                        singleStage.OrderByField,
+                        extendedUnifiedSearchResults)
+                    .Select(x => x.id)
+                    .ToArray()
                 : null;
         }
 
         private long[] GetReorderedAssetIds(
-            IEnumerable<UnifiedSearchResult> searchResults,
+            IEnumerable<ExtendedUnifiedSearchResult> extendedUnifiedSearchResults,
             UnifiedSearchDefinitions definitions,
-            IDictionary<string, ElasticSearchApi.ESAssetDocument> assetIdToDocument,
             LinkedList<ISortingStage> stages)
         {
             // IMPORTANT!!! There is no need to go through stages in case all of them are already completed.
@@ -143,20 +174,13 @@ namespace ApiLogic.IndexManager.Sorting
             {
                 return null;
             }
-
+            
+            IReadOnlyDictionary<long, ExtendedUnifiedSearchResult> idToExtendedUnifiedSearchResult = extendedUnifiedSearchResults.ToDictionary(x => x.AssetId);
             for (var stage = stages.First; stage != null; stage = stage.Next)
             {
                 var sortedAssetIds = stage.Previous == null
-                    ? GetReorderedItemsAfterFirstStage(
-                        searchResults,
-                        definitions,
-                        assetIdToDocument,
-                        stage.Value)
-                    : GetReorderedItems(
-                        definitions,
-                        assetIdToDocument,
-                        stage.Value,
-                        stage.Previous.Value.SortedResults);
+                    ? GetReorderedItemsAfterFirstStage(extendedUnifiedSearchResults, definitions, stage.Value)
+                    : GetReorderedItems(extendedUnifiedSearchResults, idToExtendedUnifiedSearchResult, definitions, stage.Value, stage.Previous.Value.SortedResults);
 
                 stage.Value.SetSortedResults(sortedAssetIds);
             }
@@ -165,8 +189,9 @@ namespace ApiLogic.IndexManager.Sorting
         }
 
         private IEnumerable<(long id, string sortValue)> GetReorderedItems(
+            IEnumerable<ExtendedUnifiedSearchResult> extendedUnifiedSearchResults,
+            IReadOnlyDictionary<long, ExtendedUnifiedSearchResult> idToExtendedUnifiedSearchResult,
             UnifiedSearchDefinitions definitions,
-            IDictionary<string, ElasticSearchApi.ESAssetDocument> assetIdToDocument,
             ISortingStage stage,
             IEnumerable<(long id, string sortValue)> sortedResults)
         {
@@ -179,19 +204,12 @@ namespace ApiLogic.IndexManager.Sorting
             IEnumerable<(long id, string sortValue)> GetReorderedBySecondarySorting(
                 IEnumerable<(long id, string sortValue)> sortedByPrimarySortingResult)
             {
-                var esAssetDocumentsToSort = sortedByPrimarySortingResult
-                    .Select(x => assetIdToDocument[x.id.ToString()])
-                    .ToArray();
-                var assetIdsToSort = sortedByPrimarySortingResult.Select(x => x.id).ToArray();
+                var extendedUnifiedSearchResultsToSort = sortedByPrimarySortingResult.Select(x => idToExtendedUnifiedSearchResult[x.id]).ToArray();
 
                 return _esSortingService.ShouldSortByStatistics(stage.OrderByField)
-                    ? _sortingByStatsService.ListOrderedIdsWithSortValues(
-                        esAssetDocumentsToSort,
-                        assetIdsToSort,
-                        definitions,
-                        stage.OrderByField)
+                    ? _sortingByStatsService.ListOrderedIdsWithSortValues(extendedUnifiedSearchResults, definitions, stage.OrderByField)
                     : _sortingByBasicFieldsService.ListOrderedIdsWithSortValues(
-                        esAssetDocumentsToSort,
+                        extendedUnifiedSearchResultsToSort,
                         stage.OrderByField);
             }
 
@@ -205,75 +223,55 @@ namespace ApiLogic.IndexManager.Sorting
         }
 
         private IEnumerable<(long id, string sortValue)> GetReorderedItemsAfterFirstStage(
-            IEnumerable<UnifiedSearchResult> searchResults,
+            IEnumerable<ExtendedUnifiedSearchResult> extendedUnifiedSearchResults,
             UnifiedSearchDefinitions definitions,
-            IDictionary<string, ElasticSearchApi.ESAssetDocument> assetIdToDocument,
             ISortingStage sortingStage)
         {
             if (_esSortingService.ShouldSortByStatistics(sortingStage.OrderByField))
             {
-                return GetSortedItemsByStatistics(
-                    searchResults,
-                    definitions,
-                    assetIdToDocument,
-                    sortingStage.OrderByField);
+                return GetSortedItemsByStatistics(definitions, sortingStage.OrderByField, extendedUnifiedSearchResults);
             }
 
-            return searchResults
-                .Select(searchResult => assetIdToDocument[searchResult.AssetId])
-                .Select(document => (document.asset_id, ExtractSortValue(document, sortingStage.OrderByField)))
-                .Select(dummy => ((long id, string sortValue))dummy)
-                .ToArray();
+            return extendedUnifiedSearchResults.Select(x => (x.AssetId, ExtractSortValue(x.DocAdapter, sortingStage.OrderByField))).ToArray();
         }
 
         private IEnumerable<(long id, string sortValue)> GetSortedItemsByStatistics(
-            IEnumerable<UnifiedSearchResult> searchResults,
             UnifiedSearchDefinitions definitions,
-            IDictionary<string, ElasticSearchApi.ESAssetDocument> assetIdToDocument,
-            IEsOrderByField esOrderByField)
+            IEsOrderByField esOrderByField,
+            IEnumerable<ExtendedUnifiedSearchResult> extendedUnifiedSearchResults)
         {
-            var documents = new List<ElasticSearchApi.ESAssetDocument>();
-            var assetIds = new List<long>();
-            foreach (var searchResult in searchResults)
-            {
-                assetIds.Add(long.Parse(searchResult.AssetId));
-                documents.Add(assetIdToDocument[searchResult.AssetId]);
-            }
-
-            return _sortingByStatsService.ListOrderedIdsWithSortValues(
-                documents,
-                assetIds,
-                definitions,
-                esOrderByField);
+            return _sortingByStatsService.ListOrderedIdsWithSortValues(extendedUnifiedSearchResults, definitions, esOrderByField);
         }
 
-        private static string ExtractSortValue(ElasticSearchApi.ESAssetDocument esAssetDocument, IEsOrderByField orderField)
+        private string ExtractSortValue(EsAssetAdapter esAssetAdapter, IEsOrderByField orderField)
         {
-            if (orderField is EsOrderByField field)
+            switch (orderField)
             {
-                // TODO: Please, be aware that the pretty the same switch clause is placed in SortingByBasicFieldsService class. If you change smth there, you might need changes in SortingByBasicFieldsService class as well.
-                switch (field.OrderByField)
-                {
-                    case OrderBy.ID:
-                        return esAssetDocument.id;
-                    case OrderBy.EPG_ID:
-                    case OrderBy.MEDIA_ID:
-                        return esAssetDocument.asset_id.ToString();
-                    case OrderBy.START_DATE:
-                        return esAssetDocument.start_date.ToString("s");
-                    case OrderBy.NAME:
-                        return esAssetDocument.name;
-                    case OrderBy.UPDATE_DATE:
-                        return esAssetDocument.update_date.ToString("s");
-                    case OrderBy.NONE:
-                    case OrderBy.RELATED:
-                        return esAssetDocument.score.ToString(CultureInfo.InvariantCulture);
-                }
+                case EsOrderByField field:
+                    // TODO: Please, be aware that the pretty the same switch clause is placed in SortingByBasicFieldsService class. If you change smth there, you might need changes in SortingByBasicFieldsService class as well.
+                    switch (field.OrderByField)
+                    {
+                        case OrderBy.ID:
+                            return esAssetAdapter.Id;
+                        case OrderBy.START_DATE:
+                            return esAssetAdapter.StartDate.ToString("s");
+                        case OrderBy.NAME:
+                            return esAssetAdapter.Name;
+                        case OrderBy.UPDATE_DATE:
+                            return esAssetAdapter.UpdateDate.ToString("s");
+                        case OrderBy.NONE:
+                        case OrderBy.RELATED:
+                            return esAssetAdapter.Score.ToString(CultureInfo.InvariantCulture);
+                        case OrderBy.CREATE_DATE:
+                            return esAssetAdapter.CreateDate.ToString("s");
+                    }
+
+                    break;
+                case EsOrderByMetaField castedOrderField:
+                    return esAssetAdapter.GetMetaValue(castedOrderField);
             }
 
-            return esAssetDocument.extraReturnFields.TryGetValue(orderField.EsField, out var value)
-                ? value
-                : string.Empty;
+            return string.Empty;
         }
 
         private LinkedList<ISortingStage> BuildSortingStages(UnifiedSearchDefinitions definitions)

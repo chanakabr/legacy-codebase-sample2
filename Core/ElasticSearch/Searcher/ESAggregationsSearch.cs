@@ -250,11 +250,13 @@ namespace ElasticSearch.Searcher
     public class ESTopHitsAggregation : ESBaseAggsItem
     {
         public const string DEFAULT_NAME = "top_hits_assets";
+        private readonly IEsSortingService _esSortingService;
         public IReadOnlyCollection<IEsOrderByField> EsOrderByFields { get; set; }
         public List<string> SourceIncludes { get; set; }
 
-        public ESTopHitsAggregation()
+        public ESTopHitsAggregation(IEsSortingService esSortingService)
         {
+            _esSortingService = esSortingService;
             this.Type = eElasticAggregationType.top_hits;
             // TODO: Add function score param.
         }
@@ -273,7 +275,7 @@ namespace ElasticSearch.Searcher
 
             if (shouldIncludeOrdering)
             {
-                sb.AppendFormat("{0},", EsSortingService.Instance.GetSorting(EsOrderByFields));
+                sb.AppendFormat("{0},", _esSortingService.GetSorting(EsOrderByFields));
             }
 
             if (this.Size > -1 && this.IsSizeable())
@@ -288,7 +290,7 @@ namespace ElasticSearch.Searcher
                 {
                     fieldsToInclude.UnionWith(EsOrderByFields
                         .Where(x => x is EsOrderByMetaField)
-                        .Select(x => $"\"{x.EsField}\""));;
+                        .Select(x => $"\"{new EsOrderByFieldAdapter(x).EsField}\""));;
                 }
 
                 sb.Append("\"_source\" : { \"includes\": [ ");

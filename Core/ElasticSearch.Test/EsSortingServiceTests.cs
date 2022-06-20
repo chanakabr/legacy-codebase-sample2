@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ApiObjects;
+using ApiObjects.CanaryDeployment.Elasticsearch;
 using ApiObjects.SearchObjects;
 using ElasticSearch.Searcher;
 using ElasticSearch.Utils;
@@ -15,7 +16,7 @@ namespace ElasticSearch.Test
         [TestCaseSource(nameof(ShouldSortByStatisticsNegativeData))]
         public void ShouldSortByStatistics_ReturnsFalse(IEnumerable<IEsOrderByField> esOrderByFields)
         {
-            var service = new EsSortingService();
+            var service = new EsSortingService(ElasticsearchVersion.ES_2_3);
 
             var result = service.ShouldSortByStatistics(esOrderByFields);
 
@@ -25,7 +26,7 @@ namespace ElasticSearch.Test
         [TestCaseSource(nameof(ShouldSortByStatisticsPositiveData))]
         public void ShouldSortByStatistics_ReturnsTrue(IEnumerable<IEsOrderByField> esOrderByFields)
         {
-            var service = new EsSortingService();
+            var service = new EsSortingService(ElasticsearchVersion.ES_2_3);
 
             var result = service.ShouldSortByStatistics(esOrderByFields);
 
@@ -35,7 +36,7 @@ namespace ElasticSearch.Test
         [TestCaseSource(nameof(ShouldSortByStatisticsSingleNegativeData))]
         public void ShouldSortByStatistics_ReturnsFalse(IEsOrderByField esOrderByField)
         {
-            var service = new EsSortingService();
+            var service = new EsSortingService(ElasticsearchVersion.ES_2_3);
 
             var result = service.ShouldSortByStatistics(esOrderByField);
 
@@ -45,7 +46,7 @@ namespace ElasticSearch.Test
         [TestCaseSource(nameof(ShouldSortByStatisticsSinglePositiveData))]
         public void ShouldSortByStatistics_ReturnsTrue(IEsOrderByField esOrderByField)
         {
-            var service = new EsSortingService();
+            var service = new EsSortingService(ElasticsearchVersion.ES_2_3);
 
             var result = service.ShouldSortByStatistics(esOrderByField);
 
@@ -55,7 +56,7 @@ namespace ElasticSearch.Test
         [TestCaseSource(nameof(ShouldSortByStartDateOfAssociationTagsNegativeData))]
         public void ShouldSortByStartDateOfAssociationTags_ReturnsFalse(IEnumerable<IEsOrderByField> esOrderByFields)
         {
-            var service = new EsSortingService();
+            var service = new EsSortingService(ElasticsearchVersion.ES_2_3);
 
             var result = service.ShouldSortByStartDateOfAssociationTags(esOrderByFields);
 
@@ -65,7 +66,7 @@ namespace ElasticSearch.Test
         [TestCaseSource(nameof(ShouldSortByStartDateOfAssociationTagsPositiveData))]
         public void ShouldSortByStartDateOfAssociationTags_ReturnsTrue(IEnumerable<IEsOrderByField> esOrderByFields)
         {
-            var service = new EsSortingService();
+            var service = new EsSortingService(ElasticsearchVersion.ES_2_3);
 
             var result = service.ShouldSortByStatistics(esOrderByFields);
 
@@ -77,7 +78,7 @@ namespace ElasticSearch.Test
             IReadOnlyCollection<IEsOrderByField> esOrderByFields,
             GroupByDefinition groupBy)
         {
-            var service = new EsSortingService();
+            var service = new EsSortingService(ElasticsearchVersion.ES_2_3);
 
             var result = service.IsBucketsReorderingRequired(esOrderByFields, groupBy);
 
@@ -87,7 +88,7 @@ namespace ElasticSearch.Test
         [TestCaseSource(nameof(IsBucketsReorderingRequiredPositiveData))]
         public void IsBucketsReorderingRequired_ReturnsTrue(IReadOnlyCollection<IEsOrderByField> esOrderByFields)
         {
-            var service = new EsSortingService();
+            var service = new EsSortingService(ElasticsearchVersion.ES_2_3);
 
             var result = service.IsBucketsReorderingRequired(esOrderByFields, new GroupByDefinition { Key = "key" });
 
@@ -100,7 +101,7 @@ namespace ElasticSearch.Test
             bool functionScoreSort,
             string expectedResult)
         {
-            var service = new EsSortingService();
+            var service = new EsSortingService(ElasticsearchVersion.ES_2_3);
 
             var result = service.GetSorting(orderByFields, functionScoreSort);
 
@@ -112,7 +113,7 @@ namespace ElasticSearch.Test
             IEnumerable<IEsOrderByField> orderByFields,
             IEnumerable<string> expectedResult)
         {
-            var service = new EsSortingService();
+            var service = new EsSortingService(ElasticsearchVersion.ES_2_3);
 
             var result = service.BuildExtraReturnFields(orderByFields);
 

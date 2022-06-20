@@ -57,7 +57,7 @@ namespace ApiLogic.Catalog.IndexManager.GroupBy
             var esOrderByFields = _sortingAdapter.ResolveOrdering(search);
             var esOrderByField = esOrderByFields.Single(); // if group by is set, then only primary sorting can be set.
             var extraFields = esOrderByField is EsOrderByMetaField orderByMetaField
-                ? new List<string> { orderByMetaField.EsField }
+                ? new List<string> { new EsOrderByFieldAdapter(orderByMetaField).EsField }
                 : null;
 
             var elasticAggregation = ESAggregationsResult.FullParse(responseBody, queryBuilder.Aggregations, extraFields);
@@ -72,6 +72,7 @@ namespace ApiLogic.Catalog.IndexManager.GroupBy
             return elasticAggregation;
         }
 
+        // TODO: How to deal with that method in terms of asset id. Does this method have a mirror in V7???
         private List<ESAggregationBucket> GetOrderedBuckets(
             ESAggregationsResult elasticAggregation,
             GroupByDefinition groupBy,
@@ -96,7 +97,8 @@ namespace ApiLogic.Catalog.IndexManager.GroupBy
 
             var resultBuckets = _sortingByBasicFieldsService
                 .ListOrderedIdsWithSortValues(assetsToReorder, esOrderByField)
-                .Select(x => assetIdToBucket[x.id]).ToList();
+                .Select(x => assetIdToBucket[x.id])
+                .ToList();
             resultBuckets.AddRange(emptyBuckets);
 
             return resultBuckets;

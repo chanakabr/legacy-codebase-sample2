@@ -48,6 +48,7 @@ using EpgBL;
 using ApiLogic.IndexManager.Helpers;
 using ApiLogic.IndexManager.QueryBuilders;
 using ApiLogic.IndexManager.Mappings;
+using ApiLogic.IndexManager.Models;
 using ApiLogic.IndexManager.Sorting;
 using ApiLogic.IndexManager.Sorting.Stages;
 using ElasticSearch.Utils;
@@ -115,8 +116,7 @@ namespace Core.Catalog
         private readonly IChannelQueryBuilder _channelQueryBuilder;
         private readonly INamingHelper _namingHelper;
         private readonly IGroupSettingsManager _groupSettingsManager;
-
-        private static eFieldType[] LanguageSpecificGroupByFieldTypes => new eFieldType[] { eFieldType.LanguageSpecificField, eFieldType.Tag, eFieldType.StringMeta };
+        private readonly IUnifiedQueryBuilderInitializer _queryInitializer;
 
         /// <summary>
         /// Initialiezs an instance of Index Manager for work with ElasticSearch 2.3. 
@@ -141,6 +141,7 @@ namespace Core.Catalog
         /// <param name="statisticsSortStrategy"></param>
         /// <param name="sortingAdapter"></param>
         /// <param name="esSortingService"></param>
+        /// <param name="queryInitializer"></param>
         public IndexManagerV2(int partnerId,
             IElasticSearchApi elasticSearchClient,
             IGroupManager groupManager,
@@ -159,7 +160,8 @@ namespace Core.Catalog
             IStartDateAssociationTagsSortStrategy startDateAssociationTagsSortStrategy,
             IStatisticsSortStrategy statisticsSortStrategy,
             ISortingAdapter sortingAdapter,
-            IEsSortingService esSortingService)
+            IEsSortingService esSortingService,
+            IUnifiedQueryBuilderInitializer queryInitializer)
         {
             _elasticSearchApi = elasticSearchClient;
             _groupManager = groupManager;
@@ -180,6 +182,7 @@ namespace Core.Catalog
             _statisticsSortStrategy = statisticsSortStrategy;
             _sortingAdapter = sortingAdapter;
             _esSortingService = esSortingService;
+            _queryInitializer = queryInitializer;
         }
 
         #region OPC helpers
@@ -1249,16 +1252,22 @@ namespace Core.Catalog
                     List<ElasticSearchApi.ESAssetDocument> lMediaDocs = ESUtils.DecodeAssetSearchJsonObject(retObj, ref nTotalItems);
                     if (lMediaDocs != null && lMediaDocs.Count > 0)
                     {
+                        var extendedUnifiedSearchResults = new List<ExtendedUnifiedSearchResult>();
+                        
                         oRes.m_resultIDs = new List<SearchResult>();
                         oRes.n_TotalItems = nTotalItems;
 
                         foreach (ElasticSearchApi.ESAssetDocument doc in lMediaDocs)
                         {
-                            oRes.m_resultIDs.Add(new SearchResult()
+                            var searchResult = new SearchResult()
                             {
                                 assetID = doc.asset_id,
                                 UpdateDate = doc.update_date
-                            });
+                            };
+                            oRes.m_resultIDs.Add(searchResult);
+                            
+                            // new UnifiedSearchResult is used there just for the sake of compatibility.
+                            extendedUnifiedSearchResults.Add(new ExtendedUnifiedSearchResult(new UnifiedSearchResult(), doc));
                         }
 
                         if ((search.m_oOrder.m_eOrderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS &&
@@ -1272,7 +1281,8 @@ namespace Core.Catalog
                             {
                                 lMediaIds =
                                     _startDateAssociationTagsSortStrategy.SortAssetsByStartDate(
-                                            lMediaDocs,
+                                            extendedUnifiedSearchResults.ToArray(),
+                                            search.m_oLangauge,
                                             search.m_oOrder.m_eOrderDir,
                                             search.associationTags,
                                             search.parentMediaTypes,
@@ -1934,88 +1944,12 @@ namespace Core.Catalog
             out List<AggregationsResult> aggregationsResults)
         {
             aggregationsResults = null;
-            List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
+            var searchResultsList = new List<UnifiedSearchResult>();
+            var extendedUnifiedSearchResults = new List<ExtendedUnifiedSearchResult>();
             totalItems = 0;
 
-            ESUnifiedQueryBuilder queryParser = new ESUnifiedQueryBuilder(unifiedSearchDefinitions);
-            int pageIndex = 0;
-            int pageSize = 0;
-
-            var esOrderByFields = _sortingAdapter.ResolveOrdering(unifiedSearchDefinitions);
-            // If this is order by a social-stat - first we will get all asset Ids and only then we will sort and page
-            // If there are virtual assets (series/episode) and the sort is by start date - this is another case of unique sort
-            if (_esSortingService.ShouldSortByStatistics(esOrderByFields))
-            {
-                pageIndex = unifiedSearchDefinitions.pageIndex;
-                pageSize = unifiedSearchDefinitions.pageSize;
-                queryParser.PageIndex = 0;
-
-                int maxStatSortResult = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxStatSortResults.Value;
-
-                if (maxStatSortResult > 0)
-                {
-                    queryParser.PageSize = maxStatSortResult;
-                }
-                else
-                {
-                    queryParser.PageSize = 0;
-                    queryParser.GetAllDocuments = true;
-                }
-
-                if (_esSortingService.ShouldSortByStartDateOfAssociationTags(esOrderByFields))
-                {
-                    unifiedSearchDefinitions.extraReturnFields.Add("start_date");
-                    unifiedSearchDefinitions.extraReturnFields.Add("media_type_id");
-                }
-
-                // if ordered by stats, we want at least one top hit count
-                if (unifiedSearchDefinitions.topHitsCount < 1)
-                {
-                    unifiedSearchDefinitions.topHitsCount = 1;
-                }
-            }
-            // if there is group by
-            else if (_esSortingService.IsBucketsReorderingRequired(esOrderByFields, unifiedSearchDefinitions.distinctGroup))
-            {
-                pageIndex = unifiedSearchDefinitions.pageIndex;
-                pageSize = unifiedSearchDefinitions.pageSize;
-                queryParser.PageIndex = 0;
-                queryParser.PageSize = 0;
-                queryParser.GetAllDocuments = true;
-
-                // if ordered by stats, we want at least one top hit count
-                if (unifiedSearchDefinitions.topHitsCount < 1)
-                {
-                    unifiedSearchDefinitions.topHitsCount = 1;
-                }
-
-                if (unifiedSearchDefinitions.topHitsCount > 0)
-                {
-                    // BEO-7134: I already lost track of the logic in this class and in query builder.
-                    // When asking all documents, paging of top hits buckets is not working because:
-                    // if (this.GetAllDocuments)
-                    // {
-                    //     size = -1;
-                    // }
-                    // 
-                    queryParser.ShouldPageGroups = true;
-                }
-            }
-            else
-            {
-                // normal case - regular page index and size
-                queryParser.PageIndex = unifiedSearchDefinitions.pageIndex;
-                queryParser.PageSize = unifiedSearchDefinitions.pageSize;
-                queryParser.From = unifiedSearchDefinitions.from;
-
-                // no group by and page size is 0 means we want all documents
-                if (queryParser.PageSize == 0 &&
-                    (unifiedSearchDefinitions.groupBy == null ||
-                     unifiedSearchDefinitions.groupBy.Count == 0))
-                {
-                    queryParser.GetAllDocuments = true;
-                }
-            }
+            var esQueryBuilder = new ESUnifiedQueryBuilder(_esSortingService, _sortingAdapter, _queryInitializer, unifiedSearchDefinitions);
+            esQueryBuilder.SetPagingForUnifiedSearch();
 
             // ES index is on parent group id
             int parentGroupId = _partnerId;
@@ -2030,14 +1964,13 @@ namespace Core.Catalog
                 unifiedSearchDefinitions.entitlementSearchDefinitions.subscriptionSearchObjects != null)
             {
                 // If we need to search by entitlements, we have A LOT of work to do now
-                BoolQuery boolQuery = BuildMultipleSearchQuery(unifiedSearchDefinitions.entitlementSearchDefinitions.subscriptionSearchObjects, parentGroupId, true);
-                queryParser.SubscriptionsQuery = boolQuery;
+                esQueryBuilder.SubscriptionsQuery = BuildMultipleSearchQuery(unifiedSearchDefinitions.entitlementSearchDefinitions.subscriptionSearchObjects, parentGroupId, true);;
             }
 
-            SetGroupByValues(unifiedSearchDefinitions);
+            esQueryBuilder.SetGroupByValuesForUnifiedSearch();
 
             // WARNING has side effect - updates queryParser.Aggregations
-            var requestBody = queryParser.BuildSearchQueryString(
+            var requestBody = esQueryBuilder.BuildSearchQueryString(
                 unifiedSearchDefinitions.shouldIgnoreDeviceRuleID,
                 unifiedSearchDefinitions.shouldAddIsActiveTerm,
                 unifiedSearchDefinitions.isGroupingOptionInclude);
@@ -2068,9 +2001,9 @@ namespace Core.Catalog
                         ESAggregationsResult esAggregationResult = null;
                         Dictionary<ElasticSearchApi.ESAssetDocument, UnifiedSearchResult> topHitsMapping = null;
 
-                        if (queryParser.Aggregations != null)
+                        if (esQueryBuilder.Aggregations != null)
                         {
-                            esAggregationResult = ESAggregationsResult.FullParse(queryResultString, queryParser.Aggregations);
+                            esAggregationResult = ESAggregationsResult.FullParse(queryResultString, esQueryBuilder.Aggregations);
                             topHitsMapping = MapTopHits(esAggregationResult, unifiedSearchDefinitions);
                         }
 
@@ -2082,12 +2015,15 @@ namespace Core.Catalog
                         if (assetsDocumentsDecoded?.Count > 0)
                         {
                             searchResultsList = new List<UnifiedSearchResult>();
+                            extendedUnifiedSearchResults = new List<ExtendedUnifiedSearchResult>();
                             var idToDocument = new Dictionary<string, ElasticSearchApi.ESAssetDocument>();
                             foreach (var doc in assetsDocumentsDecoded)
                             {
                                 var result = CreateUnifiedSearchResultFromESDocument(unifiedSearchDefinitions, doc);
                                 searchResultsList.Add(result);
                                 idToDocument.Add(result.AssetId, doc);
+                                
+                                extendedUnifiedSearchResults.Add(new ExtendedUnifiedSearchResult(result, doc));
                             }
 
                             if (!_sortingService.IsSortingCompleted(unifiedSearchDefinitions))
@@ -2095,18 +2031,15 @@ namespace Core.Catalog
                                 IReadOnlyCollection<long> reorderedAssetIds = null;
                                 if (unifiedSearchDefinitions.PriorityGroupsMappings == null || !unifiedSearchDefinitions.PriorityGroupsMappings.Any())
                                 {
-                                    reorderedAssetIds = _sortingService.GetReorderedAssetIds(
-                                        searchResultsList,
-                                        unifiedSearchDefinitions,
-                                        idToDocument);
+                                    reorderedAssetIds = _sortingService.GetReorderedAssetIds(unifiedSearchDefinitions, extendedUnifiedSearchResults);
                                 }
                                 else
                                 {
-                                    var priorityGroupsResults = searchResultsList.GroupBy(r => r.Score);
+                                    var priorityGroupsResults = extendedUnifiedSearchResults.GroupBy(r => r.Result.Score);
                                     var orderedIds = new List<long>();
                                     foreach (var priorityGroupsResult in priorityGroupsResults)
                                     {
-                                        var reorderedIdsChunk = _sortingService.GetReorderedAssetIds(priorityGroupsResult, unifiedSearchDefinitions, idToDocument);
+                                        var reorderedIdsChunk = _sortingService.GetReorderedAssetIds(unifiedSearchDefinitions, priorityGroupsResult);
                                         if (reorderedIdsChunk == null)
                                         {
                                             log.Debug($"Chunk from priority group hasn't been processed. Asset Ids: [{string.Join(",", priorityGroupsResult.Select(x => x.AssetId))}]");
@@ -2140,7 +2073,11 @@ namespace Core.Catalog
                                     });
 
                                     searchResultsList.Clear();
-                                    var assetIds = reorderedAssetIds.Page(pageSize, pageIndex, out var illegalRequest).ToArray();
+                                    var assetIds = reorderedAssetIds.Page(
+                                        unifiedSearchDefinitions.pageSize,
+                                        unifiedSearchDefinitions.pageIndex,
+                                        out var illegalRequest)
+                                        .ToArray();
                                     if (!illegalRequest)
                                     {
                                         foreach (int id in assetIds)
@@ -2153,14 +2090,15 @@ namespace Core.Catalog
                                     }
                                 }
 
+                                var orderByFields = _sortingAdapter.ResolveOrdering(unifiedSearchDefinitions);
                                 if (esAggregationResult != null
-                                    && _esSortingService.IsBucketsReorderingRequired(esOrderByFields, unifiedSearchDefinitions.distinctGroup))
+                                    && _esSortingService.IsBucketsReorderingRequired(orderByFields, unifiedSearchDefinitions.distinctGroup))
                                 {
                                     var assetIds = searchResultsList.Select(item => long.Parse(item.AssetId)).ToList();
                                     ReorderBuckets(
                                         esAggregationResult,
-                                        pageIndex,
-                                        pageSize,
+                                        unifiedSearchDefinitions.pageIndex,
+                                        unifiedSearchDefinitions.pageSize,
                                         unifiedSearchDefinitions.distinctGroup,
                                         idToDocument,
                                         assetIds);
@@ -2201,13 +2139,7 @@ namespace Core.Catalog
                 throw new NotSupportedException($"Method should be used for single group.");
             }
 
-            if (orderByFields.Count != 1)
-            {
-                throw new NotSupportedException($"Method should be used for case with primary sorting set only.");
-            }
-
-            var orderByField = orderByFields.Single();
-            var groupBySearch = _sortingService.GetGroupBySortingStrategy(orderByField)
+            var groupBySearch = _sortingService.GetGroupBySortingStrategy(orderByFields)
                 ?? throw new NotSupportedException($"Not supported group by with provided ordering.");
 
             // save original page and size, will be mutated later :(
@@ -2215,14 +2147,14 @@ namespace Core.Catalog
             var fromIndex = search.from > 0 ? search.from : search.pageIndex * pageSize;
 
             // prepare body and url
-            var queryBuilder = new ESUnifiedQueryBuilder(search);
+            var queryBuilder = new ESUnifiedQueryBuilder(_esSortingService, _sortingAdapter, _queryInitializer, search);
             groupBySearch.SetQueryPaging(search, queryBuilder);
             if (search.entitlementSearchDefinitions?.subscriptionSearchObjects != null)
             {
                 queryBuilder.SubscriptionsQuery = BuildMultipleSearchQuery(search.entitlementSearchDefinitions.subscriptionSearchObjects, _partnerId, true);
             }
 
-            SetGroupByValues(search);
+            queryBuilder.SetGroupByValuesForUnifiedSearch();
             var requestBody = queryBuilder.BuildSearchQueryString(search.shouldIgnoreDeviceRuleID, search.shouldAddIsActiveTerm, search.isGroupingOptionInclude); // WARNING has side effect - updates queryBuilder.Aggregations, used later
             var url = GetUrl(search, _partnerId);
 
@@ -2238,44 +2170,6 @@ namespace Core.Catalog
             var aggregationsResult = ConvertAggregationsResponse(elasticAggregation, new List<string> { search.groupBy.Single().Key }, topHitsMapping);
 
             return aggregationsResult;
-        }
-
-        private void SetGroupByValues(UnifiedSearchDefinitions definitions)
-        {
-            if (definitions.groupBy != null && definitions.groupBy.Any())
-            {
-                foreach (var groupBy in definitions.groupBy)
-                {
-                    SetGroupByValue(groupBy, definitions.langauge);
-                }
-
-                if (definitions.distinctGroup != null)
-                {
-                    SetGroupByValue(definitions.distinctGroup, definitions.langauge);
-                    definitions.extraReturnFields.Add(definitions.distinctGroup.Value);
-                }
-            }
-        }
-
-
-        private void SetGroupByValue(GroupByDefinition groupBy, LanguageObj language)
-        {
-            var key = groupBy.Key.ToLower();
-            var type = groupBy.Type;
-            var isLanguageSpecific = ExtractLanguageSpecific(groupBy);
-            string value = ESUnifiedQueryBuilder.GetElasticsearchFieldName(isLanguageSpecific, language, key, type);
-
-            if (groupBy.Type == eFieldType.Tag || groupBy.Type == eFieldType.StringMeta)
-            {
-                value = $"{value}.lowercase";
-            }
-
-            groupBy.Value = value;
-        }
-
-        private bool ExtractLanguageSpecific(GroupByDefinition groupBy)
-        {
-            return LanguageSpecificGroupByFieldTypes.Contains(groupBy.Type);
         }
 
         private string GetUrl(UnifiedSearchDefinitions unifiedSearchDefinitions, int parentGroupId)
@@ -3447,10 +3341,12 @@ namespace Core.Catalog
         public List<int> GetEntitledEpgLinearChannels(UnifiedSearchDefinitions definitions)
         {
             List<int> result = new List<int>();
-            ESUnifiedQueryBuilder queryParser = new ESUnifiedQueryBuilder(definitions);
-            queryParser.PageIndex = 0;
-            queryParser.PageSize = 0;
-            queryParser.GetAllDocuments = true;
+            var queryParser = new ESUnifiedQueryBuilder(_esSortingService, _sortingAdapter, _queryInitializer, definitions)
+            {
+                PageIndex = 0,
+                PageSize = 0,
+                GetAllDocuments = true
+            };
 
             if (definitions.entitlementSearchDefinitions != null &&
                 definitions.entitlementSearchDefinitions.subscriptionSearchObjects != null)
@@ -5582,7 +5478,7 @@ namespace Core.Catalog
                     {
                         QueryType = eQueryType.EXACT
                     };
-                    var unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, _partnerId);
+                    var unifiedQueryBuilder = new ESUnifiedQueryBuilder(_esSortingService, _sortingAdapter, _queryInitializer, null, _partnerId);
 
                     if (shouldCleanupInvalidChannels)
                     {
@@ -7532,7 +7428,7 @@ namespace Core.Catalog
                     {
                         definitions.shouldSearchEpg = false;
 
-                        ESUnifiedQueryBuilder unifiedQueryBuilder = new ESUnifiedQueryBuilder(definitions);
+                        ESUnifiedQueryBuilder unifiedQueryBuilder = new ESUnifiedQueryBuilder(_esSortingService, _sortingAdapter, _queryInitializer, definitions);
                         channelQueryForMedia = unifiedQueryBuilder.BuildSearchQueryString(true);
                     }
 
@@ -7541,7 +7437,7 @@ namespace Core.Catalog
                         definitions.shouldSearchEpg = true;
                         definitions.shouldSearchMedia = false;
 
-                        ESUnifiedQueryBuilder unifiedQueryBuilder = new ESUnifiedQueryBuilder(definitions);
+                        ESUnifiedQueryBuilder unifiedQueryBuilder = new ESUnifiedQueryBuilder(_esSortingService, _sortingAdapter, _queryInitializer, definitions);
                         channelQueryForEpg = unifiedQueryBuilder.BuildSearchQueryString(true);
                     }
                 }
@@ -7886,10 +7782,10 @@ namespace Core.Catalog
             return res;
         }
 
-        private static BoolQuery BuildMultipleSearchQuery(List<BaseSearchObject> searchObjects, int parentGroupId, bool shouldMinimizeQuery = false)
+        private BoolQuery BuildMultipleSearchQuery(List<BaseSearchObject> searchObjects, int parentGroupId, bool shouldMinimizeQuery = false)
         {
             ESMediaQueryBuilder mediaQueryBuilder = new ESMediaQueryBuilder();
-            ESUnifiedQueryBuilder unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, parentGroupId);
+            ESUnifiedQueryBuilder unifiedQueryBuilder = new ESUnifiedQueryBuilder(_esSortingService, _sortingAdapter, _queryInitializer, null, parentGroupId);
 
             BoolQuery boolQuery = new BoolQuery();
 

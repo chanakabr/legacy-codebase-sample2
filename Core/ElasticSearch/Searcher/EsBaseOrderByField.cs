@@ -1,5 +1,5 @@
 ﻿using ApiObjects.SearchObjects;
-using Newtonsoft.Json.Linq;
+using Nest;
 
 namespace ElasticSearch.Searcher
 {
@@ -9,19 +9,6 @@ namespace ElasticSearch.Searcher
         {
             OrderByDirection = direction;
         }
-
-        public virtual string EsField => null;
         public OrderDir OrderByDirection { get; }
-
-        public JObject EsOrderByObject =>
-            !string.IsNullOrEmpty(EsField)
-                ? new JObject
-                {
-                    [EsField] = new JObject
-                    {
-                        ["order"] = JToken.FromObject(OrderByDirection.ToString().ToLower())
-                    }
-                }
-                : null;
     }
 }

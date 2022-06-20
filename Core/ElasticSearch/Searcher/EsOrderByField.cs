@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Linq;
+using System.Linq.Expressions;
 using ApiObjects;
 using ApiObjects.SearchObjects;
+using ElasticSearch.NEST;
+using Elasticsearch.Net;
+using Nest;
 
 namespace ElasticSearch.Searcher
 {
     public class EsOrderByField : EsBaseOrderByField
     {
-        private readonly LanguageObj _language;
         private static readonly OrderBy[] ProjectableOrderings =
         {
             OrderBy.NAME,
@@ -26,38 +29,10 @@ namespace ElasticSearch.Searcher
         public EsOrderByField(OrderBy field, OrderDir direction, LanguageObj language) : base(direction)
         {
             OrderByField = field;
-            _language = language;
+            Language = language;
         }
 
         public OrderBy OrderByField { get; }
-
-        public override string EsField
-        {
-            get
-            {
-                if (ProjectableOrderings.Contains(OrderByField))
-                {
-                    var formattedValue = Enum.GetName(typeof(OrderBy), OrderByField)?.ToLower();
-                    // case when not default language was requested.
-                    if (OrderByField == OrderBy.NAME && _language != null && !_language.IsDefault)
-                    {
-                        return $"{formattedValue}_{_language.Code}";
-                    }
-
-                    return formattedValue;
-                }
-
-                switch (OrderByField)
-                {
-                    case OrderBy.ID:
-                        return "_uid";
-                    case OrderBy.RELATED:
-                    case OrderBy.NONE:
-                        return "_score";
-                    default:
-                        return null;
-                }
-            }
-        }
+        public LanguageObj Language { get; }
     }
 }

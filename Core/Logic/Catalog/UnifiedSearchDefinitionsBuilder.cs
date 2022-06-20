@@ -16,7 +16,7 @@ using ApiLogic.Catalog;
 using ApiLogic.Catalog.CatalogManagement.Models;
 using ApiLogic.Catalog.CatalogManagement.Services;
 using ApiLogic.Catalog.Tree;
-using ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority;
+using ApiLogic.IndexManager.QueryBuilders.SearchPriority;
 using ApiLogic.IndexManager.Sorting;
 using ApiObjects;
 using ApiObjects.Rules;
@@ -32,21 +32,16 @@ namespace Core.Catalog
     {
         private readonly IFilterTreeValidator _filterTreeValidator;
         private readonly IAssetOrderingService _assetOrderingService;
-        private readonly IEsSortingService _esSortingService;
 
         private static readonly KLogger log = new KLogger(nameof(UnifiedSearchDefinitionsBuilder));
         private bool shouldUseCache = false;
 
         #region Ctor
 
-        public UnifiedSearchDefinitionsBuilder(
-            IFilterTreeValidator filterTreeValidator,
-            IAssetOrderingService assetOrderingService,
-            IEsSortingService esSortingService)
+        public UnifiedSearchDefinitionsBuilder(IFilterTreeValidator filterTreeValidator, IAssetOrderingService assetOrderingService)
         {
             _filterTreeValidator = filterTreeValidator;
             _assetOrderingService = assetOrderingService ?? throw new ArgumentNullException(nameof(assetOrderingService));
-            _esSortingService = esSortingService ?? throw new ArgumentNullException(nameof(esSortingService));
             shouldUseCache = ApplicationConfiguration.Current.CatalogLogicConfiguration.ShouldUseSearchCache.Value;
         }
 
@@ -441,12 +436,9 @@ namespace Core.Catalog
                     model);
 
                 definitions.orderByFields = orderingResult.EsOrderByFields;
-                definitions.extraReturnFields.UnionWith(
-                    _esSortingService.BuildExtraReturnFields(orderingResult.EsOrderByFields));
 
                 // Still need these assignments as IndexManagerV7 doesn't support secondary sorting.
                 definitions.order = orderingResult.Order;
-                definitions.trendingAssetWindow = definitions.order.trendingAssetWindow;
 
                 #endregion
             }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ApiLogic.IndexManager.Models;
 using ApiObjects.SearchObjects;
 using ElasticSearch.Searcher;
 
@@ -14,6 +15,14 @@ namespace ApiLogic.IndexManager.Sorting
 
         IEnumerable<(long id, string sortValue)> SortAssetsByStatsWithSortValues(
             IEnumerable<long> assetIds,
+            OrderBy orderBy,
+            OrderDir orderDirection,
+            int partnerId,
+            DateTime? startDate = null,
+            DateTime? endDate = null);
+        
+        IEnumerable<(long id, string sortValue)> SortAssetsByStatsWithSortValues(
+            IEnumerable<ExtendedUnifiedSearchResult> extendedUnifiedSearchResults,
             OrderBy orderBy,
             OrderDir orderDirection,
             int partnerId,

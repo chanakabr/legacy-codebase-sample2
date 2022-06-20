@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using ApiLogic.IndexManager.NestData;
+using ElasticSearch.NEST;
 using Nest;
 
 namespace ApiLogic.IndexManager.QueryBuilders

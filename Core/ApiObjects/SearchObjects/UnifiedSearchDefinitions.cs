@@ -451,10 +451,6 @@ namespace ApiObjects.SearchObjects
 
         [JsonProperty()]
         [DataMember]
-        public DateTime? trendingAssetWindow;
-        
-        [JsonProperty()]
-        [DataMember]
         public bool hasMediaIdTerm;
         
         [JsonProperty()]

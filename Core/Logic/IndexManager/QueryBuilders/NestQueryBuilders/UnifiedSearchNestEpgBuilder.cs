@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using ApiLogic.IndexManager.Helpers;
 using ApiLogic.IndexManager.NestData;
 using ApiLogic.IndexManager.QueryBuilders.NestQueryBuilders.Queries;
 using ApiObjects.SearchObjects;
-using Phx.Lib.Appconfig;
-using ElasticSearch.Common;
-using ElasticSearch.Searcher;
-using Phx.Lib.Log;
+using ElasticSearch.NEST;
 using Nest;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
 
 namespace ApiLogic.IndexManager.QueryBuilders.NestQueryBuilders
 {

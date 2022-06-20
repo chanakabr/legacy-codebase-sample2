@@ -1,15 +1,13 @@
 ﻿using System.Collections.Generic;
+using ApiLogic.IndexManager.Models;
 using ApiObjects.SearchObjects;
-using ElasticSearch.Common;
-using ElasticSearch.Searcher;
 
 namespace ApiLogic.IndexManager.Sorting
 {
     public interface ISortingByStatsService
     {
         IEnumerable<(long id, string sortValue)> ListOrderedIdsWithSortValues(
-            IEnumerable<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded,
-            IEnumerable<long> assetIds,
+            IEnumerable<ExtendedUnifiedSearchResult> extendedUnifiedSearchResults,
             UnifiedSearchDefinitions unifiedSearchDefinitions,
             IEsOrderByField orderByField);
     }

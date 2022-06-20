@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ApiLogic.EPG;
+using ApiLogic.IndexManager;
 using ApiLogic.IndexManager.Helpers;
 using ApiLogic.Tests.IndexManager.helpers;
 using Utils = ElasticSearch.Common.Utils;
@@ -32,12 +33,15 @@ using Policy = Polly.Policy;
 using ApiLogic.IndexManager.NestData;
 using ApiLogic.IndexManager.QueryBuilders;
 using ApiLogic.IndexManager.QueryBuilders.NestQueryBuilders;
+using ApiLogic.IndexManager.Sorting;
 using ApiObjects.Epg;
 using ApiObjects.Response;
 using Core.Catalog.Response;
 using TvinciCache;
 using Catalog.Response;
 using Core.GroupManagers;
+using ElasticSearch.Searcher;
+using ElasticSearch.Utils;
 using Google.Protobuf.WellKnownTypes;
 using Type = System.Type;
 
@@ -59,6 +63,12 @@ namespace ApiLogic.Tests.IndexManager
         private Mock<IChannelQueryBuilder> _mockChannelQueryBuilder;
         private Mock<IElasticSearchCommonUtils> _mockElasticSearchCommonUtils;
         private Mock<IGroupsFeatures> _mockGroupsFeatures;
+        private Mock<ISortingService> _mockSortingService;
+        private Mock<IStartDateAssociationTagsSortStrategy> _mockStartDateAssociationTagsSortStrategy;
+        private Mock<IStatisticsSortStrategy> _mockStatisticsSortStrategy;
+        private Mock<IEsSortingService> _mockEsSortingService;
+        private Mock<ISortingAdapter> _mockSortingAdapter;
+        private Mock<IUnifiedQueryBuilderInitializer> _mockQueryInitializer;
 
         private static int _nextPartnerId = 10000;
         private Random _random;
@@ -82,8 +92,13 @@ namespace ApiLogic.Tests.IndexManager
                     _mockGroupsFeatures.Object,
                     _mockLayeredCache.Object,
                     _mockNamingHelper,
-                    _mockGroupSettingsManager
-                );
+                    _mockGroupSettingsManager,
+                    _mockSortingService.Object,
+                    _mockStartDateAssociationTagsSortStrategy.Object,
+                    _mockStatisticsSortStrategy.Object,
+                    _mockSortingAdapter.Object,
+                    _mockEsSortingService.Object,
+                    _mockQueryInitializer.Object);
         }
 
         private INamingHelper GetMockNamingHelper()
@@ -140,6 +155,10 @@ namespace ApiLogic.Tests.IndexManager
             _mockChannelQueryBuilder = _mockRepository.Create<IChannelQueryBuilder>();
             _mockElasticSearchCommonUtils = _mockRepository.Create<IElasticSearchCommonUtils>();
             _mockGroupsFeatures = _mockRepository.Create<IGroupsFeatures>();
+            _mockSortingService = _mockRepository.Create<ISortingService>();
+            _mockQueryInitializer = _mockRepository.Create<IUnifiedQueryBuilderInitializer>();
+            _mockStartDateAssociationTagsSortStrategy = _mockRepository.Create<IStartDateAssociationTagsSortStrategy>();
+            _mockStatisticsSortStrategy = _mockRepository.Create<IStatisticsSortStrategy>();
             _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitionsNest(_mockElasticSearchCommonUtils.Object, ApplicationConfiguration.Current);
             
             var epgV2ConfigManagerMock = new Mock<IEpgV2PartnerConfigurationManager>(MockBehavior.Loose);
@@ -1590,12 +1609,10 @@ namespace ApiLogic.Tests.IndexManager
                 pageSize = 30,
                 shouldSearchMedia = true,
                 langauge = language,
-                order = new OrderObj()
+                orderByFields = new List<IEsOrderByField>
                 {
-                    m_eOrderBy = OrderBy.VIEWS,
-                    m_eOrderDir = OrderDir.DESC
+                    new EsOrderByStatisticsField(OrderBy.VIEWS, OrderDir.DESC, DateTime.UtcNow.AddDays(-1))
                 },
-                trendingAssetWindow = DateTime.UtcNow.AddDays(-1),
                 preference = "123456",
             };
 

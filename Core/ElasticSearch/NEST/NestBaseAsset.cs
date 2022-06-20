@@ -1,10 +1,9 @@
-﻿using Nest;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using Nest;
 
-namespace ApiLogic.IndexManager.NestData
+namespace ElasticSearch.NEST
 {
     [ElasticsearchType(IdProperty = nameof(DocumentId))]
     public class NestBaseAsset

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using ApiLogic.IndexManager.NestData;
 using ApiObjects.SearchObjects;
+using ElasticSearch.NEST;
 using Nest;
 
 namespace ApiLogic.IndexManager.QueryBuilders.NestQueryBuilders.Queries
@@ -16,7 +17,7 @@ namespace ApiLogic.IndexManager.QueryBuilders.NestQueryBuilders.Queries
             return isActiveTerm;
         }
         
-        public string GetMetaSortField(OrderObj order,string langCode)
+        private static string GetMetaSortField(OrderObj order,string langCode)
         {
             if (order == null || order.m_eOrderBy != OrderBy.META) return null;
             string metaName = order.m_sOrderValue.ToLower();
@@ -25,12 +26,9 @@ namespace ApiLogic.IndexManager.QueryBuilders.NestQueryBuilders.Queries
                 : $"metas.{langCode}.{metaName}";
         }
 
-
-        public SortDescriptor<NestBaseAsset> GetSortDescriptor(
-            OrderObj order, string languageCode, List<BoostScoreValueDefinition> definitionsBoostScoreValues = null)
+        public SortDescriptor<NestBaseAsset> GetSortDescriptor(OrderObj order, string languageCode, bool functionScoreSort = false)
         {
             var sort = new SortDescriptor<NestBaseAsset>();
-            var functionScoreSort = definitionsBoostScoreValues?.Count > 0;
             if (functionScoreSort)
             {
                 sort = sort.Descending(SortSpecialField.Score);

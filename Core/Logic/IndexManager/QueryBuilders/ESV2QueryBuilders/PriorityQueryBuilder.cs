@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority.Models;
+using ApiLogic.IndexManager.QueryBuilders.SearchPriority.Models;
 using ApiObjects.SearchPriorityGroups;
 using ElasticSearch.Searcher;
 using Newtonsoft.Json.Linq;
 
-namespace ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority
+namespace ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders
 {
     public class PriorityQueryBuilder
     {

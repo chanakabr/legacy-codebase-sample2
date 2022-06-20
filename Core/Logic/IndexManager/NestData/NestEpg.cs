@@ -7,6 +7,7 @@ using System.Runtime.Serialization;
 using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Epg;
+using ElasticSearch.NEST;
 using Nest;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;

@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading;
-using ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority.Models;
+using ApiLogic.IndexManager.QueryBuilders.SearchPriority.Models;
 using ApiObjects.SearchObjects;
 using ApiObjects.SearchPriorityGroups;
 using Core.Catalog;
 using Core.Catalog.Request;
 using GroupsCacheManager;
 
-namespace ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority
+namespace ApiLogic.IndexManager.QueryBuilders.SearchPriority
 {
     public class PriorityGroupsPreprocessor : IPriorityGroupsPreprocessor
     {

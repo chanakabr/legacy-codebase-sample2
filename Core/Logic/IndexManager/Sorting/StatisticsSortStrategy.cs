@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ApiLogic.IndexManager.Helpers;
+using ApiLogic.IndexManager.Models;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
 using Phx.Lib.Appconfig;
@@ -21,11 +22,11 @@ namespace ApiLogic.IndexManager.Sorting
         private readonly IKLogger _log;
         private readonly IElasticSearchApi _elasticSearchApi;
 
-        private static readonly Lazy<IStatisticsSortStrategy> LazyValue = new Lazy<IStatisticsSortStrategy>(() =>
+        private static readonly Lazy<IStatisticsSortStrategy> LazyInstance = new Lazy<IStatisticsSortStrategy>(() =>
                 new StatisticsSortStrategy(LayeredCache.Instance, new KLogger(typeof(StatisticsSortStrategy).FullName), new ElasticSearchApi(ApplicationConfiguration.Current)),
             LazyThreadSafetyMode.PublicationOnly);
 
-        public static IStatisticsSortStrategy Instance => LazyValue.Value;
+        public static IStatisticsSortStrategy Instance => LazyInstance.Value;
 
         public StatisticsSortStrategy(ILayeredCache layeredCache, IKLogger log, IElasticSearchApi elasticSearchApi)
         {
@@ -112,6 +113,18 @@ namespace ApiLogic.IndexManager.Sorting
             }
 
             return sortedListWithSortValues;
+        }
+
+        public IEnumerable<(long id, string sortValue)> SortAssetsByStatsWithSortValues(
+            IEnumerable<ExtendedUnifiedSearchResult> extendedUnifiedSearchResults,
+            OrderBy orderBy,
+            OrderDir orderDirection,
+            int partnerId,
+            DateTime? startDate = null,
+            DateTime? endDate = null)
+        {
+            var assetIds = extendedUnifiedSearchResults.Select(x => x.AssetId).Distinct().ToList();
+            return SortAssetsByStatsWithSortValues(assetIds, orderBy, orderDirection, partnerId, startDate, endDate);
         }
 
         public IEnumerable<long> SortAssetsByStats(

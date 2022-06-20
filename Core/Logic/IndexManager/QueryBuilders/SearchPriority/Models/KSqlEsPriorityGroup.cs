@@ -1,6 +1,6 @@
 ﻿using ApiObjects.SearchObjects;
 
-namespace ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority.Models
+namespace ApiLogic.IndexManager.QueryBuilders.SearchPriority.Models
 {
     public class KSqlEsPriorityGroup : BaseEsPriorityGroup
     {

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using Phx.Lib.Log;
 using System.Reflection;
 using System.Threading;
@@ -13,6 +12,7 @@ using EventBus.Kafka;
 using ElasticSearch.Common;
 using Core.Catalog.CatalogManagement;
 using ApiLogic.Catalog;
+using ApiLogic.IndexManager;
 using ApiLogic.IndexManager.Helpers;
 using ApiObjects.CanaryDeployment.Elasticsearch;
 using ElasticSearch.NEST;
@@ -91,7 +91,6 @@ namespace Core.Catalog
             switch (version)
             {
                 case ElasticsearchVersion.ES_7:
-
                     var elasticClient = NESTFactory.GetInstance(ApplicationConfiguration.Current);
                     var indexManagerV7 = new IndexManagerV7(partnerId,
                         elasticClient,
@@ -102,11 +101,17 @@ namespace Core.Catalog
                         ChannelManager.Instance,
                         CatalogCache.Instance(), new TtlService(),
                         WatchRuleManager.Instance,
-                        ChannelQueryBuilder.Instance,
+                        ChannelQueryBuilder.Instance(ElasticsearchVersion.ES_7),
                         GroupsFeatureAdapter.Instance,
                         LayeredCache.Instance,
                         NamingHelper.Instance,
-                        GroupSettingsManager.Instance);
+                        GroupSettingsManager.Instance,
+                        SortingService.Instance(ElasticsearchVersion.ES_7),
+                        StartDateAssociationTagsSortStrategyV7.Instance,
+                        StatisticsSortStrategyV7.Instance,
+                        SortingAdapter.Instance,
+                        EsSortingService.Instance(ElasticsearchVersion.ES_7),
+                        UnifiedQueryBuilderInitializer.Instance(ElasticsearchVersion.ES_7));
 
                     if (isMigrationEventsEnabled)
                     {
@@ -118,6 +123,7 @@ namespace Core.Catalog
 
                     return indexManagerV7;
                     break;
+                
                 default:
                     var indexManagerV2 = new IndexManagerV2(partnerId,
                         new ElasticSearchApi(ApplicationConfiguration.Current),
@@ -129,15 +135,16 @@ namespace Core.Catalog
                         ChannelManager.Instance,
                         CatalogCache.Instance(),
                         WatchRuleManager.Instance,
-                        ChannelQueryBuilder.Instance,
+                        ChannelQueryBuilder.Instance(ElasticsearchVersion.ES_2_3),
                         MappingTypeResolver.Instance,
                         NamingHelper.Instance,
                         GroupSettingsManager.Instance,
-                        SortingService.Instance,
-                        StartDateAssociationTagsSortStrategy.Instance, 
+                        SortingService.Instance(ElasticsearchVersion.ES_2_3),
+                        StartDateAssociationTagsSortStrategy.Instance,
                         StatisticsSortStrategy.Instance,
                         SortingAdapter.Instance,
-                        EsSortingService.Instance);
+                        EsSortingService.Instance(ElasticsearchVersion.ES_2_3),
+                        UnifiedQueryBuilderInitializer.Instance(ElasticsearchVersion.ES_2_3));
 
                     if (isMigrationEventsEnabled)
                     {

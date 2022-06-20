@@ -27,6 +27,7 @@ using KeyValuePair = System.Collections.Generic.KeyValuePair;
 using Utils = ElasticSearch.Common.Utils;
 using ApiLogic.Catalog;
 using ApiLogic.EPG;
+using ApiLogic.IndexManager;
 using ApiLogic.Tests.ConfigurationMocks;
 using ElasticSearch.NEST;
 using ApiLogic.IndexManager.Helpers;
@@ -61,6 +62,7 @@ namespace ApiLogic.Tests.IndexManager
         private Mock<ISortingService> _mockSortingService;
         private Mock<ISortingAdapter> _mockSortingAdapter;
         private Mock<IEsSortingService> _mockEsSortingService;
+        private Mock<IUnifiedQueryBuilderInitializer> _mockQueryInitializer;
 
         private IndexManagerV2 GetIndexV2Manager(int partnerId)
         {
@@ -82,7 +84,8 @@ namespace ApiLogic.Tests.IndexManager
                 _mockStartDateAssociationTagsSortStrategy.Object,
                 _mockStatisticsSortStrategy.Object,
                 _mockSortingAdapter.Object,
-                _mockEsSortingService.Object
+                _mockEsSortingService.Object,
+                _mockQueryInitializer.Object
             );
         }
 
@@ -120,6 +123,7 @@ namespace ApiLogic.Tests.IndexManager
             _mockSortingService = _mockRepository.Create<ISortingService>();
             _mockStartDateAssociationTagsSortStrategy = _mockRepository.Create<IStartDateAssociationTagsSortStrategy>();
             _mockStatisticsSortStrategy = _mockRepository.Create<IStatisticsSortStrategy>();
+            _mockQueryInitializer = _mockRepository.Create<IUnifiedQueryBuilderInitializer>();
         }
 
         //[Test]

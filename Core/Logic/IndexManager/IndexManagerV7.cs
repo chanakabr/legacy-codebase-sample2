@@ -8,7 +8,6 @@ using Catalog.Response;
 using Core.Catalog.Response;
 using GroupsCacheManager;
 using Nest;
-using Newtonsoft.Json.Linq;
 using Polly.Retry;
 using ESUtils = ElasticSearch.Common.Utils;
 using Phx.Lib.Appconfig;
@@ -37,21 +36,22 @@ using System.Net.Sockets;
 using ApiLogic.Api.Managers;
 using Core.GroupManagers;
 using NestMedia = ApiLogic.IndexManager.NestData.NestMedia;
-using SocialActionStatistics = ApiObjects.Statistics.SocialActionStatistics;
 using ApiLogic.IndexManager.QueryBuilders;
 using ApiObjects.Response;
-using System.Text;
 using ApiLogic.IndexManager.QueryBuilders.NestQueryBuilders;
 using ApiLogic.IndexManager.QueryBuilders.NestQueryBuilders.Queries;
-using Index = Nest.Index;
 using TVinciShared;
 using Channel = GroupsCacheManager.Channel;
 using OrderDir = ApiObjects.SearchObjects.OrderDir;
 using TvinciCache;
 using MoreLinq;
-using System.Collections.Concurrent;
 using System.Globalization;
+using ApiLogic.IndexManager;
+using ApiLogic.IndexManager.Models;
+using ApiLogic.IndexManager.Sorting;
+using ElasticSearch.NEST;
 using ElasticSearch.Searcher;
+using ElasticSearch.Utils;
 using BoolQuery = Nest.BoolQuery;
 
 namespace Core.Catalog
@@ -105,6 +105,12 @@ namespace Core.Catalog
         private readonly IGroupsFeatures _groupsFeatures;
         private readonly INamingHelper _namingHelper;
         private readonly IGroupSettingsManager _groupSettingsManager;
+        private readonly ISortingService _sortingService;
+        private readonly IStartDateAssociationTagsSortStrategy _startDateAssociationTagsSortStrategy;
+        private readonly IStatisticsSortStrategy _statisticsSortStrategy;
+        private readonly ISortingAdapter _sortingAdapter;
+        private readonly IEsSortingService _esSortingService;
+        private readonly IUnifiedQueryBuilderInitializer _queryInitializer;
 
         private readonly int _partnerId;
         private readonly IGroupManager _groupManager;
@@ -130,8 +136,13 @@ namespace Core.Catalog
             IGroupsFeatures groupsFeatures,
             ILayeredCache layeredCache,
             INamingHelper namingHelper,
-            IGroupSettingsManager groupSettingsManager
-        )
+            IGroupSettingsManager groupSettingsManager,
+            ISortingService sortingService,
+            IStartDateAssociationTagsSortStrategy startDateAssociationTagsSortStrategy,
+            IStatisticsSortStrategy statisticsSortStrategy,
+            ISortingAdapter sortingAdapter,
+            IEsSortingService esSortingService,
+            IUnifiedQueryBuilderInitializer queryInitializer)
         {
             _elasticClient = elasticClient;
             _partnerId = partnerId;
@@ -148,7 +159,13 @@ namespace Core.Catalog
             _layeredCache = layeredCache;
             _namingHelper = namingHelper;
             _groupSettingsManager = groupSettingsManager;
-            
+            _sortingService = sortingService;
+            _startDateAssociationTagsSortStrategy = startDateAssociationTagsSortStrategy;
+            _statisticsSortStrategy = statisticsSortStrategy;
+            _sortingAdapter = sortingAdapter;
+            _esSortingService = esSortingService;
+            _queryInitializer = queryInitializer;
+
             //init all ES const
             _numOfShards = _applicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfShards.Value;
             _numOfReplicas = _applicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfReplicas.Value;
@@ -1067,13 +1084,12 @@ namespace Core.Catalog
                 definitions.langauge = GetDefaultLanguage();
             }
 
-            var builder = new UnifiedSearchNestBuilder()
+            var builder = new UnifiedSearchNestBuilder(_esSortingService, _sortingAdapter, _queryInitializer)
             {
-                Definitions = definitions
+                SearchDefinitions = definitions
             };
-
-            var orderBy = definitions.order != null ? definitions.order.m_eOrderBy : OrderBy.ID;
-            var sortAndPagingDefinitions = InitUnifiedSearchDefinitionsAndBuilder(definitions, builder);
+            builder.SetPagingForUnifiedSearch();
+            builder.SetGroupByValuesForUnifiedSearch();
 
             ISearchResponse<NestBaseAsset> searchResponse = Search(builder);
 
@@ -1081,36 +1097,28 @@ namespace Core.Catalog
             totalItems = (int)searchResponse.Total;
 
             var unifiedSearchResultToHit = new Dictionary<UnifiedSearchResult, IHit<NestBaseAsset>>();
-
+            
             foreach (var doc in searchResponse.Hits)
             {
-                UnifiedSearchResult result = CreateUnifiedSearchResultFromESDocument(definitions, doc);
-
+                var result = CreateUnifiedSearchResultFromESDocument(definitions, doc);
                 searchResultsList.Add(result);
-
                 unifiedSearchResultToHit.Add(result, doc);
             }
 
-            searchResultsList = ProcessUnifiedSearchResponse(searchResultsList, definitions, sortAndPagingDefinitions, searchResponse, unifiedSearchResultToHit);
+            searchResultsList = ProcessUnifiedSearchResponse(searchResultsList, searchResponse, definitions, unifiedSearchResultToHit);
 
             var topHitsMapping = MapTopHits(searchResponse.Aggregations, definitions);
 
             if (searchResponse.Aggregations != null && searchResponse.Aggregations.Any())
             {
                 var aggregationsResult = ConvertAggregationsResponse(searchResponse.Aggregations, definitions.groupBy,
-                    topHitsMapping, searchResultsList, sortAndPagingDefinitions, unifiedSearchResultToHit);
+                    topHitsMapping, searchResultsList, definitions, unifiedSearchResultToHit);
 
                 if (aggregationsResult != null)
                 {
                     aggregationsResults = new List<AggregationsResult>();
                     aggregationsResults.Add(aggregationsResult);
                 }
-            }
-
-            // return the original order by, to avoid side effects when retrying
-            if (definitions.order != null)
-            {
-                definitions.order.m_eOrderBy = sortAndPagingDefinitions.OriginalOrderBy;
             }
 
             return searchResultsList;
@@ -1125,6 +1133,12 @@ namespace Core.Catalog
             {
                 throw new NotSupportedException($"Method should be used for single group by");
             }
+
+            var orderByFields = _sortingAdapter.ResolveOrdering(definitions);
+            if (!_sortingService.IsSortingCompatibleWithGroupBy(orderByFields))
+            {
+                throw new NotSupportedException($"Not supported group by with provided ordering.");
+            }
             
             var searchResultsList = new List<UnifiedSearchResult>();
 
@@ -1134,13 +1148,12 @@ namespace Core.Catalog
                 definitions.langauge = GetDefaultLanguage();
             }
 
-            var builder = new UnifiedSearchNestBuilder()
+            var builder = new UnifiedSearchNestBuilder(_esSortingService, _sortingAdapter, _queryInitializer)
             {
-                Definitions = definitions
+                SearchDefinitions = definitions
             };
-
-            var orderBy = definitions.order != null ? definitions.order.m_eOrderBy : OrderBy.ID;
-            var sortAndPagingDefinitions = InitUnifiedSearchDefinitionsAndBuilder(definitions, builder);
+            builder.SetPagingForUnifiedSearch();
+            builder.SetGroupByValuesForUnifiedSearch();
 
             ISearchResponse<NestBaseAsset> searchResponse = Search(builder);
 
@@ -1151,19 +1164,16 @@ namespace Core.Catalog
 
             foreach (var doc in searchResponse.Hits)
             {
-                UnifiedSearchResult result = CreateUnifiedSearchResultFromESDocument(definitions, doc);
-
+                var result = CreateUnifiedSearchResultFromESDocument(definitions, doc);
                 searchResultsList.Add(result);
-
                 unifiedSearchResultToHit.Add(result, doc);
             }
 
-            searchResultsList = ProcessUnifiedSearchResponse(searchResultsList, definitions, sortAndPagingDefinitions,
-                searchResponse, unifiedSearchResultToHit);
+            searchResultsList = ProcessUnifiedSearchResponse(searchResultsList, searchResponse, definitions, unifiedSearchResultToHit);
 
             var topHitsMapping = MapTopHits(searchResponse.Aggregations, definitions);
 
-            var aggregationsResult = new AggregationsResult() { totalItems = totalItems };
+            var aggregationsResult = new AggregationsResult { totalItems = totalItems };
             var anyAggregations = searchResponse.Aggregations != null && searchResponse.Aggregations.Any();
             if (!anyAggregations)
             {
@@ -1171,7 +1181,7 @@ namespace Core.Catalog
             }
 
             aggregationsResult = ConvertAggregationsResponse(searchResponse.Aggregations, definitions.groupBy,
-                    topHitsMapping, searchResultsList, sortAndPagingDefinitions, unifiedSearchResultToHit);
+                    topHitsMapping, searchResultsList, definitions, unifiedSearchResultToHit);
             
 
             return aggregationsResult;
@@ -1202,278 +1212,12 @@ namespace Core.Catalog
             return searchResponse;
         }
 
-        private  List<T> SortAssetsByStartDate<T,TK>(
-            Dictionary<T, IHit<TK>> resultsToHits, 
-            List<T> searchResults,
-            OrderDir orderDirection, 
-            Dictionary<int, string> associationTags, 
-            Dictionary<int, int> parentMediaTypes, 
-            LanguageObj language)
-            where  TK : NestBaseAsset
-            where T : IComparable
-        {
-            if (searchResults == null || searchResults.Count == 0)
-            {
-                return new List<T>();
-            }
-
-            bool shouldSearch = false;
-            Dictionary<T, DateTime> idToStartDate = new Dictionary<T, DateTime>();
-            var nameToTypeToId = new Dictionary<string, Dictionary<int, List<T>>>();
-            Dictionary<int, List<string>> typeToNames = new Dictionary<int, List<string>>();
-
-            #region Map documents name and initial start dates
-
-            // Create mappings for later on
-            foreach (var searchResult in searchResults)
-            {
-                var asset = resultsToHits[searchResult];
-                idToStartDate.Add(searchResult, asset.Source.StartDate);
-
-                var mediaTypeId = asset.Fields.Value<int>("media_type_id");
-                if (mediaTypeId > 0)
-                {
-                    var mediaId = asset.Fields.Value<object>("media_id");
-
-                    var name = asset.Source.Name;
-                    if (!nameToTypeToId.ContainsKey(name))
-                    {
-                        nameToTypeToId[name] = new Dictionary<int, List<T>>();
-                    }
-
-                    if (!nameToTypeToId[name].ContainsKey(mediaTypeId))
-                    {
-                        nameToTypeToId[name][mediaTypeId] = new List<T>();
-                    }
-
-                    nameToTypeToId[name][mediaTypeId].Add(searchResult);
-
-                    if (!typeToNames.ContainsKey(mediaTypeId))
-                    {
-                        typeToNames[mediaTypeId] = new List<string>();
-                    }
-
-                    typeToNames[mediaTypeId].Add(name);
-                }
-            }
-
-            #endregion
-
-            #region Define Aggregations Search Query
-
-            List<QueryContainer> tagsShoulds = new List<QueryContainer>();
-            // Filter data only to contain documents that have the specifiic tag
-            foreach (var item in associationTags)
-            {
-                if (parentMediaTypes.ContainsKey(item.Key) &&
-                    typeToNames.ContainsKey(parentMediaTypes[item.Key]))
-                {
-                    shouldSearch = true;
-                    var tagsTerms = new TermsQuery()
-                    {
-                        Field = $"tags.{language.Code}.{item.Value.ToLower()}",
-                        Terms = typeToNames[parentMediaTypes[item.Key]]
-                    };
-
-                    tagsShoulds.Add(tagsTerms);
-                }
-            }
-
-            var tagsQuery = new BoolQuery()
-            {
-                Should = tagsShoulds
-            };
-
-            if (shouldSearch)
-            {
-                BoolQuery searchQuery = BuildSortAssetsByStartDateQuery(tagsQuery);
-                AggregationDictionary aggs = BuildSortAssetsByStartDateAggs(associationTags, language);
-
-                #endregion
-
-                #region Get Aggregations Results
-
-                string index = NamingHelper.GetMediaIndexAlias(_partnerId);
-
-                var searchResponse = _elasticClient.Search<NestMedia>(searchRequest => searchRequest
-                    // the hits themselves don't matter to us, we only want the aggs
-                    .Size(0)
-                    .Index(index)
-                    .Query(selector => searchQuery)
-                    .Aggregations(aggs)
-                );
-                ProcessSortByStartDateResponse(associationTags, parentMediaTypes, idToStartDate, nameToTypeToId, searchResponse);
-                #endregion
-            }
-
-            // Sort the list of key value pairs by the value (the start date)
-            var sortedDictionary = idToStartDate.OrderBy(pair => pair.Value).ThenBy(pair => pair.Key);
-
-            #region Create final, sorted, list
-
-            var sortedList = new List<T>();
-            var alreadyContainedIds = new HashSet<T>();
-
-            foreach (var currentId in sortedDictionary)
-            {
-                // Depending on direction - if it is ascending, insert Id at start. Otherwise at end
-                if (orderDirection == ApiObjects.SearchObjects.OrderDir.DESC)
-                {
-                    sortedList.Insert(0, currentId.Key);
-                }
-                else
-                {
-                    sortedList.Add(currentId.Key);
-                }
-
-                alreadyContainedIds.Add(currentId.Key);
-            }
-
-            // Add all ids that don't have stats
-            foreach (var searchResult in searchResults)
-            {
-                if (!alreadyContainedIds.Contains(searchResult))
-                {
-                    // Depending on direction - if it is ascending, insert Id at start. Otherwise at end
-                    if (orderDirection == ApiObjects.SearchObjects.OrderDir.ASC)
-                    {
-                        sortedList.Insert(0, searchResult);
-                    }
-                    else
-                    {
-                        sortedList.Add(searchResult);
-                    }
-                }
-            }
-
-            #endregion
-
-            return sortedList;
-        }
-
-        private static void ProcessSortByStartDateResponse<T>(Dictionary<int, string> associationTags, 
-            Dictionary<int, int> parentMediaTypes, 
-            Dictionary<T, DateTime> idToStartDate, 
-            Dictionary<string, Dictionary<int, List<T>>> nameToTypeToId, 
-            ISearchResponse<NestMedia> searchResponse)
-        {
-            if (searchResponse.IsValid && searchResponse.Aggregations != null && searchResponse.Aggregations.Count > 0)
-            {
-                foreach (var associationTag in associationTags)
-                {
-                    int parentMediaType = parentMediaTypes[associationTag.Key];
-
-                    var currentResult = searchResponse.Aggregations.Filter(associationTag.Value);
-
-                    if (currentResult != null)
-                    {
-                        var firstSub = currentResult.Terms($"{associationTag.Value}_sub1");
-
-                        if (firstSub != null)
-                        {
-                            foreach (var bucket in firstSub.Buckets)
-                            {
-                                var subBucket = bucket.Max($"{associationTag.Value}_sub2");
-
-                                if (subBucket != null)
-                                {
-                                    // "series name" is the bucket's key
-                                    string tagValue = bucket.Key;
-
-                                    if (nameToTypeToId.ContainsKey(tagValue) && nameToTypeToId[tagValue].ContainsKey(parentMediaType))
-                                    {
-                                        foreach (var unifiedSearchResult in nameToTypeToId[tagValue][parentMediaType])
-                                        {
-                                            var maximumDateEpoch = subBucket.Value.HasValue ? subBucket.Value.Value : 0;
-                                            DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
-                                            var maximumDate = epoch.AddMilliseconds(maximumDateEpoch).ToUniversalTime();
-
-                                            idToStartDate[unifiedSearchResult] = maximumDate;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        private static AggregationDictionary BuildSortAssetsByStartDateAggs(Dictionary<int, string> associationTags, LanguageObj language)
-        {
-            var aggsDesctiptor = new AggregationContainerDescriptor<NestMedia>();
-            var descriptor = new QueryContainerDescriptor<NestMedia>();
-            AggregationDictionary aggs = new AggregationDictionary();
-
-            // Create an aggregation search object for each association tag we have
-            foreach (var associationTag in associationTags)
-            {
-                var filter = descriptor.Term(field => field.MediaTypeId, associationTag.Key);
-
-                var currentAggregation = new FilterAggregation(associationTag.Value)
-                {
-                    Filter = filter
-                };
-
-                string subName1 = $"{associationTag.Value}_sub1";
-                var subAggregation1 = new TermsAggregation(subName1)
-                {
-                    Field = $"tags.{language.Code}.{associationTag.Value.ToLower()}",
-                };
-
-                string subName2 = $"{associationTag.Value}_sub2";
-                var subAggregation2 = new MaxAggregation(subName2, "start_date");
-
-                subAggregation1.Aggregations = new AggregationDictionary();
-                subAggregation1.Aggregations.Add(subName2, subAggregation2);
-                currentAggregation.Aggregations = new AggregationDictionary();
-                currentAggregation.Aggregations.Add(subName1, subAggregation1);
-
-                aggs.Add(associationTag.Value, currentAggregation);
-            }
-
-            return aggs;
-        }
-
-        private static BoolQuery BuildSortAssetsByStartDateQuery(BoolQuery tagsQuery)
-        {
-            var descriptor = new QueryContainerDescriptor<NestMedia>();
-            var rootQuerymusts = new List<QueryContainer>();
-
-            var isActiveTerm = descriptor.Term(field => field.IsActive, true);
-
-            string nowSearchString = DateTime.UtcNow.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
-
-            var startDateRange = descriptor.DateRange(selector =>
-                selector.Field(field => field.StartDate).LessThanOrEquals(DateTime.UtcNow));
-
-            var endDateRange = descriptor.DateRange(selector =>
-                selector.Field(field => field.EndDate).GreaterThanOrEquals(DateTime.UtcNow));
-
-            // Filter associated media by:
-            // is_active = 1
-            // start_date < NOW
-            // end_date > NOW
-            // tag is actually the current series
-            rootQuerymusts.Add(isActiveTerm);
-            rootQuerymusts.Add(startDateRange);
-            rootQuerymusts.Add(endDateRange);
-            rootQuerymusts.Add(tagsQuery);
-
-            BoolQuery searchQuery = new BoolQuery()
-            {
-                Must = rootQuerymusts
-            };
-
-            return searchQuery;
-        }
-
         private AggregationsResult ConvertAggregationsResponse(
             AggregateDictionary aggregationsResult,
             IEnumerable<GroupByDefinition> groupBys,
             Dictionary<string, Dictionary<string, UnifiedSearchResult>> topHitsMapping,
             List<UnifiedSearchResult> orderedResults,
-            UnifiedSearchSortAndPagingDefinitions sortAndPagingDefinitions,
+            UnifiedSearchDefinitions definitions,
             Dictionary<UnifiedSearchResult, IHit<NestBaseAsset>> unifiedSearchResultToHit)
         {
             if (groupBys == null || !groupBys.Any())
@@ -1498,9 +1242,10 @@ namespace Core.Catalog
 
             // if there is only one group by and it is a distinct request, we need to reorder the buckets
             // so we will create the aggregation result with the correct order
-            if (groupBys.Count() == 1 && currentGroupBy.Key == sortAndPagingDefinitions.DistinctGroup?.Key)
+            var orderByFields = _sortingAdapter.ResolveOrdering(definitions);
+            if (_esSortingService.IsBucketsReorderingRequired(orderByFields, definitions.distinctGroup))
             {
-                ConvertDistinctGroupByAggregationResponse(aggregationsResult, topHitsMapping, orderedResults, sortAndPagingDefinitions, unifiedSearchResultToHit, result);
+                ConvertDistinctGroupByAggregationResponse(aggregationsResult, topHitsMapping, orderedResults, definitions, unifiedSearchResultToHit, result);
                 return result;
             }
 
@@ -1521,7 +1266,7 @@ namespace Core.Catalog
                         // group bys list is SUPPOSED to be maximum 3 items (really, who wants that much grouping?!)
                         // no worries about memory here, me thinks...
                         var nextGroupBys = groupBys.Skip(1);
-                        var sub = ConvertAggregationsResponse(bucket, nextGroupBys, topHitsMapping, orderedResults, sortAndPagingDefinitions, unifiedSearchResultToHit);
+                        var sub = ConvertAggregationsResponse(bucket, nextGroupBys, topHitsMapping, orderedResults, definitions, unifiedSearchResultToHit);
 
                         if (sub != null)
                         {
@@ -1536,9 +1281,15 @@ namespace Core.Catalog
             return result;
         }
 
-        private void ConvertDistinctGroupByAggregationResponse(AggregateDictionary aggregationsResult, Dictionary<string, Dictionary<string, UnifiedSearchResult>> topHitsMapping, List<UnifiedSearchResult> orderedResults, UnifiedSearchSortAndPagingDefinitions sortAndPagingDefinitions, Dictionary<UnifiedSearchResult, IHit<NestBaseAsset>> unifiedSearchResultToHit, AggregationsResult result)
+        private void ConvertDistinctGroupByAggregationResponse(
+            AggregateDictionary aggregationsResult,
+            Dictionary<string, Dictionary<string, UnifiedSearchResult>> topHitsMapping,
+            List<UnifiedSearchResult> orderedResults,
+            UnifiedSearchDefinitions definitions,
+            Dictionary<UnifiedSearchResult, IHit<NestBaseAsset>> unifiedSearchResultToHit,
+            AggregationsResult result)
         {
-            var distinctGroup = sortAndPagingDefinitions.DistinctGroup;
+            var distinctGroup = definitions.distinctGroup;
             var bucketMapping = new Dictionary<string, KeyedBucket<string>>();
             var orderedBuckets = new List<AggregationResult>();
             var alreadyContainedBuckets = new HashSet<KeyedBucket<string>>();
@@ -1598,7 +1349,7 @@ namespace Core.Catalog
                 }
             }
 
-            var pagedBuckets = orderedBuckets.Page(sortAndPagingDefinitions.PageSize, sortAndPagingDefinitions.PageIndex, out bool illegalRequest);
+            var pagedBuckets = orderedBuckets.Page(definitions.pageSize, definitions.pageIndex, out var _);
 
             // replace the original list with the ordered list
             result.results = pagedBuckets.ToList();
@@ -1693,10 +1444,10 @@ namespace Core.Catalog
             return result;
         }
 
-        private List<UnifiedSearchResult> ProcessUnifiedSearchResponse(List<UnifiedSearchResult> searchResultsList,
-            UnifiedSearchDefinitions definitions,
-            UnifiedSearchSortAndPagingDefinitions sortAndPagingDefinitions,
+        private List<UnifiedSearchResult> ProcessUnifiedSearchResponse(
+            List<UnifiedSearchResult> searchResultsList,
             ISearchResponse<NestBaseAsset> searchResponse,
+            UnifiedSearchDefinitions definitions,
             Dictionary<UnifiedSearchResult, IHit<NestBaseAsset>> unifiedSearchResultToHit)
         {
             if (!searchResponse.IsValid)
@@ -1712,458 +1463,37 @@ namespace Core.Catalog
                 return searchResultsList;
             }
 
-            // If this is orderd by a social-stat - first we will get all asset Ids and only then we will sort and page
-            if (sortAndPagingDefinitions.IsOrderedByStat)
+            if (!_sortingService.IsSortingCompleted(definitions))
             {
-                List<long> assetIds = searchResultsList.Select(item => long.Parse(item.AssetId)).ToList();
-                List<UnifiedSearchResult> orderedResults = null;
-
-                // special start date and association tags sort
-                if (sortAndPagingDefinitions.ShouldSortByStartDateOfAssociationTagsAndParentMedia)
+                var extendedUnifiedSearchResults = unifiedSearchResultToHit.Select(x => new ExtendedUnifiedSearchResult(x.Key, x.Value)).ToArray();
+                IEnumerable<UnifiedSearchResult> orderedResults;
+                if (definitions.PriorityGroupsMappings == null || !definitions.PriorityGroupsMappings.Any())
                 {
-                    orderedResults = SortAssetsByStartDate(unifiedSearchResultToHit, searchResultsList, definitions.order.m_eOrderDir,
-                        definitions.associationTags, definitions.parentMediaTypes, definitions.langauge);
-                }
-                // Recommendation - the order is predefined already. We will use the order that is given to us
-                else if (definitions.order.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.RECOMMENDATION)
-                {
-                    orderedResults = new List<UnifiedSearchResult>();
-                    Dictionary<long, UnifiedSearchResult> resultsDictionary =
-                        searchResultsList.ToDictionary(x => long.Parse(x.AssetId));
-                    // Add all ordered ids from definitions first
-                    foreach (var asset in definitions.specificOrder)
-                    {
-                        // If the id exists in search results
-                        if (resultsDictionary.ContainsKey(asset))
-                        {
-                            // add to ordered list
-                            orderedResults.Add(resultsDictionary[asset]);
-                            resultsDictionary.Remove(asset);
-                        }
-                    }
-
-                    // Add all ids that are left
-                    foreach (var asset in resultsDictionary)
-                    {
-                        orderedResults.Add(asset.Value);
-                    }
+                    orderedResults = _sortingService.GetReorderedAssets(definitions, extendedUnifiedSearchResults);
                 }
                 else
                 {
-                    // map media ids to unified search results
-                    Dictionary<long, UnifiedSearchResult> mediaDictionary = searchResultsList
-                        .Where(result => result.AssetType == eAssetTypes.MEDIA)
-                        .ToDictionary(
-                            key => long.Parse(key.AssetId),
-                            value => value);
+                    var tempResults = new List<UnifiedSearchResult>();
+                    var priorityGroupsResults = extendedUnifiedSearchResults.GroupBy(r => r.Result.Score);
+                    foreach (var priorityGroupsResult in priorityGroupsResults)
+                    {
+                        var reorderedAssets = _sortingService.GetReorderedAssets(definitions, priorityGroupsResult);
+                        if (reorderedAssets == null)
+                        {
+                            log.Debug($"Chunk from priority group hasn't been processed. Asset Ids: [{string.Join(",", priorityGroupsResult.Select(x => x.AssetId))}]");
+                            continue;
+                        }
 
-                    if (definitions.trendingAssetWindow.HasValue)
-                    {
-                        //BEO-9415
-                        orderedResults = SortAssetsByStats(searchResultsList, mediaDictionary, sortAndPagingDefinitions.OriginalOrderBy, definitions.order.m_eOrderDir,
-                            definitions.trendingAssetWindow, DateTime.UtcNow);
+                        tempResults.AddRange(reorderedAssets);
                     }
-                    else
-                    {
-                        orderedResults = SortAssetsByStats(searchResultsList, mediaDictionary, sortAndPagingDefinitions.OriginalOrderBy, definitions.order.m_eOrderDir);
-                    }
+
+                    orderedResults = tempResults.ToArray();
                 }
-
-                // page
-                searchResultsList = orderedResults.Page(sortAndPagingDefinitions.PageSize, sortAndPagingDefinitions.PageIndex, out bool illegalRequest).ToList();
+                
+                searchResultsList = orderedResults.Page(definitions.pageSize, definitions.pageIndex, out var illegalRequest).ToList();
             }
 
             return searchResultsList;
-        }
-
-        private List<T> SortAssetsByStats<T>(
-            List<T> searchResultsList, 
-            Dictionary<long, T> resultsDictionary,
-            OrderBy orderBy, OrderDir orderDirection, 
-            DateTime? startDate = null, DateTime? endDate = null)
-        {     
-            var assetIds = resultsDictionary.Keys.Distinct().ToList();
-
-            List<T> sortedList = null;
-            HashSet<T> alreadyContainedIds = null;
-            IDictionary<long, double> ratingsAggregationsDictionary = null;
-            IDictionary<long, int> countsAggregationsDictionary = null;
-
-            // we will use layered cache for asset stats for non-rating values and only if we don't have dates in filter
-            if (startDate == null && endDate == null && orderBy != OrderBy.RATING)
-            {
-                countsAggregationsDictionary = SortAssetsByStatsWithLayeredCache(assetIds, orderBy, orderDirection);
-            }
-            else
-            {
-                if (orderBy == OrderBy.RATING)
-                {
-                    ratingsAggregationsDictionary = GetAssetStatsValuesFromElasticSearch<double>(assetIds, orderBy, startDate, endDate);
-                }
-                else
-                {
-                    countsAggregationsDictionary = GetAssetStatsValuesFromElasticSearch<int>(assetIds, orderBy, startDate, endDate);
-                }
-            }
-
-            #region Process Aggregations
-
-            // get a sorted list of the asset Ids that have statistical data in the aggregations dictionary
-            sortedList = new List<T>();
-            alreadyContainedIds = new HashSet<T>();
-
-            if (countsAggregationsDictionary != null)
-            {
-                ProcessStatsDictionaryResults(countsAggregationsDictionary, orderDirection, alreadyContainedIds, sortedList, resultsDictionary);
-            }
-            else
-            {
-                ProcessStatsDictionaryResults(ratingsAggregationsDictionary, orderDirection, alreadyContainedIds, sortedList, resultsDictionary);
-            }
-
-            #endregion
-
-            if (sortedList == null)
-            {
-                sortedList = new List<T>();
-            }
-
-            // Add all ids that don't have stats
-            foreach (var currentSearchResult in searchResultsList)
-            {
-                if (alreadyContainedIds == null || !alreadyContainedIds.Contains(currentSearchResult))
-                {
-                    // Depending on direction - if it is ascending, insert Id at start. Otherwise at end
-                    if (orderDirection == OrderDir.ASC)
-                    {
-                        sortedList.Insert(0, currentSearchResult);
-                    }
-                    else
-                    {
-                        sortedList.Add(currentSearchResult);
-                    }
-                }
-            }
-
-            return sortedList;
-        }
-
-        private void ProcessStatsDictionaryResults<T, TK>(IDictionary<long, T> assetIdToStatsValueDictionary,
-            OrderDir orderDirection, 
-            HashSet<TK> alreadyContainedIds, 
-            List<TK> sortedList, 
-            Dictionary<long, TK> searchResultsDictionary)
-        {
-            if (assetIdToStatsValueDictionary != null && assetIdToStatsValueDictionary.Count > 0)
-            {
-                var sortedStatsDictionary = assetIdToStatsValueDictionary.OrderBy(o => o.Value).ThenBy(o => o.Key).Reverse();
-
-                // We base this section on the assumption that aggregations request is sorted, descending
-                foreach (var currentValue in sortedStatsDictionary)
-                {
-                    long currentId = currentValue.Key;
-                    var searchResult = searchResultsDictionary[currentId];
-                    //Depending on direction - if it is ascending, insert Id at start. Otherwise at end
-                    if (orderDirection == OrderDir.ASC)
-                    {
-                        sortedList.Insert(0, searchResult);
-                    }
-                    else
-                    {
-                        sortedList.Add(searchResult);
-                    }
-
-                    alreadyContainedIds.Add(searchResult);
-                }
-            }
-        }
-
-        private Dictionary<long, int> SortAssetsByStatsWithLayeredCache(List<long> assetIds, OrderBy orderBy, OrderDir orderDirection)
-        {
-            var result = new Dictionary<long, int>();
-            Dictionary<string, int> layeredCacheResult = new Dictionary<string, int>();
-            if (assetIds != null && assetIds.Count > 0)
-            {
-                try
-                {
-                    Dictionary<string, string> keyToOriginalValueMap = 
-                        assetIds.Select(x => x.ToString()).ToDictionary(x => LayeredCacheKeys.GetAssetStatsSortKey(x, orderBy.ToString()));
-                    Dictionary<string, List<string>> invalidationKeys =
-                        keyToOriginalValueMap.Keys.ToDictionary(x => x, x => new List<string>() { LayeredCacheKeys.GetAssetStatsInvalidationKey(_partnerId) });
-
-                    Dictionary<string, object> funcParams = new Dictionary<string, object>();
-                    funcParams.Add("orderBy", orderBy);
-                    funcParams.Add("assetIds", assetIds);
-
-                    if (!_layeredCache.GetValues(keyToOriginalValueMap, ref layeredCacheResult, SortAssetsByStatsDelegate, funcParams,
-                        _partnerId, LayeredCacheConfigNames.ASSET_STATS_SORT_CONFIG_NAME, invalidationKeys))
-                    {
-                        log.ErrorFormat("Failed getting asset stats from cache, ids: {0}:", 
-                            assetIds.Count < 100 ? string.Join(",", assetIds) : string.Join(",", assetIds.Take(100)));
-                    }
-                    else
-                    {
-                        foreach (var item in layeredCacheResult)
-                        {
-                            string key = keyToOriginalValueMap[item.Key];
-                            result.Add(long.Parse(key), item.Value);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    log.Error("Failed SortAssetsByStatsLayeredCache", ex);
-                }
-            }
-
-            return result;
-        }
-
-        private Tuple<Dictionary<string, int>, bool> SortAssetsByStatsDelegate(Dictionary<string, object> funcParams)
-        {
-            IDictionary<long, int> countsAggregationsDictionary = null;
-            var result = new Dictionary<string, int>();
-            bool success = true;
-            List<long> assetIds = new List<long>();
-            OrderBy orderBy = OrderBy.NONE;
-
-            try
-            {
-                // extract from funcParams
-                if (funcParams.ContainsKey("orderBy"))
-                {
-                    orderBy = (OrderBy)funcParams["orderBy"];
-                }
-
-                // if we don't have missing keys - all ids should be sent
-                if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
-                {
-                    assetIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => long.Parse(x)).ToList();
-                }
-                else if (funcParams.ContainsKey("assetIds"))
-                {
-                    assetIds = (List<long>)funcParams["assetIds"];
-                }
-
-                countsAggregationsDictionary = GetAssetStatsValuesFromElasticSearch<int>(assetIds, orderBy, null, null);
-
-                // fill dictionary of asset-id..stats-value (if it doesn't exist in ES, fill it with a 0)
-                foreach (var assetId in assetIds)
-                {
-                    string dictionaryKey =
-                        //assetId.ToString();
-                        LayeredCacheKeys.GetAssetStatsSortKey(assetId.ToString(), orderBy.ToString());
-
-                    if (!countsAggregationsDictionary.ContainsKey(assetId))
-                    {
-                        result[dictionaryKey] = 0;
-                    }
-                    else
-                    {
-                        result[dictionaryKey] = countsAggregationsDictionary[assetId];
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                success = false;
-                log.ErrorFormat("Error when trying to sort assets by stats. group Id = {0}, ex = {1}", _partnerId, ex);
-            }
-
-            return new Tuple<Dictionary<string, int>, bool>(result, success);
-        }
-
-        private IDictionary<long, T> GetAssetStatsValuesFromElasticSearch<T>(List<long> assetIds, OrderBy orderBy,
-            DateTime? startDate, DateTime? endDate)
-        {
-            var statsDictionary = new ConcurrentDictionary<long, T>();
-            #region Define Aggregation Query
-
-            var mustQueryContainers = new List<QueryContainer>();
-            var descriptor = new QueryContainerDescriptor<NestSocialActionStatistics>();
-
-            var groupIdTerm = descriptor.Term(field => field.GroupID, _partnerId);
-            mustQueryContainers.Add(groupIdTerm);
-
-            #region define date filter
-
-            if ((startDate != null && startDate.HasValue && !startDate.Equals(DateTime.MinValue)) ||
-                (endDate != null && endDate.HasValue && !endDate.Equals(DateTime.MaxValue)))
-            {
-                var dateRange = descriptor.DateRange(selector =>
-                {
-                    selector = selector.Field(field => field.Date);
-                    if (startDate != null && startDate.HasValue && !startDate.Equals(DateTime.MinValue))
-                    {
-                        selector = selector.GreaterThanOrEquals(startDate);
-                    }
-
-                    if (endDate != null && endDate.HasValue && !endDate.Equals(DateTime.MaxValue))
-                    {
-                        selector = selector.LessThanOrEquals(endDate);
-                    }
-
-                    return selector;
-                });
-
-                mustQueryContainers.Add(dateRange);
-            }
-
-            #endregion
-
-            #region define action filter
-
-            string actionName = string.Empty;
-
-            switch (orderBy)
-            {
-                case ApiObjects.SearchObjects.OrderBy.VIEWS:
-                    {
-                        actionName = NamingHelper.STAT_ACTION_FIRST_PLAY;
-                        break;
-                    }
-                case ApiObjects.SearchObjects.OrderBy.RATING:
-                    {
-                        actionName = NamingHelper.STAT_ACTION_RATES;
-                        break;
-                    }
-                case ApiObjects.SearchObjects.OrderBy.VOTES_COUNT:
-                    {
-                        actionName = NamingHelper.STAT_ACTION_RATES;
-                        break;
-                    }
-                case ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER:
-                    {
-                        actionName = NamingHelper.STAT_ACTION_LIKE;
-                        break;
-                    }
-                default:
-                    {
-                        break;
-                    }
-            }
-
-            var actionTerm = descriptor.Term(field => field.Action, actionName);
-
-            mustQueryContainers.Add(actionTerm);
-
-            #endregion
-
-            string aggregationName = "stats";
-            string subSumAggregationName = string.Empty;
-            AggregationDictionary aggregations = new AggregationDictionary();
-            AggregationContainer subAggregation = null;
-
-            // Ratings is based on average, others on sum (count)
-            if (orderBy == OrderBy.RATING)
-            {
-                subAggregation = new StatsAggregation(NamingHelper.SUB_STATS_AGGREGATION_NAME, NamingHelper.STAT_ACTION_RATE_VALUE_FIELD);
-                subSumAggregationName = NamingHelper.SUB_STATS_AGGREGATION_NAME;
-            }
-            else
-            {
-                subAggregation = new SumAggregation(NamingHelper.SUB_SUM_AGGREGATION_NAME, NamingHelper.STAT_ACTION_COUNT_VALUE_FIELD)
-                {
-                    Missing = 1
-                };
-                subSumAggregationName = NamingHelper.SUB_SUM_AGGREGATION_NAME;
-            }
-
-            var termsAggregation = new TermsAggregation(aggregationName)
-            {
-                Field = "media_id",
-                Aggregations = new AggregationDictionary()
-                {
-                    { subSumAggregationName, subAggregation}
-                }
-            };
-
-            aggregations.Add(aggregationName, termsAggregation);
-
-            #endregion
-
-            #region Split call of aggregations query to pieces
-
-            int aggregationsSize = ApplicationConfiguration.Current.ElasticSearchConfiguration.StatSortBulkSize.Value;
-
-            //Start MultiThread Call
-            List<Task> tasks = new List<Task>();
-
-            // Split the request to small pieces, to avoid timeout exceptions
-            for (int assetIndex = 0; assetIndex < assetIds.Count; assetIndex += aggregationsSize)
-            {
-                // Convert partial Ids to strings
-                string index = NamingHelper.GetStatisticsIndexName(_partnerId);
-
-                try
-                {
-                    LogContextData contextData = new LogContextData();
-                    // Create a task for the search and merge of partial aggregations
-                    Task task = Task.Run(() =>
-                    {
-                        contextData.Load();
-
-                        var idsTerm = new TermsQuery();
-                        idsTerm.Terms = (assetIds.Skip(assetIndex).Take(aggregationsSize).Select(id => id.ToString()));
-
-                        // each time create a copy of the previous list of conditions (group id, dates, action)
-                        // and add the current IDs term (each run of the loop it changes)
-                        var currentMustQueryContainers = new List<QueryContainer>(mustQueryContainers);
-                        currentMustQueryContainers.Add(idsTerm);
-
-                        var boolQuery = descriptor.Bool(b => b.Must(currentMustQueryContainers.ToArray()));
-
-                        var searchResponse = _elasticClient.Search<NestSocialActionStatistics>(searchRequest => searchRequest
-                            // hits don't interest us at all
-                            .Size(0)
-                            .Index(index)
-                            .Query(x => boolQuery)
-                            .Aggregations(aggregations)
-                            );
-
-                        if (searchResponse.IsValid)
-                        {
-                            var termsAggregate = searchResponse.Aggregations.Terms<long>(aggregationName);
-
-                            if (orderBy == OrderBy.RATING)
-                            {
-                                foreach (var bucket in termsAggregate.Buckets)
-                                {
-                                    var statsAggregation = bucket.Stats(NamingHelper.SUB_STATS_AGGREGATION_NAME);
-                                    statsDictionary[bucket.Key] = (T)Convert.ChangeType(statsAggregation.Average, typeof(T));
-                                }
-                            }
-                            else
-                            {
-                                foreach (var bucket in termsAggregate.Buckets)
-                                {
-                                    var sumAgg = bucket.Sum(NamingHelper.SUB_SUM_AGGREGATION_NAME);
-                                    statsDictionary[bucket.Key] = (T)Convert.ChangeType(sumAgg.Value, typeof(T));
-                                }
-                            }
-                        }
-                    });
-
-                    tasks.Add(task);
-                }
-                catch (Exception ex)
-                {
-                    log.ErrorFormat("Error in SortAssetsByStats, Exception: {0}", ex);
-                }
-            }
-
-            try
-            {
-                Task.WaitAll(tasks.ToArray());
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error in SortAssetsByStats (WAIT ALL), Exception: {0}", ex);
-            }
-
-            return statsDictionary;
-
-            #endregion
         }
 
         private UnifiedSearchResult CreateUnifiedSearchResultFromESDocument(
@@ -2343,162 +1673,6 @@ namespace Core.Catalog
             return assetType;
         }
 
-        private static UnifiedSearchSortAndPagingDefinitions InitUnifiedSearchDefinitionsAndBuilder(
-            UnifiedSearchDefinitions definitions, 
-            UnifiedSearchNestBuilder builder)
-        {
-            UnifiedSearchSortAndPagingDefinitions sortAndPagingDefinitions = new UnifiedSearchSortAndPagingDefinitions();
-            OrderObj order = definitions.order;
-            ApiObjects.SearchObjects.OrderBy orderBy = order.m_eOrderBy;
-            sortAndPagingDefinitions.OriginalOrderBy = orderBy;
-            sortAndPagingDefinitions.IsOrderedByStat = false;
-            sortAndPagingDefinitions.IsOrderedByString = false;
-
-            sortAndPagingDefinitions.ShouldSortByStartDateOfAssociationTagsAndParentMedia =
-                definitions.order.m_eOrderBy.Equals(OrderBy.START_DATE) &&
-                definitions.associationTags?.Count > 0 &&
-                definitions.parentMediaTypes?.Count > 0 &&
-                definitions.shouldSearchMedia;
-
-            sortAndPagingDefinitions.PageIndex = 0;
-            sortAndPagingDefinitions.PageSize = 0;
-            sortAndPagingDefinitions.DistinctGroup = definitions.distinctGroup;
-
-            // If this is orderd by a social-stat - first we will get all asset Ids and only then we will sort and page
-            sortAndPagingDefinitions.IsOrderedByStat = (orderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS &&
-                 orderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER) ||
-                orderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT) ||
-                // Recommendations is also non-sortable
-                orderBy.Equals(ApiObjects.SearchObjects.OrderBy.RECOMMENDATION) ||
-                // If there are virtual assets (series/episode) and the sort is by start date - this is another case of unique sort
-                sortAndPagingDefinitions.ShouldSortByStartDateOfAssociationTagsAndParentMedia;
-
-            if (sortAndPagingDefinitions.IsOrderedByStat)
-            {
-                sortAndPagingDefinitions.PageIndex = definitions.pageIndex;
-                sortAndPagingDefinitions.PageSize = definitions.pageSize;
-                builder.PageIndex = 0;
-
-                int maxStatSortResult = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxStatSortResults.Value;
-
-                if (maxStatSortResult > 0)
-                {
-                    builder.PageSize = maxStatSortResult;
-                }
-                else
-                {
-                    builder.PageSize = 0;
-                    builder.GetAllDocuments = true;
-                }
-
-                if (orderBy.Equals(ApiObjects.SearchObjects.OrderBy.START_DATE))
-                {
-                    if (!definitions.extraReturnFields.Contains("start_date"))
-                    {
-                        definitions.extraReturnFields.Add("start_date");
-                    }
-
-                    if (!definitions.extraReturnFields.Contains("media_type_id"))
-                    {
-                        definitions.extraReturnFields.Add("media_type_id");
-                    }
-                }
-                else
-                {
-                    // Initial sort will be by ID
-                    definitions.order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID;
-                }
-
-                // if ordered by stats, we want at least one top hit count
-                if (definitions.topHitsCount < 1)
-                {
-                    definitions.topHitsCount = 1;
-                }
-            }
-            // if there is group by
-            else if (sortAndPagingDefinitions.DistinctGroup != null && 
-                !string.IsNullOrEmpty(sortAndPagingDefinitions.DistinctGroup.Key) && 
-                IndexManagerCommonHelpers.OrderByString(orderBy))
-            {
-                sortAndPagingDefinitions.IsOrderedByString = true;
-
-                sortAndPagingDefinitions.PageIndex = definitions.pageIndex;
-                sortAndPagingDefinitions.PageSize = definitions.pageSize;
-                builder.PageIndex = 0;
-                builder.PageSize = 0;
-                builder.GetAllDocuments = true;
-
-                // if ordered by stats, we want at least one top hit count
-                if (definitions.topHitsCount < 1)
-                {
-                    definitions.topHitsCount = 1;
-                }
-
-                if (definitions.topHitsCount > 0)
-                {
-                    // BEO-7134: I already lost track of the logic in this class and in query builder.
-                    // When asking all documents, paging of top hits buckets is not working because:
-                    // if (this.GetAllDocuments)
-                    // {
-                    //     size = -1;
-                    // }
-                    // 
-                    builder.ShouldPageGroups = true;
-                }
-            }
-            else
-            {
-                // normal case - regular page index and size
-                builder.PageIndex = definitions.pageIndex;
-                builder.PageSize = definitions.pageSize;
-                builder.From = definitions.from;
-
-                // no group by and page size is 0 means we want all documents
-                if (builder.PageSize == 0 &&
-                    (definitions.groupBy == null ||
-                     definitions.groupBy.Count == 0))
-                {
-                    builder.GetAllDocuments = true;
-                }
-
-                sortAndPagingDefinitions.PageIndex = builder.PageIndex;
-                sortAndPagingDefinitions.PageSize = builder.PageSize;
-            }
-
-            if (definitions.groupBy != null && definitions.groupBy.Any())
-            {
-                var language = definitions.langauge.Code;
-
-                foreach (var groupBy in definitions.groupBy)
-                {
-                    SetGroupByValue(groupBy, language);
-                }
-
-                if (definitions.distinctGroup != null)
-                {
-                    SetGroupByValue(definitions.distinctGroup, language);
-                    definitions.extraReturnFields.Add(NamingHelper.GetExtraFieldName(definitions.distinctGroup.Key, definitions.distinctGroup.Type));
-                }
-            }
-
-            return sortAndPagingDefinitions;
-        }
-
-        private static void SetGroupByValue(GroupByDefinition groupBy, string language)
-        {
-            var key = groupBy.Key.ToLower();
-            var type = groupBy.Type;
-            string value = UnifiedSearchNestBuilder.GetElasticsearchFieldName(language, key, type);
-
-            // hmmm?
-            //if (groupBy.Type == eFieldType.Tag || groupBy.Type == eFieldType.StringMeta)
-            //{
-            //    value = $"{value}.lowercase";
-            //}
-
-            groupBy.Value = value;
-        }
-
         public List<UnifiedSearchResult> SearchSubscriptionAssets(List<BaseSearchObject> searchObjects,
             int languageId,
             bool useStartDate,
@@ -2513,9 +1687,9 @@ namespace Core.Catalog
 
             totalItems = 0;
             //create query builder
-            var searchNestBuilder = new UnifiedSearchNestBuilder()
+            var searchNestBuilder = new UnifiedSearchNestBuilder(_esSortingService, _sortingAdapter, _queryInitializer)
             {
-                Definitions = new UnifiedSearchDefinitions()
+                SearchDefinitions = new UnifiedSearchDefinitions
                 {
                     langauge = GetDefaultLanguage(),
                     order = order
@@ -2645,9 +1819,9 @@ namespace Core.Catalog
                 definitions.langauge = GetDefaultLanguage();
             }
 
-            var nestBuilder = new UnifiedSearchNestBuilder()
+            var nestBuilder = new UnifiedSearchNestBuilder(_esSortingService, _sortingAdapter, _queryInitializer)
             {
-                Definitions = definitions,
+                SearchDefinitions = definitions,
                 PageIndex = 0,
                 PageSize = 0,
                 GetAllDocuments = true
@@ -3632,9 +2806,8 @@ namespace Core.Catalog
                     break;
                 }
             }
-
-            var orderedList = this.SortAssetsByStats(assetIds, assetIds.ToDictionary(x => x), orderBy,
-                ApiObjects.SearchObjects.OrderDir.DESC, dtStartDate, endDate);
+            
+            var orderedList = _statisticsSortStrategy.SortAssetsByStats(assetIds, orderBy, OrderDir.DESC, _partnerId, dtStartDate, endDate);
 
             result = orderedList.Select(id => (int) id).ToList();
 
@@ -3672,10 +2845,8 @@ namespace Core.Catalog
                     break;
                 }
             }
-
-
-            var orderedList = SortAssetsByStats(assetIds, assetIds.ToDictionary(x => x), orderBy,
-                ApiObjects.SearchObjects.OrderDir.DESC, startDate, endDate);
+            
+            var orderedList = _statisticsSortStrategy.SortAssetsByStats(assetIds, orderBy, OrderDir.DESC, _partnerId, startDate, endDate);
 
             result = orderedList.Select(id => (int)id).ToList();
 
@@ -4881,14 +4052,23 @@ namespace Core.Catalog
             var mediaIds = result.m_resultIDs.Select(item => item.assetID).ToList();
             if (definitions.m_oOrder.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.START_DATE))
             {
-                var unifiedSearchResultToHit = searchResponse.Hits.ToDictionary(x => x.Source.MediaId, x => x);
-
-                mediaIds = SortAssetsByStartDate(unifiedSearchResultToHit,
-                    mediaIds,
-                    definitions.m_oOrder.m_eOrderDir,
-                    definitions.associationTags,
-                    definitions.parentMediaTypes,
-                    definitions.m_oLangauge);
+                var extendedUnifiedSearchResults = searchResponse.Hits.Select(x =>
+                {
+                    var unifiedSearchResult = new UnifiedSearchResult
+                    {
+                        AssetId = x.Source.MediaId.ToString()
+                    };
+                    return new ExtendedUnifiedSearchResult(unifiedSearchResult, x);
+                });
+                mediaIds = _startDateAssociationTagsSortStrategy.SortAssetsByStartDate(
+                        extendedUnifiedSearchResults,
+                        definitions.m_oLangauge,
+                        definitions.m_oOrder.m_eOrderDir,
+                        definitions.associationTags,
+                        definitions.parentMediaTypes,
+                        _partnerId)
+                    .Select(x => (int)x.id)
+                    .ToList();
             }
             else
             {

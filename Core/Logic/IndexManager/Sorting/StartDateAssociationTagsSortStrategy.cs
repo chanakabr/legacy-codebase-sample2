@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using ApiLogic.IndexManager.Helpers;
+using ApiLogic.IndexManager.Models;
+using ApiObjects;
 using ApiObjects.SearchObjects;
 using Phx.Lib.Appconfig;
 using ElasticSearch.Common;
@@ -27,13 +29,14 @@ namespace ApiLogic.IndexManager.Sorting
         }
 
         public IEnumerable<(long id, string sortValue)> SortAssetsByStartDate(
-            IEnumerable<ElasticSearchApi.ESAssetDocument> assets,
+            IEnumerable<ExtendedUnifiedSearchResult> extendedUnifiedSearchResults,
+            LanguageObj languageObj,
             OrderDir orderDirection,
             Dictionary<int, string> associationTags,
             Dictionary<int, int> mediaTypeParent,
             int partnerId)
         {
-            if (assets == null || !assets.Any())
+            if (extendedUnifiedSearchResults == null || !extendedUnifiedSearchResults.Any())
             {
                 return new List<(long id, string sortValue)>();
             }
@@ -45,30 +48,31 @@ namespace ApiLogic.IndexManager.Sorting
             #region Map documents name and initial start dates
 
             // Create mappings for later on
-            foreach (var document in assets)
+            foreach (var document in extendedUnifiedSearchResults.Select(x => x.DocAdapter))
             {
-                idToStartDate.Add(document.id, document.start_date);
+                // TODO: which Id for v7 we should use there: _id, document_id, media_id, epg_id, recording_id?
+                idToStartDate.Add(document.Id, document.StartDate);
 
-                if (document.media_type_id > 0)
+                if (document.MediaTypeId > 0)
                 {
-                    if (!nameToTypeToId.ContainsKey(document.name))
+                    if (!nameToTypeToId.ContainsKey(document.Name))
                     {
-                        nameToTypeToId[document.name] = new Dictionary<int, List<string>>();
+                        nameToTypeToId[document.Name] = new Dictionary<int, List<string>>();
                     }
 
-                    if (!nameToTypeToId[document.name].ContainsKey(document.media_type_id))
+                    if (!nameToTypeToId[document.Name].ContainsKey(document.MediaTypeId))
                     {
-                        nameToTypeToId[document.name][document.media_type_id] = new List<string>();
+                        nameToTypeToId[document.Name][document.MediaTypeId] = new List<string>();
                     }
 
-                    nameToTypeToId[document.name][document.media_type_id].Add(document.id);
+                    nameToTypeToId[document.Name][document.MediaTypeId].Add(document.Id);
 
-                    if (!typeToNames.ContainsKey(document.media_type_id))
+                    if (!typeToNames.ContainsKey(document.MediaTypeId))
                     {
-                        typeToNames[document.media_type_id] = new List<string>();
+                        typeToNames[document.MediaTypeId] = new List<string>();
                     }
 
-                    typeToNames[document.media_type_id].Add(document.name);
+                    typeToNames[document.MediaTypeId].Add(document.Name);
                 }
             }
 
@@ -153,14 +157,14 @@ namespace ApiLogic.IndexManager.Sorting
             }
 
             return sortedList;
-
         }
 
         public IEnumerable<(long id, string sortValue)> SortAssetsByStartDate(
-            IEnumerable<ElasticSearchApi.ESAssetDocument> assets,
+            IEnumerable<ExtendedUnifiedSearchResult> extendedUnifiedSearchResults,
             OrderDir orderDirection,
             UnifiedSearchDefinitions unifiedSearchDefinitions)
-            => SortAssetsByStartDate(assets,
+            => SortAssetsByStartDate(extendedUnifiedSearchResults,
+                unifiedSearchDefinitions.langauge,
                 orderDirection,
                 unifiedSearchDefinitions.associationTags,
                 unifiedSearchDefinitions.parentMediaTypes,

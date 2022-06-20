@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using ApiObjects.CanaryDeployment.Elasticsearch;
 using ApiObjects.SearchObjects;
+using ElasticSearch.NEST;
 using ElasticSearch.Searcher;
+using Nest;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -11,10 +14,21 @@ namespace ElasticSearch.Utils
 {
     public class EsSortingService : IEsSortingService
     {
-        private static readonly Lazy<IEsSortingService> LazyInstance = new Lazy<IEsSortingService>(
-            () => new EsSortingService(), LazyThreadSafetyMode.PublicationOnly);
+        private static readonly Lazy<IEsSortingService> LazyInstanceV2 = new Lazy<IEsSortingService>(
+            () => new EsSortingService(ElasticsearchVersion.ES_2_3), LazyThreadSafetyMode.PublicationOnly);
 
-        public static IEsSortingService Instance => LazyInstance.Value;
+        private static readonly Lazy<IEsSortingService> LazyInstanceV7 = new Lazy<IEsSortingService>(
+            () => new EsSortingService(ElasticsearchVersion.ES_7), LazyThreadSafetyMode.PublicationOnly);
+
+        private readonly ElasticsearchVersion _version = ElasticsearchVersion.ES_2_3;
+
+        public static IEsSortingService Instance(ElasticsearchVersion version)
+            => version == ElasticsearchVersion.ES_2_3 ? LazyInstanceV2.Value : LazyInstanceV7.Value;
+
+        public EsSortingService(ElasticsearchVersion version)
+        {
+            _version = version;
+        }
 
         public bool ShouldSortByStartDateOfAssociationTags(IEnumerable<IEsOrderByField> esOrderByFields)
             => esOrderByFields.Any(x => x is EsOrderByStartDateAndAssociationTags);
@@ -34,7 +48,37 @@ namespace ElasticSearch.Utils
             => !string.IsNullOrEmpty(distinctGroup?.Key)
                 && (esOrderByFields.Count != 1 || !IsBucketsOrderingSupportedByEs(esOrderByFields.Single()));
 
+        public SortDescriptor<NestBaseAsset> GetSortingV7(IEnumerable<IEsOrderByField> orderByFields, bool functionScoreSort = false)
+        {
+            var orderingsToInclude = AdjustOrderingFields(orderByFields, functionScoreSort);
+            var sortDescriptor = new SortDescriptor<NestBaseAsset>();
+            foreach (var orderByField in orderingsToInclude)
+            {
+                if (orderByField.Field.OrderByDirection == OrderDir.ASC)
+                {
+                    sortDescriptor.Ascending(orderByField.EsV7Field);
+                }
+                else
+                {
+                    sortDescriptor.Descending(orderByField.EsV7Field);
+                }
+            }
+
+            return sortDescriptor;
+        }
         public string GetSorting(IEnumerable<IEsOrderByField> orderByFields, bool functionScoreSort = false)
+        {
+            var orderingsToInclude = AdjustOrderingFields(orderByFields, functionScoreSort);
+            var result = new JArray();
+            foreach (var orderByField in orderingsToInclude)
+            {
+                result.Add(GenerateSortObject(orderByField));
+            }
+
+            return $"\"sort\" : {result.ToString(Formatting.None)}";
+        }
+
+        private List<EsOrderByFieldAdapter> AdjustOrderingFields(IEnumerable<IEsOrderByField> orderByFields, bool functionScoreSort)
         {
             var fields = new List<IEsOrderByField>(orderByFields);
             if (functionScoreSort)
@@ -54,20 +98,22 @@ namespace ElasticSearch.Utils
                 orderingsToInclude.Add(new EsOrderByField(OrderBy.ID, OrderDir.DESC));
             }
 
-            var result = new JArray();
-            foreach (var orderByField in orderingsToInclude)
-            {
-                result.Add(orderByField.EsOrderByObject);
-            }
-
-            return $"\"sort\" : {result.ToString(Formatting.None)}";
+            return orderingsToInclude.Select(x => new EsOrderByFieldAdapter(x)).ToList();
         }
 
         public IEnumerable<string> BuildExtraReturnFields(IEnumerable<IEsOrderByField> orderByFields)
+            => _version == ElasticsearchVersion.ES_7
+                ? BuildExtraReturnFields(orderByFields, field => new EsOrderByFieldAdapter(field).EsV7Field.ToString())
+                : BuildExtraReturnFields(orderByFields, field => new EsOrderByFieldAdapter(field).EsField);
+
+        private IEnumerable<string> BuildExtraReturnFields(
+            IEnumerable<IEsOrderByField> orderByFields,
+            Func<IEsOrderByField, string> valueExtractor)
             => orderByFields.Any(ShouldSortByStatistics)
                 ? orderByFields
-                    .Where(x => !ShouldSortByStatistics(x))
-                    .Select(x => x.EsField)
+                    .Where(x => !ShouldSortByStatistics(x)
+                        && !(x is EsOrderByField esOrderByField && esOrderByField.OrderByField == OrderBy.ID)) // ID is included by default
+                    .Select(valueExtractor)
                     .ToArray()
                 : Enumerable.Empty<string>().ToArray();
 
@@ -77,5 +123,18 @@ namespace ElasticSearch.Utils
                 || field.OrderByField == OrderBy.CREATE_DATE
                 || field.OrderByField == OrderBy.NONE
                 || field.OrderByField == OrderBy.RELATED);
+
+        private static JObject GenerateSortObject(EsOrderByFieldAdapter orderByField)
+        {
+            return !string.IsNullOrEmpty(orderByField.EsField)
+                ? new JObject
+                {
+                    [orderByField.EsField] = new JObject
+                    {
+                        ["order"] = JToken.FromObject(orderByField.Field.OrderByDirection.ToString().ToLower())
+                    }
+                }
+                : null;
+        }
     }
 }

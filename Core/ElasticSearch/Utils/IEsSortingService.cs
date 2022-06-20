@@ -1,5 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ApiObjects.SearchObjects;
+using ElasticSearch.NEST;
+using ElasticSearch.Searcher;
+using Nest;
 
 namespace ElasticSearch.Utils
 {
@@ -13,5 +17,6 @@ namespace ElasticSearch.Utils
             GroupByDefinition distinctGroup);
         string GetSorting(IEnumerable<IEsOrderByField> orderByFields, bool functionScoreSort = false);
         IEnumerable<string> BuildExtraReturnFields(IEnumerable<IEsOrderByField> orderByFields);
+        SortDescriptor<NestBaseAsset> GetSortingV7(IEnumerable<IEsOrderByField> orderByFields, bool functionScoreSort = false);
     }
 }

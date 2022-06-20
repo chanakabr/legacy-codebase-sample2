@@ -55,7 +55,7 @@ using CouchbaseManager;
 using KalturaRequestContext;
 using System.Threading;
 using ApiLogic.Catalog.NextEpisode;
-using ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority;
+using ApiLogic.IndexManager.QueryBuilders.SearchPriority;
 using ApiLogic.IndexManager.Sorting;
 using ElasticSearch.Searcher;
 using ElasticSearch.Utils;
@@ -1569,12 +1569,10 @@ namespace Core.Catalog
                 CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(request.m_nGroupID, out catalogGroupCache);
 
             var resultProcessor = new FilterTreeResultProcessor();
-            var filterTreeValidator =
-                new FilterTreeValidator(resultProcessor, catalogGroupCache?.GetProgramAssetStructId());
+            var filterTreeValidator = new FilterTreeValidator(resultProcessor, catalogGroupCache?.GetProgramAssetStructId());
             UnifiedSearchDefinitionsBuilder definitionsCache = new UnifiedSearchDefinitionsBuilder(
                 filterTreeValidator,
-                AssetOrderingService.Instance,
-                EsSortingService.Instance);
+                AssetOrderingService.Instance);
 
             UnifiedSearchDefinitions definitions = definitionsCache.GetDefinitions(request);
 
@@ -7412,10 +7410,7 @@ namespace Core.Catalog
 
             var orderingResult = AssetOrderingService.Instance.MapToEsOrderByFields(request, model);
             definitions.orderByFields = orderingResult.EsOrderByFields;
-            definitions.extraReturnFields.UnionWith(
-                EsSortingService.Instance.BuildExtraReturnFields(orderingResult.EsOrderByFields));
             definitions.order = orderingResult.Order;
-            definitions.trendingAssetWindow = orderingResult.Order.trendingAssetWindow;
 
             #endregion
 
@@ -8711,8 +8706,6 @@ namespace Core.Catalog
 
             var orderingResult = AssetOrderingService.Instance.MapToChannelEsOrderByFields(request, channel, model);
             definitions.orderByFields = orderingResult.EsOrderByFields;
-            definitions.extraReturnFields.UnionWith(
-                EsSortingService.Instance.BuildExtraReturnFields(orderingResult.EsOrderByFields));
             if (orderingResult.SpecificOrder?.Count > 0)
             {
                 definitions.specificOrder = orderingResult.SpecificOrder.ToList();
@@ -8720,7 +8713,6 @@ namespace Core.Catalog
 
             // Still need these assignments as IndexManagerV7 doesn't support secondary sorting.
             definitions.order = orderingResult.Order;
-            definitions.trendingAssetWindow = definitions.order.trendingAssetWindow;
 
             #endregion
 

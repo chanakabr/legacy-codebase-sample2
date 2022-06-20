@@ -176,17 +176,18 @@ namespace ApiLogic.IndexManager.Helpers
 
         internal static string GetExtraFieldName(string key, eFieldType type)
         {
+            var loweredKey = key.ToLower();
             if (type == eFieldType.NonStringMeta || type == eFieldType.StringMeta)
             {
-                return $"metas.{key}";
+                return $"metas.{loweredKey}";
             }
             else if (type == eFieldType.Tag)
             {
-                return $"tags.{key}";
+                return $"tags.{loweredKey}";
             }
             else
             {
-                return key;
+                return loweredKey;
             }
         }
     }

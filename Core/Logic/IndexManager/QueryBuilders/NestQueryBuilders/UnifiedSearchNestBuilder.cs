@@ -1,27 +1,25 @@
 ﻿using System;
-using ApiObjects.SearchObjects;
-using Nest;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using ApiLogic.IndexManager.NestData;
-using ApiObjects;
-using ElasticSearch.Common;
-using ICSharpCode.SharpZipLib.Zip;
-using MoreLinq;
-using MoreLinq.Extensions;
-using Phx.Lib.Appconfig;
-using Phx.Lib.Log;
+using System.Reflection;
 using ApiLogic.IndexManager.Helpers;
+using ApiLogic.IndexManager.NestData;
 using ApiLogic.IndexManager.QueryBuilders.NestQueryBuilders;
 using ApiLogic.IndexManager.QueryBuilders.NestQueryBuilders.Queries;
-using Google.Protobuf.Reflection;
-using RabbitMQ.Client.Impl;
-using MethodBase = System.Reflection.MethodBase;
+using ApiLogic.IndexManager.Sorting;
+using ApiObjects;
+using ApiObjects.SearchObjects;
+using ElasticSearch.NEST;
+using ElasticSearch.Searcher;
+using ElasticSearch.Utils;
+using Nest;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
+using BoolQuery = Nest.BoolQuery;
 
 namespace ApiLogic.IndexManager.QueryBuilders
 {
-    public class UnifiedSearchNestBuilder : IUnifiedSearchNestBuilder
+    public class UnifiedSearchNestBuilder : BaseEsUnifiedQueryBuilder, IUnifiedSearchNestBuilder
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -30,14 +28,6 @@ namespace ApiLogic.IndexManager.QueryBuilders
         protected static readonly List<string> EXTRA_FIELDS_WITH_LANGUAGE_PREFIX = new List<string>() { "name", "description" };
         protected internal const string TOP_HITS_DEFAULT_NAME = "top_hits_assets";
         protected const int TERMS_AGGREGATION_MISSING_VALUE = 999;
-
-        public UnifiedSearchDefinitions Definitions { get; set; }
-
-        public int PageSize { get; set; }
-        public int PageIndex { get; set; }
-        public bool GetAllDocuments { get; set; }
-        public bool ShouldPageGroups { get; set; }
-        public int From { get; set; }
         public bool MinimizeQuery { get; set; }
 
         private QueryContainer SubscriptionsQuery { get; set; }
@@ -45,7 +35,11 @@ namespace ApiLogic.IndexManager.QueryBuilders
         private readonly NestEpgQueries _nestEpgQueries;
         private readonly NestBaseQueries _nestBaseQueries;
 
-        public UnifiedSearchNestBuilder()
+        public UnifiedSearchNestBuilder(
+            IEsSortingService esSortingService,
+            ISortingAdapter sortingAdapter,
+            IUnifiedQueryBuilderInitializer queryInitializer)
+            : base(esSortingService, sortingAdapter, queryInitializer)
         {
             _nestMediaQueries = new NestMediaQueries();
             _nestEpgQueries = new NestEpgQueries();
@@ -60,7 +54,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
             {
                 pageSize = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
             }
-            else if (this.Definitions.topHitsCount > 0)
+            else if (this.SearchDefinitions.topHitsCount > 0)
             {
                 pageSize = 0;
             }
@@ -94,7 +88,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
         {
             AggregationDictionary result = new AggregationDictionary();
             
-            if (this.Definitions.groupBy != null && this.Definitions.groupBy.Count > 0)
+            if (this.SearchDefinitions.groupBy != null && this.SearchDefinitions.groupBy.Count > 0)
             {
                 var returnFields = GetFields().ToArray();
                 AggregationContainer currentAggregation = null;
@@ -102,7 +96,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 // TODO: make sure order is correct
                 //GetAggregationOrder(aggregationsOrderField, aggregationsOrderDirection);
 
-                foreach (var groupBy in this.Definitions.groupBy)
+                foreach (var groupBy in this.SearchDefinitions.groupBy)
                 {
                     int? size = null;
 
@@ -111,19 +105,19 @@ namespace ApiLogic.IndexManager.QueryBuilders
                         // not sure
                         size = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
                     }
-                    else if (this.Definitions.topHitsCount > 0 || !string.IsNullOrEmpty(this.Definitions.distinctGroup?.Key))
+                    else if (this.SearchDefinitions.topHitsCount > 0 || !string.IsNullOrEmpty(this.SearchDefinitions.distinctGroup?.Key))
                     {
-                        size = this.Definitions.pageSize * (this.Definitions.pageIndex + 1);
+                        size = this.SearchDefinitions.pageSize * (this.SearchDefinitions.pageIndex + 1);
                     }
 
                     if (currentAggregation == null)
                     {
                         object missing = null;
 
-                        if (this.Definitions.isGroupingOptionInclude)
+                        if (this.SearchDefinitions.isGroupingOptionInclude)
                         {
                             missing = TERMS_AGGREGATION_MISSING_VALUE;
-                            this.Definitions.topHitsCount = 10000; //allow missed bucket max results
+                            this.SearchDefinitions.topHitsCount = 10000; //allow missed bucket max results
                         }
 
                         var termsAggregation = new TermsAggregation(groupBy.Key)
@@ -135,15 +129,15 @@ namespace ApiLogic.IndexManager.QueryBuilders
                         
                         // TODO: Understand this!
                         // Get top hit as well if necessary
-                        if (this.Definitions.topHitsCount > 0 || !string.IsNullOrEmpty(this.Definitions.distinctGroup?.Key))
+                        if (this.SearchDefinitions.topHitsCount > 0 || !string.IsNullOrEmpty(this.SearchDefinitions.distinctGroup?.Key))
                         {
                             int topHitsSize = -1;
 
-                            if (this.Definitions.topHitsCount > 0)
+                            if (this.SearchDefinitions.topHitsCount > 0)
                             {
-                                topHitsSize = this.Definitions.topHitsCount;
+                                topHitsSize = this.SearchDefinitions.topHitsCount;
                             }
-                            else if (this.Definitions.topHitsCount == 0)
+                            else if (this.SearchDefinitions.topHitsCount == 0)
                             {
                                 topHitsSize = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
                             }
@@ -152,7 +146,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                             sourceFilter.Includes = returnFields;
 
                             // I dunno why we need to cast like this, just to get the value which is the list...
-                            var castedSort = GetSort() as IPromise<IList<ISort>>;
+                            var castedSort = EsSortingService.GetSortingV7(OrderByFields) as IPromise<IList<ISort>>;
 
                             termsAggregation.Aggregations = new AggregationDictionary();
                             termsAggregation.Aggregations.Add(TOP_HITS_DEFAULT_NAME,
@@ -170,7 +164,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                             result.Add(cardinalityName, new CardinalityAggregation(cardinalityName, groupBy.Value.ToLower()));
                         }
 
-                        SetAggregationOrder(termsAggregation, this.Definitions);
+                        SetAggregationOrder(termsAggregation);
                         currentAggregation = termsAggregation;
                         result.Add(groupBy.Key, currentAggregation);
                     }
@@ -182,7 +176,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                             // previously it was 0 but it doesn't work...
                             Size = size,
                         };
-                        SetAggregationOrder(subAggregation, this.Definitions);
+                        SetAggregationOrder(subAggregation);
 
                         if (currentAggregation.Aggregations == null)
                         {
@@ -199,120 +193,34 @@ namespace ApiLogic.IndexManager.QueryBuilders
             return result;
         }
 
-        private void SetAggregationOrder(TermsAggregation currentAggregation, UnifiedSearchDefinitions definitions)
+        private void SetAggregationOrder(TermsAggregation currentAggregation)
         {
             TermsOrder termsOrder = null;
 
-            if (definitions.topHitsCount > 0 || !string.IsNullOrEmpty(definitions.distinctGroup?.Key))
+            if ((SearchDefinitions.topHitsCount > 0 || !string.IsNullOrEmpty(SearchDefinitions.distinctGroup?.Key))
+                && OrderByFields?.Count == 1
+                && OrderByFields.Single() is EsOrderByField esOrderByField)
             {
-                string aggregationName = "order_aggregation";
-                string aggregationsOrder = "order_aggregation";
-                var orderObj = definitions.order;
-                AggregationContainer orderAggregation = null;
-
-                string field = string.Empty;
-
-                switch (orderObj.m_eOrderBy)
+                var orderAggregation = GetOrderAggregation(esOrderByField);
+                var orderAggregationName = orderAggregation != null ? "order_aggregation" : "_term";
+                var sortOrder = esOrderByField.OrderByDirection == OrderDir.DESC
+                    ? SortOrder.Descending
+                    : SortOrder.Ascending;
+                if (orderAggregation != null)
                 {
-                    case OrderBy.ID:
-                        {
-                            aggregationsOrder = "_term";
-
-                            break;
-                        }
-                    case OrderBy.VIEWS:
-                        break;
-                    case OrderBy.RATING:
-                        break;
-                    case OrderBy.VOTES_COUNT:
-                        break;
-                    case OrderBy.LIKE_COUNTER:
-                        break;
-                    case OrderBy.START_DATE:
-                        {
-                            field = "start_date";
-                            break;
-                        }
-                    case OrderBy.NAME:
-                        {
-                            aggregationsOrder = "_term";
-
-                            break;
-                        }
-                    case OrderBy.CREATE_DATE:
-                        {
-                            field = "create_date";
-                            break;
-                        }
-                    case OrderBy.META:
-                        {
-                            aggregationsOrder = "_term";
-
-                            break;
-                        }
-                    case OrderBy.RANDOM:
-                        break;
-                    case OrderBy.RELATED:
-                        {
-                            field = "_score";
-                            break;
-                        }
-                    case OrderBy.NONE:
-                        {
-                            field = "_score";
-                            break;
-                        }
-                    case OrderBy.RECOMMENDATION:
-                        break;
-
-                    default:
-                        break;
-                }
-
-                SortOrder sortOrder = SortOrder.Ascending;
-                if (!string.IsNullOrEmpty(field))
-                {
-                    switch (orderObj.m_eOrderDir)
-                    {
-                        case OrderDir.ASC:
-                            {
-                                orderAggregation = new MinAggregation(aggregationName, field)
-                                {
-                                };
-
-                                
-                                break;
-                            }
-                        case OrderDir.DESC:
-                            orderAggregation = new MaxAggregation(aggregationName, field)
-                            {
-                            };
-
-                            sortOrder = SortOrder.Descending;
-                            break;
-                        case OrderDir.NONE:
-                            break;
-                        default:
-                            break;
-                    }
-
                     if (currentAggregation.Aggregations == null)
                     {
                         currentAggregation.Aggregations = new AggregationDictionary();
                     }
 
-                    currentAggregation.Aggregations.Add(aggregationName, orderAggregation);
+                    currentAggregation.Aggregations.Add(orderAggregationName, orderAggregation);
                 }
 
-                termsOrder = new TermsOrder()
-                {
-                    Key = aggregationsOrder,
-                    Order = sortOrder
-                };
+                termsOrder = new TermsOrder { Key = orderAggregationName, Order = sortOrder };
             }
-            else if (definitions.groupByOrder != null && definitions.groupByOrder.HasValue)
+            else if (SearchDefinitions.groupByOrder != null && SearchDefinitions.groupByOrder.HasValue)
             {
-                switch (definitions.groupByOrder.Value)
+                switch (SearchDefinitions.groupByOrder.Value)
                 {
                     case AggregationOrder.Default:
                         break;
@@ -341,49 +249,62 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 }
             }
 
-            List<TermsOrder> termsAggregationsOrder = null;
-
             if (termsOrder != null)
             {
-                termsAggregationsOrder = new List<TermsOrder>() { termsOrder };
+                currentAggregation.Order = new List<TermsOrder> { termsOrder };
             }
-
-            currentAggregation.Order = termsAggregationsOrder;
         }
 
-        private static List<TermsOrder> GetAggregationOrder(string aggregationsOrder, SortOrder aggregationsOrderDirection)
+        private static AggregationContainer GetOrderAggregation(EsOrderByField esOrderByField)
         {
-            if (string.IsNullOrEmpty(aggregationsOrder))
+            const string orderAggregationName = "order_aggregation";
+            string field = null;
+            switch (esOrderByField.OrderByField)
+            {
+                case OrderBy.START_DATE:
+                    field = "start_date";
+                    break;
+                case OrderBy.CREATE_DATE:
+                    field = "create_date";
+                    break;
+                case OrderBy.RELATED:
+                case OrderBy.NONE:
+                    field = "_score";
+                    break;
+            }
+
+            if (string.IsNullOrEmpty(field))
             {
                 return null;
             }
 
-            return new List<TermsOrder>()
-            { 
-                new TermsOrder() 
-                { 
-                    Key = aggregationsOrder, 
-                    Order = aggregationsOrderDirection
-                }
-            };
+            switch (esOrderByField.OrderByDirection)
+            {
+                case OrderDir.ASC:
+                    return new MinAggregation(orderAggregationName, field);
+                case OrderDir.DESC:
+                    return new MaxAggregation(orderAggregationName, field);
+                default:
+                    return null;
+            }
         }
 
         public List<string> GetIndices()
         {
             List<string> indices = new List<string>();
-            if (Definitions.shouldSearchMedia)
+            if (SearchDefinitions.shouldSearchMedia)
             {
-                indices.Add(NamingHelper.GetMediaIndexAlias(this.Definitions.groupId));
+                indices.Add(NamingHelper.GetMediaIndexAlias(this.SearchDefinitions.groupId));
             }
 
-            if (Definitions.shouldSearchEpg)
+            if (SearchDefinitions.shouldSearchEpg)
             {
-                indices.Add(NamingHelper.GetEpgIndexAlias(this.Definitions.groupId));
+                indices.Add(NamingHelper.GetEpgIndexAlias(this.SearchDefinitions.groupId));
             }
 
-            if (Definitions.shouldSearchRecordings)
+            if (SearchDefinitions.shouldSearchRecordings)
             {
-                indices.Add(NamingHelper.GetRecordingIndexAlias(this.Definitions.groupId));
+                indices.Add(NamingHelper.GetRecordingIndexAlias(this.SearchDefinitions.groupId));
             }
 
             return indices;
@@ -391,29 +312,41 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
         public QueryContainer GetQuery()
         {
-            SubscriptionsQuery = GetEntitledSubscriptionsQuery(Definitions.entitlementSearchDefinitions);
+            SubscriptionsQuery = GetEntitledSubscriptionsQuery(SearchDefinitions.entitlementSearchDefinitions);
 
-            var globalQuery = GetGlobalQuery(Definitions);
-            var assetsQuery = GetAssetTypesShouldQuery(Definitions);
+            var globalQuery = GetGlobalQuery(SearchDefinitions);
+            var assetsQuery = GetAssetTypesShouldQuery(SearchDefinitions);
 
-            BoolQuery mainBoolQuery = new BoolQuery()
+            var mainBoolQuery = new BoolQuery()
             {
                 Must = new List<QueryContainer>() { globalQuery, assetsQuery }
             };
 
-            var result = HandleBoostScoreValues(mainBoolQuery);
+            var priorityResult = HandlePrioritySearchGroups(mainBoolQuery);
+            var result = !priorityResult.isApplied ? HandleBoostScoreValues(mainBoolQuery) : priorityResult.query;
 
             return result;
         }
 
+        private (bool isApplied, QueryContainer query) HandlePrioritySearchGroups(QueryContainer mainBoolQuery)
+        {
+            if (SearchDefinitions.PriorityGroupsMappings != null && SearchDefinitions.PriorityGroupsMappings.Count != 0)
+            {
+                var priorityQueryBuilder = new PriorityQueryBuilder(this, SearchDefinitions.PriorityGroupsMappings);
+                return (true, priorityQueryBuilder.Build(mainBoolQuery));
+            }
+
+            return (false, mainBoolQuery);
+        }
+
         private QueryContainer HandleBoostScoreValues(BoolQuery mainBoolQuery)
         {
-            if (Definitions.boostScoreValues != null && Definitions.boostScoreValues.Any())
+            if (SearchDefinitions.boostScoreValues != null && SearchDefinitions.boostScoreValues.Any())
             {
                 var functions = new List<IScoreFunction>();
-                string language = this.Definitions.langauge != null ? this.Definitions.langauge.Code : string.Empty;
+                string language = this.SearchDefinitions.langauge != null ? this.SearchDefinitions.langauge.Code : string.Empty;
 
-                foreach (var item in Definitions.boostScoreValues)
+                foreach (var item in SearchDefinitions.boostScoreValues)
                 {
                     string key = GetElasticsearchFieldName(language, item.Key, item.Type, true);
                     functions.Add(new WeightFunction()
@@ -478,12 +411,15 @@ namespace ApiLogic.IndexManager.QueryBuilders
             }
 
             // Unified
-            var unifiedSearchBuilder = new UnifiedSearchNestBuilder() { MinimizeQuery = minimizeQuery };
+            var unifiedSearchBuilder = new UnifiedSearchNestBuilder(EsSortingService, SortingAdapter, QueryInitializer)
+            {
+                MinimizeQuery = minimizeQuery
+            };
             var unifiedSearchList = searchObjects.OfType<UnifiedSearchDefinitions>();
             foreach (var unifiedSearchItem in unifiedSearchList)
             {
                 unifiedSearchItem.shouldAddIsActiveTerm = true;
-                unifiedSearchBuilder.Definitions = unifiedSearchItem;
+                unifiedSearchBuilder.SearchDefinitions = unifiedSearchItem;
                 var queryContainer = unifiedSearchBuilder.GetQuery();
                 shouldQueryContainer.Add(queryContainer);
             }
@@ -506,7 +442,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
             {
                 var groupIdTerm = globalQuery.Term(selector => selector
                     .Field(field => field.GroupID)
-                    .Value(Definitions.exactGroupId));
+                    .Value(SearchDefinitions.exactGroupId));
                 mustQueryContainers.Add(groupIdTerm);
             }
 
@@ -702,17 +638,17 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
         private QueryContainer GetGlobalFilterPhraseQueryContainer(UnifiedSearchDefinitions unifiedSearchDefinitions)
         {
-            if (this.Definitions.filterPhrase == null)
+            if (this.SearchDefinitions.filterPhrase == null)
             {
                 return null;
             }
 
-            var result = ConvertToQuery(this.Definitions.filterPhrase);
+            var result = ConvertToQuery(this.SearchDefinitions.filterPhrase);
 
             return result;
         }
 
-        private QueryContainer ConvertToQuery(BooleanPhraseNode root)
+        internal QueryContainer ConvertToQuery(BooleanPhraseNode root)
         {
             var queryContainerDescriptor = new QueryContainerDescriptor<NestBaseAsset>();
             QueryContainer result = null;
@@ -955,7 +891,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
         private string HandleLanguageSpecificLeafField(BooleanLeaf leaf)
         {
             string field = leaf.field;
-            string language = this.Definitions.langauge != null ? this.Definitions.langauge.Code : string.Empty;
+            string language = this.SearchDefinitions.langauge != null ? this.SearchDefinitions.langauge.Code : string.Empty;
             field = GetElasticsearchFieldName(language, field, leaf.fieldType, leaf.isLanguageSpecific);
 
             return field;
@@ -1116,9 +1052,9 @@ namespace ApiLogic.IndexManager.QueryBuilders
             {
                 string recordingId = "0";
                 string domainRecordingId = leaf.value.ToString();
-                if (this.Definitions.domainRecordingIdToRecordingIdMapping.ContainsKey(domainRecordingId))
+                if (this.SearchDefinitions.domainRecordingIdToRecordingIdMapping.ContainsKey(domainRecordingId))
                 {
-                    recordingId = this.Definitions.domainRecordingIdToRecordingIdMapping[domainRecordingId];
+                    recordingId = this.SearchDefinitions.domainRecordingIdToRecordingIdMapping[domainRecordingId];
                 }
 
                 result = new TermQuery()
@@ -1135,9 +1071,9 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 foreach (string domainRecordingId in domainRecordingIds)
                 {
                     string recordingId = "0";
-                    if (this.Definitions.domainRecordingIdToRecordingIdMapping.ContainsKey(domainRecordingId))
+                    if (this.SearchDefinitions.domainRecordingIdToRecordingIdMapping.ContainsKey(domainRecordingId))
                     {
-                        recordingId = this.Definitions.domainRecordingIdToRecordingIdMapping[domainRecordingId];
+                        recordingId = this.SearchDefinitions.domainRecordingIdToRecordingIdMapping[domainRecordingId];
                         recordingIds.Add(recordingId);
                     }
                     else
@@ -1185,7 +1121,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
         private QueryContainer BuildUserInterestsQuery()
         {
             QueryContainer result = null;
-            var userPreferences = this.Definitions.userPreferences;
+            var userPreferences = this.SearchDefinitions.userPreferences;
 
             if ((userPreferences != null) &&
                 (((userPreferences.Metas != null) &&
@@ -1201,7 +1137,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     {
                         var terms = new TermsQuery()
                         {
-                            Field = $"tags.{this.Definitions.langauge.Code}.{tag.Key.ToLower()}",
+                            Field = $"tags.{this.SearchDefinitions.langauge.Code}.{tag.Key.ToLower()}",
                             // TODO: check if should lowercase
                             Terms = tag.Value
                         };
@@ -1216,7 +1152,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     {
                         var terms = new TermsQuery()
                         {
-                            Field = $"metas.{this.Definitions.langauge.Code}.{meta.Key.ToLower()}",
+                            Field = $"metas.{this.SearchDefinitions.langauge.Code}.{meta.Key.ToLower()}",
                             // TODO: check if should lowercase
                             Terms = meta.Value
                         };
@@ -1243,7 +1179,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
         {
             QueryContainer result = null;
             string entitledAssetsSearchType = Convert.ToString(leaf.value).ToLower();
-            var entitlementSearchDefinitions = this.Definitions.entitlementSearchDefinitions;
+            var entitlementSearchDefinitions = this.SearchDefinitions.entitlementSearchDefinitions;
             List<QueryContainer> shoulds = new List<QueryContainer>();
 
             bool shouldGetFreeAssets = entitledAssetsSearchType == "free" || entitledAssetsSearchType == "both" ||
@@ -1458,34 +1394,27 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
         #endregion
 
-        private bool IsOrderByString(OrderBy? orderBy)
-        {
-            if (!orderBy.HasValue) return false;
-
-            return orderBy == OrderBy.META || orderBy == OrderBy.NAME;
-        }
-
         public IEnumerable<string> GetFields()
         {
-            string language = this.Definitions.langauge != null ? this.Definitions.langauge.Code : string.Empty;
+            string language = this.SearchDefinitions.langauge != null ? this.SearchDefinitions.langauge.Code : string.Empty;
 
-            var fields = DEFAULT_RETURN_FIELDS.ToList();
-            fields.AddRange(Definitions.extraReturnFields);
-            fields = fields.Select(field => GetExtraFieldName(language, field)).Distinct().ToList();
+            var fields = DEFAULT_RETURN_FIELDS.ToHashSet();
+            fields.UnionWith(SearchDefinitions.extraReturnFields);
+            fields = fields.Select(field => GetExtraFieldName(language, field)).ToHashSet();
 
             var epg_id_field = "epg_id";
 
-            if (Definitions.shouldSearchEpg)
+            if (SearchDefinitions.shouldSearchEpg)
             {
                 fields.Add(epg_id_field);
             }
 
-            if (Definitions.shouldSearchMedia)
+            if (SearchDefinitions.shouldSearchMedia)
             {
                 fields.Add("media_id");
             }
 
-            if (Definitions.shouldSearchRecordings)
+            if (SearchDefinitions.shouldSearchRecordings)
             {
                 if (!fields.Contains(epg_id_field))
                 {
@@ -1496,7 +1425,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
             }
 
 
-            if (Definitions.isEpgV2)
+            if (SearchDefinitions.isEpgV2)
             {
                 var doc_id_field = "cb_document_id";
                 if (!fields.Contains(doc_id_field))
@@ -1505,18 +1434,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 }
             }
 
-            var fieldName = _nestBaseQueries.GetMetaSortField(Definitions.order, Definitions.langauge.Code);
-            
-            if (!string.IsNullOrEmpty(fieldName))
-            {
-                fields.Add(fieldName);
-            }
-
-            if (Definitions.order.m_eOrderBy == OrderBy.START_DATE && Definitions.associationTags?.Count > 0 && Definitions.parentMediaTypes?.Count> 0)
-            {
-                fields.Add("start_date");
-                fields.Add("media_type_id");
-            }
+            fields.UnionWith(EsSortingService.BuildExtraReturnFields(OrderByFields));
 
             return new List<string>(fields);
         }
@@ -1547,19 +1465,44 @@ namespace ApiLogic.IndexManager.QueryBuilders
             return searchRequest;
         }
 
-        public SortDescriptor<NestBaseAsset> GetSort()
+        public SortDescriptor<NestBaseAsset> GetSort() => EsSortingService.GetSortingV7(OrderByFields, ShouldUseFunctionScore());
+
+        public bool ShouldUseFunctionScore() => SearchDefinitions.PriorityGroupsMappings?.Count > 0 || SearchDefinitions.boostScoreValues?.Count > 0;
+
+        public override void SetPagingForUnifiedSearch() => QueryInitializer.SetPagingForUnifiedSearch(this);
+
+        public override void SetGroupByValuesForUnifiedSearch()
         {
-            var definitionsBoostScoreValues = Definitions.boostScoreValues;
-            var order = Definitions.order;
-            var languageCode = Definitions.langauge.Code;
-            return _nestBaseQueries.GetSortDescriptor(order, languageCode, definitionsBoostScoreValues);
+            if (SearchDefinitions.groupBy != null && SearchDefinitions.groupBy.Any())
+            {
+                var language = SearchDefinitions.langauge.Code;
+
+                foreach (var groupBy in SearchDefinitions.groupBy)
+                {
+                    SetGroupByValue(groupBy, language);
+                }
+
+                if (SearchDefinitions.distinctGroup != null)
+                {
+                    SetGroupByValue(SearchDefinitions.distinctGroup, language);
+                    SearchDefinitions.extraReturnFields.Add(NamingHelper.GetExtraFieldName(SearchDefinitions.distinctGroup.Key, SearchDefinitions.distinctGroup.Type));
+                }
+            }
         }
 
-        public List<ISort> GetSortList(OrderObj order)
+        private static void SetGroupByValue(GroupByDefinition groupBy, string language)
         {
-            List<ISort> result = new List<ISort>();
+            var key = groupBy.Key.ToLower();
+            var type = groupBy.Type;
+            string value = GetElasticsearchFieldName(language, key, type);
 
-            return result;
+            // hmmm?
+            //if (groupBy.Type == eFieldType.Tag || groupBy.Type == eFieldType.StringMeta)
+            //{
+            //    value = $"{value}.lowercase";
+            //}
+
+            groupBy.Value = value;
         }
     }
 }
