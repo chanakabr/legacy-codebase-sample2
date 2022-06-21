@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.General
 {
@@ -25,6 +26,7 @@ namespace WebAPI.Models.General
         [DataMember(Name = "filter")]
         [JsonProperty("filter")]
         [XmlElement(ElementName = "filter")]
+        [SchemeProperty(IsNullable = true)]
         public KalturaRelatedObjectFilter Filter { get; set; }
 
         /// <summary>

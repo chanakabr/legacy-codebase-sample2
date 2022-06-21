@@ -38,6 +38,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("orderBy")]
         [XmlElement(ElementName = "orderBy", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        [SchemeProperty(IsNullable = true)]
         public new KalturaAssetOrderBy? OrderBy { get; set; }
 
         /// <summary>
@@ -47,6 +48,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("dynamicOrderBy")]
         [XmlElement(ElementName = "dynamicOrderBy", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        [SchemeProperty(IsNullable = true)]
         public KalturaDynamicOrderBy DynamicOrderBy { get; set; }
 
         /// <summary>
@@ -56,6 +58,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "orderingParameters")]
         [XmlElement(ElementName = "orderingParameters")]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        [SchemeProperty(IsNullable = true)]
         public List<KalturaBaseAssetOrder> OrderParameters { get; set; }
 
         /// <summary>
