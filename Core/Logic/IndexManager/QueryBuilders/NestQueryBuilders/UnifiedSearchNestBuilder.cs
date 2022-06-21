@@ -660,9 +660,6 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 string field = HandleLanguageSpecificLeafField(leaf);
                 object value = leaf.value;
 
-                // TODO: remove this line, just for debug
-                result = queryContainerDescriptor.Term(field, value);
-
                 // Special case - if this is the entitled assets leaf, we build a specific term for it
                 if (field == NamingHelper.ENTITLED_ASSETS_FIELD)
                 {
@@ -693,6 +690,12 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 else
                 {
                     bool isNumeric = leaf.valueType == typeof(int) || leaf.valueType == typeof(long) || leaf.valueType == typeof(bool);
+
+                    bool isDateTime = leaf.valueType == typeof(DateTime);
+                    if (isDateTime)
+                    {
+                        value = Convert.ToDateTime(value).ToString("O");
+                    }
 
                     // "Match" when search is not exact (contains)
                     if (leaf.operand == ApiObjects.ComparisonOperator.Contains ||
@@ -848,17 +851,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
                     if (newChild != null)
                     {
-                        // If it is a SIMPLE NOT PHRASE
-                        if (childNode.type == BooleanNodeType.Leaf &&
-                            (((childNode as BooleanLeaf).operand == ComparisonOperator.NotEquals) &&
-                            (!(childNode as BooleanLeaf).shouldLowercase)))
-                        {
-                            mustNotChildren.Add(newChild);
-                        }
-                        else
-                        {
-                            mustChildren.Add(newChild);
-                        }
+                        mustChildren.Add(newChild);
                     }
                 }
 
