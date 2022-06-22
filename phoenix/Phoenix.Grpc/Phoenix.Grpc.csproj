@@ -46,7 +46,7 @@
   <ItemGroup>
     <PackageReference Include="Grpc.HealthCheck" Version="2.45.0" />
     <PackageReference Include="OTT.Lib.GRPC" Version="0.0.0.33-alpha" />
-    <PackageReference Include="Phx.Lib.Appconfig" Version="1.4.5" />
+    <PackageReference Include="Phx.Lib.Appconfig" Version="1.4.6" />
     <PackageReference Include="Phx.Lib.Log" Version="1.2.4" />
   </ItemGroup>
 

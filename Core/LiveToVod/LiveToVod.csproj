@@ -15,7 +15,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.2" />
     <PackageReference Include="OTT.Lib.MongoDB" Version="2.0.0" />
-    <PackageReference Include="Phx.Lib.Appconfig" Version="1.4.5" />
+    <PackageReference Include="Phx.Lib.Appconfig" Version="1.4.6" />
   </ItemGroup>
 
   <ItemGroup>

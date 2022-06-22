@@ -117,7 +117,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                         if (this.SearchDefinitions.isGroupingOptionInclude)
                         {
                             missing = TERMS_AGGREGATION_MISSING_VALUE;
-                            this.SearchDefinitions.topHitsCount = 10000; //allow missed bucket max results
+                            this.SearchDefinitions.topHitsCount = ApplicationConfiguration.Current._elasticSearchConfiguration.MaxInnerResultWindow.Value; //allow missed bucket max results
                         }
 
                         var termsAggregation = new TermsAggregation(groupBy.Key)

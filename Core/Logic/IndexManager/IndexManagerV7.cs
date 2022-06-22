@@ -3343,6 +3343,7 @@ namespace Core.Catalog
                       .Setting("index.max_result_window", _maxResults)
                       .Setting("index.max_ngram_diff", _applicationConfiguration.ElasticSearchHandlerConfiguration.MaxNgramDiff.Value)
                       .Setting("index.mapping.total_fields.limit", _applicationConfiguration.ElasticSearchHandlerConfiguration.TotalFieldsLimit.Value)
+                      .Setting("index.max_inner_result_window", _applicationConfiguration.ElasticSearchConfiguration.MaxInnerResultWindow.Value)
                       .Analysis(a => a
                           .Analyzers(an => analyzersDescriptor)
                           .TokenFilters(tf => filtersDescriptor)
@@ -3631,6 +3632,7 @@ namespace Core.Catalog
                         .NumberOfReplicas(_numOfReplicas)
                         .Setting("index.max_result_window", _maxResults)
                         .Setting("index.max_ngram_diff", _applicationConfiguration.ElasticSearchHandlerConfiguration.MaxNgramDiff.Value)
+                        .Setting("index.max_inner_result_window", _applicationConfiguration.ElasticSearchConfiguration.MaxInnerResultWindow.Value)
                         .Analysis(a => a
                             .Analyzers(an => analyzersDescriptor)
                             .TokenFilters(tf => filtersDescriptor)
@@ -4618,6 +4620,7 @@ namespace Core.Catalog
                         .Setting("index.max_result_window", _maxResults)
                         .Setting("index.max_ngram_diff", _applicationConfiguration.ElasticSearchHandlerConfiguration.MaxNgramDiff.Value)
                         .Setting("index.mapping.total_fields.limit", _applicationConfiguration.ElasticSearchHandlerConfiguration.TotalFieldsLimit.Value)
+                        .Setting("index.max_inner_result_window", _applicationConfiguration.ElasticSearchConfiguration.MaxInnerResultWindow.Value)
                         .Analysis(a => a
                             .Analyzers(an => analyzersDescriptor)
                             .TokenFilters(tf => filtersDesctiptor)
