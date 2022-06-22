@@ -53,9 +53,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
 
             var liveAsset = new LiveAsset
             {
-                SummedCatchUpBuffer = 3600,
-                SummedPaddingBeforeProgramStarts = 20,
-                SummedPaddingAfterProgramEnds = 30,
+                SummedCatchUpBuffer = 60,
                 PaddingBeforeProgramStarts = 20,
                 PaddingAfterProgramEnds = 30
             };
@@ -123,9 +121,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
 
             var liveAsset = new LiveAsset
             {
-                SummedCatchUpBuffer = 3600,
-                SummedPaddingBeforeProgramStarts = 20,
-                SummedPaddingAfterProgramEnds = 30,
+                SummedCatchUpBuffer = 60,
                 PaddingBeforeProgramStarts = 20,
                 PaddingAfterProgramEnds = 30
             };
@@ -188,8 +184,6 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
             var liveAsset = new LiveAsset
             {
                 SummedCatchUpBuffer = 3600,
-                SummedPaddingBeforeProgramStarts = 20,
-                SummedPaddingAfterProgramEnds = 30,
                 PaddingBeforeProgramStarts = 20,
                 PaddingAfterProgramEnds = 30
             };
@@ -265,8 +259,6 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
             var liveAsset = new LiveAsset
             {
                 SummedCatchUpBuffer = 3600,
-                SummedPaddingBeforeProgramStarts = 20,
-                SummedPaddingAfterProgramEnds = 30,
                 PaddingBeforeProgramStarts = 20,
                 PaddingAfterProgramEnds = 30
             };
