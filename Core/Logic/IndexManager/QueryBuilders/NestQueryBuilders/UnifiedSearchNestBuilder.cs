@@ -1444,7 +1444,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
             }
             else if (field.StartsWith("tags."))
             {
-                return $"metas.{language}.{field.Substring(5)}";
+                return $"tags.{language}.{field.Substring(5)}";
             }
 
             return field;
