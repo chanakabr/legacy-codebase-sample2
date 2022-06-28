@@ -2606,16 +2606,16 @@ namespace Core.Catalog.CatalogManagement
                 return response;
             }
 
+            ObjectVirtualAssetInfo objectVirtualAssetInfo = GetObjectVirtualAssetInfo(groupId, virtualAssetInfo.Type);
+            if (objectVirtualAssetInfo == null)
+            {
+                return response;
+            }
+
             if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
             {
                 log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling GetVirtualAsset");
                 response.Status = VirtualAssetInfoStatus.Error;
-                return response;
-            }
-
-            ObjectVirtualAssetInfo objectVirtualAssetInfo = GetObjectVirtualAssetInfo(groupId, virtualAssetInfo.Type);
-            if (objectVirtualAssetInfo == null)
-            {
                 return response;
             }
 

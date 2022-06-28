@@ -3,6 +3,7 @@ using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Response;
 using System;
+using System.Collections.Generic;
 using WebAPI.Clients;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
@@ -211,9 +212,12 @@ namespace WebAPI.Controllers
             KalturaGenericListResponse<KalturaTriggerCampaign> triggerCampaignResponse =
                ClientUtils.GetResponseListFromWS<KalturaTriggerCampaign, TriggerCampaign>(listFunc);
 
-            KalturaGenericListResponse<KalturaCampaign> response = new KalturaGenericListResponse<KalturaCampaign>();
-            response.Objects.AddRange(triggerCampaignResponse.Objects);
-            response.TotalCount = triggerCampaignResponse.TotalCount;
+            var response = new KalturaGenericListResponse<KalturaCampaign>()
+            {
+                Objects = new List<KalturaCampaign>(triggerCampaignResponse.Objects),
+                TotalCount = triggerCampaignResponse.TotalCount
+            };
+            
             return response;
         }
 
@@ -227,9 +231,12 @@ namespace WebAPI.Controllers
             KalturaGenericListResponse<KalturaBatchCampaign> batchCampaignResponse =
                ClientUtils.GetResponseListFromWS<KalturaBatchCampaign, BatchCampaign>(listFunc);
 
-            KalturaGenericListResponse<KalturaCampaign> response = new KalturaGenericListResponse<KalturaCampaign>();
-            response.Objects.AddRange(batchCampaignResponse.Objects);
-            response.TotalCount = batchCampaignResponse.TotalCount;
+            var response = new KalturaGenericListResponse<KalturaCampaign>()
+            {
+                Objects = new List<KalturaCampaign>(batchCampaignResponse.Objects),
+                TotalCount = batchCampaignResponse.TotalCount
+            };
+            
             return response;
         }
 
