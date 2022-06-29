@@ -15,5 +15,8 @@ namespace ElasticSearch.Common
         public string suffix;
         public string phoneticIndexAnalyzer;
         public string phoneticSearchAnalyzer;
+        public string lowercaseAnalyzer;
+        public string phraseStartsWithAnalyzer;
+        public string phraseStartsWithSearchAnalyzer;
     }
 }

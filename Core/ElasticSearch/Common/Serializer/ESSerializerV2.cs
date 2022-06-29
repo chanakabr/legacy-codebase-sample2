@@ -47,7 +47,6 @@ namespace ElasticSearch.Common
         protected const string LOWERCASE_ANALYZER = "lowercase_analyzer";
         protected const string PHRASE_STARTS_WITH_ANALYZER = "phrase_starts_with_analyzer";
         protected const string PHRASE_STARTS_WITH_SEARCH_ANALYZER = "phrase_starts_with_search_analyzer";
-        protected const string PHRASE_STARTS_WITH_FILTER = "edgengram_filter";
 
         public ESSerializerV2()
         {
@@ -73,13 +72,17 @@ namespace ElasticSearch.Common
             string suffix = specificLanguageAnalyzers.suffix;
             string phoneticIndexAnalyzer = specificLanguageAnalyzers.phoneticIndexAnalyzer;
             string phoneticSearchAnalyzer = specificLanguageAnalyzers.phoneticSearchAnalyzer;
+            string lowercaseAnalyzer = specificLanguageAnalyzers.lowercaseAnalyzer ?? LOWERCASE_ANALYZER;
+            string phraseStartsWithAnalyzer = specificLanguageAnalyzers.phraseStartsWithAnalyzer ?? PHRASE_STARTS_WITH_ANALYZER;
+            string phraseStartsWithSearchAnalyzer = specificLanguageAnalyzers.phraseStartsWithSearchAnalyzer ?? PHRASE_STARTS_WITH_SEARCH_ANALYZER;
 
             string defaultNormalIndexAnalyzer = normalIndexAnalyzer;
             string defaultNormalSearchAnalyzer = normalSearchAnalyzer;
             string defaultAutocompleteIndexAnalyzer = autocompleteIndexAnalyzer;
             string defaultAutocompleteSearchAnalyzer = autocompleteSearchAnalyzer;
-            string defaultPhoneticIndexAnalyzer = phoneticIndexAnalyzer;
-            string defaultPhoneticSearchAnalyzer = phoneticSearchAnalyzer;
+            string defaultLowercaseAnalyzer = lowercaseAnalyzer;
+            string defaultPhraseStartsWithAnalyzer = phraseStartsWithAnalyzer;
+            string defaultPhraseStartsWithSearchAnalyzer = phraseStartsWithSearchAnalyzer;
 
             if (defaultLanguageAnalyzers != null)
             {
@@ -87,8 +90,9 @@ namespace ElasticSearch.Common
                 defaultNormalSearchAnalyzer = defaultLanguageAnalyzers.normalSearchAnalyzer;
                 defaultAutocompleteIndexAnalyzer = defaultLanguageAnalyzers.autocompleteIndexAnalyzer;
                 defaultAutocompleteSearchAnalyzer = defaultLanguageAnalyzers.autocompleteSearchAnalyzer;
-                defaultPhoneticIndexAnalyzer = defaultLanguageAnalyzers.phoneticIndexAnalyzer;
-                defaultPhoneticSearchAnalyzer = defaultLanguageAnalyzers.phoneticSearchAnalyzer;
+                defaultLowercaseAnalyzer = defaultLanguageAnalyzers.lowercaseAnalyzer ?? LOWERCASE_ANALYZER;
+                defaultPhraseStartsWithAnalyzer = defaultLanguageAnalyzers.phraseStartsWithAnalyzer ?? PHRASE_STARTS_WITH_ANALYZER;
+                defaultPhraseStartsWithSearchAnalyzer = defaultLanguageAnalyzers.phraseStartsWithSearchAnalyzer ?? PHRASE_STARTS_WITH_SEARCH_ANALYZER;
             }
 
             if (metasMap == null || groupTags == null)
@@ -360,8 +364,8 @@ namespace ElasticSearch.Common
                 name = AddSuffix("name", suffix),
                 type = eESFieldType.STRING,
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER,
+                search_analyzer = lowercaseAnalyzer,
+                analyzer = lowercaseAnalyzer,
                 null_value = ""
             };
             nameProperty.fields.Add(new BasicMappingPropertyV2()
@@ -370,8 +374,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = string.Empty,
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER
+                search_analyzer = lowercaseAnalyzer,
+                analyzer = lowercaseAnalyzer
             });
             nameProperty.fields.Add(new BasicMappingPropertyV2()
             {
@@ -388,8 +392,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER
+                search_analyzer = lowercaseAnalyzer,
+                analyzer = lowercaseAnalyzer
             });
             nameProperty.fields.Add(new BasicMappingPropertyV2()
             {
@@ -397,8 +401,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
-                analyzer = PHRASE_STARTS_WITH_ANALYZER
+                search_analyzer = phraseStartsWithSearchAnalyzer,
+                analyzer = phraseStartsWithAnalyzer
             });
 
             if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -434,8 +438,8 @@ namespace ElasticSearch.Common
                 name = AddSuffix("description", suffix),
                 type = eESFieldType.STRING,
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER,
+                search_analyzer = lowercaseAnalyzer,
+                analyzer = lowercaseAnalyzer,
                 null_value = ""
             };
 
@@ -445,8 +449,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER,
+                search_analyzer = lowercaseAnalyzer,
+                analyzer = lowercaseAnalyzer,
             });
             descProperty.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV2()
             {
@@ -463,8 +467,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER
+                search_analyzer = lowercaseAnalyzer,
+                analyzer = lowercaseAnalyzer
             });
             descProperty.fields.Add(new BasicMappingPropertyV2()
             {
@@ -472,8 +476,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
-                analyzer = PHRASE_STARTS_WITH_ANALYZER
+                search_analyzer = phraseStartsWithSearchAnalyzer,
+                analyzer = phraseStartsWithAnalyzer
             });
 
             if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -509,8 +513,8 @@ namespace ElasticSearch.Common
                 name = "external_id",
                 type = eESFieldType.STRING,
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER,
+                search_analyzer = defaultLowercaseAnalyzer,
+                analyzer = defaultLowercaseAnalyzer,
                 null_value = ""
             };
             externalId.fields.Add(new BasicMappingPropertyV2()
@@ -519,8 +523,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = string.Empty,
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER
+                search_analyzer = defaultLowercaseAnalyzer,
+                analyzer = defaultLowercaseAnalyzer
             });
             externalId.fields.Add(new BasicMappingPropertyV2()
             {
@@ -537,8 +541,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER
+                search_analyzer = defaultLowercaseAnalyzer,
+                analyzer = defaultLowercaseAnalyzer
             });
             externalId.fields.Add(new BasicMappingPropertyV2()
             {
@@ -546,8 +550,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
-                analyzer = PHRASE_STARTS_WITH_ANALYZER
+                search_analyzer = defaultPhraseStartsWithSearchAnalyzer,
+                analyzer = defaultPhraseStartsWithAnalyzer
             });
 
             if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -570,8 +574,8 @@ namespace ElasticSearch.Common
                 name = "entry_id",
                 type = eESFieldType.STRING,
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER,
+                search_analyzer = defaultLowercaseAnalyzer,
+                analyzer = defaultLowercaseAnalyzer,
                 null_value = ""
             };
             entryId.fields.Add(new BasicMappingPropertyV2()
@@ -580,8 +584,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = string.Empty,
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER
+                search_analyzer = defaultLowercaseAnalyzer,
+                analyzer = defaultLowercaseAnalyzer
             });
             entryId.fields.Add(new BasicMappingPropertyV2()
             {
@@ -598,8 +602,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER
+                search_analyzer = defaultLowercaseAnalyzer,
+                analyzer = defaultLowercaseAnalyzer
             });
             entryId.fields.Add(new BasicMappingPropertyV2()
             {
@@ -607,8 +611,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
-                analyzer = PHRASE_STARTS_WITH_ANALYZER
+                search_analyzer = defaultPhraseStartsWithSearchAnalyzer,
+                analyzer = defaultPhraseStartsWithAnalyzer
             });
 
             if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -655,8 +659,8 @@ namespace ElasticSearch.Common
                             name = AddSuffix(loweredTagName, suffix),
                             type = eESFieldType.STRING,
                             index = eMappingIndex.analyzed,
-                            search_analyzer = LOWERCASE_ANALYZER,
-                            analyzer = LOWERCASE_ANALYZER,
+                            search_analyzer = lowercaseAnalyzer,
+                            analyzer = lowercaseAnalyzer,
                             null_value = ""
                         };
                         multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
@@ -665,8 +669,8 @@ namespace ElasticSearch.Common
                             type = eESFieldType.STRING,
                             null_value = string.Empty,
                             index = eMappingIndex.analyzed,
-                            search_analyzer = LOWERCASE_ANALYZER,
-                            analyzer = LOWERCASE_ANALYZER,
+                            search_analyzer = lowercaseAnalyzer,
+                            analyzer = lowercaseAnalyzer,
                         });
                         multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
                         {
@@ -683,8 +687,8 @@ namespace ElasticSearch.Common
                             type = eESFieldType.STRING,
                             null_value = "",
                             index = eMappingIndex.analyzed,
-                            search_analyzer = LOWERCASE_ANALYZER,
-                            analyzer = LOWERCASE_ANALYZER
+                            search_analyzer = lowercaseAnalyzer,
+                            analyzer = lowercaseAnalyzer
                         });
                         multiField.fields.Add(new BasicMappingPropertyV2()
                         {
@@ -692,8 +696,8 @@ namespace ElasticSearch.Common
                             type = eESFieldType.STRING,
                             null_value = "",
                             index = eMappingIndex.analyzed,
-                            search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
-                            analyzer = PHRASE_STARTS_WITH_ANALYZER
+                            search_analyzer = phraseStartsWithSearchAnalyzer,
+                            analyzer = phraseStartsWithAnalyzer
                         });
 
                         if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -770,8 +774,8 @@ namespace ElasticSearch.Common
                                     name = AddSuffix(sMetaName, suffix),
                                     type = meta.Value.Key,
                                     index = eMappingIndex.analyzed,
-                                    search_analyzer = LOWERCASE_ANALYZER,
-                                    analyzer = LOWERCASE_ANALYZER,
+                                    search_analyzer = lowercaseAnalyzer,
+                                    analyzer = lowercaseAnalyzer,
                                     null_value = meta.Value.Value
                                 };
 
@@ -781,8 +785,8 @@ namespace ElasticSearch.Common
                                     type = meta.Value.Key,
                                     null_value = meta.Value.Value,
                                     index = eMappingIndex.analyzed,
-                                    search_analyzer = LOWERCASE_ANALYZER,
-                                    analyzer = LOWERCASE_ANALYZER,
+                                    search_analyzer = lowercaseAnalyzer,
+                                    analyzer = lowercaseAnalyzer,
                                 });
 
                                 multiField.fields.Add(new BasicMappingPropertyV2()
@@ -791,8 +795,8 @@ namespace ElasticSearch.Common
                                     type = eESFieldType.STRING,
                                     null_value = "",
                                     index = eMappingIndex.analyzed,
-                                    search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
-                                    analyzer = PHRASE_STARTS_WITH_ANALYZER
+                                    search_analyzer = phraseStartsWithSearchAnalyzer,
+                                    analyzer = phraseStartsWithAnalyzer
                                 });
                             }
                             else
@@ -829,8 +833,8 @@ namespace ElasticSearch.Common
                                 type = eESFieldType.STRING,
                                 null_value = "",
                                 index = eMappingIndex.analyzed,
-                                search_analyzer = LOWERCASE_ANALYZER,
-                                analyzer = LOWERCASE_ANALYZER
+                                search_analyzer = lowercaseAnalyzer,
+                                analyzer = lowercaseAnalyzer
                             });
                             multiField.fields.Add(new BasicMappingPropertyV2()
                             {
@@ -838,8 +842,8 @@ namespace ElasticSearch.Common
                                 type = eESFieldType.STRING,
                                 null_value = "",
                                 index = eMappingIndex.analyzed,
-                                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
-                                analyzer = PHRASE_STARTS_WITH_ANALYZER
+                                search_analyzer = phraseStartsWithSearchAnalyzer,
+                                analyzer = phraseStartsWithAnalyzer
                             });
 
                             if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -888,8 +892,8 @@ namespace ElasticSearch.Common
                                 name = string.Format("padded_{0}", AddSuffix(sMetaName, suffix)),
                                 type = eESFieldType.STRING,
                                 index = eMappingIndex.analyzed,
-                                search_analyzer = LOWERCASE_ANALYZER,
-                                analyzer = LOWERCASE_ANALYZER,
+                                search_analyzer = lowercaseAnalyzer,
+                                analyzer = lowercaseAnalyzer,
                                 null_value = meta.Value.Value
                             });
                         }
@@ -922,13 +926,17 @@ namespace ElasticSearch.Common
             string suffix = specificLanguageAnalyzers.suffix;
             string phoneticIndexAnalyzer = specificLanguageAnalyzers.phoneticIndexAnalyzer;
             string phoneticSearchAnalyzer = specificLanguageAnalyzers.phoneticSearchAnalyzer;
+            string lowercaseAnalyzer = specificLanguageAnalyzers.lowercaseAnalyzer ?? LOWERCASE_ANALYZER;
+            string phraseStartsWithAnalyzer = specificLanguageAnalyzers.phraseStartsWithAnalyzer ?? PHRASE_STARTS_WITH_ANALYZER;
+            string phraseStartsWithSearchAnalyzer = specificLanguageAnalyzers.phraseStartsWithSearchAnalyzer ?? PHRASE_STARTS_WITH_SEARCH_ANALYZER;
 
             string defaultNormalIndexAnalyzer = normalIndexAnalyzer;
             string defaultNormalSearchAnalyzer = normalSearchAnalyzer;
             string defaultAutocompleteIndexAnalyzer = autocompleteIndexAnalyzer;
             string defaultAutocompleteSearchAnalyzer = autocompleteSearchAnalyzer;
-            string defaultPhoneticIndexAnalyzer = phoneticIndexAnalyzer;
-            string defaultPhoneticSearchAnalyzer = phoneticSearchAnalyzer;
+            string defaultLowercaseAnalyzer = lowercaseAnalyzer;
+            string defaultPhraseStartsWithAnalyzer = phraseStartsWithAnalyzer;
+            string defaultPhraseStartsWithSearchAnalyzer = phraseStartsWithSearchAnalyzer;
 
             if (defaultLanguageAnalyzers != null)
             {
@@ -936,8 +944,9 @@ namespace ElasticSearch.Common
                 defaultNormalSearchAnalyzer = defaultLanguageAnalyzers.normalSearchAnalyzer;
                 defaultAutocompleteIndexAnalyzer = defaultLanguageAnalyzers.autocompleteIndexAnalyzer;
                 defaultAutocompleteSearchAnalyzer = defaultLanguageAnalyzers.autocompleteSearchAnalyzer;
-                defaultPhoneticIndexAnalyzer = defaultLanguageAnalyzers.phoneticIndexAnalyzer;
-                defaultPhoneticSearchAnalyzer = defaultLanguageAnalyzers.phoneticSearchAnalyzer;
+                defaultLowercaseAnalyzer = defaultLanguageAnalyzers.lowercaseAnalyzer ?? LOWERCASE_ANALYZER;
+                defaultPhraseStartsWithAnalyzer = defaultLanguageAnalyzers.phraseStartsWithAnalyzer ?? PHRASE_STARTS_WITH_ANALYZER;
+                defaultPhraseStartsWithSearchAnalyzer = defaultLanguageAnalyzers.phraseStartsWithSearchAnalyzer ?? PHRASE_STARTS_WITH_SEARCH_ANALYZER;
             }
 
             if (metasMap == null || groupTags == null)
@@ -1048,8 +1057,8 @@ namespace ElasticSearch.Common
                 name = AddSuffix("name", suffix),
                 type = eESFieldType.STRING,
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER,
+                search_analyzer = lowercaseAnalyzer,
+                analyzer = lowercaseAnalyzer,
                 null_value = ""
             };
             nameProperty.fields.Add(new BasicMappingPropertyV2()
@@ -1058,8 +1067,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = string.Empty,
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER,
+                search_analyzer = lowercaseAnalyzer,
+                analyzer = lowercaseAnalyzer,
             });
             nameProperty.fields.Add(new BasicMappingPropertyV2()
             {
@@ -1076,8 +1085,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER
+                search_analyzer = lowercaseAnalyzer,
+                analyzer = lowercaseAnalyzer
             });
             nameProperty.fields.Add(new BasicMappingPropertyV2()
             {
@@ -1085,8 +1094,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
-                analyzer = PHRASE_STARTS_WITH_ANALYZER
+                search_analyzer = phraseStartsWithSearchAnalyzer,
+                analyzer = phraseStartsWithAnalyzer
             });
 
             if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -1122,8 +1131,8 @@ namespace ElasticSearch.Common
                 name = AddSuffix("description", suffix),
                 type = eESFieldType.STRING,
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER,
+                search_analyzer = lowercaseAnalyzer,
+                analyzer = lowercaseAnalyzer,
                 null_value = ""
             };
 
@@ -1133,8 +1142,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER,
+                search_analyzer = lowercaseAnalyzer,
+                analyzer = lowercaseAnalyzer,
             });
             descrpitionMapping.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV2()
             {
@@ -1151,8 +1160,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER
+                search_analyzer = lowercaseAnalyzer,
+                analyzer = lowercaseAnalyzer
             });
             descrpitionMapping.fields.Add(new BasicMappingPropertyV2()
             {
@@ -1160,8 +1169,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
-                analyzer = PHRASE_STARTS_WITH_ANALYZER
+                search_analyzer = phraseStartsWithSearchAnalyzer,
+                analyzer = phraseStartsWithAnalyzer
             });
 
             if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -1197,8 +1206,8 @@ namespace ElasticSearch.Common
                 name = "epg_identifier",
                 type = eESFieldType.STRING,
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER,
+                search_analyzer = defaultLowercaseAnalyzer,
+                analyzer = defaultLowercaseAnalyzer,
                 null_value = ""
             };
 
@@ -1208,8 +1217,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER
+                search_analyzer = defaultLowercaseAnalyzer,
+                analyzer = defaultLowercaseAnalyzer
             });
 
             epgIdentifierProperty.fields.Add(new BasicMappingPropertyV2()
@@ -1218,8 +1227,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER
+                search_analyzer = defaultLowercaseAnalyzer,
+                analyzer = defaultLowercaseAnalyzer
             });
             epgIdentifierProperty.fields.Add(new BasicMappingPropertyV2()
             {
@@ -1227,8 +1236,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
-                analyzer = PHRASE_STARTS_WITH_ANALYZER
+                search_analyzer = defaultPhraseStartsWithSearchAnalyzer,
+                analyzer = defaultPhraseStartsWithAnalyzer
             });
 
             mappingObj.AddProperty(epgIdentifierProperty);
@@ -1253,8 +1262,8 @@ namespace ElasticSearch.Common
                 name = "crid",
                 type = eESFieldType.STRING,
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER,
+                search_analyzer = defaultLowercaseAnalyzer,
+                analyzer = defaultLowercaseAnalyzer,
                 null_value = ""
             };
 
@@ -1264,8 +1273,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER
+                search_analyzer = defaultLowercaseAnalyzer,
+                analyzer = defaultLowercaseAnalyzer
             });
 
             cridProperty.fields.Add(new BasicMappingPropertyV2()
@@ -1274,8 +1283,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER
+                search_analyzer = defaultLowercaseAnalyzer,
+                analyzer = defaultLowercaseAnalyzer
             });
             cridProperty.fields.Add(new BasicMappingPropertyV2()
             {
@@ -1283,8 +1292,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
-                analyzer = PHRASE_STARTS_WITH_ANALYZER
+                search_analyzer = defaultPhraseStartsWithSearchAnalyzer,
+                analyzer = defaultPhraseStartsWithAnalyzer
             });
 
             if (!string.IsNullOrEmpty(defaultAutocompleteIndexAnalyzer) && !string.IsNullOrEmpty(defaultAutocompleteSearchAnalyzer))
@@ -1307,8 +1316,8 @@ namespace ElasticSearch.Common
                 name = "external_id",
                 type = eESFieldType.STRING,
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER,
+                search_analyzer = defaultLowercaseAnalyzer,
+                analyzer = defaultLowercaseAnalyzer,
                 null_value = ""
             };
             externalId.fields.Add(new BasicMappingPropertyV2()
@@ -1317,8 +1326,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = string.Empty,
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER
+                search_analyzer = defaultLowercaseAnalyzer,
+                analyzer = defaultLowercaseAnalyzer
             });
             externalId.fields.Add(new BasicMappingPropertyV2()
             {
@@ -1335,8 +1344,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER
+                search_analyzer = defaultLowercaseAnalyzer,
+                analyzer = defaultLowercaseAnalyzer
             });
             externalId.fields.Add(new BasicMappingPropertyV2()
             {
@@ -1344,8 +1353,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
-                analyzer = PHRASE_STARTS_WITH_ANALYZER
+                search_analyzer = defaultPhraseStartsWithSearchAnalyzer,
+                analyzer = defaultPhraseStartsWithAnalyzer
             });
 
             if (!string.IsNullOrEmpty(defaultAutocompleteIndexAnalyzer) && !string.IsNullOrEmpty(defaultAutocompleteSearchAnalyzer))
@@ -1379,8 +1388,8 @@ namespace ElasticSearch.Common
                         name = AddSuffix(sTagName, suffix),
                         type = eESFieldType.STRING,
                         index = eMappingIndex.analyzed,
-                        search_analyzer = LOWERCASE_ANALYZER,
-                        analyzer = LOWERCASE_ANALYZER,
+                        search_analyzer = lowercaseAnalyzer,
+                        analyzer = lowercaseAnalyzer,
                         null_value = ""
                     };
                     multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
@@ -1389,8 +1398,8 @@ namespace ElasticSearch.Common
                         type = eESFieldType.STRING,
                         null_value = string.Empty,
                         index = eMappingIndex.analyzed,
-                        search_analyzer = LOWERCASE_ANALYZER,
-                        analyzer = LOWERCASE_ANALYZER,
+                        search_analyzer = lowercaseAnalyzer,
+                        analyzer = lowercaseAnalyzer,
                     });
                     multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
                     {
@@ -1407,8 +1416,8 @@ namespace ElasticSearch.Common
                         type = eESFieldType.STRING,
                         null_value = "",
                         index = eMappingIndex.analyzed,
-                        search_analyzer = LOWERCASE_ANALYZER,
-                        analyzer = LOWERCASE_ANALYZER
+                        search_analyzer = lowercaseAnalyzer,
+                        analyzer = lowercaseAnalyzer
                     });
                     multiField.fields.Add(new BasicMappingPropertyV2()
                     {
@@ -1416,8 +1425,8 @@ namespace ElasticSearch.Common
                         type = eESFieldType.STRING,
                         null_value = "",
                         index = eMappingIndex.analyzed,
-                        search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
-                        analyzer = PHRASE_STARTS_WITH_ANALYZER
+                        search_analyzer = phraseStartsWithSearchAnalyzer,
+                        analyzer = phraseStartsWithAnalyzer
                     });
 
                     if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -1484,8 +1493,8 @@ namespace ElasticSearch.Common
                                     name = AddSuffix(sMetaName, suffix),
                                     type = meta.Value.Key,
                                     index = eMappingIndex.analyzed,
-                                    search_analyzer = LOWERCASE_ANALYZER,
-                                    analyzer = LOWERCASE_ANALYZER,
+                                    search_analyzer = lowercaseAnalyzer,
+                                    analyzer = lowercaseAnalyzer,
                                     null_value = meta.Value.Value
                                 };
 
@@ -1495,8 +1504,8 @@ namespace ElasticSearch.Common
                                     type = meta.Value.Key,
                                     null_value = meta.Value.Value,
                                     index = eMappingIndex.analyzed,
-                                    search_analyzer = LOWERCASE_ANALYZER,
-                                    analyzer = LOWERCASE_ANALYZER,
+                                    search_analyzer = lowercaseAnalyzer,
+                                    analyzer = lowercaseAnalyzer,
                                 });
 
                                 multiField.fields.Add(new BasicMappingPropertyV2()
@@ -1505,8 +1514,8 @@ namespace ElasticSearch.Common
                                     type = eESFieldType.STRING,
                                     null_value = "",
                                     index = eMappingIndex.analyzed,
-                                    search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
-                                    analyzer = PHRASE_STARTS_WITH_ANALYZER
+                                    search_analyzer = phraseStartsWithSearchAnalyzer,
+                                    analyzer = phraseStartsWithAnalyzer
                                 });
                             }
                             else
@@ -1543,8 +1552,8 @@ namespace ElasticSearch.Common
                                 type = eESFieldType.STRING,
                                 null_value = "",
                                 index = eMappingIndex.analyzed,
-                                search_analyzer = LOWERCASE_ANALYZER,
-                                analyzer = LOWERCASE_ANALYZER
+                                search_analyzer = lowercaseAnalyzer,
+                                analyzer = lowercaseAnalyzer
                             });
                             multiField.fields.Add(new BasicMappingPropertyV2()
                             {
@@ -1552,8 +1561,8 @@ namespace ElasticSearch.Common
                                 type = eESFieldType.STRING,
                                 null_value = "",
                                 index = eMappingIndex.analyzed,
-                                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
-                                analyzer = PHRASE_STARTS_WITH_ANALYZER
+                                search_analyzer = phraseStartsWithSearchAnalyzer,
+                                analyzer = phraseStartsWithAnalyzer
                             });
 
                             if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -1602,8 +1611,8 @@ namespace ElasticSearch.Common
                                 name = string.Format("padded_{0}", AddSuffix(sMetaName, suffix)),
                                 type = eESFieldType.STRING,
                                 index = eMappingIndex.analyzed,
-                                search_analyzer = LOWERCASE_ANALYZER,
-                                analyzer = LOWERCASE_ANALYZER,
+                                search_analyzer = lowercaseAnalyzer,
+                                analyzer = lowercaseAnalyzer,
                                 null_value = meta.Value.Value
                             });
                         }
@@ -1621,9 +1630,9 @@ namespace ElasticSearch.Common
             return mappingObj.ToString();
         }
 
-        public override string CreateMetadataMapping(string normalIndexAnalyzer, string normalSearchAnalyzer, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null, string suffix = null)
+        public override string CreateMetadataMapping(string normalIndexAnalyzer, string normalSearchAnalyzer, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null, string lowercaseAnalyzer = null, string suffix = null)
         {
-            string result = string.Empty;
+            lowercaseAnalyzer = lowercaseAnalyzer ?? LOWERCASE_ANALYZER;
 
             ESMappingObj mappingObj = new ESMappingObj(AddSuffix("tag", suffix));
 
@@ -1632,8 +1641,8 @@ namespace ElasticSearch.Common
                 name = AddSuffix("value", suffix),
                 type = eESFieldType.STRING,
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER,
+                search_analyzer = lowercaseAnalyzer,
+                analyzer = lowercaseAnalyzer,
                 null_value = ""
             };
             valueProperty.fields.Add(new BasicMappingPropertyV2()
@@ -1642,8 +1651,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = string.Empty,
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER
+                search_analyzer = lowercaseAnalyzer,
+                analyzer = lowercaseAnalyzer
             });
             valueProperty.fields.Add(new BasicMappingPropertyV2()
             {
@@ -1660,8 +1669,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER
+                search_analyzer = lowercaseAnalyzer,
+                analyzer = lowercaseAnalyzer
             });
             valueProperty.fields.Add(new BasicMappingPropertyV2()
             {
@@ -1695,7 +1704,7 @@ namespace ElasticSearch.Common
                 index = eMappingIndex.not_analyzed
             });
 
-            result = mappingObj.ToString();
+            var result = mappingObj.ToString();
 
             return result;
         }
@@ -1731,9 +1740,9 @@ namespace ElasticSearch.Common
 
             return result;
         }
-        public override string CreateChannelMapping(string normalIndexAnalyzer, string normalSearchAnalyzer, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null, string suffix = null)
+        public override string CreateChannelMapping(string normalIndexAnalyzer, string normalSearchAnalyzer, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null, string lowercaseAnalyzer = null, string suffix = null)
         {
-            string result = string.Empty;
+            lowercaseAnalyzer = lowercaseAnalyzer ?? LOWERCASE_ANALYZER;
 
             ESMappingObj mappingObj = new ESMappingObj(AddSuffix("channel", suffix));
 
@@ -1743,8 +1752,8 @@ namespace ElasticSearch.Common
                 name = AddSuffix("name", suffix),
                 type = eESFieldType.STRING,
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER,
+                search_analyzer = lowercaseAnalyzer,
+                analyzer = lowercaseAnalyzer,
                 null_value = ""
             };
             nameProperty.fields.Add(new BasicMappingPropertyV2()
@@ -1753,8 +1762,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = string.Empty,
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER
+                search_analyzer = lowercaseAnalyzer,
+                analyzer = lowercaseAnalyzer
             });
             nameProperty.fields.Add(new BasicMappingPropertyV2()
             {
@@ -1771,8 +1780,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER
+                search_analyzer = lowercaseAnalyzer,
+                analyzer = lowercaseAnalyzer
             });
             nameProperty.fields.Add(new BasicMappingPropertyV2()
             {
@@ -1794,8 +1803,8 @@ namespace ElasticSearch.Common
                 name = AddSuffix("system_name", suffix),
                 type = eESFieldType.STRING,
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER,
+                search_analyzer = lowercaseAnalyzer,
+                analyzer = lowercaseAnalyzer,
                 null_value = ""
             };
             systemNameProperty.fields.Add(new BasicMappingPropertyV2()
@@ -1804,8 +1813,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = string.Empty,
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER
+                search_analyzer = lowercaseAnalyzer,
+                analyzer = lowercaseAnalyzer
             });
             systemNameProperty.fields.Add(new BasicMappingPropertyV2()
             {
@@ -1822,8 +1831,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER
+                search_analyzer = lowercaseAnalyzer,
+                analyzer = lowercaseAnalyzer
             });
             systemNameProperty.fields.Add(new BasicMappingPropertyV2()
             {
@@ -1845,8 +1854,8 @@ namespace ElasticSearch.Common
                 name = AddSuffix("description", suffix),
                 type = eESFieldType.STRING,
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER,
+                search_analyzer = lowercaseAnalyzer,
+                analyzer = lowercaseAnalyzer,
                 null_value = ""
             };
             descriptionProperty.fields.Add(new BasicMappingPropertyV2()
@@ -1855,8 +1864,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = string.Empty,
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER
+                search_analyzer = lowercaseAnalyzer,
+                analyzer = lowercaseAnalyzer
             });
             descriptionProperty.fields.Add(new BasicMappingPropertyV2()
             {
@@ -1873,8 +1882,8 @@ namespace ElasticSearch.Common
                 type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = LOWERCASE_ANALYZER,
-                analyzer = LOWERCASE_ANALYZER
+                search_analyzer = lowercaseAnalyzer,
+                analyzer = lowercaseAnalyzer
             });
             descriptionProperty.fields.Add(new BasicMappingPropertyV2()
             {
@@ -1933,7 +1942,7 @@ namespace ElasticSearch.Common
                 null_value = "0"
             });
 
-            result = mappingObj.ToString();
+            var result = mappingObj.ToString();
 
             return result;
         }

@@ -1395,15 +1395,23 @@ namespace ElasticSearch.Common
             return result;
         }
 
-        public virtual string CreateMetadataMapping(string normalIndexAnalyzer, string normalSearchAnalyzer,
-            string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null,
+        public virtual string CreateMetadataMapping(
+            string normalIndexAnalyzer,
+            string normalSearchAnalyzer,
+            string autocompleteIndexAnalyzer = null,
+            string autocompleteSearchAnalyzer = null,
+            string lowercaseAnalyzer = null,
             string suffix = null)
         {
             return string.Empty;
         }
 
-        public virtual string CreateChannelMapping(string normalIndexAnalyzer, string normalSearchAnalyzer,
-            string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null,
+        public virtual string CreateChannelMapping(
+            string normalIndexAnalyzer,
+            string normalSearchAnalyzer,
+            string autocompleteIndexAnalyzer = null,
+            string autocompleteSearchAnalyzer = null,
+            string lowercaseAnalyzer = null,
             string suffix = null)
         {
             return string.Empty;

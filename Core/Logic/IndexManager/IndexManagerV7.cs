@@ -66,7 +66,7 @@ namespace Core.Catalog
         private const string INDEX_REFRESH_INTERVAL = "10s";
         private const int MAX_RESULTS_DEFAULT = 100000;
 
-        protected const string LOWERCASE_ANALYZER = "lowercase_analyzer";
+        protected const string DEFAULT_LOWERCASE_ANALYZER = "default_lowercase_analyzer";
         protected const string DEFAULT_INDEX_ANALYZER = "default_index_analyzer";
         protected const string DEFAULT_SEARCH_ANALYZER = "default_search_analyzer";
         protected const string DEFAULT_AUTOCOMPLETE_ANALYZER = "default_autocomplete_analyzer";
@@ -2935,7 +2935,7 @@ namespace Core.Catalog
                      .NumberOfShards(_numOfShards)
                      .NumberOfReplicas(_numOfReplicas)
                      .Analysis(a => a
-                         .Analyzers(an => an.Custom(LOWERCASE_ANALYZER,
+                         .Analyzers(an => an.Custom(DEFAULT_LOWERCASE_ANALYZER,
                         ca => ca
                         .CharFilters("html_strip")
                         .Tokenizer("keyword")
@@ -2944,7 +2944,7 @@ namespace Core.Catalog
                  .Map<object>(map => map
                      .AutoMap<NestTag>()
                      .Properties(properties => properties
-                        .Text(name => name.Name("name").Analyzer(LOWERCASE_ANALYZER))
+                        .Text(name => name.Name("name").Analyzer(DEFAULT_LOWERCASE_ANALYZER))
                      )
                  ));
 
@@ -4681,17 +4681,20 @@ namespace Core.Catalog
             return propertiesDescriptor;
         }
 
-        private static void InitializeNumericMetaField<K>(PropertiesDescriptor<K> propertiesDescriptor,
+        private static void InitializeNumericMetaField<K>(
+            PropertiesDescriptor<K> propertiesDescriptor,
             string metaName,
             bool shouldAddPaddedField,
             string searchAnalyzer,
-            string indexAnalyzer)
-            where K : class
+            string indexAnalyzer,
+            string lowercaseAnalyzer,
+            string phraseStartsWithAnalyzer,
+            string phraseStartsWithSearchAnalyzer) where K : class
         {
             var lowercaseSubField = new TextPropertyDescriptor<object>()
                 .Name("lowercase")
-                .Analyzer(LOWERCASE_ANALYZER)
-                .SearchAnalyzer(LOWERCASE_ANALYZER);
+                .Analyzer(lowercaseAnalyzer)
+                .SearchAnalyzer(lowercaseAnalyzer);
 
             var analyzedSubField = new TextPropertyDescriptor<object>()
                 .Name("analyzed")
@@ -4700,8 +4703,8 @@ namespace Core.Catalog
 
             var phraseAutocompleteSubField = new TextPropertyDescriptor<object>()
                 .Name("phrase_autocomplete")
-                .Analyzer(DEFAULT_PHRASE_STARTS_WITH_ANALYZER)
-                .SearchAnalyzer(DEFAULT_PHRASE_STARTS_WITH_SEARCH_ANALYZER);
+                .Analyzer(phraseStartsWithAnalyzer)
+                .SearchAnalyzer(phraseStartsWithSearchAnalyzer);
 
             PropertiesDescriptor<object> fieldsPropertiesDesctiptor = new PropertiesDescriptor<object>()
                 .Number(y => y.Name(metaName).Type(NumberType.Double))
@@ -4714,8 +4717,8 @@ namespace Core.Catalog
             {
                 var padded = new TextPropertyDescriptor<object>()
                     .Name($"padded_{metaName}")
-                    .Analyzer(LOWERCASE_ANALYZER)
-                    .SearchAnalyzer(LOWERCASE_ANALYZER);
+                    .Analyzer(lowercaseAnalyzer)
+                    .SearchAnalyzer(lowercaseAnalyzer);
                 fieldsPropertiesDesctiptor.Text(y => padded);
             }
 
@@ -4734,17 +4737,19 @@ namespace Core.Catalog
             string searchAnalyzer,
             string autocompleteAnalyzer,
             string autocompleteSearchAnalyzer,
+            string lowercaseAnalyzer,
+            string phraseStartsWithAnalyzer,
+            string phraseStartsWithSearchAnalyzer,
             bool shouldAddPhraseAutocompleteField,
             string phoneticIndexAnalyzer = null,
             string phoneticSearchAnalyzer = null,
             bool shouldAddPhoneticField = false,
-            bool shouldAddPaddedField = false)
-            where K : class
+            bool shouldAddPaddedField = false) where K : class
         {
             var lowercaseSubField = new TextPropertyDescriptor<object>()
                 .Name("lowercase")
-                .Analyzer(LOWERCASE_ANALYZER)
-                .SearchAnalyzer(LOWERCASE_ANALYZER)
+                .Analyzer(lowercaseAnalyzer)
+                .SearchAnalyzer(lowercaseAnalyzer)
                 ;
 
             var autocompleteSubField = new TextPropertyDescriptor<object>()
@@ -4771,8 +4776,8 @@ namespace Core.Catalog
             {
                 var phraseAutocompleteSubField = new TextPropertyDescriptor<object>()
                     .Name("phrase_autocomplete")
-                    .Analyzer(DEFAULT_PHRASE_STARTS_WITH_ANALYZER)
-                    .SearchAnalyzer(DEFAULT_PHRASE_STARTS_WITH_SEARCH_ANALYZER);
+                    .Analyzer(phraseStartsWithAnalyzer)
+                    .SearchAnalyzer(phraseStartsWithSearchAnalyzer);
 
                 fieldsPropertiesDesctiptor
                     .Text(y => phraseAutocompleteSubField);
@@ -4791,8 +4796,8 @@ namespace Core.Catalog
             {
                 var padded = new TextPropertyDescriptor<object>()
                     .Name($"padded_{nameFieldName}")
-                    .Analyzer(LOWERCASE_ANALYZER)
-                    .SearchAnalyzer(LOWERCASE_ANALYZER);
+                    .Analyzer(lowercaseAnalyzer)
+                    .SearchAnalyzer(lowercaseAnalyzer);
                 fieldsPropertiesDesctiptor.Text(y => padded);
             }
             var keywordPropertyDescriptor = new KeywordPropertyDescriptor<K>()
@@ -4809,8 +4814,8 @@ namespace Core.Catalog
         {
             var lowercaseSubField = new TextPropertyDescriptor<object>()
                 .Name("lowercase")
-                .Analyzer(LOWERCASE_ANALYZER)
-                .SearchAnalyzer(LOWERCASE_ANALYZER);
+                .Analyzer(DEFAULT_LOWERCASE_ANALYZER)
+                .SearchAnalyzer(DEFAULT_LOWERCASE_ANALYZER);
 
             var phraseAutocompleteSubField = new TextPropertyDescriptor<object>()
                 .Name("phrase_autocomplete")
@@ -4832,8 +4837,8 @@ namespace Core.Catalog
                 .Fields(fields => fields
                     .Text(y => y
                         .Name(fieldName)
-                        .SearchAnalyzer(LOWERCASE_ANALYZER)
-                        .Analyzer(LOWERCASE_ANALYZER)
+                        .SearchAnalyzer(DEFAULT_LOWERCASE_ANALYZER)
+                        .Analyzer(DEFAULT_LOWERCASE_ANALYZER)
                         .Fielddata(true)
                     )
                     .Text(y => lowercaseSubField)
@@ -4966,8 +4971,7 @@ namespace Core.Catalog
                         "lowercase",
                         DEFAULT_EDGENGRAM_FILTER,
                         "icu_folding",
-                        "icu_normalizer",
-                        "asciifolding"
+                        "icu_normalizer"
                     },
                     char_filter = defaultCharFilter
                 });
@@ -4978,8 +4982,7 @@ namespace Core.Catalog
                     {
                         "lowercase",
                         "icu_folding",
-                        "icu_normalizer",
-                        "asciifolding"
+                        "icu_normalizer"
                     },
                     char_filter = defaultCharFilter
                 });
@@ -4995,7 +4998,7 @@ namespace Core.Catalog
 
             // we always want a lowercase analyzer
             // we always want "autocomplete" ability
-            analyzers.Add(LOWERCASE_ANALYZER,
+            analyzers.Add(DEFAULT_LOWERCASE_ANALYZER,
                 new Analyzer()
                 {
                     tokenizer = "keyword",
@@ -5382,10 +5385,28 @@ namespace Core.Catalog
 
                 .Object<NestLiveToVodProperties>(x => x.Name(NamingHelper.LIVE_TO_VOD_PREFIX).Properties(properties => liveToVodPropertiesDescriptor));
 
-            InitializeTextField("external_id", propertiesDescriptor,
-                DEFAULT_INDEX_ANALYZER, DEFAULT_SEARCH_ANALYZER, DEFAULT_AUTOCOMPLETE_ANALYZER, DEFAULT_AUTOCOMPLETE_SEARCH_ANALYZER, true);
-            InitializeTextField("entry_id", propertiesDescriptor,
-                DEFAULT_INDEX_ANALYZER, DEFAULT_SEARCH_ANALYZER, DEFAULT_AUTOCOMPLETE_ANALYZER, DEFAULT_AUTOCOMPLETE_SEARCH_ANALYZER, true);
+            InitializeTextField(
+                "external_id",
+                propertiesDescriptor,
+                DEFAULT_INDEX_ANALYZER,
+                DEFAULT_SEARCH_ANALYZER,
+                DEFAULT_AUTOCOMPLETE_ANALYZER,
+                DEFAULT_AUTOCOMPLETE_SEARCH_ANALYZER,
+                DEFAULT_LOWERCASE_ANALYZER,
+                DEFAULT_PHRASE_STARTS_WITH_ANALYZER,
+                DEFAULT_PHRASE_STARTS_WITH_SEARCH_ANALYZER,
+                true);
+            InitializeTextField(
+                "entry_id",
+                propertiesDescriptor,
+                DEFAULT_INDEX_ANALYZER,
+                DEFAULT_SEARCH_ANALYZER,
+                DEFAULT_AUTOCOMPLETE_ANALYZER,
+                DEFAULT_AUTOCOMPLETE_SEARCH_ANALYZER,
+                DEFAULT_LOWERCASE_ANALYZER,
+                DEFAULT_PHRASE_STARTS_WITH_ANALYZER,
+                DEFAULT_PHRASE_STARTS_WITH_SEARCH_ANALYZER,
+                true);
 
             if (!metas.ContainsKey(META_SUPPRESSED))
             {
@@ -5410,15 +5431,30 @@ namespace Core.Catalog
 
                     foreach (var language in languages)
                     {
-                        GetCurrentLanguageAnalyzers(analyzers,
+                        GetCurrentLanguageAnalyzers(
+                            analyzers,
                             language,
-                            out string indexAnalyzer, out string searchAnalyzer,
-                            out string autocompleteAnalyzer, out string autocompleteSearchAnalyzer,
-                            out _, out _);
+                            out string indexAnalyzer,
+                            out string searchAnalyzer,
+                            out string autocompleteAnalyzer,
+                            out string autocompleteSearchAnalyzer,
+                            out _,
+                            out _,
+                            out string lowercaseAnalyzer,
+                            out string phraseStartsWithAnalyzer,
+                            out string phraseStartsWithSearchAnalyzer);
 
-                        InitializeTextField($"{language.Code}",
+                        InitializeTextField(
+                            $"{language.Code}",
                             fieldPropertiesDescriptor,
-                            indexAnalyzer, searchAnalyzer, autocompleteAnalyzer, autocompleteSearchAnalyzer, false);
+                            indexAnalyzer,
+                            searchAnalyzer,
+                            autocompleteAnalyzer,
+                            autocompleteSearchAnalyzer,
+                            lowercaseAnalyzer,
+                            phraseStartsWithAnalyzer,
+                            phraseStartsWithSearchAnalyzer,
+                            false);
                     }
 
                     propertiesDescriptor.Object<object>(x => x
@@ -5436,9 +5472,17 @@ namespace Core.Catalog
                 foreach (var field in simpleFields)
                 {
                     propertiesDescriptor.Keyword(t =>
-                        InitializeTextField<T>(field, propertiesDescriptor,
-                            DEFAULT_INDEX_ANALYZER, DEFAULT_SEARCH_ANALYZER,
-                            DEFAULT_AUTOCOMPLETE_ANALYZER, DEFAULT_AUTOCOMPLETE_SEARCH_ANALYZER, false));
+                        InitializeTextField<T>(
+                            field,
+                            propertiesDescriptor,
+                            DEFAULT_INDEX_ANALYZER,
+                            DEFAULT_SEARCH_ANALYZER,
+                            DEFAULT_AUTOCOMPLETE_ANALYZER,
+                            DEFAULT_AUTOCOMPLETE_SEARCH_ANALYZER,
+                            DEFAULT_LOWERCASE_ANALYZER,
+                            DEFAULT_PHRASE_STARTS_WITH_ANALYZER,
+                            DEFAULT_PHRASE_STARTS_WITH_SEARCH_ANALYZER,
+                            false));
                 }
             }
 
@@ -5460,13 +5504,18 @@ namespace Core.Catalog
 
             foreach (var language in languages)
             {
-                string indexAnalyzer, searchAnalyzer, autocompleteAnalyzer, autocompleteSearchAnalyzer,
-                    phoneticIndexAnalyzer, phoneticSearchAnalyzer;
-                GetCurrentLanguageAnalyzers(analyzers,
+                GetCurrentLanguageAnalyzers(
+                    analyzers,
                     language,
-                    out indexAnalyzer, out searchAnalyzer,
-                    out autocompleteAnalyzer, out autocompleteSearchAnalyzer,
-                    out phoneticIndexAnalyzer, out phoneticSearchAnalyzer);
+                    out var indexAnalyzer,
+                    out var searchAnalyzer,
+                    out var autocompleteAnalyzer,
+                    out var autocompleteSearchAnalyzer,
+                    out var phoneticIndexAnalyzer,
+                    out var phoneticSearchAnalyzer,
+                    out var lowercaseAnalyzer,
+                    out var phraseStartsWithAnalyzer,
+                    out var phraseStartsWithSearchAnalyzer);
 
                 bool shouldAddPhoneticField = analyzers.ContainsKey(phoneticIndexAnalyzer) && analyzers.ContainsKey(phoneticSearchAnalyzer);
 
@@ -5477,12 +5526,15 @@ namespace Core.Catalog
                     searchAnalyzer,
                     autocompleteAnalyzer,
                     autocompleteSearchAnalyzer,
+                    lowercaseAnalyzer,
+                    phraseStartsWithAnalyzer,
+                    phraseStartsWithSearchAnalyzer,
                     true,
                     phoneticIndexAnalyzer,
                     phoneticSearchAnalyzer,
                     shouldAddPhoneticField,
                     false
-                    );
+                );
                 InitializeTextField(
                     $"{language.Code}",
                     descriptionPropertiesDescriptor,
@@ -5490,12 +5542,15 @@ namespace Core.Catalog
                     searchAnalyzer,
                     autocompleteAnalyzer,
                     autocompleteSearchAnalyzer,
+                    lowercaseAnalyzer,
+                    phraseStartsWithAnalyzer,
+                    phraseStartsWithSearchAnalyzer,
                     true,
                     phoneticIndexAnalyzer,
                     phoneticSearchAnalyzer,
                     shouldAddPhoneticField,
                     false
-                    );
+                );
 
                 foreach (var tag in tags)
                 {
@@ -5505,12 +5560,15 @@ namespace Core.Catalog
                         searchAnalyzer,
                         autocompleteAnalyzer,
                         autocompleteSearchAnalyzer,
+                        lowercaseAnalyzer,
+                        phraseStartsWithAnalyzer,
+                        phraseStartsWithSearchAnalyzer,
                         true,
                         phoneticIndexAnalyzer,
                         phoneticSearchAnalyzer,
                         shouldAddPhoneticField,
                         false
-                        );
+                    );
                 }
 
                 tagsPropertiesDescriptor.Object<object>(selector => selector
@@ -5534,6 +5592,9 @@ namespace Core.Catalog
                                 searchAnalyzer,
                                 autocompleteAnalyzer,
                                 autocompleteSearchAnalyzer,
+                                lowercaseAnalyzer,
+                                phraseStartsWithAnalyzer,
+                                phraseStartsWithSearchAnalyzer,
                                 true,
                                 phoneticIndexAnalyzer,
                                 phoneticSearchAnalyzer,
@@ -5542,8 +5603,14 @@ namespace Core.Catalog
                         }
                         else
                         {
-                            InitializeNumericMetaField(dictionaryMetaPropertiesDescriptor[language.Code], metaName, shouldAddPadded,
-                                searchAnalyzer, indexAnalyzer);
+                            InitializeNumericMetaField(
+                                dictionaryMetaPropertiesDescriptor[language.Code],
+                                metaName, shouldAddPadded,
+                                searchAnalyzer,
+                                indexAnalyzer,
+                                lowercaseAnalyzer,
+                                phraseStartsWithAnalyzer,
+                                phraseStartsWithSearchAnalyzer);
                         }
                     }
                     else
@@ -5591,11 +5658,18 @@ namespace Core.Catalog
             ;
         }
 
-        private static void GetCurrentLanguageAnalyzers(Dictionary<string, Analyzer> analyzers,
+        private static void GetCurrentLanguageAnalyzers(
+            Dictionary<string, Analyzer> analyzers,
             LanguageObj language,
-            out string indexAnalyzer, out string searchAnalyzer,
-            out string autocompleteAnalyzer, out string autocompleteSearchAnalyzer,
-            out string phoneticIndexAnalyzer, out string phoneticSearchAnalyzer)
+            out string indexAnalyzer,
+            out string searchAnalyzer,
+            out string autocompleteAnalyzer,
+            out string autocompleteSearchAnalyzer,
+            out string phoneticIndexAnalyzer,
+            out string phoneticSearchAnalyzer,
+            out string lowercaseAnalyzer,
+            out string phraseStartsWithAnalyzer,
+            out string phraseStartsWithSearchAnalyzer)
         {
             indexAnalyzer = $"{language.Code}_index_analyzer";
             searchAnalyzer = $"{language.Code}_search_analyzer";
@@ -5603,6 +5677,10 @@ namespace Core.Catalog
             autocompleteSearchAnalyzer = $"{language.Code}_autocomplete_search_analyzer";
             phoneticIndexAnalyzer = $"{language.Code}_index_dbl_metaphone";
             phoneticSearchAnalyzer = $"{language.Code}_search_dbl_metaphone";
+            lowercaseAnalyzer = $"{language.Code}_lowercase_analyzer";
+            phraseStartsWithAnalyzer = $"{language.Code}_phrase_starts_with_analyzer";
+            phraseStartsWithSearchAnalyzer = $"{language.Code}_phrase_starts_with_search_analyzer";
+            
             if (!analyzers.ContainsKey(indexAnalyzer))
             {
                 indexAnalyzer = DEFAULT_INDEX_ANALYZER;
@@ -5621,6 +5699,21 @@ namespace Core.Catalog
             if (!analyzers.ContainsKey(autocompleteSearchAnalyzer))
             {
                 autocompleteSearchAnalyzer = DEFAULT_AUTOCOMPLETE_SEARCH_ANALYZER;
+            }
+
+            if (!analyzers.ContainsKey(lowercaseAnalyzer))
+            {
+                lowercaseAnalyzer = DEFAULT_LOWERCASE_ANALYZER;
+            }
+
+            if (!analyzers.ContainsKey(phraseStartsWithAnalyzer))
+            {
+                phraseStartsWithAnalyzer = DEFAULT_PHRASE_STARTS_WITH_ANALYZER;
+            }
+
+            if (!analyzers.ContainsKey(phraseStartsWithSearchAnalyzer))
+            {
+                phraseStartsWithSearchAnalyzer = DEFAULT_PHRASE_STARTS_WITH_SEARCH_ANALYZER;
             }
         }
 

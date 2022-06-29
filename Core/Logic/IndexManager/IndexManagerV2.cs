@@ -5798,21 +5798,34 @@ namespace Core.Catalog
                 string indexAnalyzer, searchAnalyzer;
                 string autocompleteIndexAnalyzer = null;
                 string autocompleteSearchAnalyzer = null;
+                string lowercaseAnalyzer = null;
 
                 // create names for analyzers to be used in the mapping later on
                 string analyzerDefinitionName = ESUtils.GetLangCodeAnalyzerKey(language.Code, VERSION);
 
                 if (_esIndexDefinitions.AnalyzerExists(analyzerDefinitionName))
                 {
-                    indexAnalyzer = string.Concat(language.Code, "_index_", "analyzer");
-                    searchAnalyzer = string.Concat(language.Code, "_search_", "analyzer");
+                    indexAnalyzer = $"{language.Code}_index_analyzer";
+                    searchAnalyzer = $"{language.Code}_search_analyzer";
 
                     string analyzerDefinition = _esIndexDefinitions.GetAnalyzerDefinition(analyzerDefinitionName);
 
-                    if (analyzerDefinition.Contains("autocomplete"))
+                    var autocompleteIndexAnalyzerCandidate = $"{language.Code}_autocomplete_analyzer";
+                    if (analyzerDefinition.Contains(autocompleteIndexAnalyzerCandidate))
                     {
-                        autocompleteIndexAnalyzer = string.Concat(language.Code, "_autocomplete_analyzer");
-                        autocompleteSearchAnalyzer = string.Concat(language.Code, "_autocomplete_search_analyzer");
+                        autocompleteIndexAnalyzer = autocompleteIndexAnalyzerCandidate;
+                    }
+
+                    var autocompleteSearchAnalyzerCandidate = $"{language.Code}_autocomplete_search_analyzer";
+                    if (analyzerDefinition.Contains(autocompleteSearchAnalyzerCandidate))
+                    {
+                        autocompleteSearchAnalyzer = autocompleteSearchAnalyzerCandidate;
+                    }
+
+                    var lowercaseAnalyzerCandidate = $"{language.Code}_lowercase_analyzer";
+                    if (analyzerDefinition.Contains(lowercaseAnalyzerCandidate))
+                    {
+                        lowercaseAnalyzer = lowercaseAnalyzerCandidate;
                     }
                 }
                 else
@@ -5826,7 +5839,7 @@ namespace Core.Catalog
                 string suffix = null;
 
                 // Ask serializer to create the mapping definitions string
-                string mapping = _serializer.CreateChannelMapping(indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer, suffix);
+                string mapping = _serializer.CreateChannelMapping(indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer, lowercaseAnalyzer, suffix);
 
                 bool mappingResult = _elasticSearchApi.InsertMapping(newIndexName, type, mapping.ToString());
 
@@ -5914,21 +5927,34 @@ namespace Core.Catalog
                 string indexAnalyzer, searchAnalyzer;
                 string autocompleteIndexAnalyzer = null;
                 string autocompleteSearchAnalyzer = null;
+                string lowercaseAnalyzer = null;
 
                 // create names for analyzers to be used in the mapping later on
                 string analyzerDefinitionName = ESUtils.GetLangCodeAnalyzerKey(language.Code, VERSION);
 
                 if (_esIndexDefinitions.AnalyzerExists(analyzerDefinitionName))
                 {
-                    indexAnalyzer = string.Concat(language.Code, "_index_", "analyzer");
-                    searchAnalyzer = string.Concat(language.Code, "_search_", "analyzer");
+                    indexAnalyzer = $"{language.Code}_index_analyzer";
+                    searchAnalyzer =$"{language.Code}_search_analyzer";
 
                     string analyzerDefinition = _esIndexDefinitions.GetAnalyzerDefinition(analyzerDefinitionName);
 
-                    if (analyzerDefinition.Contains("autocomplete"))
+                    var autocompleteIndexAnalyzerCandidate = $"{language.Code}_autocomplete_analyzer";
+                    if (analyzerDefinition.Contains(autocompleteIndexAnalyzerCandidate))
                     {
-                        autocompleteIndexAnalyzer = string.Concat(language.Code, "_autocomplete_analyzer");
-                        autocompleteSearchAnalyzer = string.Concat(language.Code, "_autocomplete_search_analyzer");
+                        autocompleteIndexAnalyzer = autocompleteIndexAnalyzerCandidate;
+                    }
+
+                    var autocompleteSearchAnalyzerCandidate = $"{language.Code}_autocomplete_search_analyzer";
+                    if (analyzerDefinition.Contains(autocompleteSearchAnalyzerCandidate))
+                    {
+                        autocompleteSearchAnalyzer = autocompleteSearchAnalyzerCandidate;
+                    }
+
+                    var lowercaseAnalyzerCandidate = $"{language.Code}_lowercase_analyzer";
+                    if (analyzerDefinition.Contains(lowercaseAnalyzerCandidate))
+                    {
+                        lowercaseAnalyzer = lowercaseAnalyzerCandidate;
                     }
                 }
                 else
@@ -5948,7 +5974,7 @@ namespace Core.Catalog
                 }
 
                 // Ask serializer to create the mapping definitions string
-                string mapping = _serializer.CreateMetadataMapping(indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer, suffix);
+                string mapping = _serializer.CreateMetadataMapping(indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer, lowercaseAnalyzer, suffix);
 
                 bool mappingResult = _elasticSearchApi.InsertMapping(newIndexName, type, mapping.ToString());
 
@@ -7341,21 +7367,51 @@ namespace Core.Catalog
 
             if (_esIndexDefinitions.AnalyzerExists(analyzerDefinitionName))
             {
-                specificMappingAnlyzers.normalIndexAnalyzer = string.Concat(language.Code, "_index_", "analyzer");
-                specificMappingAnlyzers.normalSearchAnalyzer = string.Concat(language.Code, "_search_", "analyzer");
+                specificMappingAnlyzers.normalIndexAnalyzer = $"{language.Code}_index_analyzer";
+                specificMappingAnlyzers.normalSearchAnalyzer = $"{language.Code}_search_analyzer";
 
                 var analyzerDefinition = _esIndexDefinitions.GetAnalyzerDefinition(analyzerDefinitionName);
 
-                if (analyzerDefinition.Contains("autocomplete"))
+                var autocompleteIndexAnalyzerCandidate = $"{language.Code}_autocomplete_analyzer";
+                if (analyzerDefinition.Contains(autocompleteIndexAnalyzerCandidate))
                 {
-                    specificMappingAnlyzers.autocompleteIndexAnalyzer = string.Concat(language.Code, "_autocomplete_analyzer");
-                    specificMappingAnlyzers.autocompleteSearchAnalyzer = string.Concat(language.Code, "_autocomplete_search_analyzer");
+                    specificMappingAnlyzers.autocompleteIndexAnalyzer = autocompleteIndexAnalyzerCandidate;
                 }
 
-                if (analyzerDefinition.Contains("dbl_metaphone"))
+                var autocompleteSearchAnalyzerCandidate = $"{language.Code}_autocomplete_search_analyzer";
+                if (analyzerDefinition.Contains(autocompleteSearchAnalyzerCandidate))
                 {
-                    specificMappingAnlyzers.phoneticIndexAnalyzer = string.Concat(language.Code, "_index_dbl_metaphone");
-                    specificMappingAnlyzers.phoneticSearchAnalyzer = string.Concat(language.Code, "_search_dbl_metaphone");
+                    specificMappingAnlyzers.autocompleteSearchAnalyzer = autocompleteSearchAnalyzerCandidate;
+                }
+
+                var phoneticIndexAnalyzerCandidate = $"{language.Code}_index_dbl_metaphone";
+                if (analyzerDefinition.Contains(phoneticIndexAnalyzerCandidate))
+                {
+                    specificMappingAnlyzers.phoneticIndexAnalyzer = phoneticIndexAnalyzerCandidate;
+                }
+
+                var phoneticSearchAnalyzerCandidate = $"{language.Code}_search_dbl_metaphone";
+                if (analyzerDefinition.Contains(phoneticSearchAnalyzerCandidate))
+                {
+                    specificMappingAnlyzers.phoneticSearchAnalyzer = phoneticSearchAnalyzerCandidate;
+                }
+
+                var lowercaseAnalyzerCandidate = $"{language.Code}_lowercase_analyzer";
+                if (analyzerDefinition.Contains(lowercaseAnalyzerCandidate))
+                {
+                    specificMappingAnlyzers.lowercaseAnalyzer = lowercaseAnalyzerCandidate;
+                }
+
+                var phraseStartsWithAnalyzerCandidate = $"{language.Code}_phrase_starts_with_analyzer";
+                if (analyzerDefinition.Contains(phraseStartsWithAnalyzerCandidate))
+                {
+                    specificMappingAnlyzers.phraseStartsWithAnalyzer = phraseStartsWithAnalyzerCandidate;
+                }
+
+                var phraseStartsWithSearchAnalyzerCandidate = $"{language.Code}_phrase_starts_with_search_analyzer";
+                if (analyzerDefinition.Contains(phraseStartsWithSearchAnalyzerCandidate))
+                {
+                    specificMappingAnlyzers.phraseStartsWithSearchAnalyzer = phraseStartsWithSearchAnalyzerCandidate;
                 }
             }
             else
