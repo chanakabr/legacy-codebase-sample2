@@ -8315,16 +8315,32 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaDetachedResponseProfile
     {
+        private static RuntimeSchemePropertyAttribute FilterSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDetachedResponseProfile")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
         public KalturaDetachedResponseProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("filter") && parameters["filter"] != null)
                 {
+                    FilterSchemaProperty.Validate("filter", parameters["filter"]);
                     if (parameters["filter"] is JObject)
                     {
                         Filter = (KalturaRelatedObjectFilter) Deserializer.deserialize(typeof(KalturaRelatedObjectFilter), ((JObject) parameters["filter"]).ToObject<Dictionary<string, object>>());
@@ -19542,6 +19558,45 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetFilter
     {
+        private static RuntimeSchemePropertyAttribute OrderBySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute DynamicOrderBySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute OrderParametersSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
         private static RuntimeSchemePropertyAttribute TrendingDaysEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetFilter")
         {
             ReadOnly = false,
@@ -19578,6 +19633,7 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
                 {
+                    OrderBySchemaProperty.Validate("orderBy", parameters["orderBy"]);
                     if(string.IsNullOrEmpty(parameters["orderBy"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "orderBy");
@@ -19592,6 +19648,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("dynamicOrderBy") && parameters["dynamicOrderBy"] != null)
                 {
+                    DynamicOrderBySchemaProperty.Validate("dynamicOrderBy", parameters["dynamicOrderBy"]);
                     if (parameters["dynamicOrderBy"] is JObject)
                     {
                         DynamicOrderBy = (KalturaDynamicOrderBy) Deserializer.deserialize(typeof(KalturaDynamicOrderBy), ((JObject) parameters["dynamicOrderBy"]).ToObject<Dictionary<string, object>>());
@@ -19603,6 +19660,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("orderingParameters") && parameters["orderingParameters"] != null)
                 {
+                    OrderParametersSchemaProperty.Validate("orderingParameters", parameters["orderingParameters"]);
                     if (parameters["orderingParameters"] is JArray)
                     {
                         OrderParameters = OTTObjectBuilder.buildList<KalturaBaseAssetOrder>(typeof(KalturaBaseAssetOrder), (JArray) parameters["orderingParameters"]);
@@ -31660,8 +31718,8 @@ namespace WebAPI.Models.Pricing
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUsageModule")
         {
             ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = true,
+            InsertOnly = true,
+            WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
@@ -31673,8 +31731,8 @@ namespace WebAPI.Models.Pricing
         private static RuntimeSchemePropertyAttribute MaxViewsNumberSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUsageModule")
         {
             ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = true,
+            InsertOnly = true,
+            WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
@@ -31687,8 +31745,8 @@ namespace WebAPI.Models.Pricing
         private static RuntimeSchemePropertyAttribute ViewLifeCycleSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUsageModule")
         {
             ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = true,
+            InsertOnly = true,
+            WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
@@ -31701,8 +31759,8 @@ namespace WebAPI.Models.Pricing
         private static RuntimeSchemePropertyAttribute FullLifeCycleSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUsageModule")
         {
             ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = true,
+            InsertOnly = true,
+            WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,

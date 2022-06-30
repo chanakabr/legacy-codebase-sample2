@@ -28,7 +28,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "name")]
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
-        [SchemeProperty(WriteOnly = true, MinLength = 1)]
+        [SchemeProperty(InsertOnly = true, MinLength = 1)]
         public string Name { get; set; }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("maxViewsNumber")]
         [XmlElement(ElementName = "maxViewsNumber", IsNullable = true)]
         [OldStandardProperty("max_views_number")]
-        [SchemeProperty(WriteOnly = true, MinInteger = 0)]
+        [SchemeProperty(InsertOnly = true, MinInteger = 0)]
         public int? MaxViewsNumber { get; set; }
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("viewLifeCycle")]
         [XmlElement(ElementName = "viewLifeCycle", IsNullable = true)]
         [OldStandardProperty("view_life_cycle")]
-        [SchemeProperty(WriteOnly = true, MinInteger = 1)]
+        [SchemeProperty(InsertOnly = true, MinInteger = 1)]
         public int? ViewLifeCycle { get; set; }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("fullLifeCycle")]
         [XmlElement(ElementName = "fullLifeCycle", IsNullable = true)]
         [OldStandardProperty("full_life_cycle")]
-        [SchemeProperty(WriteOnly = true, MinInteger = 1)]
+        [SchemeProperty(InsertOnly = true, MinInteger = 1)]
         public int? FullLifeCycle { get; set; }
 
         /// <summary>
