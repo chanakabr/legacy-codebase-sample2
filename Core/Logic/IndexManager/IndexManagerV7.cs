@@ -4857,33 +4857,53 @@ namespace Core.Catalog
                 switch (filter.Value.type)
                 {
                     case "nGram":
-                        {
-                            var castedFilter = filter.Value as NgramFilter;
-                            filtersDesctiptor =
-                                filtersDesctiptor.NGram(filter.Key,
-                                    f => f
-                                    .MinGram(castedFilter.min_gram)
-                                    .MaxGram(castedFilter.max_gram)
-                                );
-                            break;
-                        }
+                        SetNgramTokenFiltersDescriptor(filter.Key, filter.Value as NgramFilter, filtersDesctiptor);
+                        break;
                     case "edgeNGram":
-                        {
-                            var castedFilter = filter.Value as NgramFilter;
-                            filtersDesctiptor =
-                                filtersDesctiptor.EdgeNGram(filter.Key,
-                                    f => f
-                                    .MinGram(castedFilter.min_gram)
-                                    .MaxGram(castedFilter.max_gram)
-                                );
-                            break;
-                        }
-                    default:
+                        SetEdgeNgramTokenFiltersDescriptor(filter.Key, filter.Value as NgramFilter, filtersDesctiptor);
+                        break;
+                    case "stemmer":
+                        SetStemmerTokenFiltersDescriptor(filter.Key, filter.Value as StemmerFilter, filtersDesctiptor);
+                        break;
+                    case "phonetic":
+                        SetPhoneticTokenFiltersDescriptor(filter.Key, filter.Value as PhoneticFilter, filtersDesctiptor);
                         break;
                 }
             }
 
             return filtersDesctiptor;
+        }
+
+        private void SetNgramTokenFiltersDescriptor(string name, NgramFilter filter, TokenFiltersDescriptor descriptor)
+        {
+            descriptor.NGram(name, f => f
+                .MinGram(filter.min_gram)
+                .MaxGram(filter.max_gram));
+        }
+
+        private void SetEdgeNgramTokenFiltersDescriptor(string name, NgramFilter filter, TokenFiltersDescriptor descriptor)
+        {
+            descriptor.EdgeNGram(name, f => f
+                .MinGram(filter.min_gram)
+                .MaxGram(filter.max_gram));
+        }
+
+        private void SetStemmerTokenFiltersDescriptor(string name, StemmerFilter filter, TokenFiltersDescriptor descriptor)
+        {
+            descriptor.Stemmer(name, f => f
+                .Language(filter.language));
+        }
+
+        private void SetPhoneticTokenFiltersDescriptor(string name, PhoneticFilter filter, TokenFiltersDescriptor descriptor)
+        {
+            var encoder = JsonConvert.DeserializeObject<PhoneticEncoder>($"\"{filter.encoder}\"");
+            var languageSet = filter.languageset?
+                .Select(x => JsonConvert.DeserializeObject<PhoneticLanguage>($"\"{x}\""));
+
+            descriptor.Phonetic(name, f => f
+                .Encoder(encoder)
+                .Replace(filter.replace)
+                .LanguageSet(languageSet));
         }
 
         private AnalyzersDescriptor GetAnalyzersDesctiptor(Dictionary<string, Analyzer> analyzers)
@@ -5517,7 +5537,7 @@ namespace Core.Catalog
                     out var phraseStartsWithAnalyzer,
                     out var phraseStartsWithSearchAnalyzer);
 
-                bool shouldAddPhoneticField = analyzers.ContainsKey(phoneticIndexAnalyzer) && analyzers.ContainsKey(phoneticSearchAnalyzer);
+                bool shouldAddPhoneticField = !string.IsNullOrEmpty(phoneticIndexAnalyzer) && !string.IsNullOrEmpty(phoneticSearchAnalyzer);
 
                 InitializeTextField(
                     $"{language.Code}",
@@ -5675,11 +5695,13 @@ namespace Core.Catalog
             searchAnalyzer = $"{language.Code}_search_analyzer";
             autocompleteAnalyzer = $"{language.Code}_autocomplete_analyzer";
             autocompleteSearchAnalyzer = $"{language.Code}_autocomplete_search_analyzer";
-            phoneticIndexAnalyzer = $"{language.Code}_index_dbl_metaphone";
-            phoneticSearchAnalyzer = $"{language.Code}_search_dbl_metaphone";
             lowercaseAnalyzer = $"{language.Code}_lowercase_analyzer";
             phraseStartsWithAnalyzer = $"{language.Code}_phrase_starts_with_analyzer";
             phraseStartsWithSearchAnalyzer = $"{language.Code}_phrase_starts_with_search_analyzer";
+            var dblMetaphoneIndexAnalyzerCandidate = $"{language.Code}_index_dbl_metaphone";
+            var dblMetaphoneSearchAnalyzerCandidate = $"{language.Code}_search_dbl_metaphone";
+            var phoneticIndexAnalyzerCandidate = $"{language.Code}_index_phonetic";
+            var phoneticSearchAnalyzerCandidate = $"{language.Code}_search_phonetic";
             
             if (!analyzers.ContainsKey(indexAnalyzer))
             {
@@ -5714,6 +5736,26 @@ namespace Core.Catalog
             if (!analyzers.ContainsKey(phraseStartsWithSearchAnalyzer))
             {
                 phraseStartsWithSearchAnalyzer = DEFAULT_PHRASE_STARTS_WITH_SEARCH_ANALYZER;
+            }
+
+            phoneticIndexAnalyzer = null;
+            if (analyzers.ContainsKey(dblMetaphoneIndexAnalyzerCandidate))
+            {
+                phoneticIndexAnalyzer = dblMetaphoneIndexAnalyzerCandidate;
+            }
+            else if (analyzers.ContainsKey(phoneticIndexAnalyzerCandidate))
+            {
+                phoneticIndexAnalyzer = phoneticIndexAnalyzerCandidate;
+            }
+
+            phoneticSearchAnalyzer = null;
+            if (analyzers.ContainsKey(dblMetaphoneSearchAnalyzerCandidate))
+            {
+                phoneticSearchAnalyzer = dblMetaphoneSearchAnalyzerCandidate;
+            }
+            else if (analyzers.ContainsKey(phoneticSearchAnalyzerCandidate))
+            {
+                phoneticSearchAnalyzer = phoneticSearchAnalyzerCandidate;
             }
         }
 

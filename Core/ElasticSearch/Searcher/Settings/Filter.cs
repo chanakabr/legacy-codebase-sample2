@@ -23,6 +23,26 @@ namespace ElasticSearch.Searcher.Settings
         public int max_gram;
     }
 
+    [JsonObject]
+    public class StemmerFilter : Filter
+    {
+        [JsonProperty]
+        public string language;
+    }
+
+    [JsonObject]
+    public class PhoneticFilter : Filter
+    {
+        [JsonProperty]
+        public string encoder;
+        
+        [JsonProperty]
+        public bool replace;
+        
+        [JsonProperty]
+        public string[] languageset;
+    }
+
     [JsonObject()]
     public class FilterDefinitions
     {

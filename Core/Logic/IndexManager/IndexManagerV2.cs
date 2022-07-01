@@ -7384,14 +7384,24 @@ namespace Core.Catalog
                     specificMappingAnlyzers.autocompleteSearchAnalyzer = autocompleteSearchAnalyzerCandidate;
                 }
 
-                var phoneticIndexAnalyzerCandidate = $"{language.Code}_index_dbl_metaphone";
-                if (analyzerDefinition.Contains(phoneticIndexAnalyzerCandidate))
+                var dblMetaphoneIndexAnalyzerCandidate = $"{language.Code}_index_dbl_metaphone";
+                var phoneticIndexAnalyzerCandidate = $"{language.Code}_index_phonetic";
+                if (analyzerDefinition.Contains(dblMetaphoneIndexAnalyzerCandidate))
+                {
+                    specificMappingAnlyzers.phoneticIndexAnalyzer = dblMetaphoneIndexAnalyzerCandidate;
+                }
+                else if (analyzerDefinition.Contains(phoneticIndexAnalyzerCandidate))
                 {
                     specificMappingAnlyzers.phoneticIndexAnalyzer = phoneticIndexAnalyzerCandidate;
                 }
 
-                var phoneticSearchAnalyzerCandidate = $"{language.Code}_search_dbl_metaphone";
-                if (analyzerDefinition.Contains(phoneticSearchAnalyzerCandidate))
+                var dblMetaphoneSearchAnalyzerCandidate = $"{language.Code}_search_dbl_metaphone";
+                var phoneticSearchAnalyzerCandidate = $"{language.Code}_search_phonetic";
+                if (analyzerDefinition.Contains(dblMetaphoneSearchAnalyzerCandidate))
+                {
+                    specificMappingAnlyzers.phoneticSearchAnalyzer = dblMetaphoneSearchAnalyzerCandidate;
+                }
+                else if (analyzerDefinition.Contains(phoneticIndexAnalyzerCandidate))
                 {
                     specificMappingAnlyzers.phoneticSearchAnalyzer = phoneticSearchAnalyzerCandidate;
                 }

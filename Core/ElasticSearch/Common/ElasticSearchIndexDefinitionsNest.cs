@@ -88,11 +88,17 @@ namespace ElasticSearch.Common
                     case "ngram":
                     case "edgengram":
                     {
-                        var parsedFilter = jsonFilter.Value.ToObject<NgramFilter>();
-                        result.Add(jsonFilter.Key, parsedFilter);
+                        var nGramFilter = jsonFilter.Value.ToObject<NgramFilter>();
+                        result.Add(jsonFilter.Key, nGramFilter);
                         break;
                     }
-                    default:
+                    case "stemmer":
+                        var stemmerFilter = jsonFilter.Value.ToObject<StemmerFilter>();
+                        result.Add(jsonFilter.Key, stemmerFilter);
+                        break;
+                    case "phonetic":
+                        var phoneticFilter = jsonFilter.Value.ToObject<PhoneticFilter>();
+                        result.Add(jsonFilter.Key, phoneticFilter);
                         break;
                 }
             }
