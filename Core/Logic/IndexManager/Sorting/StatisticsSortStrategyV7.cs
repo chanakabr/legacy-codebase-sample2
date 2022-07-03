@@ -322,12 +322,16 @@ namespace ApiLogic.IndexManager.Sorting
                 {
                     LogContextData contextData = new LogContextData();
                     // Create a task for the search and merge of partial aggregations
+
+                    var idsTerm = new TermsQuery
+                    {
+                        Field = "media_id",
+                        Terms = assetIds.Skip(assetIndex).Take(aggregationsSize).Select(id => id.ToString())
+                    };
+
                     Task task = Task.Run(() =>
                     {
                         contextData.Load();
-
-                        var idsTerm = new TermsQuery();
-                        idsTerm.Terms = (assetIds.Skip(assetIndex).Take(aggregationsSize).Select(id => id.ToString()));
 
                         // each time create a copy of the previous list of conditions (group id, dates, action)
                         // and add the current IDs term (each run of the loop it changes)
