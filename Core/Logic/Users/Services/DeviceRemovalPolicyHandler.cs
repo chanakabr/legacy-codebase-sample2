@@ -58,20 +58,20 @@ namespace ApiLogic.Users.Services
             var deviceUuidUsageKeyToDevice = deviceFamilies
                 .Where(x => x.m_deviceFamilyID == rollingDeviceRemovalFamilyId)
                 .SelectMany(x => x.DeviceInstances)
-                .ToDictionary(key => GetDomainDeviceUsageDateKey(key.m_deviceUDID), value => value);
+                .ToDictionary(key => key.m_deviceUDID, value => value);
             if (!deviceUuidUsageKeyToDevice.Any())
             {
                 return string.Empty;
             }
-
-            var removalCandidateDeviceUsageKey = string.Empty;
+            
+            string removalCandidateDeviceUDID = string.Empty;
             switch (rollingDeviceRemovalPolicy)
             {
                 case RollingDevicePolicy.LIFO:
-                    removalCandidateDeviceUsageKey = deviceUuidUsageKeyToDevice.OrderBy(x => x.Value.m_activationDate).Last().Key;
+                    removalCandidateDeviceUDID = deviceUuidUsageKeyToDevice.OrderBy(x => x.Value.m_activationDate).Last().Key;
                     break;
                 case RollingDevicePolicy.FIFO:
-                    removalCandidateDeviceUsageKey = deviceUuidUsageKeyToDevice.OrderBy(x => x.Value.m_activationDate).First().Key;
+                    removalCandidateDeviceUDID = deviceUuidUsageKeyToDevice.OrderBy(x => x.Value.m_activationDate).First().Key;
                     break;
                 case RollingDevicePolicy.ACTIVE_DEVICE_ASCENDING:
                     // map device usage to usage date
@@ -86,25 +86,27 @@ namespace ApiLogic.Users.Services
                             break;
                         }
 
-                        var deviceUdidsUsageKeysReturned = deviceLoginRecords.Select(d => GetDomainDeviceUsageDateKey(d.UDID));
+                        var deviceUdidsUsageKeysReturned = deviceLoginRecords.Select(d => d.UDID);
                         // first check if there such old devices that do not have a login recotrd at all because of TTL
                         var nonExistingDevices = deviceUuidUsageKeyToDevice.Keys.Except(deviceUdidsUsageKeysReturned).ToList();
                         if (nonExistingDevices.Any())
                         {
-                            removalCandidateDeviceUsageKey = nonExistingDevices.First();
+                            removalCandidateDeviceUDID = nonExistingDevices.First();
                         }
                         else // if no non existing devices then we can use the min login date..
                         {
                             var minLoginRecord = deviceLoginRecords.MinBy(r => r.LastLoginDate).FirstOrDefault();
                             if (minLoginRecord != null)
                             {
-                                removalCandidateDeviceUsageKey = GetDomainDeviceUsageDateKey(minLoginRecord.UDID);
+                                removalCandidateDeviceUDID = minLoginRecord.UDID;
                             }
                         }
                     }
                     else
-                    {
-                        var loginRecords = _cbManager.GetValues<string>(deviceUuidUsageKeyToDevice.Keys.ToList(), shouldAllowPartialQuery: true);
+                    { 
+                        string removalCandidateDeviceUsageKey = string.Empty;
+                        var udids =  deviceUuidUsageKeyToDevice.Keys.ToDictionary(key => GetDomainDeviceUsageDateKey(key), key => key);
+                        var loginRecords = _cbManager.GetValues<string>(udids.Keys.ToList(), shouldAllowPartialQuery: true);
                         if (loginRecords?.Any() != true)
                         {
                             _logger.Error($"could not fetch device login records groupId:[{groupId}]");
@@ -112,7 +114,7 @@ namespace ApiLogic.Users.Services
                         }
 
                         // first check if there such old devices that do not have a login record at all because of TTL
-                        var nonExistingDevices = deviceUuidUsageKeyToDevice.Keys.Except(loginRecords.Keys);
+                        var nonExistingDevices = udids.Keys.Except(loginRecords.Keys);
                         if (nonExistingDevices.Any())
                         {
                             removalCandidateDeviceUsageKey = nonExistingDevices.First();
@@ -121,14 +123,16 @@ namespace ApiLogic.Users.Services
                         {
                             removalCandidateDeviceUsageKey = loginRecords.MinBy(r => long.Parse(r.Value)).FirstOrDefault().Key;
                         }
+
+                        removalCandidateDeviceUDID = udids.ContainsKey(removalCandidateDeviceUsageKey)
+                            ? udids[removalCandidateDeviceUsageKey]
+                            : string.Empty;
                     }
 
                     break;
             }
 
-            return deviceUuidUsageKeyToDevice.ContainsKey(removalCandidateDeviceUsageKey)
-                ? deviceUuidUsageKeyToDevice[removalCandidateDeviceUsageKey].m_deviceUDID
-                : string.Empty;
+            return removalCandidateDeviceUDID;
         }
 
 
