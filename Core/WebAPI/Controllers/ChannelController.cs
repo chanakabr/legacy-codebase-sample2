@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using ApiObjects.Response;
+using ApiObjects.SearchObjects;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
@@ -7,7 +10,10 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.Catalog.Ordering;
 using WebAPI.Models.General;
+using WebAPI.ModelsValidators;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -166,7 +172,7 @@ namespace WebAPI.Controllers
             var isManualChannelOrDynamicChannel = channel is KalturaManualChannel || channel is KalturaDynamicChannel;
             if (isManualChannelOrDynamicChannel)
             {
-                channel.BuildOrderingsForInsert();
+                BuildOrderingsForInsert(channel);
                 channel.ValidateForInsert();
             }
 
@@ -226,7 +232,7 @@ namespace WebAPI.Controllers
             var isManualChannelOrDynamicChannel = channel is KalturaManualChannel || channel is KalturaDynamicChannel;
             if (isManualChannelOrDynamicChannel)
             {
-                channel.BuildOrderingsForUpdate();
+                BuildOrderingsForUpdate(channel);
                 channel.ValidateForUpdate();
             }
 
@@ -374,6 +380,76 @@ namespace WebAPI.Controllers
             }
 
             return response;
+        }
+        
+        private static void BuildOrderingsForInsert(KalturaChannel channel)
+        {
+            BuildOrderings(channel,true);
+        }
+
+        private static void BuildOrderingsForUpdate(KalturaChannel channel)
+        {
+            BuildOrderings(channel, channel.OrderBy != null);
+        }
+
+        private static void BuildOrderings(KalturaChannel channel, bool isOrderingParametersRequired)
+        {
+            if (channel.OrderingParameters == null)
+            {
+                channel.OrderingParameters = new List<KalturaBaseChannelOrder>();
+            }
+
+            if (channel.OrderingParameters.Any() && channel.OrderBy != null)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "orderingParametersEqual", "orderBy");
+            }
+
+            if (!channel.OrderingParameters.Any() && isOrderingParametersRequired)
+            {
+                var orderBy = channel.OrderBy ?? new KalturaChannelOrder { orderBy = KalturaChannelOrderBy.CREATE_DATE_DESC };
+                var assetOrder = CreateBaseChannelOrder(channel, orderBy);
+                channel.OrderingParameters.Add(assetOrder);
+            }
+        }
+
+        private static KalturaBaseChannelOrder CreateBaseChannelOrder(KalturaChannel channel, KalturaChannelOrder order)
+        {
+            if (order.DynamicOrderBy != null)
+            {
+                var metaTagOrderBy = channel.OrderBy.DynamicOrderBy.OrderBy ?? KalturaMetaTagOrderBy.META_ASC;
+                return new KalturaChannelDynamicOrder { Name = channel.OrderBy.DynamicOrderBy.Name, OrderBy = metaTagOrderBy };
+            }
+
+            var slidingWindowPeriod = order.SlidingWindowPeriod ?? 0;
+            switch (order.orderBy)
+            {
+                case KalturaChannelOrderBy.NAME_ASC:
+                    return new KalturaChannelFieldOrder { OrderBy = KalturaChannelFieldOrderByType.NAME_ASC };
+                case KalturaChannelOrderBy.NAME_DESC:
+                    return new KalturaChannelFieldOrder { OrderBy = KalturaChannelFieldOrderByType.NAME_DESC };
+                case KalturaChannelOrderBy.START_DATE_ASC:
+                    return new KalturaChannelFieldOrder { OrderBy = KalturaChannelFieldOrderByType.START_DATE_ASC };
+                case KalturaChannelOrderBy.START_DATE_DESC:
+                    return new KalturaChannelFieldOrder { OrderBy = KalturaChannelFieldOrderByType.START_DATE_DESC };
+                case KalturaChannelOrderBy.CREATE_DATE_ASC:
+                    return new KalturaChannelFieldOrder { OrderBy = KalturaChannelFieldOrderByType.CREATE_DATE_ASC };
+                case KalturaChannelOrderBy.CREATE_DATE_DESC:
+                    return new KalturaChannelFieldOrder { OrderBy = KalturaChannelFieldOrderByType.CREATE_DATE_DESC };
+                case KalturaChannelOrderBy.RELEVANCY_DESC:
+                    return new KalturaChannelFieldOrder { OrderBy = KalturaChannelFieldOrderByType.RELEVANCY_DESC };
+                case KalturaChannelOrderBy.ORDER_NUM:
+                    return new KalturaChannelFieldOrder { OrderBy = KalturaChannelFieldOrderByType.ORDER_NUM };
+                case KalturaChannelOrderBy.LIKES_DESC:
+                    return new KalturaChannelSlidingWindowOrder { OrderBy = KalturaChannelSlidingWindowOrderByType.LIKES_DESC, SlidingWindowPeriod = slidingWindowPeriod };
+                case KalturaChannelOrderBy.VOTES_DESC:
+                    return new KalturaChannelSlidingWindowOrder { OrderBy = KalturaChannelSlidingWindowOrderByType.VOTES_DESC, SlidingWindowPeriod = slidingWindowPeriod };
+                case KalturaChannelOrderBy.RATINGS_DESC:
+                    return new KalturaChannelSlidingWindowOrder { OrderBy = KalturaChannelSlidingWindowOrderByType.RATINGS_DESC, SlidingWindowPeriod = slidingWindowPeriod };
+                case KalturaChannelOrderBy.VIEWS_DESC:
+                    return new KalturaChannelSlidingWindowOrder { OrderBy = KalturaChannelSlidingWindowOrderByType.VIEWS_DESC, SlidingWindowPeriod = slidingWindowPeriod };
+                default:
+                    throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, order.orderBy, "orderBy.orderBy");
+            }
         }
     }
 }

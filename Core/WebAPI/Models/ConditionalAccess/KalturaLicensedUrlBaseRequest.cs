@@ -15,13 +15,5 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("assetId")]
         [XmlElement(ElementName = "assetId")]
         public string AssetId { get; set; }
-
-        internal virtual void Validate()
-        {
-            if (string.IsNullOrEmpty(AssetId))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaLicensedUrlBaseRequest.assetId");
-            }
-        }
     }
 }

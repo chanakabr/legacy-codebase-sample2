@@ -1,11 +1,14 @@
 ﻿using ApiObjects.Response;
 using System;
+using Phoenix.Context;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
+using WebAPI.ModelsValidators;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -139,11 +142,10 @@ namespace WebAPI.Controllers
 
             try
             {
-                
+                request.Validate();
                 if (request is KalturaLicensedUrlEpgRequest) 
                 {
                     KalturaLicensedUrlEpgRequest epgRequest = request as KalturaLicensedUrlEpgRequest;
-                    epgRequest.Validate();
 
                     response = ClientsManager.ConditionalAccessClient().GetEPGLicensedLink(groupId, userId, udid, epgRequest.getEpgId(), epgRequest.ContentId, epgRequest.BaseUrl, epgRequest.StartDate, epgRequest.StreamType);
                 }
@@ -156,7 +158,7 @@ namespace WebAPI.Controllers
                 else if (request is KalturaLicensedUrlMediaRequest)
                 {
                     KalturaLicensedUrlMediaRequest mediaRequest = request as KalturaLicensedUrlMediaRequest;
-                    mediaRequest.Validate();
+
                     response = ClientsManager.ConditionalAccessClient().GetLicensedLinks(groupId, userId, udid, mediaRequest.ContentId, mediaRequest.BaseUrl);
                 }
                 else

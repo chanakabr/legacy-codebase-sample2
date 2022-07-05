@@ -61,23 +61,5 @@ namespace WebAPI.Models.Catalog
             get;
             set;
         }
-
-        public int[] getAssetTypes()
-        {
-            if (AssetTypes == null && MediaTypes != null)
-                AssetTypes = MediaTypes;
-
-            if (AssetTypes == null)
-                return new int[0];
-
-            int[] assetTypes = new int[AssetTypes.Count];
-            for (int i = 0; i < AssetTypes.Count; i++)
-            {
-                assetTypes[i] = AssetTypes[i].value;
-            }
-
-            return assetTypes;
-        }
-
     }
 }

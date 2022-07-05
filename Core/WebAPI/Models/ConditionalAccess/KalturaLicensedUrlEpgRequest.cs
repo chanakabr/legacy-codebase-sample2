@@ -22,33 +22,5 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("startDate")]
         [XmlElement(ElementName = "startDate")]
         public long StartDate { get; set; }
-
-        private int epgId { get; set; }
-
-        public int getEpgId()
-        {
-            if (epgId == 0)
-            {
-                int parsed = 0;
-                if (!int.TryParse(AssetId, out parsed))
-                {
-                    throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "KalturaLicensedUrlEpgRequest.assetId");
-                }
-                epgId = parsed;
-            }
-            return epgId;
-        }
-
-        internal override void Validate()
-        {
-            base.Validate();
-
-            int parsed = 0;
-            if (!int.TryParse(AssetId, out parsed))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "KalturaLicensedUrlEpgRequest.assetId");
-            }
-            epgId = parsed;
-        }
     }
 }

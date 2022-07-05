@@ -9,18 +9,18 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.ConditionalAccess
 {
     /// <summary>
-    /// Billing Transactions
+    /// C-DVR adapter profiles
     /// </summary>
     [Serializable]
-    public partial class KalturaBillingTransactionListResponse : KalturaListResponse
+    public partial class KalturaCDVRAdapterProfileListResponse : KalturaListResponse
     {
         /// <summary>
-        ///Transactions
+        /// C-DVR adapter profiles
         /// </summary>
         [DataMember(Name = "objects")]
-        [JsonProperty("objects")]
+        [JsonProperty(PropertyName = "objects")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<KalturaBillingTransaction> transactions { get; set; }
+        public List<KalturaCDVRAdapterProfile> Objects { get; set; }
     }
 }

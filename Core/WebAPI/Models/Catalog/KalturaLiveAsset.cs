@@ -256,14 +256,4 @@ namespace WebAPI.Models.Catalog
         ENABLED = 1,
         DISABLED = 2
     }
-
-    [Serializable]
-    public enum KalturaLinearChannelType
-    {
-        UNKNOWN = 0,
-        DTT = 1,
-        OTT = 2,
-        DTT_AND_OTT = 3,
-        VRM_EXPORT = 4
-    }
 }

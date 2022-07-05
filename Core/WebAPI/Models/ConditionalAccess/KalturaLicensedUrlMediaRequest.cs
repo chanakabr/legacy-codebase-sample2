@@ -22,14 +22,5 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("baseUrl")]
         [XmlElement(ElementName = "baseUrl")]
         public string BaseUrl { get; set; }
-
-        internal override void Validate()
-        {
-            base.Validate();
-            if (ContentId == 0)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaLicensedUrlMediaRequest.contentId");
-            }
-        }
     }
 }

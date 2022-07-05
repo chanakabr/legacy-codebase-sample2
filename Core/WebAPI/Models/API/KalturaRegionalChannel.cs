@@ -22,11 +22,5 @@ namespace WebAPI.Models.API
         [JsonProperty("channelNumber")]
         [XmlElement(ElementName = "channelNumber")]
         public int ChannelNumber { get; set; }
-
-        public KalturaRegionalChannel(long linearChannelId, int channelNumber)
-        {
-            LinearChannelId = (int)linearChannelId;
-            ChannelNumber = channelNumber;
-        }
     }
 }

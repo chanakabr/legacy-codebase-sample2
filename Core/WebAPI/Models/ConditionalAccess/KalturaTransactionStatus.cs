@@ -5,13 +5,6 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public enum KalturaTransactionAdapterStatus
-    {
-        OK = 0,
-        PENDING = 1,
-        FAILED = 2
-    }
-
     public partial class KalturaTransactionStatus : KalturaOTTObject
     {
         /// <summary>

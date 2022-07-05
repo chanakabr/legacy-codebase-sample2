@@ -32,8 +32,10 @@ using WebAPI.Models.Notification;
 using WebAPI.Models.Partner;
 using WebAPI.Models.Segmentation;
 using WebAPI.Models.Users;
+using WebAPI.ModelsFactory;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
+using WebAPI.ObjectsConvertor.Extensions;
 using KalturaPersonalListListResponse = WebAPI.Models.Api.KalturaPersonalListListResponse;
 
 namespace WebAPI.Clients
@@ -4395,8 +4397,8 @@ namespace WebAPI.Clients
                 .OfType<KalturaRegionalChannelMultiLcns>()
                 .ToArray();
             var newRegionalChannels = isMultiLcnsEnabled
-                ? multiLcnRegionalChannels.SelectMany(x => x.ParsedLcns.Select(_ => new KalturaRegionalChannel(x.LinearChannelId, _)))
-                : multiLcnRegionalChannels.Select(x => new KalturaRegionalChannel(x.LinearChannelId, x.ParsedLcns.First()));
+                ? multiLcnRegionalChannels.SelectMany(x => x.ParsedLcns().Select(_ => RegionalChannelFactory.Create(x.LinearChannelId, _)))
+                : multiLcnRegionalChannels.Select(x => RegionalChannelFactory.Create(x.LinearChannelId, x.ParsedLcns().First()));
 
             var result = regionalChannels
                 .Except(multiLcnRegionalChannels)
@@ -4412,8 +4414,8 @@ namespace WebAPI.Clients
                 .OfType<KalturaRegionChannelNumberMultiLcns>()
                 .ToArray();
             var newRegionChannelNumbers = enableMultiLcns
-                ? multiRegionChannelNumbers.SelectMany(x => x.ParsedLcns.Select(_ => new KalturaRegionChannelNumber(x.RegionId, _)))
-                : multiRegionChannelNumbers.Select(x => new KalturaRegionChannelNumber(x.RegionId, x.ParsedLcns.First()));
+                ? multiRegionChannelNumbers.SelectMany(x => x.ParsedLcns().Select(_ => RegionChannelNumberFactory.Create(x.RegionId, _)))
+                : multiRegionChannelNumbers.Select(x => RegionChannelNumberFactory.Create(x.RegionId, x.ParsedLcns().First()));
 
             var result = regionChannelNumbers
                 .Except(multiRegionChannelNumbers)
@@ -4441,7 +4443,7 @@ namespace WebAPI.Clients
             return isMultiLcnsEnabled
                 ? regionalChannels
                     .GroupBy(x => x.LinearChannelId, x => x.ChannelNumber)
-                    .Select(x => new KalturaRegionalChannelMultiLcns(x.Key, x.First(), string.Join(",", x)))
+                    .Select(x => RegionalChannelFactory.Create(x.Key, x.First(), string.Join(",", x)))
                     .Cast<KalturaRegionalChannel>()
                     .ToList()
                 : regionalChannels

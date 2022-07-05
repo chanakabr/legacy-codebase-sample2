@@ -9,6 +9,7 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Models.General;
 using WebAPI.Utils;
+using WebAPI.ModelsValidators;
 
 namespace WebAPI.Controllers
 {
@@ -124,7 +125,7 @@ namespace WebAPI.Controllers
         {
             var groupId = KS.GetFromRequest().GroupId;
             var isMultiLcnsEnabled = GeneralPartnerConfigManager.Instance.GetGeneralPartnerConfig(groupId)?.EnableMultiLcns == true;
-            KalturaRegionChannelNumber.Validate(isMultiLcnsEnabled, regionChannelNumbers);
+            RegionChannelNumberValidator.Validate(isMultiLcnsEnabled, regionChannelNumbers);
 
             var userId = Utils.Utils.GetUserIdFromKs();
             var response = ClientsManager.ApiClient().BulkUpdateRegions(groupId, userId, linearChannelId, regionChannelNumbers.AsReadOnly());

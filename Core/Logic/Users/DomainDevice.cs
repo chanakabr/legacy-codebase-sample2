@@ -86,7 +86,7 @@ namespace Core.Users
                 ApiLogic.Users.Managers.CampaignManager.Instance.PublishTriggerCampaign(GroupId, DomainId, this, ApiService.DomainDevice, ApiAction.Insert);
             }
 
-            return sucsses;
+            return sucsses; 
         }
 
         protected override bool DoUpdate()
