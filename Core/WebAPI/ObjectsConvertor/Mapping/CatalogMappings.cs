@@ -203,11 +203,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //Channel (Catalog) to Channel
             cfg.CreateMap<GroupsCacheManager.Channel, WebAPI.Models.Catalog.KalturaChannel>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nChannelID))
-                .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => MultilingualStringFactory.Create(src.m_sName)))
+                .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => MultilingualStringFactory.Create(src.NamesInOtherLanguages, src.m_sName)))
                 .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.m_nMediaType))
                 .ForMember(dest => dest.MediaTypes, opt => opt.MapFrom(src => src.m_nMediaType))
                 .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.filterQuery))
-                .ForMember(dest => dest.Description, opt => opt.ResolveUsing(src => MultilingualStringFactory.Create(src.m_sDescription)))
+                .ForMember(dest => dest.Description, opt => opt.ResolveUsing(src => MultilingualStringFactory.Create(src.DescriptionInOtherLanguages, src.m_sDescription)))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => ConvertToNullableBool(src.m_nIsActive)))
                 .ForMember(dest => dest.Order, opt => opt.ResolveUsing(src => ConvertOrderObjToAssetOrder(src.m_OrderObject.m_eOrderBy, src.m_OrderObject.m_eOrderDir)))
                 .ForMember(dest => dest.GroupBy, opt => opt.ResolveUsing(src => ConvertToGroupBy(src.searchGroupBy)))
