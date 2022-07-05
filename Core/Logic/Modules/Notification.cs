@@ -482,12 +482,12 @@ namespace Core.Notification
             return response;
         }
 
-        public static GetAllMessageAnnouncementsResponse GetAllMessageAnnouncements(int nGroupID, int pageSize, int pageIndex, MessageAnnouncementFilter filter = null)
+        public static GetAllMessageAnnouncementsResponse GetAllMessageAnnouncements(int nGroupID, int pageSize, int pageIndex, MessageAnnouncementFilter filter = null, bool isMessageAnnouncements = true)
         {
             GetAllMessageAnnouncementsResponse response = null;
             try
             {
-                response = AnnouncementManager.Instance.Get_AllMessageAnnouncements(nGroupID, pageSize, pageIndex, filter);
+                response = AnnouncementManager.Instance.Get_AllMessageAnnouncements(nGroupID, pageSize, pageIndex, filter, isMessageAnnouncements);
             }
             catch (Exception ex)
             {
