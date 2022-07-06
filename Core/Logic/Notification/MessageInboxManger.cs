@@ -342,7 +342,7 @@ namespace Core.Notification
         private List<InboxMessage> GetAllUserPotentialMessages(int groupId, int userId)
         {
             //Get system announcements
-            var _systemAnnouncements = _announcementManager.Get_AllMessageAnnouncements(groupId, 0, 0, null);
+            var _systemAnnouncements = _announcementManager.Get_AllMessageAnnouncements(groupId, 0, 0,null, false);
 
             //Get active campaigns
             var _campaigns = HandleCampaignsToUser(groupId, userId);

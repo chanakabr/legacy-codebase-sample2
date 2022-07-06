@@ -399,7 +399,7 @@ namespace Core.Users
                 Device device = new Device(dDevice.Udid, dDevice.DeviceBrandId, m_nGroupID, dDevice.Name, domainId);
                 if (device.Initialize(dDevice.Udid))
                 {
-                    device.m_deviceName = dDevice.Name.Trim();
+                    device.m_deviceName = dDevice.Name?.Trim() ?? string.Empty;
                 }
 
                 if (!string.IsNullOrEmpty(dDevice.ExternalId))

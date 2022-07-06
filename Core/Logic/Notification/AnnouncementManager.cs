@@ -32,7 +32,7 @@ namespace Core.Notification
 {
     public interface IAnnouncementManager
     {
-        GetAllMessageAnnouncementsResponse Get_AllMessageAnnouncements(int groupId, int pageSize, int pageIndex, MessageAnnouncementFilter filter);
+        GetAllMessageAnnouncementsResponse Get_AllMessageAnnouncements(int groupId, int pageSize, int pageIndex, MessageAnnouncementFilter filter, bool isMessageAnnouncements);
         List<InboxMessage> GetUserFollowedSeries(int groupId, int userId);
     }
 
@@ -400,7 +400,7 @@ namespace Core.Notification
             return true;
         }
 
-        public GetAllMessageAnnouncementsResponse Get_AllMessageAnnouncements(int groupId, int pageSize, int pageIndex, MessageAnnouncementFilter filter)
+        public GetAllMessageAnnouncementsResponse Get_AllMessageAnnouncements(int groupId, int pageSize, int pageIndex, MessageAnnouncementFilter filter, bool isMessageAnnouncements)
         {
             GetAllMessageAnnouncementsResponse ret = new GetAllMessageAnnouncementsResponse
             {
@@ -447,10 +447,19 @@ namespace Core.Notification
                 }
             }
 
-            var ctx = new ContextData(groupId);
-            ret = ListSystemMessageAnnouncements(ctx);
-            ret.totalCount = ret.messageAnnouncements.Count;
-
+            if (isMessageAnnouncements)
+            { 
+                ret.messageAnnouncements = NotificationDal.Get_MessageAllAnnouncements(groupId, pageSize, pageIndex);
+                ret.totalCount = NotificationDal.Get_MessageAllAnnouncementsCount(groupId);
+            }
+            else
+            {
+                var ctx = new ContextData(groupId);
+                ret = ListSystemMessageAnnouncements(ctx);
+                ret.totalCount = ret.messageAnnouncements.Count;    
+            }
+            
+            ret.Status = new Status(eResponseStatus.OK);
             return ret;
         }
 
