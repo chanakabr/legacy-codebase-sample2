@@ -592,8 +592,8 @@ namespace ApiLogic.Pricing.Handlers
                 }
             }
 
-            var nullableEndDate = new NullableObj<DateTime?>(collectionToUpdate.EndDate, collectionToUpdate.IsNullablePropertyExists("EndDate"));
-            var nullableStartDate = new NullableObj<DateTime?>(collectionToUpdate.StartDate, collectionToUpdate.IsNullablePropertyExists("StartDate"));
+            var nullableEndDate = new DAL.NullableObj<DateTime?>(collectionToUpdate.EndDate, collectionToUpdate.IsNullablePropertyExists("EndDate"));
+            var nullableStartDate = new DAL.NullableObj<DateTime?>(collectionToUpdate.StartDate, collectionToUpdate.IsNullablePropertyExists("StartDate"));
 
             #region validate dates
             status = ValidateDates(nullableEndDate, nullableStartDate, collection);
@@ -724,7 +724,7 @@ namespace ApiLogic.Pricing.Handlers
             return new Status(eResponseStatus.OK);
         }
 
-        private Status ValidateDates(NullableObj<DateTime?> endDateToUpdate, NullableObj<DateTime?> startDateToUpdate, Collection collection)
+        private Status ValidateDates(DAL.NullableObj<DateTime?> endDateToUpdate, DAL.NullableObj<DateTime?> startDateToUpdate, Collection collection)
         {
             DateTime? startDate = startDateToUpdate.Obj.HasValue ? startDateToUpdate.Obj.Value : collection.m_dStartDate;
             DateTime? endDate = endDateToUpdate.Obj.HasValue ? endDateToUpdate.Obj.Value : collection.m_dEndDate;

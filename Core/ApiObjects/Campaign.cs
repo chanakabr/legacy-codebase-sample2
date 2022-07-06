@@ -21,7 +21,7 @@ namespace ApiObjects
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class CampaignDB
+    public class CampaignDB: BaseSupportsNullable
     {
         [DBFieldMapping("ID")]
         public long Id { get; set; }
@@ -120,7 +120,9 @@ namespace ApiObjects
                 this.CollectionIds = oldCampaign.CollectionIds;
             }
 
-            if (this.Promotion == null)
+            var nullablePromotion = new NullableObj<Promotion>(this.Promotion, this.IsNullablePropertyExists("Promotion"));
+
+            if (!nullablePromotion.IsNull && this.Promotion == null)
             {
                 this.Promotion = oldCampaign.Promotion;
             }

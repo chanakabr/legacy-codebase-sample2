@@ -96,7 +96,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "promotion")]
         [JsonProperty("promotion")]
-        [XmlElement(ElementName = "promotion")]
+        [XmlElement(ElementName = "promotion", IsNullable = true)]
         [SchemeProperty(IsNullable = true)]
         public KalturaPromotion Promotion { get; set; }
 

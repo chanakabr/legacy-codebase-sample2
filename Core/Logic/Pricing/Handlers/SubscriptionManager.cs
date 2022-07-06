@@ -443,7 +443,7 @@ namespace ApiLogic.Pricing.Handlers
                 }
             }
 
-            var nullableEndDate = new NullableObj<DateTime?>(subscriptionToUpdate.EndDate, subscriptionToUpdate.IsNullablePropertyExists("EndDate"));
+            var nullableEndDate = new DAL.NullableObj<DateTime?>(subscriptionToUpdate.EndDate, subscriptionToUpdate.IsNullablePropertyExists("EndDate"));
 
             if (subscriptionToUpdate.ExternalId != string.Empty && subscriptionToUpdate.ExternalId != subscription.m_ProductCode)
             {
@@ -551,7 +551,7 @@ namespace ApiLogic.Pricing.Handlers
                 }
             }
 
-            var nullableStartDate = new NullableObj<DateTime?>(subscriptionToUpdate.StartDate, subscriptionToUpdate.IsNullablePropertyExists("StartDate"));
+            var nullableStartDate = new DAL.NullableObj<DateTime?>(subscriptionToUpdate.StartDate, subscriptionToUpdate.IsNullablePropertyExists("StartDate"));
 
             // Due to atomic action update virtual asset before subscription update
             if (virtualAssetInfo != null)

@@ -339,9 +339,9 @@ namespace ApiLogic.Pricing.Handlers
                 }
             }
 
-            var nullableEndDate = new NullableObj<DateTime?>(pagoToUpdate.EndDate, pagoToUpdate.IsNullablePropertyExists("EndDate"));
-            var nullableStartDate = new NullableObj<DateTime?>(pagoToUpdate.StartDate, pagoToUpdate.IsNullablePropertyExists("StartDate"));
-            var nullableExpiryDate = new NullableObj<DateTime?>(pagoToUpdate.ExpiryDate, pagoToUpdate.IsNullablePropertyExists("ExpiryDate"));
+            var nullableEndDate = new DAL.NullableObj<DateTime?>(pagoToUpdate.EndDate, pagoToUpdate.IsNullablePropertyExists("EndDate"));
+            var nullableStartDate = new DAL.NullableObj<DateTime?>(pagoToUpdate.StartDate, pagoToUpdate.IsNullablePropertyExists("StartDate"));
+            var nullableExpiryDate = new DAL.NullableObj<DateTime?>(pagoToUpdate.ExpiryDate, pagoToUpdate.IsNullablePropertyExists("ExpiryDate"));
 
             #region validate dates
             status = ValidateDates(nullableEndDate, nullableStartDate, nullableExpiryDate, pago);
@@ -404,7 +404,7 @@ namespace ApiLogic.Pricing.Handlers
             return result;
         }
 
-        private Status ValidateDates(NullableObj<DateTime?> endDateToUpdate, NullableObj<DateTime?> startDateToUpdate, NullableObj<DateTime?> expiryDateToUpdate,
+        private Status ValidateDates(DAL.NullableObj<DateTime?> endDateToUpdate, DAL.NullableObj<DateTime?> startDateToUpdate, DAL.NullableObj<DateTime?> expiryDateToUpdate,
             ProgramAssetGroupOffer pago)
         {
             DateTime? startDate = startDateToUpdate.Obj.HasValue ? startDateToUpdate.Obj.Value : pago.StartDate;
