@@ -1967,6 +1967,7 @@ namespace Core.Billing
                                 response.StartDateSeconds = adapterResponse.Transaction.StartDateSeconds;
                                 response.EndDateSeconds = adapterResponse.Transaction.EndDateSeconds;
                                 response.AutoRenewing = adapterResponse.Transaction.AutoRenewing;
+                                response.PendingInterval = adapterResponse.Transaction.PendingInterval;
 
                                 break;
 
@@ -2127,7 +2128,7 @@ namespace Core.Billing
                                     //set return response values
                                     response.State = eTransactionState.Pending;
                                     DateTime nextRetryDate = DateTime.UtcNow.AddMinutes(paymentGateway.PendingInterval);
-
+                                    
                                     if (paymentGateway.IsAsyncPolicy && paymentGateway.PendingInterval == 0)
                                     {
                                         nextRetryDate = DateTime.UtcNow.AddMinutes(PaymentGateway.DEFAULT_PENDING_INTERVAL_MINUTES);
