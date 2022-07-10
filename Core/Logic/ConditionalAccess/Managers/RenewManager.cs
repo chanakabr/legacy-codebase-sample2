@@ -236,10 +236,13 @@ namespace Core.ConditionalAccess
                             }
 
                             DateTime nextRenewalDate = DateTime.UtcNow.AddMinutes(60); // default
-
-                            if (response.PaymentGateway.RenewalIntervalMinutes > 0)
+                            int pendingInterval = transactionResponse.PendingInterval != 0
+                                ? transactionResponse.PendingInterval
+                                : response.PaymentGateway.RenewalIntervalMinutes;
+                            log.Info($"Renew pending subscription in {pendingInterval} min");
+                            if (pendingInterval > 0)
                             {
-                                nextRenewalDate = DateTime.UtcNow.AddMinutes(response.PaymentGateway.RenewalIntervalMinutes);
+                                nextRenewalDate = DateTime.UtcNow.AddMinutes(pendingInterval);
                             }
 
                             UnifiedProcess unifiedProcess = null;

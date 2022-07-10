@@ -100,6 +100,8 @@ namespace Core.Catalog.CatalogManagement
                             ingestResponse.AssetsStatus[i].Warnings.AddRange(upsertStatus.Objects);
                             ingestResponse.Set(mediaAsset.CoGuid, "succeeded Upsert media", "OK", (int)mediaAsset.Id);
                             ingestResponse.AssetsStatus[i].InternalAssetId = (int)mediaAsset.Id;
+                            ingestResponse.AssetsStatus[i].ExternalAssetId = mediaAsset.CoGuid;
+
                             if (mediaAsset.Tags.Count == 0)
                             {
                                 assetsWithNoTags.Add((int)mediaAsset.Id, isMediaExists);
@@ -521,6 +523,8 @@ namespace Core.Catalog.CatalogManagement
 
             ingestResponse.Set(coGuid, "succeeded delete media", "OK", mediaId);
             ingestResponse.AssetsStatus[mediaIndex].InternalAssetId = mediaId;
+            ingestResponse.AssetsStatus[mediaIndex].ExternalAssetId = coGuid;
+
             return true;
         }
 

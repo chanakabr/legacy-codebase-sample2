@@ -56,7 +56,7 @@ namespace Core.Catalog
         {
             if (epgCBList != null && epgCBList.Count > 0)
             {
-                var defaultEpgCB = epgCBList.FirstOrDefault(x => x.Language.Equals(defaultLanguageCode));
+                var defaultEpgCB = epgCBList.FirstOrDefault(x => x.Language.Equals(defaultLanguageCode) || string.IsNullOrEmpty(x.Language));
                 if (defaultEpgCB != null)
                 {
                     this.Id = (long)defaultEpgCB.EpgID;

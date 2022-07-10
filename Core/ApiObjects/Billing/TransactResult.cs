@@ -76,6 +76,11 @@ namespace ApiObjects.Billing
             set;
         }
 
+        public int PendingInterval
+        {
+            get; set;
+        }
+
         public TransactResult()
         {
             Status = new Response.Status();
