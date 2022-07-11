@@ -79,6 +79,11 @@ namespace ApiLogic.IndexManager.Models
 
         private static string GetMetaValueV7(IHit<NestBaseAsset> nestBaseAsset, string esFieldV7, LanguageObj language)
         {
+            if (nestBaseAsset.Source.Metas == null)
+            {
+                return null;
+            }
+
             var isLangForMetaExists = nestBaseAsset.Source.Metas.TryGetValue(language.Code, out var metas);
             if (!isLangForMetaExists)
             {
