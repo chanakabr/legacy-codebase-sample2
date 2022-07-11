@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using ApiLogic.Catalog.CatalogManagement.Services;
+using ApiObjects;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
-using LinqToTwitter;
+using Core.Catalog.CatalogManagement;
 using LiveToVod.BOL;
 using LiveToVod.DAL;
 using Microsoft.Extensions.Logging;
@@ -16,18 +17,27 @@ namespace LiveToVod
     public class LiveToVodManager : ILiveToVodManager
     {
         private static readonly Lazy<LiveToVodManager> Lazy = new Lazy<LiveToVodManager>(
-            () => new LiveToVodManager(Repository.Instance, LiveToVodService.Instance, LayeredCache.Instance),
+            () => new LiveToVodManager(
+                Repository.Instance,
+                LiveToVodService.Instance,
+                LayeredCache.Instance,
+                CatalogManager.Instance),
             LazyThreadSafetyMode.PublicationOnly);
 
         private readonly IRepository _repository;
         private readonly ILiveToVodService _liveToVodService;
         private readonly ILayeredCache _layeredCache;
+        private readonly ICatalogManager _catalogManager;
         private readonly ILogger _logger;
 
         public static ILiveToVodManager Instance => Lazy.Value;
 
-        public LiveToVodManager(IRepository repository, ILiveToVodService liveToVodService, ILayeredCache layeredCache)
-            : this(repository, liveToVodService, layeredCache, new KLogger(nameof(LiveToVodManager)))
+        public LiveToVodManager(
+            IRepository repository,
+            ILiveToVodService liveToVodService,
+            ILayeredCache layeredCache,
+            ICatalogManager catalogManager)
+            : this(repository, liveToVodService, layeredCache, catalogManager, new KLogger(nameof(LiveToVodManager)))
         {
         }
         
@@ -35,11 +45,13 @@ namespace LiveToVod
             IRepository repository,
             ILiveToVodService liveToVodService,
             ILayeredCache layeredCache,
+            ICatalogManager catalogManager,
             ILogger logger)
         {
             _repository = repository;
             _liveToVodService = liveToVodService;
             _layeredCache = layeredCache;
+            _catalogManager = catalogManager;
             _logger = logger;
         }
 
@@ -86,16 +98,17 @@ namespace LiveToVod
             return result;
         }
 
-        public LiveToVodPartnerConfiguration UpdatePartnerConfiguration(long partnerId, LiveToVodPartnerConfiguration config, long updaterId)
+        public GenericResponse<LiveToVodPartnerConfiguration> UpdatePartnerConfiguration(long partnerId, LiveToVodPartnerConfiguration config, long updaterId)
         {
-            if (TryUpdatePartnerConfiguration(partnerId, config, updaterId))
+            var validationStatus = ValidatePartnerConfigurationUpdate(partnerId, config, updaterId);
+            if (!validationStatus.IsOkStatusCode())
             {
-                UpsertPartnerConfiguration(partnerId, config, updaterId);
+                return new GenericResponse<LiveToVodPartnerConfiguration>(validationStatus);
             }
-
-            var partnerConfig = GetPartnerConfiguration(partnerId);
-
-            return partnerConfig;
+            
+            UpsertPartnerConfiguration(partnerId, config, updaterId);
+            
+            return new GenericResponse<LiveToVodPartnerConfiguration>(Status.Ok, GetPartnerConfiguration(partnerId));
         }
 
         public LiveToVodLinearAssetConfiguration UpdateLinearAssetConfiguration(long partnerId, LiveToVodLinearAssetConfiguration config, long updaterId)
@@ -148,13 +161,13 @@ namespace LiveToVod
                     return configuration;
                 }
                 
-                _logger.LogError($"{nameof(List)} - Failed to get live to vod full configuration: {nameof(partnerId)}={partnerId}.");
+                _logger.LogError($"{nameof(GetCachedFullConfiguration)} - Failed to get live to vod full configuration: {nameof(partnerId)}={partnerId}.");
 
                 return null;
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Error while executing {nameof(List)}: {e.Message}.");
+                _logger.LogError(e, $"Error while executing {nameof(GetCachedFullConfiguration)}: {e.Message}.");
 
                 return null;
             }
@@ -181,43 +194,57 @@ namespace LiveToVod
         }
 
 
-        private bool TryUpdatePartnerConfiguration(long partnerId, LiveToVodPartnerConfiguration config, long updaterId)
+        private Status ValidatePartnerConfigurationUpdate(long partnerId, LiveToVodPartnerConfiguration config, long updaterId)
         {
-            bool result;
-
             var currentConfig = GetPartnerConfiguration(partnerId);
+            var result = Status.Ok;
             if (!currentConfig.IsLiveToVodEnabled && config.IsLiveToVodEnabled)
             {
-                result = DoesLiveToVodAssetStructExist(partnerId, updaterId);
-            }
-            else
-            {
-                result = true;
+                result = ValidateLiveToVodAssetStructExist(partnerId, updaterId);
             }
 
-            return result;
+            return !result.IsOkStatusCode() ? result : ValidateMetaExistOnProgramAssetStruct(partnerId, config.MetadataClassifier);
         }
 
-        private bool DoesLiveToVodAssetStructExist(long partnerId, long updaterId)
+        private Status ValidateLiveToVodAssetStructExist(long partnerId, long updaterId)
         {
-            bool result = false;
             var getAssetStructResponse = _liveToVodService.GetLiveToVodAssetStruct((int)partnerId);
             if (getAssetStructResponse.IsOkStatusCode())
             {
-                result = true;
+                return Status.Ok;
             }
-            else if (getAssetStructResponse.Status.Code == (int)eResponseStatus.AssetStructDoesNotExist)
+            
+            if (getAssetStructResponse.Status.Code == (int)eResponseStatus.AssetStructDoesNotExist)
             {
                 var addAssetStructResponse = _liveToVodService.AddLiveToVodAssetStruct((int)partnerId, updaterId);
                 if (!addAssetStructResponse.IsOkStatusCode())
                 {
-                    throw new Exception($"{addAssetStructResponse.Status.Code} - {addAssetStructResponse.Status.Message}.");
-                }
+                    _logger.LogError($"Failed to create L2V asset struct. {addAssetStructResponse.Status.Code} - {addAssetStructResponse.Status.Message}.");
 
-                result = true;
+                    return Status.Error;
+                }
             }
 
-            return result;
+            return Status.Ok;
+        }
+
+        private Status ValidateMetaExistOnProgramAssetStruct(long partnerId, string metadataClassifier)
+        {
+            if (!_catalogManager.TryGetCatalogGroupCacheFromCache((int)partnerId, out var catalogGroupCache)
+                || !catalogGroupCache.AssetStructsMapById.TryGetValue(
+                    catalogGroupCache.GetProgramAssetStructId(),
+                    out var programAssetStruct))
+            {
+                _logger.LogError($"Failed to retrieve program asset struct.");
+
+                return Status.Error;
+            }
+
+            return catalogGroupCache.TopicsMapBySystemNameAndByType.TryGetValue(metadataClassifier, out var topics) 
+                && topics.TryGetValue(MetaType.Bool.ToString(), out var booleanMeta)
+                && programAssetStruct.AssetStructMetas.ContainsKey(booleanMeta.Id)
+                ? Status.Ok
+                : new Status(eResponseStatus.L2VMetadataClassifierIsNotValid);
         }
 
         private void UpsertPartnerConfiguration(long partnerId, LiveToVodPartnerConfiguration config, long updaterId)

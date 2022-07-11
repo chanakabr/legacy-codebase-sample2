@@ -324,6 +324,7 @@ namespace ApiObjects.Response
         AudioCodecsDoesNotExist = 4116,
         SearchPriorityGroupDoesNotExist = 4117,
         CanNotRemoveMetaIdsForLiveToVod = 4118,
+        L2VMetadataClassifierIsNotValid = 4119,
 
         #endregion
 
