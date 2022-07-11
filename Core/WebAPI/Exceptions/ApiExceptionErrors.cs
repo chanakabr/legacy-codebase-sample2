@@ -558,6 +558,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType META_DOES_NOT_BELONG_TO_PARENT_ASSET_STRUCT = new ClientExceptionType(eResponseStatus.MetaDoesNotBelongToParentAssetStruct, "MetaDoesNotBelongToParentAssetStruct");
         public static ClientExceptionType META_IDS_DUPLICATION = new ClientExceptionType(eResponseStatus.MetaIdsDuplication, "MetaIdsDuplication");
         public static ClientExceptionType CAN_NOT_REMOVE_META_IDS_FOR_LIVE_TO_VOD = new ClientExceptionType(eResponseStatus.CanNotRemoveMetaIdsForLiveToVod, "CanNotRemoveMetaIdsForLiveToVod");
+        public static ClientExceptionType L2V_METADATA_CLASSIFIER_IS_NOT_VALID = new ClientExceptionType(eResponseStatus.L2VMetadataClassifierIsNotValid, "Program asset struct doesn't have boolean meta with provided name.");
         public static ClientExceptionType ASSET_FILE_PPV_NOT_EXIST = new ClientExceptionType(eResponseStatus.AssetFilePPVNotExist, "AssetFilePPVNotExist");
         public static ClientExceptionType GROUP_DOES_NOT_CONTAIN_CURRENCY = new ClientExceptionType(eResponseStatus.GroupDoesNotContainCurrency, "GroupDoesNotContainCurrency");
         public static ClientExceptionType NO_VALUES_TO_UPDATE = new ClientExceptionType(eResponseStatus.NoValuesToUpdate, "NoValuesToUpdate");

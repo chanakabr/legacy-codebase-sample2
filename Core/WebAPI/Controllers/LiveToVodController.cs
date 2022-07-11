@@ -1,4 +1,6 @@
+using ApiObjects.Response;
 using LiveToVod;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Mappers;
@@ -79,6 +81,7 @@ namespace WebAPI.Controllers
         /// <returns>Updated Live to VOD partner configuration.</returns>
         [Action("updatePartnerConfiguration")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.L2VMetadataClassifierIsNotValid)]
         [ApiAuthorize]
         public static KalturaLiveToVodPartnerConfiguration UpdatePartnerConfiguration(KalturaLiveToVodPartnerConfiguration configuration)
         {
@@ -88,10 +91,13 @@ namespace WebAPI.Controllers
             var userId = Utils.Utils.GetUserIdFromKs();
 
             var mappedConfig = LiveToVodMapper.Map(configuration);
-            var updatedConfig = _liveToVodManager.UpdatePartnerConfiguration(groupId, mappedConfig, userId);
-            var result = LiveToVodMapper.Map(updatedConfig);
-
-            return result;
+            var updatedConfigResponse = _liveToVodManager.UpdatePartnerConfiguration(groupId, mappedConfig, userId);
+            if (!updatedConfigResponse.IsOkStatusCode())
+            {
+                throw new ClientException(updatedConfigResponse.Status);
+            }
+            
+            return LiveToVodMapper.Map(updatedConfigResponse.Object);
         }
 
         /// <summary>
