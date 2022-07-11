@@ -152,8 +152,8 @@ namespace ApiLogic.IndexManager.QueryBuilders
             bool addMissingToGroupByAgg = false)
         {
             this.ReturnFields = DEFAULT_RETURN_FIELDS.ToList();
-            var extraFields = EsSortingService.BuildExtraReturnFields(OrderByFields).Concat(SearchDefinitions.extraReturnFields).Distinct().ToArray();
-            this.ReturnFields.AddRange(extraFields.Select(field => string.Format("\"{0}\"", field)));
+            SearchDefinitions.extraReturnFields.UnionWith(EsSortingService.BuildExtraReturnFields(OrderByFields));
+            this.ReturnFields.AddRange(SearchDefinitions.extraReturnFields.Select(field => string.Format("\"{0}\"", field)));
 
             string epg_id_field = "\"epg_id\"";
 
