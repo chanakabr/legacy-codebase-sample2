@@ -23,7 +23,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
             _logger = logger;
         }
 
-        public void Publish(long partnerId, Core.Catalog.LiveToVodAsset asset, IEnumerable<string> files, int operationType)
+        public void Publish(long partnerId, Core.Catalog.LiveToVodAsset asset, IEnumerable<string> files, int operationType, long updaterId)
         {
             if (_liveToVodAssetProducer == null)
             {
@@ -46,7 +46,8 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
                 PaddingBeforeProgramStarts = asset.PaddingBeforeProgramStarts,
                 PaddingAfterProgramEnds = asset.PaddingAfterProgramEnds,
                 Operation = operationType,
-                MediaFileUrls = files?.ToArray() ?? Array.Empty<string>()
+                MediaFileUrls = files?.ToArray() ?? Array.Empty<string>(),
+                UpdaterId = updaterId
             };
 
             _liveToVodAssetProducer.Produce(

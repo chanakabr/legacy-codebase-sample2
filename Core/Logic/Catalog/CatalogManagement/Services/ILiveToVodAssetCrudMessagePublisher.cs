@@ -5,6 +5,6 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
 {
     public interface ILiveToVodAssetCrudMessagePublisher
     {
-        void Publish(long partnerId, LiveToVodAsset asset, IEnumerable<string> files, int operationType);
+        void Publish(long partnerId, LiveToVodAsset asset, IEnumerable<string> files, int operationType, long updaterId);
     }
 }

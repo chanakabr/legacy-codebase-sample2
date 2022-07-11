@@ -149,7 +149,8 @@ namespace Phoenix.AsyncHandler
                 programAsset.PartnerId,
                 liveToVodAsset,
                 assetFiles.Select(x => x.Url),
-                CrudOperationType.CREATE_OPERATION);
+                CrudOperationType.CREATE_OPERATION,
+                programAsset.UpdaterId);
 
             return Result.Ok;
         }
@@ -202,7 +203,8 @@ namespace Phoenix.AsyncHandler
                 programAsset.PartnerId,
                 liveToVodAsset,
                 assetFiles.Select(x => x.Url),
-                CrudOperationType.UPDATE_OPERATION);
+                CrudOperationType.UPDATE_OPERATION,
+                programAsset.UpdaterId);
 
             return Result.Ok;
         }
@@ -228,7 +230,8 @@ namespace Phoenix.AsyncHandler
                 epgAsset.PartnerId,
                 liveToVodAsset,
                 liveToVodAsset.Files.Select(x => x.Url),
-                CrudOperationType.DELETE_OPERATION);
+                CrudOperationType.DELETE_OPERATION,
+                epgAsset.UpdaterId);
 
             return Result.Ok;
         }
