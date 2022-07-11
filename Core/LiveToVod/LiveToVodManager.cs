@@ -213,16 +213,18 @@ namespace LiveToVod
             {
                 return Status.Ok;
             }
-            
-            if (getAssetStructResponse.Status.Code == (int)eResponseStatus.AssetStructDoesNotExist)
-            {
-                var addAssetStructResponse = _liveToVodService.AddLiveToVodAssetStruct((int)partnerId, updaterId);
-                if (!addAssetStructResponse.IsOkStatusCode())
-                {
-                    _logger.LogError($"Failed to create L2V asset struct. {addAssetStructResponse.Status.Code} - {addAssetStructResponse.Status.Message}.");
 
-                    return Status.Error;
-                }
+            if (getAssetStructResponse.Status.Code != (int)eResponseStatus.AssetStructDoesNotExist)
+            {
+                return Status.Error;
+            }
+
+            var addAssetStructResponse = _liveToVodService.AddLiveToVodAssetStruct((int)partnerId, updaterId);
+            if (!addAssetStructResponse.IsOkStatusCode())
+            {
+                _logger.LogError($"Failed to create L2V asset struct. {addAssetStructResponse.Status.Code} - {addAssetStructResponse.Status.Message}.");
+
+                return Status.Error;
             }
 
             return Status.Ok;
@@ -240,7 +242,8 @@ namespace LiveToVod
                 return Status.Error;
             }
 
-            return catalogGroupCache.TopicsMapBySystemNameAndByType.TryGetValue(metadataClassifier, out var topics) 
+            return !string.IsNullOrEmpty(metadataClassifier)
+                && catalogGroupCache.TopicsMapBySystemNameAndByType.TryGetValue(metadataClassifier, out var topics) 
                 && topics.TryGetValue(MetaType.Bool.ToString(), out var booleanMeta)
                 && programAssetStruct.AssetStructMetas.ContainsKey(booleanMeta.Id)
                 ? Status.Ok
