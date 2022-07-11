@@ -22,7 +22,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "percentage")]
         [JsonProperty("percentage")]
         [XmlElement(ElementName = "percentage", IsNullable = true)]
-        public int Percentage { get; set; }
+        public double Percentage { get; set; }
     }
     
 }

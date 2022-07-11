@@ -27940,7 +27940,7 @@ namespace WebAPI.Models.Pricing
             {
                 if (parameters.ContainsKey("percentage") && parameters["percentage"] != null)
                 {
-                    Percentage = (Int32) Convert.ChangeType(parameters["percentage"], typeof(Int32));
+                    Percentage = (Double) Convert.ChangeType(parameters["percentage"], typeof(Double));
                 }
             }
         }
