@@ -280,6 +280,9 @@ namespace ApiLogic.Pricing.Handlers
                     DataTable discountsDt = _repository.GetGroupDiscounts(groupId.Value);
                     if (discountsDt != null)
                     {
+                        // set order multi pricing
+                        discountsDt.DefaultView.Sort = "dcl_id asc";
+                        discountsDt = discountsDt.DefaultView.ToTable();
                         discountDetails = Utils.BuildDiscountsFromDataTable(discountsDt);
                     }
                 }
