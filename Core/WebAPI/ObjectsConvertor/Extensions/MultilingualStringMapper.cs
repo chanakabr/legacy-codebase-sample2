@@ -62,7 +62,7 @@ namespace WebAPI.ObjectsConvertor.Extensions
 
         public static string GetCurrent(LanguageContainer[] values, string value)
         {
-            if (values != null)
+            if (values != null && values.Length > 0)
             {
                 return MultilingualStringMapper.ToString(MultilingualStringFactory.Create(values));
             }
