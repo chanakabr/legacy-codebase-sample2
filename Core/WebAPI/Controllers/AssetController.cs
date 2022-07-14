@@ -1005,6 +1005,15 @@ namespace WebAPI.Controllers
                 if (response.Sources?.Count > 0)
                 {
                     response.Sources = _mediaFileFilter.GetFilteredAssetFiles(assetType, response.Sources, ks.GroupId, KSUtils.ExtractKSPayload(ks).SessionCharacteristicKey).ToList();
+                    if (response.Sources == null || response.Sources.Count == 0)
+                    {
+                        response.Messages.Add(new KalturaAccessControlMessage
+                        {
+                            Code = eResponseStatus.NoFilesFound.ToString(),
+                            Message = "No files found"
+                        });
+                        return response;
+                    }
                     DrmUtils.BuildSourcesDrmData(assetId, assetType, contextDataParams, ks, ref response);
 
                     // Check and get PlaybackAdapter in case asset set rule and action.
@@ -1496,7 +1505,16 @@ namespace WebAPI.Controllers
                 if (response.Sources?.Count > 0)
                 {
                     response.Sources = _mediaFileFilter.GetFilteredAssetFiles(assetType, response.Sources, ks.GroupId, KSUtils.ExtractKSPayload(ks).SessionCharacteristicKey).ToList();
-
+                    if (response.Sources == null || response.Sources.Count == 0)
+                    {
+                        response.Messages.Add(new KalturaAccessControlMessage
+                        {
+                            Code = eResponseStatus.NoFilesFound.ToString(),
+                            Message = "No files found"
+                        });
+                        return response;
+                    }
+                    
                     KalturaPlaybackContext adapterResponse = PlaybackAdapterManager.GetPlaybackAdapterManifest(ks.GroupId, assetId, assetType, response, contextDataParams, ks.UserId, udid, Utils.Utils.GetClientIP());
                     if (adapterResponse != null)
                     {
