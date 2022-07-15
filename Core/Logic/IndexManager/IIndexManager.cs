@@ -30,6 +30,7 @@ namespace Core.Catalog
         bool DeleteChannel(int channelId);
         bool UpsertChannel(int channelId, Channel channel = null, long userId = 0);
         bool DeleteMedia(long assetId);
+        void DeleteMediaByTypeAndFinalEndDate(long mediaTypeId, DateTime finalEndDate);
         
         #endregion
 

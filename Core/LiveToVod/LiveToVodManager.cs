@@ -40,7 +40,7 @@ namespace LiveToVod
             : this(repository, liveToVodService, layeredCache, catalogManager, new KLogger(nameof(LiveToVodManager)))
         {
         }
-        
+
         public LiveToVodManager(
             IRepository repository,
             ILiveToVodService liveToVodService,
@@ -70,6 +70,8 @@ namespace LiveToVod
 
             return result;
         }
+
+        public IEnumerable<long> GetPartnersForTearDown() => _repository.GetPartnerIds();
 
         public LiveToVodPartnerConfiguration GetPartnerConfiguration(long partnerId)
         {
@@ -105,9 +107,9 @@ namespace LiveToVod
             {
                 return new GenericResponse<LiveToVodPartnerConfiguration>(validationStatus);
             }
-            
+
             UpsertPartnerConfiguration(partnerId, config, updaterId);
-            
+
             return new GenericResponse<LiveToVodPartnerConfiguration>(Status.Ok, GetPartnerConfiguration(partnerId));
         }
 
@@ -243,7 +245,7 @@ namespace LiveToVod
             }
 
             return !string.IsNullOrEmpty(metadataClassifier)
-                && catalogGroupCache.TopicsMapBySystemNameAndByType.TryGetValue(metadataClassifier, out var topics) 
+                && catalogGroupCache.TopicsMapBySystemNameAndByType.TryGetValue(metadataClassifier, out var topics)
                 && topics.TryGetValue(MetaType.Bool.ToString(), out var booleanMeta)
                 && programAssetStruct.AssetStructMetas.ContainsKey(booleanMeta.Id)
                 ? Status.Ok

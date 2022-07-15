@@ -42,8 +42,7 @@ namespace DAL.Pricing
             () => new ProgramAssetGroupOfferRepository(
                 ClientFactoryBuilder.Instance.GetClientFactory(
                     DatabaseProperties.DATABASE,
-                    DatabaseProperties.CollectionProperties,
-                    TcmConnectionStringHelper.Instance)),
+                    DatabaseProperties.CollectionProperties)),
             LazyThreadSafetyMode.PublicationOnly);
 
         public static IPagoRepository Instance => LazyInstance.Value;

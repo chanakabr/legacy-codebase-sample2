@@ -4951,6 +4951,18 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
+        public static long DeleteMediaAssetsByTypeAndDate(long partnerId, long mediaTypeId, DateTime finalEndDate, long userId)
+        {
+            StoredProcedure sp = new StoredProcedure("DeleteMediaAssetsByTypeAndDate");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@PartnerId", partnerId);
+            sp.AddParameter("@MediaTypeId", mediaTypeId);
+            sp.AddParameter("@FinalEndDate", finalEndDate);
+            sp.AddParameter("@UpdaterId", userId);
+
+            return sp.ExecuteReturnValue<long>();
+        }
+
         public static bool RemoveMetasAndTagsFromAsset(int groupId, long id, int dbAssetType, List<long> metaIds, List<long> tagIds, long userId, List<long> releatedEntityIds)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("RemoveMetasAndTagsFromAsset");

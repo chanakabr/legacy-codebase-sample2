@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using DAL;
 using DAL.MongoDB;
 using LiveToVod.BOL;
 using Microsoft.Extensions.Logging;
@@ -15,24 +14,35 @@ namespace LiveToVod.DAL
     public class Repository : IRepository
     {
         private static readonly Lazy<Repository> Lazy = new Lazy<Repository>(
-            () => new Repository(ClientFactoryBuilder.Instance.GetClientFactory(DatabaseProperties.DATABASE, TcmConnectionStringHelper.Instance)),
+            () => new Repository(
+                ClientFactoryBuilder.Instance.GetClientFactory(DatabaseProperties.DATABASE),
+                ClientFactoryBuilder.Instance.GetAdminClientFactory(DatabaseProperties.DATABASE)),
             LazyThreadSafetyMode.PublicationOnly);
 
         private readonly IMongoDbClientFactory _mongoDbClientFactory;
+        private readonly IMongoDbAdminClientFactory _mongoDbAdminClientFactory;
         private readonly ILogger _logger;
 
         public static IRepository Instance => Lazy.Value;
         
-        public Repository(IMongoDbClientFactory mongoDbClientFactory) 
-            : this(mongoDbClientFactory, new KLogger(nameof(Repository)))
+        public Repository(IMongoDbClientFactory mongoDbClientFactory, IMongoDbAdminClientFactory mongoDbAdminClientFactory)
+            : this(mongoDbClientFactory, mongoDbAdminClientFactory, new KLogger(nameof(Repository)))
         {
         }
 
-        public Repository(IMongoDbClientFactory mongoDbClientFactory, ILogger logger)
+        public Repository(IMongoDbClientFactory mongoDbClientFactory, IMongoDbAdminClientFactory mongoDbAdminClientFactory, ILogger logger)
         {
             _mongoDbClientFactory = mongoDbClientFactory;
+            _mongoDbAdminClientFactory = mongoDbAdminClientFactory;
             _logger = logger;
         }
+
+        public IEnumerable<long> GetPartnerIds()
+            => _mongoDbAdminClientFactory
+                .NewMongoDbAdminClient(_logger)
+                .GetPartnerDbClients()
+                .Select(x => x.PartnerId)
+                .ToList();
 
         public LiveToVodPartnerConfiguration GetPartnerConfiguration(long partnerId)
         {
