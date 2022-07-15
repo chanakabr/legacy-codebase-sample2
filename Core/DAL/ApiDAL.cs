@@ -1549,7 +1549,7 @@ namespace DAL
 
             return null;
         }
-        
+
         public static DataTable Get_MediaFileTypeDescription(int nMediaFileID, int nGroupID)
         {
 
@@ -1575,7 +1575,7 @@ namespace DAL
         }
 
         /// <summary>
-        /// Return regions of medias 
+        /// Return regions of medias
         /// </summary>
         /// <param name="groupId"></param>
         /// <returns></returns>
@@ -1657,7 +1657,7 @@ namespace DAL
                             // If rule is not positive, this means this is a dummy result: The user disabled the default
                             if (newRule.id > 0)
                             {
-                                // Make sure we don't have an id like this already 
+                                // Make sure we don't have an id like this already
                                 // (happens when user-rules table contains same rule id and user/domain in two different records)
                                 if (!rules.ContainsKey(newRule.id))
                                 {
@@ -3054,7 +3054,7 @@ namespace DAL
 
             try
             {
-                // get the roles, permissions, permission items tables 
+                // get the roles, permissions, permission items tables
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_Roles");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@group_id", groupId);
@@ -3123,7 +3123,7 @@ namespace DAL
 
             try
             {
-                // get the roles, permissions, permission items tables 
+                // get the roles, permissions, permission items tables
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_RolesByNames");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
@@ -3237,7 +3237,7 @@ namespace DAL
 
                         roleId = ODBCWrapper.Utils.GetLongSafeVal(permissionItemsRow, "ROLE_ID");
 
-                        // add the connection and the permission to the role - permission dictionary 
+                        // add the connection and the permission to the role - permission dictionary
                         // if the role is not yet in the dictionary add it
                         if (!rolesPermissions.ContainsKey(roleId))
                         {
@@ -3330,7 +3330,7 @@ namespace DAL
                         permissionItem.Name = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "NAME");
                         permissionId = ODBCWrapper.Utils.GetLongSafeVal(permissionsRow, "PERMISSION_ID");
 
-                        // add the connection and the permission item to the permission - permission items dictionary 
+                        // add the connection and the permission item to the permission - permission items dictionary
                         // if the permission is not yet in the dictionary add it
                         if (!permissionPermissionItems.ContainsKey(permissionId))
                         {
@@ -4343,7 +4343,7 @@ namespace DAL
             sp.AddParameter("@TransitionIntervalUnits", rule.TransitionIntervalUnits);
             sp.AddParameter("@GroupId", rule.GroupId);
 
-            // for alcr_tags_actions table            
+            // for alcr_tags_actions table
             sp.AddIDListParameter("@TagIdsToAdd", rule.Actions.TagIdsToAdd, "id");
             sp.AddIDListParameter("@TagIdsToRemove", rule.Actions.TagIdsToRemove, "id");
 
@@ -5602,7 +5602,7 @@ namespace DAL
                     sp.AddParameter("@overlapChannels", string.Join(",", profileToAdd.OverlapChannels));
                 }
 
-                MergeIngestProfileAdapaterSettings(groupId, profileToAdd.Id, userId, profileToAdd.Settings);
+                MergeIngestProfileAdapaterSettings(groupId, profileId, userId, profileToAdd.Settings);
 
                 return sp.ExecuteReturnValue<int>() > 0;
 
@@ -5754,7 +5754,7 @@ namespace DAL
         {
             try
             {
-                // get the roles, permissions, permission items tables 
+                // get the roles, permissions, permission items tables
                 var parameters = new Dictionary<string, object>() { { "@group_id", groupId } };
                 return UtilsDal.Execute("Get_GroupFeatures", parameters);
             }
