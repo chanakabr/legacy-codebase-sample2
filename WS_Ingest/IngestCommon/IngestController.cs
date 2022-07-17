@@ -72,6 +72,8 @@ namespace Ingest
 
                 if (groupID > 0)
                 {
+                    UploadXmlToS3(request, groupID);
+
                     switch (ingestType)
                     {
                         case eIngestType.Tvinci:
@@ -170,7 +172,34 @@ namespace Ingest
             return ingestResponse;
         }
 
-        
+        private static void UploadXmlToS3(IngestRequest request, int groupID)
+        {
+            try
+            {
+                string should = Environment.GetEnvironmentVariable("SHOULD_UPLOAD_XML_TO_S3");
+
+                if (!string.IsNullOrEmpty(should) && should.ToLower() == "true")
+                {
+                    log.Debug($"uploading xml to s3...");
+
+                    var s3Handler = new S3FileHandler(ApplicationConfiguration.Current.FileUpload.S3, false);
+                    var fileManager = new ApiLogic.FileManager(s3Handler);
+
+                    string fileId = $"{groupID}_{DateUtils.GetUtcUnixTimestampNow()}";
+
+                    using (var stream = GenerateStreamFromString(request.Data))
+                    {
+                        var file = new ApiLogic.Catalog.OTTStreamFile(stream, fileId);
+
+                        ApiLogic.FileManager.Instance.SaveFile(fileId, file, "xmllog");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("oy, failed uploading to s3...", ex);
+            }
+        }
 
         private static string GetItemParameterVal(ref XmlNode theNode, string sParameterName)
         {
