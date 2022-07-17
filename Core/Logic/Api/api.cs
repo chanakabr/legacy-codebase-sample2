@@ -45,6 +45,7 @@ using System.Web;
 using System.Xml;
 using ApiLogic.Repositories;
 using ApiObjects.MediaMarks;
+using Core.GroupManagers;
 using CouchbaseManager;
 using Tvinci.Core.DAL;
 using TvinciImporter;
@@ -9058,14 +9059,25 @@ namespace Core.Api
                     return response;
                 }
 
-                // get regular groupId
-                int regularGroupId = DAL.ApiDAL.GetCdnRegularGroupId(groupID);
-                if (regularGroupId == 0)
+                int regularGroupId;
+                //TVM validation for sub group
+                if (!GroupSettingsManager.Instance.IsOpc(groupID))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                    log.ErrorFormat("Failed getting regularGroupId for group: {0}", groupID);
-                    return response;
+                    // get regular groupId
+                    regularGroupId = DAL.ApiDAL.GetCdnRegularGroupId(groupID);
+                    if (regularGroupId == 0)
+                    {
+                        response.Status = new ApiObjects.Response.Status((int) eResponseStatus.Error,
+                            eResponseStatus.Error.ToString());
+                        log.ErrorFormat("Failed getting regularGroupId for group: {0}", groupID);
+                        return response;
+                    }
                 }
+                else
+                {
+                    regularGroupId = groupID;
+                }
+
                 response.Adapter = DAL.ApiDAL.InsertCDNAdapter(regularGroupId, adapter);
                 if (response.Adapter != null && response.Adapter.ID > 0)
                 {
