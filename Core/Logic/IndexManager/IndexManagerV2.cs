@@ -365,6 +365,30 @@ namespace Core.Catalog
             return result;
         }
 
+        public void DeleteMediaByTypeAndFinalEndDate(long mediaTypeId, DateTime finalEndDate)
+        {
+            var index = NamingHelper.GetMediaIndexAlias(_partnerId);
+            var languages = GetCatalogGroupCache().LanguageMapByCode.Values;
+            var matchQuery = new BoolQuery();
+            var typeTerm = new ESTerm(true) { Key = "media_type_id", Value = mediaTypeId.ToString() };
+            matchQuery.AddChild(typeTerm, CutWith.AND);
+            var catalogEndDateRange = new ESRange(false) { Key = "final_date" };
+            catalogEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LT, finalEndDate.ToESDateFormat()));
+            matchQuery.AddChild(catalogEndDateRange, CutWith.AND);
+            var queryString = new ESQuery(matchQuery).ToString();
+            foreach (var language in languages)
+            {
+                var type = GetTranslationType(MEDIA, language);
+                if (!_elasticSearchApi.DeleteDocsByQuery(index, type, ref queryString, out var countDeleted))
+                {
+                    log.ErrorFormat("Failed to delete media assets. type: {1}, media_type_id: {2}, final_end_date: {3}", index, type, mediaTypeId, finalEndDate);
+                    continue;
+                }
+                
+                log.DebugFormat("Media assets were deleted from ES. index: {0}, type: {1}, media_type_id: {2}, final_end_date: {3}, deleted_count: {4}", index, type, mediaTypeId, finalEndDate, countDeleted);
+            }
+        }
+
         public bool UpsertChannel(int channelId, Channel channel = null, long userId = 0)
         {
             var result = false;

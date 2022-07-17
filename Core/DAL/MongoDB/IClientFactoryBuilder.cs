@@ -5,11 +5,13 @@ namespace DAL.MongoDB
 {
     public interface IClientFactoryBuilder
     {
-        IMongoDbClientFactory GetClientFactory(string databaseName, IConnectionStringHelper helper);
-
+        IMongoDbClientFactory GetClientFactory(string databaseName);
         IMongoDbClientFactory GetClientFactory(
             string databaseName,
-            Dictionary<string, MongoDbConfiguration.CollectionProperties> collectionProperties,
-            IConnectionStringHelper helper);
+            Dictionary<string, MongoDbConfiguration.CollectionProperties> collectionProperties);
+        IMongoDbAdminClientFactory GetAdminClientFactory(string databaseName);
+        IMongoDbAdminClientFactory GetAdminClientFactory(
+            string databaseName,
+            Dictionary<string, MongoDbConfiguration.CollectionProperties> collectionProperties);
     }
 }

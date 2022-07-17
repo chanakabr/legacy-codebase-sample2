@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using ApiObjects.Response;
 using LiveToVod.BOL;
 
@@ -11,5 +12,6 @@ namespace LiveToVod
         GenericResponse<LiveToVodPartnerConfiguration> UpdatePartnerConfiguration(long partnerId, LiveToVodPartnerConfiguration config, long updaterId);
         LiveToVodLinearAssetConfiguration UpdateLinearAssetConfiguration(long partnerId, LiveToVodLinearAssetConfiguration config, long updaterId);
         LiveToVodFullConfiguration GetCachedFullConfiguration(long partnerId);
+        IEnumerable<long> GetPartnersForTearDown();
     }
 }

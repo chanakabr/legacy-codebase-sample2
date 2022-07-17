@@ -25672,6 +25672,10 @@ namespace WebAPI.Models.Catalog
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Context.HasValue && (retrievedProperties == null || retrievedProperties.Contains("context")))
+            {
+                ret.Add("context", "\"context\": " + "\"" + Enum.GetName(typeof(KalturaPlaybackContextType), Context) + "\"");
+            }
             if(IsFinishedWatching.HasValue && (retrievedProperties == null || retrievedProperties.Contains("finishedWatching")))
             {
                 ret.Add("finishedWatching", "\"finishedWatching\": " + IsFinishedWatching.ToString().ToLower());
@@ -25720,6 +25724,10 @@ namespace WebAPI.Models.Catalog
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Context.HasValue && (retrievedProperties == null || retrievedProperties.Contains("context")))
+            {
+                ret.Add("context", "<context>" + "" + Enum.GetName(typeof(KalturaPlaybackContextType), Context) + "" + "</context>");
+            }
             if(IsFinishedWatching.HasValue && (retrievedProperties == null || retrievedProperties.Contains("finishedWatching")))
             {
                 ret.Add("finishedWatching", "<finishedWatching>" + IsFinishedWatching.ToString().ToLower() + "</finishedWatching>");

@@ -16,6 +16,7 @@ namespace LiveToVod.Tests.DAL
     {
         private MockRepository _mockRepository;
         private Mock<IMongoDbClientFactory> _clientFactoryMock;
+        private Mock<IMongoDbAdminClientFactory> _adminClientFactoryMock;
         private Mock<IMongoDbClient> _clientMock;
         private Mock<ILogger> _loggerMock;
 
@@ -30,6 +31,7 @@ namespace LiveToVod.Tests.DAL
             _clientFactoryMock
                 .Setup(x => x.NewMongoDbClient(1, _loggerMock.Object))
                 .Returns(_clientMock.Object);
+            _adminClientFactoryMock = _mockRepository.Create<IMongoDbAdminClientFactory>();
         }
 
         [TearDown]
@@ -49,7 +51,7 @@ namespace LiveToVod.Tests.DAL
                     It.IsAny<Func<UpdateDefinitionBuilder<LiveToVodPartnerConfigurationData>, UpdateDefinition<LiveToVodPartnerConfigurationData>>>(),
                     It.Is<MongoDbUpdateOptions>(_ => _.IsUpsert)))
                 .Returns(new MongoDbUpdateResult(new UpdateResult.Acknowledged(1, modifiedCount, id)));
-            var repository = new Repository(_clientFactoryMock.Object, _loggerMock.Object);
+            var repository = new Repository(_clientFactoryMock.Object, _adminClientFactoryMock.Object, _loggerMock.Object);
 
             var result = repository.UpsertPartnerConfiguration(1, new LiveToVodPartnerConfiguration(), 2);
 
@@ -66,7 +68,7 @@ namespace LiveToVod.Tests.DAL
                     It.IsAny<Func<UpdateDefinitionBuilder<LiveToVodPartnerConfigurationData>, UpdateDefinition<LiveToVodPartnerConfigurationData>>>(),
                     It.Is<MongoDbUpdateOptions>(_ => _.IsUpsert)))
                 .Returns(new MongoDbUpdateResult(new UpdateResult.Acknowledged(0, 0, "")));
-            var repository = new Repository(_clientFactoryMock.Object, _loggerMock.Object);
+            var repository = new Repository(_clientFactoryMock.Object, _adminClientFactoryMock.Object, _loggerMock.Object);
 
             var result = repository.UpsertPartnerConfiguration(1, new LiveToVodPartnerConfiguration(), 2);
 
@@ -85,7 +87,7 @@ namespace LiveToVod.Tests.DAL
                 .Returns(new MongoDbUpdateResult(new UpdateResult.Acknowledged(2, 0, "")));
             _loggerMock
                 .Setup(LogLevel.Error, "There have been found 2 LiveToVodPartnerConfiguration's documents in the database: partnerId=1.");
-            var repository = new Repository(_clientFactoryMock.Object, _loggerMock.Object);
+            var repository = new Repository(_clientFactoryMock.Object, _adminClientFactoryMock.Object, _loggerMock.Object);
 
             var result = repository.UpsertPartnerConfiguration(1, new LiveToVodPartnerConfiguration(), 2);
 
@@ -103,7 +105,7 @@ namespace LiveToVod.Tests.DAL
                     It.IsAny<Func<UpdateDefinitionBuilder<LiveToVodLinearAssetConfigurationData>, UpdateDefinition<LiveToVodLinearAssetConfigurationData>>>(),
                     It.Is<MongoDbUpdateOptions>(_ => _.IsUpsert)))
                 .Returns(new MongoDbUpdateResult(new UpdateResult.Acknowledged(1, modifiedCount, id)));
-            var repository = new Repository(_clientFactoryMock.Object, _loggerMock.Object);
+            var repository = new Repository(_clientFactoryMock.Object, _adminClientFactoryMock.Object, _loggerMock.Object);
 
             var result = repository.UpsertLinearAssetConfiguration(1, new LiveToVodLinearAssetConfiguration(0, false), 2);
 
@@ -120,7 +122,7 @@ namespace LiveToVod.Tests.DAL
                     It.IsAny<Func<UpdateDefinitionBuilder<LiveToVodLinearAssetConfigurationData>, UpdateDefinition<LiveToVodLinearAssetConfigurationData>>>(),
                     It.Is<MongoDbUpdateOptions>(_ => _.IsUpsert)))
                 .Returns(new MongoDbUpdateResult(new UpdateResult.Acknowledged(0, 0, "")));
-            var repository = new Repository(_clientFactoryMock.Object, _loggerMock.Object);
+            var repository = new Repository(_clientFactoryMock.Object, _adminClientFactoryMock.Object, _loggerMock.Object);
 
             var result = repository.UpsertLinearAssetConfiguration(1, new LiveToVodLinearAssetConfiguration(0, false), 2);
 
@@ -139,7 +141,7 @@ namespace LiveToVod.Tests.DAL
                 .Returns(new MongoDbUpdateResult(new UpdateResult.Acknowledged(2, 0, "")));
             _loggerMock
                 .Setup(LogLevel.Error, "There have been found 2 LiveToVodLinearAssetConfiguration's documents in the database: partnerId=1, LinearAssetId=3.");
-            var repository = new Repository(_clientFactoryMock.Object, _loggerMock.Object);
+            var repository = new Repository(_clientFactoryMock.Object, _adminClientFactoryMock.Object, _loggerMock.Object);
 
             var result = repository.UpsertLinearAssetConfiguration(1, new LiveToVodLinearAssetConfiguration(3, false), 2);
 

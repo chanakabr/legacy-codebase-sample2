@@ -1115,6 +1115,8 @@ namespace WebAPI.Reflection
                 case "KalturaBookmark":
                     switch(property.Name)
                     {
+                        case "Context":
+                            return "context";
                         case "IsFinishedWatching":
                             return "finishedWatching";
                         case "IsReportingMode":

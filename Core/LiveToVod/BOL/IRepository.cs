@@ -4,6 +4,7 @@ namespace LiveToVod.BOL
 {
     public interface IRepository
     {
+        IEnumerable<long> GetPartnerIds();
         LiveToVodPartnerConfiguration GetPartnerConfiguration(long partnerId);
         IEnumerable<LiveToVodLinearAssetConfiguration> GetLinearAssetConfigurations(long partnerId);
         LiveToVodLinearAssetConfiguration GetLinearAssetConfiguration(long partnerId, long linearAssetId);

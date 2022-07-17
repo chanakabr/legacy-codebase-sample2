@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using ApiLogic.Api.Managers;
 using ApiLogic.Catalog.CatalogManagement.Managers;
 using ApiLogic.Catalog.CatalogManagement.Repositories;
@@ -27,11 +28,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OTT.Lib.Kafka;
+using OTT.Service.TaskScheduler.Extensions.TaskHandler;
+using Phoenix.AsyncHandler.Catalog;
 using Phoenix.AsyncHandler.Kafka;
+using Phoenix.AsyncHandler.Kronos;
 using Phoenix.AsyncHandler.Pricing;
 using Phoenix.Generated.Api.Events.Crud.Household;
 using Phoenix.Generated.Api.Events.Crud.ProgramAsset;
 using Phoenix.Generated.Api.Events.Logical.appstoreNotification;
+using Phoenix.Generated.Tasks.Recurring.LiveToVodTearDown;
 using Phx.Lib.Appconfig;
 using Phx.Lib.Log;
 using Module = Core.Pricing.Module;
@@ -66,10 +71,16 @@ namespace Phoenix.AsyncHandler
 
         public static IServiceCollection AddDependencies(this IServiceCollection services)
         {
+            var kafkaConfig = KafkaConfig.Get();
             services.AddSingleton(p => DomainsCache.Instance());
             services.AddScoped<IKafkaContextProvider, AsyncHandlerKafkaContextProvider>();
 
-            services.AddKafkaProducerFactory(KafkaConfig.Get());
+            services.AddKronosHandlers(kafkaConfig[KafkaConfigKeys.BootstrapServers],
+                p => p
+                    .AddHandler<LiveToVodTearDownHandler>(LiveToVodTearDown.LiveToVodTearDownQualifiedName)
+                );
+
+            services.AddKafkaProducerFactory(kafkaConfig);
             services
                 .AddSingleton(p => DomainsCache.Instance())
                 .AddScoped<ILiveToVodAssetManager, LiveToVodAssetManager>()
@@ -120,9 +131,8 @@ namespace Phoenix.AsyncHandler
                 .AddScoped<IConnectionStringHelper, TcmConnectionStringHelper>()
                 .AddScoped<IClientFactoryBuilder, ClientFactoryBuilder>()
                 .AddScoped<IRepository>(provider => new Repository(
-                    provider
-                        .GetService<IClientFactoryBuilder>()
-                        .GetClientFactory(DatabaseProperties.DATABASE, provider.GetService<IConnectionStringHelper>())));
+                    provider.GetService<IClientFactoryBuilder>().GetClientFactory(DatabaseProperties.DATABASE),
+                    provider.GetService<IClientFactoryBuilder>().GetAdminClientFactory(DatabaseProperties.DATABASE)));
 
             return services;
         }
@@ -132,6 +142,25 @@ namespace Phoenix.AsyncHandler
             services.AddKafkaHandler<HouseholdNpvrAccountHandler, Household>("household-npvr-account", Household.GetTopic());
             services.AddKafkaHandler<EntitlementLogicalHandler, AppstoreNotification>("appstore-notification", AppstoreNotification.GetTopic());
             services.AddKafkaHandler<LiveToVodAssetHandler, ProgramAsset>("live-to-vod-asset", ProgramAsset.GetTopic());
+            return services;
+        }
+
+        private static IServiceCollection AddKronosHandlers(this IServiceCollection services,
+            string brokerConnectionString,
+            Action<KronosConfigurationProvider> configure)
+        {
+            var provider = new KronosConfigurationProvider();
+            configure(provider);
+            services.AddSingleton<TaskHandler.TaskHandlerBase, KronosTaskHandler>(
+                p => new KronosTaskHandler(p.GetService<IServiceScopeFactory>(), provider));
+
+            foreach (var (taskName, type) in provider.Handlers)
+            {
+                services
+                    .AddScoped(type)
+                    .AddAsyncGrpcTaskHandlerService(taskName, brokerConnectionString);
+            }
+
             return services;
         }
 

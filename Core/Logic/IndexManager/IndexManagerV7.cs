@@ -809,6 +809,29 @@ namespace Core.Catalog
             return isSuccess;
         }
 
+        public void DeleteMediaByTypeAndFinalEndDate(long mediaTypeId, DateTime finalEndDate)
+        {
+            var index = NamingHelper.GetMediaIndexAlias(_partnerId);
+            var response = _elasticClient.DeleteByQuery<NestMedia>(dbq => dbq
+                .Index(index)
+                .Query(q => q
+                    .Bool(b => b
+                        .Must(
+                            m => m.Terms(t => t.Field(field => field.MediaTypeId).Terms(mediaTypeId)),
+                            m => m.DateRange(dr => dr.Field(f1 => f1.FinalEndDate).LessThan(finalEndDate))
+                        )
+                    )
+                ));
+
+            if (!response.IsValid)
+            {
+                log.ErrorFormat("Failed to delete media assets from ES. index: {0}, media_type_id: {1}, final_end_date: {2}", index, mediaTypeId, finalEndDate);
+                return;
+            }
+                
+            log.DebugFormat("Media assets were deleted from ES. index: {0}, media_type_id: {1}, final_end_date: {2}, deleted_count: {3}", index, mediaTypeId, finalEndDate, response.Deleted);
+        }
+
         public void UpsertPrograms(IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName, LanguageObj defaultLanguage, IDictionary<string, LanguageObj> languages)
         {
             var bulkSize = GetBulkSize();

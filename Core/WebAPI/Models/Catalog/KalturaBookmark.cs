@@ -3,6 +3,7 @@ using System;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
+using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
 
@@ -78,6 +79,14 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("isReportingMode")]
         [XmlElement(ElementName = "isReportingMode")]
         public bool IsReportingMode { get; set; }
+        
+        /// <summary>
+        /// Playback context type
+        /// </summary>
+        [DataMember(Name = "context")]
+        [JsonProperty("context")]
+        [XmlElement(ElementName = "context")]
+        public KalturaPlaybackContextType? Context { get; set; }
 
         protected override void Init()
         {

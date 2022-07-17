@@ -21256,6 +21256,20 @@ namespace WebAPI.Models.Catalog
                 {
                     IsReportingMode = (Boolean) Convert.ChangeType(parameters["isReportingMode"], typeof(Boolean));
                 }
+                if (parameters.ContainsKey("context") && parameters["context"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["context"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "context");
+                    }
+
+                    Context = (KalturaPlaybackContextType) Enum.Parse(typeof(KalturaPlaybackContextType), parameters["context"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPlaybackContextType), Context))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Context, typeof(KalturaPlaybackContextType)));
+                    }
+                }
             }
         }
     }
@@ -27926,7 +27940,7 @@ namespace WebAPI.Models.Pricing
             {
                 if (parameters.ContainsKey("percentage") && parameters["percentage"] != null)
                 {
-                    Percentage = (Int32) Convert.ChangeType(parameters["percentage"], typeof(Int32));
+                    Percentage = (Double) Convert.ChangeType(parameters["percentage"], typeof(Double));
                 }
             }
         }

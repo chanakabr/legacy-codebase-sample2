@@ -18,8 +18,10 @@ namespace LiveToVod.IntegrationTests.Infrastructure
             var partnerId = Random.Next();
             var dbName = GetUniqueDbName(partnerId, callingMethod);
 
-            var mongoDbClientFactory = ClientFactoryBuilder.Instance.GetClientFactory(dbName, new MongoConfiguration());
-            var repository = new Repository(mongoDbClientFactory, logger);
+            var clientFactoryBuilder = new ClientFactoryBuilder(new MongoConfiguration());
+            var mongoDbClientFactory = clientFactoryBuilder.GetClientFactory(dbName);
+            var mongoDbAdminClientFactory = clientFactoryBuilder.GetAdminClientFactory(dbName);;
+            var repository = new Repository(mongoDbClientFactory, mongoDbAdminClientFactory, logger);
 
             if (hasPartnerData)
             {

@@ -1559,6 +1559,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
                .ForMember(dest => dest.State, opt => opt.MapFrom(src => ConvertObjectState(src.State)))
                .ForMember(dest => dest.CollectionIds, opt => opt.ResolveUsing(src => src.GetCollectionIds()))
+               .ForMember(dest => dest.NullableProperties, opt => opt.MapFrom(src => src.NullableProperties))
                .AfterMap((src, dest) => dest.CollectionIds = dest.CollectionIds != null && dest.CollectionIds.Any() ? dest.CollectionIds : null);
                 ;
 

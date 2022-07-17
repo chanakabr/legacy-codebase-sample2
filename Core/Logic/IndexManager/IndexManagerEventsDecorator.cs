@@ -123,6 +123,11 @@ namespace ApiLogic.Catalog.IndexManager
             return Execute<bool>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.MEDIA, assetId);
         }
 
+        public void DeleteMediaByTypeAndFinalEndDate(long mediaTypeId, DateTime finalEndDate)
+        {
+            Execute(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.MEDIA, mediaTypeId, finalEndDate);
+        }
+
         //CUD
         public void UpsertPrograms(IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName, LanguageObj defaultLanguage, IDictionary<string, LanguageObj> languages)
         {

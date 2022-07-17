@@ -41,6 +41,9 @@ namespace PGAdapter.Models
         public bool AutoRenewing { get; set; }
 
         [DataMember]
-        public List<KeyValue> AdapterData { get; set; }
+        public List<KeyValue> AdapterData { get; set; } 
+        
+        [DataMember]
+        public int PendingInterval { get; set; }
     }
 }

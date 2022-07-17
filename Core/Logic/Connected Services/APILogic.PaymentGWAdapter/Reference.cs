@@ -208,6 +208,8 @@ namespace APILogic.PaymentGWAdapter
         
         private int StateCodeField;
         
+        private int PendingIntervalField;
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public APILogic.PaymentGWAdapter.KeyValue[] AdapterData
         {
@@ -361,6 +363,19 @@ namespace APILogic.PaymentGWAdapter
             set
             {
                 this.StateCodeField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int PendingInterval
+        {
+            get
+            {
+                return this.PendingIntervalField;
+            }
+            set
+            {
+                this.PendingIntervalField = value;
             }
         }
     }

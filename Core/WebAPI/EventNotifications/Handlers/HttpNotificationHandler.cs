@@ -38,22 +38,21 @@ namespace WebAPI.EventNotifications
             }
 
             KalturaObjectActionEvent actionEvent = kalturaEvent as KalturaObjectActionEvent;
-            this.SendRequest(
-                new KalturaHttpNotification()
-                {
-                    eventObject = eventWrapper.eventObject,
-                    eventObjectType = eventWrapper.eventObjectType,
-                    eventType = eventWrapper.eventType,
-                    objectType = eventWrapper.objectType,
-                    partnerId = kalturaEvent.PartnerId,
-                    UserIp = eventWrapper.UserIp ?? HttpContext.Current?.Items[RequestContextConstants.USER_IP]?.ToString(),
-                    SequenceId = HttpContext.Current?.Items[Constants.REQUEST_ID_KEY]?.ToString(),
-                    UserId = eventWrapper.UserId,
-                    Udid = eventWrapper.Udid,
-                    Context = eventWrapper.Context,
-                    CreateDate = eventWrapper.CreateDate
-                }
-            );
+            var kalturaHttpNotification = new KalturaHttpNotification()
+            {
+                eventObject = eventWrapper.eventObject,
+                eventObjectType = eventWrapper.eventObjectType,
+                eventType = eventWrapper.eventType,
+                objectType = eventWrapper.objectType,
+                partnerId = kalturaEvent.PartnerId,
+                UserIp = eventWrapper.UserIp ?? RequestContextUtilsInstance.Get().GetUserIp(),
+                SequenceId = eventWrapper.SequenceId ?? RequestContextUtilsInstance.Get().GetRequestId(),
+                UserId = eventWrapper.UserId,
+                Udid = eventWrapper.Udid,
+                Context = eventWrapper.Context,
+                CreateDate = eventWrapper.CreateDate
+            };
+            this.SendRequest(kalturaHttpNotification);
         }
 
         #endregion

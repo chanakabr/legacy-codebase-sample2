@@ -9,9 +9,11 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using OTT.Lib.Kafka;
+using OTT.Service.TaskScheduler.Extensions.TaskHandler;
 using Phoenix.AsyncHandler.Kafka;
+using Phoenix.AsyncHandler.Kronos;
 
-namespace Phoenix.AsyncHandler.Test
+namespace Phoenix.AsyncHandler.Tests
 {
     public class DependencyInjectionTests
     {
@@ -30,7 +32,9 @@ namespace Phoenix.AsyncHandler.Test
 
             var assembly = typeof(HouseholdNpvrAccountHandler).Assembly;
             var handlers = assembly.GetTypes()
-                .Where(t => t.IsClass && !t.IsAbstract && !t.IsGenericType && IsSubclassOfRawGeneric(typeof(CrudHandler<>), t))
+                .Where(t => t.IsClass && !t.IsAbstract && !t.IsGenericType
+                    && (IsSubclassOfRawGeneric(typeof(CrudHandler<>), t)
+                        || typeof(IKronosTaskHandler).IsAssignableFrom(t)))
                 .ToList();
             foreach (var handlerType in handlers)
             {

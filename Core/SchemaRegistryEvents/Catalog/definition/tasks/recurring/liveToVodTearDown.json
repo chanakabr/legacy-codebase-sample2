@@ -1,0 +1,12 @@
+{
+  "$id": "http://ott.service.phoenix/tasks/recurring/liveToVodTearDown",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LiveToVodTearDown",
+  "type": "object",
+  "description": "Live to vod tear down task definition.",
+  "allOf": [
+    {
+      "$ref": "ott-schema-registry/tasks/recurring/liveToVodTearDown"
+    }
+  ]
+}

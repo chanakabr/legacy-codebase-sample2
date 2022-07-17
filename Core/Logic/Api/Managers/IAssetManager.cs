@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ApiLogic.Catalog;
 using ApiObjects;
@@ -16,5 +17,6 @@ namespace ApiLogic.Api.Managers
         GenericResponse<Asset> AddAsset(int groupId, Asset assetToAdd, long userId, bool isFromIngest = false);
         GenericResponse<Asset> UpdateAsset(int groupId, long id, Asset assetToUpdate, long userId, bool isFromIngest = false,
             bool isCleared = false, bool isForMigration = false, bool isFromChannel = false);
+        void DeleteAssetsByTypeAndDate(long partnerId, long assetStructId, DateTime finalEndDate, long userId);
     }
 }

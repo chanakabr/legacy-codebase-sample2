@@ -105,8 +105,8 @@ namespace Core.Pricing
                     return response;
                 }
 
-                var nullableStartDate = new NullableObj<DateTime?>(request.StartDate, request.IsNullablePropertyExists("StartDate"));
-                var nullableEndDate = new NullableObj<DateTime?>(request.EndDate, request.IsNullablePropertyExists("EndDate"));
+                var nullableStartDate = new DAL.NullableObj<DateTime?>(request.StartDate, request.IsNullablePropertyExists("StartDate"));
+                var nullableEndDate = new DAL.NullableObj<DateTime?>(request.EndDate, request.IsNullablePropertyExists("EndDate"));
 
                 DataTable dt = PricingDAL.UpdateAssetFilePPV(groupId, request.AssetFileId, request.PpvModuleId, nullableStartDate, nullableEndDate);
 

@@ -3293,6 +3293,14 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        public void DeleteAssetsByTypeAndDate(long partnerId, long assetStructId, DateTime finalEndDate, long userId)
+        {
+            var deletedCount =
+                CatalogDAL.DeleteMediaAssetsByTypeAndDate(partnerId, assetStructId, finalEndDate, userId);
+            
+            log.DebugFormat("Media assets were deleted from SQL. partnerId: {0}, assetStructId: {1}, finalEndDate: {2}, deletedCount: {3}", partnerId, assetStructId, finalEndDate, deletedCount);
+        }
+
         public Status DeleteAsset(int groupId, long id, eAssetTypes assetType, long userId, bool isFromChannel = false)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
