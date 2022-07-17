@@ -12,6 +12,6 @@ namespace RemoteTasksService
         [DataMember]
         public string task { get; set; }
         [DataMember]
-        public string data { get; set; }
+        public string data { get; set; } 
     }
 }
