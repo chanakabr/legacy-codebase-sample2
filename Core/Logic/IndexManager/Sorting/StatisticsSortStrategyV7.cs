@@ -295,10 +295,8 @@ namespace ApiLogic.IndexManager.Sorting
             var termsAggregation = new TermsAggregation(aggregationName)
             {
                 Field = "media_id",
-                Aggregations = new AggregationDictionary()
-                {
-                    { subSumAggregationName, subAggregation}
-                }
+                Aggregations = new AggregationDictionary { { subSumAggregationName, subAggregation} },
+                Size = int.MaxValue // defines count of buckets to return, by default we use maximum allowed value.
             };
 
             aggregations.Add(aggregationName, termsAggregation);
