@@ -216,6 +216,15 @@ namespace Phoenix.AsyncHandler
             {
                 return Result.Ok;
             }
+
+            if (DateTime.UtcNow > liveToVodAsset.CatalogStartDate)
+            {
+                _logger.LogDebug("it's not allowed to remove l2v asset, it's already visible for end clients: AssetId:[{assetId}] PartnerId:[{partnerId}]",
+                    liveToVodAsset.Id,
+                    epgAsset.PartnerId);
+
+                return Result.Ok;
+            }
             
             var result = _assetManager.DeleteAsset((int)epgAsset.PartnerId, mediaId, eAssetTypes.MEDIA, epgAsset.UpdaterId);
             if (!result.IsOkStatusCode())
