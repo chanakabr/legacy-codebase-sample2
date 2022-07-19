@@ -13,6 +13,7 @@ using System.IO;
 using System.Reflection;
 using System.ServiceModel;
 using System.Xml;
+using ApiLogic.Api.Managers.Handlers;
 using TVinciShared;
 
 namespace Ingest
@@ -199,6 +200,16 @@ namespace Ingest
             {
                 log.Error("oy, failed uploading to s3...", ex);
             }
+        }
+        
+        public static Stream GenerateStreamFromString(string s)
+        {
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write(s);
+            writer.Flush();
+            stream.Position = 0;
+            return stream;
         }
 
         private static string GetItemParameterVal(ref XmlNode theNode, string sParameterName)
