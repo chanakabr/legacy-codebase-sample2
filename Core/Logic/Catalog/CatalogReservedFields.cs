@@ -21,10 +21,6 @@ namespace Core.Catalog
 
         public static readonly HashSet<string> ReservedUnifiedSearchNumericFields = new HashSet<string>
         {
-            "like_counter",
-            "views",
-            "rating",
-            "votes",
             CatalogLogic.EPG_CHANNEL_ID,
             CatalogLogic.MEDIA_ID,
             CatalogLogic.EPG_ID,
