@@ -630,6 +630,67 @@ namespace ElasticSearch.Common
 
             mappingObj.AddProperty(entryId);
 
+            ElasticSearch.Common.FieldsMappingPropertyV2 suppressed = new FieldsMappingPropertyV2()
+            {
+                name = "suppressed",
+                type = eESFieldType.STRING,
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER,
+                null_value = ""
+            };
+            suppressed.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "suppressed",
+                type = eESFieldType.STRING,
+                null_value = string.Empty,
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
+            });
+            suppressed.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "analyzed",
+                type = eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = defaultNormalSearchAnalyzer,
+                analyzer = defaultNormalIndexAnalyzer
+            });
+            suppressed.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "lowercase",
+                type = eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
+            });
+            suppressed.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "phrase_autocomplete",
+                type = eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
+                analyzer = PHRASE_STARTS_WITH_ANALYZER
+            });
+
+            if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
+            {
+                suppressed.fields.Add(new BasicMappingPropertyV2()
+                {
+                    name = "autocomplete",
+                    type = eESFieldType.STRING,
+                    null_value = "",
+                    index = eMappingIndex.analyzed,
+                    search_analyzer = defaultAutocompleteSearchAnalyzer,
+                    analyzer = defaultAutocompleteIndexAnalyzer
+                });
+            }
+
+            mappingObj.AddProperty(suppressed);
+
             #endregion
 
             #region Add tags mapping
@@ -745,10 +806,12 @@ namespace ElasticSearch.Common
             {
                 HashSet<string> mappedMetas = new HashSet<string>();
 
+                /*
                 if (!metasMap.ContainsKey(META_SUPPRESSED))
                 {
                     metasMap.Add(META_SUPPRESSED, new KeyValuePair<eESFieldType, string>(eESFieldType.STRING, string.Empty));//new meta for suppressed value
                 }
+                */
 
                 foreach (KeyValuePair<string, KeyValuePair<eESFieldType, string>> meta in metasMap)
                 {
@@ -1372,6 +1435,66 @@ namespace ElasticSearch.Common
 
             mappingObj.AddProperty(externalId);
 
+            FieldsMappingPropertyV2 suppressed = new FieldsMappingPropertyV2()
+            {
+                name = "suppressed",
+                type = eESFieldType.STRING,
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER,
+                null_value = ""
+            };
+            suppressed.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "suppressed",
+                type = eESFieldType.STRING,
+                null_value = string.Empty,
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
+            });
+            suppressed.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "analyzed",
+                type = eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = defaultNormalSearchAnalyzer,
+                analyzer = defaultNormalIndexAnalyzer
+            });
+            suppressed.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "lowercase",
+                type = eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
+            });
+            suppressed.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "phrase_autocomplete",
+                type = eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
+                analyzer = PHRASE_STARTS_WITH_ANALYZER
+            });
+
+            if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
+            {
+                suppressed.fields.Add(new BasicMappingPropertyV2()
+                {
+                    name = "autocomplete",
+                    type = eESFieldType.STRING,
+                    null_value = "",
+                    index = eMappingIndex.analyzed,
+                    search_analyzer = defaultAutocompleteSearchAnalyzer,
+                    analyzer = defaultAutocompleteIndexAnalyzer
+                });
+            }
+
+            mappingObj.AddProperty(suppressed);
             #endregion
 
             #region Add tags mapping

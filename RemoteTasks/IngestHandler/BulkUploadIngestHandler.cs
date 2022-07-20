@@ -404,6 +404,8 @@ namespace IngestHandler
 
             epgItem.ExternalOfferIds = parsedProg.ParseExternalOfferIds(langCode, defaultLangCode, bulkUploadResultItem);
 
+            var suppressesIndexes = CatalogPartnerConfigManager.Instance.GetMediaSuppressedIndexes(prog.GroupId)?.Object;
+            epgItem.Suppressed = IndexManagerCommonHelpers.GetSuppressedIndex(epgItem, suppressesIndexes);
             PrepareEpgItemImages(parsedProg.icon, epgItem);
 
             return epgItem;

@@ -726,6 +726,8 @@ namespace Core.Catalog.CatalogManagement
             bool isAddAction)
         {
             var programs = new List<(string docId, EpgCB epg)>();
+            var suppressesIndexes = Api.api.GetMediaSuppressedIndexes(groupId)?.Object;
+
             foreach (var currLang in allNames)
             {
                 var epgCB = new EpgCB(epg);
@@ -748,6 +750,11 @@ namespace Core.Catalog.CatalogManagement
                 if (epgTags != null && epgTags.ContainsKey(currLang.Key))
                 {
                     epgCB.Tags = epgTags[currLang.Key];
+                }
+
+                if (suppressesIndexes != null && suppressesIndexes.Any())
+                {
+                    epgCB.Suppressed = ApiLogic.IndexManager.Helpers.IndexManagerCommonHelpers.GetSuppressedIndex(epgCB, suppressesIndexes);
                 }
 
                 var docId = GetEpgCBKey(epgCB.ParentGroupID, (long)epgCB.EpgID, epgCB.Language, defaultLanguageCode, isAddAction);

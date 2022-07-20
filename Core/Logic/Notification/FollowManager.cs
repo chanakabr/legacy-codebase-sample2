@@ -102,20 +102,20 @@ namespace Core.Notification
                 //check for letters only inside {}
                 //--------------------------------
                 Regex expression = new Regex(@"\{([^}]*)\}");
-                // get message place-holders 
+                // get message place-holders
                 var messagePlaceHolders = expression.Matches(message).Cast<Match>().Select(m => m.Value.Replace("{", "").Replace("}", "")).ToArray();
                 //get enum values
                 var followSeriesPlaceHoldersEnumValues = Enum.GetNames(typeof(TEnum));
                 //compare string [message place-holders] not in [enum values]
                 var notInEnum = messagePlaceHolders.Select(m => m.ToLower()).Except(followSeriesPlaceHoldersEnumValues.Select(x => x.ToLower())).ToList();
-                // 
+                //
                 if (notInEnum.Count > 0)
                 {
                     log.ErrorFormat("ValidateSeriesPlaceholders - Wrong place-holders {0}, message: {1}", string.Join(", ", notInEnum), message);
                     validationStatus.Code = (int)eResponseStatus.Error;
                 }
 
-                // replace placeHoldaer to the enums exact values 
+                // replace placeHoldaer to the enums exact values
                 TEnum tmpeFollowSeriesPlaceHolders;
                 foreach (var s in messagePlaceHolders)
                 {
@@ -138,7 +138,7 @@ namespace Core.Notification
                 int announcementId = 0;
                 string announcementName = followItem.Title;
 
-                // create Amazon topic 
+                // create Amazon topic
                 string externalAnnouncementId = string.Empty;
                 if (NotificationSettings.IsPartnerPushEnabled(followItem.GroupId))
                 {
@@ -185,7 +185,7 @@ namespace Core.Notification
                         RecipientsType = eAnnouncementRecipientsType.Other,
                         MailExternalId = mailExternalAnnouncementId
                     };
-                    
+
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
@@ -290,8 +290,14 @@ namespace Core.Notification
         {
             Status statusResult = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-            // populate follow phrase
-            followData.FollowPhrase = GetFollowPhrase(groupId, followData.Title);
+            var followPhrase = GetFollowPhrase(groupId, followData);
+
+            if (followPhrase == null)
+            {
+                return statusResult;
+            }
+
+            followData.FollowPhrase = followPhrase;
 
             // get announcement from DB
             List<DbAnnouncement> announcements = null;
@@ -318,12 +324,12 @@ namespace Core.Notification
             var statusResult = new Status((int) eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
-                var seriesNameResult = TryGetSeriesName(groupId, assetId, out var seriesName);
+                var seriesNameResult = TryGetSeriesNameAndAssetStructId(groupId, assetId, out var seriesName, out _);
                 if (!seriesNameResult.IsOkStatusCode())
                 {
                     return seriesNameResult;
                 }
-                
+
                 var followData = new FollowDataTvSeries
                 {
                     AssetId = assetId,
@@ -371,8 +377,14 @@ namespace Core.Notification
             GenericResponse<FollowDataBase> response = new GenericResponse<FollowDataBase>();
             followData.GroupId = groupId;
 
-            // populate follow phrase
-            followData.FollowPhrase = GetFollowPhrase(groupId, followData.Title);
+            var followPhrase = GetFollowPhrase(groupId, followData);
+            if (followPhrase == null)
+            {
+                response.SetStatus(eResponseStatus.InvalidAssetId, "invalid asset");
+                return response;
+            }
+
+            followData.FollowPhrase = followPhrase;
 
             // validate asset type
             var isFollowDataValidate = false;
@@ -492,7 +504,8 @@ namespace Core.Notification
                 return response;
             }
 
-            var followPhrase = GetFollowPhrase(groupId, seriesName);
+            // Already validated that ParentId is not null
+            var followPhrase = GetFollowPhrase(groupId, seriesName, episodeAssetStruct.ParentId.Value);
             DbAnnouncement announcement = null;
             List<DbAnnouncement> dbAnnouncements = null;
             if (NotificationCache.Instance().TryGetAnnouncements(groupId, ref dbAnnouncements))
@@ -735,13 +748,13 @@ namespace Core.Notification
             return seriesNames;
         }
 
-        private static string GetFollowPhrase(int groupId, string seriesName)
+        private static string GetFollowPhrase(int groupId, string seriesName, long? seriesMediaTypeId = null)
         {
             CatalogGroupCache cache = null;
             AssetStruct episodeAssetStruct = null;
-            
+
             // validate association tag
-            string episodeAssociationTag = GetEpisodeAssociationTag(groupId, ref cache, ref episodeAssetStruct);
+            string episodeAssociationTag = GetEpisodeAssociationTag(groupId, ref cache, ref episodeAssetStruct, seriesMediaTypeId);
             if (string.IsNullOrEmpty(episodeAssociationTag))
             {
                 log.ErrorFormat("Error getting follow series phrase - Association tag wasn't found. groupId: {0}, title: {1}", groupId, seriesName);
@@ -752,14 +765,34 @@ namespace Core.Notification
             return string.Format(FOLLOW_PHRASE_FORMAT, episodeAssociationTag, seriesName);
         }
 
-        private static Status TryGetSeriesName(int groupId, int assetId, out string seriesName)
+        private static string GetFollowPhrase(int groupId, FollowDataBase followData)
+        {
+            var followDataTvSeries = followData as FollowDataTvSeries;
+
+            if (followDataTvSeries == null || !CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
+            {
+                return GetFollowPhrase(groupId, followData.Title);
+            }
+
+            CatalogGroupCache cache = null;
+            if (!TryGetSeriesAssetStructBySeriesMediaId(groupId, ref cache, followDataTvSeries.AssetId,
+                    out var seriesAssetStruct))
+            {
+                return null;
+            }
+
+            return GetFollowPhrase(groupId, followData.Title, seriesAssetStruct.Id);
+        }
+
+        private static Status TryGetSeriesNameAndAssetStructId(int groupId, int assetId, out string seriesName, out long seriesAssetStructId)
         {
             var statusResult = new Status((int) eResponseStatus.Error, eResponseStatus.Error.ToString());
             seriesName = string.Empty;
+            seriesAssetStructId = 0;
 
             if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out var cache))
             {
-                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling FollowManager.Add", groupId);
+                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling FollowManager.TryGetSeriesNameAndAssetStructId", groupId);
                 return statusResult;
             }
 
@@ -770,7 +803,7 @@ namespace Core.Notification
             }
 
             var seriesMediaAsset = assetResponse.Object as MediaAsset;
-            if (!TryGetEpisodeAssetStructBySeries(cache, seriesMediaAsset.MediaType.m_nTypeID, out var episodeAssetStruct))
+            if (seriesMediaAsset == null || !TryGetEpisodeAssetStructBySeries(cache, seriesMediaAsset.MediaType.m_nTypeID, out var episodeAssetStruct))
             {
                 statusResult.Set(eResponseStatus.InvalidAssetId, "invalid asset");
             }
@@ -778,6 +811,7 @@ namespace Core.Notification
             {
                 var topic = cache.TopicsMapById[episodeAssetStruct.ConnectedParentMetaId.Value];
                 seriesName = GetSeriesNames(topic.Type, topic.SystemName, seriesMediaAsset.Tags, seriesMediaAsset.Metas).FirstOrDefault();
+                seriesAssetStructId = seriesMediaAsset.MediaType.m_nTypeID;
                 if (string.IsNullOrEmpty(seriesName))
                 {
                     statusResult.Set(eResponseStatus.InvalidAssetId, "media is not a series episode (series name is empty)");
@@ -807,7 +841,8 @@ namespace Core.Notification
                     return response;
                 }
 
-                var seriesNameResult = TryGetSeriesName(contextData.GroupId, followDataTvToAdd.AssetId, out var seriesName);
+                var seriesNameResult = TryGetSeriesNameAndAssetStructId(contextData.GroupId, followDataTvToAdd.AssetId,
+                    out var seriesName, out var seriesAssetStructId);
                 if (!seriesNameResult.IsOkStatusCode())
                 {
                     response.SetStatus(seriesNameResult.Code);
@@ -815,7 +850,7 @@ namespace Core.Notification
 
                 followDataTvToAdd.Title = seriesName;
                 followDataTvToAdd.GroupId = contextData.GroupId;
-                followDataTvToAdd.FollowPhrase = GetFollowPhrase(contextData.GroupId, followDataTvToAdd.Title);
+                followDataTvToAdd.FollowPhrase = GetFollowPhrase(contextData.GroupId, followDataTvToAdd.Title, seriesAssetStructId);
 
                 response = AddFollowItemToUser((int) contextData.UserId.Value, followDataTvToAdd);
             }
@@ -908,7 +943,7 @@ namespace Core.Notification
                             // updating message
                             messageAnnouncement.StartTime = message.StartTime;
                             messageAnnouncement.Message = message.Message;
-                            if (AnnouncementManager.Instance.UpdateMessageAnnouncement(groupId, 
+                            if (AnnouncementManager.Instance.UpdateMessageAnnouncement(groupId,
                                 messageAnnouncement.MessageAnnouncementId, messageAnnouncement, true, false).Status.IsOkStatusCode())
                             {
                                 log.DebugFormat("successfully updated previous message announcement. group ID: {0}, previous message: {1}, new message: {2}, new start time: {3}",
@@ -953,7 +988,7 @@ namespace Core.Notification
 
                     if (message.IncludeUserInbox)
                         AnnouncementManager.Instance.InvalidateFollowMessageAnnouncement(groupId, message.AnnouncementId);
-                    
+
                     messageSent = true;
                 }
             }
@@ -974,13 +1009,12 @@ namespace Core.Notification
                 }
             }
 
-            if (!seriesTypeId.HasValue || seriesTypeId.Value == 0 || !cache.AssetStructsMapById.ContainsKey(seriesTypeId.Value) || !cache.AssetStructsMapById[seriesTypeId.Value].IsSeriesAssetStruct)
+            if (!seriesTypeId.HasValue || seriesTypeId.Value == 0 || !cache.AssetStructsMapById.ContainsKey(seriesTypeId.Value))
             {
                 return false;
             }
 
-            episodeAssetStruct = cache.AssetStructsMapById.Values.FirstOrDefault(x => x.ParentId.HasValue && x.ParentId.Value == seriesTypeId.Value);
-            //episodeAssetStruct = cache.AssetStructsMapById.Values.FirstOrDefault(x => x.ParentId.HasValue && cache.AssetStructsMapById.ContainsKey(x.ParentId.Value) && cache.AssetStructsMapById[x.ParentId.Value].IsSeriesAssetStruct);
+            episodeAssetStruct = cache.AssetStructsMapById.Values.FirstOrDefault(x => x.ParentId.HasValue && x.ParentId.Value == seriesTypeId);
 
             if (episodeAssetStruct == null ||
                 !episodeAssetStruct.ConnectedParentMetaId.HasValue ||
@@ -1005,9 +1039,54 @@ namespace Core.Notification
                 !cache.TopicsMapById.ContainsKey(episodeAssetStruct.ConnectedParentMetaId.Value) ||
                 !episodeAssetStruct.ConnectingMetaId.HasValue ||
                 !cache.TopicsMapById.ContainsKey(episodeAssetStruct.ConnectingMetaId.Value) ||
-                !cache.AssetStructsMapById.ContainsKey(episodeAssetStruct.ParentId.Value) ||
-                !cache.AssetStructsMapById[episodeAssetStruct.ParentId.Value].IsSeriesAssetStruct)
+                !cache.AssetStructsMapById.ContainsKey(episodeAssetStruct.ParentId.Value))
             {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool TryGetSeriesAssetStructBySeriesMediaId(int groupId, ref CatalogGroupCache cache, long seriesMediaId, out AssetStruct seriesAssetStruct)
+        {
+            seriesAssetStruct = null;
+
+            if (!TryGetAssetStructByMediaId(groupId, ref cache, seriesMediaId, out seriesAssetStruct))
+            {
+                log.Error($"failed to get assetStruct for seriesMediaId: {seriesMediaId} when calling {nameof(TryGetSeriesAssetStructBySeriesMediaId)}");
+                return false;
+            }
+
+            var seriesAssetStructId = seriesAssetStruct.Id;
+            if (!cache.AssetStructsMapById.Values.Any(x => x.ParentId == seriesAssetStructId))
+            {
+                log.Error($"assetStruct {seriesAssetStructId} has no children. It is not series.");
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool TryGetAssetStructByMediaId(int groupId, ref CatalogGroupCache cache, long mediaId, out AssetStruct assetStruct)
+        {
+            assetStruct = null;
+
+            var media = GetMediaObj(groupId, (int) mediaId);
+            if (media == null)
+            {
+                log.Error($"failed to get media by ID: {mediaId} when calling {nameof(TryGetAssetStructByMediaId)}");
+                return false;
+            }
+
+            if (cache == null && !CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out cache))
+            {
+                log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling {nameof(TryGetAssetStructByMediaId)}");
+                return false;
+            }
+
+            if (!cache.AssetStructsMapById.TryGetValue(media.m_oMediaType.m_nTypeID, out assetStruct))
+            {
+                log.Error($"failed to get assetStruct by ID: {media.m_oMediaType.m_nTypeID} when calling {nameof(TryGetAssetStructByMediaId)}");
                 return false;
             }
 
@@ -1029,9 +1108,9 @@ namespace Core.Notification
         {
             Status validationStatus = new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
 
-            // ValidateMessage - 
+            // ValidateMessage -
             // 1. check if eFollowSeriesPlaceHolders
-            // 2. replace placeHolder case Sensitive   (formattedMessage)         
+            // 2. replace placeHolder case Sensitive   (formattedMessage)
             string formattedMessage = messageTemplate.Message;
             validationStatus = ValidateMessage(ref formattedMessage, messageTemplate.TemplateType);
 
@@ -1051,9 +1130,9 @@ namespace Core.Notification
                 return validationStatus;
             }
 
-            // ValidateMessage - 
+            // ValidateMessage -
             // 1. check if eFollowSeriesPlaceHolders
-            // 2. replace placeHolder case Sensitive   (formattedMessage)         
+            // 2. replace placeHolder case Sensitive   (formattedMessage)
             string formattedUrl = messageTemplate.URL;
             validationStatus = ValidateUrl(ref formattedUrl, messageTemplate.TemplateType);
 
@@ -1184,7 +1263,7 @@ namespace Core.Notification
                         continue;
                     }
 
-                    // unsubscribe device 
+                    // unsubscribe device
                     List<UnSubscribe> unsubscibeList = new List<UnSubscribe>()
                     {
                         new UnSubscribe()
@@ -1221,7 +1300,7 @@ namespace Core.Notification
                     return;
                 }
 
-                // unsubscribe sms 
+                // unsubscribe sms
                 List<UnSubscribe> unsubscibeList = new List<UnSubscribe>()
                     {
                         new UnSubscribe()
@@ -1569,7 +1648,16 @@ namespace Core.Notification
                 // if tv series take series asset id from follow reference field
                 CatalogGroupCache cache = null;
                 AssetStruct assetStruct = null;
-                if (follow.FollowPhrase.ToLower().Trim().StartsWith(GetEpisodeAssociationTag(groupId, ref cache, ref assetStruct).ToLower().Trim()))
+
+                long? seriesMediaTypeId = null;
+                var followDataTvSeries = follow as FollowDataTvSeries;
+                if (followDataTvSeries != null && TryGetSeriesAssetStructBySeriesMediaId(groupId, ref cache, followDataTvSeries.AssetId,
+                        out var seriesAssetStruct))
+                {
+                    seriesMediaTypeId = seriesAssetStruct.Id;
+                }
+
+                if (follow.FollowPhrase.ToLower().Trim().StartsWith(GetEpisodeAssociationTag(groupId, ref cache, ref assetStruct, seriesMediaTypeId).ToLower().Trim()))
                 {
                     if (int.TryParse(follow.FollowReference, out int id))
                     {
@@ -1595,7 +1683,7 @@ namespace Core.Notification
             //Start date is determined as followed:
             //SF - this is the date the user started to follow the series.
             //SF < Now- TTL -> phrase + SF
-            //SF > Now - TTL ->phrase + (Now - TTL) 
+            //SF > Now - TTL ->phrase + (Now - TTL)
             startDate = (addedDateSec) > nowMinusTtl ? addedDateSec : nowMinusTtl;
             return startDate;
 

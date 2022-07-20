@@ -20,6 +20,8 @@ using System.Reflection;
 using System.Security.Cryptography;
 using ApiLogic.Api.Managers.Rule;
 using Tvinci.Core.DAL;
+using ApiLogic.Api.Managers;
+using ApiLogic.IndexManager.Helpers;
 
 namespace Core.Catalog
 {
@@ -440,6 +442,8 @@ namespace Core.Catalog
         {
             if (dataSet != null && dataSet.Tables.Count > 0)
             {
+                var suppressesIndexes = Api.api.GetMediaSuppressedIndexes(group.m_nParentGroupID)?.Object;
+
                 if (dataSet.Tables[0].Rows.Count > 0)
                 {
                     foreach (DataRow row in dataSet.Tables[0].Rows)
@@ -778,7 +782,8 @@ namespace Core.Catalog
                     #region - get countries of media
 
                     // Regions table should be 6h on stored procedure
-                    if (dataSet.Tables.Count > 7 && dataSet.Tables[7].Columns != null && dataSet.Tables[7].Rows != null)
+                    var hasCountries = dataSet.Tables.Count > 7 && dataSet.Tables[7].Columns != null && dataSet.Tables[7].Rows != null;
+                    if (hasCountries)
                     {
                         foreach (DataRow mediaCountryRow in dataSet.Tables[7].Rows)
                         {
@@ -795,17 +800,30 @@ namespace Core.Catalog
                                 medias[mediaId].blockedCountries.Add(countryId);
                             }
                         }
-
-                        // If no allowed countries were found for this media - use 0, that indicates that the media is allowed everywhere
-                        foreach (Media media in medias.Values)
-                        {
-                            if (media.allowedCountries.Count == 0)
-                            {
-                                media.allowedCountries.Add(0);
-                            }
-                        }
                     }
 
+                    #endregion
+
+                    #region get media suppressed index value and media allowed country
+
+                    // If no allowed countries were found for this media - use 0, that indicates that the media is allowed everywhere
+                    foreach (Media media in medias.Values)
+                    {
+                        if (hasCountries && media.allowedCountries.Count == 0)
+                        {
+                            media.allowedCountries.Add(0);
+                        }
+
+                        //BEO-12023 - Support TVM suppressed
+                        if (suppressesIndexes != null && suppressesIndexes.Any())
+                        {
+                            media.suppressed = IndexManagerCommonHelpers
+                                .GetSuppressedIndex(media, suppressesIndexes);
+
+                            if (!string.IsNullOrEmpty(media.suppressed) && medias.ContainsKey(media.m_nMediaID))
+                                medias[media.m_nMediaID].suppressed = media.suppressed;
+                        }
+                    }
                     #endregion
                 }
             }
@@ -1793,6 +1811,7 @@ namespace Core.Catalog
 
             return new Tuple<Dictionary<string, ProgramObj>, bool>(result, res);
         }
+
     }
 }
 

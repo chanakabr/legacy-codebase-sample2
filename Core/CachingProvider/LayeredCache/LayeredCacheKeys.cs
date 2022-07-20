@@ -753,6 +753,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("catalog_partner_config_{0}", groupId);
         }
 
+        public static string GetMediaSuppressedIndexesKey(int groupId)
+        {
+            return $"{groupId}_media_suppressed_indexes";
+        }
+
         public static string GetDefaultParentalSettingsPartnerConfigKey(int groupId)
         {
             return $"default_parental_settings_partner_config_{groupId}";
@@ -1533,7 +1538,12 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKeyCatalogPartnerConfig_groupId_{0}", groupId);
         }
-        
+
+        public static string GetMediaSuppressedIndexesInvalidationKey(int groupId)
+        {
+            return $"{groupId}_invalidationKeyMediaSuppressedIndexes";
+        }
+
         public static string GetCustomFieldsPartnerConfigInvalidationKey(int groupId)
         {
             return $"invalidationKeyCustomFieldsPartnerConfig_groupId_{groupId}";

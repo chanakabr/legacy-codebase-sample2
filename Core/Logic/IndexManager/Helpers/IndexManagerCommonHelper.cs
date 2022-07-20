@@ -38,10 +38,10 @@ namespace ApiLogic.IndexManager.Helpers
             {
                 return type;
             }
-            
+
             return string.Concat(type, "_", language.Code);
         }
-        
+
         internal static RetryPolicy GetRetryPolicy<TException>(int retryCount = 3) where TException : Exception
         {
             return Policy.Handle<TException>()
@@ -279,5 +279,112 @@ namespace ApiLogic.IndexManager.Helpers
             return !anyMatch;
         }
 
+        public static string GetSuppressedIndex(Media media, HashSet<string> suppressedIndexes)
+        {
+            if (suppressedIndexes == null || !suppressedIndexes.Any())
+                return string.Empty;
+
+            var result = GetSuppressedMeta(media, suppressedIndexes);
+            if (string.IsNullOrEmpty(result))
+                return GetSuppressedTag(media, suppressedIndexes);
+
+            return string.Empty;
+        }
+
+        private static string GetSuppressedMeta(Media media, HashSet<string> suppressedIndexes)
+        {
+            //Suppressed Metas
+            if (media.m_dMeatsValues.Any())
+            {
+                var suppressedIndex = media.m_dMeatsValues.FirstOrDefault(x => suppressedIndexes.Contains(x.Key));
+
+                if (suppressedIndex.Equals(default(KeyValuePair<string, string>)))
+                    return string.Empty;
+
+                if (!string.IsNullOrEmpty(suppressedIndex.Key))
+                {
+                    var _suppressed = media.m_dMeatsValues[suppressedIndex.Key];
+                    log.Debug($"Set suppressed value: {_suppressed} from index (Meta): {suppressedIndex.Key}");
+                    return _suppressed;
+                }
+            }
+
+            return string.Empty;
+        }
+
+        private static string GetSuppressedTag(Media media, HashSet<string> suppressedIndexes)
+        {
+            //Suppressed Tag
+            if (media.m_dTagValues.Any())
+            {
+                var suppressedIndex = media.m_dTagValues.FirstOrDefault(x => suppressedIndexes.Contains(x.Key));
+
+                if (suppressedIndex.Equals(default(KeyValuePair<string, string>)))
+                    return string.Empty;
+
+                if (!string.IsNullOrEmpty(suppressedIndex.Key))
+                {
+                    var _suppressed = string.Join("", media.m_dTagValues[suppressedIndex.Key]);
+                    log.Debug($"Set suppressed value: {_suppressed} from index (Tag): {suppressedIndex.Key}");
+                    return _suppressed;
+                }
+            }
+
+            return string.Empty;
+        }
+
+        public static string GetSuppressedIndex(EpgCB epg, HashSet<string> suppressedIndexes)
+        {
+            if (suppressedIndexes == null || !suppressedIndexes.Any())
+                return string.Empty;
+
+            var result = GetSuppressedMeta(epg, suppressedIndexes);
+            if (string.IsNullOrEmpty(result))
+                return GetSuppressedTag(epg, suppressedIndexes);
+
+            return string.Empty;
+        }
+
+        private static string GetSuppressedMeta(EpgCB epg, HashSet<string> suppressedIndexes)
+        {
+            //Suppressed Metas
+            if (epg.Metas.Any())
+            {
+                var suppressedIndex = epg.Metas.FirstOrDefault(x => suppressedIndexes.Contains(x.Key));
+
+                if (suppressedIndex.Equals(default(KeyValuePair<string, string>)))
+                    return string.Empty;
+
+                if (!string.IsNullOrEmpty(suppressedIndex.Key))
+                {
+                    var _suppressed = epg.Metas[suppressedIndex.Key];
+                    log.Debug($"Set suppressed value: {_suppressed} from index (Meta): {suppressedIndex.Key}");
+                    return _suppressed.FirstOrDefault();
+                }
+            }
+
+            return string.Empty;
+        }
+
+        private static string GetSuppressedTag(EpgCB epg, HashSet<string> suppressedIndexes)
+        {
+            //Suppressed Tag
+            if (epg.Tags.Any())
+            {
+                var suppressedIndex = epg.Tags.FirstOrDefault(x => suppressedIndexes.Contains(x.Key));
+
+                if (suppressedIndex.Equals(default(KeyValuePair<string, string>)))
+                    return string.Empty;
+
+                if (!string.IsNullOrEmpty(suppressedIndex.Key))
+                {
+                    var _suppressed = string.Join("", epg.Tags[suppressedIndex.Key]);
+                    log.Debug($"Set suppressed value: {_suppressed} from index (Tag): {suppressedIndex.Key}");
+                    return _suppressed;
+                }
+            }
+
+            return string.Empty;
+        }
     }
 }

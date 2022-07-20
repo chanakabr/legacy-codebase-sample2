@@ -5302,7 +5302,6 @@ namespace Core.Catalog
                 try
                 {
                     int numOfBulkRequests = 0;
-
                     var bulkRequests = new Dictionary<int, List<ESBulkRequestObj<int>>>() { { numOfBulkRequests, new List<ESBulkRequestObj<int>>() } };
                     var metasToPad = GetMetasToPad();
 
@@ -5330,7 +5329,7 @@ namespace Core.Catalog
                             if (media != null)
                             {
                                 media.PadMetas(metasToPad);
-
+                                
                                 // Serialize media and create a bulk request for it
                                 string serializedMedia = _serializer.SerializeMediaObject(media, suffix);
                                 string documentType = GetTranslationType(MEDIA, language);
@@ -6217,7 +6216,6 @@ namespace Core.Catalog
                 }
                 var metasToPad = GetMetasToPad();
 
-
                 foreach (ulong epgID in programs.Keys)
                 {
                     foreach (string languageCode in programs[epgID].Keys)
@@ -6501,6 +6499,8 @@ namespace Core.Catalog
 
             // Create dictionary by languages
             var metasToPad = GetMetasToPad();
+            var suppressesIndexes = Api.api.GetMediaSuppressedIndexes(_partnerId)?.Object;
+
             foreach (LanguageObj language in languages)
             {
                 // Filter programs to current language

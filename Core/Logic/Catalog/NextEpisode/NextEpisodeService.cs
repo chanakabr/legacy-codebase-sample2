@@ -11,6 +11,7 @@ using Core.Notification;
 using GroupsCacheManager;
 using System.Collections.Generic;
 using System.Linq;
+using ApiObjects.Catalog;
 
 namespace ApiLogic.Catalog.NextEpisode
 {
@@ -35,22 +36,40 @@ namespace ApiLogic.Catalog.NextEpisode
             }
 
             var media = (MediaAsset) assetResponse.Object;
+            AssetStruct episodeStruct = null;
+            string seasonNumberMeta = null;
+            string episodeNumberMeta = null;
+
             if (CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId,
                 out CatalogGroupCache catalogGroupCache))
             {
-                if (!catalogGroupCache.AssetStructsMapById.ContainsKey(media.MediaType.m_nTypeID) || !catalogGroupCache
-                    .AssetStructsMapById[media.MediaType.m_nTypeID].IsSeriesAssetStruct)
+                var seriesStruct =
+                    catalogGroupCache.AssetStructsMapById.Values.FirstOrDefault(s => s.IsSeriesAssetStruct);
+
+                // BEO-12018 - Validation for old behavior with single Series struct.
+                if (seriesStruct != null && media.MediaType.m_nTypeID != seriesStruct.Id)
                 {
                     response.SetStatus(eResponseStatus.InvalidAssetStruct, "AssetStruct is not from Series type");
                     return response;
                 }
 
-                var episodeStruct =
+                // BEO-12018 - Series asset struct is an asset struct with child asset struct. No requirement to have "series" system name.
+                // Same for episode. First check with "episode" system name to be sure that are using correct children if it exists.
+                episodeStruct =
+                    catalogGroupCache.AssetStructsMapById.Values.FirstOrDefault(x =>
+                        x.ParentId == media.MediaType.m_nTypeID && x.SystemName.ToLower() == "episode") ??
                     catalogGroupCache.AssetStructsMapById.Values.FirstOrDefault(x =>
                         x.ParentId == media.MediaType.m_nTypeID);
+
                 if (episodeStruct == null)
                 {
                     response.SetStatus(eResponseStatus.InvalidAssetStruct, "Episode AssetStruct does not exist");
+                    return response;
+                }
+
+                if (episodeStruct.ConnectingMetaId == null)
+                {
+                    response.SetStatus(eResponseStatus.InvalidAssetStruct, "Episode AssetStruct has no ConnectedMetaId");
                     return response;
                 }
 
@@ -66,6 +85,14 @@ namespace ApiLogic.Catalog.NextEpisode
                 {
                     seriesId = seriesMeta.m_sValue;
                 }
+
+                (seasonNumberMeta, episodeNumberMeta) = GetOpcEpisodeMetaNames(groupId, catalogGroupCache, episodeStruct);
+
+                if (string.IsNullOrEmpty(seasonNumberMeta) || string.IsNullOrEmpty(episodeNumberMeta))
+                {
+                    response.SetStatus(eResponseStatus.InvalidAssetStruct, "Episode AssetStruct has no Episode Number or Season Number meta");
+                    return response;
+                }
             }
 
             if (string.IsNullOrEmpty(seriesId))
@@ -74,20 +101,25 @@ namespace ApiLogic.Catalog.NextEpisode
                 return response;
             }
 
-            long episodeStructId = catalogGroupCache.AssetStructsMapById.Values
-                .First(x => x.SystemName.ToLower() == "episode").Id;
-            
+            if (episodeStruct == null)
+            {
+                response.SetStatus(eResponseStatus.InvalidAssetStruct, "Episode AssetStruct does not exist");
+                return response;
+            }
+
+            var episodeStructId = episodeStruct.Id;
+
             var permittedWatchRules = string.Empty;
-            
+
             var seriesFilter = $"seriesId='{seriesId.ToLower()}'";
 
             return GetNextEpisode(
-                groupId, 
+                groupId,
                 siteGuid,
                 episodeStructId,
-                "seasonnumber", 
-                "episodenumber",
-                eFieldType.StringMeta, 
+                seasonNumberMeta,
+                episodeNumberMeta,
+                eFieldType.StringMeta,
                 permittedWatchRules,
                 seriesFilter,
                 groupId,
@@ -125,21 +157,21 @@ namespace ApiLogic.Catalog.NextEpisode
             seriesName = mo.m_sName;
 
             var permittedWatchRules = string.Join(" ", group.m_sPermittedWatchRules);
-            
+
             var seriesFilter = $"{episodeAssociationTagName}='{seriesName}'".ToLower();
 
             var seriesFilterFieldType = GetFieldType(episodeAssociationTagName, group);
 
             var seasonNumberMeta = NotificationCache.Instance().GetSeasonNumberMeta(groupId);
             var episodeNumberMeta = NotificationCache.Instance().GetEpisodeNumberMeta(groupId);
-            
+
             if (string.IsNullOrEmpty(episodeNumberMeta))
             {
                 var response = new GenericResponse<UserWatchHistory>();
                 response.SetStatus(eResponseStatus.MetaDoesNotExist, "Episode Number meta does not exist");
                 return response;
             }
-            
+
             if (string.IsNullOrEmpty(seasonNumberMeta))
             {
                 var response = new GenericResponse<UserWatchHistory>();
@@ -150,16 +182,16 @@ namespace ApiLogic.Catalog.NextEpisode
             return GetNextEpisode(
                 groupId,
                 siteGuid,
-                episodeStructId, 
+                episodeStructId,
                 seasonNumberMeta,
                 episodeNumberMeta,
-                seriesFilterFieldType, 
+                seriesFilterFieldType,
                 permittedWatchRules,
                 seriesFilter,
                 exactGroupId: 0,
                 getWatchHistoryFunc);
         }
-        
+
         private static GenericResponse<UserWatchHistory> GetNextEpisode(
             int groupId,
             string siteGuid,
@@ -270,7 +302,7 @@ namespace ApiLogic.Catalog.NextEpisode
 
             return response;
         }
-        
+
         private static UserWatchHistory ConvertToUserWatchHistory(WatchHistory watchHistory)
         {
             var userWatchHistory = new UserWatchHistory
@@ -304,6 +336,28 @@ namespace ApiLogic.Catalog.NextEpisode
             }
 
             throw new Exception($"Unknown eFieldType for fieldName='{fieldName}'");
+        }
+
+        private static (string seasonNumberMeta, string episodeNumberMeta) GetOpcEpisodeMetaNames(int groupId, CatalogGroupCache catalogGroupCache, AssetStruct episodeStruct)
+        {
+            var seasonNumberTopic = catalogGroupCache.TopicsMapById.Values.FirstOrDefault(t =>
+                t.SystemName.ToLower() == "seasonnumber");
+            var episodeNumberTopic = catalogGroupCache.TopicsMapById.Values.FirstOrDefault(t =>
+                t.SystemName.ToLower() == "episodenumber");
+
+            if (episodeNumberTopic != null && seasonNumberTopic != null &&
+                episodeStruct.MetaIds.Contains(episodeNumberTopic.Id) &&
+                episodeStruct.MetaIds.Contains(seasonNumberTopic.Id))
+            {
+                return ("seasonnumber", "episodenumber");
+            }
+
+            // Use TCM metas if default metas are not available.
+            var seasonNumberMeta = NotificationCache.Instance().GetSeasonNumberMeta(groupId);
+            var episodeNumberMeta = NotificationCache.Instance().GetEpisodeNumberMeta(groupId);
+
+            return (seasonNumberMeta, episodeNumberMeta);
+
         }
     }
 }

@@ -12,12 +12,14 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Core.Catalog;
+using ApiLogic.Api.Managers;
+using ApiLogic.IndexManager.Helpers;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
     public abstract class AbstractIndexBuilder
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());                
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         #region Consts
 
@@ -71,7 +73,7 @@ namespace ElasticSearchHandler.IndexBuilders
         }
 
         #endregion
-        
+
         #region Ctor
 
         public AbstractIndexBuilder(int groupID)
@@ -146,6 +148,15 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 if (lEpgCB != null && lEpgCB.Count > 0)
                 {
+                    var suppressesIndexes = CatalogPartnerConfigManager.Instance.GetMediaSuppressedIndexes(groupId)?.Object;
+                    if (suppressesIndexes != null && suppressesIndexes.Any())
+                    {
+                        foreach (var epg in lEpgCB)
+                        {
+                            epg.Suppressed = IndexManagerCommonHelpers.GetSuppressedIndex(epg, suppressesIndexes);
+                        }
+                    }
+
                     epgs = BuildEpgsLanguageDictionary(lEpgCB);
                 }
                 else

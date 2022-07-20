@@ -192,7 +192,20 @@ namespace Ingest
                     {
                         var file = new ApiLogic.Catalog.OTTStreamFile(stream, fileId);
 
-                        ApiLogic.FileManager.Instance.SaveFile(fileId, file, "xmllog");
+                        var saveFileResponse = ApiLogic.FileManager.Instance.SaveFile(fileId, file, "xmllog");
+
+                        if (saveFileResponse != null)
+                        {
+                            if (saveFileResponse.Status != null)
+                            {
+                                log.Debug($"SaveFile response status = {saveFileResponse.Status}");
+                            }
+
+                            if (!string.IsNullOrEmpty(saveFileResponse.Object))
+                            {
+                                log.Debug($"SaveFile response object = {saveFileResponse.Object}");
+                            }
+                        }
                     }
                 }
             }

@@ -57,6 +57,7 @@ using System.Threading;
 using ApiLogic.Catalog.NextEpisode;
 using ApiLogic.IndexManager.QueryBuilders.SearchPriority;
 using ApiLogic.IndexManager.Sorting;
+using ChannelsSchema;
 using ElasticSearch.Searcher;
 using ElasticSearch.Utils;
 using Microsoft.Extensions.Logging;
@@ -6763,12 +6764,12 @@ namespace Core.Catalog
                     cacheKey.AppendFormat("ch={0}", channelId);
                     cacheKey.AppendFormat("_gId={0}", groupId);
                     cacheKey.Append($"_l={langId}");  //BEO-11556
-                    
+
                     if (lastUpdateDate > 0)  //BEO-11618
                     {
-                        cacheKey.Append($"_ud={lastUpdateDate}");  
+                        cacheKey.Append($"_ud={lastUpdateDate}");
                     }
-                    
+
                     cacheKey.AppendFormat("_p={0}|{1}", unifiedSearchDefinitions.pageIndex,
                             unifiedSearchDefinitions.pageSize);
                     cacheKey.AppendFormat("_or={0}|{1}", unifiedSearchDefinitions.order.m_eOrderBy,
@@ -7852,8 +7853,8 @@ namespace Core.Catalog
                         }
 
                         string loweredValue = leaf.value.ToString().ToLower();
-                        
-                        if (definitions.entitlementSearchDefinitions == null) 
+
+                        if (definitions.entitlementSearchDefinitions == null)
                         {
                             definitions.entitlementSearchDefinitions = new EntitlementSearchDefinitions();
                         }
@@ -9379,7 +9380,8 @@ namespace Core.Catalog
                             int esTotalItems = 0;
                             var searchResults = indexManager.UnifiedSearch(searchDefinitions, ref esTotalItems);
 
-                            long episodeStructId = 0;
+                            long? episodeStructId = 0;
+                            bool isEpisode = false;
 
                             if (searchResults != null && searchResults.Count > 0)
                             {
@@ -9412,11 +9414,14 @@ namespace Core.Catalog
                                                             .TryGetCatalogGroupCacheFromCache(groupId,
                                                                 out catalogGroupCache))
                                                         {
-                                                            long seriesStructId = catalogGroupCache.AssetStructsMapById
-                                                                .Values.FirstOrDefault(x => x.IsSeriesAssetStruct).Id;
-                                                            episodeStructId = catalogGroupCache.AssetStructsMapById
+                                                            var seriesStructId = catalogGroupCache.AssetStructsMapById
+                                                                .Values.FirstOrDefault(x => x.IsSeriesAssetStruct)?.Id;
+
+                                                            episodeStructId = seriesStructId == null
+                                                                ? null
+                                                                : catalogGroupCache.AssetStructsMapById
                                                                 .Values.FirstOrDefault(x =>
-                                                                    x.ParentId > 0 && x.ParentId == seriesStructId).Id;
+                                                                        x.ParentId > 0 && x.ParentId == seriesStructId)?.Id;
                                                         }
                                                     }
                                                     else
@@ -9432,7 +9437,8 @@ namespace Core.Catalog
                                                 long mediaTypeId;
 
                                                 if (long.TryParse(mediaTypeIdValue, out mediaTypeId) &&
-                                                    mediaTypeId == episodeStructId)
+                                                    (mediaTypeId == episodeStructId ||
+                                                     (episodeStructId == null && IsMediaTypeEpisodeLike(isOPC, groupId, mediaTypeId))))
                                                 {
                                                     if (!seriesMap.ContainsKey(seriesId))
                                                     {
@@ -9548,6 +9554,23 @@ namespace Core.Catalog
             }
 
             return usersWatchHistory;
+        }
+
+        private static bool IsMediaTypeEpisodeLike(bool isOpc, int groupId, long mediaTypeId)
+        {
+            if (isOpc && CatalogManagement.CatalogManager.Instance
+                .TryGetCatalogGroupCacheFromCache(groupId,
+                    out var catalogGroupCache))
+            {
+                if (!catalogGroupCache.AssetStructsMapById.ContainsKey(mediaTypeId))
+                {
+                    return false;
+                }
+
+                return catalogGroupCache.AssetStructsMapById[mediaTypeId].ParentId != null;
+            }
+
+            return false;
         }
 
         private static List<WatchHistory> GetRawUserWatchHistory(int groupId, string siteGuid, List<int> assetTypes,

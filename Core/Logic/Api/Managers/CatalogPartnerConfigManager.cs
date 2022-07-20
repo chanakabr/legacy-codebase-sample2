@@ -137,6 +137,49 @@ namespace ApiLogic.Api.Managers
             return response;
         }
 
+        public GenericResponse<HashSet<string>> GetMediaSuppressedIndexes(int groupId)
+        {
+            var response = new GenericResponse<HashSet<string>>();
+
+            try
+            {
+                HashSet<string> result = null;
+                string key = LayeredCacheKeys.GetMediaSuppressedIndexesKey(groupId);
+                var invalidationKey = new List<string>() { LayeredCacheKeys.GetMediaSuppressedIndexesInvalidationKey(groupId) };
+                if (!_layeredCache.Get(key,
+                                       ref result,
+                                       GetMediaSuppressedIndexesDB,
+                                       new Dictionary<string, object>()
+                                       {
+                                           { "groupId", groupId }
+                                       },
+                                       groupId,
+                                       LayeredCacheConfigNames.GET_MEDIA_SUPPRESSED_INDEXES,
+                                       invalidationKey))
+                {
+                    log.Error($"Failed getting MediaSuppressedIndexes from LayeredCache, groupId: {groupId}, key: {key}");
+                }
+                else
+                {
+                    if (result == null)
+                    {
+                        response.SetStatus(eResponseStatus.Error, "Media Suppressed Metas does not exist.");
+                    }
+                    else
+                    {
+                        response.Object = result;
+                        response.SetStatus(eResponseStatus.OK);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed GetMediaSuppressedIndexes for groupId: {groupId}", ex);
+            }
+
+            return response;
+        }
+
         public GenericListResponse<CatalogPartnerConfig> GetCatalogConfigList(int groupId)
         {
             var response = new GenericListResponse<CatalogPartnerConfig>();
@@ -199,6 +242,31 @@ namespace ApiLogic.Api.Managers
             }
 
             return new Tuple<CatalogPartnerConfig, bool>(partnerConfig, result);
+        }
+
+        private Tuple<HashSet<string>, bool> GetMediaSuppressedIndexesDB(Dictionary<string, object> funcParams)
+        {
+            HashSet<string> response = null;
+            bool result = false;
+
+            try
+            {
+                if (funcParams?.Count == 1)
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue)
+                    {
+                        response = _repository.GetAssetSuppressedIndexes(groupId.Value);
+                        result = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetMediaSuppressedIndexesDB failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<HashSet<string>, bool>(response, result);
         }
     }
 }

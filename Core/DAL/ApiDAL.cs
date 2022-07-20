@@ -31,6 +31,7 @@ namespace DAL
     {
         bool SaveCatalogPartnerConfig(int groupId, CatalogPartnerConfig partnerConfig);
         CatalogPartnerConfig GetCatalogPartnerConfig(int groupId);
+        HashSet<string> GetAssetSuppressedIndexes(int groupId);
     }
 
 
@@ -6192,6 +6193,11 @@ namespace DAL
             return $"catalog_partner_config_{groupId}";
         }
 
+        private static string GetAssetSuppressedIndexesKey(int groupId)
+        {
+            return $"{groupId}_assetSuppressedIndexes";
+        }
+
         public CatalogPartnerConfig GetCatalogPartnerConfig(int groupId)
         {
             string key = GetCatalogPartnerConfigKey(groupId);
@@ -6202,6 +6208,18 @@ namespace DAL
         {
             string key = GetCatalogPartnerConfigKey(groupId);
             return UtilsDal.SaveObjectInCB<CatalogPartnerConfig>(eCouchbaseBucket.OTT_APPS, key, partnerConfig);
+        }
+
+        public HashSet<string> GetAssetSuppressedIndexes(int groupId)
+        {
+            string key = GetAssetSuppressedIndexesKey(groupId);
+            return UtilsDal.GetObjectFromCB<HashSet<string>>(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public bool SaveAssetSuppressedIndexes(int groupId, HashSet<string> objectToSave)
+        {
+            string key = GetAssetSuppressedIndexesKey(groupId);
+            return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, objectToSave);
         }
 
         #region DynamicList

@@ -12441,5 +12441,33 @@ namespace Core.Api
             return response;
 
         }
+
+        public static GenericResponse<HashSet<string>> GetMediaSuppressedIndexes(int groupId)
+        {
+            return CatalogPartnerConfigManager.Instance.GetMediaSuppressedIndexes(groupId);
+        }
+
+        public static GenericResponse<bool> UpdateMediaSuppressedIndexes(int groupId, HashSet<string> assetSuppressedMetasToUpdate)
+        {
+            var response = new GenericResponse<bool>();
+
+            var _save = ApiDAL.Instance.SaveAssetSuppressedIndexes(groupId, assetSuppressedMetasToUpdate);
+            if (_save)
+            {
+                string invalidationKey = LayeredCacheKeys.GetMediaSuppressedIndexesInvalidationKey(groupId);
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.Error($"Failed to set invalidation key for MediaSuppressedIndexes with invalidationKey: {invalidationKey}.");
+                }
+            }
+            else
+            {
+                log.Warn($"Failed saving MediaSuppressedIndexes to CB, groupId: {groupId}");
+            }
+
+            response.SetStatus(_save ? eResponseStatus.OK : eResponseStatus.Error);
+            response.Object = _save;
+            return response;
+        }
     }
 }

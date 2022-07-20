@@ -12,6 +12,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Tvinci.Core.DAL;
+using ApiLogic.Api.Managers;
 
 namespace ElasticsearchTasksCommon
 {
@@ -851,7 +852,8 @@ namespace ElasticsearchTasksCommon
                         #region - get countries of media
 
                         // Regions table should be 6h on stored procedure
-                        if (dataSet.Tables.Count > 7 && dataSet.Tables[7].Columns != null && dataSet.Tables[7].Rows != null)
+                        var hasCountries = dataSet.Tables.Count > 7 && dataSet.Tables[7].Columns != null && dataSet.Tables[7].Rows != null;
+                        if (hasCountries)
                         {
                             foreach (DataRow mediaCountryRow in dataSet.Tables[7].Rows)
                             {
@@ -870,17 +872,34 @@ namespace ElasticsearchTasksCommon
                             }
                         }
 
-                        // If no allowed countries were found for this media - use 0, that indicates that the media is allowed everywhere
-                        foreach (Media media in medias.Values)
-                        {
-                            if (media.allowedCountries.Count == 0)
-                            {
-                                media.allowedCountries.Add(0);
-                            }
-                        }
-
                         #endregion
 
+                        #region get media suppressed index value and media allowed country
+                        var suppressesIndexes = CatalogPartnerConfigManager.Instance.GetMediaSuppressedIndexes(groupId)?.Object;
+                        foreach (Media media in medias.Values)
+                        {
+                            // If no allowed countries were found for this media - use 0, that indicates that the media is allowed everywhere
+                            if (hasCountries && media.allowedCountries.Count == 0)
+                            {
+                                media.allowedCountries.Add(0);//Todo - assign before clone
+                            }
+
+                            //BEO-12023 - Support TVM suppressed
+                            if (suppressesIndexes != null && suppressesIndexes.Any())
+                            {
+                                media.suppressed = ApiLogic.IndexManager.Helpers.IndexManagerCommonHelpers
+                                    .GetSuppressedIndex(media, suppressesIndexes);
+
+                                if(dMediaTrans.ContainsKey(media.m_nMediaID) && !string.IsNullOrEmpty(media.suppressed))
+                                {
+                                    foreach (var _media in dMediaTrans[media.m_nMediaID].Values)
+                                    {
+                                        _media.suppressed = media.suppressed;
+                                    }
+                                }
+                            }
+                        }
+                        #endregion
                     }
 
                 }

@@ -801,6 +801,7 @@
     <Content Include="adm_topic_notification_new.aspx" />
     <Content Include="adm_tvc_ads.aspx" />
     <Content Include="adm_tvc_footer.aspx" />
+    <Content Include="adm_suppressed_order.aspx" />
     <Content Include="adm_tvc_init.aspx" />
     <Content Include="adm_tvc_meta.aspx" />
     <Content Include="adm_tvc_meta_new.aspx" />
@@ -4466,6 +4467,13 @@
     </Compile>
     <Compile Include="adm_tvc_footer.aspx.designer.cs">
       <DependentUpon>adm_tvc_footer.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="adm_suppressed_order.aspx.cs">
+      <DependentUpon>adm_suppressed_order.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="adm_suppressed_order.aspx.designer.cs">
+      <DependentUpon>adm_suppressed_order.aspx</DependentUpon>
     </Compile>
     <Compile Include="adm_tvc_init.aspx.cs">
       <DependentUpon>adm_tvc_init.aspx</DependentUpon>

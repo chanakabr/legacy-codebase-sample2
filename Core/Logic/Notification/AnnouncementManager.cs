@@ -303,12 +303,6 @@ namespace Core.Notification
                 return false;
             }
 
-            CatalogGroupCache cache = null;
-            AssetStruct episodeAssetStruct = null;
-            var episodeAssociationTag = FollowManager.GetEpisodeAssociationTag(groupId, ref cache, ref episodeAssetStruct).ToLower().Trim();
-            if (announcement.FollowPhrase == null || !announcement.FollowPhrase.ToLower().Trim().StartsWith(episodeAssociationTag))
-                return true;
-
             annExternalId = announcement.ExternalId;
             singleQueueName = announcement.QueueName;
             mailExternalId = announcement.MailExternalId;
@@ -327,6 +321,15 @@ namespace Core.Notification
             if (episodeMedia == null)
             {
                 return false;
+            }
+
+            CatalogGroupCache cache = null;
+            AssetStruct episodeAssetStruct = null;
+            var episodeAssociationTag = FollowManager.GetEpisodeAssociationTag(groupId, ref cache, ref episodeAssetStruct, episodeMedia.m_oMediaType.m_nTypeID).ToLower().Trim();
+            if (announcement.FollowPhrase == null ||
+                !announcement.FollowPhrase.ToLower().Trim().StartsWith(episodeAssociationTag))
+            {
+                return true;
             }
 
             var topicType = MetaType.Tag;
@@ -715,7 +718,7 @@ namespace Core.Notification
                         log.ErrorFormat("CreateSystemAnnouncement failed Create logged in announcement groupID = {0}, announcementName = {1}", groupId, announcementName);
                     }
 
-                    // insert ARN to DB 
+                    // insert ARN to DB
                     if (DAL.NotificationDal.Insert_Announcement(groupId, announcementName, externalAnnouncementId, (int)eMessageType.Push, (int)eAnnouncementRecipientsType.LoggedIn, string.Empty) == 0)
                     {
                         log.ErrorFormat("CreateSystemAnnouncement failed insert logged in announcement to DB groupID = {0}, announcementName = {1}", groupId, announcementName);
@@ -1061,7 +1064,7 @@ namespace Core.Notification
                 else
                     log.DebugFormat("no topic external IDs found for message ID: {0}", messageId);
 
-                // send to push web - rabbit.                
+                // send to push web - rabbit.
                 if (queueNames != null && queueNames.Count > 0)
                 {
                     MessageAnnouncementFullData data = new MessageAnnouncementFullData(groupId, ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), url, sound, category, startTime, imageUrl);
@@ -1381,7 +1384,7 @@ namespace Core.Notification
                         break;
                 }
 
-                //update announcement 
+                //update announcement
                 var isSet = NotificationDal.UpdateAnnouncement(groupId, announcementId, automaticSending);
 
                 if (!isSet)
@@ -1745,7 +1748,7 @@ namespace Core.Notification
                 {
                     CatalogGroupCache cache = null;
                     AssetStruct episodeAssetStruct = null;
-                    var episodeAssociationTag = FollowManager.GetEpisodeAssociationTag(partnerId, ref cache, ref episodeAssetStruct).ToLower().Trim();
+                    var episodeAssociationTag = FollowManager.GetEpisodeAssociationTag(partnerId, ref cache, ref episodeAssetStruct, mediaObj.m_oMediaType.m_nTypeID).ToLower().Trim();
 
                     var topicType = MetaType.Tag;
                     if (cache != null && episodeAssetStruct != null)
@@ -1820,7 +1823,7 @@ namespace Core.Notification
                 var utcNow = DateUtils.GetUtcUnixTimestampNow();
                 var announcements = _notificationRepository.Get_MessageAnnouncementsByAnnouncementId((int)announcementId, utcNow, utcNow);
 
-                if (announcements.failRes && 
+                if (announcements.failRes &&
                     (announcements.messageAnnouncement == null || !announcements.messageAnnouncement.Any()))
                 {
                     log.Error($"Announcement not exist in DB: group: {groupId}, Id: {announcementId}");
