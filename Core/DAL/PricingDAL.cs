@@ -2500,7 +2500,7 @@ namespace DAL
 
         public long InsertDiscountDetails(int groupId, long userId, DiscountDetailsDTO discountDetailsDTO)
         {
-            var sp = new StoredProcedure("Insert_DiscountDetails");
+            var sp = new StoredProcedure("Add_DiscountDetails");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@startDate", discountDetailsDTO.StartDate);
             sp.AddParameter("@endDate", discountDetailsDTO.EndDate);
@@ -2517,7 +2517,7 @@ namespace DAL
 
         public long UpdateDiscountDetails(long id, int groupId, long userId, bool needToUpdateDiscountCodeLocals, bool needToUpdateDiscountCode, DiscountDetailsDTO discountDetailsDTO)
         {
-            var sp = new StoredProcedure("Update_DiscountDetails");
+            var sp = new StoredProcedure("Modify_DiscountDetails");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@startDate", discountDetailsDTO.StartDate);
             sp.AddParameter("@endDate", discountDetailsDTO.EndDate);
@@ -2538,12 +2538,12 @@ namespace DAL
 
         private static DataTable SetDiscountCodesLocales(List<DiscountDTO> discounts)
         {
-            DataTable ccTable = new DataTable("DiscountCodesLocalesValues");
+            DataTable ccTable = new DataTable("DiscountCodesCurrencyValues");
 
             ccTable.Columns.Add("COUNTRY_CODE", typeof(string));
             ccTable.Columns.Add("PRICE", typeof(double));
             ccTable.Columns.Add("CURRENCY_CD", typeof(long));
-            ccTable.Columns.Add("DISCOUNT_PERECENT", typeof(long));
+            ccTable.Columns.Add("DISCOUNT_PERECENT", typeof(double));
 
             if (discounts != null)
             {
