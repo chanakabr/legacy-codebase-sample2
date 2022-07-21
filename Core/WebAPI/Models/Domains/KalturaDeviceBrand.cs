@@ -17,6 +17,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
+        [SchemeProperty(IsNullable = true)]
         public long? Id { get; set; }
 
         /// <summary>
@@ -33,6 +34,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "deviceFamilyid")]
         [JsonProperty("deviceFamilyid")]
         [XmlElement(ElementName = "deviceFamilyid")]
+        [SchemeProperty(IsNullable = true)]
         public long? DeviceFamilyId { get; set; }
 
         /// <summary>

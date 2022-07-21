@@ -1,6 +1,7 @@
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 
@@ -14,6 +15,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "idEqual")]
         [JsonProperty("idEqual")]
         [XmlElement("idEqual")]
+        [SchemeProperty(IsNullable = true)]
         public long? IdEqual { get; set; }
 
         /// <summary>
@@ -22,6 +24,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "deviceFamilyIdEqual")]
         [JsonProperty("deviceFamilyIdEqual")]
         [XmlElement("deviceFamilyIdEqual")]
+        [SchemeProperty(IsNullable = true)]
         public long? DeviceFamilyIdEqual { get; set; }
 
         /// <summary>
@@ -30,6 +33,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "nameEqual")]
         [JsonProperty("nameEqual")]
         [XmlElement("nameEqual")]
+        [SchemeProperty(IsNullable = true)]
         public string NameEqual { get; set; }
 
         /// <summary>
@@ -38,6 +42,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "typeEqual")]
         [JsonProperty("typeEqual")]
         [XmlElement("typeEqual")]
+        [SchemeProperty(IsNullable = true)]
         public KalturaDeviceBrandType? TypeEqual { get; set; }
 
         public override KalturaDeviceBrandOrderBy GetDefaultOrderByValue()

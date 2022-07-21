@@ -1,6 +1,7 @@
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 
@@ -14,6 +15,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "idEqual")]
         [JsonProperty("idEqual")]
         [XmlElement("idEqual")]
+        [SchemeProperty(IsNullable = true)]
         public long? IdEqual { get; set; }
 
         /// <summary>
@@ -22,14 +24,16 @@ namespace WebAPI.Models.API
         [DataMember(Name = "nameEqual")]
         [JsonProperty("nameEqual")]
         [XmlElement("nameEqual")]
+        [SchemeProperty(IsNullable = true)]
         public string NameEqual { get; set; }
-        
+
         /// <summary>
         /// Filter device families of this type
         /// </summary>
         [DataMember(Name = "typeEqual")]
         [JsonProperty("typeEqual")]
         [XmlElement("typeEqual")]
+        [SchemeProperty(IsNullable = true)]
         public KalturaDeviceFamilyType? TypeEqual { get; set; }
 
         public override KalturaDeviceFamilyOrderBy GetDefaultOrderByValue()
