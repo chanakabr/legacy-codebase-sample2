@@ -1312,6 +1312,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
+                assetStructToadd.IsProgramAssetStruct = isProgramStruct;
                 result = _assetStructRepository.InsertAssetStruct(groupId, userId, assetStructToadd, languageCodeToName, metaIdsToPriority);
                 // For backward compatibility
                 if (isProgramStruct)
