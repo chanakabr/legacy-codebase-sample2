@@ -821,6 +821,7 @@ namespace DAL
             sp.AddParameter("@priceDetailsId", collection.PriceDetailsId);
             sp.AddParameter("@startDate", collection.StartDate);
             sp.AddParameter("@updaterId", updaterId);
+            sp.AddParameter("@fileTypesIds_json", JsonConvert.SerializeObject(collection.FileTypesIds));
 
             return sp.ExecuteReturnValue<long>();
         }
@@ -3072,6 +3073,10 @@ namespace DAL
             if (virtualAssetId.HasValue)
             {
                 sp.AddParameter("@virtualAssetId", virtualAssetId.Value);
+            }
+            if (collection.FileTypesIds != null)
+            {
+                sp.AddParameter("@fileTypesIds_json", JsonConvert.SerializeObject(collection.FileTypesIds));
             }
 
             var result = sp.ExecuteReturnValue<int>() > 0;

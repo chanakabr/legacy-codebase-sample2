@@ -4,6 +4,7 @@ using ApiObjects.Pricing;
 using ApiObjects.Pricing.Dto;
 using ApiObjects.Response;
 using Core.Api;
+using Core.Catalog.CatalogManagement;
 using Core.GroupManagers;
 using Core.Pricing;
 using DAL;
@@ -28,7 +29,8 @@ namespace ApiLogic.Pricing.Handlers
                                                   PriceDetailsManager.Instance,
                                                   CatalogDAL.Instance,
                                                   Core.Pricing.Module.Instance,
-                                                  api.Instance),
+                                                  api.Instance,
+                                                  Core.Catalog.CatalogManagement.FileManager.Instance),
                             LazyThreadSafetyMode.PublicationOnly);
 
         private readonly ICollectionRepository _repository;
@@ -38,6 +40,7 @@ namespace ApiLogic.Pricing.Handlers
         private readonly IChannelRepository _channelRepository;
         private readonly IPricingModule _pricingModule;
         private readonly IVirtualAssetManager _virtualAssetManager;
+        private readonly IMediaFileTypeManager _fileManager;
 
         public static CollectionManager Instance => lazy.Value;
 
@@ -47,7 +50,8 @@ namespace ApiLogic.Pricing.Handlers
                                  IPriceDetailsManager priceDetailsManager,
                                  IChannelRepository channelRepository,
                                  IPricingModule pricingModule,
-                                 IVirtualAssetManager virtualAssetManager)
+                                 IVirtualAssetManager virtualAssetManager,
+                                 IMediaFileTypeManager fileManager)
         {
             _repository = repository;
             _groupSettingsManager = groupSettingsManager;
@@ -56,6 +60,7 @@ namespace ApiLogic.Pricing.Handlers
             _channelRepository = channelRepository;
             _pricingModule = pricingModule;
             _virtualAssetManager = virtualAssetManager;
+            _fileManager = fileManager;
         }
 
         public GenericResponse<CollectionInternal> Add(ContextData contextData, CollectionInternal collectionToInsert)
@@ -137,6 +142,18 @@ namespace ApiLogic.Pricing.Handlers
                 }
             }
             #endregion validate DiscountModuleId
+
+            #region validate FileTypesIds
+            if (collectionToInsert.FileTypesIds?.Count > 0)
+            {
+                status = ValidateFileTypesIds(contextData.GroupId, collectionToInsert.FileTypesIds);
+                if (!status.IsOkStatusCode())
+                {
+                    response.SetStatus(status);
+                    return response;
+                }
+            }
+            #endregion validate FileTypesIds     
 
             long id = _repository.AddCollection(contextData.GroupId, contextData.UserId.Value, collectionToInsert);
             if (id == 0)
@@ -569,7 +586,7 @@ namespace ApiLogic.Pricing.Handlers
                     }
                 }
             }
-            #endregion validate DiscountModuleId
+            #endregion validate DiscountModuleId            
 
             if (collectionToUpdate.Names != null)
             {
@@ -603,6 +620,20 @@ namespace ApiLogic.Pricing.Handlers
                 return response;
             }
             #endregion
+
+            #region validate FileTypesIds
+
+            if (collectionToUpdate.FileTypesIds != null)
+            {
+                status = ValidateFileTypesForUpdate(contextData.GroupId, collectionToUpdate.FileTypesIds, collection.m_sFileTypes);
+                if (!status.IsOkStatusCode())
+                {
+                    response.SetStatus(status);
+                    return response;
+                }
+            }
+
+            #endregion validate FileTypesIds
 
             // Due to atomic action update virtual asset before collection update
             long? virtualAssetId = null;
@@ -751,6 +782,63 @@ namespace ApiLogic.Pricing.Handlers
                     _pricingModule.InvalidateCollection(groupId, collectionId);
                 }
             }
+        }
+
+        private Status ValidateFileTypesIds(int groupId, List<long> fileTypesIds)
+        {
+            Status status = new Status(eResponseStatus.OK);
+
+            var res = _fileManager.GetMediaFileTypes(groupId);
+            if (res.Objects == null || res.Objects.Count < 0)
+            {
+                status.Set(eResponseStatus.InvalidFileTypes, $"FileTypes are missing for group");
+                return status;
+            }
+
+            List<long> groupFileTypeIds = res.Objects.Select(x => x.Id).ToList();
+
+            foreach (var fileTypesId in fileTypesIds)
+            {
+                if (!groupFileTypeIds.Contains(fileTypesId))
+                {
+                    status.Set(eResponseStatus.InvalidFileType, $"FileType not valid {fileTypesId}");
+                    return status;
+                }
+            }
+
+            return status;
+        }
+
+        private Status ValidateFileTypesForUpdate(int groupId, List<long> fileTypesIds, int[] fileTypes)
+        {
+            Status status = new Status(eResponseStatus.OK);
+
+            if (fileTypesIds.Count == 0 || fileTypes == null)
+            {
+                return status;
+            }
+            else
+            {
+                // compare current fileTypes with updated list
+                if (fileTypes != null && fileTypes.Length > 0)
+                {
+                    var currFileTypeIds = fileTypes.Select(i => (long)i).ToList();
+
+                    // check if both lists contain the same items in the same order. in case they ar not, need to update
+                    if (!fileTypesIds.SequenceEqual(currFileTypeIds))
+                    {
+                        // need to validate new channels in the list
+                        var newFileTypesInList = fileTypesIds.Except(currFileTypeIds).ToList();
+                        status = ValidateFileTypesIds(groupId, newFileTypesInList);
+                        if (!status.IsOkStatusCode())
+                        {
+                            return status;
+                        }
+                    }
+                }
+            }
+
+            return status;
         }
     }
 }

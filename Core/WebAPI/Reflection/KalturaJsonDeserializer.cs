@@ -10767,24 +10767,82 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaDeviceBrandFilter
     {
+        private static RuntimeSchemePropertyAttribute IdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceBrandFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute DeviceFamilyIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceBrandFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute NameEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceBrandFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute TypeEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceBrandFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
         public KalturaDeviceBrandFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idEqual") && parameters["idEqual"] != null)
                 {
+                    IdEqualSchemaProperty.Validate("idEqual", parameters["idEqual"]);
                     IdEqual = (Int64) Convert.ChangeType(parameters["idEqual"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("deviceFamilyIdEqual") && parameters["deviceFamilyIdEqual"] != null)
                 {
+                    DeviceFamilyIdEqualSchemaProperty.Validate("deviceFamilyIdEqual", parameters["deviceFamilyIdEqual"]);
                     DeviceFamilyIdEqual = (Int64) Convert.ChangeType(parameters["deviceFamilyIdEqual"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("nameEqual") && parameters["nameEqual"] != null)
                 {
+                    NameEqualSchemaProperty.Validate("nameEqual", parameters["nameEqual"]);
                     NameEqual = (String) Convert.ChangeType(parameters["nameEqual"], typeof(String));
                 }
                 if (parameters.ContainsKey("typeEqual") && parameters["typeEqual"] != null)
                 {
+                    TypeEqualSchemaProperty.Validate("typeEqual", parameters["typeEqual"]);
                     if(string.IsNullOrEmpty(parameters["typeEqual"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "typeEqual");
@@ -10901,20 +10959,64 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaDeviceFamilyFilter
     {
+        private static RuntimeSchemePropertyAttribute IdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceFamilyFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute NameEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceFamilyFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute TypeEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceFamilyFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
         public KalturaDeviceFamilyFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idEqual") && parameters["idEqual"] != null)
                 {
+                    IdEqualSchemaProperty.Validate("idEqual", parameters["idEqual"]);
                     IdEqual = (Int64) Convert.ChangeType(parameters["idEqual"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("nameEqual") && parameters["nameEqual"] != null)
                 {
+                    NameEqualSchemaProperty.Validate("nameEqual", parameters["nameEqual"]);
                     NameEqual = (String) Convert.ChangeType(parameters["nameEqual"], typeof(String));
                 }
                 if (parameters.ContainsKey("typeEqual") && parameters["typeEqual"] != null)
                 {
+                    TypeEqualSchemaProperty.Validate("typeEqual", parameters["typeEqual"]);
                     if(string.IsNullOrEmpty(parameters["typeEqual"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "typeEqual");
@@ -27126,6 +27228,32 @@ namespace WebAPI.Models.Pricing
             MinItems = -1,
             MaxItems = -1,
         };
+        private static RuntimeSchemePropertyAttribute FileTypesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCollection")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute FileTypesIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCollection")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
         public KalturaCollection(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
@@ -27354,6 +27482,31 @@ namespace WebAPI.Models.Pricing
                 {
                     VirtualAssetIdSchemaProperty.Validate("virtualAssetId", parameters["virtualAssetId"]);
                     VirtualAssetId = (Int64) Convert.ChangeType(parameters["virtualAssetId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("fileTypes__null") && parameters["fileTypes__null"] != null)
+                {
+                    this.AddNullableProperty("fileTypes");
+                }
+                if (parameters.ContainsKey("fileTypes") && parameters["fileTypes"] != null)
+                {
+                    FileTypesSchemaProperty.Validate("fileTypes", parameters["fileTypes"]);
+                    if (parameters["fileTypes"] is JArray)
+                    {
+                        FileTypes = OTTObjectBuilder.buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["fileTypes"]);
+                    }
+                    else if (parameters["fileTypes"] is IList)
+                    {
+                        FileTypes = OTTObjectBuilder.buildList(typeof(KalturaIntegerValue), parameters["fileTypes"] as object[]);
+                    }
+                }
+                if (parameters.ContainsKey("fileTypesIds__null") && parameters["fileTypesIds__null"] != null)
+                {
+                    this.AddNullableProperty("fileTypesIds");
+                }
+                if (parameters.ContainsKey("fileTypesIds") && parameters["fileTypesIds"] != null)
+                {
+                    FileTypesIdsSchemaProperty.Validate("fileTypesIds", parameters["fileTypesIds"]);
+                    FileTypesIds = (String) Convert.ChangeType(parameters["fileTypesIds"], typeof(String));
                 }
             }
         }
@@ -38814,6 +38967,32 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaDeviceBrand
     {
+        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceBrand")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute DeviceFamilyIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceBrand")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceBrand")
         {
             ReadOnly = true,
@@ -38835,6 +39014,7 @@ namespace WebAPI.Models.Domains
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
+                    IdSchemaProperty.Validate("id", parameters["id"]);
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -38843,6 +39023,7 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("deviceFamilyid") && parameters["deviceFamilyid"] != null)
                 {
+                    DeviceFamilyIdSchemaProperty.Validate("deviceFamilyid", parameters["deviceFamilyid"]);
                     DeviceFamilyId = (Int64) Convert.ChangeType(parameters["deviceFamilyid"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)

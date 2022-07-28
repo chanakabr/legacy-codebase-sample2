@@ -1987,6 +1987,10 @@ namespace WebAPI.Reflection
                             return "endDate";
                         case "ExternalId":
                             return "externalId";
+                        case "FileTypes":
+                            return "fileTypes";
+                        case "FileTypesIds":
+                            return "fileTypesIds";
                         case "Id":
                             return "id";
                         case "IsActive":

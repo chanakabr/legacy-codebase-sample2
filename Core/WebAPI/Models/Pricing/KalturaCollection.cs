@@ -206,5 +206,25 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "virtualAssetId", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
         public long? VirtualAssetId { get; set; }
+
+        /// <summary>
+        /// A list of file types identifiers that are supported in this collection
+        /// </summary>
+        [DataMember(Name = "fileTypes")]
+        [JsonProperty("fileTypes")]
+        [XmlArray(ElementName = "fileTypes", IsNullable = true)]
+        [XmlArrayItem("item")]
+        [SchemeProperty(IsNullable = true, ReadOnly = true)]
+        public List<KalturaIntegerValue> FileTypes { get; set; }
+
+        /// <summary>
+        /// Comma separated file types identifiers that are supported in this collection
+        /// </summary>
+        [DataMember(Name = "fileTypesIds")]
+        [JsonProperty("fileTypesIds")]
+        [XmlArray(ElementName = "fileTypesIds", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
+        public string FileTypesIds { get; set; }
+
     }
 }

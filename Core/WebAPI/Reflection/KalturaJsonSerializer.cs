@@ -32035,6 +32035,15 @@ namespace WebAPI.Models.Pricing
             {
                 ret.Add("externalId", "\"externalId\": " + "\"" + EscapeJson(ExternalId) + "\"");
             }
+            if(FileTypes != null && (retrievedProperties == null || retrievedProperties.Contains("fileTypes")))
+            {
+                propertyValue = "[" + String.Join(", ", FileTypes.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("fileTypes", "\"fileTypes\": " + propertyValue);
+            }
+            if(FileTypesIds != null && (retrievedProperties == null || retrievedProperties.Contains("fileTypesIds")))
+            {
+                ret.Add("fileTypesIds", "\"fileTypesIds\": " + "\"" + EscapeJson(FileTypesIds) + "\"");
+            }
             if(Id != null && (retrievedProperties == null || retrievedProperties.Contains("id")))
             {
                 ret.Add("id", "\"id\": " + "\"" + EscapeJson(Id) + "\"");
@@ -32142,6 +32151,15 @@ namespace WebAPI.Models.Pricing
             if(ExternalId != null && (retrievedProperties == null || retrievedProperties.Contains("externalId")))
             {
                 ret.Add("externalId", "<externalId>" + EscapeXml(ExternalId) + "</externalId>");
+            }
+            if(FileTypes != null && (retrievedProperties == null || retrievedProperties.Contains("fileTypes")))
+            {
+                propertyValue = FileTypes.Count > 0 ? "<item>" + String.Join("</item><item>", FileTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("fileTypes", "<fileTypes>" + propertyValue + "</fileTypes>");
+            }
+            if(FileTypesIds != null && (retrievedProperties == null || retrievedProperties.Contains("fileTypesIds")))
+            {
+                ret.Add("fileTypesIds", "<fileTypesIds>" + EscapeXml(FileTypesIds) + "</fileTypesIds>");
             }
             if(Id != null && (retrievedProperties == null || retrievedProperties.Contains("id")))
             {

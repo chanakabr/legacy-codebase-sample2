@@ -1,5 +1,6 @@
 ﻿using ApiLogic.Api.Managers;
 using ApiLogic.ConditionalAccess;
+using ApiLogic.Pricing.Handlers;
 using APILogic.Api.Managers;
 using APILogic.ConditionalAccess.Managers;
 using ApiObjects;
@@ -26,7 +27,11 @@ using Core.Users;
 using DAL;
 using EpgBL;
 using GroupsCacheManager;
+using MoreLinq;
+using MoreLinq.Extensions;
 using NPVR;
+using OffersGrpcClientWrapper;
+using OTT.Service.Offers;
 using Phx.Lib.Appconfig;
 using Phx.Lib.Log;
 using QueueWrapper;
@@ -39,11 +44,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Xml;
-using ApiLogic.Pricing.Handlers;
-using MoreLinq;
-using MoreLinq.Extensions;
-using OffersGrpcClientWrapper;
-using OTT.Service.Offers;
 using TVinciShared;
 using Tvinic.GoogleAPI;
 using SlimAsset = ApiObjects.Rules.SlimAsset;
@@ -2741,7 +2741,8 @@ namespace Core.ConditionalAccess
                         GetUserValidBundles(mediaID, nMediaFileID, eMediaFileStatus, groupID, fileTypes, allUserIDsInDomain, relatedMediaFileIDs, subsPurchase,
                                             collPurchase, domainEntitlements.DomainBundleEntitlements.FileTypeIdToSubscriptionMappings, domainEntitlements.DomainBundleEntitlements.SubscriptionsData,
                                             domainEntitlements.DomainBundleEntitlements.CollectionsData, domainEntitlements.DomainBundleEntitlements.ChannelsToSubscriptionMappings,
-                                            domainEntitlements.DomainBundleEntitlements.ChannelsToCollectionsMappings, ref relevantValidSubscriptions, ref relevantValidCollections);
+                                            domainEntitlements.DomainBundleEntitlements.ChannelsToCollectionsMappings, ref relevantValidSubscriptions, ref relevantValidCollections,
+                                            domainEntitlements.DomainBundleEntitlements.FileTypeIdToCollectionMappings);
                     }
                     else
                     {
@@ -4539,6 +4540,34 @@ namespace Core.ConditionalAccess
                                 }
 
                             }
+
+                            // Insert to fileTypeIdToCollectionMappings
+                            if (collection.m_sFileTypes != null && collection.m_sFileTypes.Count() > 0)
+                            {
+
+                                foreach (int fileTypeID in collection.m_sFileTypes)
+                                {
+                                    if (domainBundleEntitlements.FileTypeIdToCollectionMappings.ContainsKey(fileTypeID))
+                                    {
+                                        domainBundleEntitlements.FileTypeIdToCollectionMappings[fileTypeID].Add(collection);
+                                    }
+                                    else
+                                    {
+                                        domainBundleEntitlements.FileTypeIdToCollectionMappings.Add(fileTypeID, new List<Collection>() { collection });
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (domainBundleEntitlements.FileTypeIdToCollectionMappings.ContainsKey(0))
+                                {
+                                    domainBundleEntitlements.FileTypeIdToCollectionMappings[0].Add(collection);
+                                }
+                                else
+                                {
+                                    domainBundleEntitlements.FileTypeIdToCollectionMappings.Add(0, new List<Collection>() { collection });
+                                }
+                            }
                         }
                     }
                 }
@@ -4551,11 +4580,12 @@ namespace Core.ConditionalAccess
         }
 
         private static void GetUserValidBundles(int mediaID, int nMediaFileID, MediaFileStatus eMediaFileStatus, int nGroupID, int[] fileTypes, List<int> allUserIDsInDomain,
-                                                List<int> relatedMediaFileIDs, Dictionary<string, UserBundlePurchase> subsPurchase, Dictionary<string, UserBundlePurchase> collPurchases,
-                                                Dictionary<int, List<Subscription>> fileTypeIdToSubscriptionMappings, Dictionary<int, Subscription> subscriptionsData, Dictionary<int, Collection> collectionsData,
-                                                Dictionary<int, List<Subscription>> channelsToSubscriptionMappings, Dictionary<int, List<Collection>> channelsToCollectionsMappings,
-                                                ref Subscription[] relevantValidSubscriptions, ref Collection[] relevantValidCollections)
+                List<int> relatedMediaFileIDs, Dictionary<string, UserBundlePurchase> subsPurchase, Dictionary<string, UserBundlePurchase> collPurchases,
+                Dictionary<int, List<Subscription>> fileTypeIdToSubscriptionMappings, Dictionary<int, Subscription> subscriptionsData, Dictionary<int, Collection> collectionsData,
+                Dictionary<int, List<Subscription>> channelsToSubscriptionMappings, Dictionary<int, List<Collection>> channelsToCollectionsMappings,
+                ref Subscription[] relevantValidSubscriptions, ref Collection[] relevantValidCollections, Dictionary<int, List<Collection>> fileTypeIdToCollectionMappings)
         {
+            //todo channelsToSubscriptionMappings for collection
             var subsToBundleCreditDownloadedQuery = new List<string>();
             var colsToBundleCreditDownloadedQuery = new List<string>();
             var subsToGetFromSubsDictionary = new List<int>();
@@ -4579,7 +4609,22 @@ namespace Core.ConditionalAccess
                 AddUserBundlePurchasesToReleventList(subscriptionsToCheck, eMediaFileStatus, ref subsToBundleCreditDownloadedQuery, ref subsToGetFromSubsDictionary);
             }
 
-            AddUserBundlePurchasesToReleventList(collPurchases.Values.ToList(), eMediaFileStatus, ref colsToBundleCreditDownloadedQuery, ref collsToGetFromDictionary);
+            if (collPurchases?.Count > 0 && fileTypeIdToCollectionMappings?.Count > 0)
+            {
+                var collectionToCheck = new List<UserBundlePurchase>();
+
+                // collections with all fileTypes
+                int allFileTypeIDs_key = 0;
+                AddCollectionsToCheck(allFileTypeIDs_key, ref collectionToCheck, fileTypeIdToCollectionMappings, collPurchases);
+
+                // collections with the current fileTypeID
+                foreach (int filetypeID in fileTypes)
+                {
+                    AddCollectionsToCheck(filetypeID, ref collectionToCheck, fileTypeIdToCollectionMappings, collPurchases);
+                }
+
+                AddUserBundlePurchasesToReleventList(collectionToCheck, eMediaFileStatus, ref colsToBundleCreditDownloadedQuery, ref collsToGetFromDictionary);
+            }
 
             // check if credit need to be downloaded for specific mediaFileID 
             HandleBundleCreditNeedToDownloadedQuery(subsToBundleCreditDownloadedQuery, colsToBundleCreditDownloadedQuery, nMediaFileID, nGroupID, allUserIDsInDomain,
@@ -4696,7 +4741,7 @@ namespace Core.ConditionalAccess
                     }
                 }
             }
-        }
+        }        
 
         private static void AddSubscriptionsToCheck(int fileTypeIdKey, ref List<UserBundlePurchase> subscriptionsToCheck,
                                                     Dictionary<int, List<Subscription>> fileTypeIdToSubscriptionMappings, Dictionary<string, UserBundlePurchase> subsPurchase)
@@ -9989,6 +10034,21 @@ namespace Core.ConditionalAccess
             }
 
             return pagoEntitlements;
+        }
+
+        private static void AddCollectionsToCheck(int fileTypeIdKey, ref List<UserBundlePurchase> collectionToCheck, Dictionary<int, List<Collection>> fileTypeIdToCollectionMappings, Dictionary<string, UserBundlePurchase> collPurchases)
+        {
+            if (fileTypeIdToCollectionMappings.ContainsKey(fileTypeIdKey))
+            {
+                foreach (var collection in fileTypeIdToCollectionMappings[fileTypeIdKey])
+                {
+                    if (collPurchases.ContainsKey(collection.m_CollectionCode))
+                    {
+                        collectionToCheck.Add(collPurchases[collection.m_CollectionCode]);
+                    }
+                }
+            }
+
         }
     }
 }

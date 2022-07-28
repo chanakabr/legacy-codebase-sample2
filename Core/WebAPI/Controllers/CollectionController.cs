@@ -127,6 +127,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.CouponGroupNotExist)]
         [Throws(eResponseStatus.InvalidDiscountCode)]
         [Throws(eResponseStatus.AccountIsNotOpcSupported)]
+        [Throws(eResponseStatus.InvalidFileTypes)]
         static public KalturaCollection Add(KalturaCollection collection)
         {
             KalturaCollection result = null;
@@ -204,6 +205,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AccountIsNotOpcSupported)]
         [Throws(eResponseStatus.StartDateShouldBeLessThanEndDate)]
         [Throws(eResponseStatus.NameRequired)]
+        [Throws(eResponseStatus.InvalidFileTypes)]
         [SchemeArgument("id", MinLong = 1)]
         static public KalturaCollection Update(long id, KalturaCollection collection)
         {

@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Configuration;
-using System.Data;
-using DAL;
-using ApiObjects;
-using Phx.Lib.Log;
-using System.Reflection;
+﻿using ApiObjects;
 using ApiObjects.Pricing;
 using ApiObjects.Response;
+using DAL;
+using Newtonsoft.Json;
+using Phx.Lib.Log;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 
 namespace Core.Pricing
 {
@@ -92,14 +92,14 @@ namespace Core.Pricing
 
                         tmpCollection = CreateCollectionObject(collectionRow, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, GetCollectionDescription(nCollectionCode),
                                                                    GetCollectionsChannels(nCollectionCode, m_nGroupID), GetCollectionName(nCollectionCode),
-                                                                   GetCollectionExternalProductCodes(nCollectionCode), GetCollectionCouponsGroups(nCollectionCode));
+                                                                   GetCollectionExternalProductCodes(nCollectionCode), GetCollectionCouponsGroups(nCollectionCode), GetCollectionFileTypesFile(collectionRow));
                         retList.Add(tmpCollection);
                     }
 
                 }
             }
             return retList;
-        }
+        }        
 
         private List<KeyValuePair<VerificationPaymentGateway, string>> GetCollectionExternalProductCodes(int collectionId)
         {
@@ -260,7 +260,7 @@ namespace Core.Pricing
 
         private Collection CreateCollectionObject(DataRow collectionRow, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, LanguageContainer[] collectionDescription,
             BundleCodeContainer[] collectionChannels, LanguageContainer[] collectionName, List<KeyValuePair<VerificationPaymentGateway, string>> externalProductCodes,
-            List<SubscriptionCouponGroup> couponsGroups)
+            List<SubscriptionCouponGroup> couponsGroups, List<long> fileTypsIds)
         {
             Collection retCollection = new Collection();
 
@@ -292,7 +292,11 @@ namespace Core.Pricing
             retCollection.UpdateDate = ODBCWrapper.Utils.GetDateSafeVal(collectionRow["UPDATE_DATE"]);
             retCollection.VirtualAssetId = ODBCWrapper.Utils.GetNullableLong(collectionRow, "VIRTUAL_ASSET_ID");
             retCollection.IsActive = ODBCWrapper.Utils.GetIntSafeVal(collectionRow, "IS_ACTIVE") == 0 ? false : true;
-            
+
+            if (fileTypsIds?.Count > 0)
+            {
+                retCollection.m_sFileTypes = fileTypsIds.Select(i => (int)i).ToArray();
+            }
             return retCollection;
         }
 
@@ -331,8 +335,9 @@ namespace Core.Pricing
                             Dictionary<long, List<LanguageContainer>> collsNamesMapping = ExtractCollectionsNames(ds);
                             Dictionary<long, List<KeyValuePair<VerificationPaymentGateway, string>>> collsExternalProductCodesMapping = ExtractCollectionsExternalProductCodes(ds.Tables[4]);
                             Dictionary<long, List<SubscriptionCouponGroup>> collsCouponsGroup = ExtractCollectionsCouponGroup(ds.Tables[5]);
+                            Dictionary<long, List<long>> collsFileTypsIds = ExtractCollectionsFileTypesIds(ds.Tables[0]);
                             response.Collections = CreateCollections(ds, collsDescriptionsMapping, collsChannelsMapping, collsNamesMapping,
-                                sCountryCd, sLanguageCode, sDeviceName, collsExternalProductCodesMapping, collsCouponsGroup).ToArray();
+                                sCountryCd, sLanguageCode, sDeviceName, collsExternalProductCodesMapping, collsCouponsGroup, collsFileTypsIds).ToArray();
 
                         }
                         else
@@ -448,7 +453,8 @@ namespace Core.Pricing
 
         private List<Collection> CreateCollections(DataSet ds, Dictionary<long, List<LanguageContainer>> collsDescriptionsMapping, Dictionary<long, List<BundleCodeContainer>> collsChannelsMapping,
             Dictionary<long, List<LanguageContainer>> collsNamesMapping, string sCountryCd, string sLanguageCode, string sDeviceName,
-            Dictionary<long, List<KeyValuePair<VerificationPaymentGateway, string>>> collsExternalProductCodesMapping, Dictionary<long, List<SubscriptionCouponGroup>> collsCouponsGroup)
+            Dictionary<long, List<KeyValuePair<VerificationPaymentGateway, string>>> collsExternalProductCodesMapping,
+            Dictionary<long, List<SubscriptionCouponGroup>> collsCouponsGroup, Dictionary<long, List<long>> collsFileTypsIds)
         {
             DataTable dt = ds.Tables[0];
             List<Collection> res = null;
@@ -494,7 +500,13 @@ namespace Core.Pricing
                         couponsGroups = collsCouponsGroup[lCollCode];
                     }
 
-                    res.Add(CreateCollectionObject(dt.Rows[i], sCountryCd, sLanguageCode, sDeviceName, descs, channels, names, externalProductCodes, couponsGroups));
+                    List<long> fileTypsIds = null;
+                    if (collsFileTypsIds.ContainsKey(lCollCode))
+                    {
+                        fileTypsIds = collsFileTypsIds[lCollCode];
+                    }
+
+                    res.Add(CreateCollectionObject(dt.Rows[i], sCountryCd, sLanguageCode, sDeviceName, descs, channels, names, externalProductCodes, couponsGroups, fileTypsIds));
                 }
             }
             else
@@ -672,6 +684,35 @@ namespace Core.Pricing
                 log.Error(string.Format("Failed to get collections for mediaId = {0}, MediaFileId = {1}", mediaId, mediaFileId), ex);
             }
             return response;
+        }
+
+        private Dictionary<long, List<long>> ExtractCollectionsFileTypesIds(DataTable dt)
+        {
+            Dictionary<long, List<long>> response = new Dictionary<long, List<long>>();
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    long collectionId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+                    response.Add(collectionId, GetCollectionFileTypesFile(dr));
+                }
+            }
+
+            return response;
+        }
+
+        private List<long> GetCollectionFileTypesFile(DataRow collectionRow)
+        {
+            string fileTypesIdsJson = ODBCWrapper.Utils.GetSafeStr(collectionRow, "FILE_TYPES_IDS_JSON");
+            if (string.IsNullOrEmpty(fileTypesIdsJson))
+            {
+                return null;
+            }
+            else
+            {
+                return JsonConvert.DeserializeObject<List<long>>(ODBCWrapper.Utils.GetSafeStr(collectionRow, "FILE_TYPES_IDS_JSON"));
+            }
         }
     }
 }

@@ -649,6 +649,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CreateDate)))
                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)))
                .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId))
+               .ForMember(dest => dest.FileTypes, opt => opt.MapFrom(src => src.m_sFileTypes))
+               .ForMember(dest => dest.FileTypesIds, opt => opt.MapFrom(src =>
+                   src.m_sFileTypes != null && src.m_sFileTypes.Length > 0 ?
+                   string.Join(",", src.m_sFileTypes) :
+                   string.Empty))
                ;
 
             cfg.CreateMap<KalturaCollection, CollectionInternal>()
@@ -666,12 +671,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate.HasValue ? DateTimeOffset.FromUnixTimeSeconds(src.StartDate.Value).DateTime : (DateTime?)null))
                 .ForMember(dest => dest.UsageModuleId, opt => opt.MapFrom(src => src.UsageModuleId))
                 .ForMember(dest => dest.NullableProperties, opt => opt.MapFrom(src => src.NullableProperties))
+                .ForMember(dest => dest.FileTypesIds, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.FileTypesIds) ? WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(src.FileTypesIds, "KalturaCollection.FileTypesIds", true) : null))
                 .AfterMap((src, dest) => dest.ChannelsIds = src.ChannelsIds != null ? dest.ChannelsIds : null)
                 .AfterMap((src, dest) => dest.CouponGroups = src.CollectionCouponGroup != null ? dest.CouponGroups : null)
                 .AfterMap((src, dest) => dest.Names = src.Name != null ? dest.Names : null)
                 .AfterMap((src, dest) => dest.Descriptions = src.Description != null ? dest.Descriptions : null)
                 .AfterMap((src, dest) => dest.ExternalProductCodes = src.ProductCodes != null ? dest.ExternalProductCodes : null)
                 .AfterMap((src, dest) => dest.IsActive = src.IsActive != null ? dest.IsActive : null)
+                .AfterMap((src, dest) => dest.FileTypesIds = src.FileTypesIds != null ? dest.FileTypesIds : null)
                 ;
 
             cfg.CreateMap<CollectionInternal, KalturaCollection>()
@@ -686,6 +693,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                 .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => MultilingualStringFactory.Create(src.Names)))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.StartDate)))
+                .ForMember(dest => dest.FileTypesIds, opt => opt.MapFrom(src => src.FileTypesIds != null ? string.Join(",", src.FileTypesIds) : string.Empty))
                 ;
 
             cfg.CreateMap<KalturaCollectionOrderBy, CollectionOrderBy>()

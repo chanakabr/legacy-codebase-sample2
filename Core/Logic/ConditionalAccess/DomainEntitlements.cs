@@ -100,6 +100,8 @@ namespace Core.ConditionalAccess
             public Dictionary<int, Collection> CollectionsData { get; set; }
             [JsonIgnore]
             public Dictionary<int, ProgramAssetGroupOffer> ProgramAssetGroupOffersData { get; set; }
+            [JsonIgnore]
+            public Dictionary<int, List<Collection>> FileTypeIdToCollectionMappings { get; set; }
 
             public BundleEntitlements()
             {
@@ -111,6 +113,7 @@ namespace Core.ConditionalAccess
                 SubscriptionsData = new Dictionary<int,Subscription>();
                 CollectionsData = new Dictionary<int,Collection>();
                 ProgramAssetGroupOffersData = new Dictionary<int, ProgramAssetGroupOffer>();
+                FileTypeIdToCollectionMappings = new Dictionary<int, List<Collection>>();
             }
             
             public BundleEntitlements(DomainEntitlementsCache.BundleEntitlements entitlement)
@@ -123,6 +126,7 @@ namespace Core.ConditionalAccess
                 SubscriptionsData = new Dictionary<int,Subscription>();
                 CollectionsData = new Dictionary<int,Collection>();
                 ProgramAssetGroupOffersData = new Dictionary<int, ProgramAssetGroupOffer>();
+                FileTypeIdToCollectionMappings = new Dictionary<int, List<Collection>>();
             }
         }
     }

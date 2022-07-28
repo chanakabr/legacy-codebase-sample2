@@ -32,5 +32,7 @@ namespace ApiObjects.Pricing
         public string ExternalId { get; set; }
 
         public List<SubscriptionCouponGroupDTO> CouponGroups { get; set; }
+
+        public List<long> FileTypesIds { get; set; }
     }
 }
