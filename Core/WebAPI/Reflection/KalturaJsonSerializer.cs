@@ -41601,6 +41601,10 @@ namespace WebAPI.Models.Partner
             {
                 ret.Add("evictionPolicy", "\"evictionPolicy\": " + "\"" + Enum.GetName(typeof(KalturaEvictionPolicyType), EvictionPolicy) + "\"");
             }
+            if(ExcludeFreeContentFromConcurrency.HasValue && (retrievedProperties == null || retrievedProperties.Contains("excludeFreeContentFromConcurrency")))
+            {
+                ret.Add("excludeFreeContentFromConcurrency", "\"excludeFreeContentFromConcurrency\": " + ExcludeFreeContentFromConcurrency.ToString().ToLower());
+            }
             if(RevokeOnDeviceDelete.HasValue && (retrievedProperties == null || retrievedProperties.Contains("revokeOnDeviceDelete")))
             {
                 ret.Add("revokeOnDeviceDelete", "\"revokeOnDeviceDelete\": " + RevokeOnDeviceDelete.ToString().ToLower());
@@ -41630,6 +41634,10 @@ namespace WebAPI.Models.Partner
             if(EvictionPolicy.HasValue && (retrievedProperties == null || retrievedProperties.Contains("evictionPolicy")))
             {
                 ret.Add("evictionPolicy", "<evictionPolicy>" + "" + Enum.GetName(typeof(KalturaEvictionPolicyType), EvictionPolicy) + "" + "</evictionPolicy>");
+            }
+            if(ExcludeFreeContentFromConcurrency.HasValue && (retrievedProperties == null || retrievedProperties.Contains("excludeFreeContentFromConcurrency")))
+            {
+                ret.Add("excludeFreeContentFromConcurrency", "<excludeFreeContentFromConcurrency>" + ExcludeFreeContentFromConcurrency.ToString().ToLower() + "</excludeFreeContentFromConcurrency>");
             }
             if(RevokeOnDeviceDelete.HasValue && (retrievedProperties == null || retrievedProperties.Contains("revokeOnDeviceDelete")))
             {

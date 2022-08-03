@@ -8020,6 +8020,24 @@ namespace Core.ConditionalAccess
             return files;
         }
 
+        internal static bool ValidateMediaFileForAsset(int groupId, long mediaId, eAssetTypes assetType, long fileId)
+        {
+            bool result = false;
+
+            List<MediaFile> allMediafiles = null;
+            string key = LayeredCacheKeys.GetMediaFilesKey(mediaId, assetType.ToString());
+            bool cacheResult = LayeredCache.Instance.Get<List<MediaFile>>(key, ref allMediafiles, GetMediaFiles, new Dictionary<string, object>() { { "mediaId", mediaId }, { "groupId", groupId },
+                                                                        { "assetType", assetType } }, groupId, LayeredCacheConfigNames.MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME,
+                                                                        new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
+
+            if (cacheResult && allMediafiles != null)
+            {
+                result = allMediafiles.Any(mediaFile => mediaFile.Id == fileId);
+            }
+
+            return result; 
+        }
+
         private static List<MediaFile> ValidateMediaFilesUponSecurity(List<MediaFile> allMediafiles, int groupId)
         {
             if (!GroupSettingsManager.Instance.IsOpc(groupId))

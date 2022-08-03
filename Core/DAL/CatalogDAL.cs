@@ -4126,11 +4126,18 @@ namespace Tvinci.Core.DAL
             sp.ExecuteNonQuery();
         }
 
-        public static DevicePlayData InsertDevicePlayDataToCB(int userId, string udid, int domainId, List<int> mediaConcurrencyRuleIds, List<long> assetMediaRuleIds,
-                                                              List<long> assetEpgRuleIds, int assetId, long programId, int deviceFamilyId, ePlayType playType,
-                                                              string npvrId, uint ttl, MediaPlayActions mediaPlayAction = MediaPlayActions.NONE,
-                                                              int? bookmarkEventThreshold = null, eTransactionType? productType = null, int? productId = null, int? linearWatchHistoryThreshold = null)
+        public static DevicePlayData InsertDevicePlayDataToCB(
+            int userId, string udid, int domainId, List<int> mediaConcurrencyRuleIds, List<long> assetMediaRuleIds,
+            List<long> assetEpgRuleIds, int assetId, long programId, int deviceFamilyId, ePlayType playType,
+            string npvrId, uint ttl, long timeStamp, long createdAt, bool overrideCreatedAt = false, bool? isFree = null,
+            MediaPlayActions mediaPlayAction = MediaPlayActions.NONE,
+            int? bookmarkEventThreshold = null, eTransactionType? productType = null, int? productId = null, int? linearWatchHistoryThreshold = null)
         {
+            // timestamp / created at -
+            //if we're calling book play back session - always set to now
+            //if we're calling get play back context - leave it as it is if asset id is the same; if it's different, reset to 0.
+            // or maybe we should always leave it as it is?
+
             DevicePlayData devicePlayData = GetDevicePlayData(udid);
             if (devicePlayData != null)
             {
@@ -4149,17 +4156,24 @@ namespace Tvinci.Core.DAL
                 devicePlayData.ProductType = productType;
                 devicePlayData.ProductId = productId;
                 devicePlayData.LinearWatchHistoryThreshold = linearWatchHistoryThreshold;
+                devicePlayData.IsFree = isFree;
             }
             // save firstPlay in cache 
             else if (deviceFamilyId > 0)
             {
                 devicePlayData = new DevicePlayData(udid, assetId, userId, 0, playType, mediaPlayAction, deviceFamilyId, 0, programId, npvrId,
                                                     domainId, mediaConcurrencyRuleIds, assetMediaRuleIds, assetEpgRuleIds, bookmarkEventThreshold,
-                                                    productType, productId, linearWatchHistoryThreshold: linearWatchHistoryThreshold);
+                                                    productType, productId, linearWatchHistoryThreshold: linearWatchHistoryThreshold, isFree);
             }
-
+            
             if (devicePlayData != null)
             {
+                if (overrideCreatedAt)
+                {
+                    devicePlayData.CreatedAt = createdAt;
+                    devicePlayData.TimeStamp = timeStamp;
+                }
+
                 CatalogDAL.UpdateOrInsertDevicePlayData(devicePlayData, false, ttl);
             }
 
@@ -4622,7 +4636,8 @@ namespace Tvinci.Core.DAL
             return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.DOMAIN_CONCURRENCY, key);
         }
 
-        public static List<DevicePlayData> GetDevicePlayDataList(Dictionary<string, int> domainDevices, List<ePlayType> playTypes, int ttl, string udid)
+        public static List<DevicePlayData> GetDevicePlayDataList(Dictionary<string, int> domainDevices, List<ePlayType> playTypes, int ttl, string udid, 
+            bool shouldExcludeFreeContent = false)
         {
             if (domainDevices != null && domainDevices.Count > 0)
             {
@@ -4646,10 +4661,13 @@ namespace Tvinci.Core.DAL
 
                     HashSet<string> playActions = new HashSet<string>() { MediaPlayActions.FINISH.ToString().ToUpper(), MediaPlayActions.STOP.ToString().ToUpper() };
 
-                    return devicePlayDataList.Where(x => !x.UDID.Equals(udid) &&
-                                                         Utils.UtcUnixTimestampSecondsToDateTime(x.TimeStamp).AddMilliseconds(ttl) > DateTime.UtcNow &&
-                                                         (playTypesString.Count == 0 || playTypesString.Contains(x.playType)) &&
-                                                         !playActions.Contains(x.AssetAction.ToUpper())).ToList();
+                    return devicePlayDataList.Where(x =>
+                        !x.UDID.Equals(udid) &&
+                        Utils.UtcUnixTimestampSecondsToDateTime(x.TimeStamp).AddMilliseconds(ttl) > DateTime.UtcNow &&
+                        (playTypesString.Count == 0 || playTypesString.Contains(x.playType)) &&
+                        !playActions.Contains(x.AssetAction.ToUpper()) &&
+                        (!shouldExcludeFreeContent || !x.IsFree.HasValue || (x.IsFree.HasValue && !x.IsFree.Value))
+                        ).ToList();
                 }
 
                 return devicePlayDataList;

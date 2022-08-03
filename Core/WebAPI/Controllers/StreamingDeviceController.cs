@@ -2,6 +2,7 @@
 using Phx.Lib.Log;
 using System;
 using System.Reflection;
+using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
@@ -56,6 +57,37 @@ namespace WebAPI.Controllers
             }
 
             return response;
+        }
+
+        /// <summary>
+        /// Reserves a concurrency slot for the given asset-device combination
+        /// </summary>
+        /// <param name="assetId">KalturaAsset.id - asset for which a concurrency slot is being reserved</param>
+        /// <param name="fileId">KalturaMediaFile.id media file belonging to the asset for which a concurrency slot is being reserved</param>
+        /// <param name="assetType">Identifies the type of asset for which the concurrency slot is being reserved</param>
+        /// <returns>true if Playback Service successfully reserved a concurrency slot. false otherwise.</returns>
+        [Action("bookPlaybackSession")]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.ConcurrencyLimitation)]
+        static public bool BookPlaybackSession(string fileId, string assetId, KalturaAssetType assetType)
+        {
+            bool result = false;
+            
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                string udid = KSUtils.ExtractKSPayload().UDID;
+                var userId = KS.GetFromRequest().UserId;
+
+                result = ClientsManager.ConditionalAccessClient().BookPlaybackSession(groupId, userId, udid, assetId, fileId, assetType);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return result;
         }
     }
 }

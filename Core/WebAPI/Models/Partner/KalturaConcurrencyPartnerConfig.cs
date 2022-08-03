@@ -47,6 +47,14 @@ namespace WebAPI.Models.Partner
         [XmlElement(ElementName = "revokeOnDeviceDelete")]
         public bool? RevokeOnDeviceDelete { get; set; }
 
+        /// <summary>
+        /// If set to true then for all concurrency checks in all APIs, system shall exclude free content from counting towards the use of a concurrency slot
+        /// </summary>
+        [DataMember(Name = "excludeFreeContentFromConcurrency")]
+        [JsonProperty("excludeFreeContentFromConcurrency")]
+        [XmlElement(ElementName = "excludeFreeContentFromConcurrency")]
+        public bool? ExcludeFreeContentFromConcurrency { get; set; }
+
         internal HashSet<int> GetDeviceFamilyIds()
         {
             HashSet<int> values = null;

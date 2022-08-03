@@ -89,9 +89,12 @@ namespace Core.Users
                 // Get all domain media marks
                 var domainDevices = Api.api.Instance.GetDomainDevices(devicePlayData.DomainId, groupId);
                 List<DevicePlayData> devicePlayDataList = 
-                    CatalogDAL.GetDevicePlayDataList(domainDevices, 
-                                                     new List<ePlayType>() { ePlayType.ALL },
-                                                     GetConcurrencyMillisecThreshold(groupId), devicePlayData.UDID);
+                    CatalogDAL.GetDevicePlayDataList(
+                        domainDevices, 
+                        new List<ePlayType>() { ePlayType.ALL },
+                        GetConcurrencyMillisecThreshold(groupId), 
+                        devicePlayData.UDID,
+                        Api.api.GetShouldExcludeFreeContentFromConcurrency(groupId));
 
                 if (devicePlayDataList == null || devicePlayDataList.Count == 0)
                 {
@@ -196,9 +199,11 @@ namespace Core.Users
             try
             {
                 List<ePlayType> playTypes = new List<ePlayType>() { ePlayType.ALL };
-                
                 List<DevicePlayData> devicePlayDataList =
-                    CatalogDAL.GetDevicePlayDataList(Api.api.Instance.GetDomainDevices(devicePlayData.DomainId, groupId), playTypes, GetConcurrencyMillisecThreshold(groupId), devicePlayData.UDID);
+                    CatalogDAL.GetDevicePlayDataList(Api.api.Instance.GetDomainDevices(
+                        devicePlayData.DomainId, groupId), playTypes, 
+                        GetConcurrencyMillisecThreshold(groupId), devicePlayData.UDID,
+                        Api.api.GetShouldExcludeFreeContentFromConcurrency(groupId));
 
                 if (devicePlayDataList == null || devicePlayDataList.Count == 0)
                 {

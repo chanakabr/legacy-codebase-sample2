@@ -92,7 +92,7 @@ namespace Core.Catalog.Request
                     uint expirationTTL = ConcurrencyManager.GetDevicePlayDataExpirationTTL(groupId, ttl);
 
                     currDevicePlayData = CatalogDAL.InsertDevicePlayDataToCB(userId, this.m_sUDID, domainId, mediaConcurrencyRuleIds, assetMediaRulesIds, assetEpgRulesIds,
-                        mediaId, this.ProgramId, deviceFamilyId, playType, recordingId, expirationTTL, action);
+                        mediaId, this.ProgramId, deviceFamilyId, playType, recordingId, expirationTTL, 0, 0, false, null, action);
                 }
 
                 // update NpvrId

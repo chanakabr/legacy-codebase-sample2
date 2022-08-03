@@ -1899,11 +1899,16 @@ namespace Core.Users
         {
             MapUdidToDeviceFamilyId(udid, deviceFamilyId);
             concurrentDeviceFamilyIdCount = 0;
+
+            bool shouldExcludeFreeContentFromConcurrency = 
+                api.GetShouldExcludeFreeContentFromConcurrency(this.m_nGroupID);
+
             List<DevicePlayData> streamingDevicePlayData = new List<DevicePlayData>();
             List<DevicePlayData> devicePlayDataList =
                 CatalogDAL.GetDevicePlayDataList(Api.api.Instance.GetDomainDevices(this.m_nDomainID, this.m_nGroupID),
                     new List<ePlayType>() {ePlayType.NPVR, ePlayType.MEDIA, ePlayType.EPG},
-                    ConcurrencyManager.GetConcurrencyMillisecThreshold(this.m_nGroupID), udid);
+                    ConcurrencyManager.GetConcurrencyMillisecThreshold(this.m_nGroupID), udid, 
+                    shouldExcludeFreeContentFromConcurrency);
 
             if (devicePlayDataList != null)
             {
@@ -2572,7 +2577,8 @@ namespace Core.Users
                     List<DevicePlayData> devicePlayDataList =
                         CatalogDAL.GetDevicePlayDataList(Api.api.Instance.GetDomainDevices((int) domainId, this.m_nGroupID),
                             new List<ePlayType>() {ePlayType.ALL},
-                            concurrencyMillisecThreshold, udid);
+                            concurrencyMillisecThreshold, udid,
+                            api.GetShouldExcludeFreeContentFromConcurrency(this.m_nGroupID));
 
                     if (devicePlayDataList != null)
                     {

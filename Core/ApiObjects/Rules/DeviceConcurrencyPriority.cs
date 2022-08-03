@@ -19,6 +19,9 @@ namespace ApiObjects.Rules
         [JsonProperty("RevokeOnDeviceDelete")]
         public bool? RevokeOnDeviceDelete { get; set; }
 
+        [JsonProperty("ExcludeFreeContentFromConcurrency")]
+        public bool? ExcludeFreeContentFromConcurrency { get; set; }
+
         public bool SetUnchangedProperties(DeviceConcurrencyPriority oldConfig)
         {
             var needToUpdate = false;
@@ -48,6 +51,15 @@ namespace ApiObjects.Rules
             else
             {
                 this.PriorityOrder = oldConfig.PriorityOrder;
+            }
+
+            if (this.ExcludeFreeContentFromConcurrency.HasValue)
+            {
+                needToUpdate = true;
+            }
+            else
+            {
+                this.ExcludeFreeContentFromConcurrency = oldConfig.ExcludeFreeContentFromConcurrency;
             }
 
             return needToUpdate;

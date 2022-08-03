@@ -2101,6 +2101,8 @@ namespace WebAPI.Reflection
                             return "deviceFamilyIds";
                         case "EvictionPolicy":
                             return "evictionPolicy";
+                        case "ExcludeFreeContentFromConcurrency":
+                            return "excludeFreeContentFromConcurrency";
                         case "RevokeOnDeviceDelete":
                             return "revokeOnDeviceDelete";
                     }
@@ -12989,6 +12991,10 @@ namespace WebAPI.Reflection
                 case "streamingdevice":
                     switch(action)
                     {
+                        case "bookplaybacksession":
+                            RolesManager.ValidateActionPermitted("streamingDevice", "bookPlaybackSession", WebAPI.Managers.eKSValidation.All);
+                            return StreamingDeviceController.BookPlaybackSession((string) methodParams[0], (string) methodParams[1], (KalturaAssetType) methodParams[2]);
+                            
                         case "list":
                             RolesManager.ValidateActionPermitted("streamingDevice", "list", WebAPI.Managers.eKSValidation.All);
                             return StreamingDeviceController.List((KalturaStreamingDeviceFilter) methodParams[0]);
@@ -22672,6 +22678,22 @@ namespace WebAPI.Reflection
                 case "streamingdevice":
                     switch(action)
                     {
+                        case "bookplaybacksession":
+                            ret.Add("fileId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
+                            });
+                            ret.Add("assetId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
+                            });
+                            ret.Add("assetType", new MethodParam(){
+                                NewName = newParamName,
+                                IsEnum = true,
+                                Type = typeof(KalturaAssetType),
+                            });
+                            return ret;
+                            
                         case "list":
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,

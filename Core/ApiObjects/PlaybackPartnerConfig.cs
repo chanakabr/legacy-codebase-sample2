@@ -7,6 +7,7 @@
         public bool SetUnchangedProperties(PlaybackPartnerConfig oldConfig)
         {
             var needToUpdate = false;
+
             if (this.DefaultAdapters != null)
             {
                 needToUpdate = true;

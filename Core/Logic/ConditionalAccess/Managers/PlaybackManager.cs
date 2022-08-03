@@ -27,6 +27,8 @@ using System.Reflection;
 using ApiLogic;
 using MoreLinq;
 using TVinciShared;
+using ApiObjects.MediaMarks;
+using ApiLogic.Api.Managers;
 
 namespace Core.ConditionalAccess
 {
@@ -255,7 +257,7 @@ namespace Core.ConditionalAccess
                     }
                     else
                     {
-                        prices = cas.GetItemsPrices(files.Select(f => (int)f.Id).ToArray(), userId, string.Empty, true, 
+                        prices = cas.GetItemsPrices(files.Select(f => (int)f.Id).ToArray(), userId, string.Empty, true,
                             string.Empty, string.Empty, ip, null, blockEntitlement, false, true);
 
                         if (prices != null && prices.Length > 0)
@@ -326,7 +328,7 @@ namespace Core.ConditionalAccess
                     if (!hasFilesNotFromPago)
                     {
                         playbackContextOut.PagoProgramAvailability = Utils.GetEntitledPagoWindow(groupId,
-                            (int) domainId,
+                            (int)domainId,
                             int.Parse(assetId), assetType, notPurchasedFiles, program);
                         playbackContextOut.PagoProgramAvailability?.FileIds?.ForEach(x =>
                             assetFileIdsAds.Add(x, defaultAdsData));
@@ -358,7 +360,7 @@ namespace Core.ConditionalAccess
                                 response.Status = Utils.ConcurrencyResponseToResponseStatus(concurrencyResponse.Status);
                                 return response;
                             }
-                            
+
                             domainId = concurrencyResponse.Data.DomainId;
                             //if there's no file from other business module and still
                             //we got here, it means we got entitlement from pago
@@ -393,7 +395,7 @@ namespace Core.ConditionalAccess
                         {
                             if (response.ConcurrencyData != null)
                             {
-                                file.BusinessModuleDetails = new BusinessModuleDetails 
+                                file.BusinessModuleDetails = new BusinessModuleDetails
                                 {
                                     BusinessModuleId = response.ConcurrencyData.ProductId,
                                     BusinessModuleType = response.ConcurrencyData.ProductType
@@ -423,7 +425,7 @@ namespace Core.ConditionalAccess
                                     {
                                         file.DirectUrl = urlAdapterResponse.urlAdapterResponse.Url;
                                     }
-                                    
+
                                     if (urlAdapterResponse.altUrlAdapterResponse != null)
                                     {
                                         file.AltDirectUrl = urlAdapterResponse.altUrlAdapterResponse.Url;
@@ -481,6 +483,207 @@ namespace Core.ConditionalAccess
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
             return response;
+        }
+
+        public static BookPlaybackSessionResponse BookPlaybackSession(BaseConditionalAccess cas, int groupId,
+            string userId, string udid, string ip,
+            string assetIdString, string mediaFileIdString, eAssetTypes assetType)
+        {
+            BookPlaybackSessionResponse response = new BookPlaybackSessionResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
+            };
+
+            try
+            {
+                long domainId = 0;
+                var validationStatus = Utils.ValidateUserAndDomain(groupId, userId, ref domainId);
+
+                if (validationStatus == null)
+                {
+                    response.Status = new ApiObjects.Response.Status(
+                        (int)eResponseStatus.Error, "Error validating user and domain");
+                    return response;
+                }
+                else if (validationStatus.Code != (int)eResponseStatus.OK)
+                {
+                    response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
+                    return response;
+                }
+
+                if (!int.TryParse(mediaFileIdString, out var mediaFileId))
+                {
+                    response.Status = new ApiObjects.Response.Status(
+                        (int)eResponseStatus.InvalidParameters, "Media file Id cannot be parsed");
+                    return response;
+                }
+
+                if (!long.TryParse(assetIdString, out var assetId))
+                {
+                    response.Status = new ApiObjects.Response.Status(
+                        (int)eResponseStatus.InvalidParameters, "Asset Id cannot be parsed");
+                    return response;
+                }
+
+                bool isFree = IsMediaFileFree(groupId, mediaFileId, udid, ip);
+
+                ePlayType playType = ePlayType.UNKNOWN;
+                long programId = 0;
+                string npvrId = string.Empty;
+                long mediaId = 0;
+
+                if (assetType != eAssetTypes.MEDIA)
+                {
+                    Utils.ValidateDomain(groupId, (int)domainId, out Domain domain);
+                    response.Status = Utils.GetMediaIdForAsset(groupId, assetIdString, assetType, 
+                        userId, domain, udid, out mediaId, out var recording, out _);
+
+                    if (assetType == eAssetTypes.NPVR)
+                    {
+                        playType = ePlayType.NPVR;
+                        programId = recording != null ? recording.EpgId : -1;
+                        npvrId = assetIdString;
+                    }
+                    else
+                    {
+                        programId = assetId;
+                        playType = ePlayType.EPG;
+                    }
+                }
+                else
+                {
+                    mediaId = assetId;
+                    playType = ePlayType.MEDIA;
+                }
+
+                if (!Utils.ValidateMediaFileForAsset(groupId, mediaId, assetType, mediaFileId))
+                {
+                    log.DebugFormat($"Invalid file/asset combination: assetId = {assetId}, fileId = {mediaFileIdString}, assetType = {assetType}");
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NoFilesFound, "No files found");
+                    return response;
+                }
+
+                // check if concurrency is validated + prepare device play data document
+                var concurrencyResponse = CheckConcurrencyForBooking(
+                    groupId, udid, userId, (int)mediaId, (int)domainId,
+                    programId, playType, isFree, npvrId);
+
+                if (concurrencyResponse.Status != DomainResponseStatus.OK)
+                {
+                    response.Status = Utils.ConcurrencyResponseToResponseStatus(concurrencyResponse.Status);
+                    return response;
+                }
+
+                if (concurrencyResponse.Data != null)
+                {
+                    cas.InsertDevicePlayData(concurrencyResponse.Data, ApiObjects.Catalog.eExpirationTTL.Long, true);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed to BookPlaybackSession for userId = {userId}, " +
+                    $"mediaFileId = {mediaFileIdString}, assetType = {assetType}, exception: {ex}.", ex);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+            return response;
+        }
+
+        /// <summary>
+        ///  verifies if a specific media file has any module assigned to it or not
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="mediaFileId"></param>
+        /// <param name="udid"></param>
+        /// <param name="ip"></param>
+        /// <returns></returns>
+        public static bool IsMediaFileFree(int groupId, int mediaFileId, string udid, string ip)
+        {
+            bool isFree = false;
+            string countryCode = !string.IsNullOrEmpty(ip) ? APILogic.Utils.GetIP2CountryCode(groupId, ip) : string.Empty;
+            MediaFilePPVContainer[] modules = Pricing.Module.GetPPVModuleListForMediaFilesWithExpiry(
+                groupId, new int[] { mediaFileId }, countryCode, string.Empty, udid);
+
+            // if we successfully got the modules CONTAINERS for this file - but there is no module assigned to this file, it's free
+            if (modules != null && modules.Length > 0 && 
+                (modules[0].m_oPPVModules == null || modules[0].m_oPPVModules.Length == 0))
+            {
+                isFree = true;
+            }
+
+            return isFree;
+        }
+
+        public static ConcurrencyResponse CheckConcurrencyForBooking(int groupId, 
+            string udid, string userIdString, int assetId, int domainId, long programId, 
+            ePlayType playType, bool isFree, string npvrId = "")
+        {
+            ConcurrencyResponse concurrencyResponse = new ConcurrencyResponse();
+
+            concurrencyResponse.Data = new DevicePlayData()
+            {
+                UDID = udid,
+                AssetId = assetId,
+                DomainId = domainId,
+                ProgramId = programId,
+                playType = playType.ToString(),
+                NpvrId = npvrId,
+                IsFree = isFree,
+                // the Playback Service shall set the Timestamp and CreatedAt fields 
+                // of the DevicePlay document to the current system time
+                TimeStamp = DateUtils.GetUtcUnixTimestampNow(),
+                CreatedAt = DateUtils.GetUtcUnixTimestampNow(),
+            };
+
+            if (Utils.IsAnonymousUser(userIdString))
+            {
+                return concurrencyResponse;
+            }
+
+            int.TryParse(userIdString, out var userId);
+            concurrencyResponse.Data.UserId = userId;
+
+            #region Validate domain
+            DomainResponse domainResponse = null;
+
+            if (domainId == 0)
+            {
+                domainResponse = Core.Domains.Module.GetDomainByUser(groupId, userIdString);
+            }
+            else
+            {
+                domainResponse = Core.Domains.Module.GetDomainInfo(groupId, domainId);
+            }
+
+            if (domainResponse != null && domainResponse.Domain != null)
+            {
+                domainId = domainResponse.Domain.m_nDomainID;
+            }
+
+            concurrencyResponse.Data.DomainId = domainId;
+            #endregion
+
+            // Get AssetRules
+            concurrencyResponse.Data.AssetMediaConcurrencyRuleIds = Utils.GetAssetMediaRuleIds(groupId, assetId);
+            concurrencyResponse.Data.AssetEpgConcurrencyRuleIds = Utils.GetAssetEpgRuleIds(groupId, assetId, ref programId);
+            concurrencyResponse.Data.ProgramId = programId;
+
+            bool shouldExcludeFreeContent = Api.api.GetShouldExcludeFreeContentFromConcurrency(groupId);
+
+            // if the media file is free and we're excluding free content from concurrency limitations - don't check it
+            if (!isFree || !shouldExcludeFreeContent)
+            {
+                // validate Concurrency for domain
+                var validationResponse = Domains.Module.ValidateLimitationModule(
+                    groupId, 0, ValidationType.Concurrency, concurrencyResponse.Data);
+
+                if (validationResponse != null)
+                {
+                    log.DebugFormat("ValidateLimitationModule result: {0}", validationResponse.m_eStatus);
+                    concurrencyResponse.Status = validationResponse.m_eStatus;
+                }
+            }
+
+            return concurrencyResponse;
         }
 
         private static (PlayManifestResponse urlAdapterResponse, PlayManifestResponse altUrlAdapterResponse) RetrievePlayManifestAdapterResponses(
@@ -570,7 +773,7 @@ namespace Core.ConditionalAccess
 
             if (devicePlayData != null)
             {
-                cas.InsertDevicePlayData(devicePlayData, fileId, ip, ApiObjects.Catalog.eExpirationTTL.Long);
+                cas.InsertDevicePlayData(devicePlayData, ApiObjects.Catalog.eExpirationTTL.Long, false);
             }
 
             log.Debug("PlaybackManager.GetPlaybackContext - exec PlayUsesManager.HandlePlayUses and cas.InsertDevicePlayData methods");

@@ -11112,6 +11112,19 @@ namespace Core.Api
             return response;
         }
 
+        public static bool GetShouldExcludeFreeContentFromConcurrency(int groupId)
+        {
+            bool excludeFreeContent = false;
+            var deviceConcurrencyPriority = GetDeviceConcurrencyPriority(groupId);
+
+            if (deviceConcurrencyPriority != null && deviceConcurrencyPriority.ExcludeFreeContentFromConcurrency.HasValue)
+            {
+                excludeFreeContent = deviceConcurrencyPriority.ExcludeFreeContentFromConcurrency.Value;
+            }
+
+            return excludeFreeContent;
+        }
+
         private static Tuple<DeviceConcurrencyPriority, bool> GetDeviceConcurrencyPriorityCB(Dictionary<string, object> funcParams)
         {
             DeviceConcurrencyPriority deviceConcurrencyPriority = null;

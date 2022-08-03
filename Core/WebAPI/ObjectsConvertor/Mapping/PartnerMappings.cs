@@ -29,7 +29,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.DeviceFamilyIds, opt => opt.MapFrom(src => src.GetDeviceFamilyIds()))
                 .ForMember(dest => dest.EvictionPolicy, opt => opt.ResolveUsing(src => ConvertDowngradePolicyToEvictionPolicy(src.PriorityOrder)))
                 .ForMember(dest => dest.ConcurrencyThresholdInSeconds, opt => opt.MapFrom(src => src.ConcurrencyThresholdInSeconds))
-                .ForMember(dest => dest.RevokeOnDeviceDelete, opt => opt.MapFrom(src => src.RevokeOnDeviceDelete));
+                .ForMember(dest => dest.RevokeOnDeviceDelete, opt => opt.MapFrom(src => src.RevokeOnDeviceDelete))
+                .ForMember(dest => dest.ExcludeFreeContentFromConcurrency, opt => opt.MapFrom(src => src.ExcludeFreeContentFromConcurrency))
+                ;
 
             // map KalturaConcurrencyPartnerConfig to DeviceConcurrencyPriority
             cfg.CreateMap<KalturaConcurrencyPartnerConfig, DeviceConcurrencyPriority>()
@@ -37,8 +39,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .AfterMap((src, dest) => dest.DeviceFamilyIds = src.DeviceFamilyIds != null ? dest.DeviceFamilyIds : null)
                 .ForMember(dest => dest.PriorityOrder, opt => opt.ResolveUsing(src => ConvertEvictionPolicyToDowngradePolicy(src.EvictionPolicy)))
                 .ForMember(dest => dest.ConcurrencyThresholdInSeconds, opt => opt.MapFrom(src => src.ConcurrencyThresholdInSeconds))
-                .ForMember(dest => dest.RevokeOnDeviceDelete, opt => opt.MapFrom(src => src.RevokeOnDeviceDelete));
-
+                .ForMember(dest => dest.RevokeOnDeviceDelete, opt => opt.MapFrom(src => src.RevokeOnDeviceDelete))
+                .ForMember(dest => dest.ExcludeFreeContentFromConcurrency, opt => opt.MapFrom(src => src.ExcludeFreeContentFromConcurrency))
+                ;
             cfg.CreateMap<CustomFieldsPartnerConfig, KalturaCustomFieldsPartnerConfiguration>()
                 .ForMember(dest => dest.MetaSystemNameInsteadOfAliasList, opt => opt.MapFrom(src => src.ClientTagsToIgnoreMetaAlias != null ?
                     string.Join(",", src.ClientTagsToIgnoreMetaAlias) : string.Empty))
@@ -238,10 +241,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Threshold, opt => opt.MapFrom(src => src.Value));
 
             cfg.CreateMap<KalturaPlaybackPartnerConfig, PlaybackPartnerConfig>()
-               .ForMember(dest => dest.DefaultAdapters, opt => opt.MapFrom(src => src.DefaultAdapters));
+               .ForMember(dest => dest.DefaultAdapters, opt => opt.MapFrom(src => src.DefaultAdapters))
+               ;
 
             cfg.CreateMap<PlaybackPartnerConfig, KalturaPlaybackPartnerConfig>()
-               .ForMember(dest => dest.DefaultAdapters, opt => opt.MapFrom(src => src.DefaultAdapters));
+               .ForMember(dest => dest.DefaultAdapters, opt => opt.MapFrom(src => src.DefaultAdapters))
+               ;
 
 
             cfg.CreateMap<KalturaEncryptionType, EncryptionType>().ConvertUsing(value =>

@@ -2764,9 +2764,29 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             var sa = new KalturaSlimAsset { Id = devicePlayData.AssetId.ToString() };
 
-            if (Enum.TryParse<KalturaAssetType>(devicePlayData.playType, out KalturaAssetType _type))
-                sa.Type = _type;
 
+            if (Enum.TryParse<KalturaAssetType>(devicePlayData.playType, true, out KalturaAssetType _type))
+            {
+                sa.Type = _type;
+            }
+            else
+            {
+                switch (devicePlayData.playType?.ToLower())
+                {
+                    case "npvr":
+                    {
+                        sa.Type = KalturaAssetType.recording;
+                        break;
+                    }
+                    case "program":
+                    {
+                        sa.Type = KalturaAssetType.epg;
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
             return sa;
         }
 

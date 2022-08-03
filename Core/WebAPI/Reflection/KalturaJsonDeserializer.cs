@@ -36532,6 +36532,10 @@ namespace WebAPI.Models.Partner
                 {
                     RevokeOnDeviceDelete = (Boolean) Convert.ChangeType(parameters["revokeOnDeviceDelete"], typeof(Boolean));
                 }
+                if (parameters.ContainsKey("excludeFreeContentFromConcurrency") && parameters["excludeFreeContentFromConcurrency"] != null)
+                {
+                    ExcludeFreeContentFromConcurrency = (Boolean) Convert.ChangeType(parameters["excludeFreeContentFromConcurrency"], typeof(Boolean));
+                }
             }
         }
     }

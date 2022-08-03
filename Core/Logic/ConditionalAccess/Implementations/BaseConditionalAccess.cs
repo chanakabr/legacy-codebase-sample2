@@ -11322,7 +11322,7 @@ namespace Core.ConditionalAccess
                     if (eLinkType == eObjectType.EPG || eLinkType == eObjectType.Recording)
                     {
                         // create PlayCycle
-                        InsertDevicePlayData(concurrencyResponse.Data, mediaFileId, ip, eExpirationTTL.Long);
+                        InsertDevicePlayData(concurrencyResponse.Data, eExpirationTTL.Long);
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                         return response;
                     }
@@ -11390,7 +11390,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // create PlayCycle
-                    InsertDevicePlayData(concurrencyResponse.Data, mediaFileId, ip, eExpirationTTL.Long);
+                    InsertDevicePlayData(concurrencyResponse.Data, eExpirationTTL.Long);
                 }
 
             }
@@ -11427,7 +11427,7 @@ namespace Core.ConditionalAccess
         /// <param name="mediaFileID"></param>
         /// <param name="userIp"></param>
         /// <param name="ttl"></param>
-        public void InsertDevicePlayData(DevicePlayData devicePlayDataToInsert, Int32 mediaFileID, string userIp, eExpirationTTL ttl)
+        public void InsertDevicePlayData(DevicePlayData devicePlayDataToInsert, eExpirationTTL ttl, bool shouldOverrideCreatedAt = false)
         {
             // create PlayCycle
             string playCycleKey;
@@ -11438,12 +11438,14 @@ namespace Core.ConditionalAccess
                 // get partner configuration for ttl.
                 uint expirationTTL = ConcurrencyManager.GetDevicePlayDataExpirationTTL(this.m_nGroupID, ttl);
 
-                devicePlayDataToInsert = CatalogDAL.InsertDevicePlayDataToCB(devicePlayDataToInsert.UserId, devicePlayDataToInsert.UDID, devicePlayDataToInsert.DomainId,
-                                                                             devicePlayDataToInsert.MediaConcurrencyRuleIds, devicePlayDataToInsert.AssetMediaConcurrencyRuleIds,
-                                                                             devicePlayDataToInsert.AssetEpgConcurrencyRuleIds, devicePlayDataToInsert.AssetId,
-                                                                             devicePlayDataToInsert.ProgramId, deviceFamilyId, devicePlayDataToInsert.GetPlayType(),
-                                                                             devicePlayDataToInsert.NpvrId, expirationTTL, MediaPlayActions.NONE, devicePlayDataToInsert.BookmarkEventThreshold,
-                                                                             devicePlayDataToInsert.ProductType, devicePlayDataToInsert.ProductId, devicePlayDataToInsert.LinearWatchHistoryThreshold);
+                devicePlayDataToInsert = CatalogDAL.InsertDevicePlayDataToCB(devicePlayDataToInsert.UserId, devicePlayDataToInsert.UDID,
+                    devicePlayDataToInsert.DomainId, devicePlayDataToInsert.MediaConcurrencyRuleIds, 
+                    devicePlayDataToInsert.AssetMediaConcurrencyRuleIds, devicePlayDataToInsert.AssetEpgConcurrencyRuleIds, 
+                    devicePlayDataToInsert.AssetId, devicePlayDataToInsert.ProgramId, deviceFamilyId, 
+                    devicePlayDataToInsert.GetPlayType(), devicePlayDataToInsert.NpvrId, expirationTTL, 
+                    devicePlayDataToInsert.TimeStamp, devicePlayDataToInsert.CreatedAt, shouldOverrideCreatedAt, devicePlayDataToInsert.IsFree,
+                    MediaPlayActions.NONE, devicePlayDataToInsert.BookmarkEventThreshold,
+                    devicePlayDataToInsert.ProductType, devicePlayDataToInsert.ProductId, devicePlayDataToInsert.LinearWatchHistoryThreshold);
             }
 
             if (devicePlayDataToInsert != null && !string.IsNullOrEmpty(devicePlayDataToInsert.PlayCycleKey))
@@ -11468,7 +11470,8 @@ namespace Core.ConditionalAccess
                     DomainId = domainId,
                     ProgramId = programId,
                     playType = playType.ToString(),
-                    NpvrId = npvrId
+                    NpvrId = npvrId,
+                    IsFree = false,
                 }
             };
 
@@ -11488,6 +11491,7 @@ namespace Core.ConditionalAccess
                 int businessModuleId = 0;
                 bool success = false;
                 var businessModule = eBusinessModule.PPV;
+                bool isFree = false;
 
                 // Get AssetRules
                 response.Data.AssetMediaConcurrencyRuleIds = Utils.GetAssetMediaRuleIds(this.m_nGroupID, mediaId);
@@ -11518,7 +11522,12 @@ namespace Core.ConditionalAccess
                             transactionType = eTransactionType.Collection;
                             int.TryParse(currPrice.m_relevantCol.m_CollectionCode, out businessModuleId);
                         }
-
+                        else if (currPrice.m_PriceReason == PriceReason.Free)
+                        {
+                            isFree = true;
+                            response.Data.IsFree = true; 
+                        }
+                        
                         if (transactionType.HasValue && businessModuleId > 0)
                         {
                             response.Data.ProductType = transactionType.Value;
@@ -11579,15 +11588,20 @@ namespace Core.ConditionalAccess
                 var generalPartnerConfig = GeneralPartnerConfigManager.Instance.GetGeneralPartnerConfig(m_nGroupID);
                 response.Data.LinearWatchHistoryThreshold = generalPartnerConfig?.LinearWatchHistoryThreshold;
 
-                // validate Concurrency for domain
-                validationResponse = Domains.Module.ValidateLimitationModule(this.m_nGroupID, 0, Users.ValidationType.Concurrency, response.Data);
+                bool shouldExcludeFreeContent = api.GetShouldExcludeFreeContentFromConcurrency(this.m_nGroupID);
 
-                // get domainID from response
-                if (validationResponse != null)
+                if (!isFree || shouldExcludeFreeContent)
                 {
-                    log.DebugFormat("ValidateLimitationModule result:{0}", validationResponse.m_eStatus);
-                    response.Status = validationResponse.m_eStatus;
-                    domainId = (int)validationResponse.m_lDomainID;
+                    // validate Concurrency for domain
+                    validationResponse = Domains.Module.ValidateLimitationModule(this.m_nGroupID, 0, Users.ValidationType.Concurrency, response.Data);
+
+                    // get domainID from response
+                    if (validationResponse != null)
+                    {
+                        log.DebugFormat("ValidateLimitationModule result:{0}", validationResponse.m_eStatus);
+                        response.Status = validationResponse.m_eStatus;
+                        domainId = (int)validationResponse.m_lDomainID;
+                    }
                 }
             }
             catch (Exception ex)
@@ -18191,6 +18205,12 @@ namespace Core.ConditionalAccess
                 return PlaybackManager.GetPlaybackContext(this, m_nGroupID, userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid,
                                                           out _, urlType, sourceType, adapterData);
             }
+        }
+
+        public BookPlaybackSessionResponse BookPlaybackSession(int groupId, string userId, string udid, string ip,
+            string assetId, string mediaFileId, eAssetTypes assetType)
+        {
+            return PlaybackManager.BookPlaybackSession(this, m_nGroupID, userId, udid, ip, assetId, mediaFileId, assetType);
         }
 
         public PlayContextType? FilterNotAllowedServices(long domainId, PlayContextType context)

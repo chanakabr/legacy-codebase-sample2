@@ -64,6 +64,6 @@ namespace WebAPI.Models.Partner
         [JsonProperty("recordingAdapterId")]
         [XmlElement(ElementName = "recordingAdapterId")]
         [SchemeProperty(MinInteger = 1)]
-        public long RecordingAdapterId { get; set; }       
+        public long RecordingAdapterId { get; set; }
     }
 }

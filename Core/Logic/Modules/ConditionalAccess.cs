@@ -2944,6 +2944,23 @@ namespace Core.ConditionalAccess
             return response;
         }
 
+        public static BookPlaybackSessionResponse BookPlaybackSession(int groupId, string userId, 
+            string udid, string ip, string assetId, string mediaFileId, eAssetTypes assetType)
+        {
+            BookPlaybackSessionResponse response = new BookPlaybackSessionResponse();
+            ConditionalAccess.BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupId);
+            if (t != null)
+            {
+                response = t.BookPlaybackSession(groupId, userId, udid, ip, assetId, mediaFileId, assetType);
+            }
+            else
+            {
+                response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+            return response;
+        }
+
         public static Status SwapSubscription(int groupID, string userId, int oldSubscription, int newSubscription, string ip, string udid, bool history)
         {
             Status response = new Status();

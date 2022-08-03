@@ -2041,6 +2041,42 @@ namespace WebAPI.Clients
             return kalturaPlaybackContext;
         }
 
+        internal bool BookPlaybackSession(int groupId, string userId, string udid, string assetId, string mediaFileId, KalturaAssetType kalturaAssetType)
+        {
+            bool result = false;
+
+            var assetType = AutoMapper.Mapper.Map<eAssetTypes>(kalturaAssetType);
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    var response = Core.ConditionalAccess.Module.BookPlaybackSession(
+                        groupId, userId, udid, Utils.Utils.GetClientIP(), assetId, mediaFileId, assetType);
+
+                    if (response == null || response.Status == null)
+                    {
+                        // general exception
+                        throw new ClientException(StatusCode.Error);
+                    }
+                    else if (!response.Status.IsOkStatusCode())
+                    {
+                        throw new ClientException(response.Status);
+                    }
+                    else
+                    {
+                        result = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            return result;
+        }
+
         internal string GetPlayManifest(int groupId, string userId, string assetId, KalturaAssetType kalturaAssetType, long assetFileId, string udid, KalturaPlaybackContextType contextType, bool isTokenizedUrl, bool isAltUrl)
         {
             PlayManifestResponse response = null;

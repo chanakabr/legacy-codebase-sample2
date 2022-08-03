@@ -72,6 +72,9 @@ namespace ApiObjects.MediaMarks
         [JsonProperty("linearWatchHistoryThreshold")]
         public int? LinearWatchHistoryThreshold { get; set; }
 
+        [JsonProperty("isFree")]
+        public bool? IsFree { get; set; }
+
         public DevicePlayData()
         {
             // default values to members from joker version
@@ -81,7 +84,9 @@ namespace ApiObjects.MediaMarks
         
         public DevicePlayData(string udid, int assetID, int userId, long timeStamp, ePlayType playType, MediaPlayActions action, 
                               int deviceFamilyId, long createdAt, long programId, string npvrId, int domainId, List<int> mediaConcurrencyRuleIds = null,
-                              List<long> assetMediaConcurrencyRuleIds = null, List<long> assetEpgConcurrencyRuleIds = null, int? bookmarkEventThreshold = null, eTransactionType? productType = null, int? productId = null, int? linearWatchHistoryThreshold = null)
+                              List<long> assetMediaConcurrencyRuleIds = null, List<long> assetEpgConcurrencyRuleIds = null, 
+                              int? bookmarkEventThreshold = null, eTransactionType? productType = null, int? productId = null, int? linearWatchHistoryThreshold = null,
+                              bool? isFree = null)
         {
             this.UDID = udid;
             this.AssetId = assetID;
@@ -101,7 +106,8 @@ namespace ApiObjects.MediaMarks
             this.BookmarkEventThreshold = bookmarkEventThreshold;
             this.ProductType = productType;
             this.ProductId = productId;
-            LinearWatchHistoryThreshold = linearWatchHistoryThreshold;
+            this.LinearWatchHistoryThreshold = linearWatchHistoryThreshold;
+            this.IsFree = isFree;
         }
 
         public DevicePlayData(DevicePlayData other)
@@ -125,6 +131,7 @@ namespace ApiObjects.MediaMarks
             this.ProductType = other.ProductType;
             this.ProductId = other.ProductId;
             LinearWatchHistoryThreshold = other.LinearWatchHistoryThreshold;
+            this.IsFree = other.IsFree;
         }
 
         public UserMediaMark ConvertToUserMediaMark(int location, int fileDuration, int assetTypeId, eAssetTypes assetType)
