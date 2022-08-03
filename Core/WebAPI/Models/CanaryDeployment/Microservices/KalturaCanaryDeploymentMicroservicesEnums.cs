@@ -7,6 +7,7 @@
         PHOENIX_REST_PROXY = 1,
         //MULTIREQUEST = 2,
         HOUSEHOLD = 3,
+        PLAYBACK = 4,
     }
 
     public enum KalturaCanaryDeploymentMicroservicesRoutingAction
@@ -22,6 +23,7 @@
         ANONYMOUSLOGIN = 8, // ottuser/action/anonymousLogin
         MULTIREQUEST = 9, // ottuser/action/multirequest
         HOUSEHOLD_USER = 10, // ottuser/action/get
+        PLAYBACK = 11, // asset/action/getPlaybackContext => all playback service
     }
 
     public enum KalturaCanaryDeploymentMicroservicesMigrationEvent

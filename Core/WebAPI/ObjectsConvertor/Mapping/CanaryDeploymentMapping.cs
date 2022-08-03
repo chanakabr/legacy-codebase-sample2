@@ -130,6 +130,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaCanaryDeploymentMicroservicesRoutingAction.HOUSEHOLD_USER:
                     res = CanaryDeploymentRoutingAction.HouseholdUser;
                     break;
+                case KalturaCanaryDeploymentMicroservicesRoutingAction.PLAYBACK:
+                    res = CanaryDeploymentRoutingAction.PlaybackController;
+                    break;
                 default:
                     throw new Exception("invalid KalturaCanaryDeploymentRoutingAction type");
             }
@@ -150,6 +153,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 case KalturaCanaryDeploymentMicroservicesRoutingService.HOUSEHOLD:
                     res = MicroservicesCanaryDeploymentRoutingService.HouseholdService;
+                    break;
+                case KalturaCanaryDeploymentMicroservicesRoutingService.PLAYBACK:
+                    res = MicroservicesCanaryDeploymentRoutingService.PlaybackService;
                     break;
                 default:
                     throw new Exception("invalid KalturaCanaryDeploymentRoutingService type");

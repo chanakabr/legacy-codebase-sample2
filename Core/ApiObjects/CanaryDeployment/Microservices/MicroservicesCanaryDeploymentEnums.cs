@@ -21,6 +21,7 @@ namespace ApiObjects.CanaryDeployment.Microservices
                     {AnonymousLogin, PhoenixRestProxy},
                     {MultiRequestController, MultiRequestMicroService},
                     {HouseholdUser, HouseholdService},
+                    {PlaybackController, PlaybackService}
                 };
                 
         public static readonly List<string> AppTokenControllerRouting = new List<string>() { "appToken/action/add", "appToken/action/delete", "appToken/action/get", "appToken/action/startSession" };
@@ -34,6 +35,14 @@ namespace ApiObjects.CanaryDeployment.Microservices
         public static readonly List<string> AnonymousLoginRouting = new List<string>() { "ottuser/action/anonymousLogin" };        
         public static readonly List<string> MultiRequestControllerRouting = new List<string>() { "multirequest","multirequest/action/do" };
         public static readonly List<string> HouseholdUserRouting = new List<string>() { "ottuser/action/get", "ottuser/action/register", "ottuser/action/update", "ottuser/action/upsertDynamicData", "ottuser/action/deleteDynamicData", "ottuser/action/updateDynamicData", "ottuser/action/resetPassword", "ottuser/action/setInitialPassword", "ottuser/action/updatePassword", "ottuser/action/updateLoginData"/*, "ottuser/action/activate", "ottuser/action/resendActivationToken", "ottuser/action/list", "ottuser/action/getEncryptedUserId", "ottuser/action/delete", "ottuser/action/addRole"*/ };
+        public static readonly List<string> PlaybackControllerRouting = new List<string>()
+        {
+            "asset/action/getPlaybackContext", "assetfile/action/playmanifest", "asset/action/getPlaybackManifest", "asset/action/getAdsContext",
+            "playbackProfile/action/add", "playbackProfile/action/delete", "playbackProfile/action/update","playbackProfile/action/list", "playbackProfile/action/generateSharedSecret",
+            "cdnAdapterProfile/action/add","cdnAdapterProfile/action/delete","cdnAdapterProfile/action/update" , "cdnAdapterProfile/action/list","cdnAdapterProfile/action/generateSharedSecret",
+            "cdnPartnerSettings/action/get","cdnPartnerSettings/action/update",
+            "drmProfile/action/add", "drmProfile/action/delete", "drmProfile/action/list"
+        };
     }    
 
     public enum MicroservicesCanaryDeploymentRoutingService
@@ -42,6 +51,7 @@ namespace ApiObjects.CanaryDeployment.Microservices
         PhoenixRestProxy = 1,       
         MultiRequestMicroService = 2,
         HouseholdService = 3,
+        PlaybackService = 4
     }
 
     public enum CanaryDeploymentRoutingAction
@@ -57,6 +67,7 @@ namespace ApiObjects.CanaryDeployment.Microservices
         AnonymousLogin = 8, // ottuser/action/anonymousLogin        
         MultiRequestController = 9, // multirequest/  + multirequest/action/do
         HouseholdUser = 10, // ottuser/action/get
+        PlaybackController = 11 // playback requests
     }
 
     public enum CanaryDeploymentMigrationEvent

@@ -435,6 +435,9 @@ namespace CanaryDeploymentManager
                 case CanaryDeploymentRoutingAction.HouseholdUser:
                     apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.HouseholdUserRouting);
                     break;
+                case CanaryDeploymentRoutingAction.PlaybackController:
+                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.PlaybackControllerRouting);
+                    break;
                 default:
                     break;
             }
@@ -501,6 +504,9 @@ namespace CanaryDeploymentManager
                     res = okStatus;
                     break;
                 case CanaryDeploymentRoutingAction.HouseholdUser:
+                    res = okStatus;
+                    break;
+                case CanaryDeploymentRoutingAction.PlaybackController:
                     res = okStatus;
                     break;
                 default:
