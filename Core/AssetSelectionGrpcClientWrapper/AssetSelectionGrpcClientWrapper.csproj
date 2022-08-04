@@ -15,7 +15,7 @@
     
   <ItemGroup>
     <PackageReference Include="ott.client.asset-selection.grpc" Version="0.1.0" />
-    <PackageReference Include="Phx.Lib.Appconfig" Version="1.4.6" />
+    <PackageReference Include="Phx.Lib.Appconfig" Version="1.4.8" />
   </ItemGroup>
 
   <ItemGroup>
