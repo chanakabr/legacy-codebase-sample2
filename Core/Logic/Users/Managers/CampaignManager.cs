@@ -1,10 +1,11 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Api.Managers;
+using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Notification;
 using ApiObjects.Response;
+using ApiObjects.Rules;
 using CachingProvider.LayeredCache;
 using Core.Catalog.CatalogManagement;
-using Core.Pricing;
 using DAL;
 using EventBus.Abstraction;
 using GroupsCacheManager;
@@ -29,38 +30,42 @@ namespace ApiLogic.Users.Managers
         private static readonly Lazy<CampaignManager> lazy = new Lazy<CampaignManager>(() =>
             new CampaignManager(LayeredCache.Instance,
                                 PricingDAL.Instance,
-                                Core.Pricing.Module.Instance,
                                 ChannelManager.Instance,
                                 EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration(),
                                 CatalogManager.Instance,
-                                GroupsCache.Instance()),
+                                GroupsCache.Instance(),
+                                ConditionValidator.Instance,
+                                PromotionValidator.Instance),
             LazyThreadSafetyMode.PublicationOnly);
 
         private readonly ILayeredCache _layeredCache;
         private readonly ICampaignRepository _repository;
-        private readonly IPricingModule _pricing;
         private readonly IChannelManager _channelManager;
         private readonly IEventBusPublisher _eventBusPublisher;
         private readonly ICatalogManager _catalogManager;
         private readonly IGroupsCache _groupsCache;
+        private readonly IConditionValidator _conditionValidator;
+        private readonly IPromotionValidator _promotionValidator;
 
         public static CampaignManager Instance { get { return lazy.Value; } }
 
         public CampaignManager(ILayeredCache layeredCache,
                                ICampaignRepository repository,
-                               IPricingModule pricing,
                                IChannelManager channelManager,
                                IEventBusPublisher eventBusPublisher,
                                ICatalogManager catalogManager,
-                               IGroupsCache groupsCache)
+                               IGroupsCache groupsCache,
+                               IConditionValidator conditionValidator,
+                               IPromotionValidator promotionValidator)
         {
             _layeredCache = layeredCache;
             _repository = repository;
-            _pricing = pricing;
             _channelManager = channelManager;
             _eventBusPublisher = eventBusPublisher;
             _catalogManager = catalogManager;
             _groupsCache = groupsCache;
+            _conditionValidator = conditionValidator;
+            _promotionValidator = promotionValidator;
         }
 
         public Status Delete(ContextData contextData, long id)
@@ -217,7 +222,7 @@ namespace ApiLogic.Users.Managers
                 response.Objects = response.Objects.Where(x => x.Action == filter.Action.Value).ToList();
             }
 
-            ManageOrderBy(filter, response);
+            response.Objects = filter.ApplyOrderBy(response.Objects);
             ManagePagination(pager, response);
 
             return response;
@@ -237,7 +242,7 @@ namespace ApiLogic.Users.Managers
 
             response.SetStatus(eResponseStatus.OK);
 
-            ManageOrderBy(filter, response);
+            response.Objects = filter.ApplyOrderBy(response.Objects);
             ManagePagination(pager, response);
 
             return response;
@@ -264,19 +269,11 @@ namespace ApiLogic.Users.Managers
                 }
             }
 
-            ManageOrderBy(filter, response);
+            response.Objects = filter.ApplyOrderBy(response.Objects);
 
             response.SetStatus(eResponseStatus.OK);
 
             return response;
-        }
-
-        private void ManageOrderBy<T>(CampaignFilter filter, GenericListResponse<T> response) where T : Campaign
-        {
-            if (filter.OrderBy.HasValue && filter.OrderBy.Value == CampaignOrderBy.StartDateDesc)
-            {
-                response.Objects = response.Objects.OrderByDescending(camp => camp.StartDate).ToList();
-            }
         }
 
         public GenericListResponse<Campaign> SearchCampaigns(ContextData contextData, CampaignSearchFilter filter, CorePager pager = null)
@@ -297,8 +294,11 @@ namespace ApiLogic.Users.Managers
 
             response.SetStatus(eResponseStatus.OK);
 
-            ManageOrderBy(filter, response);
-            ManagePagination(pager, response);
+            if (response.Objects?.Count > 0)
+            {
+                response.Objects = filter.ApplyOrderBy(response.Objects);
+                ManagePagination(pager, response);
+            }
 
             return response;
         }
@@ -360,7 +360,7 @@ namespace ApiLogic.Users.Managers
 
                 if (oldTriggerCampaignResponse.Object.State != CampaignState.INACTIVE)
                 {
-                    response.SetStatus(eResponseStatus.Error, $"Can't update this campaign due to current state: [{oldTriggerCampaignResponse.Object.State}]");
+                    response.SetStatus(eResponseStatus.CampaignUpdateNotAllowed, $"Can't update this campaign due to current state: [{oldTriggerCampaignResponse.Object.State}]");
                     return response;
                 }
 
@@ -418,7 +418,7 @@ namespace ApiLogic.Users.Managers
 
                 if (oldBatchCampaignResponse.Object.State != CampaignState.INACTIVE)
                 {
-                    response.SetStatus(eResponseStatus.Error, $"Can't update this campaign due to current state: [{oldBatchCampaignResponse.Object.State}]");
+                    response.SetStatus(eResponseStatus.CampaignUpdateNotAllowed, $"Can't update this campaign due to current state: [{oldBatchCampaignResponse.Object.State}]");
                     return response;
                 }
 
@@ -460,37 +460,30 @@ namespace ApiLogic.Users.Managers
         {
             var response = Status.Error;
 
-            try
+            var campaign = Get(contextData, id, false);
+
+            if (!campaign.IsOkStatusCode())
             {
-                var campaign = Get(contextData, id, false);
-
-                if (!campaign.IsOkStatusCode())
-                {
-                    response.Set(campaign.Status);
-                    return response;
-                }
-
-                var validationStatus = ValidateStateChange(contextData, campaign.Object, newState);
-                if (!validationStatus.IsOkStatusCode())
-                {
-                    response.Set(validationStatus);
-                    return response;
-                }
-
-                campaign.Object.UpdateDate = DateUtils.GetUtcUnixTimestampNow();
-                if (_repository.Update_Campaign(campaign.Object, contextData))
-                {
-                    SetInvalidationKeys(contextData, campaign.Object);
-                    response.Set(eResponseStatus.OK);
-                }
-                else
-                    response.Set(eResponseStatus.Error, $"Error Updating Campaign state: [{id}] for group: {contextData.GroupId}");
-
+                response.Set(campaign.Status);
+                return response;
             }
-            catch (Exception ex)
+
+            var validationStatus = ValidateStateChange(contextData, campaign.Object, newState);
+            if (!validationStatus.IsOkStatusCode())
             {
-                log.Error($"Failed setting campaign: {id} state to: {newState}, ex: {ex}", ex);
-                response.Set(eResponseStatus.Error, $"Campaign: {id} wasn't updated");
+                response.Set(validationStatus);
+                return response;
+            }
+
+            campaign.Object.UpdateDate = DateUtils.GetUtcUnixTimestampNow();
+            if (_repository.Update_Campaign(campaign.Object, contextData))
+            {
+                SetInvalidationKeys(contextData, campaign.Object);
+                response.Set(eResponseStatus.OK);
+            }
+            else
+            {
+                response.Set(eResponseStatus.Error, $"Error Updating Campaign state: [{id}] for group: {contextData.GroupId}");
             }
 
             return response;
@@ -502,7 +495,7 @@ namespace ApiLogic.Users.Managers
 
             if (campaign.State == newState)
             {
-                response.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} already in state: {newState}");
+                response.Set(eResponseStatus.InvalidCampaignState, $"Campaign: {campaign.Id} already in state: {newState}");
                 return response;
             }
             else if ((campaign.State == CampaignState.INACTIVE && newState == CampaignState.ACTIVE)
@@ -512,7 +505,7 @@ namespace ApiLogic.Users.Managers
             }
             else
             {
-                response.Set(eResponseStatus.Error, $"Set state error, from: {campaign.State} to {newState} is not allowed");
+                response.Set(eResponseStatus.CampaignStateUpdateNotAllowed, $"Set state error, from: {campaign.State} to {newState} is not allowed");
                 return response;
             }
 
@@ -544,7 +537,7 @@ namespace ApiLogic.Users.Managers
 
             if (newState == CampaignState.ACTIVE && campaign.EndDate <= DateUtils.GetUtcUnixTimestampNow())
             {
-                response.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} was ended");
+                response.Set(eResponseStatus.InvalidCampaignEndDate, $"Campaign: {campaign.Id} was ended");
                 return response;
             }
 
@@ -558,11 +551,22 @@ namespace ApiLogic.Users.Managers
             var status = Status.Error;
             if (campaign.Promotion != null)
             {
-                var discounts = _pricing.GetValidDiscounts(contextData.GroupId);
-                if (!discounts.HasObjects() || !discounts.Objects.Any(x => x.Id == campaign.Promotion.DiscountModuleId))
+                status = _promotionValidator.Validate(contextData.GroupId, campaign.Promotion);
+                if (!status.IsOkStatusCode())
                 {
-                    status.Set(eResponseStatus.DiscountCodeNotExist);
                     return status;
+                }
+
+                if (campaign.Promotion.Conditions?.Count > 0)
+                {
+                    foreach (RuleCondition condition in campaign.Promotion.Conditions)
+                    {
+                        status = _conditionValidator.Validate(contextData.GroupId, condition);
+                        if (!status.IsOkStatusCode())
+                        {
+                            return status;
+                        }
+                    }
                 }
             }
 
@@ -658,81 +662,32 @@ namespace ApiLogic.Users.Managers
         {
             List<T> list = null;
 
-            try
-            {
-                IEnumerable<CampaignDB> campaignsDB = null;
-                var key = LayeredCacheKeys.GetGroupCampaignKey(contextData.GroupId, (int)campaignType);
-                var cacheResult = _layeredCache.Get(key,
-                                                    ref campaignsDB,
-                                                    ListCampaignsByGroupIdDB,
-                                                    new Dictionary<string, object>() {
+            IEnumerable<CampaignDB> campaignsDB = null;
+            var key = LayeredCacheKeys.GetGroupCampaignKey(contextData.GroupId, (int)campaignType);
+            var cacheResult = _layeredCache.Get(key,
+                                                ref campaignsDB,
+                                                ListCampaignsByGroupIdDB,
+                                                new Dictionary<string, object>() {
                                                         { "groupId", contextData.GroupId },
                                                         { "campaignType", campaignType }
-                                                    },
-                                                    contextData.GroupId,
-                                                    LayeredCacheConfigNames.LIST_CAMPAIGNS_BY_GROUP_ID,
-                                                    new List<string>() { LayeredCacheKeys.GetGroupCampaignInvalidationKey(contextData.GroupId, (int)campaignType) });
+                                                },
+                                                contextData.GroupId,
+                                                LayeredCacheConfigNames.LIST_CAMPAIGNS_BY_GROUP_ID,
+                                                new List<string>() { LayeredCacheKeys.GetGroupCampaignInvalidationKey(contextData.GroupId, (int)campaignType) });
 
-                if (campaignsDB != null)
-                {
-                    var utcNow = DateUtils.GetUtcUnixTimestampNow();
-                    if (filter.StateEqual.HasValue)
-                    {
-                        if (filter.StateEqual == CampaignState.ACTIVE)
-                        {
-                            campaignsDB = campaignsDB.Where(x => x.EndDate >= utcNow && x.State == CampaignState.ACTIVE);
-                            if (filter.IsActiveNow)
-                            {
-                                campaignsDB = campaignsDB.Where(x => x.StartDate <= utcNow);
-                            }
-                        }
-                        else if (filter.StateEqual == CampaignState.ARCHIVE)
-                        {
-                            campaignsDB = campaignsDB.Where(x => (x.State == filter.StateEqual.Value) || (x.EndDate < utcNow && x.State == CampaignState.ACTIVE));
-                        }
-                        else if (filter.StateEqual == CampaignState.INACTIVE)
-                        {
-                            campaignsDB = campaignsDB.Where(x => x.State == filter.StateEqual.Value);
-                        }
-                    }
+            campaignsDB = filter.Apply(campaignsDB);
 
-                    if (filter.StartDateGreaterThanOrEqual.HasValue)
-                    {
-                        campaignsDB = campaignsDB.Where(x => x.StartDate >= filter.StartDateGreaterThanOrEqual.Value);
-                    }
-
-                    if (filter.EndDateLessThanOrEqual.HasValue)
-                    {
-                        campaignsDB = campaignsDB.Where(x => x.EndDate <= filter.EndDateLessThanOrEqual.Value);
-                    }
-
-                    if (filter.HasPromotion.HasValue)
-                    {
-                        if (filter.HasPromotion.Value)
-                        {
-                            campaignsDB = campaignsDB.Where(x => x.HasPromotion);
-                        }
-                        else
-                        {
-                            campaignsDB = campaignsDB.Where(x => !x.HasPromotion);
-                        }
-                    }
-
-                    if (campaignsDB.Count() > 0)
-                    {
-                        list = campaignsDB.Select(x => Get(contextData, x.Id, true))
-                            .Where(campaignResponse => campaignResponse.HasObject() && campaignResponse.Object.CampaignType == campaignType)
-                            .Select(camp => (T)camp.Object).ToList();
-                    }
-                    else
-                    {
-                        list = new List<T>();
-                    }
-                }
-            }
-            catch (Exception ex)
+            if (campaignsDB?.Count() > 0)
             {
-                log.Error($"Failed to ListCampaignsByType contextData:{contextData}, ex: {ex}", ex);
+                list = campaignsDB.Select(x => Get(contextData, x.Id, true))
+                    .Where(campaignResponse => campaignResponse.HasObject() && campaignResponse.Object.CampaignType == campaignType)
+                    .Select(camp => (T)camp.Object).ToList();
+
+                list = filter.Apply(list);
+            }
+            else
+            {
+                list = new List<T>();
             }
 
             return list;
@@ -773,5 +728,7 @@ namespace ApiLogic.Users.Managers
 
             return new Tuple<Campaign, bool>(campaign, campaign != null);
         }
+
+
     }
 }

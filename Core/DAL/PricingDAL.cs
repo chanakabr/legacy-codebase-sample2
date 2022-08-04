@@ -2417,7 +2417,7 @@ namespace DAL
 
         public bool Update_Campaign(Campaign campaign, ContextData contextData)
         {
-            campaign.UpdaterId = contextData.UserId.Value;
+            campaign.UpdaterId = contextData.UserId ?? 999;
 
             var sp = new StoredProcedure("Update_Campaign");
             sp.SetConnectionKey("pricing_connection");

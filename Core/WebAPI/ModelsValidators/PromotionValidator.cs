@@ -4,8 +4,8 @@ using WebAPI.Models.API;
 namespace WebAPI.ModelsValidators
 {
     public static class PromotionValidator
-    {
-        public static void Validate(this KalturaPromotion model)
+    {       
+        public static void Validate(this KalturaBasePromotion model)
         {
             if (model.Conditions == null || model.Conditions.Count == 0)
             {

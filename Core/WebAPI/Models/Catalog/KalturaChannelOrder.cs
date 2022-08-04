@@ -35,7 +35,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "period")]
         [JsonProperty(PropertyName = "period")]
         [XmlElement(ElementName = "period", IsNullable = true)]
-        [SchemeProperty(MinLong = 1, IsNullable = true)]
+        [SchemeProperty(MinInteger = 1, IsNullable = true)]
         public int? SlidingWindowPeriod { get; set; }
     }
 }

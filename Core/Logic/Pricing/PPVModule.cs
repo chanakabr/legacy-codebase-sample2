@@ -131,7 +131,10 @@ namespace Core.Pricing
                 BaseDiscount d = null;
                 Utils.GetBaseImpl(ref d, nGroupID);
                 if (d != null)
-                    m_oDiscountModule = d.GetDiscountCodeData(sDiscountModuleCode);
+                {
+                    var currency = m_oPriceCode?.m_oPrise?.m_oCurrency?.m_sCurrencyCD3 ?? "";
+                    m_oDiscountModule = d.GetDiscountCodeData(sDiscountModuleCode, currency);
+                }
                 else
                     m_oDiscountModule = null;
             }

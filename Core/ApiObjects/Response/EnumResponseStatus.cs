@@ -592,6 +592,10 @@ namespace ApiObjects.Response
         UsageModuleExistInPpv = 9042,
         ProgramAssetGroupOfferDoesNotExist = 9043,
         ExternalOfferIdAlreadyExists = 9044,
+        CampaignUpdateNotAllowed = 9045,
+        InvalidCampaignState = 9046,
+        CampaignStateUpdateNotAllowed = 9047,
+        InvalidCampaignEndDate = 9048,
 
         #endregion
 

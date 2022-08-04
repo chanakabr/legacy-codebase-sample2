@@ -28,7 +28,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("businessModuleIdEqual")]
         [XmlElement(ElementName = "businessModuleIdEqual", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        [SchemeProperty(MinInteger = 1)]
+        [SchemeProperty(MinLong = 1)]
         public long BusinessModuleIdEqual { get; set; }
 
         /// <summary>

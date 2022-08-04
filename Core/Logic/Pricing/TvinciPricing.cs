@@ -1753,49 +1753,11 @@ namespace Core.Pricing
             return response;
         }        
 
-        private Tuple<List<DiscountDetails>, bool> GetGroupDiscounts(Dictionary<string, object> funcParams)
-        {
-            List<DiscountDetails> discountDetails = null;
-
-            try
-            {
-                if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("groupId"))
-                {
-                    int? groupId = funcParams["groupId"] as int?;
-                    DataTable discountsDt = PricingDAL.Instance.GetGroupDiscounts(m_nGroupID);
-                    if (discountsDt != null)
-                    {
-                        discountDetails = Utils.BuildDiscountsFromDataTable(discountsDt);
-                    }
-                }
-            }
-
-            catch (Exception ex)
-            {
-                log.Error(string.Format("GetGroupDiscounts failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
-            }
-
-            bool res = discountDetails != null;
-
-            return new Tuple<List<DiscountDetails>, bool>(discountDetails, res);
-        }
-
         public override GenericListResponse<DiscountDetails> GetValidDiscounts()
         {
             GenericListResponse<DiscountDetails> response = new GenericListResponse<DiscountDetails>();
 
-            string key = LayeredCacheKeys.GetDiscountsKey(m_nGroupID);
-            Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", m_nGroupID } };
-            List<DiscountDetails> discountDetails = null;
-
-            bool res = LayeredCache.Instance.Get(key, 
-                                                 ref discountDetails, 
-                                                 GetGroupDiscounts, 
-                                                 funcParams, 
-                                                 m_nGroupID,
-                                                 LayeredCacheConfigNames.GET_GROUP_DISCOUNTS_LAYERED_CACHE_CONFIG_NAME, 
-                                                 new List<string>() { LayeredCacheKeys.GetGroupDiscountsInvalidationKey(m_nGroupID) });
-
+            List<DiscountDetails> discountDetails = DiscountDetailsManager.Instance.GetDiscountDetails(m_nGroupID);
             if (discountDetails != null)
             {
                 response.Objects = new List<DiscountDetails>();
@@ -1810,7 +1772,6 @@ namespace Core.Pricing
             }
 
             response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
-
             return response;
         }
     }

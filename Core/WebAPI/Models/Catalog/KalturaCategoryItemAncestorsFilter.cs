@@ -14,7 +14,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        [SchemeProperty(MinInteger = 1)]
+        [SchemeProperty(MinLong = 1)]
         public long Id { get; set; }
 
         public override KalturaCategoryItemOrderBy GetDefaultOrderByValue()

@@ -36,6 +36,8 @@ namespace Core.Pricing
         void InvalidateCollection(int groupId, long collId = 0);
 
         List<Collection> GetCollections(int groupId, List<long> collectionIds, string country, string udid, string lang, int? couponGroupIdEqual, bool getAlsoUnactive = false);
+
+        DiscountModule GetDiscountCodeDataByCountryAndCurrency(int nGroupID, int discountCodeId, string countryCode, string currencyCode);
     }
 
     public interface IPPVModuleManager
@@ -1371,7 +1373,7 @@ namespace Core.Pricing
             }
         }
 
-        public static DiscountModule GetDiscountCodeDataByCountryAndCurrency(int nGroupID, int discountCodeId, string countryCode, string currencyCode)
+        public DiscountModule GetDiscountCodeDataByCountryAndCurrency(int nGroupID, int discountCodeId, string countryCode, string currencyCode)
         {
             Pricing.BaseDiscount t = null;
             Utils.GetBaseImpl(ref t, nGroupID);

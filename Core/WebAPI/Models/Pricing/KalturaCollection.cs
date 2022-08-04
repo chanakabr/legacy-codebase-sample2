@@ -168,7 +168,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "priceDetailsId")]
         [JsonProperty("priceDetailsId")]
         [XmlElement(ElementName = "priceDetailsId")]
-        [SchemeProperty(MinInteger = 1)]
+        [SchemeProperty(MinLong = 1)]
         public long? PriceDetailsId { get; set; }
 
         /// <summary>

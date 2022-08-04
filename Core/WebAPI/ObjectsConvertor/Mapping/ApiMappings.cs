@@ -656,7 +656,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .Include(typeof(KalturaDeviceManufacturerCondition), typeof(DeviceManufacturerCondition))
                 .Include(typeof(KalturaDeviceModelCondition), typeof(DeviceModelCondition))
                 .Include(typeof(KalturaDynamicKeysCondition), typeof(DynamicKeysCondition))
-                .Include(typeof(KalturaDeviceDynamicDataCondition), typeof(DeviceDynamicDataCondition));
+                .Include(typeof(KalturaDeviceDynamicDataCondition), typeof(DeviceDynamicDataCondition))
+                .Include(typeof(KalturaChannelCondition), typeof(ChannelCondition))
+                .Include(typeof(KalturaFileTypeCondition), typeof(FileTypeCondition));
 
             cfg.CreateMap<KalturaAssetConditionBase, AssetConditionBase>()
                 .Include(typeof(KalturaAssetCondition), typeof(AssetCondition))
@@ -683,7 +685,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .Include(typeof(DeviceManufacturerCondition), typeof(KalturaDeviceManufacturerCondition))
                 .Include(typeof(DeviceModelCondition), typeof(KalturaDeviceModelCondition))
                 .Include(typeof(DynamicKeysCondition), typeof(KalturaDynamicKeysCondition))
-                .Include(typeof(DeviceDynamicDataCondition), typeof(KalturaDeviceDynamicDataCondition));
+                .Include(typeof(DeviceDynamicDataCondition), typeof(KalturaDeviceDynamicDataCondition))
+                .Include(typeof(ChannelCondition), typeof(KalturaChannelCondition))
+                .Include(typeof(FileTypeCondition), typeof(KalturaFileTypeCondition));
 
             cfg.CreateMap<AssetConditionBase, KalturaAssetConditionBase>()
                 .Include(typeof(AssetCondition), typeof(KalturaAssetCondition))
@@ -720,6 +724,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                        case KalturaRuleConditionType.USER_SESSION_PROFILE: return RuleConditionType.UserSessionProfile;
                        case KalturaRuleConditionType.DEVICE_DYNAMIC_DATA: return RuleConditionType.DeviceDynamicData;
                        case KalturaRuleConditionType.ASSET_SHOP: return RuleConditionType.AssetShop;
+                       case KalturaRuleConditionType.CHANNEL: return RuleConditionType.Channel;
+                       case KalturaRuleConditionType.FILE_TYPE: return RuleConditionType.FileType;
                        default:
                            throw new ClientException((int)StatusCode.UnknownEnumValue,
                                string.Format("Unknown conditionType value : {0}", kalturaRuleConditionType.ToString()));
@@ -753,6 +759,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         case RuleConditionType.UserSessionProfile: return KalturaRuleConditionType.USER_SESSION_PROFILE;
                         case RuleConditionType.DeviceDynamicData: return KalturaRuleConditionType.DEVICE_DYNAMIC_DATA;
                         case RuleConditionType.AssetShop: return KalturaRuleConditionType.ASSET_SHOP;
+                        case RuleConditionType.Channel: return KalturaRuleConditionType.CHANNEL;
+                        case RuleConditionType.FileType: return KalturaRuleConditionType.FILE_TYPE;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown conditionType value : {0}", ruleConditionType.ToString()));
                     }
@@ -1037,6 +1045,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
+
+            cfg.CreateMap<KalturaChannelCondition, ChannelCondition>()
+               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+               .ForMember(dest => dest.ChannelIds, opt => opt.ResolveUsing(src => src.GetChannelIds())); ;
+
+            cfg.CreateMap<ChannelCondition, KalturaChannelCondition>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.IdIn, opt => opt.MapFrom(src => string.Join(",", src.ChannelIds)));
+
+            cfg.CreateMap<KalturaFileTypeCondition, FileTypeCondition>()
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+              .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+              .ForMember(dest => dest.FileTypeIds, opt => opt.ResolveUsing(src => src.GetFileTypeIds())); ;
+
+            cfg.CreateMap<FileTypeCondition, KalturaFileTypeCondition>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.IdIn, opt => opt.MapFrom(src => string.Join(",", src.FileTypeIds)));
 
             cfg.CreateMap<KalturaRuleActionType, RuleActionType>()
            .ConvertUsing(kalturaRuleActionType =>
@@ -1670,7 +1698,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.StartDateGreaterThanOrEqual, opt => opt.MapFrom(src => src.StartDateGreaterThanOrEqual))
                 .ForMember(dest => dest.EndDateLessThanOrEqual, opt => opt.MapFrom(src => src.EndDateLessThanOrEqual))
                 .ForMember(dest => dest.StateEqual, opt => opt.MapFrom(src => src.StateEqual))
-                .ForMember(dest => dest.HasPromotion, opt => opt.MapFrom(src => src.HasPromotion));
+                .ForMember(dest => dest.HasPromotion, opt => opt.MapFrom(src => src.HasPromotion))
+                .ForMember(dest => dest.NameEqual, opt => opt.MapFrom(src => src.NameEqual))
+                .ForMember(dest => dest.NameContains, opt => opt.MapFrom(src => src.NameContains))
+                .ForMember(dest => dest.StateIn, opt => opt.ResolveUsing(src => src.GetStates()));
 
             cfg.CreateMap<KalturaTriggerCampaignSearchFilter, TriggerCampaignFilter>()
               .IncludeBase<KalturaCampaignSearchFilter, CampaignSearchFilter>()
@@ -1680,19 +1711,47 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .IncludeBase<KalturaCampaignSearchFilter, CampaignSearchFilter>()
               ;
 
+            cfg.CreateMap<KalturaObjectState, CampaignState>()
+               .ConvertUsing(state =>
+               {
+                   switch (state)
+                   {
+                       case KalturaObjectState.INACTIVE:
+                           return CampaignState.INACTIVE;
+                       case KalturaObjectState.ACTIVE:
+                           return CampaignState.ACTIVE;
+                       case KalturaObjectState.ARCHIVE:
+                           return CampaignState.ARCHIVE;
+                       default:
+                           throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown KalturaObjectState value: {state}.");
+                   }
+               });
+
             #endregion
 
+            cfg.CreateMap<KalturaBasePromotion, BasePromotion>()
+               .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => src.Conditions));
+
+            cfg.CreateMap<BasePromotion, KalturaBasePromotion>()
+               .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => src.Conditions));
+
             cfg.CreateMap<KalturaPromotion, Promotion>()
-               .ForMember(dest => dest.DiscountModuleId, opt => opt.MapFrom(src => src.DiscountModuleId))
-               .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => src.Conditions))
-               .ForMember(dest => dest.NumberOfRecurring, opt => opt.MapFrom(src => src.NumberOfRecurring))
-               ;
+                .IncludeBase<KalturaBasePromotion, BasePromotion>()
+                .ForMember(dest => dest.DiscountModuleId, opt => opt.MapFrom(src => src.DiscountModuleId))
+                .ForMember(dest => dest.NumberOfRecurring, opt => opt.MapFrom(src => src.NumberOfRecurring));
 
             cfg.CreateMap<Promotion, KalturaPromotion>()
+                .IncludeBase<BasePromotion, KalturaBasePromotion>()
                 .ForMember(dest => dest.DiscountModuleId, opt => opt.MapFrom(src => src.DiscountModuleId))
-               .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => src.Conditions))
-               .ForMember(dest => dest.NumberOfRecurring, opt => opt.MapFrom(src => src.NumberOfRecurring))
-                ;
+                .ForMember(dest => dest.NumberOfRecurring, opt => opt.MapFrom(src => src.NumberOfRecurring));
+
+            cfg.CreateMap<KalturaCouponPromotion, CouponPromotion>()
+               .IncludeBase<KalturaBasePromotion, BasePromotion>()
+               .ForMember(dest => dest.CouponGroupId, opt => opt.MapFrom(src => src.CouponGroupId));
+
+            cfg.CreateMap<CouponPromotion, KalturaCouponPromotion>()
+                .IncludeBase<BasePromotion, KalturaBasePromotion>()
+                .ForMember(dest => dest.CouponGroupId, opt => opt.MapFrom(src => src.CouponGroupId));
 
             #region AssetUserRule
 
@@ -2292,6 +2351,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 case CampaignOrderBy.StartDateDesc:
                     return KalturaCampaignOrderBy.START_DATE_DESC;
+                case CampaignOrderBy.StartDateAsc:
+                    return KalturaCampaignOrderBy.START_DATE_ASC ;
+                case CampaignOrderBy.UpdateDateAsc:
+                    return KalturaCampaignOrderBy.UPDATE_DATE_ASC;
+                case CampaignOrderBy.UpdateDateDesc:
+                    return KalturaCampaignOrderBy.UPDATE_DATE_DESC;
+                case CampaignOrderBy.EndDateAsc:
+                    return KalturaCampaignOrderBy.END_DATE_ASC;
+                case CampaignOrderBy.EndDateDesc:
+                    return KalturaCampaignOrderBy.END_DATE_DESC;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown Campaign Order By");
             }
@@ -2303,6 +2372,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 case KalturaCampaignOrderBy.START_DATE_DESC:
                     return CampaignOrderBy.StartDateDesc;
+                case KalturaCampaignOrderBy.START_DATE_ASC:
+                    return CampaignOrderBy.StartDateAsc;
+                case KalturaCampaignOrderBy.UPDATE_DATE_ASC:
+                    return CampaignOrderBy.UpdateDateAsc;
+                case KalturaCampaignOrderBy.UPDATE_DATE_DESC:
+                    return CampaignOrderBy.UpdateDateDesc;
+                case KalturaCampaignOrderBy.END_DATE_ASC:
+                    return CampaignOrderBy.EndDateAsc;
+                case KalturaCampaignOrderBy.END_DATE_DESC:
+                    return CampaignOrderBy.EndDateDesc;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown Campaign Order By");
             }

@@ -1,16 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
-using WebAPI.Models.ConditionalAccess;
-using WebAPI.Models.General;
-using ApiObjects;
-using ApiObjects.Response;
-using ApiObjects.Base;
-using System;
-using ApiLogic.Users.Managers;
-using System.Collections.Generic;
 
 namespace WebAPI.Models.API
 {
@@ -48,5 +39,33 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "hasPromotion", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public bool? HasPromotion { get; set; }
+
+        /// <summary>
+        /// Filter the Campaign with this name.
+        /// </summary>
+        [DataMember(Name = "nameEqual")]
+        [JsonProperty("nameEqual")]
+        [XmlElement(ElementName = "nameEqual", IsNullable = true)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.ALL)]
+        public string NameEqual { get; set; }
+
+        /// <summary>
+        /// A string that is included in the Campaign name
+        /// </summary>
+        [DataMember(Name = "nameContains")]
+        [JsonProperty("nameContains")]
+        [XmlElement(ElementName = "nameContains", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.ALL)]
+        public string NameContains { get; set; }
+
+        /// <summary>
+        /// Comma separated Campaign State list
+        /// </summary>
+        [DataMember(Name = "stateIn")]
+        [JsonProperty("stateIn")]
+        [XmlElement(ElementName = "stateIn", IsNullable = true)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.ALL)]
+        public string StateIn { get; set; }
     }
 }

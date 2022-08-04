@@ -15,7 +15,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        [SchemeProperty(MinInteger = 1)]
+        [SchemeProperty(MinLong = 1)]
         public long Id { get; set; }
 
         /// <summary>

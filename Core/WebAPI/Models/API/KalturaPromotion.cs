@@ -1,17 +1,14 @@
 ﻿using Newtonsoft.Json;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
-using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
     /// <summary>
     /// Promotion
     /// </summary>
-    public partial class KalturaPromotion : KalturaOTTObject
+    public partial class KalturaPromotion : KalturaBasePromotion
     {
         /// <summary>
         /// The discount module id that is promoted to the user
@@ -21,14 +18,6 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "discountModuleId")]
         [SchemeProperty(MinLong = 1)]
         public long DiscountModuleId { get; set; }
-
-        /// <summary>
-        /// These conditions define the Promotion that applies on
-        /// </summary>
-        [DataMember(Name = "conditions")]
-        [JsonProperty("conditions")]
-        [XmlElement(ElementName = "conditions")]
-        public List<KalturaCondition> Conditions { get; set; }
 
         /// <summary>
         /// the numer of recurring for this promotion

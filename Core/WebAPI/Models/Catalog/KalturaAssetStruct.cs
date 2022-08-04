@@ -98,7 +98,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "parentId")]
         [JsonProperty("parentId")]
         [XmlElement(ElementName = "parentId", IsNullable = true)]
-        [SchemeProperty(MinInteger = 0, IsNullable = true)]
+        [SchemeProperty(MinLong = 0, IsNullable = true)]
         public long? ParentId { get; set; }
 
         /// <summary>

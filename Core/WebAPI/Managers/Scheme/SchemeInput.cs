@@ -193,7 +193,7 @@ namespace WebAPI.Managers.Scheme
         {
             if (MinInteger > int.MinValue)
             {
-                long lValue = (long)Convert.ChangeType(value, typeof(long));
+                int lValue = (int)Convert.ChangeType(value, typeof(int));
                 if (lValue < MinInteger)
                     throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, name, MinInteger.ToString());
             }
@@ -213,7 +213,7 @@ namespace WebAPI.Managers.Scheme
         {
             if (MinLong > long.MinValue)
             {
-                int lValue = (int)Convert.ChangeType(value, typeof(int));
+                long lValue = (long)Convert.ChangeType(value, typeof(long));
                 if (lValue < MinLong)
                     throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, name, MinLong.ToString());
             }

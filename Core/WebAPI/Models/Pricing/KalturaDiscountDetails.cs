@@ -48,7 +48,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "startDate")]
         [JsonProperty(PropertyName = "startDate")]
         [XmlElement(ElementName = "startDate")]
-        [SchemeProperty(MinInteger = 1)]
+        [SchemeProperty(MinLong = 1)]
         public long StartDate { get; set; }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "endDate")]
         [JsonProperty(PropertyName = "endDate")]
         [XmlElement(ElementName = "endDate")]
-        [SchemeProperty(MinInteger = 1)]
+        [SchemeProperty(MinLong = 1)]
         public long EndtDate { get; set; }
 
         /// <summary>

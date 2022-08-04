@@ -140,6 +140,7 @@ namespace Core.ConditionalAccess
         public DateTime? m_dtEndDate;
         public DateTime? m_dtDiscountEndDate;
         public string m_sProductCode;
+        public PromotionInfo PromotionInfo;
 
         public ItemPriceContainer()
         {

@@ -570,7 +570,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.RelatedMediaFileIds, opt => opt.MapFrom(src => src.m_lRelatedMediaFileIDs))
                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.m_dtStartDate.HasValue ? DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dtStartDate.Value) : 0))
                .ForMember(dest => dest.SubscriptionId, opt => opt.MapFrom(src => src.m_relevantSub.m_sObjectCode))
-               .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.m_sProductCode));
+               .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.m_sProductCode))
+               .ForMember(dest => dest.PromotionInfo, opt => opt.MapFrom(src => src.PromotionInfo)); ;
 
             //SubscriptionSet to KalturaSubscriptionSet
             cfg.CreateMap<SubscriptionSet, KalturaSubscriptionSet>()
@@ -746,6 +747,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<Discount, KalturaDiscount>()
                .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.m_dPrice))
                .ForMember(dest => dest.Currency, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencyCD3))
+               .ForMember(dest => dest.CurrencyId, opt => opt.MapFrom(src => src.m_oCurrency.m_nCurrencyID))
                .ForMember(dest => dest.CurrencySign, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencySign))
                .ForMember(dest => dest.CountryId, opt => opt.MapFrom(src => src.countryId != 0 ? (long?)src.countryId : null))
                .ForMember(dest => dest.Percentage, opt => opt.MapFrom(src => src.Percentage))
@@ -1253,7 +1255,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                                 PurchaseUserId = ppvPrice.m_sPurchasedBySiteGuid,
                                 RelatedMediaFileIds = AutoMapper.Mapper.Map<List<KalturaIntegerValue>>(ppvPrice.m_lRelatedMediaFileIDs),
                                 StartDate = ppvPrice.m_dtStartDate.HasValue ? DateUtils.DateTimeToUtcUnixTimestampSeconds(ppvPrice.m_dtStartDate.Value) : 0,
-                                SubscriptionId = ppvPrice.m_relevantSub != null ? ppvPrice.m_relevantSub.m_sObjectCode : null
+                                SubscriptionId = ppvPrice.m_relevantSub != null ? ppvPrice.m_relevantSub.m_sObjectCode : null,
+                                PromotionInfo = AutoMapper.Mapper.Map<KalturaPromotionInfo>(ppvPrice.PromotionInfo),
                             });
                         }
                     }

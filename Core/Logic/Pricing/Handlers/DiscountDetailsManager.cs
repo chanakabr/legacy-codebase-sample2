@@ -126,14 +126,7 @@ namespace ApiLogic.Pricing.Handlers
                 return response;
             }
 
-            string key = LayeredCacheKeys.GetDiscountsKey(groupId);
-
-            var funcParams = new Dictionary<string, object>() { { "groupId", groupId } };
-            List<DiscountDetails> discountDetails = null;
-            _layeredCache.Get(key, ref discountDetails, GetGroupDiscounts, funcParams, groupId,
-                LayeredCacheConfigNames.GET_GROUP_DISCOUNTS_LAYERED_CACHE_CONFIG_NAME, new List<string>()
-                { LayeredCacheKeys.GetGroupDiscountsInvalidationKey(groupId) });
-
+            var discountDetails = GetDiscountDetails(groupId);
             if (discountDetails != null)
             {
                 response.Objects = new List<DiscountDetails>();
@@ -264,8 +257,28 @@ namespace ApiLogic.Pricing.Handlers
                 {
                     return new Status(eResponseStatus.InvalidCurrency, $"Invalid currency {discount.m_oCurrency.m_sCurrencyCD3}");
                 }
+
+                if (discount.m_oCurrency != null)
+                {
+                    discount.m_oCurrency.m_nCurrencyID = currencyMap[discount.m_oCurrency.m_sCurrencyCD3.ToLower()].m_nCurrencyID;
+                }
             };
             return Status.Ok;
+        }
+
+        public List<DiscountDetails> GetDiscountDetails(int groupId)
+        {
+            string key = LayeredCacheKeys.GetDiscountsKey(groupId);
+            List<DiscountDetails> discountDetails = null;
+            _layeredCache.Get(key, 
+                              ref discountDetails, 
+                              GetGroupDiscounts,
+                              new Dictionary<string, object>() { { "groupId", groupId } }, 
+                              groupId,
+                              LayeredCacheConfigNames.GET_GROUP_DISCOUNTS_LAYERED_CACHE_CONFIG_NAME, 
+                              new List<string>(){ LayeredCacheKeys.GetGroupDiscountsInvalidationKey(groupId) });
+
+            return discountDetails;
         }
 
         private Tuple<List<DiscountDetails>, bool> GetGroupDiscounts(Dictionary<string, object> funcParams)

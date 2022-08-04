@@ -1,4 +1,5 @@
 ﻿using ApiLogic.ConditionalAccess.Modules;
+using ApiLogic.Pricing;
 using ApiLogic.Pricing.Handlers;
 using APILogic.Api.Managers;
 using ApiObjects;
@@ -330,7 +331,7 @@ namespace Core.ConditionalAccess
                                 }
                             }
                         }
-                        
+
                     }
 
                 } // end if nMediaFileID > 0
@@ -912,7 +913,7 @@ namespace Core.ConditionalAccess
             }
 
             string customdata = billingData != null ? billingData.Item2 : null;
-            entitlement.PriceDetails = GetSubscriptionEntitlementPriceDetails(cas.m_nGroupID, entitlement, customdata);
+            entitlement.PriceDetails = GetSubscriptionEntitlementPriceDetails(cas.m_nGroupID, entitlement, customdata, domainId);
 
             return entitlement;
         }
@@ -1904,7 +1905,7 @@ namespace Core.ConditionalAccess
             return status;
         }
 
-        private static EntitlementPriceDetails GetSubscriptionEntitlementPriceDetails(int groupId, Entitlement entitlement, string customData)
+        private static EntitlementPriceDetails GetSubscriptionEntitlementPriceDetails(int groupId, Entitlement entitlement, string customData, long domainId)
         {
             EntitlementPriceDetails entitlementPriceDetails = null;
 
@@ -1939,7 +1940,7 @@ namespace Core.ConditionalAccess
 
                     if (externalDiscount != null)
                     {
-                        Price priceAfterDiscount = Utils.GetPriceAfterDiscount(subOriginalPrice, externalDiscount, 1);
+                        Price priceAfterDiscount = Utils.Instance.GetPriceAfterDiscount(subOriginalPrice, externalDiscount, 1);
                         discountEntitlementDiscountDetails = new DiscountEntitlementDiscountDetails()
                         {
                             Id = externalDiscount.m_nObjectID,
@@ -1980,62 +1981,6 @@ namespace Core.ConditionalAccess
                             }
                             #endregion
 
-                            #region coupon
-                            if (!string.IsNullOrEmpty(recurringData.CouponCode))
-                            {
-                                CouponEntitlementDiscountDetails cedd = new CouponEntitlementDiscountDetails() { CouponCode = recurringData.CouponCode };
-
-                                if (freeTrail || string.IsNullOrEmpty(customDataCoupon) || !customDataCoupon.Equals(recurringData.CouponCode))
-                                {
-                                    cedd.StartDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate);
-                                }
-
-                                if (!string.IsNullOrEmpty(customDataCoupon) && !customDataCoupon.Equals(recurringData.CouponCode))
-                                {
-                                    CouponEntitlementDiscountDetails ocedd = new CouponEntitlementDiscountDetails()
-                                    {
-                                        CouponCode = customDataCoupon,
-                                        EndDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate)
-                                    };
-
-                                    var discount1 = Utils.GetLowestPriceByCouponCode(groupId, customDataCoupon, subscription, subOriginalPrice, 0);
-                                    ocedd.Amount = subOriginalPrice.m_dPrice - discount1.m_dPrice;
-
-                                    entitlementPriceDetails.AddDiscountDetails(ocedd);
-                                }
-
-                                if (recurringData.IsCouponHasEndlessRecurring)
-                                {
-                                    cedd.EndlessCoupon = true;
-                                }
-                                else
-                                {
-                                    if (subscription.m_MultiSubscriptionUsageModule.Length == 1)
-                                    {
-                                        cedd.EndDate = GetEntitlementPriceDetailsEndDate(subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle, recurringData.LeftCouponRecurring, entitlement.endDate);
-                                    }
-                                }
-
-                                var discount = Utils.GetLowestPriceByCouponCode(groupId, recurringData.CouponCode, subscription, subOriginalPrice, 0);
-                                cedd.Amount = subOriginalPrice.m_dPrice - discount.m_dPrice;
-
-                                entitlementPriceDetails.AddDiscountDetails(cedd);
-                            }
-                            else if (!string.IsNullOrEmpty(customDataCoupon))
-                            {
-                                CouponEntitlementDiscountDetails cedd = new CouponEntitlementDiscountDetails()
-                                {
-                                    CouponCode = customDataCoupon,
-                                    EndDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate)
-                                };
-
-                                var discount = Utils.GetLowestPriceByCouponCode(groupId, customDataCoupon, subscription, subOriginalPrice, 0);
-                                cedd.Amount = subOriginalPrice.m_dPrice - discount.m_dPrice;
-
-                                entitlementPriceDetails.AddDiscountDetails(cedd);
-                            }
-                            #endregion
-
                             #region Campaign
 
                             //customDataCampaign
@@ -2053,7 +1998,66 @@ namespace Core.ConditionalAccess
                                     }
                                 }
 
-                                CampaignEntitlementDiscountDetails cedd = GetCampaignEntitlementDiscountDetails(groupId, entitlement, countryCode, subOriginalPrice, (int)campaignId, lifeCycle, leftRecurring, freeTrail);
+                                var couponCode = recurringData.CouponCode ?? customDataCoupon;
+                                var cedd = GetCampaignEntitlementDiscountDetails(groupId, entitlement, countryCode, subOriginalPrice, (int)campaignId, (int)domainId, couponCode,
+                                    lifeCycle, leftRecurring, freeTrail);
+                                entitlementPriceDetails.AddDiscountDetails(cedd);
+                            }
+
+                            #endregion
+
+                            #region coupon
+                            
+                            if (!string.IsNullOrEmpty(recurringData.CouponCode))
+                            {
+                                var cedd = new CouponEntitlementDiscountDetails() 
+                                { 
+                                    CouponCode = recurringData.CouponCode,
+                                    EndlessCoupon = recurringData.IsCouponHasEndlessRecurring
+                                };
+
+                                if (freeTrail || string.IsNullOrEmpty(customDataCoupon) || !customDataCoupon.Equals(recurringData.CouponCode))
+                                {
+                                    cedd.StartDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate);
+                                }
+
+                                if (!string.IsNullOrEmpty(customDataCoupon) && !customDataCoupon.Equals(recurringData.CouponCode))
+                                {
+                                    var ocedd = new CouponEntitlementDiscountDetails()
+                                    {
+                                        CouponCode = customDataCoupon,
+                                        EndDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate)
+                                    };
+
+                                    var lowestPriceByCouponCode = Utils.GetLowestPriceByCouponCodeOfSubcription(groupId, customDataCoupon, subscription, 
+                                        subOriginalPrice, 0, countryCode);
+                                    ocedd.Amount = subOriginalPrice.m_dPrice - lowestPriceByCouponCode.m_dPrice;
+
+                                    entitlementPriceDetails.AddDiscountDetails(ocedd);
+                                }
+
+                                if (!recurringData.IsCouponHasEndlessRecurring && subscription.m_MultiSubscriptionUsageModule.Length == 1)
+                                {
+                                    cedd.EndDate = GetEntitlementPriceDetailsEndDate(subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle, recurringData.LeftCouponRecurring, entitlement.endDate);
+                                }
+
+                                var discount = Utils.GetLowestPriceByCouponCodeOfSubcription(groupId, recurringData.CouponCode, subscription, subOriginalPrice,
+                                    0, countryCode);
+                                cedd.Amount = subOriginalPrice.m_dPrice - discount.m_dPrice;
+
+                                entitlementPriceDetails.AddDiscountDetails(cedd);
+                            }
+                            else if (!string.IsNullOrEmpty(customDataCoupon))
+                            {
+                                CouponEntitlementDiscountDetails cedd = new CouponEntitlementDiscountDetails()
+                                {
+                                    CouponCode = customDataCoupon,
+                                    EndDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate)
+                                };
+
+                                var discount = Utils.GetLowestPriceByCouponCodeOfSubcription(groupId, customDataCoupon, subscription, subOriginalPrice, 0, countryCode);
+                                cedd.Amount = subOriginalPrice.m_dPrice - discount.m_dPrice;
+
                                 entitlementPriceDetails.AddDiscountDetails(cedd);
                             }
 
@@ -2093,7 +2097,12 @@ namespace Core.ConditionalAccess
                         #endregion
 
                         #region Coupon
-                        if (!string.IsNullOrEmpty(customDataCoupon))
+                        if (!string.IsNullOrEmpty(customDataCampaign) && int.TryParse(customDataCampaign, out int campaignId))
+                        {
+                            var cedd = GetCampaignEntitlementDiscountDetails(groupId, entitlement, countryCode, subOriginalPrice, campaignId, (int)domainId, customDataCoupon);
+                            entitlementPriceDetails.AddDiscountDetails(cedd);
+                        }
+                        else if (!string.IsNullOrEmpty(customDataCoupon))
                         {
                             CouponEntitlementDiscountDetails ocedd = new CouponEntitlementDiscountDetails()
                             {
@@ -2101,7 +2110,7 @@ namespace Core.ConditionalAccess
                                 EndDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate)
                             };
 
-                            var discount = Utils.GetLowestPriceByCouponCode(groupId, customDataCoupon, subscription, subOriginalPrice, 0);
+                            var discount = Utils.GetLowestPriceByCouponCodeOfSubcription(groupId, customDataCoupon, subscription, subOriginalPrice, 0, countryCode);
                             ocedd.Amount = subOriginalPrice.m_dPrice - discount.m_dPrice;
 
                             entitlementPriceDetails.AddDiscountDetails(ocedd);
@@ -2123,12 +2132,6 @@ namespace Core.ConditionalAccess
                             entitlementPriceDetails.AddDiscountDetails(cedd);
                         }
                         #endregion
-
-                        if (!string.IsNullOrEmpty(customDataCampaign) && int.TryParse(customDataCampaign, out int campaignId))
-                        {
-                            var cedd = GetCampaignEntitlementDiscountDetails(groupId, entitlement, countryCode, subOriginalPrice, campaignId);
-                            entitlementPriceDetails.AddDiscountDetails(cedd);
-                        }
                     }
                 }
             }
@@ -2140,12 +2143,14 @@ namespace Core.ConditionalAccess
             return entitlementPriceDetails;
         }
 
-        private static CampaignEntitlementDiscountDetails GetCampaignEntitlementDiscountDetails(int groupId, Entitlement entitlement, string countryCode, Price subOriginalPrice, int campaignId, int lifeCycle = 0, int leftRecurring=0, bool freeTrail=false)
+        private static CampaignEntitlementDiscountDetails GetCampaignEntitlementDiscountDetails(int groupId, Entitlement entitlement, string countryCode, 
+            Price subOriginalPrice, int campaignId, int domainId, string couponCode, int lifeCycle = 0, int leftRecurring=0, bool freeTrail=false)
         {
+            // will not contain coupon code even if the entitlement was assign to the campaign by coupon
             var cedd = new CampaignEntitlementDiscountDetails()
-            { 
+            {
                 Id = campaignId,
-                EndDate = GetEntitlementPriceDetailsEndDate(lifeCycle, leftRecurring, entitlement.endDate)
+                EndDate = GetEntitlementPriceDetailsEndDate(lifeCycle, leftRecurring, entitlement.endDate), 
             };
 
             if (freeTrail)
@@ -2166,8 +2171,10 @@ namespace Core.ConditionalAccess
             if (campaigns.HasObjects())
             {
                 Price priceBeforeCouponDiscount = subOriginalPrice;
-                var discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)(campaigns.Objects[0].Promotion.DiscountModuleId), countryCode, subOriginalPrice.m_oCurrency.m_sCurrencyCD3);
-                Price priceResult = Utils.GetPriceAfterDiscount(priceBeforeCouponDiscount, discountModule, 0);
+                var promotionEvaluator = new PromotionEvaluator(Pricing.Module.Instance, Utils.Instance, groupId, domainId, 
+                    countryCode, subOriginalPrice.m_oCurrency.m_sCurrencyCD3, couponCode, priceBeforeCouponDiscount);
+                Price priceResult = promotionEvaluator.Evaluate(campaigns.Objects[0].Promotion);
+
                 cedd.Amount = subOriginalPrice.m_dPrice - priceResult.m_dPrice;
             }
 

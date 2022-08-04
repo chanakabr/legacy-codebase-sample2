@@ -242,42 +242,37 @@ namespace Core.Notification
             return NotificationDal.GetCampaignInboxMessageMapCB(groupId, userId);
         }
 
-        public static void AddCampaignMessage(Campaign campaign, int groupId, long userId, string udid = null)
+        public static void AddCampaignMessage(Campaign campaign, int groupId, long userId, string udid = null, long? productId = null, eTransactionType? productType = null)
         {
-            AddCampaignMessage(campaign.Id, campaign.CampaignType, campaign.Message, campaign.EndDate, groupId, userId, null, udid);
-        }
-
-        public static void AddCampaignMessage(long campaignId, eCampaignType campaignType, string message, long endDate, int groupId, long userId, long? productId = null, string udid = null)
-        {
-            var ttl = DateUtils.UtcUnixTimestampSecondsToDateTime(endDate) - DateTime.UtcNow;
+            var ttl = DateUtils.UtcUnixTimestampSecondsToDateTime(campaign.EndDate) - DateTime.UtcNow;
             var current = DateUtils.GetUtcUnixTimestampNow();
 
             //Add to user Inbox
             var inboxMessage = new InboxMessage
             {
                 Id = Guid.NewGuid().ToString(),
-                Message = message,
+                Message = campaign.Message,
                 UserId = userId,
                 CreatedAtSec = current,
                 UpdatedAtSec = current,
                 State = eMessageState.Unread,
                 Category = eMessageCategory.Campaign,
-                CampaignId = campaignId
+                CampaignId = campaign.Id
             };
 
             //Todo - Matan, When the campaign is shared, remove personal message
             if (!DAL.NotificationDal.SetUserInboxMessage(groupId, inboxMessage, ttl.TotalDays))
             {
-                log.Error($"Failed to add campaign message (campaign: {campaignId}) to User: {userId} Inbox");
+                log.Error($"Failed to add campaign message (campaign: {campaign.Id}) to User: {userId} Inbox");
             }
             else
             {
-                log.Debug($"Campaign message (campaign: {campaignId}) sent successfully to User: {userId} Inbox");
-                var campaignMessageDetails = new CampaignMessageDetails()
-                {
-                    MessageId = inboxMessage.Id,
-                    ExpiredAt = endDate,
-                    Type = campaignType
+                log.Debug($"Campaign message (campaign: {campaign.Id}) sent successfully to User: {userId} Inbox");
+                var campaignMessageDetails = new CampaignMessageDetails() 
+                { 
+                    MessageId = inboxMessage.Id, 
+                    ExpiredAt = campaign.EndDate,
+                    Type = campaign.CampaignType
                 };
 
                 if (!string.IsNullOrEmpty(udid))
@@ -285,12 +280,12 @@ namespace Core.Notification
                     campaignMessageDetails.Devices.Add(udid);
                 }
 
-                if (productId != null && productId.HasValue)
+                if (productId.HasValue && productType.HasValue && productType.Value == eTransactionType.Subscription)
                 {
                     campaignMessageDetails.SubscriptionUses.Add(productId.Value, current);
                 }
 
-                DAL.NotificationDal.SaveToCampaignInboxMessageMapCB(campaignId, groupId, userId, campaignMessageDetails);//update mapping
+                DAL.NotificationDal.SaveToCampaignInboxMessageMapCB(campaign.Id, groupId, userId, campaignMessageDetails);//update mapping
             }
         }
 

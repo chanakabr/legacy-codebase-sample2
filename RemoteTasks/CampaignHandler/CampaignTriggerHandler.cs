@@ -65,7 +65,7 @@ namespace CampaignHandler
 
                 foreach (var _triggerCampaign in triggerCampaigns.Objects)
                 {
-                    //BEO-8610
+                    //BEO-8610 handle anti fraud
                     var deviceTriggerCampaignsUses = DAL.NotificationDal.GetDeviceTriggerCampainsUses(serviceEvent.GroupId, serviceEvent.EventObject.Udid);
                     var isExists = deviceTriggerCampaignsUses?.Uses?.ContainsKey(_triggerCampaign.Id);
                     if (isExists.HasValue && isExists.Value)
@@ -108,9 +108,8 @@ namespace CampaignHandler
                         var scope = serviceEvent.EventObject.CreateTriggerCampaignConditionScope(contextData);
                         if (_triggerCampaign.EvaluateConditions(scope))
                         {
-                            Core.Notification.MessageInboxManger.AddCampaignMessage(_triggerCampaign, serviceEvent.GroupId, user, serviceEvent.EventObject.Udid);
                             _contextData.Udid = serviceEvent.EventObject?.Udid;
-
+                            Core.Notification.MessageInboxManger.AddCampaignMessage(_triggerCampaign, serviceEvent.GroupId, user, _contextData.Udid);
                             CampaignManager.Instance.NotifyTriggerCampaignEvent(_triggerCampaign, _contextData);
                         }
                     });

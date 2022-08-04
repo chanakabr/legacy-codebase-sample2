@@ -9848,6 +9848,46 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
+    public partial class KalturaBasePromotion
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Conditions != null && (retrievedProperties == null || retrievedProperties.Contains("conditions")))
+            {
+                propertyValue = "[" + String.Join(", ", Conditions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("conditions", "\"conditions\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Conditions != null && (retrievedProperties == null || retrievedProperties.Contains("conditions")))
+            {
+                propertyValue = Conditions.Count > 0 ? "<item>" + String.Join("</item><item>", Conditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("conditions", "<conditions>" + propertyValue + "</conditions>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaBaseRegionFilter
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -10423,6 +10463,14 @@ namespace WebAPI.Models.API
             {
                 ret.Add("hasPromotion", "\"hasPromotion\": " + HasPromotion.ToString().ToLower());
             }
+            if(NameContains != null && (retrievedProperties == null || retrievedProperties.Contains("nameContains")))
+            {
+                ret.Add("nameContains", "\"nameContains\": " + "\"" + EscapeJson(NameContains) + "\"");
+            }
+            if(NameEqual != null && (retrievedProperties == null || retrievedProperties.Contains("nameEqual")))
+            {
+                ret.Add("nameEqual", "\"nameEqual\": " + "\"" + EscapeJson(NameEqual) + "\"");
+            }
             if(StartDateGreaterThanOrEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("startDateGreaterThanOrEqual")))
             {
                 ret.Add("startDateGreaterThanOrEqual", "\"startDateGreaterThanOrEqual\": " + StartDateGreaterThanOrEqual);
@@ -10430,6 +10478,10 @@ namespace WebAPI.Models.API
             if(StateEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("stateEqual")))
             {
                 ret.Add("stateEqual", "\"stateEqual\": " + "\"" + Enum.GetName(typeof(KalturaObjectState), StateEqual) + "\"");
+            }
+            if(StateIn != null && (retrievedProperties == null || retrievedProperties.Contains("stateIn")))
+            {
+                ret.Add("stateIn", "\"stateIn\": " + "\"" + EscapeJson(StateIn) + "\"");
             }
             return ret;
         }
@@ -10453,6 +10505,14 @@ namespace WebAPI.Models.API
             {
                 ret.Add("hasPromotion", "<hasPromotion>" + HasPromotion.ToString().ToLower() + "</hasPromotion>");
             }
+            if(NameContains != null && (retrievedProperties == null || retrievedProperties.Contains("nameContains")))
+            {
+                ret.Add("nameContains", "<nameContains>" + EscapeXml(NameContains) + "</nameContains>");
+            }
+            if(NameEqual != null && (retrievedProperties == null || retrievedProperties.Contains("nameEqual")))
+            {
+                ret.Add("nameEqual", "<nameEqual>" + EscapeXml(NameEqual) + "</nameEqual>");
+            }
             if(StartDateGreaterThanOrEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("startDateGreaterThanOrEqual")))
             {
                 ret.Add("startDateGreaterThanOrEqual", "<startDateGreaterThanOrEqual>" + StartDateGreaterThanOrEqual + "</startDateGreaterThanOrEqual>");
@@ -10460,6 +10520,10 @@ namespace WebAPI.Models.API
             if(StateEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("stateEqual")))
             {
                 ret.Add("stateEqual", "<stateEqual>" + "" + Enum.GetName(typeof(KalturaObjectState), StateEqual) + "" + "</stateEqual>");
+            }
+            if(StateIn != null && (retrievedProperties == null || retrievedProperties.Contains("stateIn")))
+            {
+                ret.Add("stateIn", "<stateIn>" + EscapeXml(StateIn) + "</stateIn>");
             }
             return ret;
         }
@@ -10642,6 +10706,44 @@ namespace WebAPI.Models.API
             if(DefaultRecordingAdapterId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("defaultRecordingAdapterId")))
             {
                 ret.Add("defaultRecordingAdapterId", "<defaultRecordingAdapterId>" + DefaultRecordingAdapterId + "</defaultRecordingAdapterId>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaChannelCondition
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
+            {
+                ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
+            {
+                ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
             }
             return ret;
         }
@@ -11096,6 +11198,44 @@ namespace WebAPI.Models.API
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaCouponPromotion
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("couponGroupId")))
+            {
+                ret.Add("couponGroupId", "\"couponGroupId\": " + CouponGroupId);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("couponGroupId")))
+            {
+                ret.Add("couponGroupId", "<couponGroupId>" + CouponGroupId + "</couponGroupId>");
             }
             return ret;
         }
@@ -12738,6 +12878,44 @@ namespace WebAPI.Models.API
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaFileTypeCondition
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
+            {
+                ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
+            {
+                ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
             }
             return ret;
         }
@@ -15660,11 +15838,6 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(Conditions != null && (retrievedProperties == null || retrievedProperties.Contains("conditions")))
-            {
-                propertyValue = "[" + String.Join(", ", Conditions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
-                ret.Add("conditions", "\"conditions\": " + propertyValue);
-            }
             if((retrievedProperties == null || retrievedProperties.Contains("discountModuleId")))
             {
                 ret.Add("discountModuleId", "\"discountModuleId\": " + DiscountModuleId);
@@ -15687,11 +15860,6 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(Conditions != null && (retrievedProperties == null || retrievedProperties.Contains("conditions")))
-            {
-                propertyValue = Conditions.Count > 0 ? "<item>" + String.Join("</item><item>", Conditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
-                ret.Add("conditions", "<conditions>" + propertyValue + "</conditions>");
-            }
             if((retrievedProperties == null || retrievedProperties.Contains("discountModuleId")))
             {
                 ret.Add("discountModuleId", "<discountModuleId>" + DiscountModuleId + "</discountModuleId>");

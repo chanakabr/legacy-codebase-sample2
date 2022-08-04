@@ -1160,7 +1160,9 @@ namespace ApiObjects
         UserSessionProfile,
         DeviceDynamicData,
         IP_V6_RANGE,
-        AssetShop
+        AssetShop,
+        Channel,
+        FileType
     }
 
     public enum RuleActionTaskType

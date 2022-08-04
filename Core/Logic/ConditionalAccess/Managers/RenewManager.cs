@@ -1863,7 +1863,7 @@ namespace Core.ConditionalAccess
                 {
                     m_dPrice = renewDetails.Price,
                     m_oCurrency = currencyObj,
-                    countryId = country != null ? country.Id : 0
+                    countryId = country != null ? country.Id : 0,
                 },
                 GroupId = groupId,
                 Id = purchaseId,
@@ -2013,7 +2013,7 @@ namespace Core.ConditionalAccess
                 Price = new Price()
                 {
                     m_oCurrency = currencyObj,
-                    countryId = country != null ? country.Id : 0
+                    countryId = country != null ? country.Id : 0,
                 },
                 GroupId = groupId,
                 Id = unifiedPaymentId,

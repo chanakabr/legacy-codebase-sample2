@@ -82,7 +82,7 @@ namespace WebAPI.Controllers
         [Action("playManifest")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("partnerId", MinInteger = 1)]
-        [SchemeArgument("assetFileId", MinInteger = 1)]
+        [SchemeArgument("assetFileId", MinLong = 1)]
         [FailureHttpCode(HttpStatusCode.NotFound)]
         [Throws(eResponseStatus.RecordingNotFound)]
         [Throws(eResponseStatus.ProgramDoesntExist)]

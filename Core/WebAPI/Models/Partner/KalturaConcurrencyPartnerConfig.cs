@@ -36,7 +36,7 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "concurrencyThresholdInSeconds")]
         [JsonProperty("concurrencyThresholdInSeconds")]
         [XmlElement(ElementName = "concurrencyThresholdInSeconds")] 
-        [SchemeProperty(MinInteger = 30, MaxInteger = 1200)]
+        [SchemeProperty(MinLong = 30, MaxLong = 1200)]
         public long? ConcurrencyThresholdInSeconds { get; set; }
 
         /// <summary>

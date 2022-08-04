@@ -36,7 +36,7 @@ namespace ApiObjects.Notification
         public eCampaignType Type { get; set; }
 
         /// <summary>
-        /// ProductId to CreateDate of the use for prodcutId
+        /// SubscriptionId to CreateDate of the use for SubscriptionId
         /// </summary>
         public Dictionary<long, long> SubscriptionUses { get; set; }
 

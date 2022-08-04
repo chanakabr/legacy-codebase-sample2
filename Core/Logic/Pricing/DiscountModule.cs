@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Pricing;
+using Core.GroupManagers;
 using System;
 
 namespace Core.Pricing
@@ -62,58 +63,6 @@ namespace Core.Pricing
                 }
             }
             return theContainer;
-        }
-
-        public bool Initialize(Int32 nDiscountID)
-        {
-            ODBCWrapper.DataSetSelectQuery selectQuery = null;
-            try
-            {
-                selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery.SetConnectionKey("pricing_connection");
-                selectQuery += "select * from discount_codes with (nolock) where ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nDiscountID);
-                if (selectQuery.Execute("query", true) != null)
-                {
-                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                    if (nCount > 0)
-                    {
-                        string sCode = selectQuery.Table("query").DefaultView[0].Row["CODE"].ToString();
-                        double dPrice = double.Parse(selectQuery.Table("query").DefaultView[0].Row["PRICE"].ToString());
-                        double dDiscountPer = double.Parse(selectQuery.Table("query").DefaultView[0].Row["DISCOUNT_PERCENT"].ToString());
-                        RelationTypes oRelType = ((RelationTypes)(int.Parse(selectQuery.Table("query").DefaultView[0].Row["RELATION_TYPE"].ToString())));
-                        Int32 nCurrencyCD = int.Parse(selectQuery.Table("query").DefaultView[0].Row["CURRENCY_CD"].ToString());
-                        Price p = new Price();
-                        p.InitializeByCodeID(nCurrencyCD, dPrice);
-                        DateTime dStart = new DateTime(2000, 1, 1);
-                        DateTime dEnd = new DateTime(2099, 1, 1);
-                        if (selectQuery.Table("query").DefaultView[0].Row["START_DATE"] != null &&
-                            selectQuery.Table("query").DefaultView[0].Row["START_DATE"] != DBNull.Value)
-                            dStart = (DateTime)(selectQuery.Table("query").DefaultView[0].Row["START_DATE"]);
-
-                        if (selectQuery.Table("query").DefaultView[0].Row["END_DATE"] != null &&
-                            selectQuery.Table("query").DefaultView[0].Row["END_DATE"] != DBNull.Value)
-                            dEnd = (DateTime)(selectQuery.Table("query").DefaultView[0].Row["END_DATE"]);
-
-                        WhenAlgoType oWhenAlgoType = (WhenAlgoType)(int.Parse(selectQuery.Table("query").DefaultView[0].Row["WHENALGO_TYPE"].ToString()));
-                        Int32 nWhenAlgoTimes = int.Parse(selectQuery.Table("query").DefaultView[0].Row["WHENALGO_TIMES"].ToString());
-                        WhenAlgo wa = new WhenAlgo();
-                        wa.Initialize(oWhenAlgoType, nWhenAlgoTimes);
-
-                        Initialize(sCode, p, GetDiscountCodeDescription(nDiscountID), nDiscountID, dDiscountPer, oRelType, dStart, dEnd, wa);
-
-                    }
-                }
-
-            }
-            finally
-            {
-                if (selectQuery != null)
-                {
-                    selectQuery.Finish();
-                }
-            }
-            return true;
         }
 
         public double m_dPercent;

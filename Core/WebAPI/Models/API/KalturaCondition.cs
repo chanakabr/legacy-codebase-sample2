@@ -36,7 +36,9 @@ namespace WebAPI.Models.API
         USER_SESSION_PROFILE,
         DEVICE_DYNAMIC_DATA,
         IP_V6_RANGE,
-        ASSET_SHOP
+        ASSET_SHOP,
+        CHANNEL,
+        FILE_TYPE
     }
 
     /// <summary>

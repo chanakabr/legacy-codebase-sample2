@@ -512,6 +512,7 @@ namespace Core.Pricing
             priceReason = PriceReason.ForPurchase;
             return price;
         }
+        
         /// <summary>
         /// Calculate lowest price according to external Discount Module and BusinessModuleRules
         /// </summary>
@@ -560,10 +561,10 @@ namespace Core.Pricing
                     {
                         if (businessModuleRule.Actions != null && businessModuleRule.Actions.Count == 1)
                         {
-                            var discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)(businessModuleRule.Actions[0] as ApplyDiscountModuleRuleAction).DiscountModuleId, countryCode, currencyCode);
+                            var discountModule = Pricing.Module.Instance.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)(businessModuleRule.Actions[0] as ApplyDiscountModuleRuleAction).DiscountModuleId, countryCode, currencyCode);
                             if (discountModule != null)
                             {
-                                var tempPrice = ConditionalAccess.Utils.GetPriceAfterDiscount(currentPrice, discountModule, 1);
+                                var tempPrice = ConditionalAccess.Utils.Instance.GetPriceAfterDiscount(currentPrice, discountModule, 1);
                                 if (tempPrice != null && tempPrice.m_dPrice < lowestPrice.m_dPrice)
                                 {
                                     lowestPrice = tempPrice;
@@ -576,24 +577,8 @@ namespace Core.Pricing
 
             if (lowestPrice.IsFree() || transactionType == eTransactionType.PPV || string.IsNullOrEmpty(couponCode)) { return lowestPrice; }
 
-            long couponGroupId = PricingDAL.Get_CouponGroupId(groupId, couponCode); // return only if valid 
-            if (couponGroupId > 0)
-            {
-                // look if this coupon group id exsits in coupon list 
-                CouponsGroup currCouponGroup = null;
-                if (couponsGroup != null && !string.IsNullOrEmpty(couponsGroup.m_sGroupCode) && couponsGroup.m_sGroupCode.Equals(couponGroupId.ToString()))
-                {
-                    currCouponGroup = ObjectCopier.Clone(couponsGroup);
-                }
-                else if (subscriptionCouponGroups != null)
-                {
-                    currCouponGroup = ObjectCopier.Clone<CouponsGroup>(subscriptionCouponGroups.FirstOrDefault
-                        (x => x.m_sGroupCode.Equals(couponGroupId.ToString()) && (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)));
-                }
-
-                lowestPrice = ConditionalAccess.Utils.CalculateCouponDiscount(ref lowestPrice, currCouponGroup, ref couponCode, groupId, domainId);
-            }
-
+            lowestPrice = ConditionalAccess.Utils.Instance.GetLowestPriceByCouponCode(groupId, ref couponCode, subscriptionCouponGroups, lowestPrice, domainId, 
+                couponsGroup, countryCode);
             return lowestPrice;
         }
     }

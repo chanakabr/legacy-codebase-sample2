@@ -14,7 +14,7 @@ namespace Core.Pricing
             m_nGroupID = nGroupID;
         }
 
-        public abstract DiscountModule GetDiscountCodeData(string sDC);
+        public abstract DiscountModule GetDiscountCodeData(string sDC, string currency = "");
         public abstract DiscountModule[] GetDiscountsModuleListForAdmin();
         public abstract DiscountModule GetDiscountCodeDataByCountryAndCurrency(int discountCodeId, string countryCode, string currencyCode);
         protected Int32 m_nGroupID;

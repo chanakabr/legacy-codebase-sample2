@@ -367,6 +367,9 @@ namespace WebAPI.Reflection
                 case "KalturaBasePermissionFilter":
                     return new KalturaBasePermissionFilter(parameters, true);
                     
+                case "KalturaBasePromotion":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
                 case "KalturaBaseRegionFilter":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
@@ -607,6 +610,9 @@ namespace WebAPI.Reflection
                 case "KalturaChannelAggregatedIngestInfo":
                     return new KalturaChannelAggregatedIngestInfo(parameters, true);
                     
+                case "KalturaChannelCondition":
+                    return new KalturaChannelCondition(parameters, true);
+                    
                 case "KalturaChannelDynamicOrder":
                     return new KalturaChannelDynamicOrder(parameters, true);
                     
@@ -771,6 +777,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaCouponListResponse":
                     return new KalturaCouponListResponse(parameters, true);
+                    
+                case "KalturaCouponPromotion":
+                    return new KalturaCouponPromotion(parameters, true);
                     
                 case "KalturaCouponsGroup":
                     return new KalturaCouponsGroup(parameters, true);
@@ -1134,6 +1143,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaFeed":
                     return new KalturaFeed(parameters, true);
+                    
+                case "KalturaFileTypeCondition":
+                    return new KalturaFileTypeCondition(parameters, true);
                     
                 case "KalturaFilterAction":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
@@ -9673,6 +9685,26 @@ namespace WebAPI.Models.API
         {
         }
     }
+    public partial class KalturaBasePromotion
+    {
+        public KalturaBasePromotion(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("conditions") && parameters["conditions"] != null)
+                {
+                    if (parameters["conditions"] is JArray)
+                    {
+                        Conditions = OTTObjectBuilder.buildList<KalturaCondition>(typeof(KalturaCondition), (JArray) parameters["conditions"]);
+                    }
+                    else if (parameters["conditions"] is IList)
+                    {
+                        Conditions = OTTObjectBuilder.buildList(typeof(KalturaCondition), parameters["conditions"] as object[]);
+                    }
+                }
+            }
+        }
+    }
     public partial class KalturaBaseRegionFilter
     {
         public KalturaBaseRegionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
@@ -10106,11 +10138,11 @@ namespace WebAPI.Models.API
                     PromotionSchemaProperty.Validate("promotion", parameters["promotion"]);
                     if (parameters["promotion"] is JObject)
                     {
-                        Promotion = (KalturaPromotion) Deserializer.deserialize(typeof(KalturaPromotion), ((JObject) parameters["promotion"]).ToObject<Dictionary<string, object>>());
+                        Promotion = (KalturaBasePromotion) Deserializer.deserialize(typeof(KalturaBasePromotion), ((JObject) parameters["promotion"]).ToObject<Dictionary<string, object>>());
                     }
                     else if (parameters["promotion"] is IDictionary)
                     {
-                        Promotion = (KalturaPromotion) Deserializer.deserialize(typeof(KalturaPromotion), (Dictionary<string, object>) parameters["promotion"]);
+                        Promotion = (KalturaBasePromotion) Deserializer.deserialize(typeof(KalturaBasePromotion), (Dictionary<string, object>) parameters["promotion"]);
                     }
                 }
                 if (parameters.ContainsKey("message") && parameters["message"] != null)
@@ -10171,10 +10203,51 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaCampaignSearchFilter
     {
+        private static RuntimeSchemePropertyAttribute NameEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCampaignSearchFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 7,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute NameContainsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCampaignSearchFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 7,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute StateInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCampaignSearchFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 7,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
         public KalturaCampaignSearchFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("startDateGreaterThanOrEqual") && parameters["startDateGreaterThanOrEqual"] != null)
                 {
                     StartDateGreaterThanOrEqual = (Int64) Convert.ChangeType(parameters["startDateGreaterThanOrEqual"], typeof(Int64));
@@ -10200,6 +10273,21 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("hasPromotion") && parameters["hasPromotion"] != null)
                 {
                     HasPromotion = (Boolean) Convert.ChangeType(parameters["hasPromotion"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("nameEqual") && parameters["nameEqual"] != null)
+                {
+                    NameEqualSchemaProperty.Validate("nameEqual", parameters["nameEqual"]);
+                    NameEqual = (String) Convert.ChangeType(parameters["nameEqual"], typeof(String));
+                }
+                if (parameters.ContainsKey("nameContains") && parameters["nameContains"] != null)
+                {
+                    NameContainsSchemaProperty.Validate("nameContains", parameters["nameContains"]);
+                    NameContains = (String) Convert.ChangeType(parameters["nameContains"], typeof(String));
+                }
+                if (parameters.ContainsKey("stateIn") && parameters["stateIn"] != null)
+                {
+                    StateInSchemaProperty.Validate("stateIn", parameters["stateIn"]);
+                    StateIn = (String) Convert.ChangeType(parameters["stateIn"], typeof(String));
                 }
             }
         }
@@ -10343,6 +10431,44 @@ namespace WebAPI.Models.API
                 {
                     DefaultRecordingAdapterIdSchemaProperty.Validate("defaultRecordingAdapterId", parameters["defaultRecordingAdapterId"]);
                     DefaultRecordingAdapterId = (Int32) Convert.ChangeType(parameters["defaultRecordingAdapterId"], typeof(Int32));
+                }
+            }
+        }
+    }
+    public partial class KalturaChannelCondition
+    {
+        private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannelCondition")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            DynamicMinInt = 1,
+            MaxLength = -1,
+            MinLength = 1,
+            Pattern = @"^(?!\s*$).+",
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaChannelCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (fromRequest)
+            {
+                if (parameters == null)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "idIn");
+               if (!parameters.ContainsKey("idIn") || parameters["idIn"] == null)
+                   throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "idIn");
+            }
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
+                {
+                    IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
+                    IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
                 }
             }
         }
@@ -10622,6 +10748,43 @@ namespace WebAPI.Models.API
                     {
                         Objects = OTTObjectBuilder.buildList(typeof(KalturaCountry), parameters["objects"] as object[]);
                     }
+                }
+            }
+        }
+    }
+    public partial class KalturaCouponPromotion
+    {
+        private static RuntimeSchemePropertyAttribute CouponGroupIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponPromotion")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaCouponPromotion(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (fromRequest)
+            {
+                if (parameters == null)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "couponGroupId");
+               if (!parameters.ContainsKey("couponGroupId") || parameters["couponGroupId"] == null)
+                   throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "couponGroupId");
+            }
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("couponGroupId") && parameters["couponGroupId"] != null)
+                {
+                    CouponGroupIdSchemaProperty.Validate("couponGroupId", parameters["couponGroupId"]);
+                    CouponGroupId = (Int64) Convert.ChangeType(parameters["couponGroupId"], typeof(Int64));
                 }
             }
         }
@@ -11270,7 +11433,7 @@ namespace WebAPI.Models.API
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
+            MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -11366,7 +11529,7 @@ namespace WebAPI.Models.API
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
+            MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -11773,6 +11936,44 @@ namespace WebAPI.Models.API
                     {
                         Objects = OTTObjectBuilder.buildList(typeof(KalturaExternalChannelProfile), parameters["objects"] as object[]);
                     }
+                }
+            }
+        }
+    }
+    public partial class KalturaFileTypeCondition
+    {
+        private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFileTypeCondition")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            DynamicMinInt = 1,
+            MaxLength = -1,
+            MinLength = 1,
+            Pattern = @"^(?!\s*$).+",
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaFileTypeCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (fromRequest)
+            {
+                if (parameters == null)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "idIn");
+               if (!parameters.ContainsKey("idIn") || parameters["idIn"] == null)
+                   throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "idIn");
+            }
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
+                {
+                    IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
+                    IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
                 }
             }
         }
@@ -13906,17 +14107,6 @@ namespace WebAPI.Models.API
                 {
                     DiscountModuleIdSchemaProperty.Validate("discountModuleId", parameters["discountModuleId"]);
                     DiscountModuleId = (Int64) Convert.ChangeType(parameters["discountModuleId"], typeof(Int64));
-                }
-                if (parameters.ContainsKey("conditions") && parameters["conditions"] != null)
-                {
-                    if (parameters["conditions"] is JArray)
-                    {
-                        Conditions = OTTObjectBuilder.buildList<KalturaCondition>(typeof(KalturaCondition), (JArray) parameters["conditions"]);
-                    }
-                    else if (parameters["conditions"] is IList)
-                    {
-                        Conditions = OTTObjectBuilder.buildList(typeof(KalturaCondition), parameters["conditions"] as object[]);
-                    }
                 }
                 if (parameters.ContainsKey("numberOfRecurring") && parameters["numberOfRecurring"] != null)
                 {
@@ -16241,7 +16431,7 @@ namespace WebAPI.Models.IngestStatus
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 0,
+            MinLong = 0,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -16754,7 +16944,7 @@ namespace WebAPI.Models.Notifications
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
+            MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -16926,7 +17116,7 @@ namespace WebAPI.Models.Notifications
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
+            MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -20571,7 +20761,7 @@ namespace WebAPI.Models.Catalog
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 0,
+            MinLong = 0,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -21893,7 +22083,7 @@ namespace WebAPI.Models.Catalog
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
+            MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -22048,7 +22238,7 @@ namespace WebAPI.Models.Catalog
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 0,
+            MinLong = 0,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -22062,7 +22252,7 @@ namespace WebAPI.Models.Catalog
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 0,
+            MinLong = 0,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -23000,7 +23190,7 @@ namespace WebAPI.Models.Catalog
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
-            MinLong = 1,
+            MinInteger = 1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -23104,7 +23294,7 @@ namespace WebAPI.Models.Catalog
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
+            MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -23445,7 +23635,7 @@ namespace WebAPI.Models.Catalog
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
+            MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -23459,7 +23649,7 @@ namespace WebAPI.Models.Catalog
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
+            MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -26619,7 +26809,7 @@ namespace WebAPI.Models.Catalog
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
+            MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -27172,7 +27362,7 @@ namespace WebAPI.Models.Pricing
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
+            MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -27948,7 +28138,7 @@ namespace WebAPI.Models.Pricing
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
+            MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -27962,7 +28152,7 @@ namespace WebAPI.Models.Pricing
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
+            MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -28149,7 +28339,7 @@ namespace WebAPI.Models.Pricing
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
+            MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -28163,7 +28353,7 @@ namespace WebAPI.Models.Pricing
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
+            MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -32418,7 +32608,7 @@ namespace WebAPI.Models.Segmentation
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
+            MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -36494,8 +36684,8 @@ namespace WebAPI.Models.Partner
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
-            MaxInteger = 1200,
-            MinInteger = 30,
+            MaxLong = 1200,
+            MinLong = 30,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -36701,7 +36891,7 @@ namespace WebAPI.Models.Partner
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
+            MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -36715,7 +36905,7 @@ namespace WebAPI.Models.Partner
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
+            MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -36729,7 +36919,7 @@ namespace WebAPI.Models.Partner
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
+            MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -39739,7 +39929,7 @@ namespace WebAPI.Models.Domains
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
+            MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
         };

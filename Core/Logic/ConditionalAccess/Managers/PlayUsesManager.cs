@@ -664,7 +664,8 @@ namespace Core.ConditionalAccess
         /// Insert PPV Purchases
         /// </summary>
         private static long InsertPPVPurchases(string sSiteGUID, Int32 nMediaFileID, double dPrice, string sCurrency, string sSubCode, Int32 nRecieptCode, string sCountryCd, string sLANGUAGE_CODE,
-                                                string sDEVICE_NAME, string sPPVModuleCode, string sCouponCode, string sUserIP, int domainId, int groupId, BaseConditionalAccess cas)
+                                               string sDEVICE_NAME, string sPPVModuleCode, string sCouponCode, string sUserIP, int domainId, int groupId, BaseConditionalAccess cas,
+                                               long campaignId)
         {
             long purchaseId = 0;
 
@@ -673,8 +674,9 @@ namespace Core.ConditionalAccess
 
             Int32 nMediaID = Utils.GetMediaIDFromFileID(nMediaFileID, groupId);
 
-            string sCustomData = cas.GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency, nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode,
-                sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, domainId);
+            string sCustomData = cas.GetCustomData
+                (relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency, nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode,
+                 sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, domainId, campaignId);
 
             DateTime endDate = Utils.GetEndDateTime(DateTime.UtcNow, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
             purchaseId = ConditionalAccessDAL.Insert_NewPPVPurchase(groupId, nMediaFileID, sSiteGUID, dPrice, sCurrency,

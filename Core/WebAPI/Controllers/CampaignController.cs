@@ -27,6 +27,9 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.CampaignDoesNotExist)]
         [Throws(eResponseStatus.ExceededMaxCapacity)]
+        [Throws(eResponseStatus.InvalidCampaignState)]
+        [Throws(eResponseStatus.CampaignStateUpdateNotAllowed)]
+        [Throws(eResponseStatus.InvalidCampaignEndDate)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         public static void SetState(long campaignId, KalturaObjectState newState)
         {
@@ -56,6 +59,9 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.DiscountCodeNotExist)]
         [Throws(eResponseStatus.NotExist)]
+        [Throws(eResponseStatus.ChannelDoesNotExist)]
+        [Throws(eResponseStatus.MediaFileTypeDoesNotExist)]
+        [Throws(eResponseStatus.CouponGroupNotExist)]
         static public KalturaCampaign Add(KalturaCampaign objectToAdd)
         {
             var contextData = KS.GetContextData();
@@ -107,6 +113,10 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DiscountCodeNotExist)]
         [Throws(eResponseStatus.CampaignDoesNotExist)]
         [Throws(eResponseStatus.NotExist)]
+        [Throws(eResponseStatus.ChannelDoesNotExist)]
+        [Throws(eResponseStatus.MediaFileTypeDoesNotExist)]
+        [Throws(eResponseStatus.CouponGroupNotExist)]
+        [Throws(eResponseStatus.CampaignUpdateNotAllowed)]
         static public KalturaCampaign Update(long id, KalturaCampaign objectToUpdate)
         {
             objectToUpdate.ValidateForUpdate();

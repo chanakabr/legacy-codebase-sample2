@@ -160,6 +160,10 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType EXTERNAL_OFFER_ID_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.ExternalOfferIdAlreadyExists, "External offer id already exists", "The external offer Id you are trying to add / update already exists");
         public static ClientExceptionType UNABLE_TO_PURCHASE_PAGO_PURCHASED = new ClientExceptionType(eResponseStatus.UnableToPurchaseProgramAssetGroupOfferPurchased, "Unable To Purchase PAGO Purchased", "This ProgramAssetGroupOffer has already been purchased by this household");
 
+        public static ClientExceptionType CAMPAIGN_UPDATE_NOT_ALLOWED = new ClientExceptionType(eResponseStatus.CampaignUpdateNotAllowed, "Campaign Update Not Allowed", "Only campaign in state INACTIVE can be updated");
+        public static ClientExceptionType INVALID_CAMPAIGN_STATE = new ClientExceptionType(eResponseStatus.InvalidCampaignState, "Invalid Campaign State", "Campaign is already in given state");
+        public static ClientExceptionType CAMPAIGN_STATE_UPDATE_NOT_ALLOWED = new ClientExceptionType(eResponseStatus.CampaignStateUpdateNotAllowed, "Campaign State Update Not Allowed", "Can update campaign state only from INACTIVE to ACTIVE or from ACTIVE to ARCHIVE");
+        public static ClientExceptionType INVALID_CAMPAIGN_ENDDATE = new ClientExceptionType(eResponseStatus.InvalidCampaignEndDate, "Invalid Campaign EndDate", "Can update campaign state only if its EndDate is in the future");
 
         #endregion
 

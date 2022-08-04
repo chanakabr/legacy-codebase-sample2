@@ -67,7 +67,7 @@ namespace ApiObjects
         [DBFieldMapping("campaign_json")]
         public string CampaignJson { get; set; }
 
-        public Promotion Promotion { get; set; }
+        public BasePromotion Promotion { get; set; }
 
         #endregion
 
@@ -120,7 +120,7 @@ namespace ApiObjects
                 this.CollectionIds = oldCampaign.CollectionIds;
             }
 
-            var nullablePromotion = new NullableObj<Promotion>(this.Promotion, this.IsNullablePropertyExists("Promotion"));
+            var nullablePromotion = new NullableObj<BasePromotion>(this.Promotion, this.IsNullablePropertyExists("Promotion"));
 
             if (!nullablePromotion.IsNull && this.Promotion == null)
             {

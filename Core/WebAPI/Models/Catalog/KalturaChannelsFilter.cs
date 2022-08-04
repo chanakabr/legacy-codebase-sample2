@@ -71,7 +71,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "mediaIdEqual")]
         [JsonProperty("mediaIdEqual")]
         [XmlElement(ElementName = "mediaIdEqual")]
-        [SchemeProperty(RequiresPermission = (int)RequestType.READ, MinInteger = 1)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.READ, MinLong = 1)]
         public long MediaIdEqual { get; set; }
 
         /// <summary>

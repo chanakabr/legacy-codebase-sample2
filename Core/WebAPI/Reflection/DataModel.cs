@@ -1050,6 +1050,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaBasePromotion":
+                    switch(property.Name)
+                    {
+                        case "Conditions":
+                            return "conditions";
+                    }
+                    break;
+                    
                 case "KalturaBaseSearchAssetFilter":
                     switch(property.Name)
                     {
@@ -1467,10 +1475,16 @@ namespace WebAPI.Reflection
                             return "endDateLessThanOrEqual";
                         case "HasPromotion":
                             return "hasPromotion";
+                        case "NameContains":
+                            return "nameContains";
+                        case "NameEqual":
+                            return "nameEqual";
                         case "StartDateGreaterThanOrEqual":
                             return "startDateGreaterThanOrEqual";
                         case "StateEqual":
                             return "stateEqual";
+                        case "StateIn":
+                            return "stateIn";
                     }
                     break;
                     
@@ -1805,6 +1819,14 @@ namespace WebAPI.Reflection
                             return "aggregatedErrors";
                         case "LinearChannelId":
                             return "linearChannelId";
+                    }
+                    break;
+                    
+                case "KalturaChannelCondition":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
                     }
                     break;
                     
@@ -2401,6 +2423,14 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaCouponPromotion":
+                    switch(property.Name)
+                    {
+                        case "CouponGroupId":
+                            return "couponGroupId";
                     }
                     break;
                     
@@ -3621,6 +3651,14 @@ namespace WebAPI.Reflection
                     {
                         case "AssetId":
                             return "assetId";
+                    }
+                    break;
+                    
+                case "KalturaFileTypeCondition":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
                     }
                     break;
                     
@@ -6883,8 +6921,6 @@ namespace WebAPI.Reflection
                 case "KalturaPromotion":
                     switch(property.Name)
                     {
-                        case "Conditions":
-                            return "conditions";
                         case "DiscountModuleId":
                             return "discountModuleId";
                         case "NumberOfRecurring":
@@ -14970,7 +15006,7 @@ namespace WebAPI.Reflection
                                     RequiresPermission = false,
                                     MaxLength = -1,
                                     MinLength = -1,
-                                    MinInteger = 1,
+                                    MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
                                 },

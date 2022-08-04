@@ -32,7 +32,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "imageTypeId")]
         [JsonProperty(PropertyName = "imageTypeId")]
         [XmlElement(ElementName = "imageTypeId")]
-        [SchemeProperty(MinInteger = 1)]
+        [SchemeProperty(MinLong = 1)]
         public long ImageTypeId { get; set; }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "imageObjectId")]
         [JsonProperty(PropertyName = "imageObjectId")]
         [XmlElement(ElementName = "imageObjectId")]
-        [SchemeProperty(MinInteger = 1)]
+        [SchemeProperty(MinLong = 1)]
         public long ImageObjectId { get; set; }
 
         /// <summary>

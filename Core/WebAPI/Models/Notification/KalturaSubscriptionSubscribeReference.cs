@@ -15,7 +15,7 @@ namespace WebAPI.Models.Notifications
         [DataMember(Name = "subscriptionId")]
         [JsonProperty(PropertyName = "subscriptionId")]
         [XmlElement(ElementName = "subscriptionId")]
-        [SchemeProperty(MinInteger = 1)]
+        [SchemeProperty(MinLong = 1)]
         public long SubscriptionId { get; set; }
     }
 }

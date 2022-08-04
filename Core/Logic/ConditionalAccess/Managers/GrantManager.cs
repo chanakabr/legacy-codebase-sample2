@@ -146,23 +146,21 @@ namespace Core.ConditionalAccess
                 }
 
                 // validate price
-                PriceReason ePriceReason = PriceReason.UnKnown;
                 Subscription relevantSub = null;
                 Collection relevantCol = null;
                 PrePaidModule relevantPP = null;
-                Price priceResponse = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, thePPVModule, userId, string.Empty, groupId,
-                                                                                              ref ePriceReason, ref relevantSub, ref relevantCol, ref relevantPP,
-                                                                                              string.Empty, string.Empty, udid, true, ip);
+                var fullPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices
+                    (contentId, thePPVModule, userId, string.Empty, groupId, ref relevantSub, ref relevantCol, ref relevantPP, string.Empty, string.Empty, udid, true, ip);
 
-                if (ePriceReason != PriceReason.ForPurchase && !(ePriceReason == PriceReason.SubscriptionPurchased && priceResponse.m_dPrice > 0))
+                if (fullPrice.PriceReason != PriceReason.ForPurchase && !(fullPrice.PriceReason == PriceReason.SubscriptionPurchased && fullPrice.FinalPrice.m_dPrice > 0))
                 {
                     // not for purchase
-                    status = Utils.SetResponseStatus(ePriceReason);
+                    status = Utils.SetResponseStatus(fullPrice.PriceReason);
                     log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
                     return status;
                 }
 
-                if (priceResponse == null)
+                if (fullPrice.FinalPrice == null)
                 {
                     status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
@@ -173,11 +171,12 @@ namespace Core.ConditionalAccess
                 string country = string.IsNullOrEmpty(ip) ? string.Empty : Utils.GetIP2CountryName(groupId, ip);
 
                 // create custom data
-                string customData = cas.GetCustomData(relevantSub, thePPVModule, null, userId, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, contentId,
-                    mediaID, productId.ToString(), string.Empty, string.Empty, ip, country, string.Empty, udid, householdId);
+                string customData = cas.GetCustomData
+                    (relevantSub, thePPVModule, null, userId, fullPrice.FinalPrice.m_dPrice, fullPrice.FinalPrice.m_oCurrency.m_sCurrencyCD3, contentId,
+                     mediaID, productId.ToString(), string.Empty, string.Empty, ip, country, string.Empty, udid, householdId, fullPrice.CampaignDetails?.Id ?? 0);
 
                 // purchase
-                BillingResponse billingResponse = HandleTransactionPurchase(saveHistory, cas, userId, priceResponse, ip, customData);
+                BillingResponse billingResponse = HandleTransactionPurchase(saveHistory, cas, userId, fullPrice.FinalPrice, ip, customData);
 
                 if (billingResponse == null || billingResponse.m_oStatus != BillingResponseStatus.Success)
                 {
@@ -191,7 +190,7 @@ namespace Core.ConditionalAccess
                 long lPurchaseID = 0;
                 string billingGuid = Guid.NewGuid().ToString();
 
-                var result = cas.HandleChargeUserForMediaFileBillingSuccess(userId, Convert.ToInt32(householdId), relevantSub, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3,
+                var result = cas.HandleChargeUserForMediaFileBillingSuccess(userId, Convert.ToInt32(householdId), relevantSub, fullPrice.FinalPrice.m_dPrice, fullPrice.FinalPrice.m_oCurrency.m_sCurrencyCD3,
                     string.Empty, ip, country, string.Empty, udid, billingResponse, customData,
                     thePPVModule, contentId, ref lBillingTransactionID, ref lPurchaseID, true, billingGuid, startDate, endDate);
 

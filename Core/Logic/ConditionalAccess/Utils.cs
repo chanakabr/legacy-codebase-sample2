@@ -1,9 +1,11 @@
 ﻿using ApiLogic.Api.Managers;
 using ApiLogic.ConditionalAccess;
+using ApiLogic.Pricing;
 using ApiLogic.Pricing.Handlers;
 using APILogic.Api.Managers;
 using APILogic.ConditionalAccess.Managers;
 using ApiObjects;
+using ApiObjects.Base;
 using ApiObjects.Billing;
 using ApiObjects.Catalog;
 using ApiObjects.CDNAdapter;
@@ -43,6 +45,7 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 using TVinciShared;
 using Tvinic.GoogleAPI;
@@ -54,7 +57,10 @@ namespace Core.ConditionalAccess
     public interface IConditionalAccessUtils
     {
         List<ApiObjects.Epg.FieldTypeEntity> GetAliasMappingFields(int groupId);
+        Price GetLowestPriceByCouponCode(int groupId, ref string couponCode, List<SubscriptionCouponGroup> subscriptionCouponGroups, Price currentPrice, int domainId, CouponsGroup couponsGroup, string countryCode);
+        Price GetPriceAfterDiscount(Price price, DiscountModule disc, Int32 nUseTime);
     }
+
     public class Utils : IConditionalAccessUtils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -242,7 +248,7 @@ namespace Core.ConditionalAccess
             return retVal;
         }
 
-        internal static Price GetPriceAfterDiscount(Price price, DiscountModule disc, Int32 nUseTime)
+        public Price GetPriceAfterDiscount(Price price, DiscountModule disc, Int32 nUseTime)
         {
             Price discRetPrice = CopyPrice(price);
 
@@ -1141,12 +1147,13 @@ namespace Core.ConditionalAccess
             Price ret = new Price
             {
                 m_dPrice = toCopy.m_dPrice,
-                m_oCurrency = toCopy.m_oCurrency
+                m_oCurrency = toCopy.m_oCurrency,
+                countryId = toCopy.countryId
             };
             return ret;
         }
 
-        internal static Price CalculateCouponDiscount(ref Price pModule, CouponsGroup couponsGroup, ref string couponCode, int groupID, long domainId)
+        internal static Price CalculateCouponDiscount(ref Price pModule, CouponsGroup couponsGroup, ref string couponCode, int groupID, long domainId, string countryCode)
         {
             Price price = CopyPrice(pModule);
             if (!string.IsNullOrEmpty(couponCode))
@@ -1169,8 +1176,10 @@ namespace Core.ConditionalAccess
                     else
                     {
                         //Coupon discount should take place
-                        DiscountModule dCouponDiscount = couponsGroup.m_oDiscountCode;
-                        price = GetPriceAfterDiscount(price, dCouponDiscount, 0);
+                        var discountModule = Pricing.Module.Instance.GetDiscountCodeDataByCountryAndCurrency(groupID,
+                            couponsGroup.m_oDiscountCode.m_nObjectID, countryCode, pModule.m_oCurrency.m_sCurrencyCD3);
+
+                        price = Instance.GetPriceAfterDiscount(price, discountModule ?? couponsGroup.m_oDiscountCode, 0);
                     }
                 }
                 else //the coupon is not valid
@@ -1219,7 +1228,7 @@ namespace Core.ConditionalAccess
 
         internal static Price CalculateMediaFileFinalPriceNoSubs(Int32 nMediaFileID, int mediaID, Price pModule,
             DiscountModule discModule, CouponsGroup oCouponsGroup, string sSiteGUID,
-            string sCouponCode, Int32 nGroupID, string subCode, out DateTime? dtDiscountEnd, long domainId)
+            string sCouponCode, Int32 nGroupID, string subCode, out DateTime? dtDiscountEnd, long domainId, string countryCode)
         {
             dtDiscountEnd = null;
             Price p = CopyPrice(pModule);
@@ -1238,7 +1247,7 @@ namespace Core.ConditionalAccess
                     }
                 }
 
-                p = GetPriceAfterDiscount(p, discModule, nPPVPurchaseCount);
+                p = Instance.GetPriceAfterDiscount(p, discModule, nPPVPurchaseCount);
 
                 dtDiscountEnd = discModule.m_dEndDate;
             }
@@ -1276,8 +1285,10 @@ namespace Core.ConditionalAccess
 
                     if (isCampaignValid)
                     {
-                        DiscountModule voucherDiscount = theCouponData.Coupon.m_oCouponGroup.m_oDiscountCode;
-                        p = GetPriceAfterDiscount(p, voucherDiscount, 1);
+                        var discountModule = Pricing.Module.Instance.GetDiscountCodeDataByCountryAndCurrency(nGroupID,
+                            theCouponData.Coupon.m_oCouponGroup.m_oDiscountCode.m_nObjectID, countryCode, pModule.m_oCurrency.m_sCurrencyCD3);
+
+                        p = Instance.GetPriceAfterDiscount(p, discountModule ?? theCouponData.Coupon.m_oCouponGroup.m_oDiscountCode, 1);
                     }
                 }
                 // If it is a gift card - it should be free
@@ -1290,23 +1301,24 @@ namespace Core.ConditionalAccess
                         theCouponData.Coupon.m_oCouponGroup.m_sGroupCode == oCouponsGroup.m_sGroupCode)
                 {
                     //Coupon discount should take place
-                    DiscountModule dCouponDiscount = oCouponsGroup.m_oDiscountCode;
-                    p = GetPriceAfterDiscount(p, dCouponDiscount, 0);
+                    var discountModule = Pricing.Module.Instance.GetDiscountCodeDataByCountryAndCurrency(nGroupID,
+                            oCouponsGroup.m_oDiscountCode.m_nObjectID, countryCode, pModule.m_oCurrency.m_sCurrencyCD3);
+                    p = Instance.GetPriceAfterDiscount(p, discountModule ?? oCouponsGroup.m_oDiscountCode, 0);
                 }
             }
 
             return p;
         }
 
-        private static Price GetMediaFileFinalPriceNoSubs(Int32 nMediaFileID, int mediaID, PPVModule ppvModule, string sSiteGUID, string sCouponCode, Int32 nGroupID,
-                                                          string subCode, out DateTime? dtDiscountEnd, long domainId)
+        private static Price GetMediaFileFinalPriceNoSubs(Int32 nMediaFileID, int mediaID, PPVModule ppvModule, string sSiteGUID, string sCouponCode, 
+                                                          Int32 nGroupID, string subCode, out DateTime? dtDiscountEnd, long domainId, string countryCode)
         {
             Price pModule = ObjectCopier.Clone(ppvModule.m_oPriceCode.m_oPrise);
             DiscountModule discModule = ObjectCopier.Clone(ppvModule.m_oDiscountModule);
             CouponsGroup couponGroups = ObjectCopier.Clone(ppvModule.m_oCouponsGroup);
 
-            return CalculateMediaFileFinalPriceNoSubs
-                (nMediaFileID, mediaID, pModule, discModule, couponGroups, sSiteGUID, sCouponCode, nGroupID, subCode, out dtDiscountEnd, domainId);
+            return CalculateMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, pModule, discModule, couponGroups, sSiteGUID, sCouponCode, nGroupID, subCode, 
+                out dtDiscountEnd, domainId, countryCode);
         }
 
         internal static Price GetSubscriptionFinalPrice(int groupId, string subCode, string userId, string couponCode, ref PriceReason theReason, ref Subscription subscription,
@@ -1455,38 +1467,35 @@ namespace Core.ConditionalAccess
                         }
 
                         //search for campaign
-                        if (string.IsNullOrEmpty(couponCode))
+                        Price lowestPrice = CopyPrice(fullPrice.OriginalPrice);
+                        fullPrice.CampaignDetails = GetValidCampaign(groupId, domainId, fullPrice.OriginalPrice, ref lowestPrice, eTransactionType.Subscription,
+                            currencyCode, long.Parse(subCode), countryCode, couponCode, 0, null);
+                        if (fullPrice.CampaignDetails != null)
                         {
-                            Price lowestPrice = CopyPrice(fullPrice.OriginalPrice);
-                            var recurringCampaignDetails = GetValidCampaign(groupId, domainId, fullPrice.OriginalPrice, ref lowestPrice, eTransactionType.Subscription, currencyCode, long.Parse(subCode), countryCode);
-
-                            if (recurringCampaignDetails != null)
-                            {
-                                fullPrice.CampaignDetails = recurringCampaignDetails;
-                            }
+                            fullPrice.CouponCode = couponCode;
+                            fullPrice.FinalPrice = lowestPrice;
                         }
-
                         return fullPrice;
                     }
 
                     Price discountPrice = null;
                     if (externalDiscount != null)
                     {
-                        discountPrice = GetPriceAfterDiscount(finalPrice, externalDiscount, 0);
+                        discountPrice = Instance.GetPriceAfterDiscount(finalPrice, externalDiscount, 0);
                     }
 
-                    if (string.IsNullOrEmpty(couponCode) && domainId > 0)
+                    if (domainId > 0)
                     {
                         Price lowestPrice = CopyPrice(discountPrice) ?? CopyPrice(fullPrice.FinalPrice);
-                        var recurringCampaignDetails = GetValidCampaign(groupId, domainId, fullPrice.FinalPrice, ref lowestPrice, eTransactionType.Subscription, currencyCode, long.Parse(subCode), countryCode);
+                        fullPrice.CampaignDetails = GetValidCampaign(groupId, domainId, fullPrice.OriginalPrice, ref lowestPrice, eTransactionType.Subscription, currencyCode, 
+                            long.Parse(subCode), countryCode, couponCode, 0, null);
 
-                        if (recurringCampaignDetails != null)
+                        if (fullPrice.CampaignDetails != null)
                         {
                             fullPrice.FinalPrice = lowestPrice;
-                            fullPrice.CampaignDetails = recurringCampaignDetails;
+                            fullPrice.CouponCode = couponCode;
 
                             CalcPriceAndCampaignRemainderByUnifiedBillingCycle(groupId, subscription, false, domainId, ref fullPrice);
-
                             return fullPrice;
                         }
                     }
@@ -1789,7 +1798,7 @@ namespace Core.ConditionalAccess
                     if (externalDiscount != null)
                     {
                         DiscountModule externalDisountWithCurrency =
-                            Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, externalDiscount.m_nObjectID, countryCode, currencyCode);
+                            Pricing.Module.Instance.GetDiscountCodeDataByCountryAndCurrency(groupId, externalDiscount.m_nObjectID, countryCode, currencyCode);
                         externalDiscount = externalDisountWithCurrency != null ? ObjectCopier.Clone(externalDisountWithCurrency) : externalDiscount;
                     }
                 }
@@ -1847,19 +1856,19 @@ namespace Core.ConditionalAccess
             return segmentIds;
         }
 
-        public static RecurringCampaignDetails GetValidCampaign(int groupId, int domainId, Price currentPrice, ref Price lowestPrice, eTransactionType transactionType,
-            string currencyCode, long businessModuleId, string countryCode)
+        public static RecurringCampaignDetails GetValidCampaign(int groupId, int domainId, Price originalPrice, ref Price lowestPrice, eTransactionType productType,
+            string currencyCode, long productId, string countryCode, string couponCode, long mediaId, List<long> fileTypeIds)
         {
             RecurringCampaignDetails recurringCampaignDetails = null;
 
-            CampaignSearchFilter campaignFilter = new CampaignSearchFilter()
+            var campaignFilter = new CampaignSearchFilter()
             {
                 HasPromotion = true,
                 StateEqual = CampaignState.ACTIVE,
                 IsActiveNow = true
             };
 
-            ApiObjects.Base.ContextData contextData = new ApiObjects.Base.ContextData(groupId)
+            var contextData = new ApiObjects.Base.ContextData(groupId)
             {
                 DomainId = domainId
             };
@@ -1868,44 +1877,41 @@ namespace Core.ConditionalAccess
 
             if (campaigns.HasObjects())
             {
-                var filter = new BusinessModuleRuleConditionScope()
+                var campaignPromotionScope = new BusinessModuleRuleConditionScope()
                 {
-                    BusinessModuleId = businessModuleId,
-                    BusinessModuleType = transactionType,
+                    BusinessModuleId = productId,
+                    BusinessModuleType = productType,
                     FilterByDate = true,
-                    GroupId = contextData.GroupId,
+                    GroupId = groupId,
+                    MediaId = mediaId,
+                    FileTypeIds = fileTypeIds
                 };
 
-                var validCampaigns = campaigns.Objects.Where(x => x.Promotion.EvaluateConditions(filter)).ToList();
+                var validCampaigns = campaigns.Objects.Where(x => x.Promotion.EvaluateConditions(campaignPromotionScope)).ToList();
 
                 if (validCampaigns?.Count > 0)
                 {
-                    ApiObjects.Campaign campaign = null;
-
                     var domainResponse = Domains.Module.GetDomainInfo(contextData.GroupId, (int)contextData.DomainId);
                     long userId = domainResponse.Domain.m_masterGUIDs.FirstOrDefault();
 
-                    List<string> allUserIdsInDomain = Domains.Module.GetDomainUserList(contextData.GroupId, (int)contextData.DomainId);
-
                     //get user map
                     var userCampaigns = NotificationDal.GetCampaignInboxMessageMapCB(contextData.GroupId, userId);
-                    var segmentids = GetDomainSegments(contextData.GroupId, contextData.DomainId.Value, allUserIdsInDomain);
 
-                    var scope = new BatchCampaignConditionScope()
-                    {
-                        FilterBySegments = true,
-                        SegmentIds = segmentids
-                    };
+                    var batchCampaignScope = new BatchCampaignConditionScope();
+
+                    ApiObjects.Campaign lowestCampaign = null;
+                    var promotionEvaluator = new PromotionEvaluator(Pricing.Module.Instance, Instance, groupId, domainId,
+                        countryCode, currencyCode, couponCode, originalPrice);
 
                     foreach (var promotedCampaign in validCampaigns)
                     {
+                        var campaignAssignedToUser = userCampaigns != null && userCampaigns.Campaigns != null && userCampaigns.Campaigns.ContainsKey(promotedCampaign.Id);
+
                         string triggerUdid = null;
-
-                        var contains = userCampaigns != null && userCampaigns.Campaigns != null && userCampaigns.Campaigns.ContainsKey(promotedCampaign.Id);
-
-                        if (contains)
+                        if (campaignAssignedToUser)
                         {
-                            if (userCampaigns.Campaigns[promotedCampaign.Id].SubscriptionUses.ContainsKey(businessModuleId)) //Don't allow campaign usage
+                            // handle anti fraud for Subscription only
+                            if (productType == eTransactionType.Subscription && userCampaigns.Campaigns[promotedCampaign.Id].SubscriptionUses.ContainsKey(productId)) //Don't allow campaign usage
                             {
                                 continue;
                             }
@@ -1932,45 +1938,61 @@ namespace Core.ConditionalAccess
                             }
                         }
 
-                        if (contains || (promotedCampaign.CampaignType == eCampaignType.Batch && promotedCampaign.EvaluateConditions(scope)))
+                        // save batch campaign to user in lazy
+                        if (!campaignAssignedToUser && promotedCampaign.CampaignType == eCampaignType.Batch)
                         {
-                            var discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)(promotedCampaign.Promotion.DiscountModuleId), countryCode, currencyCode);
-                            if (discountModule != null)
+                            if (promotedCampaign.GetConditions()?.Count > 0)
                             {
-                                var tempPrice = GetPriceAfterDiscount(currentPrice, discountModule, 0);
-
-                                if (tempPrice != null)
+                                if (!batchCampaignScope.FilterBySegments)
                                 {
-                                    bool isLowest = false;
-                                    if (tempPrice.m_dPrice < lowestPrice.m_dPrice)
-                                    {
-                                        lowestPrice = tempPrice;
-                                        isLowest = true;
-                                    }
-                                    else if (tempPrice.m_dPrice == lowestPrice.m_dPrice)
-                                    {
-                                        int numberOfRecurring = campaign == null ? -1 : campaign.Promotion.NumberOfRecurring ?? -1;
-                                        int newNumberOfRecurring = promotedCampaign.Promotion.NumberOfRecurring ?? -1;
+                                    List<string> allUserIdsInDomain = Domains.Module.GetDomainUserList(contextData.GroupId, (int)contextData.DomainId);
+                                    batchCampaignScope.SegmentIds = GetDomainSegments(contextData.GroupId, contextData.DomainId.Value, allUserIdsInDomain);
+                                    batchCampaignScope.FilterBySegments = true;
+                                }  
+                            }
 
-                                        isLowest = campaign == null || (newNumberOfRecurring > numberOfRecurring) ||
-                                            (newNumberOfRecurring == numberOfRecurring && promotedCampaign.EndDate > campaign.EndDate);
-                                    }
+                            if (promotedCampaign.EvaluateConditions(batchCampaignScope))
+                            {
+                                campaignAssignedToUser = true;
+                                Task.Run(() => Notification.MessageInboxManger.AddCampaignMessage(promotedCampaign, contextData.GroupId, userId));
+                            }
+                        }
 
-                                    if (isLowest)
-                                    {
-                                        campaign = promotedCampaign;
+                        if (campaignAssignedToUser)
+                        {
+                            var tempPrice = promotionEvaluator.Evaluate(promotedCampaign.Promotion);
+                            if (tempPrice == null) { continue; }
 
-                                        if (recurringCampaignDetails == null)
-                                        {
-                                            recurringCampaignDetails = new RecurringCampaignDetails();
-                                        }
+                            bool isLowest = false;
+                            if (tempPrice.m_dPrice < lowestPrice.m_dPrice)
+                            {
+                                lowestPrice = tempPrice;
+                                isLowest = true;
+                            }
+                            else if (tempPrice.m_dPrice == lowestPrice.m_dPrice)
+                            {
+                                int numberOfRecurring = lowestCampaign == null ? -1 : lowestCampaign.Promotion.GetNumberOfRecurring();
+                                int newNumberOfRecurring = promotedCampaign.Promotion.GetNumberOfRecurring();
 
-                                        recurringCampaignDetails.Id = campaign.Id;
-                                        recurringCampaignDetails.LeftRecurring = promotedCampaign.Promotion.NumberOfRecurring ?? 0;
-                                        recurringCampaignDetails.Udid = triggerUdid;
-                                    }
+                                isLowest = lowestCampaign == null || (newNumberOfRecurring > numberOfRecurring) ||
+                                    (newNumberOfRecurring == numberOfRecurring && promotedCampaign.EndDate > lowestCampaign.EndDate);
+                            }
 
+                            if (isLowest)
+                            {
+                                lowestCampaign = promotedCampaign;
+                                var numberOfRecurring = lowestCampaign.Promotion.GetNumberOfRecurring();
+                                if (numberOfRecurring < 0)
+                                {
+                                    numberOfRecurring = 0;
                                 }
+
+                                recurringCampaignDetails = new RecurringCampaignDetails
+                                {
+                                    Id = lowestCampaign.Id,
+                                    LeftRecurring = numberOfRecurring,
+                                    Udid = triggerUdid
+                                };
                             }
                         }
                     }
@@ -2171,7 +2193,7 @@ namespace Core.ConditionalAccess
             Price discountPrice = null;
             if (externalDiscount != null)
             {
-                discountPrice = GetPriceAfterDiscount(price, externalDiscount, 0);
+                discountPrice = Instance.GetPriceAfterDiscount(price, externalDiscount, 0);
             }
 
             List<int> lUsersIds = Utils.GetAllUsersDomainBySiteGUID(sSiteGUID, groupId, ref domainID);
@@ -2207,7 +2229,7 @@ namespace Core.ConditionalAccess
                 if (!string.IsNullOrEmpty(sCouponCode))
                 {
                     CouponsGroup couponGroups = ObjectCopier.Clone<CouponsGroup>((CouponsGroup)(thePrePaid.m_CouponsGroup));
-                    p = CalculateCouponDiscount(ref p, couponGroups, ref sCouponCode, groupId, 0);
+                    p = CalculateCouponDiscount(ref p, couponGroups, ref sCouponCode, groupId, 0, countryCode);
                 }
             }
 
@@ -2329,8 +2351,8 @@ namespace Core.ConditionalAccess
             return sb.ToString();
         }
 
-        internal static Price GetMediaFileFinalPriceForNonGetItemsPrices(Int32 nMediaFileID, PPVModule ppvModule, string sSiteGUID, string sCouponCode, Int32 nGroupID,
-                            ref PriceReason theReason, ref Subscription relevantSub, ref Collection relevantCol,
+        internal static FullPrice GetMediaFileFinalPriceForNonGetItemsPrices(Int32 nMediaFileID, PPVModule ppvModule, string sSiteGUID, string sCouponCode, Int32 nGroupID,
+                            ref Subscription relevantSub, ref Collection relevantCol,
                             ref PrePaidModule relevantPP, string countryCode, string sLANGUAGE_CODE, string sDEVICE_NAME,
                             bool shouldIgnoreBundlePurchases = false, string ip = null, string currencyCode = null, BlockEntitlementType blockEntitlement = BlockEntitlementType.NONE)
         {
@@ -2339,15 +2361,18 @@ namespace Core.ConditionalAccess
             string sFirstDeviceNameFound = string.Empty;
             int nMediaFileTypeID = 0;
             int domainID = 0;
-            //Utils.GetApiAndPricingCredentials(nGroupID, ref sPricingUsername, ref sPricingPassword, ref sAPIUsername, ref sAPIPassword);
+            var fullPrice = new FullPrice()
+            {
+                PriceReason = PriceReason.UnKnown
+            };
 
             // check if file is avilable             
             Dictionary<int, string> mediaFilesProductCode = new Dictionary<int, string>();
             Dictionary<int, MediaFileStatus> validMediaFiles = Utils.ValidateMediaFiles(new int[1] { nMediaFileID }, ref mediaFilesProductCode, nGroupID, GetIP2CountryId(nGroupID, ip));
             if (validMediaFiles[nMediaFileID] == MediaFileStatus.NotForPurchase)
             {
-                theReason = PriceReason.NotForPurchase;
-                return null;
+                fullPrice.PriceReason = PriceReason.NotForPurchase;
+                return fullPrice;
             }
 
             bool isValidCurrencyCode = false;
@@ -2356,8 +2381,9 @@ namespace Core.ConditionalAccess
             {
                 if (!GeneralPartnerConfigManager.Instance.IsValidCurrencyCode(nGroupID, currencyCode))
                 {
-                    theReason = PriceReason.InvalidCurrency;
-                    return new Price();
+                    fullPrice.PriceReason = PriceReason.InvalidCurrency;
+                    fullPrice.FinalPrice = new Price();
+                    return fullPrice;
                 }
                 else
                 {
@@ -2409,14 +2435,15 @@ namespace Core.ConditionalAccess
                 DiscountModule discountModuleWithCurrency = null;
                 if (ppvModule.m_oDiscountModule != null)
                 {
-                    discountModuleWithCurrency = Core.Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(nGroupID, ppvModule.m_oDiscountModule.m_nObjectID, countryCode, currencyCode);
+                    discountModuleWithCurrency = Core.Pricing.Module.Instance.GetDiscountCodeDataByCountryAndCurrency(nGroupID, ppvModule.m_oDiscountModule.m_nObjectID, countryCode, currencyCode);
                     shouldUpdateDiscountModule = discountModuleWithCurrency != null;
                 }
 
                 if (priceCodeWithCurrency == null || (shouldUpdateDiscountModule && discountModuleWithCurrency == null))
                 {
-                    theReason = PriceReason.CurrencyNotDefinedOnPriceCode;
-                    return new Price();
+                    fullPrice.PriceReason = PriceReason.CurrencyNotDefinedOnPriceCode;
+                    fullPrice.FinalPrice = new Price();
+                    return fullPrice;
                 }
                 else
                 {
@@ -2430,11 +2457,12 @@ namespace Core.ConditionalAccess
 
             // relatedMediaFileIDs is needed only GetLicensedLinks (which calls GetItemsPrices in order to get to GetMediaFileFinalPrice)
             List<int> relatedMediaFileIDs = new List<int>();
-            return GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModule, sSiteGUID, sCouponCode, nGroupID, true, ref theReason, ref relevantSub,
+            fullPrice = GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModule, sSiteGUID, sCouponCode, nGroupID, true, ref relevantSub,
                                           ref relevantCol, ref relevantPP, ref sFirstDeviceNameFound, countryCode, sLANGUAGE_CODE, sDEVICE_NAME, ip,
                                           mediaFileTypesMapping, allUsersInDomain, nMediaFileTypeID, ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID,
                                           ref relatedMediaFileIDs, ref dtStartDate, ref dtEndDate, ref dtDiscountEndDate, domainID, currencyCode, null, 0,
                                           DomainSuspentionStatus.Suspended, true, shouldIgnoreBundlePurchases, blockEntitlement);
+            return fullPrice;
         }
 
         internal static void GetApiAndPricingCredentials(int nGroupID, ref string sPricingUsername, ref string sPricingPassword,
@@ -2530,8 +2558,8 @@ namespace Core.ConditionalAccess
             return (!int.TryParse(siteGuid, out userID) || userID <= 0);
         }
 
-        internal static Price GetMediaFileFinalPrice(Int32 nMediaFileID, MediaFileStatus eMediaFileStatus, PPVModule ppvModule, string sSiteGUID, string couponCode,
-                                                     Int32 groupID, bool bIsValidForPurchase, ref PriceReason theReason, ref Subscription relevantSub, ref Collection relevantCol,
+        internal static FullPrice GetMediaFileFinalPrice(Int32 nMediaFileID, MediaFileStatus eMediaFileStatus, PPVModule ppvModule, string sSiteGUID, string couponCode,
+                                                     Int32 groupID, bool bIsValidForPurchase, ref Subscription relevantSub, ref Collection relevantCol,
                                                      ref PrePaidModule relevantPP, ref string sFirstDeviceNameFound, string countryCode, string sLANGUAGE_CODE, string sDEVICE_NAME,
                                                      string clientIP, Dictionary<int, int> mediaFileTypesMapping, List<int> allUserIDsInDomain, int nMediaFileTypeID,
                                                      ref bool bCancellationWindow, ref string purchasedBySiteGuid, ref int purchasedAsMediaFileID, ref List<int> relatedMediaFileIDs,
@@ -2540,10 +2568,20 @@ namespace Core.ConditionalAccess
                                                      DomainSuspentionStatus userSuspendStatus = DomainSuspentionStatus.Suspended, bool shouldCheckUserStatus = true,
                                                      bool shouldIgnoreBundlePurchases = false, BlockEntitlementType blockEntitlement = BlockEntitlementType.NONE)
         {
+            var fullPrice = new FullPrice()
+            {
+                PriceReason = PriceReason.Free,
+                CouponCode = couponCode,
+                CouponRemainder = 0,
+                CampaignDetails = null,
+                FinalPrice = null,
+                OriginalPrice = null
+            };
+
             if (ppvModule == null)
             {
-                theReason = PriceReason.Free;
-                return null;
+                fullPrice.PriceReason = PriceReason.Free;
+                return fullPrice;
             }
 
             // get user status and validity if needed
@@ -2557,8 +2595,8 @@ namespace Core.ConditionalAccess
             if (isUserValidRes && ((blockEntitlement == BlockEntitlementType.NONE && (userSuspendStatus == DomainSuspentionStatus.Suspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(groupID, long.Parse(sSiteGUID)))) ||
                                    (blockEntitlement == BlockEntitlementType.BLOCK_ALL)))
             {
-                theReason = PriceReason.UserSuspended;
-                return null;
+                fullPrice.PriceReason = PriceReason.UserSuspended;
+                return fullPrice;
             }
 
             if (userSuspendStatus == DomainSuspentionStatus.Suspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(groupID, long.Parse(sSiteGUID)))
@@ -2566,8 +2604,8 @@ namespace Core.ConditionalAccess
                 userSuspendStatus = DomainSuspentionStatus.OK;
             }
 
-            theReason = PriceReason.UnKnown;
-            Price price = null;
+            fullPrice.PriceReason = PriceReason.UnKnown;
+            
             int[] fileTypes = new int[1] { nMediaFileTypeID };
 
             // get mediaID
@@ -2612,7 +2650,8 @@ namespace Core.ConditionalAccess
 
                     relatedMediaFileIDs.AddRange(lstFileIDs);
                     relatedMediaFileIDs = relatedMediaFileIDs.Distinct().ToList();
-                    price = ObjectCopier.Clone((Price)(ppvModule.m_oPriceCode.m_oPrise));
+                    fullPrice.OriginalPrice = ObjectCopier.Clone((Price)(ppvModule.m_oPriceCode.m_oPrise));
+                    fullPrice.FinalPrice = ObjectCopier.Clone((Price)(ppvModule.m_oPriceCode.m_oPrise));
 
                     string sSubCode = string.Empty;
                     string sPPCode = string.Empty;
@@ -2642,12 +2681,12 @@ namespace Core.ConditionalAccess
 
                     if (isPending)
                     {
-                        theReason = PriceReason.PendingEntitlement;
+                        fullPrice.PriceReason = PriceReason.PendingEntitlement;
                     }
                     // user or domain users have entitlements \ purchases
                     else if (isEntitled)
                     {
-                        price.m_dPrice = 0;
+                        fullPrice.FinalPrice.m_dPrice = 0;
                         // Cancellation Window check by ppvUsageModule + purchase date
                         bCancellationWindow = IsCancellationWindowPerPurchase(ppvModule.m_oUsageModule, bCancellationWindow, nWaiver, dPurchaseDate);
 
@@ -2656,11 +2695,11 @@ namespace Core.ConditionalAccess
                             if (ppvModule.m_bFirstDeviceLimitation &&
                                 !IsFirstDeviceEqualToCurrentDevice(nMediaFileID, ppvModule.m_sObjectCode, allUserIDsInDomain, sDEVICE_NAME, ref sFirstDeviceNameFound))
                             {
-                                theReason = PriceReason.FirstDeviceLimitation;
+                                fullPrice.PriceReason = PriceReason.FirstDeviceLimitation;
                             }
                             else
                             {
-                                theReason = PriceReason.PPVPurchased;
+                                fullPrice.PriceReason = PriceReason.PPVPurchased;
                             }
                         }
                         else if (!shouldIgnoreBundlePurchases)
@@ -2668,7 +2707,7 @@ namespace Core.ConditionalAccess
                             if (sSubCode.Length > 0)
                             {
                                 // purchased as part of subscription
-                                theReason = PriceReason.SubscriptionPurchased;
+                                fullPrice.PriceReason = PriceReason.SubscriptionPurchased;
                                 Subscription[] sub = GetSubscriptionsDataWithCaching(new List<string>(1) { sSubCode }, groupID);
                                 if (sub != null && sub.Length > 0)
                                 {
@@ -2682,7 +2721,7 @@ namespace Core.ConditionalAccess
                             else if (sPPCode.Length > 0)
                             {
                                 // purchased as part of pre paid
-                                theReason = PriceReason.PrePaidPurchased;
+                                fullPrice.PriceReason = PriceReason.PrePaidPurchased;
                                 relevantPP = Pricing.Module.GetPrePaidModuleData(groupID, int.Parse(sPPCode), countryCode, sLANGUAGE_CODE, sDEVICE_NAME);
                             }
                         }
@@ -2691,16 +2730,16 @@ namespace Core.ConditionalAccess
                     }
                     else if (lstFileIDs.Count > 0 && eMediaFileStatus == MediaFileStatus.ValidOnlyIfPurchase) // user didn't purchase and mediaFileREson is ValidOnlyIfPurchase
                     {
-                        theReason = PriceReason.NotForPurchase;
+                        fullPrice.PriceReason = PriceReason.NotForPurchase;
                     }
                     else if (IsPPVModuleToBePurchasedAsSubOnly(ppvModule))
                     {
-                        theReason = PriceReason.ForPurchaseSubscriptionOnly;
+                        fullPrice.PriceReason = PriceReason.ForPurchaseSubscriptionOnly;
                     }
 
                     if (bEnd || (!bIsValidForPurchase && !isPending))
                     {
-                        return price;
+                        return fullPrice;
                     }
                 }
 
@@ -2763,20 +2802,21 @@ namespace Core.ConditionalAccess
                                 Subscription s = prioritySubs[i];
                                 DiscountModule d = s.m_oDiscountModule;
                                 Price subp = ObjectCopier.Clone(CalculateMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule.m_oPriceCode.m_oPrise,
-                                    s.m_oDiscountModule, s.m_oCouponsGroup, sSiteGUID, couponCode, groupID, s.m_sObjectCode, out dtDiscountEndDate, domainID));
+                                    s.m_oDiscountModule, s.m_oCouponsGroup, sSiteGUID, couponCode, groupID, s.m_sObjectCode, out dtDiscountEndDate, domainID,
+                                    countryCode));
                                 if (subp != null)
                                 {
                                     if (IsGeoBlock(groupID, s.n_GeoCommerceID, clientIP))
                                     {
-                                        price = ObjectCopier.Clone(subp);
+                                        fullPrice.FinalPrice = ObjectCopier.Clone(subp);
                                         relevantSub = ObjectCopier.Clone(s);
-                                        theReason = PriceReason.GeoCommerceBlocked;
+                                        fullPrice.PriceReason = PriceReason.GeoCommerceBlocked;
                                     }
-                                    else if (IsItemPurchased(price, subp, ppvModule) && !shouldIgnoreBundlePurchases)
+                                    else if (IsItemPurchased(fullPrice.FinalPrice, subp, ppvModule) && !shouldIgnoreBundlePurchases)
                                     {
-                                        price = ObjectCopier.Clone(subp);
+                                        fullPrice.FinalPrice = ObjectCopier.Clone(subp);
                                         relevantSub = ObjectCopier.Clone(s);
-                                        theReason = PriceReason.SubscriptionPurchased;
+                                        fullPrice.PriceReason = PriceReason.SubscriptionPurchased;
                                         bEnd = true;
 
                                         break;
@@ -2807,7 +2847,7 @@ namespace Core.ConditionalAccess
 
                 if (bEnd)
                 {
-                    return price;
+                    return fullPrice;
                 }
 
                 // check here if its part of a purchased collection
@@ -2817,14 +2857,16 @@ namespace Core.ConditionalAccess
                     {
                         Collection collection = relevantValidCollections[i];
                         DiscountModule discount = collection.m_oDiscountModule;
-                        Price collectionsPrice = ObjectCopier.Clone(CalculateMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule.m_oPriceCode.m_oPrise, collection.m_oDiscountModule, collection.m_oCouponsGroup, sSiteGUID, couponCode, groupID, collection.m_sObjectCode, out dtDiscountEndDate, domainID));
+                        Price collectionsPrice = ObjectCopier.Clone(CalculateMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule.m_oPriceCode.m_oPrise, 
+                            collection.m_oDiscountModule, collection.m_oCouponsGroup, sSiteGUID, couponCode, groupID, collection.m_sObjectCode, 
+                            out dtDiscountEndDate, domainID, countryCode));
                         if (collectionsPrice != null)
                         {
-                            if (IsItemPurchased(price, collectionsPrice, ppvModule))
+                            if (IsItemPurchased(fullPrice.FinalPrice, collectionsPrice, ppvModule))
                             {
-                                price = ObjectCopier.Clone(collectionsPrice);
+                                fullPrice.FinalPrice = ObjectCopier.Clone(collectionsPrice);
                                 relevantCol = ObjectCopier.Clone(collection);
-                                theReason = PriceReason.CollectionPurchased;
+                                fullPrice.PriceReason = PriceReason.CollectionPurchased;
                                 break;
                             }
                         }
@@ -2848,48 +2890,58 @@ namespace Core.ConditionalAccess
                 {
                     if (blockEntitlement == BlockEntitlementType.BLOCK_PPV)
                     {
-                        theReason = PriceReason.UserSuspended;
-                        return null;
+                        fullPrice.PriceReason = PriceReason.UserSuspended;
+                        return fullPrice;
                     }
 
-                    if (theReason == PriceReason.PendingEntitlement) // BEO-8661
+                    if (fullPrice.PriceReason == PriceReason.PendingEntitlement) // BEO-8661
                     {
-                        return price;
+                        return fullPrice;
                     }
 
                     // the media file was not purchased in any way. calculate its price as a single media file and its price reason
-                    Price discountPrice =
-                        GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, couponCode, groupID, string.Empty, out dtDiscountEndDate, domainID);
+                    Price discountPrice = GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, couponCode, groupID, string.Empty, 
+                        out dtDiscountEndDate, domainID, countryCode);
 
-                    price = PriceManager.GetLowestPrice(groupID, price, domainID, discountPrice, eTransactionType.PPV, currencyCode, ppvID, countryCode, ref couponCode, null, null,
+                    fullPrice.FinalPrice = PriceManager.GetLowestPrice(groupID, fullPrice.FinalPrice, domainID, discountPrice, eTransactionType.PPV, currencyCode, ppvID, countryCode, ref couponCode, null, null,
                                            allUserIDsInDomain.ConvertAll(x => x.ToString()), mediaID);
 
-                    if (IsFreeMediaFile(theReason, price))
+                    var lowestPrice = fullPrice.FinalPrice;
+                    fullPrice.CampaignDetails = Utils.GetValidCampaign(groupID, domainID, fullPrice.OriginalPrice, ref lowestPrice, eTransactionType.PPV, currencyCode,
+                                ppvID, countryCode, couponCode, mediaID, new List<long>() { nMediaFileTypeID });
+                    if (fullPrice.CampaignDetails != null)
                     {
-                        theReason = PriceReason.Free;
+                        fullPrice.FinalPrice = lowestPrice;
+                        fullPrice.CouponCode = couponCode;
                     }
-                    else if (theReason != PriceReason.ForPurchaseSubscriptionOnly && theReason != PriceReason.NotForPurchase)
+
+                    if (IsFreeMediaFile(fullPrice.PriceReason, fullPrice.FinalPrice))
                     {
-                        theReason = PriceReason.ForPurchase;
+                        fullPrice.PriceReason = PriceReason.Free;
+                    }
+                    else if (fullPrice.PriceReason != PriceReason.ForPurchaseSubscriptionOnly && fullPrice.PriceReason != PriceReason.NotForPurchase)
+                    {
+                        fullPrice.PriceReason = PriceReason.ForPurchase;
                     }
                 }
             }
             else
             {
                 // end if site guid is not null or empty       
-                price = GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, couponCode, groupID, string.Empty, out dtDiscountEndDate, domainID);
+                fullPrice.FinalPrice = GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, couponCode, groupID, string.Empty, 
+                    out dtDiscountEndDate, domainID, countryCode);
 
                 if (IsPPVModuleToBePurchasedAsSubOnly(ppvModule))
                 {
-                    theReason = PriceReason.ForPurchaseSubscriptionOnly;
+                    fullPrice.PriceReason = PriceReason.ForPurchaseSubscriptionOnly;
                 }
                 else
                 {
-                    theReason = PriceReason.ForPurchase;
+                    fullPrice.PriceReason = PriceReason.ForPurchase;
                 }
             }
 
-            return price;
+            return fullPrice;
         }
 
         private static bool IsPPVModuleToBePurchasedAsSubOnly(PPVModule ppvModule)
@@ -10000,7 +10052,8 @@ namespace Core.ConditionalAccess
             return res;
         }
 
-        public static Price GetLowestPriceByCouponCode(int groupId, string couponCode, Subscription subscription, Price lowestPrice, long domainId)
+        public static Price GetLowestPriceByCouponCodeOfSubcription(int groupId, string couponCode, Subscription subscription, Price lowestPrice, 
+            long domainId, string countryCode)
         {
             long couponGroupId = PricingDAL.Get_CouponGroupId(groupId, couponCode); // return only if valid 
             if (couponGroupId > 0)
@@ -10016,10 +10069,32 @@ namespace Core.ConditionalAccess
                     currCouponGroup = ObjectCopier.Clone<CouponsGroup>(subscription.GetValidSubscriptionCouponGroup(couponGroupId.ToString()).FirstOrDefault());
                 }
 
-                lowestPrice = CalculateCouponDiscount(ref lowestPrice, currCouponGroup, ref couponCode, groupId, domainId);
+                lowestPrice = Utils.CalculateCouponDiscount(ref lowestPrice, currCouponGroup, ref couponCode, groupId, domainId, countryCode);
             }
 
             return lowestPrice;
+        }
+
+        public Price GetLowestPriceByCouponCode(int groupId, ref string couponCode, List<SubscriptionCouponGroup> subscriptionCouponGroups, Price currentPrice, 
+            int domainId, CouponsGroup couponsGroup, string countryCode)
+        {
+            long couponGroupId = PricingDAL.Get_CouponGroupId(groupId, couponCode); // return only if valid 
+            if (couponGroupId <= 0) { return currentPrice; }
+
+            // look if this coupon group id exsits in coupon list 
+            CouponsGroup currCouponGroup = null;
+            if (couponsGroup != null && !string.IsNullOrEmpty(couponsGroup.m_sGroupCode) && couponsGroup.m_sGroupCode.Equals(couponGroupId.ToString()))
+            {
+                currCouponGroup = ObjectCopier.Clone(couponsGroup);
+            }
+            else if (subscriptionCouponGroups != null)
+            {
+                var subscriptionCouponGroup = subscriptionCouponGroups.FirstOrDefault
+                    (x => x.m_sGroupCode.Equals(couponGroupId.ToString()) && (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow));
+                currCouponGroup = ObjectCopier.Clone<CouponsGroup>(subscriptionCouponGroup);
+            }
+
+            return Utils.CalculateCouponDiscount(ref currentPrice, currCouponGroup, ref couponCode, groupId, domainId, countryCode);
         }
 
         private static Dictionary<long, PagoEntitlement> InitializeDomainPagos(int groupId, int domainId, List<int> usersInDomain)

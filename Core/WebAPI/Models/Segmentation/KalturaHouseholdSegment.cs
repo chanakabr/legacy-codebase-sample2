@@ -17,7 +17,7 @@ namespace WebAPI.Models.Segmentation
         [DataMember(Name = "segmentId")]
         [JsonProperty(PropertyName = "segmentId")]
         [XmlElement(ElementName = "segmentId")]
-        [SchemeProperty(MinInteger = 1)]        
+        [SchemeProperty(MinLong = 1)]        
         public long SegmentId { get; set; }
 
         /// <summary>

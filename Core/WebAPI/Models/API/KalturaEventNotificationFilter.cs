@@ -26,7 +26,7 @@ namespace WebAPI.Models.API
         [JsonProperty("objectIdEqual")]
         [XmlElement(ElementName = "objectIdEqual", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        [SchemeProperty(MinInteger = 1)]
+        [SchemeProperty(MinLong = 1)]
         public long? ObjectIdEqual { get; set; }
 
         /// <summary>

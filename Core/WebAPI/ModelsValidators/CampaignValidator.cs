@@ -33,8 +33,8 @@ namespace WebAPI.ModelsValidators
 
             switch (model)
             {
-                case KalturaBatchCampaign c: c.ValidateForAdd(); break;
-                case KalturaTriggerCampaign c: c.ValidateForAdd(); break;
+                case KalturaBatchCampaign c: c.Validate(); break;
+                case KalturaTriggerCampaign c: c.Validate(); break;
                 default: throw new NotImplementedException($"ValidateForAdd for {model.objectType} is not implemented");
             }
         }
@@ -50,8 +50,8 @@ namespace WebAPI.ModelsValidators
 
             switch (model)
             {
-                case KalturaBatchCampaign c: c.ValidateForUpdate(); break;
-                case KalturaTriggerCampaign c: c.ValidateForUpdate(); break;
+                case KalturaBatchCampaign c: c.Validate(); break;
+                case KalturaTriggerCampaign c: c.Validate(); break;
                 default: throw new NotImplementedException($"ValidateForUpdate for {model.objectType} is not implemented");
             }
         }
@@ -91,39 +91,29 @@ namespace WebAPI.ModelsValidators
             KalturaRuleConditionType.SEGMENTS
         };
 
-        private static void ValidateForAdd(this KalturaBatchCampaign model)
+        private static void Validate(this KalturaBatchCampaign model)
         {
-            if (model.PopulationConditions == null || model.PopulationConditions.Count == 0)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "populationConditions");
-            }
-
             model.ValidateConditions();
-        }
-
-        private static void ValidateForUpdate(this KalturaBatchCampaign model)
-        {
-            if (model.PopulationConditions != null)
-            {
-                model.ValidateConditions();
-            }
         }
 
         private static void ValidateConditions(this KalturaBatchCampaign model)
         {
-            if (model.PopulationConditions.Count > 50)
+            if (model.PopulationConditions?.Count > 0)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_MAX_ITEMS_CROSSED, "populationConditions", 50);
-            }
-
-            foreach (var condition in model.PopulationConditions)
-            {
-                if (!VALID_BATCH_CONDITIONS.Contains(condition.Type))
+                if (model.PopulationConditions.Count > 50)
                 {
-                    throw new BadRequestException(BadRequestException.TYPE_NOT_SUPPORTED, "populationConditions", condition.objectType);
+                    throw new BadRequestException(BadRequestException.ARGUMENT_MAX_ITEMS_CROSSED, "populationConditions", 50);
                 }
 
-                condition.Validate(VALID_BATCH_CONDITIONS);
+                foreach (var condition in model.PopulationConditions)
+                {
+                    if (!VALID_BATCH_CONDITIONS.Contains(condition.Type))
+                    {
+                        throw new BadRequestException(BadRequestException.TYPE_NOT_SUPPORTED, "populationConditions", condition.objectType);
+                    }
+
+                    condition.Validate(VALID_BATCH_CONDITIONS);
+                }
             }
         }
 
@@ -138,15 +128,7 @@ namespace WebAPI.ModelsValidators
             KalturaRuleConditionType.SEGMENTS
         };
 
-        private static void ValidateForAdd(this KalturaTriggerCampaign model)
-        {
-            if (model.TriggerConditions != null)
-            {
-                model.ValidateConditions();
-            }
-        }
-
-        private static void ValidateForUpdate(this KalturaTriggerCampaign model)
+        private static void Validate(this KalturaTriggerCampaign model)
         {
             if (model.TriggerConditions != null)
             {

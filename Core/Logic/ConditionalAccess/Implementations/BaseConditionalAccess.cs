@@ -52,6 +52,7 @@ using Tvinci.Core.DAL;
 using TVinciShared;
 using ExternalRecording = ApiObjects.TimeShiftedTv.ExternalRecording;
 using ApiLogic.Pricing.Handlers;
+using ApiLogic.Pricing;
 
 namespace Core.ConditionalAccess
 {
@@ -870,19 +871,18 @@ namespace Core.ConditionalAccess
                             WriteToUserLog(siteGUID, "While trying to purchase media file id(InApp): " + mediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
                             return InAppRes.m_oBillingResponse;
                         }
-                        PriceReason theReason = PriceReason.UnKnown;
 
                         Subscription relevantSub = null;
                         Collection relevantCol = null;
                         PrePaidModule relevantPP = null;
 
-                        Price p = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(mediaFileID, thePPVModule, siteGUID, couponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPP, countryCode, languageCode, deviceName);
-                        if (theReason == PriceReason.ForPurchase || (theReason == PriceReason.SubscriptionPurchased && p.m_dPrice > 0))
+                        var fullPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(mediaFileID, thePPVModule, siteGUID, couponCode, m_nGroupID, ref relevantSub, ref relevantCol, ref relevantPP, countryCode, languageCode, deviceName);
+                        if (fullPrice.PriceReason == PriceReason.ForPurchase || (fullPrice.PriceReason == PriceReason.SubscriptionPurchased && fullPrice.FinalPrice.m_dPrice > 0))
                         {
-                            if (p.m_dPrice == price && p.m_oCurrency.m_sCurrencyCD3 == currency)
+                            if (fullPrice.FinalPrice.m_dPrice == price && fullPrice.FinalPrice.m_oCurrency.m_sCurrencyCD3 == currency)
                             {
                                 string customData = "";
-                                if (p.m_dPrice != 0)
+                                if (fullPrice.FinalPrice.m_dPrice != 0)
                                 {
                                     if (string.IsNullOrEmpty(countryCode) && !string.IsNullOrEmpty(sUserIP))
                                     {
@@ -890,9 +890,9 @@ namespace Core.ConditionalAccess
                                     }
 
                                     //Create the Custom Data
-                                    customData = GetCustomData(relevantSub, thePPVModule, null, siteGUID, price, currency,
-                                        mediaFileID, nMediaID, sPPVModuleCode, string.Empty, couponCode, sUserIP,
-                                        countryCode, languageCode, deviceName, domainId);
+                                    customData = GetCustomData
+                                        (relevantSub, thePPVModule, null, siteGUID, price, currency, mediaFileID, nMediaID, sPPVModuleCode, string.Empty, 
+                                        couponCode, sUserIP, countryCode, languageCode, deviceName, domainId, fullPrice.CampaignDetails?.Id ?? 0);
 
                                     log.Debug("CustomData - " + customData);
 
@@ -908,7 +908,7 @@ namespace Core.ConditionalAccess
                                         nReciptCode = int.Parse(InAppRes.m_oBillingResponse.m_sRecieptCode);
                                     }
 
-                                    HandleCouponUses(relevantSub, string.Empty, siteGUID, p.m_dPrice, currency, mediaFileID, couponCode, sUserIP,
+                                    HandleCouponUses(relevantSub, string.Empty, siteGUID, fullPrice.FinalPrice.m_dPrice, currency, mediaFileID, couponCode, sUserIP,
                                         countryCode, languageCode, deviceName, true, 0, 0, domainId);
 
                                     DateTime endDate = Utils.GetEndDateTime(DateTime.UtcNow, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
@@ -996,35 +996,35 @@ namespace Core.ConditionalAccess
                         }
                         else
                         {
-                            if (theReason == PriceReason.PPVPurchased)
+                            if (fullPrice.PriceReason == PriceReason.PPVPurchased)
                             {
                                 InAppRes.m_oBillingResponse.m_oStatus = BillingResponseStatus.Fail;
                                 InAppRes.m_oBillingResponse.m_sRecieptCode = "";
                                 InAppRes.m_oBillingResponse.m_sStatusDescription = "The media file is already purchased";
                                 WriteToUserLog(siteGUID, "While trying to purchase media file id(InApp): " + mediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
                             }
-                            else if (theReason == PriceReason.Free)
+                            else if (fullPrice.PriceReason == PriceReason.Free)
                             {
                                 InAppRes.m_oBillingResponse.m_oStatus = BillingResponseStatus.Fail;
                                 InAppRes.m_oBillingResponse.m_sRecieptCode = "";
                                 InAppRes.m_oBillingResponse.m_sStatusDescription = "The media file is free";
                                 WriteToUserLog(siteGUID, "While trying to purchase media file id(InApp): " + mediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
                             }
-                            else if (theReason == PriceReason.ForPurchaseSubscriptionOnly)
+                            else if (fullPrice.PriceReason == PriceReason.ForPurchaseSubscriptionOnly)
                             {
                                 InAppRes.m_oBillingResponse.m_oStatus = BillingResponseStatus.Fail;
                                 InAppRes.m_oBillingResponse.m_sRecieptCode = "";
                                 InAppRes.m_oBillingResponse.m_sStatusDescription = "The media file is for purchase with subscription only";
                                 WriteToUserLog(siteGUID, "While trying to purchase media file id(InApp): " + mediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
                             }
-                            else if (theReason == PriceReason.SubscriptionPurchased)
+                            else if (fullPrice.PriceReason == PriceReason.SubscriptionPurchased)
                             {
                                 InAppRes.m_oBillingResponse.m_oStatus = BillingResponseStatus.Fail;
                                 InAppRes.m_oBillingResponse.m_sRecieptCode = "";
                                 InAppRes.m_oBillingResponse.m_sStatusDescription = "The media file is already purchased (subscription)";
                                 WriteToUserLog(siteGUID, "While trying to purchase media file id(InApp): " + mediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
                             }
-                            else if (theReason == PriceReason.NotForPurchase)
+                            else if (fullPrice.PriceReason == PriceReason.NotForPurchase)
                             {
                                 InAppRes.m_oBillingResponse.m_oStatus = BillingResponseStatus.Fail;
                                 InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
@@ -2899,7 +2899,7 @@ namespace Core.ConditionalAccess
                     price = Pricing.Module.GetPriceCodeDataByCountyAndCurrency(m_nGroupID, AppUsageModule.m_pricing_id, renewDetails.CountryCode, renewDetails.PreviousPurchaseCurrencyCode);
                     if (price != null && AppUsageModule.m_ext_discount_id > 0)
                     {
-                        DiscountModule externalDisountByCountryAndCurrency = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(m_nGroupID, AppUsageModule.m_ext_discount_id, renewDetails.CountryCode, renewDetails.PreviousPurchaseCurrencyCode);
+                        DiscountModule externalDisountByCountryAndCurrency = Pricing.Module.Instance.GetDiscountCodeDataByCountryAndCurrency(m_nGroupID, AppUsageModule.m_ext_discount_id, renewDetails.CountryCode, renewDetails.PreviousPurchaseCurrencyCode);
                         externalDisount = externalDisountByCountryAndCurrency != null ? ObjectCopier.Clone(externalDisountByCountryAndCurrency) : Pricing.Module.GetDiscountCodeData(m_nGroupID, AppUsageModule.m_ext_discount_id.ToString());
                     }
                 }
@@ -2918,7 +2918,7 @@ namespace Core.ConditionalAccess
                 PriceCode clonedPrice = TVinciShared.ObjectCopier.Clone<PriceCode>(price);
                 if (externalDisount != null)
                 {
-                    Price priceAfterDiscount = Utils.GetPriceAfterDiscount(clonedPrice.m_oPrise, externalDisount, 1);
+                    Price priceAfterDiscount = Utils.Instance.GetPriceAfterDiscount(clonedPrice.m_oPrise, externalDisount, 1);
                     renewDetails.Price = priceAfterDiscount.m_dPrice;
                     oCurrency = priceAfterDiscount.m_oCurrency;
                     renewDetails.Currency = priceAfterDiscount.m_oCurrency.m_sCurrencyCD3;
@@ -3638,10 +3638,13 @@ namespace Core.ConditionalAccess
                     Price priceBeforeCouponDiscount = new Price
                     {
                         m_dPrice = renewDetails.Price,
-                        m_oCurrency = oCurrency
+                        m_oCurrency = oCurrency,
                     };
 
-                    Price priceResult = Utils.GetPriceAfterDiscount(priceBeforeCouponDiscount, cg.CouponsGroup.m_oDiscountCode, 0);
+                    var discountModule = Pricing.Module.Instance.GetDiscountCodeDataByCountryAndCurrency(m_nGroupID,
+                        cg.CouponsGroup.m_oDiscountCode.m_nObjectID, renewDetails.CountryCode, oCurrency.m_sCurrencyCD3);
+
+                    Price priceResult = Utils.Instance.GetPriceAfterDiscount(priceBeforeCouponDiscount, discountModule ?? cg.CouponsGroup.m_oDiscountCode, 0);
                     renewDetails.Price = priceResult.m_dPrice;
                     renewDetails.RecurringData.CouponCode = couponCode;
                 }
@@ -3727,13 +3730,11 @@ namespace Core.ConditionalAccess
                             Price priceBeforeCouponDiscount = new Price
                             {
                                 m_dPrice = renewDetails.Price,
-                                m_oCurrency = oCurrency
+                                m_oCurrency = oCurrency,
                             };
-
-                            var discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(m_nGroupID, (int)(campaigns.Objects[0].Promotion.DiscountModuleId), renewDetails.CountryCode, oCurrency.m_sCurrencyCD3);
-
-                            Price priceResult = Utils.GetPriceAfterDiscount(priceBeforeCouponDiscount, discountModule, 0);
-
+                            var promotionEvaluator = new PromotionEvaluator(Pricing.Module.Instance, Utils.Instance, m_nGroupID, (int)renewDetails.DomainId, 
+                                renewDetails.CountryCode, oCurrency.m_sCurrencyCD3, renewDetails.RecurringData.CouponCode, priceBeforeCouponDiscount);
+                            Price priceResult = promotionEvaluator.Evaluate(campaigns.Objects[0].Promotion);
                             renewDetails.Price = priceResult.m_dPrice;
                             use = true;
                         }
@@ -4212,25 +4213,23 @@ namespace Core.ConditionalAccess
                             return ret;
                         }
 
-                        PriceReason theReason = PriceReason.UnKnown;
                         Subscription relevantSub = null;
                         Collection relevantCol = null;
                         PrePaidModule relevantPP = null;
 
-
-                        Price p = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                        if (theReason == PriceReason.ForPurchase)
+                        var fullPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                        if (fullPrice.PriceReason == PriceReason.ForPurchase)
                         {
-                            if (p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency)
+                            if (fullPrice.FinalPrice.m_dPrice == dPrice && fullPrice.FinalPrice.m_oCurrency.m_sCurrencyCD3 == sCurrency)
                             {
                                 string sPPVModule = "";
                                 if (thePPVModule != null)
                                     sPPVModule = thePPVModule.m_sObjectCode;
 
                                 //Create the Custom Data
-                                string sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency,
-                                    nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, string.Empty,
-                                    sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, uObj.m_user.m_domianID);
+                                string sCustomData = GetCustomData
+                                    (relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency, nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, 
+                                     sCouponCode, string.Empty, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, uObj.m_user.m_domianID, fullPrice.CampaignDetails?.Id ?? 0);
 
                                 log.Debug("SMS CustomData - " + sCustomData);
 
@@ -4255,35 +4254,35 @@ namespace Core.ConditionalAccess
                         }
                         else
                         {
-                            if (theReason == PriceReason.PPVPurchased)
+                            if (fullPrice.PriceReason == PriceReason.PPVPurchased)
                             {
                                 ret.m_oStatus = BillingResponseStatus.Fail;
                                 ret.m_sRecieptCode = "";
                                 ret.m_sStatusDescription = "The media file is already purchased";
                                 WriteToUserLog(sSiteGUID, "While trying to purchase media file id(SMS): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                             }
-                            if (theReason == PriceReason.SubscriptionPurchased)
+                            if (fullPrice.PriceReason == PriceReason.SubscriptionPurchased)
                             {
                                 ret.m_oStatus = BillingResponseStatus.Fail;
                                 ret.m_sRecieptCode = "";
                                 ret.m_sStatusDescription = "The media file is contained in a purchased subscription";
                                 WriteToUserLog(sSiteGUID, "While trying to purchase media file id(SMS): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                             }
-                            if (theReason == PriceReason.Free)
+                            if (fullPrice.PriceReason == PriceReason.Free)
                             {
                                 ret.m_oStatus = BillingResponseStatus.Fail;
                                 ret.m_sRecieptCode = "";
                                 ret.m_sStatusDescription = "The media file is free";
                                 WriteToUserLog(sSiteGUID, "While trying to purchase media file id(SMS): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                             }
-                            if (theReason == PriceReason.ForPurchaseSubscriptionOnly)
+                            if (fullPrice.PriceReason == PriceReason.ForPurchaseSubscriptionOnly)
                             {
                                 ret.m_oStatus = BillingResponseStatus.Fail;
                                 ret.m_sRecieptCode = "";
                                 ret.m_sStatusDescription = "The media file is for purchase with subscription only";
                                 WriteToUserLog(sSiteGUID, "While trying to purchase media file id(SMS): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                             }
-                            else if (theReason == PriceReason.NotForPurchase)
+                            else if (fullPrice.PriceReason == PriceReason.NotForPurchase)
                             {
                                 ret.m_oStatus = BillingResponseStatus.Fail;
                                 ret.m_sRecieptCode = string.Empty;
@@ -5438,17 +5437,15 @@ namespace Core.ConditionalAccess
                             }
                         }
 
-                        PriceReason ePriceReason = PriceReason.UnKnown;
-
                         Subscription relevantSub = null;
                         Collection relevantCol = null;
                         PrePaidModule relevantPP = null;
 
-                        Price oPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref ePriceReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                        bDummy = RecalculateDummyIndicatorForChargeMediaFile(bDummy, ePriceReason, bIsCouponValid);
-                        if ((ePriceReason == PriceReason.ForPurchase || (ePriceReason == PriceReason.SubscriptionPurchased && oPrice.m_dPrice > 0) || bDummy) && ePriceReason != PriceReason.NotForPurchase)
+                        var fullPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                        bDummy = RecalculateDummyIndicatorForChargeMediaFile(bDummy, fullPrice.PriceReason, bIsCouponValid);
+                        if ((fullPrice.PriceReason == PriceReason.ForPurchase || (fullPrice.PriceReason == PriceReason.SubscriptionPurchased && fullPrice.FinalPrice.m_dPrice > 0) || bDummy) && fullPrice.PriceReason != PriceReason.NotForPurchase)
                         {
-                            if (bDummy || (oPrice.m_dPrice == dPrice && oPrice.m_oCurrency.m_sCurrencyCD3 == sCurrency))
+                            if (bDummy || (fullPrice.FinalPrice.m_dPrice == dPrice && fullPrice.FinalPrice.m_oCurrency.m_sCurrencyCD3 == sCurrency))
                             {
                                 string sCustomData = string.Empty;
 
@@ -5457,9 +5454,9 @@ namespace Core.ConditionalAccess
                                     sCountryCd = Utils.GetIP2CountryName(m_nGroupID, sUserIP);
                                 }
                                 //Create the Custom Data
-                                sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency,
-                                    nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, sUserIP,
-                                    sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, uObj.m_user.m_domianID);
+                                sCustomData = GetCustomData
+                                    (relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency, nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, 
+                                     sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, uObj.m_user.m_domianID, fullPrice.CampaignDetails?.Id ?? 0);
                                 log.Debug("CustomData - " + sCustomData);
 
 
@@ -5502,35 +5499,35 @@ namespace Core.ConditionalAccess
                         }
                         else
                         {
-                            if (ePriceReason == PriceReason.PPVPurchased)
+                            if (fullPrice.PriceReason == PriceReason.PPVPurchased)
                             {
                                 oResponse.m_oStatus = BillingResponseStatus.Fail;
                                 oResponse.m_sRecieptCode = string.Empty;
                                 oResponse.m_sStatusDescription = "The media file is already purchased";
                                 WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
                             }
-                            else if (ePriceReason == PriceReason.Free)
+                            else if (fullPrice.PriceReason == PriceReason.Free)
                             {
                                 oResponse.m_oStatus = BillingResponseStatus.Fail;
                                 oResponse.m_sRecieptCode = string.Empty;
                                 oResponse.m_sStatusDescription = "The media file is free";
                                 WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
                             }
-                            else if (ePriceReason == PriceReason.ForPurchaseSubscriptionOnly)
+                            else if (fullPrice.PriceReason == PriceReason.ForPurchaseSubscriptionOnly)
                             {
                                 oResponse.m_oStatus = BillingResponseStatus.Fail;
                                 oResponse.m_sRecieptCode = string.Empty;
                                 oResponse.m_sStatusDescription = "The media file is for purchase with subscription only";
                                 WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
                             }
-                            else if (ePriceReason == PriceReason.SubscriptionPurchased)
+                            else if (fullPrice.PriceReason == PriceReason.SubscriptionPurchased)
                             {
                                 oResponse.m_oStatus = BillingResponseStatus.Fail;
                                 oResponse.m_sRecieptCode = string.Empty;
                                 oResponse.m_sStatusDescription = "The media file is already purchased (subscription)";
                                 WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + oResponse.m_sStatusDescription);
                             }
-                            else if (ePriceReason == PriceReason.NotForPurchase)
+                            else if (fullPrice.PriceReason == PriceReason.NotForPurchase)
                             {
                                 oResponse.m_oStatus = BillingResponseStatus.Fail;
                                 oResponse.m_sRecieptCode = string.Empty;
@@ -5629,7 +5626,6 @@ namespace Core.ConditionalAccess
                     }
                     else
                     {
-                        PriceReason theReason = PriceReason.UnKnown;
                         Subscription relevantSub = null;
                         Collection relevantCol = null;
                         PrePaidModule relevantPP = null;
@@ -5642,13 +5638,15 @@ namespace Core.ConditionalAccess
                         }
                         if (thePPVModule != null)
                         {
-                            Price p = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                            var fullPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
 
-                            if (theReason == PriceReason.ForPurchase || (theReason == PriceReason.SubscriptionPurchased && p.m_dPrice > 0))
+                            if (fullPrice.PriceReason == PriceReason.ForPurchase || (fullPrice.PriceReason == PriceReason.SubscriptionPurchased && fullPrice.FinalPrice.m_dPrice > 0))
                             {
-                                if (p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency && p.m_dPrice > 0)
+                                if (fullPrice.FinalPrice.m_dPrice == dPrice && fullPrice.FinalPrice.m_oCurrency.m_sCurrencyCD3 == sCurrency && fullPrice.FinalPrice.m_dPrice > 0)
                                 {
-                                    string sCustomData = GetCustomData(relevantSub, thePPVModule, relevantCamp, sSiteGUID, dPrice, sCurrency, nMediaFileID, nMediaID, sPPVModuleCode, sCampaignCode, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sOverrideEndDate);
+                                    string sCustomData = GetCustomData(relevantSub, thePPVModule, relevantCamp, sSiteGUID, dPrice, sCurrency, nMediaFileID, 
+                                        nMediaID, sPPVModuleCode, sCampaignCode, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sOverrideEndDate,
+                                        fullPrice.CampaignDetails?.Id ?? 0);
                                     retVal = Utils.AddCustomData(sCustomData);
                                 }
                             }
@@ -5990,7 +5988,6 @@ namespace Core.ConditionalAccess
                         }
                         else
                         {
-                            PriceReason theReason = PriceReason.UnKnown;
                             Subscription relevantSub = null;
                             Collection relevantCol = null;
                             PrePaidModule relevantPP = null;
@@ -5998,12 +5995,12 @@ namespace Core.ConditionalAccess
                             PPVModule thePPVModule = Pricing.Module.GetPPVModuleData(m_nGroupID, sPPVModuleCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
                             if (thePPVModule != null)
                             {
-                                Price p = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                                if (theReason == PriceReason.ForPurchase || (theReason == PriceReason.SubscriptionPurchased && p.m_dPrice > 0))
+                                var fullPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                if (fullPrice.PriceReason == PriceReason.ForPurchase || (fullPrice.PriceReason == PriceReason.SubscriptionPurchased && fullPrice.FinalPrice.m_dPrice > 0))
                                 {
-                                    if (p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency)
+                                    if (fullPrice.FinalPrice.m_dPrice == dPrice && fullPrice.FinalPrice.m_oCurrency.m_sCurrencyCD3 == sCurrency)
                                     {
-                                        if (p.m_dPrice != 0)
+                                        if (fullPrice.FinalPrice.m_dPrice != 0)
                                         {
                                             string sCustomData = "<customdata type=\"pp\">";
                                             if (String.IsNullOrEmpty(sCountryCd) == false)
@@ -6094,25 +6091,25 @@ namespace Core.ConditionalAccess
                                 }
                                 else
                                 {
-                                    if (theReason == PriceReason.PPVPurchased)
+                                    if (fullPrice.PriceReason == PriceReason.PPVPurchased)
                                     {
                                         ret.m_oStatus = BillingResponseStatus.Fail;
                                         ret.m_sRecieptCode = "";
                                         ret.m_sStatusDescription = "The media file is already purchased";
                                     }
-                                    else if (theReason == PriceReason.Free)
+                                    else if (fullPrice.PriceReason == PriceReason.Free)
                                     {
                                         ret.m_oStatus = BillingResponseStatus.Fail;
                                         ret.m_sRecieptCode = "";
                                         ret.m_sStatusDescription = "The media file is free";
                                     }
-                                    else if (theReason == PriceReason.ForPurchaseSubscriptionOnly)
+                                    else if (fullPrice.PriceReason == PriceReason.ForPurchaseSubscriptionOnly)
                                     {
                                         ret.m_oStatus = BillingResponseStatus.Fail;
                                         ret.m_sRecieptCode = "";
                                         ret.m_sStatusDescription = "The media file is for purchase with subscription only";
                                     }
-                                    else if (theReason == PriceReason.SubscriptionPurchased)
+                                    else if (fullPrice.PriceReason == PriceReason.SubscriptionPurchased)
                                     {
                                         ret.m_oStatus = BillingResponseStatus.Fail;
                                         ret.m_sRecieptCode = "";
@@ -6947,7 +6944,8 @@ namespace Core.ConditionalAccess
                 // check if user is valid
                 if (Utils.IsUserValid(userId, m_nGroupID, ref domainID, ref userSuspendStatus))
                 {
-                    if (userSuspendStatus == DomainSuspentionStatus.Suspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, long.Parse(userId)) && blockEntitlement == BlockEntitlementType.NONE)
+                    if (userSuspendStatus == DomainSuspentionStatus.Suspended && 
+                        !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, long.Parse(userId)) && blockEntitlement == BlockEntitlementType.NONE)
                     {
                         userId = string.Empty;
                     }
@@ -7100,7 +7098,7 @@ namespace Core.ConditionalAccess
                                 DiscountModule discountModuleWithCurrency = null;
                                 if (ppvModules[j].PPVModule.m_oDiscountModule != null)
                                 {
-                                    discountModuleWithCurrency = Core.Pricing.Module.GetDiscountCodeDataByCountryAndCurrency
+                                    discountModuleWithCurrency = Core.Pricing.Module.Instance.GetDiscountCodeDataByCountryAndCurrency
                                         (m_nGroupID, ppvModules[j].PPVModule.m_oDiscountModule.m_nObjectID, countryCode, currencyCode);
                                     shouldUpdateDiscountModule = discountModuleWithCurrency != null;
                                 }
@@ -7122,7 +7120,6 @@ namespace Core.ConditionalAccess
                                 }
                             }
 
-                            PriceReason theReason = PriceReason.UnKnown;
                             Subscription relevantSub = null;
                             Collection relevantCol = null;
                             PrePaidModule relevantPrePaid = null;
@@ -7134,22 +7131,29 @@ namespace Core.ConditionalAccess
                             DateTime? dtDiscountEndDate = null;
                             bool bCancellationWindow = false;
 
-                            Price price = Utils.GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModules[j].PPVModule, userId, couponCode, m_nGroupID,
-                                                                   ppvModules[j].IsValidForPurchase, ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid,
+                            var fullPrice = Utils.GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModules[j].PPVModule, userId, couponCode, m_nGroupID,
+                                                                   ppvModules[j].IsValidForPurchase, ref relevantSub, ref relevantCol, ref relevantPrePaid,
                                                                    ref sFirstDeviceNameFound, countryCode, languageCode, udid, ip, null, allUsersInDomain, nMediaFileTypeID,
                                                                    ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref relatedMediaFileIDs,
                                                                    ref dtEntitlementStartDate, ref dtEntitlementEndDate, ref dtDiscountEndDate, domainID, currencyCode,
                                                                    domainEntitlements, mediaID, userSuspendStatus, false, false, blockEntitlement);
-
                             sProductCode = mediaFilesProductCode[nMediaFileID];
-
+                            
                             var tempItemPriceContainer = new ItemPriceContainer();
-                            tempItemPriceContainer.Initialize(price, ppvModules[j].PPVModule.m_oPriceCode.m_oPrise, sPPVCode, ppvModules[j].PPVModule.m_sDescription,
-                                                              theReason, relevantSub, relevantCol, ppvModules[j].PPVModule.m_bSubscriptionOnly, relevantPrePaid,
+                            tempItemPriceContainer.Initialize(fullPrice.FinalPrice, fullPrice.OriginalPrice, sPPVCode, ppvModules[j].PPVModule.m_sDescription,
+                                                              fullPrice.PriceReason, relevantSub, relevantCol, ppvModules[j].PPVModule.m_bSubscriptionOnly, relevantPrePaid,
                                                               sFirstDeviceNameFound, bCancellationWindow, purchasedBySiteGuid, purchasedAsMediaFileID, relatedMediaFileIDs,
                                                               ppvModules[j].PPVModule.m_Product_Code, dtEntitlementStartDate, dtEntitlementEndDate, dtDiscountEndDate);
 
-                            if (theReason == PriceReason.UserSuspended)
+                            if (fullPrice.CampaignDetails != null)
+                            {
+                                tempItemPriceContainer.PromotionInfo = new PromotionInfo()
+                                {
+                                    CampaignId = fullPrice.CampaignDetails.Id
+                                };
+                            }
+
+                            if (fullPrice.PriceReason == PriceReason.UserSuspended)
                             {
                                 isUserSuspended = true;
 
@@ -7165,19 +7169,19 @@ namespace Core.ConditionalAccess
                             else //user is not suspended
                             {
                                 bool isValidForPurchase = ppvModules[j].IsValidForPurchase;
-                                if (isValidForPurchase || (!isValidForPurchase && theReason == PriceReason.PPVPurchased))
+                                if (isValidForPurchase || (!isValidForPurchase && fullPrice.PriceReason == PriceReason.PPVPurchased))
                                 {
                                     if (!onlyLowest)
                                     {
                                         itemPriceCont.Add(tempItemPriceContainer);
                                     }
-                                    else if (price != null && price.m_dPrice < dLowest)
+                                    else if (fullPrice.FinalPrice != null && fullPrice.FinalPrice.m_dPrice < dLowest)
                                     {
                                         #region insert lowest price parameters
                                         nLowestIndex = j;
-                                        dLowest = price.m_dPrice;
-                                        pLowest = price;
-                                        theLowestReason = theReason;
+                                        dLowest = fullPrice.FinalPrice.m_dPrice;
+                                        pLowest = fullPrice.FinalPrice;
+                                        theLowestReason = fullPrice.PriceReason;
                                         relevantLowestSub = relevantSub;
                                         relevantLowestCol = relevantCol;
                                         relevantLowestPrePaid = relevantPrePaid;
@@ -7982,9 +7986,11 @@ namespace Core.ConditionalAccess
 
                 if (!string.IsNullOrEmpty(sCurrencyCode))
                 {
-                    res.m_Price = new Price();
-                    res.m_Price.m_dPrice = dPrice;
-                    res.m_Price.m_oCurrency = Pricing.Module.GetCurrencyValues(m_nGroupID, sCurrencyCode);
+                    res.m_Price = new Price
+                    {
+                        m_dPrice = dPrice,
+                        m_oCurrency = Pricing.Module.GetCurrencyValues(m_nGroupID, sCurrencyCode)
+                    };
                 }
 
                 if (shouldGetExtendedParams)
@@ -8115,7 +8121,7 @@ namespace Core.ConditionalAccess
         protected internal virtual string GetCustomData(Subscription relevantSub, PPVModule thePPVModule, Core.Pricing.Campaign campaign,
                string sSiteGUID, double dPrice, string sCurrency,
                Int32 nMediaFileID, Int32 nMediaID, string sPPVModuleCode, string sCampaignCode, string sCouponCode, string sUserIP,
-               string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEndDate)
+               string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEndDate, long campaignId)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("<customdata type=\"pp\">");
@@ -8183,6 +8189,12 @@ namespace Core.ConditionalAccess
             sb.Append("<cu>");
             sb.Append(sCurrency);
             sb.Append("</cu>");
+            
+            if (campaignId > 0)
+            {
+                sb.Append($"<campaign>{campaignId}</campaign>");
+            }
+
             sb.Append("</customdata>");
 
             return sb.ToString();
@@ -8191,10 +8203,10 @@ namespace Core.ConditionalAccess
         // Get CustomData string
         protected internal virtual string GetCustomData(Subscription relevantSub, PPVModule thePPVModule, Core.Pricing.Campaign campaign,
                                                string sSiteGUID, double dPrice, string sCurrency, Int32 nMediaFileID, Int32 nMediaID, string sPPVModuleCode,
-                                               string sCampaignCode, string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, long domainId)
+                                               string sCampaignCode, string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, long domainId, long campaignId)
         {
             return GetCustomData(relevantSub, thePPVModule, campaign, sSiteGUID, dPrice, sCurrency, nMediaFileID, nMediaID, sPPVModuleCode,
-                                 sCampaignCode, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty);
+                                 sCampaignCode, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, campaignId);
         }
 
         /// <summary>
@@ -8541,35 +8553,31 @@ namespace Core.ConditionalAccess
                             return ret;
                         }
 
-
-                        PriceReason theReason = PriceReason.UnKnown;
                         Subscription relevantSub = null;
                         Collection relevantCol = null;
                         PrePaidModule relevantPP = null;
 
-
-                        Price p = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                        if (theReason == PriceReason.ForPurchase || (theReason == PriceReason.SubscriptionPurchased && p.m_dPrice > 0))
+                        var fullPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                        if (fullPrice.PriceReason == PriceReason.ForPurchase || (fullPrice.PriceReason == PriceReason.SubscriptionPurchased && fullPrice.FinalPrice.m_dPrice > 0))
                         {
-                            if ((p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency))
+                            if (fullPrice.FinalPrice.m_dPrice == dPrice && fullPrice.FinalPrice.m_oCurrency.m_sCurrencyCD3 == sCurrency)
                             {
-                                if (p.m_dPrice != 0)
+                                if (fullPrice.FinalPrice.m_dPrice != 0)
                                 {
                                     //Check For Credit
-                                    if (p.m_dPrice <= userPPs.m_nTotalAmount - userPPs.m_nAmountUsed)
+                                    if (fullPrice.FinalPrice.m_dPrice <= userPPs.m_nTotalAmount - userPPs.m_nAmountUsed)
                                     {
-
                                         if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
                                         {
                                             sCountryCd = Utils.GetIP2CountryName(m_nGroupID, sUserIP);
                                         }
 
                                         //Create the Custom Data
-                                        string sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency,
-                                            nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, sUserIP,
-                                            sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, domainId);
+                                        string sCustomData = GetCustomData
+                                            (relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency, nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, 
+                                             sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, domainId, fullPrice.CampaignDetails?.Id ?? 0);
 
-                                        HandleCouponUses(relevantSub, sPPVModuleCode, sSiteGUID, p.m_dPrice, sCurrency, nMediaFileID, sCouponCode,
+                                        HandleCouponUses(relevantSub, sPPVModuleCode, sSiteGUID, fullPrice.FinalPrice.m_dPrice, sCurrency, nMediaFileID, sCouponCode,
                                             sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0, 0, domainId);
 
                                         insertQuery = new ODBCWrapper.InsertQuery("ppv_purchases");
@@ -8653,7 +8661,7 @@ namespace Core.ConditionalAccess
 
                                         foreach (UserPrePaidObject uppo in userPPs.m_oUserPPs)
                                         {
-                                            double diff = p.m_dPrice - sum;
+                                            double diff = fullPrice.FinalPrice.m_dPrice - sum;
                                             if ((uppo.m_nTotalAmount - uppo.m_nAmountUsed) < diff)
                                             {
                                                 diff = (uppo.m_nTotalAmount - uppo.m_nAmountUsed);
@@ -8671,7 +8679,7 @@ namespace Core.ConditionalAccess
 
                                             sum += diff;
 
-                                            if (sum == p.m_dPrice)
+                                            if (sum == fullPrice.FinalPrice.m_dPrice)
                                             {
                                                 ret.m_oStatus = PrePaidResponseStatus.Success;
 
@@ -8719,31 +8727,31 @@ namespace Core.ConditionalAccess
                         }
                         else
                         {
-                            if (theReason == PriceReason.PPVPurchased)
+                            if (fullPrice.PriceReason == PriceReason.PPVPurchased)
                             {
                                 ret.m_oStatus = PrePaidResponseStatus.Fail;
                                 ret.m_sStatusDescription = "The media file is already purchased";
                                 WriteToUserLog(sSiteGUID, "While trying to purchase media file id(PP): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                             }
-                            else if (theReason == PriceReason.Free)
+                            else if (fullPrice.PriceReason == PriceReason.Free)
                             {
                                 ret.m_oStatus = PrePaidResponseStatus.Fail;
                                 ret.m_sStatusDescription = "The media file is free";
                                 WriteToUserLog(sSiteGUID, "While trying to purchase media file id(PP): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                             }
-                            else if (theReason == PriceReason.ForPurchaseSubscriptionOnly)
+                            else if (fullPrice.PriceReason == PriceReason.ForPurchaseSubscriptionOnly)
                             {
                                 ret.m_oStatus = PrePaidResponseStatus.Fail;
                                 ret.m_sStatusDescription = "The media file is for purchase with subscription only";
                                 WriteToUserLog(sSiteGUID, "While trying to purchase media file id(PP): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                             }
-                            else if (theReason == PriceReason.SubscriptionPurchased)
+                            else if (fullPrice.PriceReason == PriceReason.SubscriptionPurchased)
                             {
                                 ret.m_oStatus = PrePaidResponseStatus.Fail;
                                 ret.m_sStatusDescription = "The media file is already purchased (subscription)";
                                 WriteToUserLog(sSiteGUID, "While trying to purchase media file id(PP): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                             }
-                            else if (theReason == PriceReason.NotForPurchase)
+                            else if (fullPrice.PriceReason == PriceReason.NotForPurchase)
                             {
                                 ret.m_oStatus = PrePaidResponseStatus.Fail;
                                 ret.m_sStatusDescription = "The media file is not valid for purchased";
@@ -9723,28 +9731,26 @@ namespace Core.ConditionalAccess
                             }
                         }
 
-                        PriceReason theReason = PriceReason.UnKnown;
-
                         Subscription relevantSub = null;
                         Collection relevantCol = null;
                         PrePaidModule relevantPP = null;
 
-                        Price p = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                        if ((theReason == PriceReason.ForPurchase || (theReason == PriceReason.SubscriptionPurchased && p.m_dPrice > 0) || bDummy) && theReason != PriceReason.NotForPurchase)
+                        var fullPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                        if ((fullPrice.PriceReason == PriceReason.ForPurchase || (fullPrice.PriceReason == PriceReason.SubscriptionPurchased && fullPrice.FinalPrice.m_dPrice > 0) || bDummy) && fullPrice.PriceReason != PriceReason.NotForPurchase)
                         {
-                            if (bDummy || (p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency))
+                            if (bDummy || (fullPrice.FinalPrice.m_dPrice == dPrice && fullPrice.FinalPrice.m_oCurrency.m_sCurrencyCD3 == sCurrency))
                             {
                                 string sCustomData = string.Empty;
-                                if (p.m_dPrice != 0 || bDummy)
+                                if (fullPrice.FinalPrice.m_dPrice != 0 || bDummy)
                                 {
                                     if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
                                     {
                                         sCountryCd = Utils.GetIP2CountryName(m_nGroupID, sUserIP);
                                     }
                                     //Create the Custom Data
-                                    sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency,
-                                        nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, sUserIP,
-                                        sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, uObj.m_user.m_domianID);
+                                    sCustomData = GetCustomData
+                                        (relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency, nMediaFileID, nMediaID, sPPVModuleCode, string.Empty,
+                                         sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, uObj.m_user.m_domianID, fullPrice.CampaignDetails?.Id ?? 0);
                                     log.Debug("CustomData - " + sCustomData);
                                     ret = HandleCellularChargeUser(m_nGroupID, sSiteGUID, dPrice, sCurrency, sUserIP, sCustomData, 1, 1, sExtraParameters, bDummy, false);
                                 }
@@ -9783,37 +9789,37 @@ namespace Core.ConditionalAccess
                         }
                         else
                         {
-                            if (theReason == PriceReason.PPVPurchased)
+                            if (fullPrice.PriceReason == PriceReason.PPVPurchased)
                             {
                                 ret.m_oStatus = BillingResponseStatus.Fail;
                                 ret.m_sRecieptCode = string.Empty;
                                 ret.m_sStatusDescription = "The media file is already purchased";
                             }
-                            else if (theReason == PriceReason.Free)
+                            else if (fullPrice.PriceReason == PriceReason.Free)
                             {
                                 ret.m_oStatus = BillingResponseStatus.Fail;
                                 ret.m_sRecieptCode = string.Empty;
                                 ret.m_sStatusDescription = "The media file is free";
                             }
-                            else if (theReason == PriceReason.ForPurchaseSubscriptionOnly)
+                            else if (fullPrice.PriceReason == PriceReason.ForPurchaseSubscriptionOnly)
                             {
                                 ret.m_oStatus = BillingResponseStatus.Fail;
                                 ret.m_sRecieptCode = string.Empty;
                                 ret.m_sStatusDescription = "The media file is for purchase with subscription only";
                             }
-                            else if (theReason == PriceReason.SubscriptionPurchased)
+                            else if (fullPrice.PriceReason == PriceReason.SubscriptionPurchased)
                             {
                                 ret.m_oStatus = BillingResponseStatus.Fail;
                                 ret.m_sRecieptCode = string.Empty;
                                 ret.m_sStatusDescription = "The media file is already purchased (subscription)";
                             }
-                            else if (theReason == PriceReason.UserSuspended)
+                            else if (fullPrice.PriceReason == PriceReason.UserSuspended)
                             {
                                 ret.m_oStatus = BillingResponseStatus.UserSuspended;
                                 ret.m_sRecieptCode = string.Empty;
                                 ret.m_sStatusDescription = "The user is suspended";
                             }
-                            else if (theReason == PriceReason.NotForPurchase)
+                            else if (fullPrice.PriceReason == PriceReason.NotForPurchase)
                             {
                                 ret.m_oStatus = BillingResponseStatus.Fail;
                                 ret.m_sRecieptCode = string.Empty;
@@ -12152,18 +12158,16 @@ namespace Core.ConditionalAccess
                 }
 
                 // validate price
-                PriceReason ePriceReason = PriceReason.UnKnown;
                 Subscription relevantSub = null;
                 Collection relevantCol = null;
                 PrePaidModule relevantPP = null;
-                Price oPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, ppv, siteguid, string.Empty, m_nGroupID, ref ePriceReason, ref relevantSub,
+                var fullPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, ppv, siteguid, string.Empty, m_nGroupID, ref relevantSub,
                                                                                 ref relevantCol, ref relevantPP, string.Empty, string.Empty, deviceName);
 
-                if (ePriceReason == PriceReason.ForPurchase ||
-                   (ePriceReason == PriceReason.SubscriptionPurchased && oPrice.m_dPrice > 0))
+                if (fullPrice.PriceReason == PriceReason.ForPurchase ||
+                   (fullPrice.PriceReason == PriceReason.SubscriptionPurchased && fullPrice.FinalPrice.m_dPrice > 0))
                 {
                     // item is for purchase
-
                     string country = string.Empty;
                     if (!string.IsNullOrEmpty(userIp))
                     {
@@ -12172,9 +12176,9 @@ namespace Core.ConditionalAccess
                     }
 
                     // create custom data
-                    string customData = GetCustomData(relevantSub, ppv, null, siteguid, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3,
-                                                      contentId, mediaID, productId.ToString(), string.Empty, string.Empty,
-                                                      userIp, country, string.Empty, deviceName, householdId);
+                    string customData = GetCustomData
+                        (relevantSub, ppv, null, siteguid, fullPrice.FinalPrice.m_dPrice, fullPrice.FinalPrice.m_oCurrency.m_sCurrencyCD3, contentId, mediaID, 
+                         productId.ToString(), string.Empty, string.Empty, userIp, country, string.Empty, deviceName, householdId, fullPrice.CampaignDetails?.Id ?? 0);
 
                     // create new GUID for billing transaction
                     string billingGuid = Guid.NewGuid().ToString();
@@ -12189,7 +12193,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // purchase
-                    response = VerifyPurchase(siteguid, householdId, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3, userIp, customData, productId, ppvCode,
+                    response = VerifyPurchase(siteguid, householdId, fullPrice.FinalPrice.m_dPrice, fullPrice.FinalPrice.m_oCurrency.m_sCurrencyCD3, userIp, customData, productId, ppvCode,
                                               eTransactionType.PPV, billingGuid, paymentGwName, contentId, purchaseToken, adapterData);
                     if (response != null && response.Status != null)
                     {
@@ -12206,7 +12210,7 @@ namespace Core.ConditionalAccess
                             response.CreatedAt = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlementDate);
 
                             // grant entitlement
-                            bool handleBillingPassed = HandlePPVBillingSuccess(ref response, siteguid, householdId, relevantSub, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3, string.Empty, userIp,
+                            bool handleBillingPassed = HandlePPVBillingSuccess(ref response, siteguid, householdId, relevantSub, fullPrice.FinalPrice.m_dPrice, fullPrice.FinalPrice.m_oCurrency.m_sCurrencyCD3, string.Empty, userIp,
                                                                                country, deviceName, long.Parse(response.TransactionID), customData, ppv,
                                                                                productId, contentId, billingGuid, entitlementDate, ref purchaseId);
 
@@ -12257,7 +12261,7 @@ namespace Core.ConditionalAccess
                 else
                 {
                     // not for purchase
-                    response.Status = Utils.SetResponseStatus(ePriceReason);
+                    response.Status = Utils.SetResponseStatus(fullPrice.PriceReason);
                     log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                 }
             }
@@ -13505,28 +13509,26 @@ namespace Core.ConditionalAccess
                 }
 
                 // validate price
-                PriceReason priceReason = PriceReason.UnKnown;
                 Subscription relevantSub = null;
                 Collection relevantCol = null;
                 PrePaidModule relevantPP = null;
-                Price mediaPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, thePPVModule, userId, coupon, m_nGroupID,
-                                                                                              ref priceReason, ref relevantSub, ref relevantCol, ref relevantPP,
-                                                                                              string.Empty, string.Empty, string.Empty);
-                if (mediaPrice == null)
+                var fullPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices
+                    (contentId, thePPVModule, userId, coupon, m_nGroupID, ref relevantSub, ref relevantCol, ref relevantPP, string.Empty, string.Empty, string.Empty);
+                if (fullPrice.FinalPrice == null)
                 {
                     status.Set((int)eResponseStatus.Error, GET_PRICE_ERROR);
                     log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
                     return status;
                 }
 
-                bool couponFullDiscount = (priceReason == PriceReason.Free) && !string.IsNullOrEmpty(coupon);
+                bool couponFullDiscount = (fullPrice.PriceReason == PriceReason.Free) && !string.IsNullOrEmpty(coupon);
 
-                if (priceReason == PriceReason.ForPurchase ||
-                    (priceReason == PriceReason.SubscriptionPurchased && mediaPrice.m_dPrice > 0) ||
+                if (fullPrice.PriceReason == PriceReason.ForPurchase ||
+                    (fullPrice.PriceReason == PriceReason.SubscriptionPurchased && fullPrice.FinalPrice.m_dPrice > 0) ||
                     couponFullDiscount)
                 {
                     // item is for purchase                    
-                    if (mediaPrice.m_dPrice == price && mediaPrice.m_oCurrency.m_sCurrencyCD3 == currency)
+                    if (fullPrice.FinalPrice.m_dPrice == price && fullPrice.FinalPrice.m_oCurrency.m_sCurrencyCD3 == currency)
                     {
                         // create new GUID for billing transaction
                         string billingGuid = Guid.NewGuid().ToString();
@@ -13614,7 +13616,7 @@ namespace Core.ConditionalAccess
                 else
                 {
                     // not for purchase
-                    status = Utils.SetResponseStatus(priceReason);
+                    status = Utils.SetResponseStatus(fullPrice.PriceReason);
                     log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
                 }
             }

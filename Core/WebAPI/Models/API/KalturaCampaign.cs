@@ -98,7 +98,7 @@ namespace WebAPI.Models.API
         [JsonProperty("promotion")]
         [XmlElement(ElementName = "promotion", IsNullable = true)]
         [SchemeProperty(IsNullable = true)]
-        public KalturaPromotion Promotion { get; set; }
+        public KalturaBasePromotion Promotion { get; set; }
 
         /// <summary>
         /// Free text message to the user that gives information about the campaign.

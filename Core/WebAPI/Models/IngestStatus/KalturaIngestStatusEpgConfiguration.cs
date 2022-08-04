@@ -23,7 +23,7 @@ namespace WebAPI.Models.IngestStatus
         [DataMember(Name = "retainingPeriod")]
         [JsonProperty("retainingPeriod")]
         [XmlElement(ElementName = "retainingPeriod")]
-        [SchemeProperty(IsNullable = true, MinInteger = 0)]
+        [SchemeProperty(IsNullable = true, MinLong = 0)]
         public long? RetainingPeriod { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using ApiObjects.Rules;
+﻿using APILogic.ConditionalAccess;
+using ApiObjects.Rules;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -58,7 +59,7 @@ namespace ApiLogic.Api.Managers
             {
                 return false;
             }
-        }
+        }        
 
         public static bool Evaluate(IDynamicKeysConditionScope scope, DynamicKeysCondition condition)
         {
@@ -208,6 +209,32 @@ namespace ApiLogic.Api.Managers
             if (scope.DeviceDynamicData == null) return false;
             var match = scope.DeviceDynamicData.Any(_ => _.key == condition.Key && _.value == condition.Value);
             return match;
+        }        
+        
+        public static bool Evaluate(IChannelConditionScope scope, ChannelCondition condition)
+        {
+            if (scope.MediaId == 0)
+            {
+                return false;
+            }
+
+            var channelIds = scope.GetChannelsByMediald(scope.GroupId, scope.MediaId);
+            if (channelIds?.Count > 0 )
+            {
+                return channelIds.Any(x => condition.ChannelIds.Contains(x));
+            }
+
+            return false;
+        }
+
+        public static bool Evaluate(IFileTypeConditionScope scope, FileTypeCondition condition)
+        {
+            if (scope.FileTypeIds?.Count > 0)
+            {
+                return scope.FileTypeIds.Any(x => condition.FileTypeIds.Contains(x));
+            }
+
+            return false;
         }
     }
 }

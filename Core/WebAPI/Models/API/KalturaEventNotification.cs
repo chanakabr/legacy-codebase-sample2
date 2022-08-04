@@ -27,7 +27,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "objectId")]
         [JsonProperty("objectId")]
         [XmlElement(ElementName = "objectId")]
-        [SchemeProperty(MinInteger = 1)]
+        [SchemeProperty(MinLong = 1)]
         public long ObjectId { get; set; }
 
         /// <summary>

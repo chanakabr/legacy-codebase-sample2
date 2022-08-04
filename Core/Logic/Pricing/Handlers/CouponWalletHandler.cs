@@ -66,7 +66,6 @@ namespace Core.Pricing.Handlers
 
                 // Add coupon to household                                
                 couponWalletToAdd.CouponGroupId = couponData.Coupon.m_oCouponGroup.m_sGroupCode;
-                //couponWalletToAdd.CouponId = couponData.Coupon.m_nCouponID; //TODO anat
 
                 couponWalletToAdd.CreateDate = DateTime.UtcNow;
                 if (couponWalletList == null)

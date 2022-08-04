@@ -1,8 +1,10 @@
 ﻿using ApiLogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Rules;
+using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
 using Core.Api;
+using Core.Catalog.CatalogManagement;
 using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
@@ -17,12 +19,14 @@ namespace APILogic.Api.Managers
         // BEO-5794 BusinessModuleRule
         IDateConditionScope,
         IAssetConditionScope,
-        IBusinessModuleConditionScope, 
+        IBusinessModuleConditionScope,
         ISegmentsConditionScope,
         // BEO-6825 SeasonalPromotion
         IUserRoleConditionScope,
         IUserSubscriptionConditionScope,
-        IAssetSubscriptionConditionScope
+        IAssetSubscriptionConditionScope,
+        IChannelConditionScope,
+        IFileTypeConditionScope
     { }
 
     public class BusinessModuleRuleConditionScope : IBusinessModuleRuleConditionScope
@@ -39,6 +43,7 @@ namespace APILogic.Api.Managers
         public long RuleId { get; set; }
         public long MediaId { get; set; }
         public int GroupId { get; set; }
+        public List<long> FileTypeIds { get; set; }
 
         public new bool Evaluate(RuleCondition condition)
         {
@@ -52,6 +57,8 @@ namespace APILogic.Api.Managers
                 case AssetSubscriptionCondition c: return ConditionsEvaluator.Evaluate(this, c);
                 case AssetCondition c: return ConditionsEvaluator.Evaluate(this, c);
                 case OrCondition c: return ConditionsEvaluator.Evaluate(this, c);
+                case ChannelCondition c: return ConditionsEvaluator.Evaluate(this, c);
+                case FileTypeCondition c: return ConditionsEvaluator.Evaluate(this, c);
                 default: throw new NotImplementedException($"Evaluation for condition type {condition.Type} was not implemented in BusinessModuleRuleConditionScope");
             }
         }
@@ -226,6 +233,17 @@ namespace APILogic.Api.Managers
             }
 
             return sb.ToString();
+        }
+
+        public List<long> GetChannelsByMediald(int groupId, long mediaId)
+        {
+            var channels = ChannelManager.Instance.GetChannelsContainingMedia(groupId, mediaId, 0, 0, ChannelOrderBy.Id, OrderDir.NONE, true, 0);
+            if (channels.Objects?.Count > 0)
+            {
+                return channels.Objects.Select(x => (long)x.m_nChannelID).ToList();
+            }
+
+            return null;
         }
     }
 }

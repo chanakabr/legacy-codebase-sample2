@@ -42,7 +42,7 @@ namespace WebAPI.Models.Notifications
         [DataMember(Name = "topicNotificationId")]
         [JsonProperty(PropertyName = "topicNotificationId")]
         [XmlElement(ElementName = "topicNotificationId")]
-        [SchemeProperty(MinInteger = 1)]
+        [SchemeProperty(MinLong = 1)]
         public long TopicNotificationId { get; set; }
 
         /// <summary>

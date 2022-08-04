@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using TVinciShared;
 
 namespace Core.ConditionalAccess
@@ -1416,63 +1417,8 @@ namespace Core.ConditionalAccess
                                         cas.UpdateDLM(householdId, subscription.m_nDomainLimitationModule);
                                     }
 
-                                    if (fullPrice.CampaignDetails != null && fullPrice.CampaignDetails.Id > 0)
-                                    {
-                                        //Update campaign message details
-                                        var domainResponse = Domains.Module.GetDomainInfo(contextData.GroupId, (int)contextData.DomainId);
-                                        long _userId = domainResponse.Domain.m_masterGUIDs.FirstOrDefault();
-
-                                        var userCampaigns = NotificationDal.GetCampaignInboxMessageMapCB(contextData.GroupId, _userId);
-
-                                        if (userCampaigns.Campaigns.ContainsKey(fullPrice.CampaignDetails.Id))
-                                        {
-                                            var campaignDetails = userCampaigns.Campaigns[fullPrice.CampaignDetails.Id];
-                                            long now = DateUtils.GetUtcUnixTimestampNow();
-                                            campaignDetails.SubscriptionUses.Add(productId, now);
-                                            
-                                            if (!DAL.NotificationDal.SaveToCampaignInboxMessageMapCB(fullPrice.CampaignDetails.Id, contextData.GroupId, _userId, campaignDetails))
-                                            {
-                                                log.Error($"Failed InsertCampaignUsage with campaign: {fullPrice.CampaignDetails.Id}, " +
-                                                    $"hh: {householdId}, group: {contextData.GroupId}");
-                                            }
-
-                                            if (!string.IsNullOrEmpty(fullPrice.CampaignDetails.Udid))
-                                            {
-                                                //ANTI FRAUD BEO-8610
-                                                if (!DAL.NotificationDal.SaveToDeviceTriggerCampaignsUses(contextData.GroupId, fullPrice.CampaignDetails.Udid, fullPrice.CampaignDetails.Id, now))
-                                                {
-                                                    log.Error($"Failed SaveToDeviceTriggerCampaignsUses with campaign: {fullPrice.CampaignDetails.Id}, " +
-                                                        $"hh: {householdId}, group: {contextData.GroupId}, udid: {fullPrice.CampaignDetails.Udid}");
-                                                }
-                                            }
-                                        }
-                                        else
-                                        {
-                                            try
-                                            {
-                                                CampaignIdInFilter campaignFilter = new CampaignIdInFilter()
-                                                {
-                                                    IdIn = new List<long>() { fullPrice.CampaignDetails.Id }
-                                                };
-
-                                                var campaigns = ApiLogic.Users.Managers.CampaignManager.Instance.ListCampaingsByIds(contextData, campaignFilter);
-
-                                                if (campaigns.HasObjects())
-                                                {
-                                                    var campaign = campaigns.Objects[0];
-
-                                                    Notification.MessageInboxManger.AddCampaignMessage
-                                                    (fullPrice.CampaignDetails.Id, campaign.CampaignType, campaign.Message, campaign.EndDate, contextData.GroupId, _userId, productId);
-                                                }
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                log.Error($"Failed AddCampaignMessage with campaign: {fullPrice.CampaignDetails.Id}, " +
-                                                    $"hh: {householdId}, group: {contextData.GroupId}");
-                                            }
-                                        }
-                                    }
-
+                                    Task.Run(() => HandelCampaignMessageDetails(contextData, householdId, fullPrice.CampaignDetails, eTransactionType.Subscription, productId));
+                                    
                                     long endDateUnix = endDate.HasValue ? DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate.Value) : 0;
 
                                     // If the subscription if recurring, put a message for renewal and all that...
@@ -1632,6 +1578,58 @@ namespace Core.ConditionalAccess
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
             return response;
+        }
+
+        private static void HandelCampaignMessageDetails(ContextData contextData, long householdId, RecurringCampaignDetails recurringCampaignDetails, eTransactionType productType, int productId)
+        {
+            if (recurringCampaignDetails != null && recurringCampaignDetails.Id > 0)
+            {
+                //Update campaign message details
+                var domainResponse = Domains.Module.GetDomainInfo(contextData.GroupId, (int)contextData.DomainId);
+                long _userId = domainResponse.Domain.m_masterGUIDs.FirstOrDefault();
+
+                var userCampaigns = NotificationDal.GetCampaignInboxMessageMapCB(contextData.GroupId, _userId);
+
+                if (userCampaigns.Campaigns.ContainsKey(recurringCampaignDetails.Id))
+                {
+                    long now = DateUtils.GetUtcUnixTimestampNow();
+                    var campaignDetails = userCampaigns.Campaigns[recurringCampaignDetails.Id];
+                    // handle anti fraud for Subscription only
+                    if (productType == eTransactionType.Subscription)
+                    {
+                        campaignDetails.SubscriptionUses.Add(productId, now);
+                    }
+                    NotificationDal.SaveToCampaignInboxMessageMapCB(recurringCampaignDetails.Id, contextData.GroupId, _userId, campaignDetails);
+
+                    if (!string.IsNullOrEmpty(recurringCampaignDetails.Udid))
+                    {
+                        //ANTI FRAUD BEO-8610
+                        DAL.NotificationDal.SaveToDeviceTriggerCampaignsUses(contextData.GroupId, recurringCampaignDetails.Udid, recurringCampaignDetails.Id, now);
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        CampaignIdInFilter campaignFilter = new CampaignIdInFilter()
+                        {
+                            IdIn = new List<long>() { recurringCampaignDetails.Id }
+                        };
+
+                        var campaigns = ApiLogic.Users.Managers.CampaignManager.Instance.ListCampaingsByIds(contextData, campaignFilter);
+
+                        if (campaigns.HasObjects())
+                        {
+                            var campaign = campaigns.Objects[0];
+                            Notification.MessageInboxManger.AddCampaignMessage(campaign, contextData.GroupId, _userId, null, productId, productType);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error($"Failed AddCampaignMessage with campaign: {recurringCampaignDetails.Id}, hh: {householdId}, group: {contextData.GroupId}", ex);
+                    }
+                }
+            }
         }
 
         public static void SendRenewalReminder(BaseConditionalAccess cas, int groupId, DateTime endDate, long endDateUnix,
@@ -1895,7 +1893,7 @@ namespace Core.ConditionalAccess
             }
 
             // log request
-            string logString = $"Purchase request: contextData {contextData}, price {price}, currency {currency}, contentId {contentId}, productId {productId}, coupon {coupon}, " +
+            string logString = $"PPV Purchase request: contextData {contextData}, price {price}, currency {currency}, contentId {contentId}, productId {productId}, coupon {coupon}, " +
                                $"paymentGwId {paymentGwId}, paymentMethodId {paymentMethodId}, adapterData {adapterData}";
 
             try
@@ -1936,16 +1934,22 @@ namespace Core.ConditionalAccess
                 }
 
                 // validate price
-                PriceReason priceReason = PriceReason.UnKnown;
                 Subscription relevantSub = null;
                 Collection relevantCol = null;
                 PrePaidModule relevantPP = null;
                 var siteguid = contextData.UserId.ToString();
                 bool isGiftCard = false;
 
-                Price priceObject = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, ppvModule, siteguid, couponCode,
-                        contextData.GroupId, ref priceReason, ref relevantSub, ref relevantCol, ref relevantPP, string.Empty, string.Empty, contextData.Udid,
+                var fullPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, ppvModule, siteguid, couponCode,
+                        contextData.GroupId, ref relevantSub, ref relevantCol, ref relevantPP, string.Empty, string.Empty, contextData.Udid,
                         false, contextData.UserIp, currency, BlockEntitlementType.NO_BLOCK);
+
+                // get country by user IP
+                string country = string.Empty;
+                if (!string.IsNullOrEmpty(contextData.UserIp))
+                {
+                    country = Utils.GetIP2CountryName(contextData.GroupId, contextData.UserIp);
+                }
 
                 if (coupon != null &&
                     coupon.m_CouponStatus == CouponsStatus.Valid &&
@@ -1958,17 +1962,17 @@ namespace Core.ConditionalAccess
                     isGiftCard = true;
                 }
 
-                bool couponFullDiscount = (priceReason == PriceReason.Free) && coupon != null;
+                bool couponFullDiscount = (fullPrice.PriceReason == PriceReason.Free) && coupon != null;
 
-                if ((priceReason == PriceReason.ForPurchase ||
-                    (priceReason == PriceReason.SubscriptionPurchased && priceObject.m_dPrice > 0) ||
+                if ((fullPrice.PriceReason == PriceReason.ForPurchase ||
+                    (fullPrice.PriceReason == PriceReason.SubscriptionPurchased && fullPrice.FinalPrice.m_dPrice > 0) ||
                     couponFullDiscount) ||
-                    (isGiftCard && (priceReason == PriceReason.ForPurchase || priceReason == PriceReason.Free)))
+                    (isGiftCard && (fullPrice.PriceReason == PriceReason.ForPurchase || fullPrice.PriceReason == PriceReason.Free)))
                 {
                     if (isGiftCard)
                     {
-                        priceReason = PriceReason.Free;
-                        priceObject = new Price()
+                        fullPrice.PriceReason = PriceReason.Free;
+                        fullPrice.FinalPrice = new Price()
                         {
                             m_dPrice = 0.0,
                             m_oCurrency = new Currency()
@@ -1979,20 +1983,13 @@ namespace Core.ConditionalAccess
                     }
 
                     // item is for purchase
-                    if ((priceObject.m_dPrice == price && priceObject.m_oCurrency.m_sCurrencyCD3 == currency)
+                    if ((fullPrice.FinalPrice.m_dPrice == price && fullPrice.FinalPrice.m_oCurrency.m_sCurrencyCD3 == currency)
                         || (paymentGateway != null && paymentGateway.ExternalVerification))
                     {
-                        // get country by user IP
-                        string country = string.Empty;
-                        if (!string.IsNullOrEmpty(contextData.UserIp))
-                        {
-                            country = Utils.GetIP2CountryName(contextData.GroupId, contextData.UserIp);
-                        }
-
                         // create custom data
-                        string customData = cas.GetCustomData(relevantSub, ppvModule, null, siteguid, price, currency,
-                                                          contentId, mediaID, productId.ToString(), string.Empty, couponCode,
-                                                          contextData.UserIp, country, string.Empty, contextData.Udid, contextData.DomainId.Value);
+                        string customData = cas.GetCustomData
+                            (relevantSub, ppvModule, null, siteguid, price, currency, contentId, mediaID, productId.ToString(), string.Empty, couponCode,
+                             contextData.UserIp, country, string.Empty, contextData.Udid, contextData.DomainId.Value, fullPrice.CampaignDetails?.Id ?? 0);
 
                         // create new GUID for billing transaction
                         string billingGuid = Guid.NewGuid().ToString();
@@ -2079,6 +2076,11 @@ namespace Core.ConditionalAccess
                                     {
                                         log.DebugFormat("Error while enqueue purchase record: {0}, data: {1}", response.Status.Message, logString);
                                     }
+
+                                    if (fullPrice.CampaignDetails != null)
+                                    {
+                                        Task.Run(() => HandelCampaignMessageDetails(contextData, contextData.DomainId.Value, fullPrice.CampaignDetails, eTransactionType.PPV, productId));
+                                    }
                                 }
                                 else
                                 {
@@ -2110,7 +2112,7 @@ namespace Core.ConditionalAccess
                 else
                 {
                     // not for purchase
-                    response.Status = Utils.SetResponseStatus(priceReason);
+                    response.Status = Utils.SetResponseStatus(fullPrice.PriceReason);
                     log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                 }
             }

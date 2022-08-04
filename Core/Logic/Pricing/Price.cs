@@ -34,7 +34,6 @@ namespace Core.Pricing
             m_dPrice = item.m_dPrice;
             m_oCurrency = new Currency(item.m_oCurrency);
             countryId = item.countryId;
-
         }
 
         // TODO - need to delete all InitializeBy methods and use IGeneralPartnerConfigManager.GetCurrencyList instead!!
