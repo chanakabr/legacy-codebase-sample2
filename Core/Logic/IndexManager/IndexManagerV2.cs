@@ -7447,6 +7447,12 @@ namespace Core.Catalog
                 {
                     specificMappingAnlyzers.phraseStartsWithSearchAnalyzer = phraseStartsWithSearchAnalyzerCandidate;
                 }
+
+                var sortingAnalyzerCandidate = $"{language.Code}_sorting_analyzer";
+                if (analyzerDefinition.Contains(sortingAnalyzerCandidate))
+                {
+                    specificMappingAnlyzers.sortingAnalyzer = sortingAnalyzerCandidate;
+                }
             }
             else
             {
