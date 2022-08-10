@@ -654,11 +654,11 @@ namespace CachingProvider.LayeredCache
                 {
                     foreach (var keyToRemove in keysToRemove)
                     {
-                        requestLayeredCache.cachedObjects.Remove(keyToRemove);
+                        requestLayeredCache.cachedObjects.TryRemove(keyToRemove, out _);
                     }
                 }
 
-                requestLayeredCache.invalidationKeysValues.Remove(invalidationKey);
+                requestLayeredCache.invalidationKeysValues.TryRemove(invalidationKey, out _);
             }
         }
 

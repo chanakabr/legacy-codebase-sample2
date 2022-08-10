@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using ApiLogic.Users;
 using ApiObjects.Response;
+using AutoMapper;
 using Core.Users;
 using Google.Protobuf.Collections;
 using GrpcAPI.Utils;
@@ -73,7 +74,7 @@ namespace GrpcAPI.Services
                         DlmId = domain.m_nLimit,
                         DeviceFamilies =
                         {
-                            GrpcMapping.Mapper.Map<RepeatedField<deviceFamilyData>>(domain.m_deviceFamilies)
+                            Mapper.Map<RepeatedField<deviceFamilyData>>(domain.m_deviceFamilies)
                         }
                     };
                 }
@@ -81,7 +82,7 @@ namespace GrpcAPI.Services
                 return new GetDomainDataResponse()
                 {
                     DomainId = domainId,
-                    Status = GrpcMapping.Mapper.Map<Status>(status),
+                    Status = Mapper.Map<Status>(status),
                     DomainData = domainData
                 };
             }
@@ -122,7 +123,7 @@ namespace GrpcAPI.Services
                     RolesPermissionsManager.GetSuspentionStatus(request.GroupId, (int)request.DomainId);
                 return new GetSuspensionStatusResponse()
                 {
-                    Status = GrpcMapping.Mapper.Map<Status>(status)
+                    Status = Mapper.Map<Status>(status)
                 };
             }
             catch (Exception e)

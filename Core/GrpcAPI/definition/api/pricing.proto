@@ -1,312 +1,29 @@
 syntax = "proto3";
+import "KeyValuePair.proto";
+import "PriceReason.proto";
 import "google/protobuf/timestamp.proto";
-import "adpolicy.proto";
-import "keyvalue.proto";
 
 option csharp_namespace = "phoenix";
 option go_package = "./models";
 
 package phoenix;
 
-enum CouponGroupType
-{
-  Coupon = 0;
-  GiftCard = 1;
+message MediaFileEntitlementContainer {
+  int32 mediaFileID = 1;
+  repeated EntitlementContainer entitlementContainer = 2;
 }
 
-enum CouponsStatus
-{
-  Valid = 0;
-  NotExists = 1;
-  AllreadyUsed = 2;
-  IrrelevantCode = 3;
-  Expired = 4;
-  NotActive = 5;
-}
-
-enum SubscriptionType
-{
-  NotApplicable = 0;
-  Base = 1;
-  AddOn = 2;
-}
-
-enum PriceReason
-{
-  PPVPurchased = 0;
-  Free = 1;
-  ForPurchaseSubscriptionOnly = 2;
-  SubscriptionPurchased = 3;
-  ForPurchase = 4;
-  UnKnown = 5;
-  SubscriptionPurchasedWrongCurrency = 6;
-  PrePaidPurchased = 7;
-  GeoCommerceBlocked = 8;
-  EntitledToPreviewModule = 9;
-  FirstDeviceLimitation = 10;
-  CollectionPurchased = 11;
-  UserSuspended = 12;
-  NotForPurchase = 13;
-  InvalidCurrency = 14;
-  CurrencyNotDefinedOnPriceCode = 15;
-  PendingEntitlement = 16;
-}
-
-message GetItemsPricesRequest {
-  repeated int32 MediaFiles = 1;
-  int64 UserId = 2;
-  string CouponCode = 3;
-  bool OnlyLowest = 4;
-  string LanguageCode = 5;
-  string Udid = 6;
-  string Ip = 7;
-  string CurrencyCode = 8;
-  BlockEntitlementType BlockEntitlement = 9;
-  bool IsDownloadPlayContext = 10;
-  bool WithMediaFilesInvalidation = 11;
-  int32 GroupId = 12;
-
-  enum BlockEntitlementType
-  {
-    NONE = 0;
-    BLOCK_ALL = 1;
-    NO_BLOCK = 2;
-    BLOCK_PPV = 3;
-    BLOCK_SUBSCRIPTION = 4;
-  }
-}
-
-message GetItemsPricesResponse {
-  repeated MediaFileItemPrice MediaFileItemPrice = 1;
-}
-message MediaFileItemPrice {
-  int32 MediaFileID = 1;
-  repeated ItemPrice ItemPrices = 2;
-  string ProductCode = 3;
-}
-message ItemPrice {
-  string PPVModuleCode = 1;
-  bool SubscriptionOnly = 2;
-  Price Price = 3;
-  Price OriginalPrice = 4;
-  Price FullPrice = 5;
-  PriceReason PriceReason = 6;
-  Subscription relevantSub = 7;
-  Collection relevantCol = 8;
-  PrePaidModule relevantPP = 9;
-  repeated Language PPVDescription = 10;
-  CouponsStatus CouponStatus = 11;
-  string FirstDeviceNameFound = 12;
-  bool CancelWindow = 13;
-  string PurchasedBySiteGuid = 14;
-  int32 PurchasedMediaFileID = 15;
-  int32 RelatedMediaFileIDs = 16;
-  google.protobuf.Timestamp StartDate = 17;
-  google.protobuf.Timestamp EndDate = 18;
-  google.protobuf.Timestamp DiscountEndDate = 19;
-  string ProductCode = 20;
-}
-message Price {
-  double Price = 1;
-  Currency Currency = 2;
-  int32 CountryId =3;
-}
-message Currency {
-  string CurrencyCD3 = 1;
-  string CurrencyCD2 = 2;
-  string CurrencySign = 3;
-  string CurrencyName = 4;
-  int32 CurrencyID = 5;
-  bool IsDefault = 6;
-}
-message Subscription {
-  repeated BundleCode codes = 1;
-  google.protobuf.Timestamp StartDate = 2;
-  google.protobuf.Timestamp EndDate = 3;
-  repeated int32 sFileTypes = 4;
-  bool IsRecurring = 5;
-  int32 NumberOfRecPeriods = 6;
-  PriceCode SubscriptionPriceCode = 7;
-  DiscountModule ExtDiscountModule =8;
-  repeated Language Name = 9;
-  UsageModule SubscriptionUsageModule = 10;
-  int32 fictivicMediaID = 11;
-  int64 Priority = 12;
-  string ProductCode = 13;
-  string SubscriptionCode = 14;
-  repeated UsageModule MultiSubscriptionUsageModule = 15;
-  int32 GeoCommerceID = 16;
-  bool IsInfiniteRecurring = 17;
-  repeated UserType UserTypes = 18;
-  PreviewModule PreviewModule = 19;
-  int32 DomainLimitationModule = 20;
-  repeated ServiceObject Services = 21;
-  int32 GracePeriodMinutes = 22;
-  bool BlockCancellation = 23;
-  google.protobuf.Timestamp PreSaleDate = 24;
-  repeated KeyValuePair SubscriptionSetIdsToPriority = 25;
-  repeated SubscriptionCouponGroup CouponsGroups = 26;
-  repeated VerificationPaymentGatewayKeyValuePair ExternalProductCodes = 27;
-  SubscriptionType Type = 28;
-  PPVModule PPVModule = 29;
-}
-message Collection {
-  repeated BundleCode codes = 1;
-  google.protobuf.Timestamp StartDate = 2;
-  google.protobuf.Timestamp EndDate = 3;
-  repeated int32 sFileTypes = 4;
-  PriceCode CollectionPriceCode = 5;
-  DiscountModule ExtDiscountModule = 6;
-  repeated Language Name = 7;
-  UsageModule CollectionUsageModule = 8;
-  int32 FictivicMediaID = 9;
-  string ProductCode = 10;
-  string CollectionCode = 11;
-  repeated SubscriptionCouponGroup CouponsGroups = 12;
-  repeated VerificationPaymentGatewayKeyValuePair ExternalProductCodes = 13;
-  PPVModule PPVModule = 14;
-}
-message PPVModule {
-  google.protobuf.Timestamp CreateDate = 1;
-  google.protobuf.Timestamp UpdateDate = 2;
-  PriceCode priceCode = 3;
-  DiscountModule DiscountModule = 4;
-  UsageModule UsageModule = 5;
-  CouponsGroup CouponsGroup = 6;
-  repeated Language Description = 7;
-  string AdsParam = 8;
-  bool IsActive = 9;
-  AdsPolicy adsPolicy = 10;
-  string ObjectCode = 11;
-  string ObjectVirtualName = 12;
-  bool SubscriptionOnly = 13;
-  repeated int32 relatedFileTypes = 14;
-  string ProductCode = 15;
-  bool FirstDeviceLimitation = 16;
-  string alias = 17;
-}
-message PrePaidModule {
-  PriceCode PriceCode = 1;
-  PriceCode CreditValue = 2;
-  UsageModule UsageModule = 3;
-  DiscountModule DiscountModule = 4;
-  CouponsGroup CouponsGroup = 5;
-  repeated Language Description = 6;
-  int32 ObjectCode = 7;
-  string Title = 8;
-  bool IsFixedCredit = 9;
-}
-message Language {
-  string LanguageCode3 = 1;
-  string Value = 2;
-  bool IsDefault = 3;
-}
-message BundleCode {
-  string Code = 1;
-  string Name =2;
-}
-message PriceCode {
-  string Code = 1;
-  Price Price = 2;
-  int32 ObjectID = 3;
-  repeated Language Description = 4;
-}
-message DiscountModule {
-  double Percent = 1;
-  google.protobuf.Timestamp StartDate = 2;
-  google.protobuf.Timestamp EndDate = 3;
-  RelationTypes TheRelationType = 4;
-  WhenAlgo WhenAlgo = 5;
-  string alias = 6;
-  PriceCode PriceCode = 7;
-  enum RelationTypes
-  {
-    NONE = 0;
-    And = 1;
-    Or = 2;
-  }
-}
-
-message WhenAlgo {
-  WhenAlgoType AlgoType = 1;
-  int32 NTimes = 2;
-
-  enum WhenAlgoType
-  {
-    NONE = 0;
-    N_FIRST_TIMES = 1;
-    EVERY_N_TIMES = 2;
-  }
-}
-
-message UsageModule {
-  int32 ObjectID = 1;
-  string VirtualName = 2;
-  int32 MaxNumberOfViews = 3;
-  int32 ViewLifeCycle = 4;
-  int32 MaxUsageModuleLifeCycle = 5;
-  int32 ExtDiscountId = 6;
-  int32 InternalDiscountId = 7;
-  int32 PricingId = 8;
-  int32 CouponId = 9;
-  int32 Type = 10;
-  int32 SubscriptionOnly = 11;
-  int32 IsRenew = 12;
-  int32 NumOfRecPeriods = 13;
-  int32 DeviceLimitId = 14;
-  bool Waiver = 15;
-  int32 WaiverPeriod = 16;
-  bool IsOfflinePlayBack = 17;
-}
-message PreviewModule {
-  int64 ID = 1;
-  string Name = 2 ;
-  int32 FullLifeCycle = 3;
-  int32 NonRenewPeriod = 4;
-  string alias = 5;
-}
-message SubscriptionCouponGroup {
-  google.protobuf.Timestamp StartDate = 1;
-  google.protobuf.Timestamp EndDate = 2;
-  CouponsGroup CouponGroup = 3;
-}
-message CouponsGroup {
-  google.protobuf.Timestamp StartDate = 1;
-  google.protobuf.Timestamp EndDate = 2;
-  DiscountModule DiscountModuleCode = 3;
-  string DiscountCode = 4;
-  repeated Language Description = 5;
-  int32 MaxUseCountForCoupon = 6;
-  string GroupCode = 7;
-  string GroupName = 8;
-  int32 FinancialEntityID = 9;
-  int32 MaxRecurringUsesCountForCoupon = 10;
-  string alias = 11;
-  CouponGroupType couponGroupType = 12;
-  int32 MaxDomainUses = 13;
-}
-
-message ServiceObject {
-  int64 ID = 1;
-  string Name = 2;
-}
-message UserType {
-  int32 ID = 1;
-  string  Description = 2;
-  bool IsDefault = 3;
-}
-
-message VerificationPaymentGatewayKeyValuePair {
-  VerificationPaymentGateway key = 1;
-  string value = 2;
-
-  enum VerificationPaymentGateway
-  {
-    NONE = 0;
-    Google = 1;
-    Apple = 2;
-    Roku = 3;
-  }
+message EntitlementContainer {
+  string SubscriptionId = 1;
+  string CollectionId = 2;
+  string PPVId = 3;
+  PriceReason PriceReason = 4;
+  double Price = 5;
+  string Currency = 6;
+  .google.protobuf.Timestamp StartDate = 7;
+  .google.protobuf.Timestamp EndDate = 8;
+  repeated int32 RelatedMediaFileIDs = 9 [packed = false];
+  int32 PurchasedMediaFileID = 10;
 }
 
 message PaymentGatewayProfile {
@@ -332,7 +49,7 @@ message PaymentGatewayProfile {
     int32 RenewalIntervalMinutes = 20;
     int32 RenewalStartMinutes = 21;
     bool SkipSettings = 22;
-  
+
 }
 
 message PaymentMethod {
@@ -341,12 +58,3 @@ message PaymentMethod {
   bool AllowMultiInstance = 3;
   int32 PaymentGatewayId = 4;
 }
-
-message GetPaymentGatewayProfileResponse {
-  repeated PaymentGatewayProfile PaymentGatewayProfileList = 1;
-}
-
-message GetPaymentGatewayProfileRequest {
-  int32 GroupId = 1;
-}
-

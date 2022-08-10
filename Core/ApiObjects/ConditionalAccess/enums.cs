@@ -1,5 +1,8 @@
-﻿namespace ApiObjects.ConditionalAccess
+﻿using ProtoBuf;
+
+namespace ApiObjects.ConditionalAccess
 {
+    [ProtoContract]
     public enum PriceReason : int
     {
         PPVPurchased = 0,

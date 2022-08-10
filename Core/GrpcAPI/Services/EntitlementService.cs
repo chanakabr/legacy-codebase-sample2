@@ -1,19 +1,16 @@
-﻿using System;
-using System.Reflection;
-using APILogic.Api.Managers;
-using ApiObjects;
-using ApiObjects.Response;
-using Phx.Lib.Appconfig;
+﻿using System.Collections.Generic;
+using ApiLogic;
+using ApiLogic.Pricing.Handlers;
+using AutoMapper;
 using Core.ConditionalAccess;
+using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using GrpcAPI.Utils;
 using phoenix;
-using Phx.Lib.Log;
 using AdsPolicy = phoenix.AdsPolicy;
 using eService = ApiObjects.eService;
+using MediaFile = ApiObjects.MediaFile;
 using Module = Core.ConditionalAccess.Module;
-using RolePermissions = ApiObjects.RolePermissions;
-using Status = phoenix.Status;
 
 namespace GrpcAPI.Services
 {
@@ -23,13 +20,15 @@ namespace GrpcAPI.Services
         GetDomainAdsControlResponse GetDomainAdsControl(GetDomainAdsControlRequest request);
         GetPPVModuleDataResponse GetPPVModuleData(GetPPVModuleDataRequest request);
         Empty HandlePlayUses(HandlePlayUsesRequest request);
+        bool CheckProgramAssetGroupExistence(CheckProgramAssetGroupExistenceRequest request);
+        GetEntitledPagoWindowResponse GetEntitledPagoWindow(GetEntitledPagoWindowRequest request);
     }
 
     public class EntitlementService : IEntitlementService
     {
         public bool IsServiceAllowed(IsServiceAllowedRequest request)
         {
-            return Module.IsServiceAllowed(request.GroupId, (int)request.DomainId,
+            return Module.IsServiceAllowed(request.GroupId, (int) request.DomainId,
                 (eService) request.Service);
         }
 
@@ -53,7 +52,7 @@ namespace GrpcAPI.Services
                 };
             }
 
-            return null;
+            return new GetDomainAdsControlResponse();
         }
 
         public GetPPVModuleDataResponse GetPPVModuleData(GetPPVModuleDataRequest request)
@@ -72,32 +71,49 @@ namespace GrpcAPI.Services
                 };
             }
 
-            return null;
+            return new GetPPVModuleDataResponse();
         }
-        
+
         public Empty HandlePlayUses(HandlePlayUsesRequest request)
         {
             BaseConditionalAccess t = null;
             Core.ConditionalAccess.Utils.GetBaseConditionalAccessImpl(ref t, request.GroupId);
             if (t != null)
             {
-                MediaFileItemPricesContainer filePrice =
-                    GrpcMapping.Mapper.Map<MediaFileItemPricesContainer>(request.Price);
-                if (Core.ConditionalAccess.Utils.IsItemPurchased(filePrice))
+                var playbackEntitlementContainer = new PlaybackContextOut
                 {
-                    PlayUsesManager.HandlePlayUses(t, filePrice, request.UserId.ToString(), request.MediaFileId, request.Ip, request.CountryCode, request.LanguageCode, request.Udid,
-                        request.CouponCode, request.DomainId, request.GroupId, request.IsLive);
-                }
-                // item must be free otherwise we wouldn't get this far
-                else if (ApplicationConfiguration.Current.LicensedLinksCacheConfiguration.ShouldUseCache.Value
-                         && filePrice?.m_oItemPrices?.Length > 0)
-                {
-                   Core.ConditionalAccess.Utils.InsertOrSetCachedEntitlementResults(request.DomainId, request.MediaFileId,
-                        new CachedEntitlementResults(0, 0, DateTime.UtcNow, true, false,
-                            eTransactionType.PPV, null, filePrice.m_oItemPrices[0].m_dtEndDate, request.IsLive));
-                }
+                    MediaFileItemPrices = request.Price != null ?
+                        Mapper.Map<Core.ConditionalAccess.MediaFileItemPricesContainer>(request.Price) : null,
+                    PagoProgramAvailability = request.PagoProgramAvailability != null ?
+                        GrpcSerialize.ProtoDeserialize<ApiObjects.PagoProgramAvailability>(
+                            request.PagoProgramAvailability.ToByteArray()) : null
+                };
+                PlaybackManager.HandlePlayUsesAndDevicePlayData(t, request.UserId.ToString(), request.DomainId,
+                    request.MediaFileId, request.Ip, request.Udid, playbackEntitlementContainer, null, request.IsLive);
+
             }
+
             return new Empty();
+        }
+
+        public bool CheckProgramAssetGroupExistence(CheckProgramAssetGroupExistenceRequest request)
+        {
+            return PagoManager.Instance.GetProgramAssetGroupOfferIds((long) request.GroupId, false).Count > 0;
+        }
+
+        public GetEntitledPagoWindowResponse GetEntitledPagoWindow(GetEntitledPagoWindowRequest request)
+        {
+            var pagoProgramAvailability = Core.ConditionalAccess.Utils.GetEntitledPagoWindow(request.GroupId,
+                (int) request.DomainId,
+                request.AssetId, (ApiObjects.eAssetTypes) request.AssetType,
+                Mapper.Map<List<MediaFile>>(request.Files),
+                GrpcSerialize.ProtoDeserialize<ApiObjects.EPGChannelProgrammeObject>(request.EpgProgram.ToByteArray()));
+            return new GetEntitledPagoWindowResponse
+            {
+                PagoResponse = pagoProgramAvailability != null ?
+                    phoenix.PagoProgramAvailability.Parser.ParseFrom(
+                        GrpcSerialize.ProtoSerialize(pagoProgramAvailability)) : null
+            };
         }
     }
 }

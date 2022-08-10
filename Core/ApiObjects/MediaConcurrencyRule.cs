@@ -4,10 +4,12 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Xml.Serialization;
+using ProtoBuf;
 
 namespace ApiObjects
 {
     [Serializable]
+    [ProtoContract(ImplicitFields = ImplicitFields.AllPublic,SkipConstructor = true)]
     public class MediaConcurrencyRule
     {
         public int RuleID { get; set; }

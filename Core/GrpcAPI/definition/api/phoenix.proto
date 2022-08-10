@@ -1,12 +1,12 @@
 syntax = "proto3";
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
-import "assetrule.proto";
-import "catalog.proto";
-import "entitlement.proto";
-import "pricing.proto";
-import "household.proto";
-import "groupAndConfiguration.proto";
+import "assetRuleApi.proto";
+import "catalogApi.proto";
+import "entitlementApi.proto";
+import "pricingApi.proto";
+import "householdApi.proto";
+import "groupAndConfigurationApi.proto";
 
 option csharp_namespace = "phoenix";
 option go_package = "./models";
@@ -14,36 +14,55 @@ option go_package = "./models";
 package phoenix;
 
 service Phoenix {
+  //household
+  rpc GetDomainData (GetDomainDataRequest) returns (GetDomainDataResponse);
   rpc IsPermittedPermission (IsPermittedPermissionRequest) returns (google.protobuf.BoolValue);
   rpc AllowActionInSuspendedDomain (AllowActionInSuspendedDomainRequest) returns (google.protobuf.BoolValue);
   rpc GetSuspensionStatus (GetSuspensionStatusRequest) returns (GetSuspensionStatusResponse);
-  rpc IsServiceAllowed (IsServiceAllowedRequest) returns (google.protobuf.BoolValue);
-  rpc GetDomainData (GetDomainDataRequest) returns (GetDomainDataResponse);
-  rpc GetGroupSecretAndCountryCode (GetGroupSecretAndCountryCodeRequest) returns (GetGroupSecretAndCountryCodeResponse);
+  rpc GetMediaConcurrencyRulesByDomainLimitationModule (GetMediaConcurrencyRulesByDomainLimitationModuleRequest) returns (GetMediaConcurrencyRulesByDomainLimitationModuleResponse);
   rpc IsDevicePlayValid (IsDevicePlayValidRequest) returns (google.protobuf.Int32Value);
-  rpc GetDomainAdsControl (GetDomainAdsControlRequest) returns (GetDomainAdsControlResponse);
+  
+  //group configuration
+  rpc GetGroupSecretAndCountryCode (GetGroupSecretAndCountryCodeRequest) returns (GetGroupSecretAndCountryCodeResponse);
+  rpc GetCDVRAdapter (GetCDVRAdapterRequest) returns (GetCDVRAdapterResponse);
+  
+  //pricing
   rpc GetItemsPrices (GetItemsPricesRequest) returns (GetItemsPricesResponse);
+  rpc GetPaymentGatewayProfile(GetPaymentGatewayProfileRequest) returns (GetPaymentGatewayProfileResponse);
+  rpc GetGroupHasSubWithAds(GetGroupHasSubWithAdsRequest) returns (google.protobuf.BoolValue);
+  
+  //entitlement
+  rpc IsServiceAllowed (IsServiceAllowedRequest) returns (google.protobuf.BoolValue);
+  rpc GetDomainAdsControl (GetDomainAdsControlRequest) returns (GetDomainAdsControlResponse);
   rpc GetPPVModuleData (GetPPVModuleDataRequest) returns (GetPPVModuleDataResponse);
-  rpc HandleBlockingSegment (HandleBlockingSegmentRequest) returns (HandleBlockingSegmentResponse);
+  rpc HandlePlayUses(HandlePlayUsesRequest) returns (google.protobuf.Empty);
+  rpc CheckProgramAssetGroupExistence(CheckProgramAssetGroupExistenceRequest) returns (google.protobuf.BoolValue);
+  rpc GetEntitledPagoWindow(GetEntitledPagoWindowRequest) returns (GetEntitledPagoWindowResponse);
+
+  //assetrules
   rpc GetAssetsForValidation (GetAssetsForValidationRequest) returns (GetAssetsForValidationResponse);
   rpc CheckNetworkRules (CheckNetworkRulesRequest) returns (CheckNetworkRulesResponse);
-  rpc GetEpgChannelId (GetEpgChannelIdRequest) returns (google.protobuf.StringValue);
+  rpc HasAssetRules (HasAssetRulesRequest) returns (google.protobuf.BoolValue);
   rpc GetAssetMediaRuleIds (GetAssetMediaRuleIdsRequest) returns (GetAssetMediaRuleIdsResponse);
   rpc GetAssetEpgRuleIds (GetAssetEpgRuleIdsRequest) returns (GetAssetEpgRuleIdsResponse);
   rpc GetMediaConcurrencyRules (GetMediaConcurrencyRulesRequest) returns (GetMediaConcurrencyRulesResponse);
-  rpc GetMediaConcurrencyRulesByDomainLimitationModule (GetMediaConcurrencyRulesByDomainLimitationModuleRequest) returns (GetMediaConcurrencyRulesByDomainLimitationModuleResponse);
   rpc GetAssetRules (GetAssetRulesRequest) returns (GetAssetRulesResponse);
-  rpc GetMediaFiles (GetMediaFilesRequest) returns (GetMediaFilesResponse);
   rpc GetGroupMediaConcurrencyRules(GetGroupMediaConcurrencyRulesRequest) returns (GetGroupMediaConcurrencyRulesResponse);
   rpc GetMediaConcurrencyRule(GetMediaConcurrencyByIdRequest) returns (GetMediaConcurrencyByIdResponse);
+  
+  //catalog
+  rpc HasVirtualAssetType (HasVirtualAssetTypeRequest) returns (google.protobuf.BoolValue);
+  rpc HandleBlockingSegment (HandleBlockingSegmentRequest) returns (HandleBlockingSegmentResponse);
+  rpc GetRecordingLinkByFileType (GetRecordingLinkByFileTypeRequest) returns (GetRecordingLinkByFileTypeResponse);
+  rpc GetGroupMediaFileTypes (GetGroupMediaFileTypesRequest) returns (GetGroupMediaFileTypesResponse);
+  rpc GetEpgChannelId (GetEpgChannelIdRequest) returns (google.protobuf.StringValue);
+  rpc GetMediaFiles (GetMediaFilesRequest) returns (GetMediaFilesResponse);
   rpc GetProgramSchedule(GetProgramScheduleRequest) returns (GetProgramScheduleResponse);
   rpc GetDomainRecordings(GetDomainRecordingsRequest) returns (GetDomainRecordingsResponse);
   rpc GetEpgsByIds(GetEpgsByIdsRequest) returns (GetEpgsByIdsResponse);
   rpc GetLinearMediaInfoByEpgChannelIdAndFileType(GetLinearMediaInfoByEpgChannelIdAndFileTypeRequest) returns (GetLinearMediaInfoByEpgChannelIdAndFileTypeResponse);
-  rpc HandlePlayUses(HandlePlayUsesRequest) returns (google.protobuf.Empty);
   rpc MapMediaFiles(MapMediaFilesRequest) returns (MapMediaFilesResponse);
   rpc GetEPGChannelCDVRId(GetEPGChannelCDVRIdRequest) returns (google.protobuf.StringValue);
   rpc GetMediaById(GetMediaByIdRequest) returns (GetMediaByIdResponse);
   rpc GetMediaInfo(GetMediaInfoRequest) returns (GetMediaInfoResponse);
-  rpc GetPaymentGatewayProfile(GetPaymentGatewayProfileRequest) returns (GetPaymentGatewayProfileResponse);
 }

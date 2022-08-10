@@ -1,0 +1,14 @@
+syntax = "proto3";
+option csharp_namespace = "phoenix";
+option go_package = "./models";
+package phoenix;
+
+enum StreamerType {
+   applehttp = 0;
+   none = -1;
+   mpegdash = 1;
+   url = 2;
+   smothstreaming = 3;
+   multicast = 4;
+}
+

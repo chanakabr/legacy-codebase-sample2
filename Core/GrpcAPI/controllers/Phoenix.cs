@@ -10,9 +10,9 @@ using phoenix;
 
 namespace Grpc.controllers
 {
-    public class PhoneixController : phoenix.Phoenix.PhoenixBase
+    public class PhoenixController : phoenix.Phoenix.PhoenixBase
     {
-        private readonly ILogger<PhoneixController> _logger;
+        private readonly ILogger<PhoenixController> _logger;
         private readonly IEntitlementService _entitlementService;
         private readonly IHouseholdService _householdService;
         private readonly IPricingService _pricingService;
@@ -21,7 +21,7 @@ namespace Grpc.controllers
         private readonly IGroupAndConfigurationService _groupAndConfigurationService;
         private const string InvalidationKey = "invalidationkey";
 
-        public PhoneixController(ILogger<PhoneixController> logger, IEntitlementService entitlementService,
+        public PhoenixController(ILogger<PhoenixController> logger, IEntitlementService entitlementService,
             IHouseholdService householdService, IPricingService pricingService, ICatalogService catalogService,
             IAssetRuleService assetRuleService, IGroupAndConfigurationService groupAndConfigurationService)
         {
@@ -101,6 +101,16 @@ namespace Grpc.controllers
             return Task.FromResult(_entitlementService.GetPPVModuleData(request));
         }
 
+        public override Task<BoolValue> HasVirtualAssetType(HasVirtualAssetTypeRequest request,
+            ServerCallContext context)
+        {
+            var response = _catalogService.HasVirtualAssetType(request);
+            var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
+            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return Task.FromResult(new BoolValue{Value = response});
+        }
+
+        
         public override Task<HandleBlockingSegmentResponse> HandleBlockingSegment(HandleBlockingSegmentRequest request,
             ServerCallContext context)
         {
@@ -161,6 +171,17 @@ namespace Grpc.controllers
             return Task.FromResult(_catalogService.GetAssetsForValidation(request));
         }
 
+        public override Task<BoolValue>
+            HasAssetRules(
+                HasAssetRulesRequest request, ServerCallContext context)
+        {
+            var response = _assetRuleService.HasAssetRules(request);
+            var invalidationKeyFromRequest = new List<string>{LayeredCacheKeys.GetAllAssetRulesGroupInvalidationKey(request.GroupId)};
+            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return Task.FromResult(new BoolValue{Value = response});
+        }
+
+        
         public override Task<CheckNetworkRulesResponse>
             CheckNetworkRules(
                 CheckNetworkRulesRequest request, ServerCallContext context)
@@ -182,7 +203,11 @@ namespace Grpc.controllers
         public override Task<GetMediaFilesResponse> GetMediaFiles(GetMediaFilesRequest request,
             ServerCallContext context)
         {
-            return Task.FromResult(_catalogService.GetMediaFiles(request));
+            var response = _catalogService.GetMediaFiles(request);
+            var invalidationKeyFromRequest = new List<string>
+                {LayeredCacheKeys.GetMediaInvalidationKey(request.GroupId, request.MediaId)};
+            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return Task.FromResult(response);
         }
 
         public override Task<GetGroupMediaConcurrencyRulesResponse>
@@ -209,7 +234,12 @@ namespace Grpc.controllers
             GetMediaById(
                 GetMediaByIdRequest request, ServerCallContext context)
         {
-            return Task.FromResult(_catalogService.GetMediaById(request));
+            
+            var response =_catalogService.GetMediaById(request);
+            var invalidationKeyFromRequest = new List<string>
+                {LayeredCacheKeys.GetMediaInvalidationKey(request.GroupId, request.MediaId)};
+            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return Task.FromResult(response);
         }
 
         public override Task<GetMediaInfoResponse>
@@ -302,6 +332,51 @@ namespace Grpc.controllers
             GetPaymentGatewayProfileRequest request, ServerCallContext context)
         { 
             return Task.FromResult(_pricingService.GetPaymentGatewayProfile(request));
+        }
+        
+        public override Task<BoolValue> GetGroupHasSubWithAds(
+            GetGroupHasSubWithAdsRequest request, ServerCallContext context)
+        {
+            var response = _pricingService.GetGroupHasSubWithAds(request);
+            return Task.FromResult(new BoolValue {Value = response});
+        }
+        
+        //TODO add invalidation keys for client cache cache
+        public override Task<GetCDVRAdapterResponse> GetCDVRAdapter(GetCDVRAdapterRequest request,
+            ServerCallContext context)
+        {
+            return Task.FromResult(_groupAndConfigurationService.GetCDVRAdapter(request));
+        }
+        
+        public override Task<GetRecordingLinkByFileTypeResponse> GetRecordingLinkByFileType(GetRecordingLinkByFileTypeRequest request,
+            ServerCallContext context)
+        {
+            return Task.FromResult(_catalogService.GetRecordingLinkByFileType(request));
+        }
+        
+        public override Task<GetGroupMediaFileTypesResponse> GetGroupMediaFileTypes(GetGroupMediaFileTypesRequest request,
+            ServerCallContext context)
+        {
+            var response = _catalogService.GetGroupMediaFileTypes(request);
+            var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
+            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return Task.FromResult(response);        
+        }
+        
+        public override Task<BoolValue> CheckProgramAssetGroupExistence(CheckProgramAssetGroupExistenceRequest request,
+            ServerCallContext context)
+        {
+            var response = _entitlementService.CheckProgramAssetGroupExistence(request);
+            var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
+            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return Task.FromResult(new BoolValue{Value = response});        
+        }
+        
+        public override Task<GetEntitledPagoWindowResponse> GetEntitledPagoWindow(GetEntitledPagoWindowRequest request,
+            ServerCallContext context)
+        {
+            return Task.FromResult(_entitlementService.GetEntitledPagoWindow(request));
+      
         }
     }
 }

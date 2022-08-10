@@ -1,6 +1,10 @@
 syntax = "proto3";
-import "adpolicy.proto";
 import "pricing.proto";
+import "catalog.proto";
+import "asset.proto";
+import "PagoProgramAvailability.proto";
+import "AdsPolicy.proto";
+import "EPGChannelProgrammeObject.proto";
 
 option csharp_namespace = "phoenix";
 option go_package = "./models";
@@ -52,7 +56,7 @@ message GetPPVModuleDataResponse{
 
 message HandlePlayUsesRequest{
   int32 groupId = 1;
-  MediaFileItemPrice price = 2;
+  MediaFileEntitlementContainer price = 2;
   int64 userId = 3;
   int32 mediaFileId = 4; 
   string ip = 5;
@@ -62,4 +66,22 @@ message HandlePlayUsesRequest{
   string couponCode = 9; 
   int64 domainId = 10;
   bool isLive = 11;
+  PagoProgramAvailability pagoProgramAvailability = 12;
+}
+
+message CheckProgramAssetGroupExistenceRequest{
+  int32 groupId = 1;
+}
+
+message GetEntitledPagoWindowRequest{
+  int32 groupId = 1; 
+  int32 domainId = 2;
+  int32 assetId = 3;
+  eAssetTypes assetType = 4;
+  repeated MediaFile files = 5; 
+  EPGChannelProgrammeObject EpgProgram = 6;
+}
+
+message GetEntitledPagoWindowResponse{
+  PagoProgramAvailability pagoResponse = 1;
 }

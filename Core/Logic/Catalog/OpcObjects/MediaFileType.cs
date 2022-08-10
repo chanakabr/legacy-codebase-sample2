@@ -2,9 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using ProtoBuf;
 
 namespace Core.Catalog
 {
+    [ProtoContract(ImplicitFields = ImplicitFields.AllPublic,SkipConstructor = true)]
     public class MediaFileType
     {
         public long Id { get; set; }

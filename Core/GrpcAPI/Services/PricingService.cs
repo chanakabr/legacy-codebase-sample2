@@ -2,9 +2,13 @@
 using System.Linq;
 using System.Reflection;
 using ApiObjects.Billing;
+using AutoMapper;
 using Core.ConditionalAccess;
+using DAL;
 using Google.Protobuf.Collections;
+using Google.Protobuf.WellKnownTypes;
 using GrpcAPI.Utils;
+using Jil;
 using Microsoft.Extensions.Logging;
 using phoenix;
 using Phx.Lib.Log;
@@ -15,6 +19,7 @@ namespace GrpcAPI.Services
     {
         GetItemsPricesResponse GetItemsPrices(GetItemsPricesRequest request);
         GetPaymentGatewayProfileResponse GetPaymentGatewayProfile(GetPaymentGatewayProfileRequest request);
+        bool GetGroupHasSubWithAds(GetGroupHasSubWithAdsRequest request);
     }
 
     public class PricingService : IPricingService
@@ -28,7 +33,7 @@ namespace GrpcAPI.Services
                 Core.ConditionalAccess.Utils.GetBaseConditionalAccessImpl(ref t, request.GroupId);
                 if (t != null)
                 {
-                    MediaFileItemPricesContainer[] itemsPrices = t.GetItemsPrices(request.MediaFiles.ToArray(),
+                    Core.ConditionalAccess.MediaFileItemPricesContainer[] itemsPrices = t.GetItemsPrices(request.MediaFiles.ToArray(),
                         request.UserId.ToString(),
                         request.CouponCode,
                         request.OnlyLowest, request.LanguageCode, request.Udid,
@@ -36,16 +41,13 @@ namespace GrpcAPI.Services
                         (ApiObjects.BlockEntitlementType) request.BlockEntitlement, request.IsDownloadPlayContext,
                         request.WithMediaFilesInvalidation);
 
-                    return new GetItemsPricesResponse()
-                    {
-                        MediaFileItemPrice =
-                        {
-                            GrpcMapping.Mapper.Map<RepeatedField<MediaFileItemPrice>>(itemsPrices)
-                        }
+                    var mediaFileItemPrices = Mapper.Map<RepeatedField<MediaFileEntitlementContainer>>(itemsPrices);
+                    return new GetItemsPricesResponse {
+                        MediaFileItemPrice = { mediaFileItemPrices }
                     };
                 }
 
-                return null;
+                return new GetItemsPricesResponse();
             }
             catch (Exception e)
             {
@@ -63,7 +65,7 @@ namespace GrpcAPI.Services
                 {
                     PaymentGatewayProfileList =
                     {
-                        GrpcMapping.Mapper.Map<RepeatedField<PaymentGatewayProfile>>(response.pgw)
+                        Mapper.Map<RepeatedField<PaymentGatewayProfile>>(response.pgw)
                     }
                 };
             }
@@ -72,6 +74,19 @@ namespace GrpcAPI.Services
                 Logger.LogError(e, $"Error while calling GetPaymentGatewayProfile GRPC service {e.Message}");
                 return null;
             }
+        }
+
+        public bool GetGroupHasSubWithAds(GetGroupHasSubWithAdsRequest request)
+        {
+            try
+            {
+                return PricingDAL.GetGroupHasSubWithAds(request.GroupId);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, $"Error while calling GetGroupHasSubWithAds GRPC service {e.Message}");
+            }
+            return false;
         }
     }
 }

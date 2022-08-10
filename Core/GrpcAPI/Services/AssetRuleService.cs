@@ -1,21 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Reflection;
 using ApiObjects;
+using AutoMapper;
 using Core.Api.Managers;
+using Google.Protobuf;
 using Google.Protobuf.Collections;
 using GrpcAPI.Utils;
 using Microsoft.Extensions.Logging;
 using phoenix;
 using Phx.Lib.Log;
 using ConcurrencyRestrictionPolicy = phoenix.ConcurrencyRestrictionPolicy;
+using eAssetTypes = phoenix.eAssetTypes;
+using RuleActionType = ApiObjects.RuleActionType;
 using RuleConditionType = ApiObjects.RuleConditionType;
 
 namespace GrpcAPI.Services
 {
     public interface IAssetRuleService
     {
+        bool HasAssetRules(HasAssetRulesRequest request);
         CheckNetworkRulesResponse CheckNetworkRules(CheckNetworkRulesRequest request);
         GetAssetMediaRuleIdsResponse GetAssetMediaRuleIds(GetAssetMediaRuleIdsRequest request);
         GetAssetEpgRuleIdsResponse GetAssetEpgRuleIds(GetAssetEpgRuleIdsRequest request);
@@ -33,19 +39,24 @@ namespace GrpcAPI.Services
     {
         private static readonly KLogger Logger = new KLogger(MethodBase.GetCurrentMethod()?.DeclaringType?.ToString());
 
+        public bool HasAssetRules(HasAssetRulesRequest request)
+        {
+            return AssetRuleManager.HasAssetRules(request.GroupId, (RuleActionType)request.ActionType);
+        }
+        
         public CheckNetworkRulesResponse CheckNetworkRules(CheckNetworkRulesRequest checkNetworkRulesRequest)
         {
             try
             {
-                List<ApiObjects.Rules.SlimAsset> slimAsset =
-                    GrpcMapping.Mapper.Map<List<ApiObjects.Rules.SlimAsset>>(checkNetworkRulesRequest.SlimAsset);
+                List<ApiObjects.Rules.SlimAsset> slimAsset = checkNetworkRulesRequest.SlimAsset != null ? 
+                    Mapper.Map<List<ApiObjects.Rules.SlimAsset>>(checkNetworkRulesRequest.SlimAsset) : null;
                 var status = AssetRuleManager.CheckNetworkRules(slimAsset, checkNetworkRulesRequest.GroupId,
                     checkNetworkRulesRequest.Ip, out var assetRule);
-
+                
                 return new CheckNetworkRulesResponse()
                 {
-                    Status = status != null ? GrpcMapping.Mapper.Map<Status>(status) : null,
-                    AssetRule = assetRule != null ? GrpcMapping.Mapper.Map<AssetRule>(assetRule) : null
+                    Status = status != null ? Mapper.Map<Status>(status) : null,
+                    AssetRule = assetRule != null ? Mapper.Map<AssetRule>(assetRule) : null
                 };
             }
             catch (Exception e)
@@ -67,7 +78,7 @@ namespace GrpcAPI.Services
                 };
             }
 
-            return null;
+            return new GetAssetMediaRuleIdsResponse();
         }
 
         public GetAssetEpgRuleIdsResponse GetAssetEpgRuleIds(GetAssetEpgRuleIdsRequest request)
@@ -85,7 +96,7 @@ namespace GrpcAPI.Services
                 };
             }
 
-            return null;
+            return new GetAssetEpgRuleIdsResponse();
         }
 
         public GetMediaConcurrencyRulesResponse GetMediaConcurrencyRules(GetMediaConcurrencyRulesRequest request)
@@ -93,19 +104,19 @@ namespace GrpcAPI.Services
             try
             {
                 var concurrencyRules = Core.Api.Module.GetMediaConcurrencyRules(request.GroupId, request.MediaId,
-                    request.BusinessModuleId, (eBusinessModule) request.BusinessModuleType);
+                    request.BusinessModuleId, (ApiObjects.eBusinessModule) request.BusinessModuleType);
                 if (concurrencyRules != null)
                 {
                     return new GetMediaConcurrencyRulesResponse()
                     {
                         MediaConcurrencyRules =
                         {
-                            GrpcMapping.Mapper.Map<RepeatedField<mediaConcurrencyRule>>(concurrencyRules)
+                            new RepeatedField<phoenix.MediaConcurrencyRule> {concurrencyRules.Select(x => phoenix.MediaConcurrencyRule.Parser.ParseFrom(GrpcSerialize.ProtoSerialize(x)))}   
                         }
                     };
                 }
 
-                return null;
+                return new GetMediaConcurrencyRulesResponse();
             }
             catch (Exception e)
             {
@@ -118,20 +129,18 @@ namespace GrpcAPI.Services
         {
             try
             {
-                var slimAsset = GrpcMapping.Mapper.Map<ApiObjects.Rules.SlimAsset>(request.SlimAsset.Data);
-                var assetRuleCondition = request.RuleActionType.Data != GetAssetRulesRequest.Types.RuleActionType.None
-                    ? request.RuleActionType.Data
-                    : (GetAssetRulesRequest.Types.RuleActionType?) null;
+                var slimAsset = Mapper.Map<ApiObjects.Rules.SlimAsset>(request.SlimAsset);
+                var assetRuleCondition = request.RuleActionType == phoenix.RuleActionType.None ? (phoenix.RuleActionType?) null : request.RuleActionType;
                 var assetRules =
                     Core.Api.Module.GetAssetRules((RuleConditionType) request.AssetRuleConditionType, request.GroupId,
-                        slimAsset, (RuleActionType?) assetRuleCondition);
+                        slimAsset, (RuleActionType?)assetRuleCondition);
                 return new GetAssetRulesResponse()
                 {
-                    Status = GrpcMapping.Mapper.Map<Status>(assetRules.Status),
+                    Status = Mapper.Map<Status>(assetRules.Status),
                     TotalCount = assetRules.TotalItems,
                     AssetRules =
                     {
-                        GrpcMapping.Mapper.Map<RepeatedField<AssetRule>>(assetRules.Objects)
+                        Mapper.Map<RepeatedField<AssetRule>>(assetRules.Objects)   
                     }
                 };
             }
@@ -154,12 +163,12 @@ namespace GrpcAPI.Services
                     {
                         MediaConcurrencyRules =
                         {
-                            GrpcMapping.Mapper.Map<RepeatedField<mediaConcurrencyRule>>(groupMediaConcurrencyRules)
+                            new RepeatedField<phoenix.MediaConcurrencyRule> {groupMediaConcurrencyRules.Select(x => phoenix.MediaConcurrencyRule.Parser.ParseFrom(GrpcSerialize.ProtoSerialize(x)))}
                         }
                     };
                 }
 
-                return null;
+                return new GetGroupMediaConcurrencyRulesResponse();
             }
             catch (Exception e)
             {
@@ -181,7 +190,7 @@ namespace GrpcAPI.Services
                 };
             }
 
-            return null;
+            return new GetMediaConcurrencyByIdResponse();
         }
     }
 }

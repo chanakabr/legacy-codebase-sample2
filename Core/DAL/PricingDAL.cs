@@ -307,6 +307,25 @@ namespace DAL
             }
         }
 
+        public static bool GetGroupHasSubWithAds(int groupId)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Group_Has_Ads");
+                sp.SetConnectionKey("pricing_connection");
+
+                sp.AddParameter("@GroupID", groupId);
+                var result = sp.ExecuteReturnValue<int>() > 0;
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while Checking if group contain subscriptions with ads, groupId: {groupId}", ex);
+                return false;
+            }
+        }
+        
         public static DataSet Get_SubscriptionsList(int nGroupID, int nFileTypeId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_SubscriptionsList");

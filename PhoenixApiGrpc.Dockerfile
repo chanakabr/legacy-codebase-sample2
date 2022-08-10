@@ -1,5 +1,11 @@
 # .net container - with sdk. This is our builder.
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-alpine as builder
+
+RUN dotnet tool install --tool-path /dotnetcore-tools dotnet-trace
+RUN dotnet tool install --tool-path /dotnetcore-tools dotnet-dump
+RUN dotnet tool install --tool-path /dotnetcore-tools dotnet-counters
+RUN dotnet tool install --tool-path /dotnetcore-tools dotnet-gcdump
+
 WORKDIR /src
 
 RUN apk add --no-cache git
@@ -44,6 +50,12 @@ ARG USER_ID=1200
 ARG GROUP_ID=1200
 
 ENV PORT 8080
+
+# In final stage
+# Copy diagnostics tools
+COPY --from=builder /dotnetcore-tools /opt/dotnetcore-tools
+
+WORKDIR /opt
 
 WORKDIR /opt/ott-service-phoenix-api-grpc
 

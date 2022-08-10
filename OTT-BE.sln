@@ -399,6 +399,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Phoenix.AsyncHandler.Tests"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Phoenix.SetupJob", "Phoenix.SetupJob\Phoenix.SetupJob.csproj", "{8B2E9346-FFB7-4857-9259-B88EFFC0B4D7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Generator.Grpc", "phoenix\Generator.Grpc\Generator.Grpc.csproj", "{3C1BFD74-4374-488D-B2F4-BF42240E4871}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -3813,6 +3815,26 @@ Global
 		{8B2E9346-FFB7-4857-9259-B88EFFC0B4D7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8B2E9346-FFB7-4857-9259-B88EFFC0B4D7}.Release|x86.ActiveCfg = Release|Any CPU
 		{8B2E9346-FFB7-4857-9259-B88EFFC0B4D7}.Release|x86.Build.0 = Release|Any CPU
+		{3C1BFD74-4374-488D-B2F4-BF42240E4871}.Basic|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C1BFD74-4374-488D-B2F4-BF42240E4871}.Basic|Any CPU.Build.0 = Debug|Any CPU
+		{3C1BFD74-4374-488D-B2F4-BF42240E4871}.Basic|x86.ActiveCfg = Debug|Any CPU
+		{3C1BFD74-4374-488D-B2F4-BF42240E4871}.Basic|x86.Build.0 = Debug|Any CPU
+		{3C1BFD74-4374-488D-B2F4-BF42240E4871}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C1BFD74-4374-488D-B2F4-BF42240E4871}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C1BFD74-4374-488D-B2F4-BF42240E4871}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3C1BFD74-4374-488D-B2F4-BF42240E4871}.Debug|x86.Build.0 = Debug|Any CPU
+		{3C1BFD74-4374-488D-B2F4-BF42240E4871}.Local|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C1BFD74-4374-488D-B2F4-BF42240E4871}.Local|Any CPU.Build.0 = Debug|Any CPU
+		{3C1BFD74-4374-488D-B2F4-BF42240E4871}.Local|x86.ActiveCfg = Debug|Any CPU
+		{3C1BFD74-4374-488D-B2F4-BF42240E4871}.Local|x86.Build.0 = Debug|Any CPU
+		{3C1BFD74-4374-488D-B2F4-BF42240E4871}.LocalRelease|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C1BFD74-4374-488D-B2F4-BF42240E4871}.LocalRelease|Any CPU.Build.0 = Debug|Any CPU
+		{3C1BFD74-4374-488D-B2F4-BF42240E4871}.LocalRelease|x86.ActiveCfg = Debug|Any CPU
+		{3C1BFD74-4374-488D-B2F4-BF42240E4871}.LocalRelease|x86.Build.0 = Debug|Any CPU
+		{3C1BFD74-4374-488D-B2F4-BF42240E4871}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C1BFD74-4374-488D-B2F4-BF42240E4871}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C1BFD74-4374-488D-B2F4-BF42240E4871}.Release|x86.ActiveCfg = Release|Any CPU
+		{3C1BFD74-4374-488D-B2F4-BF42240E4871}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

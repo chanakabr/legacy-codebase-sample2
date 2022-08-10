@@ -141,7 +141,7 @@ namespace DAL.Api
             //No hits
             if (!assetRuleKeys.Any())
                 return new List<AssetRule>();
-
+            
             return UtilsDal.GetObjectListFromCB<AssetRule>(eCouchbaseBucket.OTT_APPS, assetRuleKeys, true);
         }
 

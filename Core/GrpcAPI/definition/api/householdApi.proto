@@ -1,0 +1,54 @@
+syntax = "proto3";
+import "Status.proto";
+import "household.proto";
+
+option csharp_namespace = "phoenix";
+option go_package = "./models";
+
+package phoenix;
+
+message IsPermittedPermissionRequest {
+  int32 groupId = 1;
+  int64 userId = 2;
+  RolePermissions role = 3;
+}
+
+message AllowActionInSuspendedDomainRequest{
+  int32 groupId = 1;
+  int64 userId = 2;
+}
+
+message GetSuspensionStatusRequest {
+  int32 groupId = 1;
+  int64 domainId = 2;
+}
+
+message GetSuspensionStatusResponse {
+  Status Status = 1;
+}
+
+message GetDomainDataRequest {
+  int32 groupId = 1;
+  int64 userId = 2;
+  int64 domainId = 3;
+}
+
+message GetDomainDataResponse {
+  Status status = 1;
+  int64 domainId = 2;
+  DomainData domainData = 3;
+}
+
+message GetMediaConcurrencyRulesByDomainLimitationModuleRequest {
+  int32 GroupId = 1;
+  int32 dlmId = 2;
+}
+message GetMediaConcurrencyRulesByDomainLimitationModuleResponse {
+  repeated int32 ids = 1;
+}
+
+message IsDevicePlayValidRequest{
+  int32 groupId = 1;
+  int64 userId = 2;
+  string Udid = 3;
+}

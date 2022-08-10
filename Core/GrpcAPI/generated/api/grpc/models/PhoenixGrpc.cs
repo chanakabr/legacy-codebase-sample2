@@ -46,6 +46,10 @@ namespace phoenix {
     }
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.GetDomainDataRequest> __Marshaller_phoenix_GetDomainDataRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetDomainDataRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.GetDomainDataResponse> __Marshaller_phoenix_GetDomainDataResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetDomainDataResponse.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::phoenix.IsPermittedPermissionRequest> __Marshaller_phoenix_IsPermittedPermissionRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.IsPermittedPermissionRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::Google.Protobuf.WellKnownTypes.BoolValue> __Marshaller_google_protobuf_BoolValue = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Google.Protobuf.WellKnownTypes.BoolValue.Parser));
@@ -56,35 +60,51 @@ namespace phoenix {
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::phoenix.GetSuspensionStatusResponse> __Marshaller_phoenix_GetSuspensionStatusResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetSuspensionStatusResponse.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::phoenix.IsServiceAllowedRequest> __Marshaller_phoenix_IsServiceAllowedRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.IsServiceAllowedRequest.Parser));
+    static readonly grpc::Marshaller<global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleRequest> __Marshaller_phoenix_GetMediaConcurrencyRulesByDomainLimitationModuleRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::phoenix.GetDomainDataRequest> __Marshaller_phoenix_GetDomainDataRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetDomainDataRequest.Parser));
-    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::phoenix.GetDomainDataResponse> __Marshaller_phoenix_GetDomainDataResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetDomainDataResponse.Parser));
-    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::phoenix.GetGroupSecretAndCountryCodeRequest> __Marshaller_phoenix_GetGroupSecretAndCountryCodeRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetGroupSecretAndCountryCodeRequest.Parser));
-    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::phoenix.GetGroupSecretAndCountryCodeResponse> __Marshaller_phoenix_GetGroupSecretAndCountryCodeResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetGroupSecretAndCountryCodeResponse.Parser));
+    static readonly grpc::Marshaller<global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleResponse> __Marshaller_phoenix_GetMediaConcurrencyRulesByDomainLimitationModuleResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleResponse.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::phoenix.IsDevicePlayValidRequest> __Marshaller_phoenix_IsDevicePlayValidRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.IsDevicePlayValidRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::Google.Protobuf.WellKnownTypes.Int32Value> __Marshaller_google_protobuf_Int32Value = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Google.Protobuf.WellKnownTypes.Int32Value.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::phoenix.GetDomainAdsControlRequest> __Marshaller_phoenix_GetDomainAdsControlRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetDomainAdsControlRequest.Parser));
+    static readonly grpc::Marshaller<global::phoenix.GetGroupSecretAndCountryCodeRequest> __Marshaller_phoenix_GetGroupSecretAndCountryCodeRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetGroupSecretAndCountryCodeRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::phoenix.GetDomainAdsControlResponse> __Marshaller_phoenix_GetDomainAdsControlResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetDomainAdsControlResponse.Parser));
+    static readonly grpc::Marshaller<global::phoenix.GetGroupSecretAndCountryCodeResponse> __Marshaller_phoenix_GetGroupSecretAndCountryCodeResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetGroupSecretAndCountryCodeResponse.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.GetCDVRAdapterRequest> __Marshaller_phoenix_GetCDVRAdapterRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetCDVRAdapterRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.GetCDVRAdapterResponse> __Marshaller_phoenix_GetCDVRAdapterResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetCDVRAdapterResponse.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::phoenix.GetItemsPricesRequest> __Marshaller_phoenix_GetItemsPricesRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetItemsPricesRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::phoenix.GetItemsPricesResponse> __Marshaller_phoenix_GetItemsPricesResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetItemsPricesResponse.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.GetPaymentGatewayProfileRequest> __Marshaller_phoenix_GetPaymentGatewayProfileRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetPaymentGatewayProfileRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.GetPaymentGatewayProfileResponse> __Marshaller_phoenix_GetPaymentGatewayProfileResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetPaymentGatewayProfileResponse.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.GetGroupHasSubWithAdsRequest> __Marshaller_phoenix_GetGroupHasSubWithAdsRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetGroupHasSubWithAdsRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.IsServiceAllowedRequest> __Marshaller_phoenix_IsServiceAllowedRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.IsServiceAllowedRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.GetDomainAdsControlRequest> __Marshaller_phoenix_GetDomainAdsControlRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetDomainAdsControlRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.GetDomainAdsControlResponse> __Marshaller_phoenix_GetDomainAdsControlResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetDomainAdsControlResponse.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::phoenix.GetPPVModuleDataRequest> __Marshaller_phoenix_GetPPVModuleDataRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetPPVModuleDataRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::phoenix.GetPPVModuleDataResponse> __Marshaller_phoenix_GetPPVModuleDataResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetPPVModuleDataResponse.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::phoenix.HandleBlockingSegmentRequest> __Marshaller_phoenix_HandleBlockingSegmentRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.HandleBlockingSegmentRequest.Parser));
+    static readonly grpc::Marshaller<global::phoenix.HandlePlayUsesRequest> __Marshaller_phoenix_HandlePlayUsesRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.HandlePlayUsesRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::phoenix.HandleBlockingSegmentResponse> __Marshaller_phoenix_HandleBlockingSegmentResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.HandleBlockingSegmentResponse.Parser));
+    static readonly grpc::Marshaller<global::Google.Protobuf.WellKnownTypes.Empty> __Marshaller_google_protobuf_Empty = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Google.Protobuf.WellKnownTypes.Empty.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.CheckProgramAssetGroupExistenceRequest> __Marshaller_phoenix_CheckProgramAssetGroupExistenceRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.CheckProgramAssetGroupExistenceRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.GetEntitledPagoWindowRequest> __Marshaller_phoenix_GetEntitledPagoWindowRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetEntitledPagoWindowRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.GetEntitledPagoWindowResponse> __Marshaller_phoenix_GetEntitledPagoWindowResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetEntitledPagoWindowResponse.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::phoenix.GetAssetsForValidationRequest> __Marshaller_phoenix_GetAssetsForValidationRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetAssetsForValidationRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
@@ -94,9 +114,7 @@ namespace phoenix {
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::phoenix.CheckNetworkRulesResponse> __Marshaller_phoenix_CheckNetworkRulesResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.CheckNetworkRulesResponse.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::phoenix.GetEpgChannelIdRequest> __Marshaller_phoenix_GetEpgChannelIdRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetEpgChannelIdRequest.Parser));
-    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::Google.Protobuf.WellKnownTypes.StringValue> __Marshaller_google_protobuf_StringValue = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Google.Protobuf.WellKnownTypes.StringValue.Parser));
+    static readonly grpc::Marshaller<global::phoenix.HasAssetRulesRequest> __Marshaller_phoenix_HasAssetRulesRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.HasAssetRulesRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::phoenix.GetAssetMediaRuleIdsRequest> __Marshaller_phoenix_GetAssetMediaRuleIdsRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetAssetMediaRuleIdsRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
@@ -110,17 +128,9 @@ namespace phoenix {
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::phoenix.GetMediaConcurrencyRulesResponse> __Marshaller_phoenix_GetMediaConcurrencyRulesResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetMediaConcurrencyRulesResponse.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleRequest> __Marshaller_phoenix_GetMediaConcurrencyRulesByDomainLimitationModuleRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleRequest.Parser));
-    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleResponse> __Marshaller_phoenix_GetMediaConcurrencyRulesByDomainLimitationModuleResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleResponse.Parser));
-    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::phoenix.GetAssetRulesRequest> __Marshaller_phoenix_GetAssetRulesRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetAssetRulesRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::phoenix.GetAssetRulesResponse> __Marshaller_phoenix_GetAssetRulesResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetAssetRulesResponse.Parser));
-    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::phoenix.GetMediaFilesRequest> __Marshaller_phoenix_GetMediaFilesRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetMediaFilesRequest.Parser));
-    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::phoenix.GetMediaFilesResponse> __Marshaller_phoenix_GetMediaFilesResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetMediaFilesResponse.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::phoenix.GetGroupMediaConcurrencyRulesRequest> __Marshaller_phoenix_GetGroupMediaConcurrencyRulesRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetGroupMediaConcurrencyRulesRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
@@ -129,6 +139,28 @@ namespace phoenix {
     static readonly grpc::Marshaller<global::phoenix.GetMediaConcurrencyByIdRequest> __Marshaller_phoenix_GetMediaConcurrencyByIdRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetMediaConcurrencyByIdRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::phoenix.GetMediaConcurrencyByIdResponse> __Marshaller_phoenix_GetMediaConcurrencyByIdResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetMediaConcurrencyByIdResponse.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.HasVirtualAssetTypeRequest> __Marshaller_phoenix_HasVirtualAssetTypeRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.HasVirtualAssetTypeRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.HandleBlockingSegmentRequest> __Marshaller_phoenix_HandleBlockingSegmentRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.HandleBlockingSegmentRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.HandleBlockingSegmentResponse> __Marshaller_phoenix_HandleBlockingSegmentResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.HandleBlockingSegmentResponse.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.GetRecordingLinkByFileTypeRequest> __Marshaller_phoenix_GetRecordingLinkByFileTypeRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetRecordingLinkByFileTypeRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.GetRecordingLinkByFileTypeResponse> __Marshaller_phoenix_GetRecordingLinkByFileTypeResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetRecordingLinkByFileTypeResponse.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.GetGroupMediaFileTypesRequest> __Marshaller_phoenix_GetGroupMediaFileTypesRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetGroupMediaFileTypesRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.GetGroupMediaFileTypesResponse> __Marshaller_phoenix_GetGroupMediaFileTypesResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetGroupMediaFileTypesResponse.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.GetEpgChannelIdRequest> __Marshaller_phoenix_GetEpgChannelIdRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetEpgChannelIdRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::Google.Protobuf.WellKnownTypes.StringValue> __Marshaller_google_protobuf_StringValue = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Google.Protobuf.WellKnownTypes.StringValue.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.GetMediaFilesRequest> __Marshaller_phoenix_GetMediaFilesRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetMediaFilesRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.GetMediaFilesResponse> __Marshaller_phoenix_GetMediaFilesResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetMediaFilesResponse.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::phoenix.GetProgramScheduleRequest> __Marshaller_phoenix_GetProgramScheduleRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetProgramScheduleRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
@@ -146,10 +178,6 @@ namespace phoenix {
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::phoenix.GetLinearMediaInfoByEpgChannelIdAndFileTypeResponse> __Marshaller_phoenix_GetLinearMediaInfoByEpgChannelIdAndFileTypeResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetLinearMediaInfoByEpgChannelIdAndFileTypeResponse.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::phoenix.HandlePlayUsesRequest> __Marshaller_phoenix_HandlePlayUsesRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.HandlePlayUsesRequest.Parser));
-    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::Google.Protobuf.WellKnownTypes.Empty> __Marshaller_google_protobuf_Empty = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Google.Protobuf.WellKnownTypes.Empty.Parser));
-    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::phoenix.MapMediaFilesRequest> __Marshaller_phoenix_MapMediaFilesRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.MapMediaFilesRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::phoenix.MapMediaFilesResponse> __Marshaller_phoenix_MapMediaFilesResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.MapMediaFilesResponse.Parser));
@@ -163,10 +191,14 @@ namespace phoenix {
     static readonly grpc::Marshaller<global::phoenix.GetMediaInfoRequest> __Marshaller_phoenix_GetMediaInfoRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetMediaInfoRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::phoenix.GetMediaInfoResponse> __Marshaller_phoenix_GetMediaInfoResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetMediaInfoResponse.Parser));
+
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::phoenix.GetPaymentGatewayProfileRequest> __Marshaller_phoenix_GetPaymentGatewayProfileRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetPaymentGatewayProfileRequest.Parser));
-    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::phoenix.GetPaymentGatewayProfileResponse> __Marshaller_phoenix_GetPaymentGatewayProfileResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetPaymentGatewayProfileResponse.Parser));
+    static readonly grpc::Method<global::phoenix.GetDomainDataRequest, global::phoenix.GetDomainDataResponse> __Method_GetDomainData = new grpc::Method<global::phoenix.GetDomainDataRequest, global::phoenix.GetDomainDataResponse>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "GetDomainData",
+        __Marshaller_phoenix_GetDomainDataRequest,
+        __Marshaller_phoenix_GetDomainDataResponse);
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::phoenix.IsPermittedPermissionRequest, global::Google.Protobuf.WellKnownTypes.BoolValue> __Method_IsPermittedPermission = new grpc::Method<global::phoenix.IsPermittedPermissionRequest, global::Google.Protobuf.WellKnownTypes.BoolValue>(
@@ -193,28 +225,12 @@ namespace phoenix {
         __Marshaller_phoenix_GetSuspensionStatusResponse);
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Method<global::phoenix.IsServiceAllowedRequest, global::Google.Protobuf.WellKnownTypes.BoolValue> __Method_IsServiceAllowed = new grpc::Method<global::phoenix.IsServiceAllowedRequest, global::Google.Protobuf.WellKnownTypes.BoolValue>(
+    static readonly grpc::Method<global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleRequest, global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleResponse> __Method_GetMediaConcurrencyRulesByDomainLimitationModule = new grpc::Method<global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleRequest, global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleResponse>(
         grpc::MethodType.Unary,
         __ServiceName,
-        "IsServiceAllowed",
-        __Marshaller_phoenix_IsServiceAllowedRequest,
-        __Marshaller_google_protobuf_BoolValue);
-
-    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Method<global::phoenix.GetDomainDataRequest, global::phoenix.GetDomainDataResponse> __Method_GetDomainData = new grpc::Method<global::phoenix.GetDomainDataRequest, global::phoenix.GetDomainDataResponse>(
-        grpc::MethodType.Unary,
-        __ServiceName,
-        "GetDomainData",
-        __Marshaller_phoenix_GetDomainDataRequest,
-        __Marshaller_phoenix_GetDomainDataResponse);
-
-    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Method<global::phoenix.GetGroupSecretAndCountryCodeRequest, global::phoenix.GetGroupSecretAndCountryCodeResponse> __Method_GetGroupSecretAndCountryCode = new grpc::Method<global::phoenix.GetGroupSecretAndCountryCodeRequest, global::phoenix.GetGroupSecretAndCountryCodeResponse>(
-        grpc::MethodType.Unary,
-        __ServiceName,
-        "GetGroupSecretAndCountryCode",
-        __Marshaller_phoenix_GetGroupSecretAndCountryCodeRequest,
-        __Marshaller_phoenix_GetGroupSecretAndCountryCodeResponse);
+        "GetMediaConcurrencyRulesByDomainLimitationModule",
+        __Marshaller_phoenix_GetMediaConcurrencyRulesByDomainLimitationModuleRequest,
+        __Marshaller_phoenix_GetMediaConcurrencyRulesByDomainLimitationModuleResponse);
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::phoenix.IsDevicePlayValidRequest, global::Google.Protobuf.WellKnownTypes.Int32Value> __Method_IsDevicePlayValid = new grpc::Method<global::phoenix.IsDevicePlayValidRequest, global::Google.Protobuf.WellKnownTypes.Int32Value>(
@@ -225,12 +241,20 @@ namespace phoenix {
         __Marshaller_google_protobuf_Int32Value);
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Method<global::phoenix.GetDomainAdsControlRequest, global::phoenix.GetDomainAdsControlResponse> __Method_GetDomainAdsControl = new grpc::Method<global::phoenix.GetDomainAdsControlRequest, global::phoenix.GetDomainAdsControlResponse>(
+    static readonly grpc::Method<global::phoenix.GetGroupSecretAndCountryCodeRequest, global::phoenix.GetGroupSecretAndCountryCodeResponse> __Method_GetGroupSecretAndCountryCode = new grpc::Method<global::phoenix.GetGroupSecretAndCountryCodeRequest, global::phoenix.GetGroupSecretAndCountryCodeResponse>(
         grpc::MethodType.Unary,
         __ServiceName,
-        "GetDomainAdsControl",
-        __Marshaller_phoenix_GetDomainAdsControlRequest,
-        __Marshaller_phoenix_GetDomainAdsControlResponse);
+        "GetGroupSecretAndCountryCode",
+        __Marshaller_phoenix_GetGroupSecretAndCountryCodeRequest,
+        __Marshaller_phoenix_GetGroupSecretAndCountryCodeResponse);
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::phoenix.GetCDVRAdapterRequest, global::phoenix.GetCDVRAdapterResponse> __Method_GetCDVRAdapter = new grpc::Method<global::phoenix.GetCDVRAdapterRequest, global::phoenix.GetCDVRAdapterResponse>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "GetCDVRAdapter",
+        __Marshaller_phoenix_GetCDVRAdapterRequest,
+        __Marshaller_phoenix_GetCDVRAdapterResponse);
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::phoenix.GetItemsPricesRequest, global::phoenix.GetItemsPricesResponse> __Method_GetItemsPrices = new grpc::Method<global::phoenix.GetItemsPricesRequest, global::phoenix.GetItemsPricesResponse>(
@@ -241,6 +265,38 @@ namespace phoenix {
         __Marshaller_phoenix_GetItemsPricesResponse);
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::phoenix.GetPaymentGatewayProfileRequest, global::phoenix.GetPaymentGatewayProfileResponse> __Method_GetPaymentGatewayProfile = new grpc::Method<global::phoenix.GetPaymentGatewayProfileRequest, global::phoenix.GetPaymentGatewayProfileResponse>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "GetPaymentGatewayProfile",
+        __Marshaller_phoenix_GetPaymentGatewayProfileRequest,
+        __Marshaller_phoenix_GetPaymentGatewayProfileResponse);
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::phoenix.GetGroupHasSubWithAdsRequest, global::Google.Protobuf.WellKnownTypes.BoolValue> __Method_GetGroupHasSubWithAds = new grpc::Method<global::phoenix.GetGroupHasSubWithAdsRequest, global::Google.Protobuf.WellKnownTypes.BoolValue>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "GetGroupHasSubWithAds",
+        __Marshaller_phoenix_GetGroupHasSubWithAdsRequest,
+        __Marshaller_google_protobuf_BoolValue);
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::phoenix.IsServiceAllowedRequest, global::Google.Protobuf.WellKnownTypes.BoolValue> __Method_IsServiceAllowed = new grpc::Method<global::phoenix.IsServiceAllowedRequest, global::Google.Protobuf.WellKnownTypes.BoolValue>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "IsServiceAllowed",
+        __Marshaller_phoenix_IsServiceAllowedRequest,
+        __Marshaller_google_protobuf_BoolValue);
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::phoenix.GetDomainAdsControlRequest, global::phoenix.GetDomainAdsControlResponse> __Method_GetDomainAdsControl = new grpc::Method<global::phoenix.GetDomainAdsControlRequest, global::phoenix.GetDomainAdsControlResponse>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "GetDomainAdsControl",
+        __Marshaller_phoenix_GetDomainAdsControlRequest,
+        __Marshaller_phoenix_GetDomainAdsControlResponse);
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::phoenix.GetPPVModuleDataRequest, global::phoenix.GetPPVModuleDataResponse> __Method_GetPPVModuleData = new grpc::Method<global::phoenix.GetPPVModuleDataRequest, global::phoenix.GetPPVModuleDataResponse>(
         grpc::MethodType.Unary,
         __ServiceName,
@@ -249,12 +305,28 @@ namespace phoenix {
         __Marshaller_phoenix_GetPPVModuleDataResponse);
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Method<global::phoenix.HandleBlockingSegmentRequest, global::phoenix.HandleBlockingSegmentResponse> __Method_HandleBlockingSegment = new grpc::Method<global::phoenix.HandleBlockingSegmentRequest, global::phoenix.HandleBlockingSegmentResponse>(
+    static readonly grpc::Method<global::phoenix.HandlePlayUsesRequest, global::Google.Protobuf.WellKnownTypes.Empty> __Method_HandlePlayUses = new grpc::Method<global::phoenix.HandlePlayUsesRequest, global::Google.Protobuf.WellKnownTypes.Empty>(
         grpc::MethodType.Unary,
         __ServiceName,
-        "HandleBlockingSegment",
-        __Marshaller_phoenix_HandleBlockingSegmentRequest,
-        __Marshaller_phoenix_HandleBlockingSegmentResponse);
+        "HandlePlayUses",
+        __Marshaller_phoenix_HandlePlayUsesRequest,
+        __Marshaller_google_protobuf_Empty);
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::phoenix.CheckProgramAssetGroupExistenceRequest, global::Google.Protobuf.WellKnownTypes.BoolValue> __Method_CheckProgramAssetGroupExistence = new grpc::Method<global::phoenix.CheckProgramAssetGroupExistenceRequest, global::Google.Protobuf.WellKnownTypes.BoolValue>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "CheckProgramAssetGroupExistence",
+        __Marshaller_phoenix_CheckProgramAssetGroupExistenceRequest,
+        __Marshaller_google_protobuf_BoolValue);
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::phoenix.GetEntitledPagoWindowRequest, global::phoenix.GetEntitledPagoWindowResponse> __Method_GetEntitledPagoWindow = new grpc::Method<global::phoenix.GetEntitledPagoWindowRequest, global::phoenix.GetEntitledPagoWindowResponse>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "GetEntitledPagoWindow",
+        __Marshaller_phoenix_GetEntitledPagoWindowRequest,
+        __Marshaller_phoenix_GetEntitledPagoWindowResponse);
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::phoenix.GetAssetsForValidationRequest, global::phoenix.GetAssetsForValidationResponse> __Method_GetAssetsForValidation = new grpc::Method<global::phoenix.GetAssetsForValidationRequest, global::phoenix.GetAssetsForValidationResponse>(
@@ -273,12 +345,12 @@ namespace phoenix {
         __Marshaller_phoenix_CheckNetworkRulesResponse);
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Method<global::phoenix.GetEpgChannelIdRequest, global::Google.Protobuf.WellKnownTypes.StringValue> __Method_GetEpgChannelId = new grpc::Method<global::phoenix.GetEpgChannelIdRequest, global::Google.Protobuf.WellKnownTypes.StringValue>(
+    static readonly grpc::Method<global::phoenix.HasAssetRulesRequest, global::Google.Protobuf.WellKnownTypes.BoolValue> __Method_HasAssetRules = new grpc::Method<global::phoenix.HasAssetRulesRequest, global::Google.Protobuf.WellKnownTypes.BoolValue>(
         grpc::MethodType.Unary,
         __ServiceName,
-        "GetEpgChannelId",
-        __Marshaller_phoenix_GetEpgChannelIdRequest,
-        __Marshaller_google_protobuf_StringValue);
+        "HasAssetRules",
+        __Marshaller_phoenix_HasAssetRulesRequest,
+        __Marshaller_google_protobuf_BoolValue);
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::phoenix.GetAssetMediaRuleIdsRequest, global::phoenix.GetAssetMediaRuleIdsResponse> __Method_GetAssetMediaRuleIds = new grpc::Method<global::phoenix.GetAssetMediaRuleIdsRequest, global::phoenix.GetAssetMediaRuleIdsResponse>(
@@ -305,28 +377,12 @@ namespace phoenix {
         __Marshaller_phoenix_GetMediaConcurrencyRulesResponse);
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Method<global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleRequest, global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleResponse> __Method_GetMediaConcurrencyRulesByDomainLimitationModule = new grpc::Method<global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleRequest, global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleResponse>(
-        grpc::MethodType.Unary,
-        __ServiceName,
-        "GetMediaConcurrencyRulesByDomainLimitationModule",
-        __Marshaller_phoenix_GetMediaConcurrencyRulesByDomainLimitationModuleRequest,
-        __Marshaller_phoenix_GetMediaConcurrencyRulesByDomainLimitationModuleResponse);
-
-    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::phoenix.GetAssetRulesRequest, global::phoenix.GetAssetRulesResponse> __Method_GetAssetRules = new grpc::Method<global::phoenix.GetAssetRulesRequest, global::phoenix.GetAssetRulesResponse>(
         grpc::MethodType.Unary,
         __ServiceName,
         "GetAssetRules",
         __Marshaller_phoenix_GetAssetRulesRequest,
         __Marshaller_phoenix_GetAssetRulesResponse);
-
-    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Method<global::phoenix.GetMediaFilesRequest, global::phoenix.GetMediaFilesResponse> __Method_GetMediaFiles = new grpc::Method<global::phoenix.GetMediaFilesRequest, global::phoenix.GetMediaFilesResponse>(
-        grpc::MethodType.Unary,
-        __ServiceName,
-        "GetMediaFiles",
-        __Marshaller_phoenix_GetMediaFilesRequest,
-        __Marshaller_phoenix_GetMediaFilesResponse);
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::phoenix.GetGroupMediaConcurrencyRulesRequest, global::phoenix.GetGroupMediaConcurrencyRulesResponse> __Method_GetGroupMediaConcurrencyRules = new grpc::Method<global::phoenix.GetGroupMediaConcurrencyRulesRequest, global::phoenix.GetGroupMediaConcurrencyRulesResponse>(
@@ -343,6 +399,54 @@ namespace phoenix {
         "GetMediaConcurrencyRule",
         __Marshaller_phoenix_GetMediaConcurrencyByIdRequest,
         __Marshaller_phoenix_GetMediaConcurrencyByIdResponse);
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::phoenix.HasVirtualAssetTypeRequest, global::Google.Protobuf.WellKnownTypes.BoolValue> __Method_HasVirtualAssetType = new grpc::Method<global::phoenix.HasVirtualAssetTypeRequest, global::Google.Protobuf.WellKnownTypes.BoolValue>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "HasVirtualAssetType",
+        __Marshaller_phoenix_HasVirtualAssetTypeRequest,
+        __Marshaller_google_protobuf_BoolValue);
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::phoenix.HandleBlockingSegmentRequest, global::phoenix.HandleBlockingSegmentResponse> __Method_HandleBlockingSegment = new grpc::Method<global::phoenix.HandleBlockingSegmentRequest, global::phoenix.HandleBlockingSegmentResponse>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "HandleBlockingSegment",
+        __Marshaller_phoenix_HandleBlockingSegmentRequest,
+        __Marshaller_phoenix_HandleBlockingSegmentResponse);
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::phoenix.GetRecordingLinkByFileTypeRequest, global::phoenix.GetRecordingLinkByFileTypeResponse> __Method_GetRecordingLinkByFileType = new grpc::Method<global::phoenix.GetRecordingLinkByFileTypeRequest, global::phoenix.GetRecordingLinkByFileTypeResponse>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "GetRecordingLinkByFileType",
+        __Marshaller_phoenix_GetRecordingLinkByFileTypeRequest,
+        __Marshaller_phoenix_GetRecordingLinkByFileTypeResponse);
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::phoenix.GetGroupMediaFileTypesRequest, global::phoenix.GetGroupMediaFileTypesResponse> __Method_GetGroupMediaFileTypes = new grpc::Method<global::phoenix.GetGroupMediaFileTypesRequest, global::phoenix.GetGroupMediaFileTypesResponse>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "GetGroupMediaFileTypes",
+        __Marshaller_phoenix_GetGroupMediaFileTypesRequest,
+        __Marshaller_phoenix_GetGroupMediaFileTypesResponse);
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::phoenix.GetEpgChannelIdRequest, global::Google.Protobuf.WellKnownTypes.StringValue> __Method_GetEpgChannelId = new grpc::Method<global::phoenix.GetEpgChannelIdRequest, global::Google.Protobuf.WellKnownTypes.StringValue>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "GetEpgChannelId",
+        __Marshaller_phoenix_GetEpgChannelIdRequest,
+        __Marshaller_google_protobuf_StringValue);
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::phoenix.GetMediaFilesRequest, global::phoenix.GetMediaFilesResponse> __Method_GetMediaFiles = new grpc::Method<global::phoenix.GetMediaFilesRequest, global::phoenix.GetMediaFilesResponse>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "GetMediaFiles",
+        __Marshaller_phoenix_GetMediaFilesRequest,
+        __Marshaller_phoenix_GetMediaFilesResponse);
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::phoenix.GetProgramScheduleRequest, global::phoenix.GetProgramScheduleResponse> __Method_GetProgramSchedule = new grpc::Method<global::phoenix.GetProgramScheduleRequest, global::phoenix.GetProgramScheduleResponse>(
@@ -377,14 +481,6 @@ namespace phoenix {
         __Marshaller_phoenix_GetLinearMediaInfoByEpgChannelIdAndFileTypeResponse);
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Method<global::phoenix.HandlePlayUsesRequest, global::Google.Protobuf.WellKnownTypes.Empty> __Method_HandlePlayUses = new grpc::Method<global::phoenix.HandlePlayUsesRequest, global::Google.Protobuf.WellKnownTypes.Empty>(
-        grpc::MethodType.Unary,
-        __ServiceName,
-        "HandlePlayUses",
-        __Marshaller_phoenix_HandlePlayUsesRequest,
-        __Marshaller_google_protobuf_Empty);
-
-    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::phoenix.MapMediaFilesRequest, global::phoenix.MapMediaFilesResponse> __Method_MapMediaFiles = new grpc::Method<global::phoenix.MapMediaFilesRequest, global::phoenix.MapMediaFilesResponse>(
         grpc::MethodType.Unary,
         __ServiceName,
@@ -416,14 +512,6 @@ namespace phoenix {
         __Marshaller_phoenix_GetMediaInfoRequest,
         __Marshaller_phoenix_GetMediaInfoResponse);
 
-    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Method<global::phoenix.GetPaymentGatewayProfileRequest, global::phoenix.GetPaymentGatewayProfileResponse> __Method_GetPaymentGatewayProfile = new grpc::Method<global::phoenix.GetPaymentGatewayProfileRequest, global::phoenix.GetPaymentGatewayProfileResponse>(
-        grpc::MethodType.Unary,
-        __ServiceName,
-        "GetPaymentGatewayProfile",
-        __Marshaller_phoenix_GetPaymentGatewayProfileRequest,
-        __Marshaller_phoenix_GetPaymentGatewayProfileResponse);
-
     /// <summary>Service descriptor</summary>
     public static global::Google.Protobuf.Reflection.ServiceDescriptor Descriptor
     {
@@ -434,6 +522,18 @@ namespace phoenix {
     [grpc::BindServiceMethod(typeof(Phoenix), "BindService")]
     public abstract partial class PhoenixBase
     {
+      /// <summary>
+      ///household
+      /// </summary>
+      /// <param name="request">The request received from the client.</param>
+      /// <param name="context">The context of the server-side call handler being invoked.</param>
+      /// <returns>The response to send back to the client (wrapped by a task).</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::phoenix.GetDomainDataResponse> GetDomainData(global::phoenix.GetDomainDataRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::System.Threading.Tasks.Task<global::Google.Protobuf.WellKnownTypes.BoolValue> IsPermittedPermission(global::phoenix.IsPermittedPermissionRequest request, grpc::ServerCallContext context)
       {
@@ -453,17 +553,23 @@ namespace phoenix {
       }
 
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::System.Threading.Tasks.Task<global::Google.Protobuf.WellKnownTypes.BoolValue> IsServiceAllowed(global::phoenix.IsServiceAllowedRequest request, grpc::ServerCallContext context)
+      public virtual global::System.Threading.Tasks.Task<global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleResponse> GetMediaConcurrencyRulesByDomainLimitationModule(global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
 
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::System.Threading.Tasks.Task<global::phoenix.GetDomainDataResponse> GetDomainData(global::phoenix.GetDomainDataRequest request, grpc::ServerCallContext context)
+      public virtual global::System.Threading.Tasks.Task<global::Google.Protobuf.WellKnownTypes.Int32Value> IsDevicePlayValid(global::phoenix.IsDevicePlayValidRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
 
+      /// <summary>
+      ///group configuration
+      /// </summary>
+      /// <param name="request">The request received from the client.</param>
+      /// <param name="context">The context of the server-side call handler being invoked.</param>
+      /// <returns>The response to send back to the client (wrapped by a task).</returns>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::System.Threading.Tasks.Task<global::phoenix.GetGroupSecretAndCountryCodeResponse> GetGroupSecretAndCountryCode(global::phoenix.GetGroupSecretAndCountryCodeRequest request, grpc::ServerCallContext context)
       {
@@ -471,7 +577,43 @@ namespace phoenix {
       }
 
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::System.Threading.Tasks.Task<global::Google.Protobuf.WellKnownTypes.Int32Value> IsDevicePlayValid(global::phoenix.IsDevicePlayValidRequest request, grpc::ServerCallContext context)
+      public virtual global::System.Threading.Tasks.Task<global::phoenix.GetCDVRAdapterResponse> GetCDVRAdapter(global::phoenix.GetCDVRAdapterRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      /// <summary>
+      ///pricing
+      /// </summary>
+      /// <param name="request">The request received from the client.</param>
+      /// <param name="context">The context of the server-side call handler being invoked.</param>
+      /// <returns>The response to send back to the client (wrapped by a task).</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::phoenix.GetItemsPricesResponse> GetItemsPrices(global::phoenix.GetItemsPricesRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::phoenix.GetPaymentGatewayProfileResponse> GetPaymentGatewayProfile(global::phoenix.GetPaymentGatewayProfileRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::Google.Protobuf.WellKnownTypes.BoolValue> GetGroupHasSubWithAds(global::phoenix.GetGroupHasSubWithAdsRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      /// <summary>
+      ///entitlement
+      /// </summary>
+      /// <param name="request">The request received from the client.</param>
+      /// <param name="context">The context of the server-side call handler being invoked.</param>
+      /// <returns>The response to send back to the client (wrapped by a task).</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::Google.Protobuf.WellKnownTypes.BoolValue> IsServiceAllowed(global::phoenix.IsServiceAllowedRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
@@ -483,23 +625,35 @@ namespace phoenix {
       }
 
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::System.Threading.Tasks.Task<global::phoenix.GetItemsPricesResponse> GetItemsPrices(global::phoenix.GetItemsPricesRequest request, grpc::ServerCallContext context)
-      {
-        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
-      }
-
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::System.Threading.Tasks.Task<global::phoenix.GetPPVModuleDataResponse> GetPPVModuleData(global::phoenix.GetPPVModuleDataRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
 
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::System.Threading.Tasks.Task<global::phoenix.HandleBlockingSegmentResponse> HandleBlockingSegment(global::phoenix.HandleBlockingSegmentRequest request, grpc::ServerCallContext context)
+      public virtual global::System.Threading.Tasks.Task<global::Google.Protobuf.WellKnownTypes.Empty> HandlePlayUses(global::phoenix.HandlePlayUsesRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
 
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::Google.Protobuf.WellKnownTypes.BoolValue> CheckProgramAssetGroupExistence(global::phoenix.CheckProgramAssetGroupExistenceRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::phoenix.GetEntitledPagoWindowResponse> GetEntitledPagoWindow(global::phoenix.GetEntitledPagoWindowRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      /// <summary>
+      ///assetrules
+      /// </summary>
+      /// <param name="request">The request received from the client.</param>
+      /// <param name="context">The context of the server-side call handler being invoked.</param>
+      /// <returns>The response to send back to the client (wrapped by a task).</returns>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::System.Threading.Tasks.Task<global::phoenix.GetAssetsForValidationResponse> GetAssetsForValidation(global::phoenix.GetAssetsForValidationRequest request, grpc::ServerCallContext context)
       {
@@ -513,7 +667,7 @@ namespace phoenix {
       }
 
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::System.Threading.Tasks.Task<global::Google.Protobuf.WellKnownTypes.StringValue> GetEpgChannelId(global::phoenix.GetEpgChannelIdRequest request, grpc::ServerCallContext context)
+      public virtual global::System.Threading.Tasks.Task<global::Google.Protobuf.WellKnownTypes.BoolValue> HasAssetRules(global::phoenix.HasAssetRulesRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
@@ -537,19 +691,7 @@ namespace phoenix {
       }
 
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::System.Threading.Tasks.Task<global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleResponse> GetMediaConcurrencyRulesByDomainLimitationModule(global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleRequest request, grpc::ServerCallContext context)
-      {
-        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
-      }
-
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::System.Threading.Tasks.Task<global::phoenix.GetAssetRulesResponse> GetAssetRules(global::phoenix.GetAssetRulesRequest request, grpc::ServerCallContext context)
-      {
-        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
-      }
-
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::System.Threading.Tasks.Task<global::phoenix.GetMediaFilesResponse> GetMediaFiles(global::phoenix.GetMediaFilesRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
@@ -562,6 +704,48 @@ namespace phoenix {
 
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::System.Threading.Tasks.Task<global::phoenix.GetMediaConcurrencyByIdResponse> GetMediaConcurrencyRule(global::phoenix.GetMediaConcurrencyByIdRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      /// <summary>
+      ///catalog
+      /// </summary>
+      /// <param name="request">The request received from the client.</param>
+      /// <param name="context">The context of the server-side call handler being invoked.</param>
+      /// <returns>The response to send back to the client (wrapped by a task).</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::Google.Protobuf.WellKnownTypes.BoolValue> HasVirtualAssetType(global::phoenix.HasVirtualAssetTypeRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::phoenix.HandleBlockingSegmentResponse> HandleBlockingSegment(global::phoenix.HandleBlockingSegmentRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::phoenix.GetRecordingLinkByFileTypeResponse> GetRecordingLinkByFileType(global::phoenix.GetRecordingLinkByFileTypeRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::phoenix.GetGroupMediaFileTypesResponse> GetGroupMediaFileTypes(global::phoenix.GetGroupMediaFileTypesRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::Google.Protobuf.WellKnownTypes.StringValue> GetEpgChannelId(global::phoenix.GetEpgChannelIdRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::phoenix.GetMediaFilesResponse> GetMediaFiles(global::phoenix.GetMediaFilesRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
@@ -591,12 +775,6 @@ namespace phoenix {
       }
 
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::System.Threading.Tasks.Task<global::Google.Protobuf.WellKnownTypes.Empty> HandlePlayUses(global::phoenix.HandlePlayUsesRequest request, grpc::ServerCallContext context)
-      {
-        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
-      }
-
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::System.Threading.Tasks.Task<global::phoenix.MapMediaFilesResponse> MapMediaFiles(global::phoenix.MapMediaFilesRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
@@ -616,12 +794,6 @@ namespace phoenix {
 
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::System.Threading.Tasks.Task<global::phoenix.GetMediaInfoResponse> GetMediaInfo(global::phoenix.GetMediaInfoRequest request, grpc::ServerCallContext context)
-      {
-        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
-      }
-
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::System.Threading.Tasks.Task<global::phoenix.GetPaymentGatewayProfileResponse> GetPaymentGatewayProfile(global::phoenix.GetPaymentGatewayProfileRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
@@ -655,6 +827,54 @@ namespace phoenix {
       {
       }
 
+      /// <summary>
+      ///household
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+      /// <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+      /// <param name="cancellationToken">An optional token for canceling the call.</param>
+      /// <returns>The response received from the server.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.GetDomainDataResponse GetDomainData(global::phoenix.GetDomainDataRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return GetDomainData(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      /// <summary>
+      ///household
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="options">The options for the call.</param>
+      /// <returns>The response received from the server.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.GetDomainDataResponse GetDomainData(global::phoenix.GetDomainDataRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_GetDomainData, null, options, request);
+      }
+      /// <summary>
+      ///household
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+      /// <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+      /// <param name="cancellationToken">An optional token for canceling the call.</param>
+      /// <returns>The call object.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.GetDomainDataResponse> GetDomainDataAsync(global::phoenix.GetDomainDataRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return GetDomainDataAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      /// <summary>
+      ///household
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="options">The options for the call.</param>
+      /// <returns>The call object.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.GetDomainDataResponse> GetDomainDataAsync(global::phoenix.GetDomainDataRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_GetDomainData, null, options, request);
+      }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::Google.Protobuf.WellKnownTypes.BoolValue IsPermittedPermission(global::phoenix.IsPermittedPermissionRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
@@ -716,64 +936,24 @@ namespace phoenix {
         return CallInvoker.AsyncUnaryCall(__Method_GetSuspensionStatus, null, options, request);
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::Google.Protobuf.WellKnownTypes.BoolValue IsServiceAllowed(global::phoenix.IsServiceAllowedRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      public virtual global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleResponse GetMediaConcurrencyRulesByDomainLimitationModule(global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
-        return IsServiceAllowed(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+        return GetMediaConcurrencyRulesByDomainLimitationModule(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::Google.Protobuf.WellKnownTypes.BoolValue IsServiceAllowed(global::phoenix.IsServiceAllowedRequest request, grpc::CallOptions options)
+      public virtual global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleResponse GetMediaConcurrencyRulesByDomainLimitationModule(global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleRequest request, grpc::CallOptions options)
       {
-        return CallInvoker.BlockingUnaryCall(__Method_IsServiceAllowed, null, options, request);
+        return CallInvoker.BlockingUnaryCall(__Method_GetMediaConcurrencyRulesByDomainLimitationModule, null, options, request);
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::Google.Protobuf.WellKnownTypes.BoolValue> IsServiceAllowedAsync(global::phoenix.IsServiceAllowedRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      public virtual grpc::AsyncUnaryCall<global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleResponse> GetMediaConcurrencyRulesByDomainLimitationModuleAsync(global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
-        return IsServiceAllowedAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+        return GetMediaConcurrencyRulesByDomainLimitationModuleAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::Google.Protobuf.WellKnownTypes.BoolValue> IsServiceAllowedAsync(global::phoenix.IsServiceAllowedRequest request, grpc::CallOptions options)
+      public virtual grpc::AsyncUnaryCall<global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleResponse> GetMediaConcurrencyRulesByDomainLimitationModuleAsync(global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleRequest request, grpc::CallOptions options)
       {
-        return CallInvoker.AsyncUnaryCall(__Method_IsServiceAllowed, null, options, request);
-      }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::phoenix.GetDomainDataResponse GetDomainData(global::phoenix.GetDomainDataRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
-      {
-        return GetDomainData(request, new grpc::CallOptions(headers, deadline, cancellationToken));
-      }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::phoenix.GetDomainDataResponse GetDomainData(global::phoenix.GetDomainDataRequest request, grpc::CallOptions options)
-      {
-        return CallInvoker.BlockingUnaryCall(__Method_GetDomainData, null, options, request);
-      }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::phoenix.GetDomainDataResponse> GetDomainDataAsync(global::phoenix.GetDomainDataRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
-      {
-        return GetDomainDataAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
-      }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::phoenix.GetDomainDataResponse> GetDomainDataAsync(global::phoenix.GetDomainDataRequest request, grpc::CallOptions options)
-      {
-        return CallInvoker.AsyncUnaryCall(__Method_GetDomainData, null, options, request);
-      }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::phoenix.GetGroupSecretAndCountryCodeResponse GetGroupSecretAndCountryCode(global::phoenix.GetGroupSecretAndCountryCodeRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
-      {
-        return GetGroupSecretAndCountryCode(request, new grpc::CallOptions(headers, deadline, cancellationToken));
-      }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::phoenix.GetGroupSecretAndCountryCodeResponse GetGroupSecretAndCountryCode(global::phoenix.GetGroupSecretAndCountryCodeRequest request, grpc::CallOptions options)
-      {
-        return CallInvoker.BlockingUnaryCall(__Method_GetGroupSecretAndCountryCode, null, options, request);
-      }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::phoenix.GetGroupSecretAndCountryCodeResponse> GetGroupSecretAndCountryCodeAsync(global::phoenix.GetGroupSecretAndCountryCodeRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
-      {
-        return GetGroupSecretAndCountryCodeAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
-      }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::phoenix.GetGroupSecretAndCountryCodeResponse> GetGroupSecretAndCountryCodeAsync(global::phoenix.GetGroupSecretAndCountryCodeRequest request, grpc::CallOptions options)
-      {
-        return CallInvoker.AsyncUnaryCall(__Method_GetGroupSecretAndCountryCode, null, options, request);
+        return CallInvoker.AsyncUnaryCall(__Method_GetMediaConcurrencyRulesByDomainLimitationModule, null, options, request);
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::Google.Protobuf.WellKnownTypes.Int32Value IsDevicePlayValid(global::phoenix.IsDevicePlayValidRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
@@ -794,6 +974,210 @@ namespace phoenix {
       public virtual grpc::AsyncUnaryCall<global::Google.Protobuf.WellKnownTypes.Int32Value> IsDevicePlayValidAsync(global::phoenix.IsDevicePlayValidRequest request, grpc::CallOptions options)
       {
         return CallInvoker.AsyncUnaryCall(__Method_IsDevicePlayValid, null, options, request);
+      }
+      /// <summary>
+      ///group configuration
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+      /// <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+      /// <param name="cancellationToken">An optional token for canceling the call.</param>
+      /// <returns>The response received from the server.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.GetGroupSecretAndCountryCodeResponse GetGroupSecretAndCountryCode(global::phoenix.GetGroupSecretAndCountryCodeRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return GetGroupSecretAndCountryCode(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      /// <summary>
+      ///group configuration
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="options">The options for the call.</param>
+      /// <returns>The response received from the server.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.GetGroupSecretAndCountryCodeResponse GetGroupSecretAndCountryCode(global::phoenix.GetGroupSecretAndCountryCodeRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_GetGroupSecretAndCountryCode, null, options, request);
+      }
+      /// <summary>
+      ///group configuration
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+      /// <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+      /// <param name="cancellationToken">An optional token for canceling the call.</param>
+      /// <returns>The call object.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.GetGroupSecretAndCountryCodeResponse> GetGroupSecretAndCountryCodeAsync(global::phoenix.GetGroupSecretAndCountryCodeRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return GetGroupSecretAndCountryCodeAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      /// <summary>
+      ///group configuration
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="options">The options for the call.</param>
+      /// <returns>The call object.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.GetGroupSecretAndCountryCodeResponse> GetGroupSecretAndCountryCodeAsync(global::phoenix.GetGroupSecretAndCountryCodeRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_GetGroupSecretAndCountryCode, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.GetCDVRAdapterResponse GetCDVRAdapter(global::phoenix.GetCDVRAdapterRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return GetCDVRAdapter(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.GetCDVRAdapterResponse GetCDVRAdapter(global::phoenix.GetCDVRAdapterRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_GetCDVRAdapter, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.GetCDVRAdapterResponse> GetCDVRAdapterAsync(global::phoenix.GetCDVRAdapterRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return GetCDVRAdapterAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.GetCDVRAdapterResponse> GetCDVRAdapterAsync(global::phoenix.GetCDVRAdapterRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_GetCDVRAdapter, null, options, request);
+      }
+      /// <summary>
+      ///pricing
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+      /// <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+      /// <param name="cancellationToken">An optional token for canceling the call.</param>
+      /// <returns>The response received from the server.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.GetItemsPricesResponse GetItemsPrices(global::phoenix.GetItemsPricesRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return GetItemsPrices(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      /// <summary>
+      ///pricing
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="options">The options for the call.</param>
+      /// <returns>The response received from the server.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.GetItemsPricesResponse GetItemsPrices(global::phoenix.GetItemsPricesRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_GetItemsPrices, null, options, request);
+      }
+      /// <summary>
+      ///pricing
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+      /// <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+      /// <param name="cancellationToken">An optional token for canceling the call.</param>
+      /// <returns>The call object.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.GetItemsPricesResponse> GetItemsPricesAsync(global::phoenix.GetItemsPricesRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return GetItemsPricesAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      /// <summary>
+      ///pricing
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="options">The options for the call.</param>
+      /// <returns>The call object.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.GetItemsPricesResponse> GetItemsPricesAsync(global::phoenix.GetItemsPricesRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_GetItemsPrices, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.GetPaymentGatewayProfileResponse GetPaymentGatewayProfile(global::phoenix.GetPaymentGatewayProfileRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return GetPaymentGatewayProfile(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.GetPaymentGatewayProfileResponse GetPaymentGatewayProfile(global::phoenix.GetPaymentGatewayProfileRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_GetPaymentGatewayProfile, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.GetPaymentGatewayProfileResponse> GetPaymentGatewayProfileAsync(global::phoenix.GetPaymentGatewayProfileRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return GetPaymentGatewayProfileAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.GetPaymentGatewayProfileResponse> GetPaymentGatewayProfileAsync(global::phoenix.GetPaymentGatewayProfileRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_GetPaymentGatewayProfile, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::Google.Protobuf.WellKnownTypes.BoolValue GetGroupHasSubWithAds(global::phoenix.GetGroupHasSubWithAdsRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return GetGroupHasSubWithAds(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::Google.Protobuf.WellKnownTypes.BoolValue GetGroupHasSubWithAds(global::phoenix.GetGroupHasSubWithAdsRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_GetGroupHasSubWithAds, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::Google.Protobuf.WellKnownTypes.BoolValue> GetGroupHasSubWithAdsAsync(global::phoenix.GetGroupHasSubWithAdsRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return GetGroupHasSubWithAdsAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::Google.Protobuf.WellKnownTypes.BoolValue> GetGroupHasSubWithAdsAsync(global::phoenix.GetGroupHasSubWithAdsRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_GetGroupHasSubWithAds, null, options, request);
+      }
+      /// <summary>
+      ///entitlement
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+      /// <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+      /// <param name="cancellationToken">An optional token for canceling the call.</param>
+      /// <returns>The response received from the server.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::Google.Protobuf.WellKnownTypes.BoolValue IsServiceAllowed(global::phoenix.IsServiceAllowedRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return IsServiceAllowed(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      /// <summary>
+      ///entitlement
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="options">The options for the call.</param>
+      /// <returns>The response received from the server.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::Google.Protobuf.WellKnownTypes.BoolValue IsServiceAllowed(global::phoenix.IsServiceAllowedRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_IsServiceAllowed, null, options, request);
+      }
+      /// <summary>
+      ///entitlement
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+      /// <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+      /// <param name="cancellationToken">An optional token for canceling the call.</param>
+      /// <returns>The call object.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::Google.Protobuf.WellKnownTypes.BoolValue> IsServiceAllowedAsync(global::phoenix.IsServiceAllowedRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return IsServiceAllowedAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      /// <summary>
+      ///entitlement
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="options">The options for the call.</param>
+      /// <returns>The call object.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::Google.Protobuf.WellKnownTypes.BoolValue> IsServiceAllowedAsync(global::phoenix.IsServiceAllowedRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_IsServiceAllowed, null, options, request);
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::phoenix.GetDomainAdsControlResponse GetDomainAdsControl(global::phoenix.GetDomainAdsControlRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
@@ -816,26 +1200,6 @@ namespace phoenix {
         return CallInvoker.AsyncUnaryCall(__Method_GetDomainAdsControl, null, options, request);
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::phoenix.GetItemsPricesResponse GetItemsPrices(global::phoenix.GetItemsPricesRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
-      {
-        return GetItemsPrices(request, new grpc::CallOptions(headers, deadline, cancellationToken));
-      }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::phoenix.GetItemsPricesResponse GetItemsPrices(global::phoenix.GetItemsPricesRequest request, grpc::CallOptions options)
-      {
-        return CallInvoker.BlockingUnaryCall(__Method_GetItemsPrices, null, options, request);
-      }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::phoenix.GetItemsPricesResponse> GetItemsPricesAsync(global::phoenix.GetItemsPricesRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
-      {
-        return GetItemsPricesAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
-      }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::phoenix.GetItemsPricesResponse> GetItemsPricesAsync(global::phoenix.GetItemsPricesRequest request, grpc::CallOptions options)
-      {
-        return CallInvoker.AsyncUnaryCall(__Method_GetItemsPrices, null, options, request);
-      }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::phoenix.GetPPVModuleDataResponse GetPPVModuleData(global::phoenix.GetPPVModuleDataRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return GetPPVModuleData(request, new grpc::CallOptions(headers, deadline, cancellationToken));
@@ -856,40 +1220,108 @@ namespace phoenix {
         return CallInvoker.AsyncUnaryCall(__Method_GetPPVModuleData, null, options, request);
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::phoenix.HandleBlockingSegmentResponse HandleBlockingSegment(global::phoenix.HandleBlockingSegmentRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty HandlePlayUses(global::phoenix.HandlePlayUsesRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
-        return HandleBlockingSegment(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+        return HandlePlayUses(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::phoenix.HandleBlockingSegmentResponse HandleBlockingSegment(global::phoenix.HandleBlockingSegmentRequest request, grpc::CallOptions options)
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty HandlePlayUses(global::phoenix.HandlePlayUsesRequest request, grpc::CallOptions options)
       {
-        return CallInvoker.BlockingUnaryCall(__Method_HandleBlockingSegment, null, options, request);
+        return CallInvoker.BlockingUnaryCall(__Method_HandlePlayUses, null, options, request);
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::phoenix.HandleBlockingSegmentResponse> HandleBlockingSegmentAsync(global::phoenix.HandleBlockingSegmentRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      public virtual grpc::AsyncUnaryCall<global::Google.Protobuf.WellKnownTypes.Empty> HandlePlayUsesAsync(global::phoenix.HandlePlayUsesRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
-        return HandleBlockingSegmentAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+        return HandlePlayUsesAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::phoenix.HandleBlockingSegmentResponse> HandleBlockingSegmentAsync(global::phoenix.HandleBlockingSegmentRequest request, grpc::CallOptions options)
+      public virtual grpc::AsyncUnaryCall<global::Google.Protobuf.WellKnownTypes.Empty> HandlePlayUsesAsync(global::phoenix.HandlePlayUsesRequest request, grpc::CallOptions options)
       {
-        return CallInvoker.AsyncUnaryCall(__Method_HandleBlockingSegment, null, options, request);
+        return CallInvoker.AsyncUnaryCall(__Method_HandlePlayUses, null, options, request);
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::Google.Protobuf.WellKnownTypes.BoolValue CheckProgramAssetGroupExistence(global::phoenix.CheckProgramAssetGroupExistenceRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return CheckProgramAssetGroupExistence(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::Google.Protobuf.WellKnownTypes.BoolValue CheckProgramAssetGroupExistence(global::phoenix.CheckProgramAssetGroupExistenceRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_CheckProgramAssetGroupExistence, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::Google.Protobuf.WellKnownTypes.BoolValue> CheckProgramAssetGroupExistenceAsync(global::phoenix.CheckProgramAssetGroupExistenceRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return CheckProgramAssetGroupExistenceAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::Google.Protobuf.WellKnownTypes.BoolValue> CheckProgramAssetGroupExistenceAsync(global::phoenix.CheckProgramAssetGroupExistenceRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_CheckProgramAssetGroupExistence, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.GetEntitledPagoWindowResponse GetEntitledPagoWindow(global::phoenix.GetEntitledPagoWindowRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return GetEntitledPagoWindow(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.GetEntitledPagoWindowResponse GetEntitledPagoWindow(global::phoenix.GetEntitledPagoWindowRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_GetEntitledPagoWindow, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.GetEntitledPagoWindowResponse> GetEntitledPagoWindowAsync(global::phoenix.GetEntitledPagoWindowRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return GetEntitledPagoWindowAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.GetEntitledPagoWindowResponse> GetEntitledPagoWindowAsync(global::phoenix.GetEntitledPagoWindowRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_GetEntitledPagoWindow, null, options, request);
+      }
+      /// <summary>
+      ///assetrules
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+      /// <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+      /// <param name="cancellationToken">An optional token for canceling the call.</param>
+      /// <returns>The response received from the server.</returns>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::phoenix.GetAssetsForValidationResponse GetAssetsForValidation(global::phoenix.GetAssetsForValidationRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return GetAssetsForValidation(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
+      /// <summary>
+      ///assetrules
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="options">The options for the call.</param>
+      /// <returns>The response received from the server.</returns>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::phoenix.GetAssetsForValidationResponse GetAssetsForValidation(global::phoenix.GetAssetsForValidationRequest request, grpc::CallOptions options)
       {
         return CallInvoker.BlockingUnaryCall(__Method_GetAssetsForValidation, null, options, request);
       }
+      /// <summary>
+      ///assetrules
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+      /// <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+      /// <param name="cancellationToken">An optional token for canceling the call.</param>
+      /// <returns>The call object.</returns>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual grpc::AsyncUnaryCall<global::phoenix.GetAssetsForValidationResponse> GetAssetsForValidationAsync(global::phoenix.GetAssetsForValidationRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return GetAssetsForValidationAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
+      /// <summary>
+      ///assetrules
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="options">The options for the call.</param>
+      /// <returns>The call object.</returns>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual grpc::AsyncUnaryCall<global::phoenix.GetAssetsForValidationResponse> GetAssetsForValidationAsync(global::phoenix.GetAssetsForValidationRequest request, grpc::CallOptions options)
       {
@@ -916,24 +1348,24 @@ namespace phoenix {
         return CallInvoker.AsyncUnaryCall(__Method_CheckNetworkRules, null, options, request);
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::Google.Protobuf.WellKnownTypes.StringValue GetEpgChannelId(global::phoenix.GetEpgChannelIdRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      public virtual global::Google.Protobuf.WellKnownTypes.BoolValue HasAssetRules(global::phoenix.HasAssetRulesRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
-        return GetEpgChannelId(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+        return HasAssetRules(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::Google.Protobuf.WellKnownTypes.StringValue GetEpgChannelId(global::phoenix.GetEpgChannelIdRequest request, grpc::CallOptions options)
+      public virtual global::Google.Protobuf.WellKnownTypes.BoolValue HasAssetRules(global::phoenix.HasAssetRulesRequest request, grpc::CallOptions options)
       {
-        return CallInvoker.BlockingUnaryCall(__Method_GetEpgChannelId, null, options, request);
+        return CallInvoker.BlockingUnaryCall(__Method_HasAssetRules, null, options, request);
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::Google.Protobuf.WellKnownTypes.StringValue> GetEpgChannelIdAsync(global::phoenix.GetEpgChannelIdRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      public virtual grpc::AsyncUnaryCall<global::Google.Protobuf.WellKnownTypes.BoolValue> HasAssetRulesAsync(global::phoenix.HasAssetRulesRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
-        return GetEpgChannelIdAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+        return HasAssetRulesAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::Google.Protobuf.WellKnownTypes.StringValue> GetEpgChannelIdAsync(global::phoenix.GetEpgChannelIdRequest request, grpc::CallOptions options)
+      public virtual grpc::AsyncUnaryCall<global::Google.Protobuf.WellKnownTypes.BoolValue> HasAssetRulesAsync(global::phoenix.HasAssetRulesRequest request, grpc::CallOptions options)
       {
-        return CallInvoker.AsyncUnaryCall(__Method_GetEpgChannelId, null, options, request);
+        return CallInvoker.AsyncUnaryCall(__Method_HasAssetRules, null, options, request);
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::phoenix.GetAssetMediaRuleIdsResponse GetAssetMediaRuleIds(global::phoenix.GetAssetMediaRuleIdsRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
@@ -996,26 +1428,6 @@ namespace phoenix {
         return CallInvoker.AsyncUnaryCall(__Method_GetMediaConcurrencyRules, null, options, request);
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleResponse GetMediaConcurrencyRulesByDomainLimitationModule(global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
-      {
-        return GetMediaConcurrencyRulesByDomainLimitationModule(request, new grpc::CallOptions(headers, deadline, cancellationToken));
-      }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleResponse GetMediaConcurrencyRulesByDomainLimitationModule(global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleRequest request, grpc::CallOptions options)
-      {
-        return CallInvoker.BlockingUnaryCall(__Method_GetMediaConcurrencyRulesByDomainLimitationModule, null, options, request);
-      }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleResponse> GetMediaConcurrencyRulesByDomainLimitationModuleAsync(global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
-      {
-        return GetMediaConcurrencyRulesByDomainLimitationModuleAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
-      }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleResponse> GetMediaConcurrencyRulesByDomainLimitationModuleAsync(global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleRequest request, grpc::CallOptions options)
-      {
-        return CallInvoker.AsyncUnaryCall(__Method_GetMediaConcurrencyRulesByDomainLimitationModule, null, options, request);
-      }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::phoenix.GetAssetRulesResponse GetAssetRules(global::phoenix.GetAssetRulesRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return GetAssetRules(request, new grpc::CallOptions(headers, deadline, cancellationToken));
@@ -1034,26 +1446,6 @@ namespace phoenix {
       public virtual grpc::AsyncUnaryCall<global::phoenix.GetAssetRulesResponse> GetAssetRulesAsync(global::phoenix.GetAssetRulesRequest request, grpc::CallOptions options)
       {
         return CallInvoker.AsyncUnaryCall(__Method_GetAssetRules, null, options, request);
-      }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::phoenix.GetMediaFilesResponse GetMediaFiles(global::phoenix.GetMediaFilesRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
-      {
-        return GetMediaFiles(request, new grpc::CallOptions(headers, deadline, cancellationToken));
-      }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::phoenix.GetMediaFilesResponse GetMediaFiles(global::phoenix.GetMediaFilesRequest request, grpc::CallOptions options)
-      {
-        return CallInvoker.BlockingUnaryCall(__Method_GetMediaFiles, null, options, request);
-      }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::phoenix.GetMediaFilesResponse> GetMediaFilesAsync(global::phoenix.GetMediaFilesRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
-      {
-        return GetMediaFilesAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
-      }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::phoenix.GetMediaFilesResponse> GetMediaFilesAsync(global::phoenix.GetMediaFilesRequest request, grpc::CallOptions options)
-      {
-        return CallInvoker.AsyncUnaryCall(__Method_GetMediaFiles, null, options, request);
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::phoenix.GetGroupMediaConcurrencyRulesResponse GetGroupMediaConcurrencyRules(global::phoenix.GetGroupMediaConcurrencyRulesRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
@@ -1094,6 +1486,154 @@ namespace phoenix {
       public virtual grpc::AsyncUnaryCall<global::phoenix.GetMediaConcurrencyByIdResponse> GetMediaConcurrencyRuleAsync(global::phoenix.GetMediaConcurrencyByIdRequest request, grpc::CallOptions options)
       {
         return CallInvoker.AsyncUnaryCall(__Method_GetMediaConcurrencyRule, null, options, request);
+      }
+      /// <summary>
+      ///catalog
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+      /// <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+      /// <param name="cancellationToken">An optional token for canceling the call.</param>
+      /// <returns>The response received from the server.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::Google.Protobuf.WellKnownTypes.BoolValue HasVirtualAssetType(global::phoenix.HasVirtualAssetTypeRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return HasVirtualAssetType(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      /// <summary>
+      ///catalog
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="options">The options for the call.</param>
+      /// <returns>The response received from the server.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::Google.Protobuf.WellKnownTypes.BoolValue HasVirtualAssetType(global::phoenix.HasVirtualAssetTypeRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_HasVirtualAssetType, null, options, request);
+      }
+      /// <summary>
+      ///catalog
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+      /// <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+      /// <param name="cancellationToken">An optional token for canceling the call.</param>
+      /// <returns>The call object.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::Google.Protobuf.WellKnownTypes.BoolValue> HasVirtualAssetTypeAsync(global::phoenix.HasVirtualAssetTypeRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return HasVirtualAssetTypeAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      /// <summary>
+      ///catalog
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="options">The options for the call.</param>
+      /// <returns>The call object.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::Google.Protobuf.WellKnownTypes.BoolValue> HasVirtualAssetTypeAsync(global::phoenix.HasVirtualAssetTypeRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_HasVirtualAssetType, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.HandleBlockingSegmentResponse HandleBlockingSegment(global::phoenix.HandleBlockingSegmentRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return HandleBlockingSegment(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.HandleBlockingSegmentResponse HandleBlockingSegment(global::phoenix.HandleBlockingSegmentRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_HandleBlockingSegment, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.HandleBlockingSegmentResponse> HandleBlockingSegmentAsync(global::phoenix.HandleBlockingSegmentRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return HandleBlockingSegmentAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.HandleBlockingSegmentResponse> HandleBlockingSegmentAsync(global::phoenix.HandleBlockingSegmentRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_HandleBlockingSegment, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.GetRecordingLinkByFileTypeResponse GetRecordingLinkByFileType(global::phoenix.GetRecordingLinkByFileTypeRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return GetRecordingLinkByFileType(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.GetRecordingLinkByFileTypeResponse GetRecordingLinkByFileType(global::phoenix.GetRecordingLinkByFileTypeRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_GetRecordingLinkByFileType, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.GetRecordingLinkByFileTypeResponse> GetRecordingLinkByFileTypeAsync(global::phoenix.GetRecordingLinkByFileTypeRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return GetRecordingLinkByFileTypeAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.GetRecordingLinkByFileTypeResponse> GetRecordingLinkByFileTypeAsync(global::phoenix.GetRecordingLinkByFileTypeRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_GetRecordingLinkByFileType, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.GetGroupMediaFileTypesResponse GetGroupMediaFileTypes(global::phoenix.GetGroupMediaFileTypesRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return GetGroupMediaFileTypes(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.GetGroupMediaFileTypesResponse GetGroupMediaFileTypes(global::phoenix.GetGroupMediaFileTypesRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_GetGroupMediaFileTypes, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.GetGroupMediaFileTypesResponse> GetGroupMediaFileTypesAsync(global::phoenix.GetGroupMediaFileTypesRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return GetGroupMediaFileTypesAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.GetGroupMediaFileTypesResponse> GetGroupMediaFileTypesAsync(global::phoenix.GetGroupMediaFileTypesRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_GetGroupMediaFileTypes, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::Google.Protobuf.WellKnownTypes.StringValue GetEpgChannelId(global::phoenix.GetEpgChannelIdRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return GetEpgChannelId(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::Google.Protobuf.WellKnownTypes.StringValue GetEpgChannelId(global::phoenix.GetEpgChannelIdRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_GetEpgChannelId, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::Google.Protobuf.WellKnownTypes.StringValue> GetEpgChannelIdAsync(global::phoenix.GetEpgChannelIdRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return GetEpgChannelIdAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::Google.Protobuf.WellKnownTypes.StringValue> GetEpgChannelIdAsync(global::phoenix.GetEpgChannelIdRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_GetEpgChannelId, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.GetMediaFilesResponse GetMediaFiles(global::phoenix.GetMediaFilesRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return GetMediaFiles(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.GetMediaFilesResponse GetMediaFiles(global::phoenix.GetMediaFilesRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_GetMediaFiles, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.GetMediaFilesResponse> GetMediaFilesAsync(global::phoenix.GetMediaFilesRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return GetMediaFilesAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.GetMediaFilesResponse> GetMediaFilesAsync(global::phoenix.GetMediaFilesRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_GetMediaFiles, null, options, request);
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::phoenix.GetProgramScheduleResponse GetProgramSchedule(global::phoenix.GetProgramScheduleRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
@@ -1176,26 +1716,6 @@ namespace phoenix {
         return CallInvoker.AsyncUnaryCall(__Method_GetLinearMediaInfoByEpgChannelIdAndFileType, null, options, request);
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::Google.Protobuf.WellKnownTypes.Empty HandlePlayUses(global::phoenix.HandlePlayUsesRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
-      {
-        return HandlePlayUses(request, new grpc::CallOptions(headers, deadline, cancellationToken));
-      }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::Google.Protobuf.WellKnownTypes.Empty HandlePlayUses(global::phoenix.HandlePlayUsesRequest request, grpc::CallOptions options)
-      {
-        return CallInvoker.BlockingUnaryCall(__Method_HandlePlayUses, null, options, request);
-      }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::Google.Protobuf.WellKnownTypes.Empty> HandlePlayUsesAsync(global::phoenix.HandlePlayUsesRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
-      {
-        return HandlePlayUsesAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
-      }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::Google.Protobuf.WellKnownTypes.Empty> HandlePlayUsesAsync(global::phoenix.HandlePlayUsesRequest request, grpc::CallOptions options)
-      {
-        return CallInvoker.AsyncUnaryCall(__Method_HandlePlayUses, null, options, request);
-      }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::phoenix.MapMediaFilesResponse MapMediaFiles(global::phoenix.MapMediaFilesRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return MapMediaFiles(request, new grpc::CallOptions(headers, deadline, cancellationToken));
@@ -1275,26 +1795,6 @@ namespace phoenix {
       {
         return CallInvoker.AsyncUnaryCall(__Method_GetMediaInfo, null, options, request);
       }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::phoenix.GetPaymentGatewayProfileResponse GetPaymentGatewayProfile(global::phoenix.GetPaymentGatewayProfileRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
-      {
-        return GetPaymentGatewayProfile(request, new grpc::CallOptions(headers, deadline, cancellationToken));
-      }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::phoenix.GetPaymentGatewayProfileResponse GetPaymentGatewayProfile(global::phoenix.GetPaymentGatewayProfileRequest request, grpc::CallOptions options)
-      {
-        return CallInvoker.BlockingUnaryCall(__Method_GetPaymentGatewayProfile, null, options, request);
-      }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::phoenix.GetPaymentGatewayProfileResponse> GetPaymentGatewayProfileAsync(global::phoenix.GetPaymentGatewayProfileRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
-      {
-        return GetPaymentGatewayProfileAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
-      }
-      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::phoenix.GetPaymentGatewayProfileResponse> GetPaymentGatewayProfileAsync(global::phoenix.GetPaymentGatewayProfileRequest request, grpc::CallOptions options)
-      {
-        return CallInvoker.AsyncUnaryCall(__Method_GetPaymentGatewayProfile, null, options, request);
-      }
       /// <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       protected override PhoenixClient NewInstance(ClientBaseConfiguration configuration)
@@ -1309,38 +1809,46 @@ namespace phoenix {
     public static grpc::ServerServiceDefinition BindService(PhoenixBase serviceImpl)
     {
       return grpc::ServerServiceDefinition.CreateBuilder()
+          .AddMethod(__Method_GetDomainData, serviceImpl.GetDomainData)
           .AddMethod(__Method_IsPermittedPermission, serviceImpl.IsPermittedPermission)
           .AddMethod(__Method_AllowActionInSuspendedDomain, serviceImpl.AllowActionInSuspendedDomain)
           .AddMethod(__Method_GetSuspensionStatus, serviceImpl.GetSuspensionStatus)
-          .AddMethod(__Method_IsServiceAllowed, serviceImpl.IsServiceAllowed)
-          .AddMethod(__Method_GetDomainData, serviceImpl.GetDomainData)
-          .AddMethod(__Method_GetGroupSecretAndCountryCode, serviceImpl.GetGroupSecretAndCountryCode)
+          .AddMethod(__Method_GetMediaConcurrencyRulesByDomainLimitationModule, serviceImpl.GetMediaConcurrencyRulesByDomainLimitationModule)
           .AddMethod(__Method_IsDevicePlayValid, serviceImpl.IsDevicePlayValid)
-          .AddMethod(__Method_GetDomainAdsControl, serviceImpl.GetDomainAdsControl)
+          .AddMethod(__Method_GetGroupSecretAndCountryCode, serviceImpl.GetGroupSecretAndCountryCode)
+          .AddMethod(__Method_GetCDVRAdapter, serviceImpl.GetCDVRAdapter)
           .AddMethod(__Method_GetItemsPrices, serviceImpl.GetItemsPrices)
+          .AddMethod(__Method_GetPaymentGatewayProfile, serviceImpl.GetPaymentGatewayProfile)
+          .AddMethod(__Method_GetGroupHasSubWithAds, serviceImpl.GetGroupHasSubWithAds)
+          .AddMethod(__Method_IsServiceAllowed, serviceImpl.IsServiceAllowed)
+          .AddMethod(__Method_GetDomainAdsControl, serviceImpl.GetDomainAdsControl)
           .AddMethod(__Method_GetPPVModuleData, serviceImpl.GetPPVModuleData)
-          .AddMethod(__Method_HandleBlockingSegment, serviceImpl.HandleBlockingSegment)
+          .AddMethod(__Method_HandlePlayUses, serviceImpl.HandlePlayUses)
+          .AddMethod(__Method_CheckProgramAssetGroupExistence, serviceImpl.CheckProgramAssetGroupExistence)
+          .AddMethod(__Method_GetEntitledPagoWindow, serviceImpl.GetEntitledPagoWindow)
           .AddMethod(__Method_GetAssetsForValidation, serviceImpl.GetAssetsForValidation)
           .AddMethod(__Method_CheckNetworkRules, serviceImpl.CheckNetworkRules)
-          .AddMethod(__Method_GetEpgChannelId, serviceImpl.GetEpgChannelId)
+          .AddMethod(__Method_HasAssetRules, serviceImpl.HasAssetRules)
           .AddMethod(__Method_GetAssetMediaRuleIds, serviceImpl.GetAssetMediaRuleIds)
           .AddMethod(__Method_GetAssetEpgRuleIds, serviceImpl.GetAssetEpgRuleIds)
           .AddMethod(__Method_GetMediaConcurrencyRules, serviceImpl.GetMediaConcurrencyRules)
-          .AddMethod(__Method_GetMediaConcurrencyRulesByDomainLimitationModule, serviceImpl.GetMediaConcurrencyRulesByDomainLimitationModule)
           .AddMethod(__Method_GetAssetRules, serviceImpl.GetAssetRules)
-          .AddMethod(__Method_GetMediaFiles, serviceImpl.GetMediaFiles)
           .AddMethod(__Method_GetGroupMediaConcurrencyRules, serviceImpl.GetGroupMediaConcurrencyRules)
           .AddMethod(__Method_GetMediaConcurrencyRule, serviceImpl.GetMediaConcurrencyRule)
+          .AddMethod(__Method_HasVirtualAssetType, serviceImpl.HasVirtualAssetType)
+          .AddMethod(__Method_HandleBlockingSegment, serviceImpl.HandleBlockingSegment)
+          .AddMethod(__Method_GetRecordingLinkByFileType, serviceImpl.GetRecordingLinkByFileType)
+          .AddMethod(__Method_GetGroupMediaFileTypes, serviceImpl.GetGroupMediaFileTypes)
+          .AddMethod(__Method_GetEpgChannelId, serviceImpl.GetEpgChannelId)
+          .AddMethod(__Method_GetMediaFiles, serviceImpl.GetMediaFiles)
           .AddMethod(__Method_GetProgramSchedule, serviceImpl.GetProgramSchedule)
           .AddMethod(__Method_GetDomainRecordings, serviceImpl.GetDomainRecordings)
           .AddMethod(__Method_GetEpgsByIds, serviceImpl.GetEpgsByIds)
           .AddMethod(__Method_GetLinearMediaInfoByEpgChannelIdAndFileType, serviceImpl.GetLinearMediaInfoByEpgChannelIdAndFileType)
-          .AddMethod(__Method_HandlePlayUses, serviceImpl.HandlePlayUses)
           .AddMethod(__Method_MapMediaFiles, serviceImpl.MapMediaFiles)
           .AddMethod(__Method_GetEPGChannelCDVRId, serviceImpl.GetEPGChannelCDVRId)
           .AddMethod(__Method_GetMediaById, serviceImpl.GetMediaById)
-          .AddMethod(__Method_GetMediaInfo, serviceImpl.GetMediaInfo)
-          .AddMethod(__Method_GetPaymentGatewayProfile, serviceImpl.GetPaymentGatewayProfile).Build();
+          .AddMethod(__Method_GetMediaInfo, serviceImpl.GetMediaInfo).Build();
     }
 
     /// <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
@@ -1350,38 +1858,46 @@ namespace phoenix {
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     public static void BindService(grpc::ServiceBinderBase serviceBinder, PhoenixBase serviceImpl)
     {
+      serviceBinder.AddMethod(__Method_GetDomainData, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetDomainDataRequest, global::phoenix.GetDomainDataResponse>(serviceImpl.GetDomainData));
       serviceBinder.AddMethod(__Method_IsPermittedPermission, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.IsPermittedPermissionRequest, global::Google.Protobuf.WellKnownTypes.BoolValue>(serviceImpl.IsPermittedPermission));
       serviceBinder.AddMethod(__Method_AllowActionInSuspendedDomain, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.AllowActionInSuspendedDomainRequest, global::Google.Protobuf.WellKnownTypes.BoolValue>(serviceImpl.AllowActionInSuspendedDomain));
       serviceBinder.AddMethod(__Method_GetSuspensionStatus, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetSuspensionStatusRequest, global::phoenix.GetSuspensionStatusResponse>(serviceImpl.GetSuspensionStatus));
-      serviceBinder.AddMethod(__Method_IsServiceAllowed, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.IsServiceAllowedRequest, global::Google.Protobuf.WellKnownTypes.BoolValue>(serviceImpl.IsServiceAllowed));
-      serviceBinder.AddMethod(__Method_GetDomainData, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetDomainDataRequest, global::phoenix.GetDomainDataResponse>(serviceImpl.GetDomainData));
-      serviceBinder.AddMethod(__Method_GetGroupSecretAndCountryCode, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetGroupSecretAndCountryCodeRequest, global::phoenix.GetGroupSecretAndCountryCodeResponse>(serviceImpl.GetGroupSecretAndCountryCode));
+      serviceBinder.AddMethod(__Method_GetMediaConcurrencyRulesByDomainLimitationModule, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleRequest, global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleResponse>(serviceImpl.GetMediaConcurrencyRulesByDomainLimitationModule));
       serviceBinder.AddMethod(__Method_IsDevicePlayValid, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.IsDevicePlayValidRequest, global::Google.Protobuf.WellKnownTypes.Int32Value>(serviceImpl.IsDevicePlayValid));
-      serviceBinder.AddMethod(__Method_GetDomainAdsControl, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetDomainAdsControlRequest, global::phoenix.GetDomainAdsControlResponse>(serviceImpl.GetDomainAdsControl));
+      serviceBinder.AddMethod(__Method_GetGroupSecretAndCountryCode, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetGroupSecretAndCountryCodeRequest, global::phoenix.GetGroupSecretAndCountryCodeResponse>(serviceImpl.GetGroupSecretAndCountryCode));
+      serviceBinder.AddMethod(__Method_GetCDVRAdapter, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetCDVRAdapterRequest, global::phoenix.GetCDVRAdapterResponse>(serviceImpl.GetCDVRAdapter));
       serviceBinder.AddMethod(__Method_GetItemsPrices, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetItemsPricesRequest, global::phoenix.GetItemsPricesResponse>(serviceImpl.GetItemsPrices));
+      serviceBinder.AddMethod(__Method_GetPaymentGatewayProfile, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetPaymentGatewayProfileRequest, global::phoenix.GetPaymentGatewayProfileResponse>(serviceImpl.GetPaymentGatewayProfile));
+      serviceBinder.AddMethod(__Method_GetGroupHasSubWithAds, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetGroupHasSubWithAdsRequest, global::Google.Protobuf.WellKnownTypes.BoolValue>(serviceImpl.GetGroupHasSubWithAds));
+      serviceBinder.AddMethod(__Method_IsServiceAllowed, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.IsServiceAllowedRequest, global::Google.Protobuf.WellKnownTypes.BoolValue>(serviceImpl.IsServiceAllowed));
+      serviceBinder.AddMethod(__Method_GetDomainAdsControl, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetDomainAdsControlRequest, global::phoenix.GetDomainAdsControlResponse>(serviceImpl.GetDomainAdsControl));
       serviceBinder.AddMethod(__Method_GetPPVModuleData, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetPPVModuleDataRequest, global::phoenix.GetPPVModuleDataResponse>(serviceImpl.GetPPVModuleData));
-      serviceBinder.AddMethod(__Method_HandleBlockingSegment, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.HandleBlockingSegmentRequest, global::phoenix.HandleBlockingSegmentResponse>(serviceImpl.HandleBlockingSegment));
+      serviceBinder.AddMethod(__Method_HandlePlayUses, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.HandlePlayUsesRequest, global::Google.Protobuf.WellKnownTypes.Empty>(serviceImpl.HandlePlayUses));
+      serviceBinder.AddMethod(__Method_CheckProgramAssetGroupExistence, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.CheckProgramAssetGroupExistenceRequest, global::Google.Protobuf.WellKnownTypes.BoolValue>(serviceImpl.CheckProgramAssetGroupExistence));
+      serviceBinder.AddMethod(__Method_GetEntitledPagoWindow, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetEntitledPagoWindowRequest, global::phoenix.GetEntitledPagoWindowResponse>(serviceImpl.GetEntitledPagoWindow));
       serviceBinder.AddMethod(__Method_GetAssetsForValidation, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetAssetsForValidationRequest, global::phoenix.GetAssetsForValidationResponse>(serviceImpl.GetAssetsForValidation));
       serviceBinder.AddMethod(__Method_CheckNetworkRules, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.CheckNetworkRulesRequest, global::phoenix.CheckNetworkRulesResponse>(serviceImpl.CheckNetworkRules));
-      serviceBinder.AddMethod(__Method_GetEpgChannelId, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetEpgChannelIdRequest, global::Google.Protobuf.WellKnownTypes.StringValue>(serviceImpl.GetEpgChannelId));
+      serviceBinder.AddMethod(__Method_HasAssetRules, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.HasAssetRulesRequest, global::Google.Protobuf.WellKnownTypes.BoolValue>(serviceImpl.HasAssetRules));
       serviceBinder.AddMethod(__Method_GetAssetMediaRuleIds, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetAssetMediaRuleIdsRequest, global::phoenix.GetAssetMediaRuleIdsResponse>(serviceImpl.GetAssetMediaRuleIds));
       serviceBinder.AddMethod(__Method_GetAssetEpgRuleIds, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetAssetEpgRuleIdsRequest, global::phoenix.GetAssetEpgRuleIdsResponse>(serviceImpl.GetAssetEpgRuleIds));
       serviceBinder.AddMethod(__Method_GetMediaConcurrencyRules, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetMediaConcurrencyRulesRequest, global::phoenix.GetMediaConcurrencyRulesResponse>(serviceImpl.GetMediaConcurrencyRules));
-      serviceBinder.AddMethod(__Method_GetMediaConcurrencyRulesByDomainLimitationModule, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleRequest, global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleResponse>(serviceImpl.GetMediaConcurrencyRulesByDomainLimitationModule));
       serviceBinder.AddMethod(__Method_GetAssetRules, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetAssetRulesRequest, global::phoenix.GetAssetRulesResponse>(serviceImpl.GetAssetRules));
-      serviceBinder.AddMethod(__Method_GetMediaFiles, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetMediaFilesRequest, global::phoenix.GetMediaFilesResponse>(serviceImpl.GetMediaFiles));
       serviceBinder.AddMethod(__Method_GetGroupMediaConcurrencyRules, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetGroupMediaConcurrencyRulesRequest, global::phoenix.GetGroupMediaConcurrencyRulesResponse>(serviceImpl.GetGroupMediaConcurrencyRules));
       serviceBinder.AddMethod(__Method_GetMediaConcurrencyRule, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetMediaConcurrencyByIdRequest, global::phoenix.GetMediaConcurrencyByIdResponse>(serviceImpl.GetMediaConcurrencyRule));
+      serviceBinder.AddMethod(__Method_HasVirtualAssetType, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.HasVirtualAssetTypeRequest, global::Google.Protobuf.WellKnownTypes.BoolValue>(serviceImpl.HasVirtualAssetType));
+      serviceBinder.AddMethod(__Method_HandleBlockingSegment, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.HandleBlockingSegmentRequest, global::phoenix.HandleBlockingSegmentResponse>(serviceImpl.HandleBlockingSegment));
+      serviceBinder.AddMethod(__Method_GetRecordingLinkByFileType, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetRecordingLinkByFileTypeRequest, global::phoenix.GetRecordingLinkByFileTypeResponse>(serviceImpl.GetRecordingLinkByFileType));
+      serviceBinder.AddMethod(__Method_GetGroupMediaFileTypes, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetGroupMediaFileTypesRequest, global::phoenix.GetGroupMediaFileTypesResponse>(serviceImpl.GetGroupMediaFileTypes));
+      serviceBinder.AddMethod(__Method_GetEpgChannelId, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetEpgChannelIdRequest, global::Google.Protobuf.WellKnownTypes.StringValue>(serviceImpl.GetEpgChannelId));
+      serviceBinder.AddMethod(__Method_GetMediaFiles, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetMediaFilesRequest, global::phoenix.GetMediaFilesResponse>(serviceImpl.GetMediaFiles));
       serviceBinder.AddMethod(__Method_GetProgramSchedule, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetProgramScheduleRequest, global::phoenix.GetProgramScheduleResponse>(serviceImpl.GetProgramSchedule));
       serviceBinder.AddMethod(__Method_GetDomainRecordings, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetDomainRecordingsRequest, global::phoenix.GetDomainRecordingsResponse>(serviceImpl.GetDomainRecordings));
       serviceBinder.AddMethod(__Method_GetEpgsByIds, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetEpgsByIdsRequest, global::phoenix.GetEpgsByIdsResponse>(serviceImpl.GetEpgsByIds));
       serviceBinder.AddMethod(__Method_GetLinearMediaInfoByEpgChannelIdAndFileType, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetLinearMediaInfoByEpgChannelIdAndFileTypeRequest, global::phoenix.GetLinearMediaInfoByEpgChannelIdAndFileTypeResponse>(serviceImpl.GetLinearMediaInfoByEpgChannelIdAndFileType));
-      serviceBinder.AddMethod(__Method_HandlePlayUses, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.HandlePlayUsesRequest, global::Google.Protobuf.WellKnownTypes.Empty>(serviceImpl.HandlePlayUses));
       serviceBinder.AddMethod(__Method_MapMediaFiles, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.MapMediaFilesRequest, global::phoenix.MapMediaFilesResponse>(serviceImpl.MapMediaFiles));
       serviceBinder.AddMethod(__Method_GetEPGChannelCDVRId, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetEPGChannelCDVRIdRequest, global::Google.Protobuf.WellKnownTypes.StringValue>(serviceImpl.GetEPGChannelCDVRId));
       serviceBinder.AddMethod(__Method_GetMediaById, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetMediaByIdRequest, global::phoenix.GetMediaByIdResponse>(serviceImpl.GetMediaById));
       serviceBinder.AddMethod(__Method_GetMediaInfo, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetMediaInfoRequest, global::phoenix.GetMediaInfoResponse>(serviceImpl.GetMediaInfo));
-      serviceBinder.AddMethod(__Method_GetPaymentGatewayProfile, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetPaymentGatewayProfileRequest, global::phoenix.GetPaymentGatewayProfileResponse>(serviceImpl.GetPaymentGatewayProfile));
     }
 
   }

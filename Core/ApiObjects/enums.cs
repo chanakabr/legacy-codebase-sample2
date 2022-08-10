@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using ProtoBuf;
 
 namespace ApiObjects
 {
@@ -214,18 +215,26 @@ namespace ApiObjects
     public enum eTransactionType
     {
         [EnumMember]
+        [ProtoEnum(Name = "eTransactionType_PPV")]
         PPV,
         [EnumMember]
+        [ProtoEnum(Name = "eTransactionType_Subscription")]
         Subscription,
         [EnumMember]
+        [ProtoEnum(Name = "eTransactionType_Collection")]
         Collection,
         [EnumMember]
+        [ProtoEnum(Name = "eTransactionType_ProgramAssetGroupOffer")]
         ProgramAssetGroupOffer
     }
 
     public enum eBusinessModule
     {
+        [ProtoEnum(Name = "BusinessModule_None")]
+        None = 0,
+        [ProtoEnum(Name = "BusinessModule_PPV")]
         PPV = 1,
+        [ProtoEnum(Name = "BusinessModule_Subscription")]
         Subscription = 2
     }
 
@@ -947,6 +956,8 @@ namespace ApiObjects
 
     public enum AdsPolicy
     {
+        [ProtoEnum(Name="AdsPolicy_None")]
+        None = 0,
         NoAds = 1,
         KeepAds = 2
     }
@@ -1109,31 +1120,57 @@ namespace ApiObjects
     
     public enum RuleActionType
     {
+        [ProtoEnum(Name = "RuleActionType_Block")]
         Block,
+        [ProtoEnum(Name = "RuleActionType_StartDateOffset")]
         StartDateOffset,
+        [ProtoEnum(Name = "RuleActionType_EndDateOffset")]
         EndDateOffset,
+        [ProtoEnum(Name = "RuleActionType_UserBlock")]
         UserBlock,
+        [ProtoEnum(Name = "RuleActionType_AllowPlayback")]
         AllowPlayback,
+        [ProtoEnum(Name = "RuleActionType_BlockPlayback")]
         BlockPlayback,
+        [ProtoEnum(Name = "RuleActionType_ApplyDiscountModuleRule")]
         ApplyDiscountModuleRule,
+        [ProtoEnum(Name = "RuleActionType_ApplyPlaybackAdapter")]
         ApplyPlaybackAdapter,
+        [ProtoEnum(Name = "RuleActionType_UserFilter")]
         UserFilter,
+        [ProtoEnum(Name = "RuleActionType_AssetLifeCycleTransition")]
         AssetLifeCycleTransition,
+        [ProtoEnum(Name = "RuleActionType_ApplyFreePlayback")]
         ApplyFreePlayback,
+        [ProtoEnum(Name = "RuleActionType_FilterAssetByKsql")]
         FilterAssetByKsql,
+        [ProtoEnum(Name = "RuleActionType_FilterFileByQualityInDiscovery")]
         FilterFileByQualityInDiscovery,
+        [ProtoEnum(Name = "RuleActionType_FilterFileByQualityInPlayback")]
         FilterFileByQualityInPlayback,
+        [ProtoEnum(Name = "RuleActionType_FilterFileByAssetTypeInDiscovery")]
         FilterFileByAssetTypeInDiscovery,
+        [ProtoEnum(Name = "RuleActionType_FilterFileByAssetTypeInPlayback")]
         FilterFileByAssetTypeInPlayback,
+        [ProtoEnum(Name = "RuleActionType_FilterFileByFileTypeIdInDiscovery")]
         FilterFileByFileTypeIdInDiscovery,
+        [ProtoEnum(Name = "RuleActionType_FilterFileByFileTypeIdInPlayback")]
         FilterFileByFileTypeIdInPlayback,
+        [ProtoEnum(Name = "RuleActionType_FilterFileByAudioCodecInDiscovery")]
         FilterFileByAudioCodecInDiscovery,
+        [ProtoEnum(Name = "RuleActionType_FilterFileByAudioCodecInPlayback")]
         FilterFileByAudioCodecInPlayback,
+        [ProtoEnum(Name = "RuleActionType_FilterFileByVideoCodecInDiscovery")]
         FilterFileByVideoCodecInDiscovery,
+        [ProtoEnum(Name = "RuleActionType_FilterFileByVideoCodecInPlayback")]
         FilterFileByVideoCodecInPlayback,
+        [ProtoEnum(Name = "RuleActionType_FilterFileByStreamerTypeInDiscovery")]
         FilterFileByStreamerTypeInDiscovery,
+        [ProtoEnum(Name = "RuleActionType_FilterFileByStreamerTypeInPlayback")]
         FilterFileByStreamerTypeInPlayback,
+        [ProtoEnum(Name = "RuleActionType_FilterFileByLabelInDiscovery")]
         FilterFileByLabelInDiscovery,
+        [ProtoEnum(Name = "RuleActionType_FilterFileByLabelInPlayback")]
         FilterFileByLabelInPlayback
     }
 

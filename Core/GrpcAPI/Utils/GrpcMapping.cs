@@ -16,16 +16,12 @@ using phoenix;
 using Action = phoenix.RuleAction;
 using AssetRule = phoenix.AssetRule;
 using Status = phoenix.Status;
-using Language = phoenix.Language;
 using SlimAsset = phoenix.SlimAsset;
 
 namespace GrpcAPI.Utils
 {
     public static class GrpcMapping
     {
-        static MapperConfigurationExpression cfg = new MapperConfigurationExpression();
-        public static IMapper Mapper = new MapperConfiguration(cfg).CreateMapper();
-
         public static IMappingExpression<TSource, TDestination> Ignore<TSource, TDestination>(
             this IMappingExpression<TSource, TDestination> map,
             Expression<Func<TDestination, object>> selector)
@@ -34,37 +30,13 @@ namespace GrpcAPI.Utils
             return map;
         }
         
-        public static void RegisterMappings()
+        public static void RegisterMappings(MapperConfigurationExpression cfg)
         {
                 cfg.ForAllPropertyMaps(
                     map => map.DestinationPropertyType.IsGenericType &&
                            map.DestinationPropertyType.GetGenericTypeDefinition() == typeof(RepeatedField<>),
                     (map, options) => options.UseDestinationValue());
-
-                cfg.CreateMap<MediaConcurrencyRule, mediaConcurrencyRule>()
-                .ForMember(dest => dest.RuleID, opt => opt.MapFrom(src => src.RuleID))
-                .ForMember(dest => dest.TagTypeID, opt => opt.MapFrom(src => src.TagTypeID))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.TagType, opt => opt.MapFrom(src => src.TagType))
-                .ForMember(dest => dest.AllTagValues, opt => opt.MapFrom(src => src.AllTagValues))
-                .ForMember(dest => dest.TagValues, opt => opt.MapFrom(src => src.TagValues))
-                .ForMember(dest => dest.BmId, opt => opt.MapFrom(src => src.bmId))
-                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
-                .ForMember(dest => dest.RestrictionPolicy, opt => opt.MapFrom(src => src.RestrictionPolicy))
-                .ForMember(dest => dest.Limitation, opt => opt.MapFrom(src => src.Limitation));
-
-            cfg.CreateMap<mediaConcurrencyRule, MediaConcurrencyRule>()
-                .ForMember(dest => dest.RuleID, opt => opt.MapFrom(src => src.RuleID))
-                .ForMember(dest => dest.TagTypeID, opt => opt.MapFrom(src => src.TagTypeID))
-                .ForMember(dest => dest.TagType, opt => opt.MapFrom(src => src.TagType))
-                .ForMember(dest => dest.AllTagValues, opt => opt.MapFrom(src => src.AllTagValues))
-                .ForMember(dest => dest.TagValues, opt => opt.MapFrom(src => src.TagValues))
-                .ForMember(dest => dest.bmId, opt => opt.MapFrom(src => src.BmId))
-                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
-                .ForMember(dest => dest.RestrictionPolicy, opt => opt.MapFrom(src => src.RestrictionPolicy))
-                .ForMember(dest => dest.Limitation, opt => opt.MapFrom(src => src.Limitation));
+                
 
             cfg.CreateMap<ApiObjects.MediaMarks.DevicePlayData, DevicePlayData>()
                 .ForMember(dest => dest.UDID, opt => opt.MapFrom(src => src.UDID))
@@ -120,265 +92,72 @@ namespace GrpcAPI.Utils
                 .ForMember(dest => dest.Args, opt => opt.MapFrom(src => src.Args))
                 .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code));
-
-            cfg.CreateMap<MediaFileItemPricesContainer, MediaFileItemPrice>()
-                .ForMember(dest => dest.ItemPrices, opt => opt.MapFrom(src => src.m_oItemPrices))
-                .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.m_sProductCode))
-                .ForMember(dest => dest.MediaFileID, opt => opt.MapFrom(src => src.m_nMediaFileID));
             
-            cfg.CreateMap<MediaFileItemPrice, MediaFileItemPricesContainer>()
-                .ForMember(dest => dest.m_oItemPrices, opt => opt.MapFrom(src => src.ItemPrices))
-                .ForMember(dest => dest.m_sProductCode, opt => opt.MapFrom(src => src.ProductCode))
-                .ForMember(dest => dest.m_nMediaFileID, opt => opt.MapFrom(src => src.MediaFileID));
-
+            cfg.CreateMap<Core.ConditionalAccess.MediaFileItemPricesContainer, MediaFileEntitlementContainer>()
+                .ForMember(dest => dest.MediaFileID, opt => opt.MapFrom(src => src.m_nMediaFileID))
+                .ForMember(dest => dest.EntitlementContainer, opt => opt.MapFrom(src => src.m_oItemPrices))
+                .ReverseMap();
             
-            cfg.CreateMap<ItemPrice, ItemPriceContainer>()
-                .ForMember(dest => dest.m_sPPVModuleCode, opt => opt.MapFrom(src => src.PPVModuleCode))
-                .ForMember(dest => dest.m_bSubscriptionOnly, opt => opt.MapFrom(src => src.SubscriptionOnly))
-                .ForMember(dest => dest.m_oPrice, opt => opt.MapFrom(src => src.Price))
-                .ForMember(dest => dest.OriginalPrice, opt => opt.MapFrom(src => src.OriginalPrice))
-                .ForMember(dest => dest.m_oFullPrice, opt => opt.MapFrom(src => src.FullPrice))
-                .ForMember(dest => dest.m_PriceReason, opt => opt.MapFrom(src => src.PriceReason))
-                .ForMember(dest => dest.m_relevantSub, opt => opt.MapFrom(src => src.RelevantSub))
-                .ForMember(dest => dest.m_relevantCol, opt => opt.MapFrom(src => src.RelevantCol))
-                .ForMember(dest => dest.m_oPPVDescription, opt => opt.MapFrom(src => src.PPVDescription))
-                .ForMember(dest => dest.m_couponStatus, opt => opt.MapFrom(src => src.CouponStatus))
-                .ForMember(dest => dest.m_sFirstDeviceNameFound, opt => opt.MapFrom(src => src.FirstDeviceNameFound))
-                .ForMember(dest => dest.m_bCancelWindow, opt => opt.MapFrom(src => src.CancelWindow))
-                .ForMember(dest => dest.m_sPurchasedBySiteGuid, opt => opt.MapFrom(src => src.PurchasedBySiteGuid))
-                .ForMember(dest => dest.m_lRelatedMediaFileIDs, opt => opt.MapFrom(src => src.RelatedMediaFileIDs))
-                .ForMember(dest => dest.m_dtStartDate, opt => opt.MapFrom(src => FromUtcUnixTimestampSeconds(src.StartDate)))
-                .ForMember(dest => dest.m_dtEndDate, opt => opt.MapFrom(src => FromUtcUnixTimestampSeconds(src.EndDate)))
-                .ForMember(dest => dest.m_dtDiscountEndDate, opt => opt.MapFrom(src => FromUtcUnixTimestampSeconds(src.DiscountEndDate)))
-                .ForMember(dest => dest.m_sProductCode, opt => opt.MapFrom(src => src.ProductCode));
-            
-                        
-            cfg.CreateMap<ItemPriceContainer, ItemPrice>()
-                .ForMember(dest => dest.PPVModuleCode, opt => opt.MapFrom(src => src.m_sPPVModuleCode))
-                .ForMember(dest => dest.SubscriptionOnly , opt => opt.MapFrom(src => src.m_bSubscriptionOnly))
-                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oPrice))
-                .ForMember(dest => dest.OriginalPrice, opt => opt.MapFrom(src => src.OriginalPrice))
-                .ForMember(dest => dest.FullPrice, opt => opt.MapFrom(src => src.m_oFullPrice))
+            cfg.CreateMap<Core.ConditionalAccess.ItemPriceContainer, EntitlementContainer>()
+                .ForMember(dest => dest.SubscriptionId,
+                    opt => opt.MapFrom(src => src.m_relevantSub.m_sObjectCode))
+                .ForMember(dest => dest.CollectionId,
+                    opt => opt.MapFrom(src => src.m_relevantCol.m_sObjectCode))
+                .ForMember(dest => dest.PPVId, opt => opt.MapFrom(src => src.m_sPPVModuleCode))
                 .ForMember(dest => dest.PriceReason, opt => opt.MapFrom(src => src.m_PriceReason))
-                .ForMember(dest => dest.RelevantSub, opt => opt.MapFrom(src => src.m_relevantSub))
-                .ForMember(dest => dest.RelevantCol, opt => opt.MapFrom(src => src.m_relevantCol))
-                .ForMember(dest => dest.PPVDescription, opt => opt.MapFrom(src => src.m_oPPVDescription))
-                .ForMember(dest => dest.CouponStatus, opt => opt.MapFrom(src => src.m_couponStatus))
-                .ForMember(dest => dest.FirstDeviceNameFound, opt => opt.MapFrom(src => src.m_sFirstDeviceNameFound))
-                .ForMember(dest => dest.CancelWindow, opt => opt.MapFrom(src => src.m_bCancelWindow))
-                .ForMember(dest => dest.PurchasedBySiteGuid, opt => opt.MapFrom(src => src.m_sPurchasedBySiteGuid))
-                .ForMember(dest => dest.RelatedMediaFileIDs, opt => opt.MapFrom(src => src.m_lRelatedMediaFileIDs))
-                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => ToUtcUnixTimestampSeconds(src.m_dtStartDate)))
+                .ForMember(dest => dest.Price,
+                    opt => opt.MapFrom(src => src.m_oPrice.m_dPrice))
+                .ForMember(dest => dest.Currency,
+                    opt => opt.MapFrom(src => src.m_oPrice.m_oCurrency.m_sCurrencyCD3))
+                .ForMember(dest => dest.StartDate,
+                    opt => opt.MapFrom(src => ToUtcUnixTimestampSeconds(src.m_dtStartDate)))
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => ToUtcUnixTimestampSeconds(src.m_dtEndDate)))
-                .ForMember(dest => dest.DiscountEndDate, opt => opt.MapFrom(src => ToUtcUnixTimestampSeconds(src.m_dtDiscountEndDate)))
-                .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.m_sProductCode));
+                .ForMember(dest => dest.RelatedMediaFileIDs, opt => opt.MapFrom(src => src.m_lRelatedMediaFileIDs))
+                .ForMember(dest => dest.PurchasedMediaFileID, opt => opt.MapFrom(src => src.m_lPurchasedMediaFileID))
+                .ReverseMap()
+                .ForPath(src => src.m_dtStartDate,
+                    opt => opt.MapFrom(dest => FromUtcUnixTimestampSeconds(dest.StartDate)))
+                .ForPath(src => src.m_dtEndDate, opt => opt.MapFrom(dest => FromUtcUnixTimestampSeconds(dest.EndDate)))
+                .ForPath(src => src.m_relevantSub,
+                    opt =>
+                    {
+                        opt.MapFrom(dest =>
+                            string.IsNullOrEmpty(dest.SubscriptionId)
+                                ? null
+                                : new Core.Pricing.Subscription
+                                {
+                                    m_sObjectCode = dest.SubscriptionId
+                                });
+                    })
+                .ForPath(src => src.m_relevantCol,
+                    opt =>
+                    {
+                        opt.MapFrom(dest =>
+                            string.IsNullOrEmpty(dest.CollectionId)
+                                ? null
+                                : new Core.Pricing.Collection
+                                {
+                                    m_sObjectCode = dest.CollectionId
+                                });
+                    })
+                .ForPath(src => src.m_oPrice,
+                    opt =>
+                    {
+                        opt.MapFrom(dest =>
+                            dest.Price == 0 && string.IsNullOrEmpty(dest.Currency)
+                                ? null
+                                : new Core.Pricing.Price
+                                {
+                                    m_dPrice = dest.Price,
+                                    m_oCurrency = string.IsNullOrEmpty(dest.Currency)
+                                        ? null
+                                        : new Core.Pricing.Currency
+                                        {
+                                            m_sCurrencyCD3 = dest.Currency
+                                        }
+                                });
+                    });
             
-            cfg.CreateMap<Price, Core.Pricing.Price>()
-                .ForMember(dest => dest.m_oCurrency, opt => opt.MapFrom(src => src.Currency))
-                .ForMember(dest => dest.m_dPrice, opt => opt.MapFrom(src => src.Price_))
-                .ForMember(dest => dest.countryId, opt => opt.MapFrom(src => src.CountryId));
-            
-            cfg.CreateMap<Core.Pricing.Price, Price>()
-                .ForMember(dest => dest.Currency, opt => opt.MapFrom(src => src.m_oCurrency))
-                .ForMember(dest => dest.Price_, opt => opt.MapFrom(src => src.m_dPrice))
-                .ForMember(dest => dest.CountryId, opt => opt.MapFrom(src => src.countryId));
-
-            
-            cfg.CreateMap<Currency, Core.Pricing.Currency>()
-                .ForMember(dest => dest.m_sCurrencyName, opt => opt.MapFrom(src => src.CurrencyName))
-                .ForMember(dest => dest.m_sCurrencySign, opt => opt.MapFrom(src => src.CurrencySign))
-                .ForMember(dest => dest.m_bIsDefault, opt => opt.MapFrom(src => src.IsDefault))
-                .ForMember(dest => dest.m_sCurrencyCD2, opt => opt.MapFrom(src => src.CurrencyCD2))
-                .ForMember(dest => dest.m_sCurrencyCD3, opt => opt.MapFrom(src => src.CurrencyCD3))
-                .ForMember(dest => dest.m_nCurrencyID, opt => opt.MapFrom(src => src.CurrencyID));
-
-            cfg.CreateMap<Core.Pricing.Currency, Currency>()
-                .ForMember(dest => dest.CurrencyName, opt => opt.MapFrom(src => src.m_sCurrencyName))
-                .ForMember(dest => dest.CurrencySign, opt => opt.MapFrom(src => src.m_sCurrencySign))
-                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.m_bIsDefault))
-                .ForMember(dest => dest.CurrencyCD2, opt => opt.MapFrom(src => src.m_sCurrencyCD2))
-                .ForMember(dest => dest.CurrencyCD3, opt => opt.MapFrom(src => src.m_sCurrencyCD3))
-                .ForMember(dest => dest.CurrencyID, opt => opt.MapFrom(src => src.m_nCurrencyID));
-
-            cfg.CreateMap<Core.Pricing.Subscription, Subscription>()
-                .ForMember(dest => dest.Codes, opt => opt.MapFrom(src => src.m_sCodes))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName))
-                .ForMember(dest => dest.StartDate,
-                    opt => opt.MapFrom(src => ToUtcUnixTimestampSeconds(src.m_dStartDate)))
-                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => ToUtcUnixTimestampSeconds(src.m_dEndDate)))
-                .ForMember(dest => dest.SFileTypes, opt => opt.MapFrom(src => src.m_sFileTypes))
-                .ForMember(dest => dest.NumberOfRecPeriods, opt => opt.MapFrom(src => src.m_nNumberOfRecPeriods))
-                .ForMember(dest => dest.SubscriptionPriceCode, opt => opt.MapFrom(src => src.m_oSubscriptionPriceCode))
-                .ForMember(dest => dest.ExtDiscountModule, opt => opt.MapFrom(src => src.m_oExtDisountModule))
-                .ForMember(dest => dest.SubscriptionUsageModule,
-                    opt => opt.MapFrom(src => src.m_oSubscriptionUsageModule))
-                .ForMember(dest => dest.FictivicMediaID, opt => opt.MapFrom(src => src.m_fictivicMediaID))
-                .ForMember(dest => dest.Priority, opt => opt.MapFrom(src => src.m_Priority))
-                .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.m_ProductCode))
-                .ForMember(dest => dest.SubscriptionCode, opt => opt.MapFrom(src => src.m_SubscriptionCode))
-                .ForMember(dest => dest.MultiSubscriptionUsageModule,
-                    opt => opt.MapFrom(src => src.m_MultiSubscriptionUsageModule))
-                .ForMember(dest => dest.GeoCommerceID, opt => opt.MapFrom(src => src.n_GeoCommerceID))
-                .ForMember(dest => dest.UserTypes, opt => opt.MapFrom(src => src.m_UserTypes))
-                .ForMember(dest => dest.PreviewModule, opt => opt.MapFrom(src => src.m_oPreviewModule))
-                .ForMember(dest => dest.DomainLimitationModule,
-                    opt => opt.MapFrom(src => src.m_nDomainLimitationModule))
-                .ForMember(dest => dest.Services, opt => opt.MapFrom(src => src.m_lServices))
-                .ForMember(dest => dest.GracePeriodMinutes, opt => opt.MapFrom(src => src.m_GracePeriodMinutes))
-                .ForMember(dest => dest.PreSaleDate, opt => opt.MapFrom(src => ToUtcUnixTimestampSeconds(src.PreSaleDate)))
-                .ForMember(dest => dest.SubscriptionSetIdsToPriority,
-                    opt => opt.MapFrom(src => src.SubscriptionSetIdsToPriority))
-                .ForMember(dest => dest.CouponsGroups, opt => opt.MapFrom(src => src.CouponsGroups))
-                .ForMember(dest => dest.ExternalProductCodes, opt => opt.MapFrom(src => src.ExternalProductCodes))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
-                .ForMember(dest => dest.IsInfiniteRecurring, opt => opt.MapFrom(src => src.m_bIsInfiniteRecurring))
-                .ForPath(dest => dest.PPVModule.Alias, opt => opt.MapFrom(src => src.alias))
-                .ForPath(dest => dest.PPVModule.ObjectCode, opt => opt.MapFrom(src => src.m_sObjectCode))
-                .ForPath(dest => dest.PPVModule.Description, opt => opt.MapFrom(src => src.m_sDescription))
-                .ForPath(dest => dest.PPVModule.PriceCode, opt => opt.MapFrom(src => src.m_oPriceCode))
-                .ForPath(dest => dest.PPVModule.UsageModule, opt => opt.MapFrom(src => src.m_oUsageModule))
-                .ForPath(dest => dest.PPVModule.ObjectVirtualName, opt => opt.MapFrom(src => src.m_sObjectVirtualName))
-                .ForPath(dest => dest.PPVModule.SubscriptionOnly, opt => opt.MapFrom(src => src.m_bSubscriptionOnly))
-                .ForPath(dest => dest.PPVModule.RelatedFileTypes, opt => opt.MapFrom(src => src.m_relatedFileTypes))
-                .ForPath(dest => dest.PPVModule.ProductCode, opt => opt.MapFrom(src => src.m_oCouponsGroup))
-                .ForPath(dest => dest.PPVModule.DiscountModule, opt => opt.MapFrom(src => src.m_oDiscountModule))
-                .ForPath(dest => dest.PPVModule.AdsPolicy, opt => opt.MapFrom(src => src.AdsPolicy))
-                .ForPath(dest => dest.PPVModule.IsActive, opt => opt.MapFrom(src => src.IsActive))
-                .ForPath(dest => dest.PPVModule.CreateDate,
-                    opt => opt.MapFrom(src => ToUtcUnixTimestampSeconds(src.CreateDate)))
-                .ForPath(dest => dest.PPVModule.UpdateDate,
-                    opt => opt.MapFrom(src => ToUtcUnixTimestampSeconds(src.UpdateDate)))
-                .ForPath(dest => dest.PPVModule.FirstDeviceLimitation,
-                    opt => opt.MapFrom(src => src.m_bFirstDeviceLimitation));
-
-            cfg.CreateMap<Core.Pricing.Collection, Collection>()
-                .ForMember(dest => dest.Codes, opt => opt.MapFrom(src => src.m_sCodes))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName))
-                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => ToUtcUnixTimestampSeconds(src.m_dEndDate)))
-                .ForMember(dest => dest.StartDate,
-                    opt => opt.MapFrom(src => ToUtcUnixTimestampSeconds(src.m_dStartDate)))
-                .ForMember(dest => dest.SFileTypes, opt => opt.MapFrom(src => src.m_sFileTypes))
-                .ForMember(dest => dest.CollectionPriceCode, opt => opt.MapFrom(src => src.m_oCollectionPriceCode))
-                .ForMember(dest => dest.ExtDiscountModule, opt => opt.MapFrom(src => src.m_oExtDisountModule))
-                .ForMember(dest => dest.CollectionUsageModule, opt => opt.MapFrom(src => src.m_oCollectionUsageModule))
-                .ForMember(dest => dest.FictivicMediaID, opt => opt.MapFrom(src => src.m_fictivicMediaID))
-                .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.m_ProductCode))
-                .ForMember(dest => dest.CollectionCode, opt => opt.MapFrom(src => src.m_CollectionCode))
-                .ForMember(dest => dest.CouponsGroups, opt => opt.MapFrom(src => src.CouponsGroups))
-                .ForMember(dest => dest.ExternalProductCodes, opt => opt.MapFrom(src => src.ExternalProductCodes))
-                .ForPath(dest => dest.PPVModule.Alias, opt => opt.MapFrom(src => src.alias))
-                .ForPath(dest => dest.PPVModule.ObjectCode, opt => opt.MapFrom(src => src.m_sObjectCode))
-                .ForPath(dest => dest.PPVModule.Description, opt => opt.MapFrom(src => src.m_sDescription))
-                .ForPath(dest => dest.PPVModule.PriceCode, opt => opt.MapFrom(src => src.m_oPriceCode))
-                .ForPath(dest => dest.PPVModule.UsageModule, opt => opt.MapFrom(src => src.m_oUsageModule))
-                .ForPath(dest => dest.PPVModule.ObjectVirtualName, opt => opt.MapFrom(src => src.m_sObjectVirtualName))
-                .ForPath(dest => dest.PPVModule.SubscriptionOnly, opt => opt.MapFrom(src => src.m_bSubscriptionOnly))
-                .ForPath(dest => dest.PPVModule.RelatedFileTypes, opt => opt.MapFrom(src => src.m_relatedFileTypes))
-                .ForPath(dest => dest.PPVModule.ProductCode, opt => opt.MapFrom(src => src.m_oCouponsGroup))
-                .ForPath(dest => dest.PPVModule.DiscountModule, opt => opt.MapFrom(src => src.m_oDiscountModule))
-                .ForPath(dest => dest.PPVModule.AdsPolicy, opt => opt.MapFrom(src => src.AdsPolicy))
-                .ForPath(dest => dest.PPVModule.IsActive, opt => opt.MapFrom(src => src.IsActive))
-                .ForPath(dest => dest.PPVModule.CreateDate,
-                    opt => opt.MapFrom(src => ToUtcUnixTimestampSeconds(src.CreateDate)))
-                .ForPath(dest => dest.PPVModule.UpdateDate,
-                    opt => opt.MapFrom(src => ToUtcUnixTimestampSeconds(src.UpdateDate)))
-                .ForPath(dest => dest.PPVModule.FirstDeviceLimitation,
-                    opt => opt.MapFrom(src => src.m_bFirstDeviceLimitation));
-
-            cfg.CreateMap<Core.Pricing.PrePaidModule, PrePaidModule>()
-                .ForMember(dest => dest.PriceCode, opt => opt.MapFrom(src => src.m_PriceCode))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_Description))
-                .ForMember(dest => dest.CreditValue, opt => opt.MapFrom(src => src.m_CreditValue))
-                .ForMember(dest => dest.UsageModule, opt => opt.MapFrom(src => src.m_UsageModule))
-                .ForMember(dest => dest.DiscountModule, opt => opt.MapFrom(src => src.m_DiscountModule))
-                .ForMember(dest => dest.CouponsGroup, opt => opt.MapFrom(src => src.m_CouponsGroup))
-                .ForMember(dest => dest.ObjectCode, opt => opt.MapFrom(src => src.m_ObjectCode))
-                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.m_Title))
-                .ForMember(dest => dest.IsFixedCredit, opt => opt.MapFrom(src => src.m_isFixedCredit));
-
-            cfg.CreateMap<Language, LanguageContainer>()
-                .ForMember(dest => dest.m_sLanguageCode3, opt => opt.MapFrom(src => src.LanguageCode3))
-                .ForMember(dest => dest.m_sValue, opt => opt.MapFrom(src => src.Value))
-                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault));
-
-            cfg.CreateMap<LanguageContainer, Language>()
-                .ForMember(dest => dest.LanguageCode3, opt => opt.MapFrom(src => src.m_sLanguageCode3))
-                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.m_sValue))
-                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault));
-
-            cfg.CreateMap<BundleCodeContainer, BundleCode>()
-                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.m_sCode))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName));
-
-            cfg.CreateMap<Core.Pricing.PriceCode, PriceCode>()
-                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.m_sCode))
-                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oPrise))
-                .ForMember(dest => dest.ObjectID, opt => opt.MapFrom(src => src.m_nObjectID));
-
-            cfg.CreateMap<Core.Pricing.WhenAlgo, WhenAlgo>()
-                .ForMember(dest => dest.AlgoType, opt => opt.MapFrom(src => src.m_eAlgoType))
-                .ForMember(dest => dest.NTimes, opt => opt.MapFrom(src => src.m_nNTimes));
-
-            cfg.CreateMap<Core.Pricing.SubscriptionCouponGroup, SubscriptionCouponGroup>()
-                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => ToUtcUnixTimestampSeconds(src.endDate)))
-                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => ToUtcUnixTimestampSeconds(src.startDate)))
-                .ForPath(dest => dest.CouponGroup.Alias, opt => opt.MapFrom(src => src.alias))
-                .ForPath(dest => dest.CouponGroup.Description, opt => opt.MapFrom(src => src.m_sDescription))
-                .ForPath(dest => dest.CouponGroup.CouponGroupType, opt => opt.MapFrom(src => src.couponGroupType))
-                .ForPath(dest => dest.CouponGroup.EndDate, opt => opt.MapFrom(src => ToUtcUnixTimestampSeconds(src.m_dEndDate)))
-                .ForPath(dest => dest.CouponGroup.StartDate, opt => opt.MapFrom(src => ToUtcUnixTimestampSeconds(src.m_dStartDate)))
-                .ForPath(dest => dest.CouponGroup.DiscountModuleCode, opt => opt.MapFrom(src => src.m_oDiscountCode))
-                .ForPath(dest => dest.CouponGroup.DiscountCode, opt => opt.MapFrom(src => src.m_sDiscountCode))
-                .ForPath(dest => dest.CouponGroup.GroupCode, opt => opt.MapFrom(src => src.m_sGroupCode))
-                .ForPath(dest => dest.CouponGroup.GroupName, opt => opt.MapFrom(src => src.m_sGroupName))
-                .ForPath(dest => dest.CouponGroup.MaxDomainUses, opt => opt.MapFrom(src => src.maxDomainUses))
-                .ForPath(dest => dest.CouponGroup.FinancialEntityID,
-                    opt => opt.MapFrom(src => src.m_nFinancialEntityID))
-                .ForPath(dest => dest.CouponGroup.MaxRecurringUsesCountForCoupon,
-                    opt => opt.MapFrom(src => src.m_nMaxRecurringUsesCountForCoupon))
-                .ForPath(dest => dest.CouponGroup.MaxUseCountForCoupon,
-                    opt => opt.MapFrom(src => src.m_nMaxUseCountForCoupon));
-
-            cfg.CreateMap<Core.Pricing.DiscountModule, DiscountModule>()
-                .ForMember(dest => dest.Percent, opt => opt.MapFrom(src => src.m_dPercent))
-                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => ToUtcUnixTimestampSeconds(src.m_dEndDate)))
-                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => ToUtcUnixTimestampSeconds(src.m_dStartDate)))
-                .ForMember(dest => dest.TheRelationType, opt => opt.MapFrom(src => src.m_eTheRelationType))
-                .ForMember(dest => dest.Alias, opt => opt.MapFrom(src => src.alias))
-                .ForPath(dest => dest.PriceCode.Code, opt => opt.MapFrom(src => src.m_sCode))
-                .ForPath(dest => dest.PriceCode.Description, opt => opt.MapFrom(src => src.m_sDescription))
-                .ForPath(dest => dest.PriceCode.Price, opt => opt.MapFrom(src => src.m_oPrise))
-                .ForPath(dest => dest.PriceCode.ObjectID, opt => opt.MapFrom(src => src.m_nObjectID))
-                .ForMember(dest => dest.WhenAlgo, opt => opt.MapFrom(src => src.m_oWhenAlgo));
-
-            cfg.CreateMap<Core.Pricing.PreviewModule, PreviewModule>()
-                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.m_nID))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName))
-                .ForMember(dest => dest.FullLifeCycle, opt => opt.MapFrom(src => src.m_tsFullLifeCycle))
-                .ForMember(dest => dest.NonRenewPeriod, opt => opt.MapFrom(src => src.m_tsNonRenewPeriod))
-                .ForMember(dest => dest.Alias, opt => opt.MapFrom(src => src.alias));
-
-            cfg.CreateMap<Core.Pricing.UsageModule, UsageModule>()
-                .ForMember(dest => dest.ObjectID, opt => opt.MapFrom(src => src.m_nObjectID))
-                .ForMember(dest => dest.VirtualName, opt => opt.MapFrom(src => src.m_sVirtualName))
-                .ForMember(dest => dest.MaxNumberOfViews, opt => opt.MapFrom(src => src.m_nMaxNumberOfViews))
-                .ForMember(dest => dest.ViewLifeCycle, opt => opt.MapFrom(src => src.m_tsViewLifeCycle))
-                .ForMember(dest => dest.MaxUsageModuleLifeCycle,
-                    opt => opt.MapFrom(src => src.m_tsMaxUsageModuleLifeCycle))
-                .ForMember(dest => dest.ExtDiscountId, opt => opt.MapFrom(src => src.m_ext_discount_id))
-                .ForMember(dest => dest.InternalDiscountId, opt => opt.MapFrom(src => src.m_internal_discount_id))
-                .ForMember(dest => dest.PricingId, opt => opt.MapFrom(src => src.m_pricing_id))
-                .ForMember(dest => dest.CouponId, opt => opt.MapFrom(src => src.m_coupon_id))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.m_type))
-                .ForMember(dest => dest.SubscriptionOnly, opt => opt.MapFrom(src => src.m_subscription_only))
-                .ForMember(dest => dest.IsRenew, opt => opt.MapFrom(src => src.m_is_renew))
-                .ForMember(dest => dest.NumOfRecPeriods, opt => opt.MapFrom(src => src.m_num_of_rec_periods))
-                .ForMember(dest => dest.DeviceLimitId, opt => opt.MapFrom(src => src.m_device_limit_id))
-                .ForMember(dest => dest.CouponId, opt => opt.MapFrom(src => src.m_coupon_id))
-                .ForMember(dest => dest.WaiverPeriod, opt => opt.MapFrom(src => src.m_nWaiverPeriod))
-                .ForMember(dest => dest.IsOfflinePlayBack, opt => opt.MapFrom(src => src.m_bIsOfflinePlayBack))
-                .ForMember(dest => dest.Waiver, opt => opt.MapFrom(src => src.m_bWaiver));
-
             cfg.CreateMap<ApiObjects.Rules.SlimAsset, SlimAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type));
@@ -396,7 +175,7 @@ namespace GrpcAPI.Utils
                 .ForPath(dest => dest.Rule.Name, opt => opt.MapFrom(src => src.Name))
                 .ForPath(dest => dest.Rule.Status, opt => opt.MapFrom(src => src.Status))
                 .ForPath(dest => dest.Rule.GroupId, opt => opt.MapFrom(src => src.GroupId));
-
+            
             cfg.CreateMap<AssetRule, ApiObjects.Rules.AssetRule>()
                 .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
                 .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => src.Conditions))
@@ -406,7 +185,7 @@ namespace GrpcAPI.Utils
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Rule.Name))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Rule.Status))
                 .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.Rule.GroupId));
-
+            
             cfg.CreateMap<ApiObjects.Rules.RuleCondition, RuleConditionKind>()
                 .ConstructUsing(condition =>
                 {
@@ -465,7 +244,7 @@ namespace GrpcAPI.Utils
                         default:
                             break;
                     }
-
+            
                     return conditionKind;
                 });
                 
@@ -519,7 +298,7 @@ namespace GrpcAPI.Utils
                         default:
                             break;
                     }
-
+            
                     return actionKind;
                 });
             
@@ -549,14 +328,14 @@ namespace GrpcAPI.Utils
                 .ForMember(dest => dest.Limit, opt => opt.MapFrom(src => src.Limit))
                 .ForMember(dest => dest.RestrictionPolicy, opt => opt.MapFrom(src => src.RestrictionPolicy))
                 .ReverseMap();
-
+            
             cfg.CreateMap<phoenix.DateCondition, ApiObjects.Rules.DateCondition>()
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate))
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate))
                 .ReverseMap();
-
+            
             cfg.CreateMap<phoenix.IpRangeCondition, ApiObjects.Rules.IpRangeCondition>()
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
@@ -565,7 +344,7 @@ namespace GrpcAPI.Utils
                 .ForMember(dest => dest.IpFrom, opt => opt.MapFrom(src => src.IpFrom))
                 .ForMember(dest => dest.IpTo, opt => opt.MapFrom(src => src.IpTo))
                 .ReverseMap();
-
+            
             cfg.CreateMap<phoenix.CountryCondition, ApiObjects.Rules.CountryCondition>()
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
@@ -602,7 +381,7 @@ namespace GrpcAPI.Utils
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
                 .ForMember(dest => dest.RoleIds, opt => opt.MapFrom(src => src.RoleIds))
                 .ReverseMap();
-
+            
             cfg.CreateMap<phoenix.UserSessionProfileCondition, ApiObjects.Rules.UserSessionProfileCondition>()
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
@@ -657,7 +436,7 @@ namespace GrpcAPI.Utils
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
                 .ReverseMap();
-
+            
             cfg.CreateMap<phoenix.RuleAction.Types.AssetBlockAction, ApiObjects.Rules.AssetBlockAction>()
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
@@ -769,33 +548,6 @@ namespace GrpcAPI.Utils
                 .ForMember(dest => dest.IsProtected, opt => opt.MapFrom(src => src.IsProtected))
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
 
-            cfg.CreateMap<ApiObjects.EPGChannelProgrammeObject, phoenix.EPGChannelProgrammeObject>()
-                .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.EPG_ID))
-                .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => src.EPG_CHANNEL_ID))
-                .ForMember(dest => dest.EpgIdentifier, opt => opt.MapFrom(src => src.EPG_IDENTIFIER))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.NAME))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.DESCRIPTION))
-                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.START_DATE))
-                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.END_DATE))
-                .ForMember(dest => dest.PicUrl, opt => opt.MapFrom(src => src.PIC_URL))
-                .ForMember(dest => dest.PicId, opt => opt.MapFrom(src => src.PIC_ID))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.STATUS))
-                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IS_ACTIVE))
-                .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.GROUP_ID))
-                .ForMember(dest => dest.UpdaterId, opt => opt.MapFrom(src => src.UPDATER_ID))
-                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UPDATE_DATE))
-                .ForMember(dest => dest.PublishDate, opt => opt.MapFrom(src => src.PUBLISH_DATE))
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CREATE_DATE))
-                .ForMember(dest => dest.LikeCounter, opt => opt.MapFrom(src => src.LIKE_COUNTER))
-                .ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => src.media_id))
-                .ForMember(dest => dest.LinearMediaId, opt => opt.MapFrom(src => src.LINEAR_MEDIA_ID))
-                .ForMember(dest => dest.EnableCdvr, opt => opt.MapFrom(src => src.ENABLE_CDVR))
-                .ForMember(dest => dest.EnableCatchUp, opt => opt.MapFrom(src => src.ENABLE_CATCH_UP))
-                .ForMember(dest => dest.ChannelCatchUpBuffer, opt => opt.MapFrom(src => src.CHANNEL_CATCH_UP_BUFFER))
-                .ForMember(dest => dest.EnableStartOver, opt => opt.MapFrom(src => src.ENABLE_START_OVER))
-                .ForMember(dest => dest.EnableTrickPlay, opt => opt.MapFrom(src => src.ENABLE_TRICK_PLAY))
-                .ForMember(dest => dest.Crid, opt => opt.MapFrom(src => src.CRID));
-
             cfg.CreateMap<Core.Catalog.Response.MediaObj, GetMediaByIdResponse>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_sDescription))
@@ -871,9 +623,8 @@ namespace GrpcAPI.Utils
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                 .ForMember(dest => dest.Selected, opt => opt.MapFrom(src => src.Selected))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
-            Mapper = new MapperConfiguration(cfg).CreateMapper();
         }
-
+        
         private static Timestamp ToUtcUnixTimestampSeconds(DateTime? dateTime)
         {
             if (dateTime.HasValue)

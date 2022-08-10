@@ -742,7 +742,7 @@ namespace Core.ConditionalAccess
             return playManifestResponse;
         }
 
-        private static void HandlePlayUsesAndDevicePlayData(BaseConditionalAccess cas, string userId, long domainId, int fileId, string ip, string udid, 
+        public static void HandlePlayUsesAndDevicePlayData(BaseConditionalAccess cas, string userId, long domainId, int fileId, string ip, string udid, 
             PlaybackContextOut playbackContextOutContainer, ApiObjects.MediaMarks.DevicePlayData devicePlayData, bool isLive)
         {
             var filePrice = playbackContextOutContainer.MediaFileItemPrices;

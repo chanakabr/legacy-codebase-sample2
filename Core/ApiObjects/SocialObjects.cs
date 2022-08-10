@@ -8,6 +8,7 @@ using System.Text;
 using System.Xml.Serialization;
 using ApiObjects.Response;
 using ApiObjects.Social;
+using ProtoBuf;
 
 namespace ApiObjects
 {
@@ -93,6 +94,7 @@ namespace ApiObjects
     }
 
     [Serializable]
+    [ProtoContract(ImplicitFields = ImplicitFields.AllPublic,SkipConstructor = true)]
     public class KeyValuePair
     {
         public string key { get; set; }
