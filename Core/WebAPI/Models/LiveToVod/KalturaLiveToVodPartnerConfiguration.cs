@@ -1,6 +1,7 @@
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.LiveToVod
@@ -12,7 +13,8 @@ namespace WebAPI.Models.LiveToVod
         /// </summary>
         [DataMember(Name = "isL2vEnabled")]
         [JsonProperty("isL2vEnabled")]
-        [XmlElement(ElementName = "isL2vEnabled")]
+        [XmlElement(ElementName = "isL2vEnabled", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public bool? IsLiveToVodEnabled { get; set; }
 
         /// <summary>

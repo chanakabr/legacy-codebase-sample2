@@ -42651,6 +42651,8 @@ namespace WebAPI.Models.LiveToVod
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("isL2vEnabled") && parameters["isL2vEnabled"] != null)
                 {
                     IsLiveToVodEnabled = (Boolean) Convert.ChangeType(parameters["isL2vEnabled"], typeof(Boolean));
