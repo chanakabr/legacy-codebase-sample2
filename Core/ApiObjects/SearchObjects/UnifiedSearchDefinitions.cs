@@ -516,6 +516,10 @@ namespace ApiObjects.SearchObjects
 
         #endregion
 
+        public int ExtractParentGroupId()
+        {
+            return this.indexGroupId == 0 ? this.groupId : this.indexGroupId;
+        }
     }
 
     /// <summary>

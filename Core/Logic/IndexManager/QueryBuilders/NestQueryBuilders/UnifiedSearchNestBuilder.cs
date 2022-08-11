@@ -292,20 +292,21 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
         public List<string> GetIndices()
         {
-            List<string> indices = new List<string>();
+            var indices = new List<string>();
+            var parentGroupId = this.SearchDefinitions.ExtractParentGroupId();
             if (SearchDefinitions.shouldSearchMedia)
             {
-                indices.Add(NamingHelper.GetMediaIndexAlias(this.SearchDefinitions.groupId));
+                indices.Add(NamingHelper.GetMediaIndexAlias(parentGroupId));
             }
 
             if (SearchDefinitions.shouldSearchEpg)
             {
-                indices.Add(NamingHelper.GetEpgIndexAlias(this.SearchDefinitions.groupId));
+                indices.Add(NamingHelper.GetEpgIndexAlias(parentGroupId));
             }
 
             if (SearchDefinitions.shouldSearchRecordings)
             {
-                indices.Add(NamingHelper.GetRecordingIndexAlias(this.SearchDefinitions.groupId));
+                indices.Add(NamingHelper.GetRecordingIndexAlias(parentGroupId));
             }
 
             return indices;

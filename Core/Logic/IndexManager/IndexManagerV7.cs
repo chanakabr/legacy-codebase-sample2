@@ -52,6 +52,7 @@ using ApiLogic.IndexManager.Sorting;
 using ElasticSearch.NEST;
 using ElasticSearch.Searcher;
 using ElasticSearch.Utils;
+using Force.DeepCloner;
 using BoolQuery = Nest.BoolQuery;
 
 namespace Core.Catalog
@@ -1488,11 +1489,12 @@ namespace Core.Catalog
 
             if (!_sortingService.IsSortingCompleted(definitions))
             {
+                var sortingDefinitions = GenerateSortingDefinitions(definitions);
                 var extendedUnifiedSearchResults = unifiedSearchResultToHit.Select(x => new ExtendedUnifiedSearchResult(x.Key, x.Value)).ToArray();
                 IEnumerable<UnifiedSearchResult> orderedResults;
                 if (definitions.PriorityGroupsMappings == null || !definitions.PriorityGroupsMappings.Any())
                 {
-                    orderedResults = _sortingService.GetReorderedAssets(definitions, extendedUnifiedSearchResults);
+                    orderedResults = _sortingService.GetReorderedAssets(sortingDefinitions, extendedUnifiedSearchResults);
                 }
                 else
                 {
@@ -1500,7 +1502,7 @@ namespace Core.Catalog
                     var priorityGroupsResults = extendedUnifiedSearchResults.GroupBy(r => r.Result.Score);
                     foreach (var priorityGroupsResult in priorityGroupsResults)
                     {
-                        var reorderedAssets = _sortingService.GetReorderedAssets(definitions, priorityGroupsResult);
+                        var reorderedAssets = _sortingService.GetReorderedAssets(sortingDefinitions, priorityGroupsResult);
                         if (reorderedAssets == null)
                         {
                             log.Debug($"Chunk from priority group hasn't been processed. Asset Ids: [{string.Join(",", priorityGroupsResult.Select(x => x.AssetId))}]");
@@ -1517,6 +1519,13 @@ namespace Core.Catalog
             }
 
             return searchResultsList;
+        }
+
+        private static UnifiedSearchDefinitions GenerateSortingDefinitions(UnifiedSearchDefinitions definitions)
+        {
+            var sortingDefinitions = definitions.DeepClone();
+            sortingDefinitions.groupId = definitions.ExtractParentGroupId();
+            return sortingDefinitions;
         }
 
         private UnifiedSearchResult CreateUnifiedSearchResultFromESDocument(

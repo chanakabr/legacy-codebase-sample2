@@ -42,7 +42,7 @@ namespace ApiLogic.IndexManager.QueryBuilders.NestQueryBuilders
         public List<string> GetIndices()
         {
             var indices = new List<string>();
-            indices.Add(NamingHelper.GetMediaIndexAlias(Definitions.m_nGroupId));
+            indices.Add(NamingHelper.GetMediaIndexAlias(this.Definitions.ExtractParentGroupId()));
             return indices;
         }
 
