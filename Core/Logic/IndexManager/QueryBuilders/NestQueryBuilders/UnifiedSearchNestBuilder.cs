@@ -28,6 +28,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
         protected static readonly List<string> EXTRA_FIELDS_WITH_LANGUAGE_PREFIX = new List<string>() { "name", "description" };
         protected internal const string TOP_HITS_DEFAULT_NAME = "top_hits_assets";
         protected const int TERMS_AGGREGATION_MISSING_VALUE = 999;
+        protected const string LOWERCASE_POSTFIX = "lowercase";
         public bool MinimizeQuery { get; set; }
 
         private QueryContainer SubscriptionsQuery { get; set; }
@@ -404,6 +405,8 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 // TODO: verify this isn't "damaged"
                 // group id should already be inside the search object
                 //mediaSearchItem.m_nGroupId = groupId;
+                // SearchDefinitions.langauge is always initialized with default value.
+                mediaSearchItem.m_oLangauge = mediaSearchItem.m_oLangauge ?? SearchDefinitions.langauge;
                 mediaBuilder.Definitions = mediaSearchItem;
                 mediaBuilder.QueryType = mediaSearchItem.m_bExact ? eQueryType.EXACT : eQueryType.BOOLEAN;
                 var queryContainer = mediaBuilder.GetQuery();
@@ -732,7 +735,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                         else if (leaf.operand == ApiObjects.ComparisonOperator.Equals &&
                             leaf.shouldLowercase)
                         {
-                            field = $"{field}.lowercase";
+                            field = $"{field}.{LOWERCASE_POSTFIX}";
                         }
 
                         if (isFuzzySearch)
@@ -760,7 +763,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     {
                         if (leaf.shouldLowercase)
                         {
-                            field = $"{field}.lowercase";
+                            field = $"{field}.{LOWERCASE_POSTFIX}";
                         }
 
                         var matchQuery = queryContainerDescriptor.Match(match => match.Field(field).Operator(Operator.And).Query(value.ToString()));
@@ -898,20 +901,20 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 case eFieldType.Default:
                     if (isLanguageSpecific)
                     {
-                        result = $"{field}.{language}";
+                        result = $"{field}.{language}.{LOWERCASE_POSTFIX}";
                     }
                     break;
                 case eFieldType.LanguageSpecificField:
-                    result = $"{field}.{language}";
+                    result = $"{field}.{language}.{LOWERCASE_POSTFIX}";
                     break;
                 case eFieldType.StringMeta:
-                    result = $"metas.{language}.{field}";
+                    result = $"metas.{language}.{field}.{LOWERCASE_POSTFIX}";
                     break;
                 case eFieldType.NonStringMeta:
-                    result = $"metas.{language}.{field}";
+                    result = $"metas.{language}.{field}.{LOWERCASE_POSTFIX}";
                     break;
                 case eFieldType.Tag:
-                    result = $"tags.{language}.{field}";
+                    result = $"tags.{language}.{field}.{LOWERCASE_POSTFIX}";
                     break;
                 default:
                     break;

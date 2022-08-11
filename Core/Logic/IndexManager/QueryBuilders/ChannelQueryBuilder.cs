@@ -252,6 +252,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
         public MediaSearchObj BuildBaseChannelSearchObject(Channel channel)
         {
             MediaSearchObj searchObject = new MediaSearchObj();
+            searchObject.m_oLangauge = GetDefaultLanguage(channel.m_nParentGroupID);
             searchObject.m_nGroupId = channel.m_nGroupID;
             searchObject.m_bExact = true;
             searchObject.m_eCutWith = channel.m_eCutWith;

@@ -3994,6 +3994,7 @@ namespace Core.Catalog
         public SearchResultsObj SearchMedias(MediaSearchObj search, int langId, bool useStartDate)
         {
             search.m_nGroupId = search.m_nGroupId == 0 ? _partnerId : search.m_nGroupId;
+            search.m_oLangauge = search.m_oLangauge ?? GetDefaultLanguage();
             var mediaBuilder = new UnifiedSearchNestMediaBuilder()
             {
                 Definitions = search,
@@ -4147,6 +4148,7 @@ namespace Core.Catalog
                 if (searchObj == null)
                     continue;
                 searchObj.m_nPageSize = 0;
+                searchObj.m_oLangauge = searchObj.m_oLangauge ?? GetDefaultLanguage();
                 unifiedSearchNestMediaBuilder.Definitions = searchObj;
                 unifiedSearchNestMediaBuilder.QueryType = searchObj.m_bExact ? eQueryType.EXACT : eQueryType.BOOLEAN;
                 shouldContainer.Add(unifiedSearchNestMediaBuilder.GetQuery());
@@ -4279,6 +4281,7 @@ namespace Core.Catalog
             });
 
             mediaSearch.m_nGroupId = _partnerId;
+            mediaSearch.m_oLangauge = mediaSearch.m_oLangauge ?? GetDefaultLanguage();
             
             var nestMediaBuilder = new UnifiedSearchNestMediaBuilder()
             {
