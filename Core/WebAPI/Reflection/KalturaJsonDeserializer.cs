@@ -42647,6 +42647,19 @@ namespace WebAPI.Models.LiveToVod
     }
     public partial class KalturaLiveToVodPartnerConfiguration
     {
+        private static RuntimeSchemePropertyAttribute IsLiveToVodEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveToVodPartnerConfiguration")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
         public KalturaLiveToVodPartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
@@ -42655,6 +42668,7 @@ namespace WebAPI.Models.LiveToVod
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("isL2vEnabled") && parameters["isL2vEnabled"] != null)
                 {
+                    IsLiveToVodEnabledSchemaProperty.Validate("isL2vEnabled", parameters["isL2vEnabled"]);
                     IsLiveToVodEnabled = (Boolean) Convert.ChangeType(parameters["isL2vEnabled"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("retentionPeriodDays") && parameters["retentionPeriodDays"] != null)
