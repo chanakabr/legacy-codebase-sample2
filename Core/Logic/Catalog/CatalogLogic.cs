@@ -7244,9 +7244,10 @@ namespace Core.Catalog
                         string key = keyValue.m_sKey;
                         string value = keyValue.m_sValue;
 
-                        BooleanLeaf leaf = new BooleanLeaf(
-                            string.Format("tags.{0}{1}", key.ToLower(), suffix), value.ToLower(), typeof(string),
-                            ComparisonOperator.Equals, true);
+                        BooleanLeaf leaf = new BooleanLeaf(key.ToLower(), value.ToLower(), typeof(string), ComparisonOperator.Equals, true)
+                        {
+                            fieldType = eFieldType.Tag
+                        };
                         nodes.Add(leaf);
                     }
                 }
@@ -7281,9 +7282,7 @@ namespace Core.Catalog
                             fieldType = eFieldType.NonStringMeta;
                         }
 
-                        BooleanLeaf leaf = new BooleanLeaf(
-                            string.Format("{0}{1}", key.ToLower(), suffix), value.ToLower(), type,
-                            ComparisonOperator.Equals, shouldLowercase)
+                        BooleanLeaf leaf = new BooleanLeaf(key.ToLower(), value.ToLower(), type, ComparisonOperator.Equals, shouldLowercase)
                         {
                             fieldType = fieldType
                         };

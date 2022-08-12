@@ -1374,7 +1374,10 @@ namespace ApiLogic.IndexManager.QueryBuilders
             eAssetTypes assetTypeHandle)
             where T : class
         {
-            var ids = unifiedSearchDefinitions.excludedAssets?[assetTypeHandle];
+            var ids = unifiedSearchDefinitions.excludedAssets?[assetTypeHandle]
+                // ES V7 has an identifier with language postfix, be aware.
+                .Select(x => $"{x}_{unifiedSearchDefinitions.langauge.Code}")
+                .ToArray();
 
             if (ids == null || !ids.Any())
                 return null;
