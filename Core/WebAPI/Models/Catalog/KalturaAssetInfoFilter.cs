@@ -16,15 +16,6 @@ namespace WebAPI.Models.Catalog
     public partial class KalturaAssetInfoFilter : KalturaOTTObject
     {
         /// <summary>
-        /// Filtering condition
-        /// </summary>
-        public enum KalturaCutWith
-        {
-            or = 0,
-            and = 1
-        }
-
-        /// <summary>
         /// Entities IDs
         /// </summary>
         [DataMember(Name = "ids")]
@@ -58,5 +49,14 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "cut_with")]
         [XmlElement("cut_with")]
         public KalturaCutWith cutWith { get; set; }
+    }
+
+    /// <summary>
+    /// Filtering condition
+    /// </summary>
+    public enum KalturaCutWith
+    {
+        or = 0,
+        and = 1
     }
 }
