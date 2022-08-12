@@ -902,20 +902,20 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 case eFieldType.Default:
                     if (isLanguageSpecific)
                     {
-                        result = $"{field}.{language}.{LOWERCASE_POSTFIX}";
+                        result = $"{field}.{language}";
                     }
                     break;
                 case eFieldType.LanguageSpecificField:
-                    result = $"{field}.{language}.{LOWERCASE_POSTFIX}";
+                    result = $"{field}.{language}";
                     break;
                 case eFieldType.StringMeta:
-                    result = $"metas.{language}.{field}.{LOWERCASE_POSTFIX}";
+                    result = $"metas.{language}.{field}";
                     break;
                 case eFieldType.NonStringMeta:
-                    result = $"metas.{language}.{field}.{LOWERCASE_POSTFIX}";
+                    result = $"metas.{language}.{field}";
                     break;
                 case eFieldType.Tag:
-                    result = $"tags.{language}.{field}.{LOWERCASE_POSTFIX}";
+                    result = $"tags.{language}.{field}";
                     break;
                 default:
                     break;
