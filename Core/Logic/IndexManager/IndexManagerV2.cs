@@ -6961,7 +6961,7 @@ namespace Core.Catalog
                                 {
                                     metas.Add(topics.Key.ToLower(),
                                         new KeyValuePair<eESFieldType, string>(isEpg ? eESFieldType.STRING : metaType,
-                                            nullValue));
+                                        nullValue));
                                 }
                                 else
                                 {

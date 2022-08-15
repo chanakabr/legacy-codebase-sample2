@@ -1980,7 +1980,15 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     // Other cases are "Range"
                     else
                     {
-                        term = ConvertToRange(leafField, value, leaf.operand, isNumeric);
+                        string rangeValue = value;
+                        if (this.SearchDefinitions.numericEpgMetas.Contains(leaf.field) && this.SearchDefinitions.shouldSearchEpg)
+                        {
+                            leafField = $"padded_{leafField}";
+                            rangeValue = Media.PadValue(rangeValue);
+
+                        }
+
+                        term = ConvertToRange(leafField, rangeValue, leaf.operand, isNumeric);
                     }
                 }
 
@@ -2437,6 +2445,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
             bool isNumeric = leaf.valueType == typeof(int) || leaf.valueType == typeof(long);
             string value = string.Empty;
 
+            string leafField = leaf.field;
             HandleLanguageSpecificLeafField(leaf);
 
             // First find out the value to use in the filter body 
@@ -2533,7 +2542,15 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 case ApiObjects.ComparisonOperator.LessThanOrEqual:
                 case ApiObjects.ComparisonOperator.LessThan:
                     {
-                        term = ConvertToRange(leaf.field, value, leaf.operand, isNumeric);
+                        string rangeValue = value;
+                        if (this.SearchDefinitions.numericEpgMetas.Contains(leafField) && this.SearchDefinitions.shouldSearchEpg)
+                        {
+                            leaf.field = GetElasticsearchFieldName(leaf.isLanguageSpecific, this.SearchDefinitions.langauge, 
+                                $"padded_{leafField}", leaf.fieldType);
+                            rangeValue = Media.PadValue(rangeValue);
+                        }
+
+                        term = ConvertToRange(leaf.field, rangeValue, leaf.operand, isNumeric);
 
                         break;
                     }

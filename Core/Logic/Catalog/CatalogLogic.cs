@@ -7563,6 +7563,7 @@ namespace Core.Catalog
                     {
                         fieldType = searchKey.FieldType
                     };
+
                     if (isNumericValueType == true)
                     {
                         HandleNumericLeaf(newLeaf);
@@ -7622,12 +7623,13 @@ namespace Core.Catalog
                     {
                         HandleNumericLeaf(leaf);
 
+                        definitions.numericEpgMetas.Add(searchKey.Field);
                         leaf.valueType = typeof(double);
                         leaf.shouldLowercase = false;
                     }
                     else if (searchKey.ValueType == typeof(int) || searchKey.ValueType == typeof(long))
                     {
-                        if (leaf.value != DBNull.Value && leaf.value != null &&
+                        if (leaf.value != DBNull.Value && leaf.value != null && 
                             Convert.ToString(leaf.value) != string.Empty)
                         {
                             leaf.value = Convert.ToInt64(leaf.value);
@@ -7637,8 +7639,9 @@ namespace Core.Catalog
                             leaf.value = default(long);
                         }
 
+                        definitions.numericEpgMetas.Add(searchKey.Field);   
                         leaf.valueType = typeof(long);
-                        leaf.shouldLowercase = false;
+                        leaf.shouldLowercase = false;   
                     }
                     else
                     {
