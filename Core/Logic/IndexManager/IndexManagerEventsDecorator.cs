@@ -95,7 +95,7 @@ namespace ApiLogic.Catalog.IndexManager
         //CUD
         public bool CompactEpgV2Indices(int futureIndexCompactionStart, int pastIndexCompactionStart)
         {
-            return Execute<bool>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG);
+            return Execute<bool>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, futureIndexCompactionStart, pastIndexCompactionStart);
         }
 
         //CUD
