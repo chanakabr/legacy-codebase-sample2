@@ -31,7 +31,7 @@ namespace Core.Pricing
 
         #region Public methods with cache support
 
-        public override MediaFilePPVContainer[] GetPPVModuleListForMediaFilesWithExpiry(int[] nMediaFileIDs, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+        public override MediaFilePPVContainer[] GetPPVModuleListForMediaFilesWithExpiry(int[] nMediaFileIDs)
         {
             if (nMediaFileIDs != null && nMediaFileIDs.Length > 0)
             {
@@ -58,7 +58,7 @@ namespace Core.Pricing
                 if (uncachedMediaFilesPPVModules.Count > 0)
                 {
                     // fetch uncached data from the correct instance of BasePPVModule
-                    MediaFilePPVContainer[] arrOfUncachedData = originalBasePPVModule.Get_PPVModuleForMediaFiles(uncachedMediaFilesPPVModules.ToArray(), sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);                     
+                    MediaFilePPVContainer[] arrOfUncachedData = originalBasePPVModule.Get_PPVModuleForMediaFiles(uncachedMediaFilesPPVModules.ToArray());                     
                     if (arrOfUncachedData != null && arrOfUncachedData.Length > 0)
                     {
                         for (int i = 0; i < arrOfUncachedData.Length; i++)

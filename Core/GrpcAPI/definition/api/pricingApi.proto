@@ -48,3 +48,8 @@ message GetPaymentGatewayProfileRequest {
 message GetGroupHasSubWithAdsRequest {
   int32 GroupId = 1;
 }
+
+message IsMediaFileFreeRequest {
+    int32 GroupId = 1;
+    int64 MediaFileID = 2;
+}

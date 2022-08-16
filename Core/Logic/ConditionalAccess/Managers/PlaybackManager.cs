@@ -525,7 +525,7 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                bool isFree = IsMediaFileFree(groupId, mediaFileId, udid, ip);
+                bool isFree = IsMediaFileFree(groupId, mediaFileId);
 
                 ePlayType playType = ePlayType.UNKNOWN;
                 long programId = 0;
@@ -593,15 +593,12 @@ namespace Core.ConditionalAccess
         /// </summary>
         /// <param name="groupId"></param>
         /// <param name="mediaFileId"></param>
-        /// <param name="udid"></param>
-        /// <param name="ip"></param>
         /// <returns></returns>
-        public static bool IsMediaFileFree(int groupId, int mediaFileId, string udid, string ip)
+        public static bool IsMediaFileFree(int groupId, long mediaFileId)
         {
             bool isFree = false;
-            string countryCode = !string.IsNullOrEmpty(ip) ? APILogic.Utils.GetIP2CountryCode(groupId, ip) : string.Empty;
             MediaFilePPVContainer[] modules = Pricing.Module.GetPPVModuleListForMediaFilesWithExpiry(
-                groupId, new int[] { mediaFileId }, countryCode, string.Empty, udid);
+                groupId, new int[] { (int)mediaFileId });
 
             // if we successfully got the modules CONTAINERS for this file - but there is no module assigned to this file, it's free
             if (modules != null && modules.Length > 0 && 

@@ -42,8 +42,9 @@ namespace phoenix {
             "c3BvbnNlEkEKGVBheW1lbnRHYXRld2F5UHJvZmlsZUxpc3QYASADKAsyHi5w",
             "aG9lbml4LlBheW1lbnRHYXRld2F5UHJvZmlsZSIyCh9HZXRQYXltZW50R2F0",
             "ZXdheVByb2ZpbGVSZXF1ZXN0Eg8KB0dyb3VwSWQYASABKAUiLwocR2V0R3Jv",
-            "dXBIYXNTdWJXaXRoQWRzUmVxdWVzdBIPCgdHcm91cElkGAEgASgFQhRaCC4v",
-            "bW9kZWxzqgIHcGhvZW5peGIGcHJvdG8z"));
+            "dXBIYXNTdWJXaXRoQWRzUmVxdWVzdBIPCgdHcm91cElkGAEgASgFIj4KFklz",
+            "TWVkaWFGaWxlRnJlZVJlcXVlc3QSDwoHR3JvdXBJZBgBIAEoBRITCgtNZWRp",
+            "YUZpbGVJRBgCIAEoA0IUWgguL21vZGVsc6oCB3Bob2VuaXhiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::phoenix.KeyValuePairReflection.Descriptor, global::phoenix.PriceReasonReflection.Descriptor, global::phoenix.PricingReflection.Descriptor, global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -51,7 +52,8 @@ namespace phoenix {
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetItemsPricesRequest), global::phoenix.GetItemsPricesRequest.Parser, new[]{ "MediaFiles", "UserId", "CouponCode", "OnlyLowest", "LanguageCode", "Udid", "Ip", "CurrencyCode", "BlockEntitlement", "IsDownloadPlayContext", "WithMediaFilesInvalidation", "GroupId" }, null, new[]{ typeof(global::phoenix.GetItemsPricesRequest.Types.BlockEntitlementType) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetPaymentGatewayProfileResponse), global::phoenix.GetPaymentGatewayProfileResponse.Parser, new[]{ "PaymentGatewayProfileList" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetPaymentGatewayProfileRequest), global::phoenix.GetPaymentGatewayProfileRequest.Parser, new[]{ "GroupId" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetGroupHasSubWithAdsRequest), global::phoenix.GetGroupHasSubWithAdsRequest.Parser, new[]{ "GroupId" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetGroupHasSubWithAdsRequest), global::phoenix.GetGroupHasSubWithAdsRequest.Parser, new[]{ "GroupId" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.IsMediaFileFreeRequest), global::phoenix.IsMediaFileFreeRequest.Parser, new[]{ "GroupId", "MediaFileID" }, null, null, null, null)
           }));
     }
     #endregion
@@ -1289,6 +1291,214 @@ namespace phoenix {
             break;
           case 8: {
             GroupId = input.ReadInt32();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  public sealed partial class IsMediaFileFreeRequest : pb::IMessage<IsMediaFileFreeRequest>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<IsMediaFileFreeRequest> _parser = new pb::MessageParser<IsMediaFileFreeRequest>(() => new IsMediaFileFreeRequest());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<IsMediaFileFreeRequest> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::phoenix.PricingApiReflection.Descriptor.MessageTypes[5]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public IsMediaFileFreeRequest() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public IsMediaFileFreeRequest(IsMediaFileFreeRequest other) : this() {
+      groupId_ = other.groupId_;
+      mediaFileID_ = other.mediaFileID_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public IsMediaFileFreeRequest Clone() {
+      return new IsMediaFileFreeRequest(this);
+    }
+
+    /// <summary>Field number for the "GroupId" field.</summary>
+    public const int GroupIdFieldNumber = 1;
+    private int groupId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int GroupId {
+      get { return groupId_; }
+      set {
+        groupId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "MediaFileID" field.</summary>
+    public const int MediaFileIDFieldNumber = 2;
+    private long mediaFileID_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long MediaFileID {
+      get { return mediaFileID_; }
+      set {
+        mediaFileID_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as IsMediaFileFreeRequest);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(IsMediaFileFreeRequest other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (GroupId != other.GroupId) return false;
+      if (MediaFileID != other.MediaFileID) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (GroupId != 0) hash ^= GroupId.GetHashCode();
+      if (MediaFileID != 0L) hash ^= MediaFileID.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (GroupId != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(GroupId);
+      }
+      if (MediaFileID != 0L) {
+        output.WriteRawTag(16);
+        output.WriteInt64(MediaFileID);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (GroupId != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(GroupId);
+      }
+      if (MediaFileID != 0L) {
+        output.WriteRawTag(16);
+        output.WriteInt64(MediaFileID);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (GroupId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(GroupId);
+      }
+      if (MediaFileID != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(MediaFileID);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(IsMediaFileFreeRequest other) {
+      if (other == null) {
+        return;
+      }
+      if (other.GroupId != 0) {
+        GroupId = other.GroupId;
+      }
+      if (other.MediaFileID != 0L) {
+        MediaFileID = other.MediaFileID;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            GroupId = input.ReadInt32();
+            break;
+          }
+          case 16: {
+            MediaFileID = input.ReadInt64();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            GroupId = input.ReadInt32();
+            break;
+          }
+          case 16: {
+            MediaFileID = input.ReadInt64();
             break;
           }
         }

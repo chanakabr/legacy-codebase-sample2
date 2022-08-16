@@ -376,7 +376,14 @@ namespace Grpc.controllers
             ServerCallContext context)
         {
             return Task.FromResult(_entitlementService.GetEntitledPagoWindow(request));
-      
+        }
+
+        public override Task<BoolValue> IsMediaFileFree(IsMediaFileFreeRequest request, ServerCallContext context)
+        {
+            var response = _pricingService.IsMediaFileFree(request);
+            var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
+            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest)); 
+            return Task.FromResult(new BoolValue { Value =  response});
         }
     }
 }

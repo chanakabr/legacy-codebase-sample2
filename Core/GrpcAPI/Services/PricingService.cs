@@ -20,6 +20,7 @@ namespace GrpcAPI.Services
         GetItemsPricesResponse GetItemsPrices(GetItemsPricesRequest request);
         GetPaymentGatewayProfileResponse GetPaymentGatewayProfile(GetPaymentGatewayProfileRequest request);
         bool GetGroupHasSubWithAds(GetGroupHasSubWithAdsRequest request);
+        bool IsMediaFileFree(IsMediaFileFreeRequest request);
     }
 
     public class PricingService : IPricingService
@@ -87,6 +88,10 @@ namespace GrpcAPI.Services
                 Logger.LogError(e, $"Error while calling GetGroupHasSubWithAds GRPC service {e.Message}");
             }
             return false;
+        }
+        public bool IsMediaFileFree(IsMediaFileFreeRequest request)
+        {
+            return PlaybackManager.IsMediaFileFree(request.GroupId, request.MediaFileID);
         }
     }
 }

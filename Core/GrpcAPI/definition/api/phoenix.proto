@@ -30,7 +30,8 @@ service Phoenix {
   rpc GetItemsPrices (GetItemsPricesRequest) returns (GetItemsPricesResponse);
   rpc GetPaymentGatewayProfile(GetPaymentGatewayProfileRequest) returns (GetPaymentGatewayProfileResponse);
   rpc GetGroupHasSubWithAds(GetGroupHasSubWithAdsRequest) returns (google.protobuf.BoolValue);
-  
+  rpc IsMediaFileFree(IsMediaFileFreeRequest) returns (google.protobuf.BoolValue);
+
   //entitlement
   rpc IsServiceAllowed (IsServiceAllowedRequest) returns (google.protobuf.BoolValue);
   rpc GetDomainAdsControl (GetDomainAdsControlRequest) returns (GetDomainAdsControlResponse);

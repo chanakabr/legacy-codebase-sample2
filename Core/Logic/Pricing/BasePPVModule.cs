@@ -278,7 +278,7 @@ namespace Core.Pricing
             return ret;
         }
 
-        public virtual MediaFilePPVContainer[] Get_PPVModuleForMediaFiles(int[] nMediaFileIDs, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+        public virtual MediaFilePPVContainer[] Get_PPVModuleForMediaFiles(int[] nMediaFileIDs)
         {
             MediaFilePPVContainer[] ret = null;
             PPVModuleWithExpiry[] tmp = null;
@@ -336,9 +336,6 @@ namespace Core.Pricing
                 StringBuilder sb = new StringBuilder("Exception at GetPPVModuleListForMediaFilesWithExpiry. ");
                 sb.Append(String.Concat(" G ID: ", m_nGroupID));
                 sb.Append(String.Concat(" Ex Msg: ", ex.Message));
-                sb.Append(String.Concat(" Cntry Cd: ", sCountryCd));
-                sb.Append(String.Concat(" Lng Cd: ", sLANGUAGE_CODE));
-                sb.Append(String.Concat(" D Nm: ", sDEVICE_NAME));
                 if (nMediaFileIDs != null && nMediaFileIDs.Length > 0)
                 {
                     sb.Append(" MF IDs: ");
