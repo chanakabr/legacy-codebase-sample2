@@ -937,34 +937,49 @@ namespace ApiLogic.IndexManager.QueryBuilders
             QueryContainer result = null;
             QueryContainerDescriptor<object> queryContainerDescriptor = new QueryContainerDescriptor<object>();
 
-            if (leaf.valueType == typeof(long))
+            string field = leaf.field;
+            object value = leaf.value;
+            Type valueType = leaf.valueType;
+            string rangeValue = Convert.ToString(value);
+            
+            if (this.SearchDefinitions.numericEpgMetas.Contains(leaf.field) && this.SearchDefinitions.shouldSearchEpg)
             {
-                long value = (long)leaf.value;
+                field = $"padded_{field}";
+                rangeValue = Media.PadValue(rangeValue);
+                valueType = typeof(string);
+            }
+
+            string language = this.SearchDefinitions.langauge != null ? this.SearchDefinitions.langauge.Code : string.Empty;
+            field = GetElasticsearchFieldName(language, field, leaf.fieldType, leaf.isLanguageSpecific);
+
+            if (valueType == typeof(long))
+            {
+                long longValue = (long)leaf.value;
                 result = queryContainerDescriptor.LongRange(range =>
                 {
-                    range = range.Field(leaf.field);
+                    range = range.Field(field);
 
                     switch (leaf.operand)
                     {
                         case ApiObjects.ComparisonOperator.GreaterThanOrEqual:
                             {
-                                range = range.GreaterThanOrEquals(value);
+                                range = range.GreaterThanOrEquals(longValue);
                                 break;
                             }
                         case ApiObjects.ComparisonOperator.GreaterThan:
                             {
-                                range = range.GreaterThan(value);
+                                range = range.GreaterThan(longValue);
 
                                 break;
                             }
                         case ApiObjects.ComparisonOperator.LessThanOrEqual:
                             {
-                                range = range.LessThanOrEquals(value);
+                                range = range.LessThanOrEquals(longValue);
                                 break;
                             }
                         case ApiObjects.ComparisonOperator.LessThan:
                             {
-                                range = range.LessThan(value);
+                                range = range.LessThan(longValue);
                                 break;
                             }
                         default:
@@ -973,34 +988,34 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     return range;
                 });
             }
-            else if (leaf.valueType == typeof(DateTime))
+            else if (valueType == typeof(DateTime))
             {
-                DateTime value = Convert.ToDateTime(leaf.value);
+                DateTime dateValue = Convert.ToDateTime(leaf.value);
                 result = queryContainerDescriptor.DateRange(range =>
                 {
-                    range = range.Field(leaf.field);
+                    range = range.Field(field);
 
                     switch (leaf.operand)
                     {
                         case ApiObjects.ComparisonOperator.GreaterThanOrEqual:
                             {
-                                range = range.GreaterThanOrEquals(value);
+                                range = range.GreaterThanOrEquals(dateValue);
                                 break;
                             }
                         case ApiObjects.ComparisonOperator.GreaterThan:
                             {
-                                range = range.GreaterThan(value);
+                                range = range.GreaterThan(dateValue);
 
                                 break;
                             }
                         case ApiObjects.ComparisonOperator.LessThanOrEqual:
                             {
-                                range = range.LessThanOrEquals(value);
+                                range = range.LessThanOrEquals(dateValue);
                                 break;
                             }
                         case ApiObjects.ComparisonOperator.LessThan:
                             {
-                                range = range.LessThan(value);
+                                range = range.LessThan(dateValue);
                                 break;
                             }
                         default:
@@ -1009,34 +1024,33 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     return range;
                 });
             }
-            else if (leaf.valueType == typeof(string))
+            else if (valueType == typeof(string))
             {
-                string value = Convert.ToString(leaf.value);
                 result = queryContainerDescriptor.TermRange(range =>
                 {
-                    range = range.Field(leaf.field);
+                    range = range.Field(field);
 
                     switch (leaf.operand)
                     {
                         case ApiObjects.ComparisonOperator.GreaterThanOrEqual:
                             {
-                                range = range.GreaterThanOrEquals(value);
+                                range = range.GreaterThanOrEquals(rangeValue);
                                 break;
                             }
                         case ApiObjects.ComparisonOperator.GreaterThan:
                             {
-                                range = range.GreaterThan(value);
+                                range = range.GreaterThan(rangeValue);
 
                                 break;
                             }
                         case ApiObjects.ComparisonOperator.LessThanOrEqual:
                             {
-                                range = range.LessThanOrEquals(value);
+                                range = range.LessThanOrEquals(rangeValue);
                                 break;
                             }
                         case ApiObjects.ComparisonOperator.LessThan:
                             {
-                                range = range.LessThan(value);
+                                range = range.LessThan(rangeValue);
                                 break;
                             }
                         default:
