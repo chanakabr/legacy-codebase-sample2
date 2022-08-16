@@ -133,7 +133,7 @@ namespace ApiLogic.Tests.IndexManager
             var language = IndexManagerMockDataCreator.GetEnglishLanguageWithRandomId();
             IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
             var indexManager = GetIndexV2Manager(partnerId);
-            var tagsIndexName = indexManager.SetupTagsIndex();
+            var tagsIndexName = indexManager.SetupTagsIndex(DateTime.UtcNow);
             var randomTag = IndexManagerMockDataCreator.GetRandomTag(language.ID);
             var allTagValues = new List<TagValue>()
             {
@@ -223,7 +223,8 @@ namespace ApiLogic.Tests.IndexManager
             var dictionary = new Dictionary<int, Media>() { };
             var indexManager = GetIndexV2Manager(partnerId);
 
-            var mediaIndexName = indexManager.SetupMediaIndex();
+            var indexDate = DateTime.UtcNow;
+            indexManager.SetupMediaIndex(indexDate);
             var medias = new Dictionary<int, Dictionary<int, Media>>();
             var mediaOne = new Dictionary<int, Media>();
             var randomMedia = IndexManagerMockDataCreator.GetRandomMedia(partnerId);
@@ -236,8 +237,8 @@ namespace ApiLogic.Tests.IndexManager
             medias.Add(randomMedia2.m_nMediaID, mediaOne2);
 
             //act
-            indexManager.InsertMedias(medias, mediaIndexName);
-            indexManager.PublishMediaIndex(mediaIndexName, true, true);
+            indexManager.InsertMedias(medias, indexDate);
+            indexManager.PublishMediaIndex(indexDate, true, true);
 
             var totalItems = 0;
             var notInUse = 0;
@@ -517,7 +518,7 @@ namespace ApiLogic.Tests.IndexManager
             var policy = Policy.Handle<Exception>().WaitAndRetry(3, retryAttempt => TimeSpan.FromSeconds(1));
             ulong epgId = (ulong)(1 + new Random().Next(10000));
 
-            string indexName = indexManager.SetupEpgIndex(false);
+            string indexName = indexManager.SetupEpgIndex(DateTime.UtcNow, false);
 
             var randomChannel = IndexManagerMockDataCreator.GetRandomChannel(partnerId);
             Dictionary<ulong, Dictionary<string, EpgCB>> epgs = new Dictionary<ulong, Dictionary<string, EpgCB>>();
@@ -598,7 +599,7 @@ namespace ApiLogic.Tests.IndexManager
 
             var indexManager = GetIndexV2Manager(randomPartnerId);
 
-            var channelIndexName = indexManager.SetupChannelMetadataIndex();
+            var channelIndexName = indexManager.SetupChannelMetadataIndex(DateTime.UtcNow);
             indexManager.AddChannelsMetadataToIndex(channelIndexName, new List<Channel>() { randomChannel });
             indexManager.PublishChannelsMetadataIndex(channelIndexName, true, true);
 
@@ -635,9 +636,10 @@ namespace ApiLogic.Tests.IndexManager
 
             // now let's combine with percolators - need media + epg indices for that
 
-            var mediaIndexName = indexManager.SetupMediaIndex();
-            indexManager.PublishMediaIndex(mediaIndexName, true, true);
-            var epgIndexName = indexManager.SetupEpgIndex(false);
+            var indexDate = DateTime.UtcNow;
+            indexManager.SetupMediaIndex(indexDate);
+            indexManager.PublishMediaIndex(indexDate, true, true);
+            var epgIndexName = indexManager.SetupEpgIndex(DateTime.UtcNow, false);
             indexManager.PublishEpgIndex(epgIndexName, false, true, true);
 
             var secondRandomChannel = IndexManagerMockDataCreator.GetRandomChannel(randomPartnerId);
@@ -769,7 +771,8 @@ namespace ApiLogic.Tests.IndexManager
 
 
             var indexManager = GetIndexV2Manager(partnerId);
-            var mediaIndexName = indexManager.SetupMediaIndex();
+            var indexDate = DateTime.UtcNow;
+            indexManager.SetupMediaIndex(indexDate);
             var medias = new Dictionary<int, Dictionary<int, Media>>();
             var mediaOne = new Dictionary<int, Media>();
             var randomMedia = IndexManagerMockDataCreator.GetRandomMedia(partnerId);
@@ -780,8 +783,8 @@ namespace ApiLogic.Tests.IndexManager
             dictionary[language.ID] = newMedia;
 
             //act
-            indexManager.InsertMedias(medias, mediaIndexName);
-            indexManager.PublishMediaIndex(mediaIndexName, true, true);
+            indexManager.InsertMedias(medias, indexDate);
+            indexManager.PublishMediaIndex(indexDate, true, true);
 
 
 
@@ -879,7 +882,8 @@ namespace ApiLogic.Tests.IndexManager
 
 
             var indexManager = GetIndexV2Manager(partnerId);
-            var mediaIndexName = indexManager.SetupMediaIndex();
+            var indexDate = DateTime.UtcNow;
+            indexManager.SetupMediaIndex(indexDate);
             var medias = new Dictionary<int, Dictionary<int, Media>>();
             var mediaOne = new Dictionary<int, Media>();
             var randomMedia = IndexManagerMockDataCreator.GetRandomMedia(partnerId);
@@ -890,8 +894,8 @@ namespace ApiLogic.Tests.IndexManager
             dictionary[language.ID] = newMedia;
 
             //act
-            indexManager.InsertMedias(medias, mediaIndexName);
-            indexManager.PublishMediaIndex(mediaIndexName, true, true);
+            indexManager.InsertMedias(medias, indexDate);
+            indexManager.PublishMediaIndex(indexDate, true, true);
 
 
 
@@ -961,7 +965,8 @@ namespace ApiLogic.Tests.IndexManager
             var dictionary = new Dictionary<int, Media>() { };
             var indexManager = GetIndexV2Manager(partnerId);
 
-            var mediaIndexName = indexManager.SetupMediaIndex();
+            var indexDate = DateTime.UtcNow;
+            indexManager.SetupMediaIndex(indexDate);
             var medias = new Dictionary<int, Dictionary<int, Media>>();
             var mediaOne = new Dictionary<int, Media>();
             var randomMedia = IndexManagerMockDataCreator.GetRandomMedia(partnerId);
@@ -970,8 +975,8 @@ namespace ApiLogic.Tests.IndexManager
             medias.Add(1, mediaOne);
 
             //act
-            indexManager.InsertMedias(medias, mediaIndexName);
-            indexManager.PublishMediaIndex(mediaIndexName, true, true);
+            indexManager.InsertMedias(medias, indexDate);
+            indexManager.PublishMediaIndex(indexDate, true, true);
 
             var definitions = new UnifiedSearchDefinitions();
 
@@ -1027,7 +1032,8 @@ namespace ApiLogic.Tests.IndexManager
             var policyGroupBy = Policy.HandleResult<AggregationsResult>(x => x == null || x.results.Count == 0)
                 .WaitAndRetry(3, retryAttempt => TimeSpan.FromSeconds(1));
 
-            var mediaIndexName = indexManager.SetupMediaIndex();
+            var indexDate = DateTime.UtcNow;
+            indexManager.SetupMediaIndex(indexDate);
             var medias = new Dictionary<int, Dictionary<int, Media>>();
             var media1 = new Dictionary<int, Media>();
             var randomMedia = IndexManagerMockDataCreator.GetRandomMedia(partnerId);
@@ -1040,8 +1046,8 @@ namespace ApiLogic.Tests.IndexManager
             medias.Add(randomMedia2.m_nMediaID, media2);
 
             //act
-            indexManager.InsertMedias(medias, mediaIndexName);
-            indexManager.PublishMediaIndex(mediaIndexName, true, true);
+            indexManager.InsertMedias(medias, indexDate);
+            indexManager.PublishMediaIndex(indexDate, true, true);
 
             var orderObj = new OrderObj()
             {

@@ -367,7 +367,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
             bool doesGroupUseTemplates = _catalogManager.DoesGroupUsesTemplates(groupId);
 
             // if group uses templates - index inactive channel as well
-            if (doesGroupUseTemplates && channel.m_nIsActive != 1)
+            if (!doesGroupUseTemplates && channel.m_nIsActive != 1)
             {
                 log.ErrorFormat("GetChannelQuery - channel is inactive");
                 return null;

@@ -990,7 +990,9 @@ namespace ApiLogic.IndexManager.QueryBuilders
             }
             else if (valueType == typeof(DateTime))
             {
-                DateTime dateValue = Convert.ToDateTime(leaf.value);
+                // By default the metas are created with yyyyMMddHHmmss date format.
+                // Consider changing it to default date format in the future for ElasticSearch V7?
+                var dateValue = DateMath.FromString(Convert.ToDateTime(leaf.value).ToString("yyyyMMddHHmmss"));
                 result = queryContainerDescriptor.DateRange(range =>
                 {
                     range = range.Field(field);
@@ -1188,7 +1190,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
             else
             {
                 // If user has no preferences at all
-                result = new TermQuery() { Field = "a", Value = -1 };
+                result = new TermQuery() { Field = "_id", Value = -1 };
             }
 
             return result;
@@ -1253,7 +1255,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 // create an empty, dummy query
                 if (!shouldGetFreeAssets && SubscriptionsQuery == null && entitledPaidForAssetsBoolQuery == null)
                 {
-                    var emptyTerm = new TermQuery() { Field = "a", Value = -1 };
+                    var emptyTerm = new TermQuery() { Field = "_id", Value = -1 };
                     shoulds.Add(emptyTerm);
                 }
                 else

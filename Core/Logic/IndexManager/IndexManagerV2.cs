@@ -5205,9 +5205,9 @@ namespace Core.Catalog
 
         #region Rebuilding
 
-        public string SetupMediaIndex()
+        public bool SetupMediaIndex(DateTime indexDate)
         {
-            string newIndexName = NamingHelper.GetNewMediaIndexName(_partnerId);
+            string newIndexName = NamingHelper.GetMediaIndexName(_partnerId, indexDate);
 
             #region Build new index and specify number of nodes/shards
 
@@ -5235,7 +5235,7 @@ namespace Core.Catalog
             if (!actionResult)
             {
                 log.Error(string.Format("Failed creating index for index:{0}", newIndexName));
-                return string.Empty;
+                return false;
             }
 
             #endregion
@@ -5280,18 +5280,14 @@ namespace Core.Catalog
                 }
             }
 
-            if (!actionResult)
-            {
-                return string.Empty;
-            }
-
-            return newIndexName;
+            return actionResult;
 
             #endregion
         }
 
-        public void InsertMedias(Dictionary<int, Dictionary<int, Media>> groupMedias, string newIndexName)
+        public void InsertMedias(Dictionary<int, Dictionary<int, Media>> groupMedias, DateTime indexDate)
         {
+            var indexName = NamingHelper.GetMediaIndexName(_partnerId, indexDate);
             if (groupMedias != null)
             {
                 var sizeOfBulk = SIZE_OF_BULK == 0 ? SIZE_OF_BULK_DEFAULT_VALUE : SIZE_OF_BULK > SIZE_OF_BULK_DEFAULT_VALUE ? SIZE_OF_BULK_DEFAULT_VALUE : SIZE_OF_BULK;
@@ -5341,7 +5337,7 @@ namespace Core.Catalog
                                     bulkRequests.Add(numOfBulkRequests, new List<ESBulkRequestObj<int>>());
                                 }
 
-                                var bulkRequest = new ESBulkRequestObj<int>(media.m_nMediaID, newIndexName, documentType, serializedMedia);
+                                var bulkRequest = new ESBulkRequestObj<int>(media.m_nMediaID, indexName, documentType, serializedMedia);
                                 bulkRequests[numOfBulkRequests].Add(bulkRequest);
                             }
                         }
@@ -5406,20 +5402,20 @@ namespace Core.Catalog
             }
         }
 
-        public void PublishMediaIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
+        public void PublishMediaIndex(DateTime indexDate, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
         {
             string alias = NamingHelper.GetMediaIndexAlias(_partnerId);
             bool indexExists = _elasticSearchApi.IndexExists(alias);
-
+            var indexName = NamingHelper.GetMediaIndexName(_partnerId, indexDate);
             if (shouldSwitchIndexAlias || !indexExists)
             {
                 List<string> oldIndices = _elasticSearchApi.GetAliases(alias);
 
-                bool switchIndexResult = _elasticSearchApi.SwitchIndex(newIndexName, alias, oldIndices);
+                bool switchIndexResult = _elasticSearchApi.SwitchIndex(indexName, alias, oldIndices);
 
                 if (!switchIndexResult)
                 {
-                    log.ErrorFormat("Failed switching index for new index name = {0}, group alias = {1}", newIndexName, alias);
+                    log.ErrorFormat("Failed switching index for new index name = {0}, group alias = {1}", indexName, alias);
                 }
 
                 if (shouldDeleteOldIndices && switchIndexResult && oldIndices.Count > 0)
@@ -5473,18 +5469,14 @@ namespace Core.Catalog
             }
         }
 
-        public bool AddChannelsPercolatorsToIndex(HashSet<int> channelIds,
-            string newIndexName, bool shouldCleanupInvalidChannels = false)
+        public bool AddChannelsPercolatorsToIndex(HashSet<int> channelIds, DateTime? indexDate, bool shouldCleanupInvalidChannels = false)
         {
             var channelsToRemove = new HashSet<string>();
             List<Channel> groupChannels = null;
             List<string> previousChannelIds = null;
-
-            if (string.IsNullOrEmpty(newIndexName))
-            {
-                newIndexName = NamingHelper.GetMediaIndexAlias(_partnerId);
-            }
-
+            var indexName = indexDate.HasValue
+                ? NamingHelper.GetMediaIndexName(_partnerId, indexDate.Value)
+                : NamingHelper.GetMediaIndexAlias(_partnerId);
             var groupUsesTemplates = VerifyGroupUsesTemplates();
             if (groupUsesTemplates || channelIds != null)
             {
@@ -5580,7 +5572,7 @@ namespace Core.Catalog
 
                             if (channelRequests.Count > 50)
                             {
-                                _elasticSearchApi.CreateBulkIndexRequest(newIndexName, ESUtils.ES_PERCOLATOR_TYPE, channelRequests);
+                                _elasticSearchApi.CreateBulkIndexRequest(indexName, ESUtils.ES_PERCOLATOR_TYPE, channelRequests);
                                 channelRequests.Clear();
                             }
                         }
@@ -5593,7 +5585,7 @@ namespace Core.Catalog
 
                     if (channelRequests.Count > 0)
                     {
-                        _elasticSearchApi.CreateBulkIndexRequest(newIndexName, ESUtils.ES_PERCOLATOR_TYPE, channelRequests);
+                        _elasticSearchApi.CreateBulkIndexRequest(indexName, ESUtils.ES_PERCOLATOR_TYPE, channelRequests);
                     }
                 }
                 catch (Exception ex)
@@ -5777,7 +5769,7 @@ namespace Core.Catalog
             }
         }
 
-        public string SetupChannelMetadataIndex()
+        public string SetupChannelMetadataIndex(DateTime indexDate)
         {
             // Basic TCM configurations for indexing - number of shards/replicas, size of bulks 
             int numOfShards = NUM_OF_SHARDS;
@@ -5803,7 +5795,7 @@ namespace Core.Catalog
 
             GetTagsAndChannelsAnalyzers(languages, out analyzers, out filters, out tokenizers);
 
-            string newIndexName = NamingHelper.GetNewChannelMetadataIndexName(_partnerId);
+            string newIndexName = NamingHelper.GetNewChannelMetadataIndexName(_partnerId, indexDate);
             bool actionResult = _elasticSearchApi.BuildIndex(newIndexName, numOfShards, numOfReplicas,
                 analyzers, filters, tokenizers, maxResults);
             if (!actionResult)
@@ -5906,7 +5898,7 @@ namespace Core.Catalog
             }
         }
 
-        public string SetupTagsIndex()
+        public string SetupTagsIndex(DateTime indexDate)
         {
             #region Build Index
 
@@ -5917,7 +5909,7 @@ namespace Core.Catalog
             var catalogGroupCache = GetCatalogGroupCache();
             GetTagsAndChannelsAnalyzers(catalogGroupCache.LanguageMapById.Values.ToList(), out analyzers, out filters, out tokenizers);
 
-            string newIndexName = NamingHelper.GetNewMetadataIndexName(_partnerId);
+            string newIndexName = NamingHelper.GetNewMetadataIndexName(_partnerId, indexDate);
 
             // Basic TCM configurations for indexing - number of shards/replicas, size of bulks 
             int numOfShards = NUM_OF_SHARDS;
@@ -6144,13 +6136,13 @@ namespace Core.Catalog
             return result;
         }
 
-        public string SetupEpgIndex(bool isRecording)
+        public string SetupEpgIndex(DateTime indexDate, bool isRecording)
         {
-            var indexName = NamingHelper.GetNewEpgIndexName(_partnerId);
+            var indexName = NamingHelper.GetNewEpgIndexName(_partnerId, indexDate);
 
             if (isRecording)
             {
-                indexName = NamingHelper.GetNewRecordingIndexName(_partnerId);
+                indexName = NamingHelper.GetNewRecordingIndexName(_partnerId, indexDate);
             }
 
             CreateNewEpgIndex(indexName, isRecording);
@@ -7972,12 +7964,13 @@ namespace Core.Catalog
             return documents;
         }
 
-        public string SetupChannelPercolatorIndex()
+        public bool SetupChannelPercolatorIndex(DateTime indexDate)
         {
-            return string.Empty;
+            return false;
         }
 
-        public void PublishChannelPercolatorIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
+        public void PublishChannelPercolatorIndex(DateTime indexDate, bool shouldSwitchIndexAlias,
+            bool shouldDeleteOldIndices)
         {
 
         }

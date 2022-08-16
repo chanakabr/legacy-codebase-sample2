@@ -299,13 +299,13 @@ namespace Core.GroupManagers
         {
             try
             {
-                var mediaIndex = indexManager.SetupMediaIndex();
-
-                if (string.IsNullOrEmpty(mediaIndex))
+                var indexDate = DateTime.UtcNow;
+                var result = indexManager.SetupMediaIndex(indexDate);
+                if (!result)
                 {
                     return new Status(eResponseStatus.Error, "error creating media index");
                 }
-                indexManager.PublishMediaIndex(mediaIndex, true, true);
+                indexManager.PublishMediaIndex(indexDate, true, true);
                 return Status.Ok;
             }
             catch (Exception ex)
@@ -319,7 +319,7 @@ namespace Core.GroupManagers
         {
             try
             {
-                var epgIndex = indexManager.SetupEpgIndex(isRecording: false);
+                var epgIndex = indexManager.SetupEpgIndex(DateTime.UtcNow, isRecording: false);
 
                 if (string.IsNullOrEmpty(epgIndex))
                 {
@@ -348,7 +348,7 @@ namespace Core.GroupManagers
         {
             try
             {
-                var indexName = indexManager.SetupEpgIndex(isRecording: true);
+                var indexName = indexManager.SetupEpgIndex(DateTime.UtcNow, isRecording: true);
 
                 if (string.IsNullOrEmpty(indexName))
                 {
@@ -377,7 +377,7 @@ namespace Core.GroupManagers
         {
             try
             {
-                var indexName = indexManager.SetupTagsIndex();
+                var indexName = indexManager.SetupTagsIndex(DateTime.UtcNow);
                 if (string.IsNullOrEmpty(indexName))
                 {
                     Log.Warn("create tags index returned with an empty index name");
@@ -404,7 +404,7 @@ namespace Core.GroupManagers
         {
             try
             {
-                var indexName = indexManager.SetupChannelMetadataIndex();
+                var indexName = indexManager.SetupChannelMetadataIndex(DateTime.UtcNow);
                 if (string.IsNullOrEmpty(indexName))
                 {
                     Log.Warn("create channel index returned with an empty index name");

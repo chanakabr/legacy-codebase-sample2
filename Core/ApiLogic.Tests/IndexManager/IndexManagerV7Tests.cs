@@ -269,15 +269,17 @@ namespace ApiLogic.Tests.IndexManager
             IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
             var indexManager = GetIndexV7Manager(partnerId);
 
-            var indexName = indexManager.SetupMediaIndex();
+            var indexDate = DateTime.UtcNow;
+            var result = indexManager.SetupMediaIndex(indexDate);
 
-            Assert.IsNotEmpty(indexName);
+            Assert.True(result);
 
-            indexManager.PublishMediaIndex(indexName, true, true);
+            indexManager.PublishMediaIndex(indexDate, true, true);
 
             // test switch alias
-            indexName = indexManager.SetupMediaIndex();
-            indexManager.PublishMediaIndex(indexName, true, true);
+            indexDate = DateTime.UtcNow;
+            indexManager.SetupMediaIndex(indexDate);
+            indexManager.PublishMediaIndex(indexDate, true, true);
             Media randomMedia, randomMedia2;
             var media = SetUpMockMedia(partnerId, language, 2);
             randomMedia = media[0];
@@ -324,11 +326,11 @@ namespace ApiLogic.Tests.IndexManager
                         It.IsAny<Channel>()))
                 .Returns(percolateQuery);
 
-            string percolatorIndexName = indexManager.SetupChannelPercolatorIndex();
-            var addResult = indexManager.AddChannelsPercolatorsToIndex(new HashSet<int>() { channel.m_nChannelID }, percolatorIndexName);
+            indexManager.SetupChannelPercolatorIndex(indexDate);
+            var addResult = indexManager.AddChannelsPercolatorsToIndex(new HashSet<int>() { channel.m_nChannelID }, indexDate);
             Assert.IsTrue(addResult);
 
-            indexManager.PublishChannelPercolatorIndex(percolatorIndexName, true, true);
+            indexManager.PublishChannelPercolatorIndex(indexDate, true, true);
 
             var searchPolicy = Policy.HandleResult<List<int>>(x => x == null || x.Count == 0).WaitAndRetry(
                 3,
@@ -388,7 +390,7 @@ namespace ApiLogic.Tests.IndexManager
             IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
             var indexManager = GetIndexV7Manager(partnerId);
 
-            var indexName = indexManager.SetupEpgIndex(true);
+            var indexName = indexManager.SetupEpgIndex(DateTime.UtcNow, true);
 
             Assert.IsNotEmpty(indexName);
 
@@ -405,7 +407,7 @@ namespace ApiLogic.Tests.IndexManager
             var indexManager = GetIndexV7Manager(partnerId);
             ulong epgId = (ulong)(1 + new Random().Next(10000));
 
-            var indexName = indexManager.SetupEpgIndex(false);
+            var indexName = indexManager.SetupEpgIndex(DateTime.UtcNow, false);
 
             Assert.IsNotEmpty(indexName);
 
@@ -621,7 +623,7 @@ namespace ApiLogic.Tests.IndexManager
             IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language, language2 }, ref _mockCatalogManager);
             var indexManager = GetIndexV7Manager(partnerId);
 
-            var indexName = indexManager.SetupTagsIndex();
+            var indexName = indexManager.SetupTagsIndex(DateTime.UtcNow);
             Assert.IsNotEmpty(indexName);
             var randomTag = IndexManagerMockDataCreator.GetRandomTag(language.ID);
             indexManager.InsertTagsToIndex(indexName, new List<TagValue>() { randomTag });
@@ -764,14 +766,15 @@ namespace ApiLogic.Tests.IndexManager
 
             var indexManager = GetIndexV7Manager(partnerId);
 
-            var indexName = indexManager.SetupMediaIndex();
-            var percolatorIndex = indexManager.SetupChannelPercolatorIndex();
-            bool addResult = indexManager.AddChannelsPercolatorsToIndex(new HashSet<int>() { channel.m_nChannelID }, percolatorIndex);
+            var indexDate = DateTime.UtcNow;
+            indexManager.SetupMediaIndex(indexDate);
+            indexManager.SetupChannelPercolatorIndex(indexDate);
+            bool addResult = indexManager.AddChannelsPercolatorsToIndex(new HashSet<int>() { channel.m_nChannelID }, indexDate);
 
             Assert.IsTrue(addResult);
 
-            indexManager.PublishMediaIndex(indexName, true, true);
-            indexManager.PublishChannelPercolatorIndex(percolatorIndex, true, true);
+            indexManager.PublishMediaIndex(indexDate, true, true);
+            indexManager.PublishChannelPercolatorIndex(indexDate, true, true);
 
             var randomMedia = IndexManagerMockDataCreator.GetRandomMedia(partnerId);
             var randomMedia2 = IndexManagerMockDataCreator.GetRandomMedia(partnerId);
@@ -813,7 +816,7 @@ namespace ApiLogic.Tests.IndexManager
             IndexManagerMockDataCreator.SetupOpcPartnerMocks(randomPartnerId, new[] { language }, ref _mockCatalogManager);
             var indexManager = GetIndexV7Manager(randomPartnerId);
 
-            var channelIndexName = indexManager.SetupChannelMetadataIndex();
+            var channelIndexName = indexManager.SetupChannelMetadataIndex(DateTime.UtcNow);
             indexManager.AddChannelsMetadataToIndex(channelIndexName, new List<Channel>() { randomChannel });
             indexManager.PublishChannelsMetadataIndex(channelIndexName, true, true);
 
@@ -850,9 +853,10 @@ namespace ApiLogic.Tests.IndexManager
 
             // now let's combine with percolators - need media + epg indices for that
 
-            var mediaIndexName = indexManager.SetupMediaIndex();
-            indexManager.PublishMediaIndex(mediaIndexName, true, true);
-            var epgIndexName = indexManager.SetupEpgIndex(false);
+            var indexDate = DateTime.UtcNow;
+            indexManager.SetupMediaIndex(indexDate);
+            indexManager.PublishMediaIndex(indexDate, true, true);
+            var epgIndexName = indexManager.SetupEpgIndex(DateTime.UtcNow, false);
             indexManager.PublishEpgIndex(epgIndexName, false, true, true);
 
             var secondRandomChannel = IndexManagerMockDataCreator.GetRandomChannel(randomPartnerId);
@@ -1005,7 +1009,7 @@ namespace ApiLogic.Tests.IndexManager
             var policy = Policy.Handle<Exception>().WaitAndRetry(3, retryAttempt => TimeSpan.FromSeconds(1));
             ulong epgId = (ulong)(1 + new Random().Next(10000));
 
-            string indexName = indexManager.SetupEpgIndex(false);
+            string indexName = indexManager.SetupEpgIndex(DateTime.UtcNow, false);
 
             var randomChannel = IndexManagerMockDataCreator.GetRandomChannel(partnerId);
             Dictionary<ulong, Dictionary<string, EpgCB>> epgs = new Dictionary<ulong, Dictionary<string, EpgCB>>();
@@ -1051,11 +1055,12 @@ namespace ApiLogic.Tests.IndexManager
             IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
             var indexManager = GetIndexV7Manager(partnerId);
 
-            var indexName = indexManager.SetupMediaIndex();
+            var indexDate = DateTime.UtcNow;
+            var result = indexManager.SetupMediaIndex(indexDate);
 
-            Assert.IsNotEmpty(indexName);
+            Assert.True(result);
 
-            indexManager.PublishMediaIndex(indexName, true, true);
+            indexManager.PublishMediaIndex(indexDate, true, true);
 
             var media = SetUpMockMedia(partnerId, language, 10);
 
@@ -1063,7 +1068,7 @@ namespace ApiLogic.Tests.IndexManager
             {
                 indexManager.UpsertMedia(m.m_nMediaID);
             }
-            indexName = indexManager.SetupEpgIndex(false);
+            var indexName = indexManager.SetupEpgIndex(DateTime.UtcNow, false);
 
             Assert.IsNotEmpty(indexName);
 
@@ -1208,11 +1213,12 @@ namespace ApiLogic.Tests.IndexManager
             IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
             var indexManager = GetIndexV7Manager(partnerId);
 
-            var indexName = indexManager.SetupMediaIndex();
+            var indexDate = DateTime.UtcNow;
+            var result = indexManager.SetupMediaIndex(indexDate);
 
-            Assert.IsNotEmpty(indexName);
+            Assert.True(result);
 
-            indexManager.PublishMediaIndex(indexName, true, true);
+            indexManager.PublishMediaIndex(indexDate, true, true);
 
             var media1 = SetUpMockMedia(partnerId, language, 10);
             var utcNow = DateTime.UtcNow;
@@ -1240,7 +1246,7 @@ namespace ApiLogic.Tests.IndexManager
                 indexManager.UpsertMedia(m.m_nMediaID);
             }
 
-            indexName = indexManager.SetupEpgIndex(false);
+            var indexName = indexManager.SetupEpgIndex(DateTime.UtcNow, false);
 
             Assert.IsNotEmpty(indexName);
 
@@ -1364,9 +1370,10 @@ namespace ApiLogic.Tests.IndexManager
             var indexManager = GetIndexV7Manager(partnerId);
 
             Media randomMedia, randomMedia2;
-            var indexName = indexManager.SetupMediaIndex();
+            var indexDate = DateTime.UtcNow;
+            indexManager.SetupMediaIndex(indexDate);
             var media = SetUpMockMedia(partnerId, language, 2);
-            indexManager.PublishMediaIndex(indexName, true, true);
+            indexManager.PublishMediaIndex(indexDate, true, true);
             randomMedia = media[0];
             randomMedia2 = media[1];
             indexManager.UpsertMedia(randomMedia.m_nMediaID);
@@ -1412,8 +1419,9 @@ namespace ApiLogic.Tests.IndexManager
                 ref _mockCatalogManager);
 
             var indexManager = GetIndexV7Manager(partnerId);
-            var indexName = indexManager.SetupMediaIndex();
-            Assert.IsNotEmpty(indexName);
+            var indexDate = DateTime.UtcNow;
+            var result = indexManager.SetupMediaIndex(DateTime.UtcNow);
+            Assert.True(result);
 
             var randomMedia = IndexManagerMockDataCreator.GetRandomMedia(partnerId);
             randomMedia.m_sName = "multilingualName eng";
@@ -1435,9 +1443,9 @@ namespace ApiLogic.Tests.IndexManager
 
             var dictionary = new Dictionary<int, Dictionary<int, Media>>();
             dictionary[randomMedia.m_nMediaID] = innerDictionary;
-            indexManager.InsertMedias(dictionary, indexName);
+            indexManager.InsertMedias(dictionary, indexDate);
 
-            indexManager.PublishMediaIndex(indexName, true, true);
+            indexManager.PublishMediaIndex(indexDate, true, true);
         }
 
         //[Test]
@@ -1448,11 +1456,12 @@ namespace ApiLogic.Tests.IndexManager
             IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
             var indexManager = GetIndexV7Manager(partnerId);
 
-            var indexName = indexManager.SetupMediaIndex();
+            var indexDate = DateTime.UtcNow;
+            var result = indexManager.SetupMediaIndex(indexDate);
 
-            Assert.IsNotEmpty(indexName);
+            Assert.True(result);
 
-            indexManager.PublishMediaIndex(indexName, true, true);
+            indexManager.PublishMediaIndex(indexDate, true, true);
 
             var media2 = SetUpMockMedia(partnerId, language, 10);
 
@@ -1481,7 +1490,7 @@ namespace ApiLogic.Tests.IndexManager
                 indexManager.UpsertMedia(m.m_nMediaID);
             }
 
-            indexName = indexManager.SetupEpgIndex(false);
+            var indexName = indexManager.SetupEpgIndex(DateTime.UtcNow, false);
 
             Assert.IsNotEmpty(indexName);
 
@@ -1524,11 +1533,12 @@ namespace ApiLogic.Tests.IndexManager
             IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
             var indexManager = GetIndexV7Manager(partnerId);
 
-            var indexName = indexManager.SetupMediaIndex();
+            var indexDate = DateTime.UtcNow;
+            var result = indexManager.SetupMediaIndex(indexDate);
 
-            Assert.IsNotEmpty(indexName);
+            Assert.True(result);
 
-            indexManager.PublishMediaIndex(indexName, true, true);
+            indexManager.PublishMediaIndex(indexDate, true, true);
 
             var media1 = SetUpMockMedia(partnerId, language, 4);
 
@@ -1672,11 +1682,12 @@ namespace ApiLogic.Tests.IndexManager
             IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
             var indexManager = GetIndexV7Manager(partnerId);
 
-            var indexName = indexManager.SetupMediaIndex();
+            var indexDate = DateTime.UtcNow;
+            var result = indexManager.SetupMediaIndex(indexDate);
 
-            Assert.IsNotEmpty(indexName);
+            Assert.True(result);
 
-            indexManager.PublishMediaIndex(indexName, true, true);
+            indexManager.PublishMediaIndex(indexDate, true, true);
 
             var media1 = SetUpMockMedia(partnerId, language, 2);
 
@@ -1723,7 +1734,7 @@ namespace ApiLogic.Tests.IndexManager
                 indexManager.UpsertMedia(m.m_nMediaID);
             }
 
-            indexName = indexManager.SetupEpgIndex(false);
+            var indexName = indexManager.SetupEpgIndex(DateTime.UtcNow, false);
 
             Assert.IsNotEmpty(indexName);
 
@@ -1841,7 +1852,9 @@ namespace ApiLogic.Tests.IndexManager
             var dictionary = new Dictionary<int, Media>() { };
             var indexManager = GetIndexV7Manager(partnerId);
 
-            var mediaIndexName = indexManager.SetupMediaIndex();
+            var indexDate = DateTime.UtcNow;
+            indexManager.SetupMediaIndex(indexDate);
+
             var medias = new Dictionary<int, Dictionary<int, Media>>();
             var mediaOne = new Dictionary<int, Media>();
             var randomMedia = IndexManagerMockDataCreator.GetRandomMedia(partnerId);
@@ -1850,8 +1863,8 @@ namespace ApiLogic.Tests.IndexManager
             medias.Add(1, mediaOne);
 
             //act
-            indexManager.InsertMedias(medias, mediaIndexName);
-            indexManager.PublishMediaIndex(mediaIndexName, true, true);
+            indexManager.InsertMedias(medias, indexDate);
+            indexManager.PublishMediaIndex(indexDate, true, true);
 
             var definitions = new UnifiedSearchDefinitions();
 

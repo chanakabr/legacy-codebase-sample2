@@ -16,6 +16,7 @@ using ElasticSearch.Common;
 using GroupsCacheManager;
 using Polly.Retry;
 using System.Reflection;
+using ApiLogic.IndexManager.Helpers;
 using Couchbase.Utils;
 using EventBus.Abstraction;
 using MoreLinq;
@@ -208,32 +209,45 @@ namespace ApiLogic.Catalog.IndexManager
         }
 
         //CUD
-        public string SetupMediaIndex()
+        public bool SetupMediaIndex(DateTime indexDate)
         {
-            return Execute<string>(MethodBase.GetCurrentMethod(),
-                IndexManagerMigrationEventKeys.MEDIA);
+            return Execute<bool>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.MEDIA, indexDate);
         }
 
         //CUD
-        public bool AddChannelsPercolatorsToIndex(HashSet<int> channelIds, string newIndexName, bool shouldCleanupInvalidChannels = false)
+        public bool SetupChannelPercolatorIndex(DateTime indexDate)
+        {
+            return Execute<bool>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.MEDIA, indexDate);
+        }
+
+        //CUD
+        public bool AddChannelsPercolatorsToIndex(HashSet<int> channelIds, DateTime? indexDate, bool shouldCleanupInvalidChannels = false)
         {
             return Execute<bool>(MethodBase.GetCurrentMethod(),
-                IndexManagerMigrationEventKeys.CHANNEL, channelIds, newIndexName, shouldCleanupInvalidChannels);
+                IndexManagerMigrationEventKeys.CHANNEL, channelIds, indexDate, shouldCleanupInvalidChannels);
         }
 
         //CUD
-        public string SetupChannelMetadataIndex()
+        public string SetupChannelMetadataIndex(DateTime indexDate)
         {
-            return Execute<string>(MethodBase.GetCurrentMethod(),
-                IndexManagerMigrationEventKeys.CHANNEL_METADATA);
+            return Execute<string>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.CHANNEL_METADATA, indexDate);
         }
 
         //CUD
         public void AddChannelsMetadataToIndex(string newIndexName, List<Channel> allChannels)
         {
+            // Constant value for chunking is used to make is as simple as it could be.
+            // Possible solutions:
+            // 1. Move it to TCM configuration and empirically choose batch size.
+            // 2. Calculate the size of the message to be published in memory. There are a lot of possible problems (LOH grows, memory consumption, etc.)
+            // Taking into account that replication between ESV2 and ESV7 is a temporary solution - let's avoid unnecessary complexity.
+            var transformedParameters = allChannels.Batch(BatchChunkSize)
+                .Select(batch => new object[] {newIndexName, batch.ToList()})
+                .ToArray();
+
             Execute(MethodBase.GetCurrentMethod(),
                 IndexManagerMigrationEventKeys.CHANNEL_METADATA,
-                null, newIndexName, allChannels);
+                transformedParameters, newIndexName, allChannels);
         }
 
         //CUD
@@ -245,11 +259,8 @@ namespace ApiLogic.Catalog.IndexManager
         }
 
         //CUD
-        public string SetupTagsIndex()
-        {
-            return Execute<string>(MethodBase.GetCurrentMethod(),
-                IndexManagerMigrationEventKeys.TAG);
-        }
+        public string SetupTagsIndex(DateTime indexDate)
+            => Execute<string>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.TAG, indexDate);
 
         //CUD
         public void InsertTagsToIndex(string newIndexName, List<TagValue> allTagValues)
@@ -268,7 +279,7 @@ namespace ApiLogic.Catalog.IndexManager
         }
 
         //CUD
-        public void InsertMedias(Dictionary<int, Dictionary<int, Media>> groupMedias, string newIndexName)
+        public void InsertMedias(Dictionary<int, Dictionary<int, Media>> groupMedias, DateTime indexDate)
         {
             // Constant value for chunking is used to make is as simple as it could be.
             // Possible solutions:
@@ -276,25 +287,25 @@ namespace ApiLogic.Catalog.IndexManager
             // 2. Calculate the size of the message to be published in memory. There are a lot of possible problems (LOH grows, memory consumption, etc.)
             // Taking into account that replication between ESV2 and ESV7 is a temporary solution - let's avoid unnecessary complexity.
             var transformedParameters = groupMedias.Batch(BatchChunkSize)
-                .Select(batch => new object[] {batch.ToDictionary(), newIndexName})
+                .Select(batch => new object[] {batch.ToDictionary(), indexDate})
                 .ToArray();
 
-            Execute(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.MEDIA, transformedParameters, groupMedias, newIndexName);
+            Execute(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.MEDIA, transformedParameters, groupMedias, indexDate);
         }
 
         //CUD
-        public void PublishMediaIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
+        public void PublishMediaIndex(DateTime indexDate, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
         {
             Execute(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.MEDIA,
                 null,
-                newIndexName, shouldSwitchIndexAlias, shouldDeleteOldIndices);
+                indexDate, shouldSwitchIndexAlias, shouldDeleteOldIndices);
         }
 
         //CUD
-        public string SetupEpgIndex(bool isRecording)
+        public string SetupEpgIndex(DateTime indexDate, bool isRecording)
         {
             var eventKey = isRecording ? IndexManagerMigrationEventKeys.RECORDING : IndexManagerMigrationEventKeys.EPG;
-            return Execute<string>(MethodBase.GetCurrentMethod(), eventKey, isRecording);
+            return Execute<string>(MethodBase.GetCurrentMethod(), eventKey, indexDate, isRecording);
         }
 
         //CUD
@@ -373,17 +384,12 @@ namespace ApiLogic.Catalog.IndexManager
                 IndexManagerMigrationEventKeys.EPG, date);
         }
 
-
-        public string SetupChannelPercolatorIndex()
-        {
-            return Execute<string>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.CHANNEL);
-        }
-
-        public void PublishChannelPercolatorIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
+        public void PublishChannelPercolatorIndex(DateTime indexDate, bool shouldSwitchIndexAlias,
+            bool shouldDeleteOldIndices)
         {
             Execute(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.CHANNEL,
                 null,
-                newIndexName, shouldSwitchIndexAlias, shouldDeleteOldIndices);
+                indexDate, shouldSwitchIndexAlias, shouldDeleteOldIndices);
         }
 
         #endregion

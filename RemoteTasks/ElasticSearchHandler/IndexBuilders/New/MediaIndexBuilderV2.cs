@@ -50,14 +50,9 @@ namespace ElasticSearchHandler.IndexBuilders
             ApiObjects.LanguageObj defaultLanguage;
             GetGroupData(out catalogGroupCache, out group, out languages, out defaultLanguage);
 
-            string newIndexName = _IndexManager.SetupMediaIndex();
-            string channelPercolatorIndexName = _IndexManager.SetupChannelPercolatorIndex();
-
-            if (string.IsNullOrEmpty(channelPercolatorIndexName))
-            {
-                channelPercolatorIndexName = newIndexName;
-            }
-
+            var indexDate = DateTime.UtcNow;
+            _IndexManager.SetupMediaIndex(indexDate);
+            _IndexManager.SetupChannelPercolatorIndex(indexDate);
             log.DebugFormat("Start GetGroupMediasTotal for group {0}", groupId);
 
             if (doesGroupUsesTemplates)
@@ -74,7 +69,7 @@ namespace ElasticSearchHandler.IndexBuilders
                         break;
 
                     groupMedias = opcGroupMedias.ToDictionary(x => x.Key, x => x.Value);
-                    _IndexManager.InsertMedias(groupMedias, newIndexName);
+                    _IndexManager.InsertMedias(groupMedias, indexDate);
                     var nextNextId = groupMedias.Max(x => x.Key);
                     if (nextId == nextNextId)
                         break;
@@ -86,7 +81,7 @@ namespace ElasticSearchHandler.IndexBuilders
             {
                 // Get ALL media in group
                 Dictionary<int, Dictionary<int, Media>> groupMedias = ElasticsearchTasksCommon.Utils.GetGroupMediasTotal(groupId, 0);
-                _IndexManager.InsertMedias(groupMedias, newIndexName);
+                _IndexManager.InsertMedias(groupMedias, indexDate);
             }
 
             #endregion
@@ -99,17 +94,14 @@ namespace ElasticSearchHandler.IndexBuilders
                 channelIds = group.channelIDs;
             }
 
-            _IndexManager.AddChannelsPercolatorsToIndex(channelIds, channelPercolatorIndexName);
+            _IndexManager.AddChannelsPercolatorsToIndex(channelIds, indexDate);
 
             #endregion
 
             // Switch index alias + Delete old indices handling
-            _IndexManager.PublishMediaIndex(newIndexName, this.SwitchIndexAlias, this.DeleteOldIndices);
+            _IndexManager.PublishMediaIndex(indexDate, this.SwitchIndexAlias, this.DeleteOldIndices);
+            _IndexManager.PublishChannelPercolatorIndex(indexDate, this.SwitchIndexAlias, this.DeleteOldIndices);
 
-            if (channelPercolatorIndexName != newIndexName)
-            {
-                _IndexManager.PublishChannelPercolatorIndex(channelPercolatorIndexName, this.SwitchIndexAlias, this.DeleteOldIndices);
-            }
             return true;
         }
 

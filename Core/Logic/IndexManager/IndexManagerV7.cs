@@ -3316,18 +3316,17 @@ namespace Core.Catalog
             return resultEpgDocIds.Distinct().ToList();
         }
 
-        public string SetupMediaIndex()
+        public bool SetupMediaIndex(DateTime indexDate)
         {
-            string newIndexName = NamingHelper.GetNewMediaIndexName(_partnerId);
+            string newIndexName = NamingHelper.GetMediaIndexName(_partnerId, indexDate);
             bool isIndexCreated = CreateMediaIndex(newIndexName);
 
             if (!isIndexCreated)
             {
                 log.Error(string.Format("Failed creating index for index:{0}", newIndexName));
-                return string.Empty;
             }
 
-            return newIndexName;
+            return isIndexCreated;
         }
 
         private bool CreateMediaIndex(string newIndexName, bool shouldAddPercolators = false)
@@ -3405,28 +3404,30 @@ namespace Core.Catalog
             return isIndexCreated;
         }
 
-        public string SetupChannelPercolatorIndex()
+        public bool SetupChannelPercolatorIndex(DateTime indexDate)
         {
-            string percolatorsIndexName = NamingHelper.GetNewChannelPercolatorIndex(_partnerId);
+            string percolatorsIndexName = NamingHelper.GetChannelPercolatorIndex(_partnerId, indexDate);
             bool isIndexCreated = CreateMediaIndex(percolatorsIndexName, true);
 
             if (!isIndexCreated)
             {
                 log.Error(string.Format("Failed creating index for index:{0}", percolatorsIndexName));
-                return string.Empty;
             }
 
-            return percolatorsIndexName;
+            return isIndexCreated;
         }
 
-        public void PublishChannelPercolatorIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
+        public void PublishChannelPercolatorIndex(DateTime indexDate, bool shouldSwitchIndexAlias,
+            bool shouldDeleteOldIndices)
         {
             string alias = NamingHelper.GetChannelPercolatorIndexAlias(_partnerId);
-            this.SwitchIndexAlias(newIndexName, alias, shouldSwitchIndexAlias, shouldDeleteOldIndices);
+            var indexName = NamingHelper.GetChannelPercolatorIndex(_partnerId, indexDate);
+            this.SwitchIndexAlias(indexName, alias, shouldSwitchIndexAlias, shouldDeleteOldIndices);
         }
 
-        public void InsertMedias(Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> groupMedias, string newIndexName)
+        public void InsertMedias(Dictionary<int, Dictionary<int, Media>> groupMedias, DateTime indexDate)
         {
+            var indexName = NamingHelper.GetMediaIndexName(_partnerId, indexDate);
             var sizeOfBulk = GetBulkSize();
 
             log.DebugFormat("Start indexing medias. total medias={0}", groupMedias.Count);
@@ -3442,7 +3443,7 @@ namespace Core.Catalog
                 HashSet<string> metasToPad = GetMetasToPad();
 
                 // For each media
-                var bulkRequests = GetMediaBulkRequests(groupMedias, newIndexName, sizeOfBulk, metasToPad);
+                var bulkRequests = GetMediaBulkRequests(groupMedias, indexName, sizeOfBulk, metasToPad);
                 // Send request to elastic search in a different thread
                 Parallel.ForEach(bulkRequests, options, (bulkRequest, state) =>
                 {
@@ -3535,21 +3536,19 @@ namespace Core.Catalog
             return maxDegreeOfParallelism;
         }
 
-        public void PublishMediaIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
+        public void PublishMediaIndex(DateTime indexDate, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
         {
             string alias = NamingHelper.GetMediaIndexAlias(_partnerId);
-
-            SwitchIndexAlias(newIndexName, alias, shouldDeleteOldIndices, shouldSwitchIndexAlias);
+            var indexName = NamingHelper.GetMediaIndexName(_partnerId, indexDate);
+            SwitchIndexAlias(indexName, alias, shouldDeleteOldIndices, shouldSwitchIndexAlias);
         }
 
-        public bool AddChannelsPercolatorsToIndex(HashSet<int> channelIds, string newIndexName, bool shouldCleanupInvalidChannels = false)
+        public bool AddChannelsPercolatorsToIndex(HashSet<int> channelIds, DateTime? indexDate, bool shouldCleanupInvalidChannels = false)
         {
             bool result = false;
-
-            if (string.IsNullOrEmpty(newIndexName))
-            {
-                newIndexName = NamingHelper.GetMediaIndexAlias(_partnerId);
-            }
+            var indexName = indexDate.HasValue
+                ? NamingHelper.GetChannelPercolatorIndex(_partnerId, indexDate.Value)
+                : NamingHelper.GetChannelPercolatorIndexAlias(_partnerId);
 
             try
             {
@@ -3571,7 +3570,7 @@ namespace Core.Catalog
                     {
                         DocID = GetChannelDocumentId(channel),
                         Document = query,
-                        Index = newIndexName,
+                        Index = indexName,
                         Operation = eOperation.index
                     });
 
@@ -3683,14 +3682,14 @@ namespace Core.Catalog
         }
 
 
-        public string SetupChannelMetadataIndex()
+        public string SetupChannelMetadataIndex(DateTime indexDate)
         {
-            return SetupIndex<NestChannelMetadata>(NamingHelper.GetNewChannelMetadataIndexName(_partnerId), null, new List<string>() { "name" });
+            return SetupIndex<NestChannelMetadata>(NamingHelper.GetNewChannelMetadataIndexName(_partnerId, indexDate), null, new List<string>() { "name" });
         }
 
-        public string SetupTagsIndex()
+        public string SetupTagsIndex(DateTime indexDate)
         {
-            return SetupIndex<NestTag>(NamingHelper.GetNewMetadataIndexName(_partnerId), new List<string>() { "value" }, null);
+            return SetupIndex<NestTag>(NamingHelper.GetNewMetadataIndexName(_partnerId, indexDate), new List<string>() { "value" }, null);
         }
 
         public void InsertTagsToIndex(string newIndexName, List<TagValue> allTagValues)
@@ -3753,13 +3752,13 @@ namespace Core.Catalog
             return SwitchIndexAlias(newIndexName, alias, shouldDeleteOldIndices, shouldSwitchIndexAlias);
         }
 
-        public string SetupEpgIndex(bool isRecording)
+        public string SetupEpgIndex(DateTime indexDate, bool isRecording)
         {
-            var indexName = NamingHelper.GetNewEpgIndexName(_partnerId);
+            var indexName = NamingHelper.GetNewEpgIndexName(_partnerId, indexDate);
 
             if (isRecording)
             {
-                indexName = NamingHelper.GetNewRecordingIndexName(_partnerId);
+                indexName = NamingHelper.GetNewRecordingIndexName(_partnerId, indexDate);
             }
 
             CreateNewEpgIndex(indexName, isRecording);
@@ -4721,7 +4720,9 @@ namespace Core.Catalog
             string indexAnalyzer,
             string lowercaseAnalyzer,
             string phraseStartsWithAnalyzer,
-            string phraseStartsWithSearchAnalyzer) where K : class
+            string phraseStartsWithSearchAnalyzer,
+            string autocompleteAnalyzer,
+            string autocompleteSearchAnalyzer) where K : class
         {
             var lowercaseSubField = new TextPropertyDescriptor<object>()
                 .Name("lowercase")
@@ -4737,12 +4738,18 @@ namespace Core.Catalog
                 .Name("phrase_autocomplete")
                 .Analyzer(phraseStartsWithAnalyzer)
                 .SearchAnalyzer(phraseStartsWithSearchAnalyzer);
+            
+            var autocompleteSubField = new TextPropertyDescriptor<object>()
+                .Name("autocomplete")
+                .Analyzer(autocompleteAnalyzer)
+                .SearchAnalyzer(autocompleteSearchAnalyzer);
 
             PropertiesDescriptor<object> fieldsPropertiesDesctiptor = new PropertiesDescriptor<object>()
                 .Number(y => y.Name(metaName).Type(NumberType.Double))
                         .Text(y => lowercaseSubField)
                         .Text(y => phraseAutocompleteSubField)
                         .Text(y => analyzedSubField)
+                        .Text(y => autocompleteSubField)
                 ;
 
             if (shouldAddPaddedField)
@@ -5694,7 +5701,9 @@ namespace Core.Catalog
                                 indexAnalyzer,
                                 lowercaseAnalyzer,
                                 phraseStartsWithAnalyzer,
-                                phraseStartsWithSearchAnalyzer);
+                                phraseStartsWithSearchAnalyzer,
+                                autocompleteAnalyzer,
+                                autocompleteSearchAnalyzer);
                         }
                     }
                     else

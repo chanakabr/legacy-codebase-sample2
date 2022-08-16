@@ -164,7 +164,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
         protected virtual string CreateNewIndex(int groupId, CatalogGroupCache catalogGroupCache, Group group, IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage)
         {
-            return _IndexManager.SetupEpgIndex(false);
+            return _IndexManager.SetupEpgIndex(DateTime.UtcNow, false);
         }
 
         protected void PopulateEpgIndex(string index, DateTime date, Group group)

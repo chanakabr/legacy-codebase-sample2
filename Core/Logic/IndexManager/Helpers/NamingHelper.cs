@@ -105,20 +105,14 @@ namespace ApiLogic.IndexManager.Helpers
             return nGroupID.ToString();
         }
 
-        public static string GetNewEpgIndexName(int nGroupID)
-        {
-            return string.Format("{0}_epg_{1}", nGroupID, DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
-        }
+        public static string GetNewEpgIndexName(int nGroupID, DateTime indexDate)
+            => $"{nGroupID}_epg_{indexDate.ToString("yyyyMMddHHmmss")}";
 
-        public static string GetNewRecordingIndexName(int nGroupID)
-        {
-            return string.Format("{0}_recording_{1}", nGroupID, DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
-        }
+        public static string GetNewRecordingIndexName(int nGroupID, DateTime indexDate)
+            => $"{nGroupID}_recording_{indexDate.ToString("yyyyMMddHHmmss")}";
 
-        public static string GetNewMediaIndexName(int nGroupID)
-        {
-            return string.Format("{0}_{1}", nGroupID, DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
-        }
+        public static string GetMediaIndexName(int nGroupID, DateTime indexDate)
+            => $"{nGroupID}_{indexDate.ToString("yyyyMMddHHmmss")}";
 
         public static string GetNewUtilsIndexString()
         {
@@ -140,15 +134,11 @@ namespace ApiLogic.IndexManager.Helpers
             return string.Format("{0}_metadata", groupId);
         }
 
-        internal static string GetNewMetadataIndexName(int groupId)
-        {
-            return string.Format("{0}_metadata_{1}", groupId, DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
-        }
+        internal static string GetNewMetadataIndexName(int groupId, DateTime indexDate)
+            => $"{groupId}_metadata_{indexDate.ToString("yyyyMMddHHmmss")}";
 
-        internal static string GetNewChannelMetadataIndexName(int groupId)
-        {
-            return string.Format("{0}_channel_{1}", groupId, DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
-        }
+        internal static string GetNewChannelMetadataIndexName(int groupId, DateTime indexDate)
+            => $"{groupId}_channel_{indexDate.ToString("yyyyMMddHHmmss")}";
 
         internal static string GetChannelMetadataIndexName(int groupId)
         {
@@ -170,15 +160,10 @@ namespace ApiLogic.IndexManager.Helpers
             return $"ip_to_country_{DateTime.UtcNow.ToString("yyyyMMddHHmmss")}";
         }
 
-        public static string GetNewChannelPercolatorIndex(int partnerId)
-        {
-            return $"{partnerId}_channel_percolator_{DateTime.UtcNow.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT)}";
-        }
+        public static string GetChannelPercolatorIndex(int partnerId, DateTime indexDate)
+        => $"{partnerId}_channel_percolator_{indexDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT)}";
 
-        public static string GetChannelPercolatorIndexAlias(int partnerId)
-        {
-            return $"{partnerId}_channel_percolator";
-        }
+        public static string GetChannelPercolatorIndexAlias(int partnerId) => $"{partnerId}_channel_percolator";
 
         public static string GetStatisticsIndexName(int groupId)
         {
