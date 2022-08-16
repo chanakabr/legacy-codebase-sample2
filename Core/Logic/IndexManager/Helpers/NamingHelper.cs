@@ -35,6 +35,7 @@ namespace ApiLogic.IndexManager.Helpers
         public const string IS_AUTO_FILL_FIELD = "is_auto_fill";
         public const string ENABLE_CDVR = "enable_cdvr";
         public const string ENABLE_CATCHUP = "enable_catchup";
+        public const string IS_ACTIVE = "is_active";
 
         public const string EPG_IDENTIFIER = "epg_identifier";
 

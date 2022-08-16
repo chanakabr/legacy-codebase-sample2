@@ -691,6 +691,14 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     //I know its confusing but we cannot change it at this point :(
                     return null;
                 }
+                else if (field == NamingHelper.IS_ACTIVE)
+                {
+                    result = new TermQuery
+                    {
+                        Field = field,
+                        Value = Convert.ToBoolean(value)
+                    };
+                }
                 else
                 {
                     bool isNumeric = leaf.valueType == typeof(int) || leaf.valueType == typeof(long) || leaf.valueType == typeof(bool);
