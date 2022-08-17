@@ -27,7 +27,6 @@ namespace WebAPI.Models.Catalog
             this.EpgChannelId = asset.EpgChannelId;
             this.EpgId = asset.EpgId;
             this.TrickPlayEnabled = asset.EnableTrickPlay;
-            this.ExternalId = asset.ExternalId;
             this.Images = asset.Images;
             this.IndexStatus = asset.IndexStatus;
             this.MediaFiles = asset.MediaFiles;
