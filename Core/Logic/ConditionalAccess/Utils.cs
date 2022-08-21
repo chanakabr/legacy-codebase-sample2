@@ -8090,7 +8090,7 @@ namespace Core.ConditionalAccess
             return result; 
         }
 
-        private static List<MediaFile> ValidateMediaFilesUponSecurity(List<MediaFile> allMediafiles, int groupId)
+        public static List<MediaFile> ValidateMediaFilesUponSecurity(List<MediaFile> allMediafiles, int groupId)
         {
             if (!GroupSettingsManager.Instance.IsOpc(groupId))
             {
@@ -8155,13 +8155,12 @@ namespace Core.ConditionalAccess
             {
                 if (funcParams != null && funcParams.Count == 6)
                 {
-                    if (funcParams.ContainsKey("assetId") && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("assetType") && funcParams.ContainsKey("userId"))
+                    if (funcParams.ContainsKey("assetId") && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("assetType"))
                     {
                         long id = 0;
                         string assetId = funcParams["assetId"] as string;
                         int? groupId = funcParams["groupId"] as int?;
                         eAssetTypes? assetType = funcParams["assetType"] as eAssetTypes?;
-                        string userId = funcParams["userId"] as string;
                         bool isExternalRecordingAccount = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId.Value, GroupFeature.EXTERNAL_RECORDINGS);
                         if (!string.IsNullOrEmpty(assetId) && assetType.HasValue && groupId.HasValue
                             && (long.TryParse(assetId, out id) || (isExternalRecordingAccount && assetType.Value == eAssetTypes.NPVR)))
@@ -8172,6 +8171,7 @@ namespace Core.ConditionalAccess
                                     {
                                         Domain domain = funcParams.ContainsKey("domain") ? funcParams["domain"] as Domain : null;
                                         string udid = funcParams.ContainsKey("udid") ? funcParams["udid"] as string : string.Empty;
+                                        string userId = funcParams["userId"] as string;
                                         // check recording valid
                                         ApiObjects.Response.Status validateStatus = null;
                                         if (isExternalRecordingAccount)
@@ -9874,7 +9874,7 @@ namespace Core.ConditionalAccess
             return programs;
         }
         
-        internal static PagoProgramAvailability GetEntitledPagoWindow(int groupId, int domainId, int assetId,
+        public static PagoProgramAvailability GetEntitledPagoWindow(int groupId, int domainId, int assetId,
             eAssetTypes assetType, List<MediaFile> files, EPGChannelProgrammeObject EpgProgram)
         {
             DomainEntitlements domainEntitlements = null;

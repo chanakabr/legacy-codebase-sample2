@@ -1,9 +1,6 @@
-﻿using ApiObjects.CanaryDeployment.Elasticsearch;
-using Phx.Lib.Appconfig;
-using ElasticSearch.Searcher.Settings;
+﻿using Phx.Lib.Appconfig;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Threading;
 
 namespace ElasticSearch.Common
@@ -11,6 +8,7 @@ namespace ElasticSearch.Common
     public interface IElasticSearchIndexDefinitionsBase
     {
         string GetAnalyzerDefinition(string sAnalyzerName);
+        string GetCustomPropertiesDefinition(string customPropertiesKey);
         string GetFilterDefinition(string sFilterName);
         string GetTokenizerDefinition(string tokenizerName);
     }
@@ -34,6 +32,7 @@ namespace ElasticSearch.Common
         internal readonly IApplicationConfiguration Configuration;
 
         private static ConcurrentDictionary<string, string> dESAnalyzers = new ConcurrentDictionary<string, string>();
+        private static ConcurrentDictionary<string, string> dESCustomProperties = new ConcurrentDictionary<string, string>();
         private static ConcurrentDictionary<string, string> dESFilters = new ConcurrentDictionary<string, string>();
         private static ConcurrentDictionary<string, string> tokenizers = new ConcurrentDictionary<string, string>();
 
@@ -52,6 +51,20 @@ namespace ElasticSearch.Common
                     dESAnalyzers.TryAdd(analyzerName, analyzer);
             }
             return analyzer;
+        }
+
+        public string GetCustomPropertiesDefinition(string customPropertiesKey)
+        {
+            if (!dESCustomProperties.TryGetValue(customPropertiesKey, out var customPropertiesDefinition))
+            {
+                customPropertiesDefinition = Utils.GetTcmValue(customPropertiesKey);
+                if (!string.IsNullOrEmpty(customPropertiesDefinition))
+                {
+                    dESCustomProperties.TryAdd(customPropertiesKey, customPropertiesDefinition);
+                }
+            }
+
+            return customPropertiesDefinition;
         }
 
         public string GetFilterDefinition(string filterName)

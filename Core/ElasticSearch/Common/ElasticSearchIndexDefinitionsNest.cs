@@ -9,14 +9,15 @@ using Newtonsoft.Json.Linq;
 
 namespace ElasticSearch.Common
 {
-    public interface IElasticSearchIndexDefinitionsNest:IElasticSearchIndexDefinitions
+    public interface IElasticSearchIndexDefinitionsNest : IElasticSearchIndexDefinitions
     {
         Dictionary<string, Analyzer> GetAnalyzers(ElasticsearchVersion version, string languageCode);
+        Dictionary<string, CustomProperty> GetCustomProperties(ElasticsearchVersion version, string languageCode);
         Dictionary<string, Tokenizer> GetTokenizers(ElasticsearchVersion version, string languageCode);
         Dictionary<string, Filter> GetFilters(ElasticsearchVersion version, string languageCode);
     }
-    
-    public class ElasticSearchIndexDefinitionsNest :ElasticSearchIndexDefinitions, IElasticSearchIndexDefinitionsNest
+
+    public class ElasticSearchIndexDefinitionsNest : ElasticSearchIndexDefinitions, IElasticSearchIndexDefinitionsNest
     {
         private static readonly Lazy<ElasticSearchIndexDefinitionsNest> LazyInstance = new Lazy<ElasticSearchIndexDefinitionsNest>(() =>
             new ElasticSearchIndexDefinitionsNest(Common.Utils.Instance, ApplicationConfiguration.Current), LazyThreadSafetyMode.PublicationOnly);
@@ -28,17 +29,8 @@ namespace ElasticSearch.Common
         public Dictionary<string, Analyzer> GetAnalyzers(ElasticsearchVersion version, string languageCode)
         {
             var result = new Dictionary<string, Analyzer>();
-            string versionString = string.Empty;
-            switch (version)
-            {
-                case ElasticsearchVersion.ES_7:
-                    versionString = "7";
-                    break;
-                default:
-                    versionString = "7";
-                    break;
-            }
 
+            string versionString = GetVersionString(version);
             string tcmKey = Common.Utils.GetLangCodeAnalyzerKey(languageCode, versionString);
             string analyzerString = GetAnalyzerDefinition(tcmKey);
 
@@ -53,21 +45,42 @@ namespace ElasticSearch.Common
             return result;
         }
 
+        public Dictionary<string, CustomProperty> GetCustomProperties(ElasticsearchVersion version, string languageCode)
+        {
+            var result = new Dictionary<string, CustomProperty>();
+
+            var versionString = GetVersionString(version);
+            var tcmKey = Common.Utils.GetLangCodePropertiesKey(languageCode, versionString);
+            var customFieldsDefinition = GetCustomPropertiesDefinition(tcmKey);
+
+            if (string.IsNullOrEmpty(customFieldsDefinition))
+            {
+                return result;
+            }
+
+            var jObject = JObject.Parse($"{{{customFieldsDefinition}}}");
+            foreach (var jsonCustomField in jObject)
+            {
+                var type = jsonCustomField.Value?.Value<string>("type")?.ToLower();
+                switch (type)
+                {
+                    case "icu_collation_keyword":
+                    {
+                        var sortProperty = jsonCustomField.Value.ToObject<SortProperty>();
+                        result.Add(jsonCustomField.Key, sortProperty);
+                        break;
+                    }
+                }
+            }
+
+            return result;
+        }
+
         public Dictionary<string, Filter> GetFilters(ElasticsearchVersion version, string languageCode)
         {
             var result = new Dictionary<string, Filter>();
-            string versionString = string.Empty;
-            switch (version)
-            {
-                case ElasticsearchVersion.ES_7:
-                    versionString = "7";
-                    break;
-                default:
-                    versionString = "7";
-                    break;
-            }
 
-
+            string versionString = GetVersionString(version);
             string tcmKey = Common.Utils.GetLangCodeFilterKey(languageCode, versionString);
             string filterString = GetFilterDefinition(tcmKey);
 
@@ -109,17 +122,8 @@ namespace ElasticSearch.Common
         public Dictionary<string, Tokenizer> GetTokenizers(ElasticsearchVersion version, string languageCode)
         {
             var result = new Dictionary<string, Tokenizer>();
-            string versionString = string.Empty;
-            switch (version)
-            {
-                case ElasticsearchVersion.ES_7:
-                    versionString = "7";
-                    break;
-                default:
-                    versionString = "7";
-                    break;
-            }
 
+            string versionString = GetVersionString(version);
             string tcmKey = Common.Utils.GetLangCodeFilterKey(languageCode, versionString);
             string tokenizerString = GetTokenizerDefinition(tcmKey);
 
@@ -143,12 +147,26 @@ namespace ElasticSearch.Common
                         result.Add(jsonTokenizer.Key, parsedObject);
                         break;
                     }
-                    default:
-                        break;
                 }
             }
 
             return result;
+        }
+
+        private string GetVersionString(ElasticsearchVersion version)
+        {
+            string versionString;
+            switch (version)
+            {
+                case ElasticsearchVersion.ES_7:
+                    versionString = "7";
+                    break;
+                default:
+                    versionString = "7";
+                    break;
+            }
+
+            return versionString;
         }
     }
 }

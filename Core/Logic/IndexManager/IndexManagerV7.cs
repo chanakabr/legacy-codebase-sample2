@@ -52,6 +52,7 @@ using ApiLogic.IndexManager.Sorting;
 using ElasticSearch.NEST;
 using ElasticSearch.Searcher;
 using ElasticSearch.Utils;
+using Force.DeepCloner;
 using BoolQuery = Nest.BoolQuery;
 
 namespace Core.Catalog
@@ -1488,11 +1489,12 @@ namespace Core.Catalog
 
             if (!_sortingService.IsSortingCompleted(definitions))
             {
+                var sortingDefinitions = GenerateSortingDefinitions(definitions);
                 var extendedUnifiedSearchResults = unifiedSearchResultToHit.Select(x => new ExtendedUnifiedSearchResult(x.Key, x.Value)).ToArray();
                 IEnumerable<UnifiedSearchResult> orderedResults;
                 if (definitions.PriorityGroupsMappings == null || !definitions.PriorityGroupsMappings.Any())
                 {
-                    orderedResults = _sortingService.GetReorderedAssets(definitions, extendedUnifiedSearchResults);
+                    orderedResults = _sortingService.GetReorderedAssets(sortingDefinitions, extendedUnifiedSearchResults);
                 }
                 else
                 {
@@ -1500,7 +1502,7 @@ namespace Core.Catalog
                     var priorityGroupsResults = extendedUnifiedSearchResults.GroupBy(r => r.Result.Score);
                     foreach (var priorityGroupsResult in priorityGroupsResults)
                     {
-                        var reorderedAssets = _sortingService.GetReorderedAssets(definitions, priorityGroupsResult);
+                        var reorderedAssets = _sortingService.GetReorderedAssets(sortingDefinitions, priorityGroupsResult);
                         if (reorderedAssets == null)
                         {
                             log.Debug($"Chunk from priority group hasn't been processed. Asset Ids: [{string.Join(",", priorityGroupsResult.Select(x => x.AssetId))}]");
@@ -1517,6 +1519,13 @@ namespace Core.Catalog
             }
 
             return searchResultsList;
+        }
+
+        private static UnifiedSearchDefinitions GenerateSortingDefinitions(UnifiedSearchDefinitions definitions)
+        {
+            var sortingDefinitions = definitions.DeepClone();
+            sortingDefinitions.groupId = definitions.ExtractParentGroupId();
+            return sortingDefinitions;
         }
 
         private UnifiedSearchResult CreateUnifiedSearchResultFromESDocument(
@@ -3307,18 +3316,17 @@ namespace Core.Catalog
             return resultEpgDocIds.Distinct().ToList();
         }
 
-        public string SetupMediaIndex()
+        public bool SetupMediaIndex(DateTime indexDate)
         {
-            string newIndexName = NamingHelper.GetNewMediaIndexName(_partnerId);
+            string newIndexName = NamingHelper.GetMediaIndexName(_partnerId, indexDate);
             bool isIndexCreated = CreateMediaIndex(newIndexName);
 
             if (!isIndexCreated)
             {
                 log.Error(string.Format("Failed creating index for index:{0}", newIndexName));
-                return string.Empty;
             }
 
-            return newIndexName;
+            return isIndexCreated;
         }
 
         private bool CreateMediaIndex(string newIndexName, bool shouldAddPercolators = false)
@@ -3332,10 +3340,9 @@ namespace Core.Catalog
             }
 
             var languages = GetLanguages();
-            var defaultLanguage = GetDefaultLanguage();
 
             // get definitions of analyzers, filters and tokenizers
-            GetAnalyzersWithLowercaseAndPhraseStartsWith(languages, out var analyzers, out var filters, out var tokenizers);
+            GetAnalyzersWithLowercaseAndPhraseStartsWith(languages, out var analyzers, out var customProperties, out var filters, out var tokenizers);
             AnalyzersDescriptor analyzersDescriptor = GetAnalyzersDesctiptor(analyzers);
             TokenFiltersDescriptor filtersDescriptor = GetTokenFiltersDescriptor(filters);
             TokenizersDescriptor tokenizersDescriptor = GetTokenizersDesctiptor(tokenizers);
@@ -3349,8 +3356,7 @@ namespace Core.Catalog
                 throw new Exception($"failed to get metas and tags");
             }
 
-            var propertiesDescriptor =
-                GetMediaPropertiesDescriptor(languages, metas, tags, metasToPad, analyzers);
+            var propertiesDescriptor = GetMediaPropertiesDescriptor(languages, metas, tags, metasToPad, analyzers, customProperties);
             var createResponse = _elasticClient.Indices.Create(newIndexName,
                 c => c.Settings(settings =>
                 {
@@ -3398,28 +3404,30 @@ namespace Core.Catalog
             return isIndexCreated;
         }
 
-        public string SetupChannelPercolatorIndex()
+        public bool SetupChannelPercolatorIndex(DateTime indexDate)
         {
-            string percolatorsIndexName = NamingHelper.GetNewChannelPercolatorIndex(_partnerId);
+            string percolatorsIndexName = NamingHelper.GetChannelPercolatorIndex(_partnerId, indexDate);
             bool isIndexCreated = CreateMediaIndex(percolatorsIndexName, true);
 
             if (!isIndexCreated)
             {
                 log.Error(string.Format("Failed creating index for index:{0}", percolatorsIndexName));
-                return string.Empty;
             }
 
-            return percolatorsIndexName;
+            return isIndexCreated;
         }
 
-        public void PublishChannelPercolatorIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
+        public void PublishChannelPercolatorIndex(DateTime indexDate, bool shouldSwitchIndexAlias,
+            bool shouldDeleteOldIndices)
         {
             string alias = NamingHelper.GetChannelPercolatorIndexAlias(_partnerId);
-            this.SwitchIndexAlias(newIndexName, alias, shouldSwitchIndexAlias, shouldDeleteOldIndices);
+            var indexName = NamingHelper.GetChannelPercolatorIndex(_partnerId, indexDate);
+            this.SwitchIndexAlias(indexName, alias, shouldSwitchIndexAlias, shouldDeleteOldIndices);
         }
 
-        public void InsertMedias(Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> groupMedias, string newIndexName)
+        public void InsertMedias(Dictionary<int, Dictionary<int, Media>> groupMedias, DateTime indexDate)
         {
+            var indexName = NamingHelper.GetMediaIndexName(_partnerId, indexDate);
             var sizeOfBulk = GetBulkSize();
 
             log.DebugFormat("Start indexing medias. total medias={0}", groupMedias.Count);
@@ -3435,7 +3443,7 @@ namespace Core.Catalog
                 HashSet<string> metasToPad = GetMetasToPad();
 
                 // For each media
-                var bulkRequests = GetMediaBulkRequests(groupMedias, newIndexName, sizeOfBulk, metasToPad);
+                var bulkRequests = GetMediaBulkRequests(groupMedias, indexName, sizeOfBulk, metasToPad);
                 // Send request to elastic search in a different thread
                 Parallel.ForEach(bulkRequests, options, (bulkRequest, state) =>
                 {
@@ -3528,21 +3536,19 @@ namespace Core.Catalog
             return maxDegreeOfParallelism;
         }
 
-        public void PublishMediaIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
+        public void PublishMediaIndex(DateTime indexDate, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
         {
             string alias = NamingHelper.GetMediaIndexAlias(_partnerId);
-
-            SwitchIndexAlias(newIndexName, alias, shouldDeleteOldIndices, shouldSwitchIndexAlias);
+            var indexName = NamingHelper.GetMediaIndexName(_partnerId, indexDate);
+            SwitchIndexAlias(indexName, alias, shouldDeleteOldIndices, shouldSwitchIndexAlias);
         }
 
-        public bool AddChannelsPercolatorsToIndex(HashSet<int> channelIds, string newIndexName, bool shouldCleanupInvalidChannels = false)
+        public bool AddChannelsPercolatorsToIndex(HashSet<int> channelIds, DateTime? indexDate, bool shouldCleanupInvalidChannels = false)
         {
             bool result = false;
-
-            if (string.IsNullOrEmpty(newIndexName))
-            {
-                newIndexName = NamingHelper.GetMediaIndexAlias(_partnerId);
-            }
+            var indexName = indexDate.HasValue
+                ? NamingHelper.GetChannelPercolatorIndex(_partnerId, indexDate.Value)
+                : NamingHelper.GetChannelPercolatorIndexAlias(_partnerId);
 
             try
             {
@@ -3564,7 +3570,7 @@ namespace Core.Catalog
                     {
                         DocID = GetChannelDocumentId(channel),
                         Document = query,
-                        Index = newIndexName,
+                        Index = indexName,
                         Operation = eOperation.index
                     });
 
@@ -3640,11 +3646,8 @@ namespace Core.Catalog
         private string SetupIndex<T>(string newIndexName, List<string> multilingualFields, List<string> simpleFields)
         where T : class
         {
-            Dictionary<string, Analyzer> analyzers;
-            Dictionary<string, Tokenizer> tokenizers;
-            Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters;
             var languages = GetLanguages();
-            GetAnalyzersWithLowercase(languages.ToList(), out analyzers, out filters, out tokenizers);
+            GetAnalyzersWithLowercase(languages.ToList(), out var analyzers, out _, out var filters, out var tokenizers);
             var analyzersDescriptor = GetAnalyzersDesctiptor(analyzers);
             var filtersDescriptor = GetTokenFiltersDescriptor(filters);
             var tokenizersDescriptor = GetTokenizersDesctiptor(tokenizers);
@@ -3679,14 +3682,14 @@ namespace Core.Catalog
         }
 
 
-        public string SetupChannelMetadataIndex()
+        public string SetupChannelMetadataIndex(DateTime indexDate)
         {
-            return SetupIndex<NestChannelMetadata>(NamingHelper.GetNewChannelMetadataIndexName(_partnerId), null, new List<string>() { "name" });
+            return SetupIndex<NestChannelMetadata>(NamingHelper.GetNewChannelMetadataIndexName(_partnerId, indexDate), null, new List<string>() { "name" });
         }
 
-        public string SetupTagsIndex()
+        public string SetupTagsIndex(DateTime indexDate)
         {
-            return SetupIndex<NestTag>(NamingHelper.GetNewMetadataIndexName(_partnerId), new List<string>() { "value" }, null);
+            return SetupIndex<NestTag>(NamingHelper.GetNewMetadataIndexName(_partnerId, indexDate), new List<string>() { "value" }, null);
         }
 
         public void InsertTagsToIndex(string newIndexName, List<TagValue> allTagValues)
@@ -3749,13 +3752,13 @@ namespace Core.Catalog
             return SwitchIndexAlias(newIndexName, alias, shouldDeleteOldIndices, shouldSwitchIndexAlias);
         }
 
-        public string SetupEpgIndex(bool isRecording)
+        public string SetupEpgIndex(DateTime indexDate, bool isRecording)
         {
-            var indexName = NamingHelper.GetNewEpgIndexName(_partnerId);
+            var indexName = NamingHelper.GetNewEpgIndexName(_partnerId, indexDate);
 
             if (isRecording)
             {
-                indexName = NamingHelper.GetNewRecordingIndexName(_partnerId);
+                indexName = NamingHelper.GetNewRecordingIndexName(_partnerId, indexDate);
             }
 
             CreateNewEpgIndex(indexName, isRecording);
@@ -3999,6 +4002,7 @@ namespace Core.Catalog
         public SearchResultsObj SearchMedias(MediaSearchObj search, int langId, bool useStartDate)
         {
             search.m_nGroupId = search.m_nGroupId == 0 ? _partnerId : search.m_nGroupId;
+            search.m_oLangauge = search.m_oLangauge ?? GetDefaultLanguage();
             var mediaBuilder = new UnifiedSearchNestMediaBuilder()
             {
                 Definitions = search,
@@ -4152,6 +4156,7 @@ namespace Core.Catalog
                 if (searchObj == null)
                     continue;
                 searchObj.m_nPageSize = 0;
+                searchObj.m_oLangauge = searchObj.m_oLangauge ?? GetDefaultLanguage();
                 unifiedSearchNestMediaBuilder.Definitions = searchObj;
                 unifiedSearchNestMediaBuilder.QueryType = searchObj.m_bExact ? eQueryType.EXACT : eQueryType.BOOLEAN;
                 shouldContainer.Add(unifiedSearchNestMediaBuilder.GetQuery());
@@ -4284,6 +4289,7 @@ namespace Core.Catalog
             });
 
             mediaSearch.m_nGroupId = _partnerId;
+            mediaSearch.m_oLangauge = mediaSearch.m_oLangauge ?? GetDefaultLanguage();
             
             var nestMediaBuilder = new UnifiedSearchNestMediaBuilder()
             {
@@ -4608,7 +4614,7 @@ namespace Core.Catalog
             bool shouldUseNumOfConfiguredShards = true, int? refreshIntervalSeconds = null, int? numOfShards = null)
         {
             List<LanguageObj> languages = GetLanguages();
-            GetAnalyzersWithLowercaseAndPhraseStartsWith(languages, out var analyzers, out var filters, out var tokenizers);
+            GetAnalyzersWithLowercaseAndPhraseStartsWith(languages, out var analyzers, out var customProperties, out var filters, out var tokenizers);
             int replicas = shouldBuildWithReplicas ? _numOfReplicas : 0;
             
             // use TCM global sharding configuration or hardcoded default
@@ -4632,7 +4638,7 @@ namespace Core.Catalog
                 throw new Exception($"failed to get metas and tags");
             }
 
-            var propertiesDescriptor = GetEpgPropertiesDescriptor(languages, metas, tags, metasToPad, analyzers);
+            var propertiesDescriptor = GetEpgPropertiesDescriptor(languages, metas, tags, metasToPad, analyzers, customProperties);
             var createResponse = _elasticClient.Indices.Create(newIndexName,
                 c => c
                     .Settings(settings =>
@@ -4669,11 +4675,13 @@ namespace Core.Catalog
             }
         }
 
-        private PropertiesDescriptor<NestEpg> GetEpgPropertiesDescriptor(List<LanguageObj> languages,
+        private PropertiesDescriptor<NestEpg> GetEpgPropertiesDescriptor(
+            List<LanguageObj> languages,
             Dictionary<string, KeyValuePair<eESFieldType, string>> metas,
             List<string> tags,
             HashSet<string> metasToPad,
-            Dictionary<string, Analyzer> analyzers)
+            Dictionary<string, Analyzer> analyzers,
+            Dictionary<string, CustomProperty> customProperties)
         {
             var propertiesDescriptor = new PropertiesDescriptor<NestEpg>();
 
@@ -4699,7 +4707,7 @@ namespace Core.Catalog
                 .Keyword(x => x.Name(e => e.CouchbaseDocumentId))
                 ;
 
-            AddLanguageSpecificMappingToPropertyDescriptor(languages, metas, tags, metasToPad, analyzers, propertiesDescriptor);
+            AddLanguageSpecificMappingToPropertyDescriptor(languages, metas, tags, metasToPad, analyzers, customProperties, propertiesDescriptor);
 
             return propertiesDescriptor;
         }
@@ -4712,7 +4720,9 @@ namespace Core.Catalog
             string indexAnalyzer,
             string lowercaseAnalyzer,
             string phraseStartsWithAnalyzer,
-            string phraseStartsWithSearchAnalyzer) where K : class
+            string phraseStartsWithSearchAnalyzer,
+            string autocompleteAnalyzer,
+            string autocompleteSearchAnalyzer) where K : class
         {
             var lowercaseSubField = new TextPropertyDescriptor<object>()
                 .Name("lowercase")
@@ -4728,12 +4738,18 @@ namespace Core.Catalog
                 .Name("phrase_autocomplete")
                 .Analyzer(phraseStartsWithAnalyzer)
                 .SearchAnalyzer(phraseStartsWithSearchAnalyzer);
+            
+            var autocompleteSubField = new TextPropertyDescriptor<object>()
+                .Name("autocomplete")
+                .Analyzer(autocompleteAnalyzer)
+                .SearchAnalyzer(autocompleteSearchAnalyzer);
 
             PropertiesDescriptor<object> fieldsPropertiesDesctiptor = new PropertiesDescriptor<object>()
                 .Number(y => y.Name(metaName).Type(NumberType.Double))
                         .Text(y => lowercaseSubField)
                         .Text(y => phraseAutocompleteSubField)
                         .Text(y => analyzedSubField)
+                        .Text(y => autocompleteSubField)
                 ;
 
             if (shouldAddPaddedField)
@@ -4763,10 +4779,9 @@ namespace Core.Catalog
             string lowercaseAnalyzer,
             string phraseStartsWithAnalyzer,
             string phraseStartsWithSearchAnalyzer,
-            bool shouldAddPhraseAutocompleteField,
-            string phoneticIndexAnalyzer = null,
-            string phoneticSearchAnalyzer = null,
-            bool shouldAddPhoneticField = false,
+            string phoneticIndexAnalyzer,
+            string phoneticSearchAnalyzer,
+            SortProperty sortProperty,
             bool shouldAddPaddedField = false) where K : class
         {
             var lowercaseSubField = new TextPropertyDescriptor<object>()
@@ -4795,7 +4810,7 @@ namespace Core.Catalog
                 .Text(y => analyzedField)
                 ;
 
-            if (shouldAddPhraseAutocompleteField)
+            if (!string.IsNullOrEmpty(phraseStartsWithAnalyzer) && !string.IsNullOrEmpty(phraseStartsWithSearchAnalyzer))
             {
                 var phraseAutocompleteSubField = new TextPropertyDescriptor<object>()
                     .Name("phrase_autocomplete")
@@ -4806,13 +4821,26 @@ namespace Core.Catalog
                     .Text(y => phraseAutocompleteSubField);
             }
 
-            if (shouldAddPhoneticField && !string.IsNullOrEmpty(phoneticIndexAnalyzer) && !string.IsNullOrEmpty(phoneticSearchAnalyzer))
+            if (!string.IsNullOrEmpty(phoneticIndexAnalyzer) && !string.IsNullOrEmpty(phoneticSearchAnalyzer))
             {
                 var phoneticField = new TextPropertyDescriptor<object>()
                     .Name("phonetic")
                     .Analyzer(phoneticIndexAnalyzer)
                     .SearchAnalyzer(phoneticSearchAnalyzer);
                 fieldsPropertiesDesctiptor.Text(y => phoneticField);
+            }
+
+            if (sortProperty != null)
+            {
+                var icuCollationKeywordProperty = new IcuCollationKeywordProperty("sort")
+                {
+                    Index = sortProperty.Index,
+                    Language = sortProperty.Language,
+                    Country = sortProperty.Country,
+                    Variant = sortProperty.Variant,
+                    Type = sortProperty.Type
+                };
+                fieldsPropertiesDesctiptor.Custom(icuCollationKeywordProperty);
             }
 
             if (shouldAddPaddedField)
@@ -4991,18 +5019,21 @@ namespace Core.Catalog
             return tokenizersDescriptor;
         }
 
-        private void GetAnalyzersWithLowercaseAndPhraseStartsWith(IEnumerable<LanguageObj> languages,
+        private void GetAnalyzersWithLowercaseAndPhraseStartsWith(
+            IEnumerable<LanguageObj> languages,
             out Dictionary<string, Analyzer> analyzers,
+            out Dictionary<string, CustomProperty> customProperties,
             out Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters,
-            out Dictionary<string, Tokenizer> tokeniezrs)
+            out Dictionary<string, Tokenizer> tokenizers)
         {
             analyzers = new Dictionary<string, Analyzer>();
+            customProperties = new Dictionary<string, CustomProperty>();
             filters = new Dictionary<string, ElasticSearch.Searcher.Settings.Filter>();
-            tokeniezrs = new Dictionary<string, Tokenizer>();
+            tokenizers = new Dictionary<string, Tokenizer>();
 
             if (languages != null)
             {
-                GetAnalyzersWithLowercase(languages, out analyzers, out filters, out tokeniezrs);
+                GetAnalyzersWithLowercase(languages, out analyzers, out customProperties, out filters, out tokenizers);
 
                 var defaultCharFilter = new List<string>() { "html_strip" };
 
@@ -5032,12 +5063,14 @@ namespace Core.Catalog
             }
         }
 
-        private void GetAnalyzersWithLowercase(IEnumerable<LanguageObj> languages,
+        private void GetAnalyzersWithLowercase(
+            IEnumerable<LanguageObj> languages,
             out Dictionary<string, Analyzer> analyzers,
+            out Dictionary<string, CustomProperty> customProperties,
             out Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters,
             out Dictionary<string, Tokenizer> tokenizers)
         {
-            GetAnalyzersAndFiltersFromConfiguration(languages, out analyzers, out filters, out tokenizers);
+            GetAnalyzersAndFiltersFromConfiguration(languages, out analyzers, out customProperties, out filters, out tokenizers);
 
             // we always want a lowercase analyzer
             // we always want "autocomplete" ability
@@ -5058,12 +5091,15 @@ namespace Core.Catalog
             );
         }
 
-        private void GetAnalyzersAndFiltersFromConfiguration(IEnumerable<LanguageObj> languages,
+        private void GetAnalyzersAndFiltersFromConfiguration(
+            IEnumerable<LanguageObj> languages,
             out Dictionary<string, Analyzer> analyzers,
+            out Dictionary<string, CustomProperty> customProperties,
             out Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters,
             out Dictionary<string, Tokenizer> tokenizers)
         {
             analyzers = new Dictionary<string, Analyzer>();
+            customProperties = new Dictionary<string, CustomProperty>();
             filters = new Dictionary<string, ElasticSearch.Searcher.Settings.Filter>();
             tokenizers = new Dictionary<string, Tokenizer>();
             // by ref... will be updated there
@@ -5072,6 +5108,7 @@ namespace Core.Catalog
             foreach (LanguageObj language in languages)
             {
                 var currentAnalyzers = _esIndexDefinitions.GetAnalyzers(ElasticsearchVersion.ES_7, language.Code);
+                var currentCustomProperties = _esIndexDefinitions.GetCustomProperties(ElasticsearchVersion.ES_7, language.Code);
                 var currentFilters = _esIndexDefinitions.GetFilters(ElasticsearchVersion.ES_7, language.Code);
                 var currentTokenizers = _esIndexDefinitions.GetTokenizers(ElasticsearchVersion.ES_7, language.Code);
 
@@ -5085,6 +5122,11 @@ namespace Core.Catalog
                     {
                         analyzers[analyzer.Key] = analyzer.Value;
                     }
+                }
+
+                foreach (var customProperty in currentCustomProperties)
+                {
+                    customProperties[customProperty.Key] = customProperty.Value;
                 }
 
                 if (currentFilters != null)
@@ -5388,11 +5430,13 @@ namespace Core.Catalog
             });
         }
 
-        private PropertiesDescriptor<NestMedia> GetMediaPropertiesDescriptor(List<LanguageObj> languages,
+        private PropertiesDescriptor<NestMedia> GetMediaPropertiesDescriptor(
+            List<LanguageObj> languages,
             Dictionary<string, KeyValuePair<eESFieldType, string>> metas,
             List<string> tags,
             HashSet<string> metasToPad,
-            Dictionary<string, Analyzer> analyzers)
+            Dictionary<string, Analyzer> analyzers,
+            Dictionary<string, CustomProperty> customProperties)
         {
             PropertiesDescriptor<NestMedia> propertiesDescriptor = new PropertiesDescriptor<NestMedia>();
             var liveToVodPropertiesDescriptor = new PropertiesDescriptor<NestLiveToVodProperties>()
@@ -5438,7 +5482,9 @@ namespace Core.Catalog
                 DEFAULT_LOWERCASE_ANALYZER,
                 DEFAULT_PHRASE_STARTS_WITH_ANALYZER,
                 DEFAULT_PHRASE_STARTS_WITH_SEARCH_ANALYZER,
-                true);
+                null,
+                null,
+                null);
             InitializeTextField(
                 "entry_id",
                 propertiesDescriptor,
@@ -5449,21 +5495,26 @@ namespace Core.Catalog
                 DEFAULT_LOWERCASE_ANALYZER,
                 DEFAULT_PHRASE_STARTS_WITH_ANALYZER,
                 DEFAULT_PHRASE_STARTS_WITH_SEARCH_ANALYZER,
-                true);
+                null,
+                null,
+                null);
 
             if (!metas.ContainsKey(META_SUPPRESSED))
             {
                 metas.Add(META_SUPPRESSED, new KeyValuePair<eESFieldType, string>(eESFieldType.STRING, string.Empty)); //new meta for suppressed value
             }
 
-            AddLanguageSpecificMappingToPropertyDescriptor(languages, metas, tags, metasToPad, analyzers, propertiesDescriptor);
+            AddLanguageSpecificMappingToPropertyDescriptor(languages, metas, tags, metasToPad, analyzers, customProperties, propertiesDescriptor);
 
             return propertiesDescriptor;
         }
 
-        private PropertiesDescriptor<T> GetPropertiesDescriptor<T>(PropertiesDescriptor<T> propertiesDescriptor,
+        private PropertiesDescriptor<T> GetPropertiesDescriptor<T>(
+            PropertiesDescriptor<T> propertiesDescriptor,
             List<LanguageObj> languages,
-            Dictionary<string, Analyzer> analyzers, List<string> multilingualFields, List<string> simpleFields)
+            Dictionary<string, Analyzer> analyzers,
+            List<string> multilingualFields,
+            List<string> simpleFields)
         where T : class
         {
             if (multilingualFields != null)
@@ -5484,8 +5535,8 @@ namespace Core.Catalog
                             out _,
                             out _,
                             out string lowercaseAnalyzer,
-                            out string phraseStartsWithAnalyzer,
-                            out string phraseStartsWithSearchAnalyzer);
+                            out _,
+                            out _);
 
                         InitializeTextField(
                             $"{language.Code}",
@@ -5495,9 +5546,11 @@ namespace Core.Catalog
                             autocompleteAnalyzer,
                             autocompleteSearchAnalyzer,
                             lowercaseAnalyzer,
-                            phraseStartsWithAnalyzer,
-                            phraseStartsWithSearchAnalyzer,
-                            false);
+                            null,
+                            null,
+                            null,
+                            null,
+                            null);
                     }
 
                     propertiesDescriptor.Object<object>(x => x
@@ -5509,13 +5562,10 @@ namespace Core.Catalog
 
             if (simpleFields != null)
             {
-                var defaultLanguage = GetDefaultLanguage();
-                var defaultLanguageCode = defaultLanguage.Code;
-
                 foreach (var field in simpleFields)
                 {
                     propertiesDescriptor.Keyword(t =>
-                        InitializeTextField<T>(
+                        InitializeTextField(
                             field,
                             propertiesDescriptor,
                             DEFAULT_INDEX_ANALYZER,
@@ -5523,18 +5573,24 @@ namespace Core.Catalog
                             DEFAULT_AUTOCOMPLETE_ANALYZER,
                             DEFAULT_AUTOCOMPLETE_SEARCH_ANALYZER,
                             DEFAULT_LOWERCASE_ANALYZER,
-                            DEFAULT_PHRASE_STARTS_WITH_ANALYZER,
-                            DEFAULT_PHRASE_STARTS_WITH_SEARCH_ANALYZER,
-                            false));
+                            null,
+                            null,
+                            null,
+                            null,
+                            null));
                 }
             }
 
             return propertiesDescriptor;
         }
 
-        private void AddLanguageSpecificMappingToPropertyDescriptor<T>(List<LanguageObj> languages,
-            Dictionary<string, KeyValuePair<eESFieldType, string>> metas, List<string> tags, HashSet<string> metasToPad,
+        private void AddLanguageSpecificMappingToPropertyDescriptor<T>(
+            List<LanguageObj> languages,
+            Dictionary<string, KeyValuePair<eESFieldType, string>> metas,
+            List<string> tags,
+            HashSet<string> metasToPad,
             Dictionary<string, Analyzer> analyzers,
+            Dictionary<string, CustomProperty> customProperties,
             PropertiesDescriptor<T> propertiesDescriptor)
             where T : class
         {
@@ -5559,8 +5615,7 @@ namespace Core.Catalog
                     out var lowercaseAnalyzer,
                     out var phraseStartsWithAnalyzer,
                     out var phraseStartsWithSearchAnalyzer);
-
-                bool shouldAddPhoneticField = !string.IsNullOrEmpty(phoneticIndexAnalyzer) && !string.IsNullOrEmpty(phoneticSearchAnalyzer);
+                var sortProperty = GetCurrentLanguageSortProperty(customProperties, language);
 
                 InitializeTextField(
                     $"{language.Code}",
@@ -5572,11 +5627,9 @@ namespace Core.Catalog
                     lowercaseAnalyzer,
                     phraseStartsWithAnalyzer,
                     phraseStartsWithSearchAnalyzer,
-                    true,
                     phoneticIndexAnalyzer,
                     phoneticSearchAnalyzer,
-                    shouldAddPhoneticField,
-                    false
+                    sortProperty
                 );
                 InitializeTextField(
                     $"{language.Code}",
@@ -5588,11 +5641,9 @@ namespace Core.Catalog
                     lowercaseAnalyzer,
                     phraseStartsWithAnalyzer,
                     phraseStartsWithSearchAnalyzer,
-                    true,
                     phoneticIndexAnalyzer,
                     phoneticSearchAnalyzer,
-                    shouldAddPhoneticField,
-                    false
+                    null
                 );
 
                 foreach (var tag in tags)
@@ -5606,11 +5657,9 @@ namespace Core.Catalog
                         lowercaseAnalyzer,
                         phraseStartsWithAnalyzer,
                         phraseStartsWithSearchAnalyzer,
-                        true,
                         phoneticIndexAnalyzer,
                         phoneticSearchAnalyzer,
-                        shouldAddPhoneticField,
-                        false
+                        null
                     );
                 }
 
@@ -5629,7 +5678,7 @@ namespace Core.Catalog
                     {
                         if (metaType == eESFieldType.STRING)
                         {
-                            var descriptor = InitializeTextField(metaName,
+                            InitializeTextField(metaName,
                                 dictionaryMetaPropertiesDescriptor[language.Code],
                                 indexAnalyzer,
                                 searchAnalyzer,
@@ -5638,10 +5687,9 @@ namespace Core.Catalog
                                 lowercaseAnalyzer,
                                 phraseStartsWithAnalyzer,
                                 phraseStartsWithSearchAnalyzer,
-                                true,
                                 phoneticIndexAnalyzer,
                                 phoneticSearchAnalyzer,
-                                shouldAddPhoneticField,
+                                sortProperty,
                                 shouldAddPadded);
                         }
                         else
@@ -5653,7 +5701,9 @@ namespace Core.Catalog
                                 indexAnalyzer,
                                 lowercaseAnalyzer,
                                 phraseStartsWithAnalyzer,
-                                phraseStartsWithSearchAnalyzer);
+                                phraseStartsWithSearchAnalyzer,
+                                autocompleteAnalyzer,
+                                autocompleteSearchAnalyzer);
                         }
                     }
                     else
@@ -5780,6 +5830,17 @@ namespace Core.Catalog
             {
                 phoneticSearchAnalyzer = phoneticSearchAnalyzerCandidate;
             }
+        }
+
+        private SortProperty GetCurrentLanguageSortProperty(Dictionary<string, CustomProperty> customProperties, LanguageObj language)
+        {
+            if (customProperties.TryGetValue($"{language.Code}_sort", out var customProperty)
+                && customProperty is SortProperty sortProperty)
+            {
+                return sortProperty;
+            }
+
+            return null;
         }
 
         private void CreateNewEpgIndex(string newIndexName, bool isRecording = false, bool shouldBuildWithReplicas = true, bool shouldUseNumOfConfiguredShards = true,

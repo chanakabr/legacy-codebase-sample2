@@ -102,24 +102,24 @@ namespace Core.Catalog
             IEnumerable<long> epgIds, IEnumerable<LanguageObj> languages);
 
         // rebuilders
-        string SetupMediaIndex();
-        string SetupChannelPercolatorIndex();
+        bool SetupMediaIndex(DateTime indexDate);
+        bool SetupChannelPercolatorIndex(DateTime indexDate);
 
-        void InsertMedias(Dictionary<int, Dictionary<int, Media>> groupMedias, string newIndexName);
-        void PublishMediaIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices);
-        void PublishChannelPercolatorIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices);
+        void InsertMedias(Dictionary<int, Dictionary<int, Media>> groupMedias, DateTime indexDate);
+        void PublishMediaIndex(DateTime indexDate, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices);
+        void PublishChannelPercolatorIndex(DateTime indexDate, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices);
 
-        bool AddChannelsPercolatorsToIndex(HashSet<int> channelIds, string newIndexName, bool shouldCleanupInvalidChannels = false);
+        bool AddChannelsPercolatorsToIndex(HashSet<int> channelIds, DateTime? indexDate, bool shouldCleanupInvalidChannels = false);
 
-        string SetupChannelMetadataIndex();
+        string SetupChannelMetadataIndex(DateTime indexDate);
         void AddChannelsMetadataToIndex(string newIndexName, List<Channel> allChannels);
         void PublishChannelsMetadataIndex(string newIndexName, bool shouldSwitchAlias, bool shouldDeleteOldIndices);
 
-        string SetupTagsIndex();
+        string SetupTagsIndex(DateTime indexDate);
         void InsertTagsToIndex(string newIndexName, List<ApiObjects.SearchObjects.TagValue> allTagValues);
         bool PublishTagsIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices);
 
-        string SetupEpgIndex(bool isRecording);
+        string SetupEpgIndex(DateTime indexDate, bool isRecording);
 
         void AddEPGsToIndex(string index, bool isRecording,
             Dictionary<ulong, Dictionary<string, EpgCB>> programs,

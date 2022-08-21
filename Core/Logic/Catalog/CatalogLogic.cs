@@ -7244,9 +7244,10 @@ namespace Core.Catalog
                         string key = keyValue.m_sKey;
                         string value = keyValue.m_sValue;
 
-                        BooleanLeaf leaf = new BooleanLeaf(
-                            string.Format("tags.{0}{1}", key.ToLower(), suffix), value.ToLower(), typeof(string),
-                            ComparisonOperator.Equals, true);
+                        BooleanLeaf leaf = new BooleanLeaf(key.ToLower(), value.ToLower(), typeof(string), ComparisonOperator.Equals, true)
+                        {
+                            fieldType = eFieldType.Tag
+                        };
                         nodes.Add(leaf);
                     }
                 }
@@ -7281,9 +7282,7 @@ namespace Core.Catalog
                             fieldType = eFieldType.NonStringMeta;
                         }
 
-                        BooleanLeaf leaf = new BooleanLeaf(
-                            string.Format("{0}{1}", key.ToLower(), suffix), value.ToLower(), type,
-                            ComparisonOperator.Equals, shouldLowercase)
+                        BooleanLeaf leaf = new BooleanLeaf(key.ToLower(), value.ToLower(), type, ComparisonOperator.Equals, shouldLowercase)
                         {
                             fieldType = fieldType
                         };
@@ -7564,6 +7563,7 @@ namespace Core.Catalog
                     {
                         fieldType = searchKey.FieldType
                     };
+
                     if (isNumericValueType == true)
                     {
                         HandleNumericLeaf(newLeaf);
@@ -7623,12 +7623,13 @@ namespace Core.Catalog
                     {
                         HandleNumericLeaf(leaf);
 
+                        definitions.numericEpgMetas.Add(searchKey.Field);
                         leaf.valueType = typeof(double);
                         leaf.shouldLowercase = false;
                     }
                     else if (searchKey.ValueType == typeof(int) || searchKey.ValueType == typeof(long))
                     {
-                        if (leaf.value != DBNull.Value && leaf.value != null &&
+                        if (leaf.value != DBNull.Value && leaf.value != null && 
                             Convert.ToString(leaf.value) != string.Empty)
                         {
                             leaf.value = Convert.ToInt64(leaf.value);
@@ -7638,8 +7639,9 @@ namespace Core.Catalog
                             leaf.value = default(long);
                         }
 
+                        definitions.numericEpgMetas.Add(searchKey.Field);   
                         leaf.valueType = typeof(long);
-                        leaf.shouldLowercase = false;
+                        leaf.shouldLowercase = false;   
                     }
                     else
                     {
@@ -8421,7 +8423,7 @@ namespace Core.Catalog
                         definitions.shouldSearchEpg = true;
                     }
 
-                    initialTree = GetChannelTagsBooleanPhrase(channel.m_lChannelTags, channel.m_eCutWith);
+                    initialTree = GetChannelTagsBooleanPhrase(channel.m_lChannelTags, channel.m_eCutWith, group, groupId);
                 }
                 else
                 {
@@ -8735,7 +8737,7 @@ namespace Core.Catalog
             return definitions;
         }
 
-        private static BooleanPhrase GetChannelTagsBooleanPhrase(List<SearchValue> channelTags, CutWith channelCutWith)
+        private static BooleanPhrase GetChannelTagsBooleanPhrase(List<SearchValue> channelTags, CutWith channelCutWith, Group group, int groupId)
         {
             List<BooleanPhraseNode> channelTagsNodes = new List<BooleanPhraseNode>();
 
@@ -8752,6 +8754,8 @@ namespace Core.Catalog
                         key = string.Format("{0}.{1}", searchValue.m_sKeyPrefix, key);
                     }
 
+                    var keyLeafFieldDefinition = CatalogLogic.GetUnifiedSearchKey(key, group, groupId).FirstOrDefault();
+
                     bool shouldLowercase = true;
                     if (CatalogReservedFields.ReservedUnifiedSearchNumericFields.Contains(searchValue.m_sKey))
                     {
@@ -8761,13 +8765,25 @@ namespace Core.Catalog
                     // If only 1 value, use it as a single node (there's no need to create a phrase with 1 node...)
                     if (searchValue.m_lValue.Count == 1)
                     {
-                        newNode = new BooleanLeaf(key, searchValue.m_lValue[0], typeof(string),
-                            ComparisonOperator.Equals, shouldLowercase);
+                        newNode = new BooleanLeaf(keyLeafFieldDefinition?.Field ?? key,
+                            searchValue.m_lValue[0],
+                            keyLeafFieldDefinition?.ValueType ?? typeof(string),
+                            ComparisonOperator.Equals,
+                            shouldLowercase)
+                        {
+                            fieldType = keyLeafFieldDefinition?.FieldType ?? eFieldType.Default
+                        };
                     }
                     else if (innerCutType == eCutType.Or)
                     {
-                        newNode = new BooleanLeaf(key, searchValue.m_lValue, typeof(string), ComparisonOperator.In,
-                            shouldLowercase);
+                        newNode = new BooleanLeaf(keyLeafFieldDefinition?.Field ?? key,
+                            searchValue.m_lValue,
+                            keyLeafFieldDefinition?.ValueType ?? typeof(string),
+                            ComparisonOperator.In,
+                            shouldLowercase)
+                        {
+                            fieldType = keyLeafFieldDefinition?.FieldType ?? eFieldType.Default
+                        };
                     }
                     else
                     {
@@ -8776,8 +8792,14 @@ namespace Core.Catalog
 
                         foreach (var item in searchValue.m_lValue)
                         {
-                            BooleanLeaf leaf = new BooleanLeaf(key, item, typeof(string), ComparisonOperator.Equals,
-                                shouldLowercase);
+                            BooleanLeaf leaf = new BooleanLeaf(keyLeafFieldDefinition?.Field ?? key,
+                                item,
+                                keyLeafFieldDefinition?.ValueType ?? typeof(string),
+                                ComparisonOperator.Equals,
+                                shouldLowercase)
+                            {
+                                fieldType = keyLeafFieldDefinition?.FieldType ?? eFieldType.Default
+                            };
                             innerNodes.Add(leaf);
                         }
 

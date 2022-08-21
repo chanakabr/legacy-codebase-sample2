@@ -7,6 +7,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj" />
+      <ProjectReference Include="..\..\Core\IotGrpcClientWrapper\IotGrpcClientWrapper.csproj" />
       <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />
     </ItemGroup>
 

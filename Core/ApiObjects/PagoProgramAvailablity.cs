@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using ProtoBuf;
 
+[module: CompatibilityLevel(CompatibilityLevel.Level300)]
 namespace ApiObjects
 {
+    [ProtoContract(ImplicitFields = ImplicitFields.AllPublic,SkipConstructor = true)]
     public class PagoProgramAvailability
     {
         public List<long> FileIds;

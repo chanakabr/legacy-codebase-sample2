@@ -75,6 +75,7 @@ namespace ElasticSearch.Common
             string lowercaseAnalyzer = specificLanguageAnalyzers.lowercaseAnalyzer ?? LOWERCASE_ANALYZER;
             string phraseStartsWithAnalyzer = specificLanguageAnalyzers.phraseStartsWithAnalyzer ?? PHRASE_STARTS_WITH_ANALYZER;
             string phraseStartsWithSearchAnalyzer = specificLanguageAnalyzers.phraseStartsWithSearchAnalyzer ?? PHRASE_STARTS_WITH_SEARCH_ANALYZER;
+            string sortingAnalyzer = specificLanguageAnalyzers.sortingAnalyzer;
 
             string defaultNormalIndexAnalyzer = normalIndexAnalyzer;
             string defaultNormalSearchAnalyzer = normalSearchAnalyzer;
@@ -428,6 +429,18 @@ namespace ElasticSearch.Common
                     index = eMappingIndex.analyzed,
                     search_analyzer = phoneticSearchAnalyzer,
                     analyzer = phoneticIndexAnalyzer
+                });
+            }
+
+            if (!string.IsNullOrEmpty(sortingAnalyzer))
+            {
+                nameProperty.fields.Add(new BasicMappingPropertyV2()
+                {
+                    name = "sort",
+                    type = eESFieldType.STRING,
+                    null_value = "",
+                    index = eMappingIndex.analyzed,
+                    analyzer = sortingAnalyzer
                 });
             }
 
@@ -861,6 +874,31 @@ namespace ElasticSearch.Common
                                     search_analyzer = phraseStartsWithSearchAnalyzer,
                                     analyzer = phraseStartsWithAnalyzer
                                 });
+
+                                if (!string.IsNullOrEmpty(phoneticIndexAnalyzer) && !string.IsNullOrEmpty(phoneticSearchAnalyzer))
+                                {
+                                    multiField.fields.Add(new BasicMappingPropertyV2()
+                                    {
+                                        name = "phonetic",
+                                        type = eESFieldType.STRING,
+                                        null_value = "",
+                                        index = eMappingIndex.analyzed,
+                                        search_analyzer = phoneticSearchAnalyzer,
+                                        analyzer = phoneticIndexAnalyzer
+                                    });
+                                }
+
+                                if (!string.IsNullOrEmpty(sortingAnalyzer))
+                                {
+                                    multiField.fields.Add(new BasicMappingPropertyV2()
+                                    {
+                                        name = "sort",
+                                        type = eESFieldType.STRING,
+                                        null_value = "",
+                                        index = eMappingIndex.analyzed,
+                                        analyzer = sortingAnalyzer
+                                    });
+                                }
                             }
                             else
                             {
@@ -922,19 +960,6 @@ namespace ElasticSearch.Common
                                 });
                             }
 
-                            if (!string.IsNullOrEmpty(phoneticIndexAnalyzer) && !string.IsNullOrEmpty(phoneticSearchAnalyzer))
-                            {
-                                multiField.fields.Add(new BasicMappingPropertyV2()
-                                {
-                                    name = "phonetic",
-                                    type = eESFieldType.STRING,
-                                    null_value = "",
-                                    index = eMappingIndex.analyzed,
-                                    search_analyzer = phoneticSearchAnalyzer,
-                                    analyzer = phoneticIndexAnalyzer
-                                });
-                            }
-
                             metas.AddProperty(multiField);
                         }
                         else
@@ -992,6 +1017,7 @@ namespace ElasticSearch.Common
             string lowercaseAnalyzer = specificLanguageAnalyzers.lowercaseAnalyzer ?? LOWERCASE_ANALYZER;
             string phraseStartsWithAnalyzer = specificLanguageAnalyzers.phraseStartsWithAnalyzer ?? PHRASE_STARTS_WITH_ANALYZER;
             string phraseStartsWithSearchAnalyzer = specificLanguageAnalyzers.phraseStartsWithSearchAnalyzer ?? PHRASE_STARTS_WITH_SEARCH_ANALYZER;
+            string sortingAnalyzer = specificLanguageAnalyzers.sortingAnalyzer;
 
             string defaultNormalIndexAnalyzer = normalIndexAnalyzer;
             string defaultNormalSearchAnalyzer = normalSearchAnalyzer;
@@ -1184,6 +1210,18 @@ namespace ElasticSearch.Common
                     index = eMappingIndex.analyzed,
                     search_analyzer = phoneticSearchAnalyzer,
                     analyzer = phoneticIndexAnalyzer
+                });
+            }
+
+            if (!string.IsNullOrEmpty(sortingAnalyzer))
+            {
+                nameProperty.fields.Add(new BasicMappingPropertyV2()
+                {
+                    name = "sort",
+                    type = eESFieldType.STRING,
+                    null_value = "",
+                    index = eMappingIndex.analyzed,
+                    analyzer = sortingAnalyzer
                 });
             }
 
@@ -1640,6 +1678,31 @@ namespace ElasticSearch.Common
                                     search_analyzer = phraseStartsWithSearchAnalyzer,
                                     analyzer = phraseStartsWithAnalyzer
                                 });
+
+                                if (!string.IsNullOrEmpty(phoneticIndexAnalyzer) && !string.IsNullOrEmpty(phoneticSearchAnalyzer))
+                                {
+                                    multiField.fields.Add(new BasicMappingPropertyV2()
+                                    {
+                                        name = "phonetic",
+                                        type = eESFieldType.STRING,
+                                        null_value = "",
+                                        index = eMappingIndex.analyzed,
+                                        search_analyzer = phoneticSearchAnalyzer,
+                                        analyzer = phoneticIndexAnalyzer
+                                    });
+                                }
+
+                                if (!string.IsNullOrEmpty(sortingAnalyzer))
+                                {
+                                    multiField.fields.Add(new BasicMappingPropertyV2()
+                                    {
+                                        name = "sort",
+                                        type = eESFieldType.STRING,
+                                        null_value = "",
+                                        index = eMappingIndex.analyzed,
+                                        analyzer = sortingAnalyzer
+                                    });
+                                }
                             }
                             else
                             {
@@ -1698,19 +1761,6 @@ namespace ElasticSearch.Common
                                     index = eMappingIndex.analyzed,
                                     search_analyzer = autocompleteSearchAnalyzer,
                                     analyzer = autocompleteIndexAnalyzer
-                                });
-                            }
-
-                            if (!string.IsNullOrEmpty(phoneticIndexAnalyzer) && !string.IsNullOrEmpty(phoneticSearchAnalyzer))
-                            {
-                                multiField.fields.Add(new BasicMappingPropertyV2()
-                                {
-                                    name = "phonetic",
-                                    type = eESFieldType.STRING,
-                                    null_value = "",
-                                    index = eMappingIndex.analyzed,
-                                    search_analyzer = phoneticSearchAnalyzer,
-                                    analyzer = phoneticIndexAnalyzer
                                 });
                             }
 

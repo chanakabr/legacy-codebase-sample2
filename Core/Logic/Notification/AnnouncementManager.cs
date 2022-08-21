@@ -1036,10 +1036,11 @@ namespace Core.Notification
 
             string resultMsgIds = "";
 
+            var conditionValue = announcements.Any(ann => ann.RecipientsType == eAnnouncementRecipientsType.All ||
+                                                          ann.RecipientsType == eAnnouncementRecipientsType.LoggedIn);
             //send IoT system announcement message
             if (includeIot && NotificationSettings.IsPartnerIotNotificationEnabled(groupId)
-                && announcements.Any(ann => ann.RecipientsType == eAnnouncementRecipientsType.All ||
-                ann.RecipientsType == eAnnouncementRecipientsType.LoggedIn))
+                && conditionValue)
             {
                 PublishIotSystemAnnouncement(groupId, ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"));
             }
@@ -1131,7 +1132,8 @@ namespace Core.Notification
 
         private static void PublishIotSystemAnnouncement(int groupId, string message)
         {
-            var result = NotificationAdapter.IotPublishAnnouncement(groupId, message, IotManager.SYSTEM_ANNOUNCEMENT);
+            log.DebugFormat($"PublishIotSystemAnnouncement message {message.Substring(0, Math.Min(message.Length, 10))}");
+            var result = NotificationAdapter.IotPublishAnnouncement(groupId, message);
             var _print = $"{message.Substring(0, Math.Min(message.Length, 10))}...";//Shorten message for log
 
             if (result)

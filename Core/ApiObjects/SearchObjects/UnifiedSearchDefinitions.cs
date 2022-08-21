@@ -457,6 +457,13 @@ namespace ApiObjects.SearchObjects
         [DataMember]
         public bool hasOrNode;
 
+        /// <summary>
+        /// when comparing numeric epg metas we will padd the numbers since EPG ingest may bring us assets with strings as input
+        /// </summary>
+        [JsonProperty()]
+        [DataMember]
+        public HashSet<string> numericEpgMetas;
+
         #endregion
 
         #region Ctor
@@ -512,10 +519,15 @@ namespace ApiObjects.SearchObjects
             boostScoreValues = new List<BoostScoreValueDefinition>();
 
             PriorityGroupsMappings = new Dictionary<double, IEsPriorityGroup>();
+            numericEpgMetas = new HashSet<string>();
         }
 
         #endregion
 
+        public int ExtractParentGroupId()
+        {
+            return this.indexGroupId == 0 ? this.groupId : this.indexGroupId;
+        }
     }
 
     /// <summary>

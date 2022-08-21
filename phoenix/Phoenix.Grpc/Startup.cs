@@ -1,4 +1,5 @@
-﻿using Core.Middleware;
+﻿using AutoMapper.Configuration;
+using Core.Middleware;
 using Grpc.controllers;
 using Grpc.HealthCheck;
 using GrpcAPI.controllers;
@@ -8,6 +9,7 @@ using HealthCheck;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using OTT.Lib.Metrics.Extensions;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace Phoenix.Grpc
@@ -18,13 +20,18 @@ namespace Phoenix.Grpc
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            GrpcMapping.RegisterMappings();
+            MapperConfigurationExpression cfg = new MapperConfigurationExpression();
+            GrpcMapping.RegisterMappings(cfg);
+            AutoMapper.Mapper.Initialize(cfg);
         }
         
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddRouting();
+            services.AddMetricHttpEndpoint(8080);
             services.AddKalturaHealthCheckService();
+            services.AddCoreConcurrencyLimiter();
             // this can be transient or scoped as well depending on your needs
             services.AddHttpContextAccessor();
             services.AddStaticHttpContextAccessor();
@@ -40,6 +47,11 @@ namespace Phoenix.Grpc
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseCoreConcurrencyLimiter();
+            // this will connect request metrics middleware to your existing webhost
+            app.UseRequestMetricsMiddleware();            
+            // this will connect a /metrics endpoint to your existing webHost 
+            app.UseMetrics();
             app.UseRouting();
             app.UseKloggerSessionIdBuilder();
             
@@ -47,7 +59,7 @@ namespace Phoenix.Grpc
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGrpcService<HealthCheckController>();
-                endpoints.MapGrpcService<PhoneixController>();
+                endpoints.MapGrpcService<PhoenixController>();
             });
         }
     }

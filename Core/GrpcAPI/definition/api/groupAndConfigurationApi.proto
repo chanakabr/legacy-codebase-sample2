@@ -1,0 +1,49 @@
+syntax = "proto3";
+import "NotificationPartnerSettings.proto";
+
+option csharp_namespace = "phoenix";
+option go_package = "./models";
+
+package phoenix;
+
+message GetGroupSecretAndCountryCodeRequest{
+  int32 groupId = 1;
+}
+
+message GetGroupSecretAndCountryCodeResponse{
+  bool isSuccess = 1;
+  string secretCode = 2;
+  string countryCode = 3;
+}
+
+message GetCDVRAdapterRequest{
+  int32 groupId = 1;
+}
+
+message GetCDVRAdapterResponse{
+    int32 id = 1;
+    string adapterUrl = 2;
+    bool DynamicLinksSupport = 3;
+    string SharedSecret = 4;
+    string ExternalIdentifier = 5;
+}
+
+message IsRegionalizationRequest{
+  int32 groupId = 1;
+}
+
+message GetDefaultRegionIdRequest{
+  int32 groupId = 1;
+}
+
+message GetDefaultRegionIdResponse{
+  int64 regionId = 1;
+}
+
+message GetNotificationPartnerSettingsRequest{
+  int32 groupId = 1;
+}
+
+message GetNotificationPartnerSettingsResponse{
+  NotificationPartnerSettings setting = 1;
+}

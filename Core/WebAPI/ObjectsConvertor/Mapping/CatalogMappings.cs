@@ -544,7 +544,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Crid, opt => opt.MapFrom(src => src.Program.m_oProgram.CRID))
                 .ForMember(dest => dest.LinearAssetId, opt => opt.MapFrom(src => src.Program.m_oProgram.LINEAR_MEDIA_ID > 0 ? (long?)src.Program.m_oProgram.LINEAR_MEDIA_ID : null))
                 .ForMember(dest => dest.RecordingId, opt => opt.MapFrom(src => src.RecordingId))
-                .ForMember(dest => dest.RecordingType, opt => opt.MapFrom(src => src.RecordingType));
+                .ForMember(dest => dest.RecordingType, opt => opt.MapFrom(src => src.RecordingType))
+                ;
 
             #endregion
 
@@ -627,6 +628,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.RecordingType, opt => opt.MapFrom(src => src.RecordingType))
                 .ForMember(dest => dest.RecordingId, opt => opt.MapFrom(src => src.RecordingId))
                 .ForMember(dest => dest.ViewableUntilDate, opt => opt.MapFrom(src => src.ViewableUntilDate))
+                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.EpgIdentifier))
                 ;
 
             // Asset to KalturaAsset

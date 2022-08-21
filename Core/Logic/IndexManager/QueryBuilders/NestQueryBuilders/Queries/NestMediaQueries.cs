@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using ApiLogic.IndexManager.NestData;
+using ApiLogic.IndexManager.QueryBuilders.NestQueryBuilders;
 using ApiObjects.SearchObjects;
+using Core.Catalog;
 using MoreLinq;
 using Nest;
 using TVinciShared;
@@ -411,10 +413,10 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 return null;
             }
 
-            var searchValues = definitions.m_dOr.Select(searchValue =>
-                ElasticSearch.Common.Utils.GetKeyNameWithPrefix(searchValue.m_sKey.ToLower(),
-                    searchValue.m_sKeyPrefix.ToLower())).ToArray();
-
+            var searchValues = definitions.m_dOr
+                .Select(searchValue => UnifiedSearchNestMediaBuilder.GetElasticsearchFieldName(
+                    searchValue, definitions.m_oLangauge.Code))
+                .ToArray();
             var queryContainerDescriptor = new QueryContainerDescriptor<NestMedia>();
              queryContainerDescriptor.MultiMatch(mm => mm.Fields(f => f.Fields(searchValues)));
              return queryContainerDescriptor;

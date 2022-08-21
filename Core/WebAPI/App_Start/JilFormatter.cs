@@ -3,6 +3,7 @@ using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
+using FeatureFlag;
 using Phx.Lib.Log;
 using WebAPI.Managers;
 using WebAPI.Models.API;
@@ -13,11 +14,13 @@ namespace WebAPI.App_Start
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        protected JsonManager jsonManager;
+        private readonly JsonManager _jsonManager;
+        private readonly IPhoenixFeatureFlag _phoenixFeatureFlag;
 
         public JilFormatter(KalturaResponseType fortmat = KalturaResponseType.JSON) : base(fortmat, "application/json")
         {
-            jsonManager = JsonManager.GetInstance();
+            _jsonManager = JsonManager.GetInstance();
+            _phoenixFeatureFlag = PhoenixFeatureFlagInstance.Get();
         }
 
         public override bool CanReadType(Type type)
@@ -38,9 +41,21 @@ namespace WebAPI.App_Start
         {
             using (TextWriter streamWriter = new StreamWriter(writeStream))
             {
-                string json = jsonManager.Serialize(value);
-                streamWriter.Write(json);
-                return Task.FromResult(writeStream);
+                if (_phoenixFeatureFlag.IsEfficientSerializationUsed())
+                {
+                    var jsonBuilder = _jsonManager.Serialize(value);
+#if NETCOREAPP3_1
+                    return streamWriter.WriteAsync(jsonBuilder);
+#endif
+#if NET48
+                    return streamWriter.WriteAsync(jsonBuilder.ToString());
+#endif
+                }
+                else
+                {
+                    var json = _jsonManager.ObsoleteSerialize(value);
+                    return streamWriter.WriteAsync(json);
+                }
             }
         }
 
@@ -49,7 +64,21 @@ namespace WebAPI.App_Start
         /// </summary>
         public override Task<string> GetStringResponse(object obj)
         {
-            return Task.Run(() => jsonManager.Serialize(obj));
+            return Task.Run(() =>
+            {
+                string json;
+                if (_phoenixFeatureFlag.IsEfficientSerializationUsed())
+                {
+                    var jsonBuilder = _jsonManager.Serialize(obj);
+                    json = jsonBuilder.ToString();
+                }
+                else
+                {
+                    json = _jsonManager.ObsoleteSerialize(obj);
+                }
+
+                return json;
+            });
         }
     }
 }

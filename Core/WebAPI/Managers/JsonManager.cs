@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Text;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -22,8 +23,9 @@ namespace WebAPI.Managers
 
             return instance;
         }
-                        
-        public string Serialize(object value, bool omitObsolete = false)
+
+        [Obsolete]
+        public string ObsoleteSerialize(object value, bool omitObsolete = false)
         {
             string result = string.Empty;
 
@@ -38,6 +40,29 @@ namespace WebAPI.Managers
             }
 
             return result;
+        }
+
+        public StringBuilder Serialize(object value, bool omitObsolete = false)
+        {
+            var stringBuilder = Serialize(new StringBuilder(), value, omitObsolete);
+
+            return stringBuilder;
+        }
+
+        public StringBuilder Serialize(StringBuilder stringBuilder, object value, bool omitObsolete = false)
+        {
+            if (value is IKalturaSerializable kalturaSerializable)
+            {
+                var currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                kalturaSerializable.AppendAsJson(stringBuilder, currentVersion, omitObsolete);
+            }
+            else
+            {
+                var stringJson = JsonConvert.SerializeObject(value);
+                stringBuilder.Append(stringJson);
+            }
+
+            return stringBuilder;
         }
     }
 }

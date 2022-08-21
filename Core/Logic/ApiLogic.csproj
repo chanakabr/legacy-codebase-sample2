@@ -19,8 +19,10 @@
     <PackageReference Include="DeepCloner" Version="0.10.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
     <PackageReference Include="morelinq" Version="3.3.2" />
-    <PackageReference Include="Phx.Lib.Appconfig" Version="1.4.8" />
+    <PackageReference Include="Phx.Lib.Appconfig" Version="1.4.9" />
+    <PackageReference Include="ott.client.iot.grpc" Version="1.0.0-pr-11-117" />
     <PackageReference Include="ott.client.offers.grpc" Version="0.1.2" />
+    <PackageReference Include="protobuf-net.Core" Version="3.1.4" />
     <PackageReference Include="System.Runtime.Caching" Version="4.5.0" />
   </ItemGroup>
 
@@ -53,6 +55,7 @@
     <ProjectReference Include="..\GoogleAPI\GoogleAPI.csproj" />
     <ProjectReference Include="..\GroupsCacheManager\GroupsCacheManager.csproj" />
     <ProjectReference Include="..\ImageManager\ImageManager.csproj" />
+    <ProjectReference Include="..\IotGrpcClientWrapper\IotGrpcClientWrapper.csproj" />
     <ProjectReference Include="..\KalturaRequestContext\KalturaRequestContext.csproj" />
     <ProjectReference Include="..\M1BL\M1BL.csproj" />
     <ProjectReference Include="..\Mailer\Mailer.csproj" />

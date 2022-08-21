@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  
+  <PropertyGroup>
+    <Version>5.2.0.3673</Version>
+    <AssemblyTitle>2019-04-09 20:15:47 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-0-147-gb99fddbc-dirty</AssemblyTitle>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+    
+  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+    <TargetFrameworks>netcoreapp3.1;net48</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GrpcClientCommon\GrpcClientCommon.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ott.client.iot.grpc" Version="1.0.0-pr-11-117" />
+    <PackageReference Include="Phx.Lib.Appconfig" Version="1.4.9" />
+    <PackageReference Include="Phx.Lib.Log" Version="1.2.4" />
+  </ItemGroup>
+
+</Project>

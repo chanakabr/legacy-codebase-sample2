@@ -735,7 +735,7 @@ namespace WebAPI.WebServices
             Int32 nGroupID = Core.Pricing.Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Pricing.Module.GetPPVModuleListForMediaFilesWithExpiry(nGroupID, nMediaFileIDs, sCountryCd2, sLanguageCode3, sDeviceName);
+                return Core.Pricing.Module.GetPPVModuleListForMediaFilesWithExpiry(nGroupID, nMediaFileIDs);
             }
             else
             {

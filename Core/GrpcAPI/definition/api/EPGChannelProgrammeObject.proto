@@ -1,0 +1,33 @@
+syntax = "proto3";
+option csharp_namespace = "phoenix";
+option go_package = "./models";
+package phoenix;
+
+message EPGChannelProgrammeObject {
+   int64 CHANNEL_CATCH_UP_BUFFER = 1;
+   string CREATE_DATE = 2;
+   string CRID = 3;
+   string DESCRIPTION = 4;
+   int32 ENABLE_CATCH_UP = 5;
+   int32 ENABLE_CDVR = 6;
+   int32 ENABLE_START_OVER = 7;
+   int32 ENABLE_TRICK_PLAY = 8;
+   string END_DATE = 9;
+   string EPG_CHANNEL_ID = 10;
+   int64 EPG_ID = 11;
+   string EPG_IDENTIFIER = 12;
+   string GROUP_ID = 13;
+   string IS_ACTIVE = 14;
+   int32 LIKE_COUNTER = 15;
+   int64 LINEAR_MEDIA_ID = 16;
+   string NAME = 17;
+   int32 PIC_ID = 18;
+   string PIC_URL = 19;
+   string PUBLISH_DATE = 20;
+   string START_DATE = 21;
+   string STATUS = 22;
+   string UPDATER_ID = 23;
+   string UPDATE_DATE = 24;
+   string media_id = 25;
+}
+

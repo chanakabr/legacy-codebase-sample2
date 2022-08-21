@@ -66,7 +66,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 }
 
                 // insert / update new channels
-                result = _IndexManager.AddChannelsPercolatorsToIndex(channelIds, string.Empty, shouldCleanupInvalidChannels: true);
+                result = _IndexManager.AddChannelsPercolatorsToIndex(channelIds, null, shouldCleanupInvalidChannels: true);
             }
             catch (Exception ex)
             {

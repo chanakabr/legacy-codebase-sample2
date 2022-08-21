@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using ProtoBuf;
 
 namespace ApiObjects.Notification
 {
+    [ProtoContract(ImplicitFields = ImplicitFields.AllPublic, SkipConstructor = true)]
     public class NotificationPartnerSettings
     {
         public int PartnerId { get; set; }
@@ -46,6 +48,7 @@ namespace ApiObjects.Notification
         }
     }
 
+    [ProtoContract(ImplicitFields = ImplicitFields.AllPublic,SkipConstructor = true)]
     public class EpgNotificationSettings
     {
         public bool Enabled { get; set; } = false;
@@ -55,6 +58,7 @@ namespace ApiObjects.Notification
         public int ForwardTimeRange { get; set; } = 24;
     }
 
+    [ProtoContract(ImplicitFields = ImplicitFields.AllPublic,SkipConstructor = true)]
     public class LineupNotificationSettings
     {
         public bool Enabled { get; set; } = false;

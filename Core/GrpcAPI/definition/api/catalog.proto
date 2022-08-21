@@ -1,7 +1,9 @@
 syntax = "proto3";
-import "status.proto";
+import "Status.proto";
 import "asset.proto";
-import "adpolicy.proto";
+import "MediaFileType.proto";
+import "AdsPolicy.proto";
+import "StreamerType.proto";
 import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "phoenix";
@@ -9,46 +11,11 @@ option go_package = "./models";
 
 package phoenix;
 
-message GetEpgChannelIdRequest {
-  int32 mediaId = 1;
-  int32 groupId = 2;
-}
-
-message HandleBlockingSegmentRequest {
-  int32 GroupId = 1;
-  int64 UserId = 2;
-  string udid = 3;
-  string Ip = 4;
-  int64 domainId = 5;
-  ObjectVirtualAssetInfoType virtualAssetInfoType = 6;
-  string subscriptionId = 7;
-
-  enum ObjectVirtualAssetInfoType
-  {
-    Subscription = 0;
-    Segment = 1;
-    Category = 2;
-  }
-}
-message HandleBlockingSegmentResponse {
-  Status status = 1;
-}
-
-message GetAssetsForValidationRequest{
-  eAssetTypes assetType = 1;
-  int32 groupId = 2;
-  int64 assetId = 3;
-}
-message GetAssetsForValidationResponse{
-  repeated SlimAsset SlimAsset = 1;
-}
-
-message GetMediaFilesRequest{
-  int32 groupId = 1;
-  int64 mediaId = 2;
-}
-message GetMediaFilesResponse{
-  repeated MediaFile MediaFiles = 1;
+enum ObjectVirtualAssetInfoType
+{
+  Subscription = 0;
+  Segment = 1;
+  Category = 2;
 }
 
 message MediaFile{
@@ -84,15 +51,6 @@ message BusinessModuleDetails{
     Subscription = 1;
     Collection = 2;
   }
-}
-enum StreamerType
-{
-  applehttp = 0;
-  mpegdash = 1;
-  url = 2;
-  smothstreaming = 3;
-  multicast = 4;
-  none = -1;
 }
 
 message Recording{
@@ -138,168 +96,6 @@ message Recording{
   bool isExternalRecording = 16;
   bool IsProtected = 17;
   int64 UserId = 18;
-}
-
-//attributes that wasn't important for GRPC
-message EPGChannelProgrammeObject{
-  int64 EpgId = 1;
-  string epgChannelId = 2;
-  string epgIdentifier = 3;
-  string name = 4;
-  string description = 6;
-  string startDate = 8;
-  string endDate = 9;
-  string picUrl = 10;
-  int32 picId = 11;
-  string status = 12;
-  string isActive = 13;
-  string groupId = 14;
-  string updaterId = 15;
-  string updateDate = 16;
-  string publishDate = 17;
-  string createDate = 18;
-  int32 likeCounter = 19;
-  string mediaId = 23;
-  int64 linearMediaId = 24;
-  int32 enableCdvr = 25;
-  int32 enableCatchUp = 26;
-  int64 channelCatchUpBuffer = 27;
-  int32 enableStartOver = 28;
-  int32 enableTrickPlay = 29;
-  string crid = 30;
-
-  //  languagecontainer[] programmename= 1;
-  //  languagecontainer[] programmedescription = 1;
-  //  list<epgdictionary> epg_tags = 1;
-  //  list<epgdictionary> epg_meta = 1;
-  //  list<epgpicture> epg_pictures = 1;
-}
-
-message GetMediaInfoRequest{
-  int32 groupId = 1;
-  string assetId = 2; 
-  eAssetTypes assetType = 3;
-  int64 userId = 4;
-  string udid = 5;
-  int64 domainId = 6;
-  int32 mediaFileId = 7;
-  int32 programId = 8;
-}
-
-message GetMediaInfoResponse{
-  Status status = 1;
-  int64 mediaId = 2;
-  Recording recording = 3;
-  EPGChannelProgrammeObject program = 4;
-  bool isExternalRecordingIgnoreMode = 5;
-}
-
-message GetMediaByIdRequest{
-  int32 groupId = 1;
-  int32 mediaId = 2;
-}
-
-message GetMediaByIdResponse{
-  string name = 1;
-  string description = 2;
-  string externalIDs = 3;
-  string lastWatchedDevice = 4;
-  string siteUserGuid = 5;
-  string entryId = 6;
-  string CoGuid = 7;
-  bool IsActive = 8;
-  bool EnableCDVR = 9;
-  bool EnableCatchUp = 10;
-  bool EnableStartOver = 11;
-  bool EnableTrickPlay = 12;
-  int64 CatchUpBuffer = 13;
-  int64 TrickPlayBuffer = 14;
-  bool EnableRecordingPlaybackNonEntitledChannel = 15;
-  string ExternalCdvrId = 16;
-  string WatchPermissionRule = 17;
-  string GeoblockRule = 18;
-  string DeviceRule = 19;
-//  MediaType m_oMediaType;
-//  DateTime m_dCreationDate;
-//  DateTime m_dFinalDate;
-//  DateTime m_dPublishDate;
-//  DateTime m_dCatalogStartDate;
-//  DateTime m_dStartDate;
-//  DateTime m_dEndDate;
-//  List<Metas> m_lMetas;
-//  List<Tags> m_lTags;
-//  List<FileMedia> m_lFiles;
-//  List<Branding> m_lBranding;
-//  List<Picture> m_lPicture;
-//  Int32 m_nLikeCounter = 1;
-//  RatingMedia m_oRatingMedia = 1;
-//  DateTime? m_dLastWatchedDate = 1;
-//  LanguageContainer[] Name = 1;
-//  LanguageContainer[] Description = 1;
-}
-
-message GetProgramScheduleRequest{
-  int32 groupId = 1;
-  int32 programId = 2;
-}
-
-message GetProgramScheduleResponse{
-  google.protobuf.Timestamp StartDate = 1;
-  google.protobuf.Timestamp EndTime = 2;
-}
-
-message GetDomainRecordingsRequest{
-  int32 groupId = 1;
-  int64 domainId = 2;
-  bool shouldFilterViewableRecordingsOnly = 3;
-}
-
-message GetDomainRecordingsResponse{
-    map<int64, Recording> recording = 1;
-}
-
-message GetEpgsByIdsRequest{
-  int32 groupId = 1;
-  repeated int64 epgIds = 2;
-}
-
-message GetEpgsByIdsResponse{
-    repeated EPGChannelProgrammeObject epgs = 1;
-}
-
-message GetLinearMediaInfoByEpgChannelIdAndFileTypeRequest{
-    int32 groupId = 1;
-    string epgChannelId = 2;
-    string fileType = 3;
-}
-
-message GetLinearMediaInfoByEpgChannelIdAndFileTypeResponse{
-  bool isSuccess = 1;
-  int32 linearMediaId = 2;
-  int32 mediaFileId = 3;
-}
-
-message MapMediaFilesRequest{
-  int32 groupId = 1;
-  repeated int32 mediaFileIDs = 2;
-}
-
-message MapMediaFilesResponse{
-  repeated MediaMapper mediaMappers = 1;
-}
-
-message GetEPGChannelCDVRIdRequest{
-  int32 groupId = 1;
-  int64 epgChannelId = 2;
-}
-
-message GetAssetEpgRuleIdsRequest {
-  int32 groupId = 1;
-  int32 mediaId = 2;
-}
-message GetAssetEpgRuleIdsResponse {
-  repeated int64 ids = 1;
-  int64 programId = 2;
 }
 
 message DevicePlayData {

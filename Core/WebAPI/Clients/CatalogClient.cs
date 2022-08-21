@@ -1510,7 +1510,7 @@ namespace WebAPI.Clients
 
         public KalturaAssetInfoListResponse GetChannelMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
             int channelId, KalturaOrder? orderBy, List<KalturaCatalogWith> with, List<KeyValue> filterTags,
-            KalturaAssetInfoFilter.KalturaCutWith cutWith)
+            KalturaCutWith cutWith)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 

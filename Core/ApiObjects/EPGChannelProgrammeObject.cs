@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using ProtoBuf;
 
 namespace ApiObjects
 {
@@ -22,6 +23,7 @@ namespace ApiObjects
     }
 
     [XmlType("EPGChannelProgrammeObject", Namespace = "http://api.tvinci.com/schemas/EPGChannelProgrammeObject1")]
+    [ProtoContract(ImplicitFields = ImplicitFields.AllPublic,SkipConstructor = true)]
     public class EPGChannelProgrammeObject
     {
         public const string DATE_FORMAT = "dd/MM/yyyy HH:mm:ss";
@@ -30,8 +32,10 @@ namespace ApiObjects
         public string EPG_CHANNEL_ID;
         public string EPG_IDENTIFIER;
         public string NAME;
+        [ProtoIgnore]
         public LanguageContainer[] ProgrammeName;
         public string DESCRIPTION;
+        [ProtoIgnore]
         public LanguageContainer[] ProgrammeDescription;
         public string START_DATE;
         public string END_DATE;
@@ -45,10 +49,11 @@ namespace ApiObjects
         public string PUBLISH_DATE;
         public string CREATE_DATE;
         public int LIKE_COUNTER;
-
+        [ProtoIgnore]
         public List<EPGDictionary> EPG_TAGS;
+        [ProtoIgnore]
         public List<EPGDictionary> EPG_Meta;
-
+        [ProtoIgnore]
         public List<EpgPicture> EPG_PICTURES;
 
         public string media_id;

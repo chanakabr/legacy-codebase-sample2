@@ -1,0 +1,75 @@
+syntax = "proto3";
+import "asset.proto";
+import "Status.proto";
+import "assetRule.proto";
+import "eBusinessModule.proto";
+import "ConcurrencyRestrictionPolicy.proto";
+import "MediaConcurrencyRule.proto";
+import "RuleActionType.proto";
+option csharp_namespace = "phoenix";
+option go_package = "./models";
+
+package phoenix;
+
+message HasAssetRulesRequest{
+  int32 groupId = 1;
+  RuleActionType actionType = 3;
+}
+
+message CheckNetworkRulesRequest{
+  repeated SlimAsset SlimAsset = 1;
+  int32 groupId = 2;
+  string ip = 3;
+}
+message CheckNetworkRulesResponse{
+  Status status = 1;
+  AssetRule AssetRule = 2;
+}
+
+message GetAssetRulesRequest{
+  RuleConditionType assetRuleConditionType = 1;
+  int32 groupId = 2;
+  SlimAsset slimAsset = 3;
+  RuleActionType ruleActionType = 4;
+}
+
+message GetAssetRulesResponse{
+  repeated AssetRule AssetRules = 1;
+  Status status = 2;
+  int32 totalCount = 3;
+}
+
+message GetGroupMediaConcurrencyRulesRequest{
+  int32 groupId = 1;
+}
+
+message GetGroupMediaConcurrencyRulesResponse{
+  repeated MediaConcurrencyRule mediaConcurrencyRules = 1;
+}
+
+message GetMediaConcurrencyByIdRequest{
+  int32 ruleId = 1;
+}
+
+message GetMediaConcurrencyByIdResponse{
+  int32 mediaConcurrencyLimit = 1;
+  ConcurrencyRestrictionPolicy policy = 2;
+}
+
+message GetAssetMediaRuleIdsRequest {
+  int32 groupId = 1;
+  int32 mediaId = 2;
+}
+message GetAssetMediaRuleIdsResponse {
+  repeated int64 ids = 1;
+}
+message GetMediaConcurrencyRulesRequest {
+  int32 groupId = 1;
+  int32 mediaId = 2;
+  int32 businessModuleId = 3;
+  eBusinessModule businessModuleType = 4;
+}
+
+message GetMediaConcurrencyRulesResponse {
+  repeated MediaConcurrencyRule mediaConcurrencyRules = 1;
+}

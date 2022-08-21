@@ -1,5 +1,5 @@
 syntax = "proto3";
-import "status.proto";
+import "Status.proto";
 
 option csharp_namespace = "phoenix";
 option go_package = "./models";
@@ -23,32 +23,6 @@ enum RolePermissions
   ALLOW_ACTION_IN_SUSPENDED_DOMAIN = 12;
 }
 
-message IsPermittedPermissionRequest {
-  int32 groupId = 1;
-  int64 userId = 2;
-  RolePermissions role = 3;
-}
-
-message AllowActionInSuspendedDomainRequest{
-  int32 groupId = 1;
-  int64 userId = 2;
-}
-
-message GetSuspensionStatusRequest {
-  int32 groupId = 1;
-  int64 domainId = 2;
-}
-
-message GetSuspensionStatusResponse {
-  Status Status = 1;
-}
-
-message GetDomainDataRequest {
-  int32 groupId = 1;
-  int64 userId = 2;
-  int64 domainId = 3;
-}
-
 message deviceFamilyData{
   int32 familyId = 1;
   int32 concurrency = 2;
@@ -59,24 +33,4 @@ message DomainData{
   int32 dlmId = 1;
   int32 concurrency = 2;
   repeated deviceFamilyData deviceFamilies = 3;
-}
-
-message GetDomainDataResponse {
-  Status status = 1;
-  int64 domainId = 2;
-  DomainData domainData = 3;
-}
-
-message GetMediaConcurrencyRulesByDomainLimitationModuleRequest {
-  int32 GroupId = 1;
-  int32 dlmId = 2;
-}
-message GetMediaConcurrencyRulesByDomainLimitationModuleResponse {
-  repeated int32 ids = 1;
-}
-
-message IsDevicePlayValidRequest{
-  int32 groupId = 1;
-  int64 userId = 2;
-  string Udid = 3;
 }

@@ -28,6 +28,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
         protected static readonly List<string> EXTRA_FIELDS_WITH_LANGUAGE_PREFIX = new List<string>() { "name", "description" };
         protected internal const string TOP_HITS_DEFAULT_NAME = "top_hits_assets";
         protected const int TERMS_AGGREGATION_MISSING_VALUE = 999;
+        protected const string LOWERCASE_POSTFIX = "lowercase";
         public bool MinimizeQuery { get; set; }
 
         private QueryContainer SubscriptionsQuery { get; set; }
@@ -291,20 +292,21 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
         public List<string> GetIndices()
         {
-            List<string> indices = new List<string>();
+            var indices = new List<string>();
+            var parentGroupId = this.SearchDefinitions.ExtractParentGroupId();
             if (SearchDefinitions.shouldSearchMedia)
             {
-                indices.Add(NamingHelper.GetMediaIndexAlias(this.SearchDefinitions.groupId));
+                indices.Add(NamingHelper.GetMediaIndexAlias(parentGroupId));
             }
 
             if (SearchDefinitions.shouldSearchEpg)
             {
-                indices.Add(NamingHelper.GetEpgIndexAlias(this.SearchDefinitions.groupId));
+                indices.Add(NamingHelper.GetEpgIndexAlias(parentGroupId));
             }
 
             if (SearchDefinitions.shouldSearchRecordings)
             {
-                indices.Add(NamingHelper.GetRecordingIndexAlias(this.SearchDefinitions.groupId));
+                indices.Add(NamingHelper.GetRecordingIndexAlias(parentGroupId));
             }
 
             return indices;
@@ -404,6 +406,8 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 // TODO: verify this isn't "damaged"
                 // group id should already be inside the search object
                 //mediaSearchItem.m_nGroupId = groupId;
+                // SearchDefinitions.langauge is always initialized with default value.
+                mediaSearchItem.m_oLangauge = mediaSearchItem.m_oLangauge ?? SearchDefinitions.langauge;
                 mediaBuilder.Definitions = mediaSearchItem;
                 mediaBuilder.QueryType = mediaSearchItem.m_bExact ? eQueryType.EXACT : eQueryType.BOOLEAN;
                 var queryContainer = mediaBuilder.GetQuery();
@@ -687,6 +691,14 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     //I know its confusing but we cannot change it at this point :(
                     return null;
                 }
+                else if (field == NamingHelper.IS_ACTIVE)
+                {
+                    result = new TermQuery
+                    {
+                        Field = field,
+                        Value = Convert.ToBoolean(value)
+                    };
+                }
                 else
                 {
                     bool isNumeric = leaf.valueType == typeof(int) || leaf.valueType == typeof(long) || leaf.valueType == typeof(bool);
@@ -732,7 +744,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                         else if (leaf.operand == ApiObjects.ComparisonOperator.Equals &&
                             leaf.shouldLowercase)
                         {
-                            field = $"{field}.lowercase";
+                            field = $"{field}.{LOWERCASE_POSTFIX}";
                         }
 
                         if (isFuzzySearch)
@@ -760,7 +772,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     {
                         if (leaf.shouldLowercase)
                         {
-                            field = $"{field}.lowercase";
+                            field = $"{field}.{LOWERCASE_POSTFIX}";
                         }
 
                         var matchQuery = queryContainerDescriptor.Match(match => match.Field(field).Operator(Operator.And).Query(value.ToString()));
@@ -925,34 +937,49 @@ namespace ApiLogic.IndexManager.QueryBuilders
             QueryContainer result = null;
             QueryContainerDescriptor<object> queryContainerDescriptor = new QueryContainerDescriptor<object>();
 
-            if (leaf.valueType == typeof(long))
+            string field = leaf.field;
+            object value = leaf.value;
+            Type valueType = leaf.valueType;
+            string rangeValue = Convert.ToString(value);
+            
+            if (this.SearchDefinitions.numericEpgMetas.Contains(leaf.field) && this.SearchDefinitions.shouldSearchEpg)
             {
-                long value = (long)leaf.value;
+                field = $"padded_{field}";
+                rangeValue = Media.PadValue(rangeValue);
+                valueType = typeof(string);
+            }
+
+            string language = this.SearchDefinitions.langauge != null ? this.SearchDefinitions.langauge.Code : string.Empty;
+            field = GetElasticsearchFieldName(language, field, leaf.fieldType, leaf.isLanguageSpecific);
+
+            if (valueType == typeof(long))
+            {
+                long longValue = (long)leaf.value;
                 result = queryContainerDescriptor.LongRange(range =>
                 {
-                    range = range.Field(leaf.field);
+                    range = range.Field(field);
 
                     switch (leaf.operand)
                     {
                         case ApiObjects.ComparisonOperator.GreaterThanOrEqual:
                             {
-                                range = range.GreaterThanOrEquals(value);
+                                range = range.GreaterThanOrEquals(longValue);
                                 break;
                             }
                         case ApiObjects.ComparisonOperator.GreaterThan:
                             {
-                                range = range.GreaterThan(value);
+                                range = range.GreaterThan(longValue);
 
                                 break;
                             }
                         case ApiObjects.ComparisonOperator.LessThanOrEqual:
                             {
-                                range = range.LessThanOrEquals(value);
+                                range = range.LessThanOrEquals(longValue);
                                 break;
                             }
                         case ApiObjects.ComparisonOperator.LessThan:
                             {
-                                range = range.LessThan(value);
+                                range = range.LessThan(longValue);
                                 break;
                             }
                         default:
@@ -961,34 +988,36 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     return range;
                 });
             }
-            else if (leaf.valueType == typeof(DateTime))
+            else if (valueType == typeof(DateTime))
             {
-                DateTime value = Convert.ToDateTime(leaf.value);
+                // By default the metas are created with yyyyMMddHHmmss date format.
+                // Consider changing it to default date format in the future for ElasticSearch V7?
+                var dateValue = DateMath.FromString(Convert.ToDateTime(leaf.value).ToString("yyyyMMddHHmmss"));
                 result = queryContainerDescriptor.DateRange(range =>
                 {
-                    range = range.Field(leaf.field);
+                    range = range.Field(field);
 
                     switch (leaf.operand)
                     {
                         case ApiObjects.ComparisonOperator.GreaterThanOrEqual:
                             {
-                                range = range.GreaterThanOrEquals(value);
+                                range = range.GreaterThanOrEquals(dateValue);
                                 break;
                             }
                         case ApiObjects.ComparisonOperator.GreaterThan:
                             {
-                                range = range.GreaterThan(value);
+                                range = range.GreaterThan(dateValue);
 
                                 break;
                             }
                         case ApiObjects.ComparisonOperator.LessThanOrEqual:
                             {
-                                range = range.LessThanOrEquals(value);
+                                range = range.LessThanOrEquals(dateValue);
                                 break;
                             }
                         case ApiObjects.ComparisonOperator.LessThan:
                             {
-                                range = range.LessThan(value);
+                                range = range.LessThan(dateValue);
                                 break;
                             }
                         default:
@@ -997,34 +1026,33 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     return range;
                 });
             }
-            else if (leaf.valueType == typeof(string))
+            else if (valueType == typeof(string))
             {
-                string value = Convert.ToString(leaf.value);
                 result = queryContainerDescriptor.TermRange(range =>
                 {
-                    range = range.Field(leaf.field);
+                    range = range.Field(field);
 
                     switch (leaf.operand)
                     {
                         case ApiObjects.ComparisonOperator.GreaterThanOrEqual:
                             {
-                                range = range.GreaterThanOrEquals(value);
+                                range = range.GreaterThanOrEquals(rangeValue);
                                 break;
                             }
                         case ApiObjects.ComparisonOperator.GreaterThan:
                             {
-                                range = range.GreaterThan(value);
+                                range = range.GreaterThan(rangeValue);
 
                                 break;
                             }
                         case ApiObjects.ComparisonOperator.LessThanOrEqual:
                             {
-                                range = range.LessThanOrEquals(value);
+                                range = range.LessThanOrEquals(rangeValue);
                                 break;
                             }
                         case ApiObjects.ComparisonOperator.LessThan:
                             {
-                                range = range.LessThan(value);
+                                range = range.LessThan(rangeValue);
                                 break;
                             }
                         default:
@@ -1162,7 +1190,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
             else
             {
                 // If user has no preferences at all
-                result = new TermQuery() { Field = "a", Value = -1 };
+                result = new TermQuery() { Field = "_id", Value = -1 };
             }
 
             return result;
@@ -1227,7 +1255,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 // create an empty, dummy query
                 if (!shouldGetFreeAssets && SubscriptionsQuery == null && entitledPaidForAssetsBoolQuery == null)
                 {
-                    var emptyTerm = new TermQuery() { Field = "a", Value = -1 };
+                    var emptyTerm = new TermQuery() { Field = "_id", Value = -1 };
                     shoulds.Add(emptyTerm);
                 }
                 else
@@ -1370,7 +1398,10 @@ namespace ApiLogic.IndexManager.QueryBuilders
             eAssetTypes assetTypeHandle)
             where T : class
         {
-            var ids = unifiedSearchDefinitions.excludedAssets?[assetTypeHandle];
+            var ids = unifiedSearchDefinitions.excludedAssets?[assetTypeHandle]
+                // ES V7 has an identifier with language postfix, be aware.
+                .Select(x => $"{x}_{unifiedSearchDefinitions.langauge.Code}")
+                .ToArray();
 
             if (ids == null || !ids.Any())
                 return null;

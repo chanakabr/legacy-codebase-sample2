@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace WebAPI.Models.General
@@ -47,6 +48,23 @@ namespace WebAPI.Models.General
             return "{" + String.Join(", ", PropertiesToJson(currentVersion, omitObsolete, responseProfile).Values) + "}";
         }
 
+        protected virtual Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            return new Dictionary<string, string>();
+        }
+
+        public void AppendAsJson(StringBuilder stringBuilder, Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            stringBuilder.Append("{");
+            AppendPropertiesAsJson(stringBuilder, currentVersion, omitObsolete, responseProfile);
+            stringBuilder.Append("}");
+        }
+
+        public virtual ISet<string> AppendPropertiesAsJson(StringBuilder stringBuilder, Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            return new HashSet<string>();
+        }
+
         public virtual string ToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
             return String.Join("", PropertiesToXml(currentVersion, omitObsolete, responseProfile).Values);
@@ -57,10 +75,14 @@ namespace WebAPI.Models.General
             return new Dictionary<string, string>();
         }
 
-        protected virtual Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        public void AppendAsXml(StringBuilder stringBuilder, Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
-            return new Dictionary<string, string>();
+            AppendPropertiesAsXml(stringBuilder, currentVersion, omitObsolete, responseProfile);
         }
 
+        public virtual ISet<string> AppendPropertiesAsXml(StringBuilder stringBuilder, Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            return new HashSet<string>();
+        }
     }
 }

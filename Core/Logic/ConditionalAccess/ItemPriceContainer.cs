@@ -117,7 +117,7 @@ namespace Core.ConditionalAccess
         }
 
     }
-
+    
     public class ItemPriceContainer
     {
         public string m_sPPVModuleCode;

@@ -872,6 +872,12 @@ namespace Core.Api.Managers
             return assetsToCheck;
         }
 
+        public static bool HasAssetRules(int groupId, RuleActionType ruleActionType)
+        {
+            var networkAssetRules = Instance.GetAssetRules(RuleConditionType.Asset, groupId, null, ruleActionType);
+            return networkAssetRules.HasObjects();
+        }
+        
         public static Status CheckNetworkRules(List<SlimAsset> assetsToCheck, int groupId, string ip, out AssetRule blockingRule)
         {
             blockingRule = null;

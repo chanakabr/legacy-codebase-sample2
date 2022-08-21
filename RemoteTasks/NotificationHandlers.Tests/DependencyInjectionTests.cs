@@ -1,6 +1,7 @@
 ﻿using ApiLogic.EPG;
 using EpgNotificationHandler.Infrastructure;
 using FluentAssertions;
+using IotGrpcClientWrapper;
 using LineupNotificationHandler.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -19,6 +20,8 @@ namespace NotificationHandlers.Tests
                 .AddScoped(typeof(EpgNotificationHandler.EpgNotificationHandler))
                 // EpgV2PartnerConfigurationManager instance has dependency from CouchBase which requires configuration.
                 .Replace(ServiceDescriptor.Singleton(new Mock<IEpgV2PartnerConfigurationManager>().Object))
+                // IotClient instance has dependency from GRPC which requires grpc endpoint.
+                .Replace(ServiceDescriptor.Singleton(new Mock<IIotClient>().Object))
                 .BuildServiceProvider();
 
             var epgNotificationHandler = serviceProvider.GetService(typeof(EpgNotificationHandler.EpgNotificationHandler));
@@ -35,6 +38,8 @@ namespace NotificationHandlers.Tests
                 .AddScoped(typeof(LineupNotificationHandler.LineupNotificationRequestedHandler))
                 // EpgV2PartnerConfigurationManager instance has dependency from CouchBase which requires configuration.
                 .Replace(ServiceDescriptor.Singleton(new Mock<IEpgV2PartnerConfigurationManager>().Object))
+                // IotClient instance has dependency from GRPC which requires grpc endpoint.
+                .Replace(ServiceDescriptor.Singleton(new Mock<IIotClient>().Object))
                 .BuildServiceProvider();
 
             var epgNotificationHandler = serviceProvider.GetService(typeof(LineupNotificationHandler.LineupNotificationRequestedHandler));

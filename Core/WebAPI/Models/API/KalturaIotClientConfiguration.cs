@@ -1,8 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using WebAPI.Models.General;
 using System;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Models.General;
+using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace WebAPI.Models.API
 {
@@ -13,35 +14,92 @@ namespace WebAPI.Models.API
     public partial class KalturaIotClientConfiguration : KalturaOTTObject
     {
         /// <summary>
-        /// announcementTopic
+        /// IdentityPoolId
         /// </summary>
-        [DataMember(Name = "announcementTopic")]
-        [JsonProperty(PropertyName = "announcementTopic")]
-        [XmlElement(ElementName = "announcementTopic")]
-        public string AnnouncementTopic { get; set; }
-
+        [DataMember(Name = "identityPoolId")]
+        [JsonProperty(PropertyName = "identityPoolId")]
+        [XmlElement(ElementName = "identityPoolId")]
+        public string IdentityPoolId { get; set; }
+        
         /// <summary>
-        /// KalturaCredentialsProvider
+        /// UserPoolId
         /// </summary>
-        [DataMember(Name = "credentialsProvider")]
-        [JsonProperty(PropertyName = "credentialsProvider")]
-        [XmlElement(ElementName = "credentialsProvider")]
-        public KalturaCredentialsProvider CredentialsProvider { get; set; }
+        [DataMember(Name = "userPoolId")]
+        [JsonProperty(PropertyName = "userPoolId")]
+        [XmlElement(ElementName = "userPoolId")]
+        public string UserPoolId { get; set; }
+        
         /// <summary>
-        /// CognitoUserPool
+        /// AwsRegion
         /// </summary>
-        [DataMember(Name = "cognitoUserPool")]
-        [JsonProperty(PropertyName = "cognitoUserPool")]
-        [XmlElement(ElementName = "cognitoUserPool")]
-        public KalturaCognitoUserPool CognitoUserPool { get; set; }
-
+        [DataMember(Name = "awsRegion")]
+        [JsonProperty(PropertyName = "awsRegion")]
+        [XmlElement(ElementName = "awsRegion")]
+        public string AwsRegion { get; set; }
+        
         /// <summary>
-        /// json
+        /// appClientId
         /// </summary>
-        [DataMember(Name = "json")]
-        [JsonProperty(PropertyName = "json")]
-        [XmlElement(ElementName = "json")]
-        public string Json { get; set; }
+        [DataMember(Name = "appClientId")]
+        [JsonProperty(PropertyName = "appClientId")]
+        [XmlElement(ElementName = "appClientId")]
+        public string AppClientId { get; set; }
+        
+        /// <summary>
+        /// legacyEndPoint
+        /// </summary>
+        [DataMember(Name = "legacyEndPoint")]
+        [JsonProperty(PropertyName = "legacyEndPoint")]
+        [XmlElement(ElementName = "legacyEndPoint")]
+        public string LegacyEndPoint { get; set; }
+        
+        /// <summary>
+        /// endPoint
+        /// </summary>
+        [DataMember(Name = "endPoint")]
+        [JsonProperty(PropertyName = "endPoint")]
+        [XmlElement(ElementName = "endPoint")]
+        public string EndPoint { get; set; }
+        
+        /// <summary>
+        /// thingName
+        /// </summary>
+        [DataMember(Name = "thingName")]
+        [JsonProperty(PropertyName = "thingName")]
+        [XmlElement(ElementName = "thingName")]
+        public string ThingName { get; set; }
+        
+        /// <summary>
+        /// thingArn
+        /// </summary>
+        [DataMember(Name = "thingArn")]
+        [JsonProperty(PropertyName = "thingArn")]
+        [XmlElement(ElementName = "thingArn")]
+        public string ThingArn { get; set; }
+        
+        /// <summary>
+        /// thingId
+        /// </summary>
+        [DataMember(Name = "thingId")]
+        [JsonProperty(PropertyName = "thingId")]
+        [XmlElement(ElementName = "thingId")]
+        public string ThingId { get; set; }
+        
+        /// <summary>
+        /// username
+        /// </summary>
+        [DataMember(Name = "username")]
+        [JsonProperty(PropertyName = "username")]
+        [XmlElement(ElementName = "username")]
+        public string Username { get; set; }
+        
+        /// <summary>
+        /// password
+        /// </summary>
+        [DataMember(Name = "password")]
+        [JsonProperty(PropertyName = "password")]
+        [XmlElement(ElementName = "password")]
+        public string Password { get; set; }
 
         /// <summary>
         /// topics
@@ -49,6 +107,22 @@ namespace WebAPI.Models.API
         [DataMember(Name = "topics")]
         [JsonProperty(PropertyName = "topics")]
         [XmlElement(ElementName = "topics")]
-        public string Topics { get; set; }
+        public List<KalturaStringValue> Topics { get; set; }
+        
+        /// <summary>
+        /// status
+        /// </summary>
+        [DataMember(Name = "status")]
+        [JsonProperty(PropertyName = "status")]
+        [XmlElement(ElementName = "status")]
+        public string Status { get; set; }
+        
+        /// <summary>
+        /// message
+        /// </summary>
+        [DataMember(Name = "message")]
+        [JsonProperty(PropertyName = "message")]
+        [XmlElement(ElementName = "message")]
+        public string Message { get; set; }
     }
 }

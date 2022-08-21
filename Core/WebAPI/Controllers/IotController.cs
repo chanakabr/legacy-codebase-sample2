@@ -19,30 +19,14 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Register IOT device
         /// </summary>
-        /// <returns>Credentials for aws-sdk connection</returns>
+        /// <returns>boolean for processing the registration request</returns>
         [Action("register")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public static KalturaIot Register()
+        [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
+        public static bool Register()
         {
-            KalturaIot response = null;
-            var contextData = KS.GetContextData();
-
-            try
-            {
-                ValidateRequest(contextData);
-
-                Func<GenericResponse<Iot>> coreFunc = () =>
-                    IotManager.Instance.Register(contextData);
-
-                response = ClientUtils.GetResponseFromWS<KalturaIot, Iot>(coreFunc);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return response;
+            throw new NotImplementedException("iot.Register should be used only by phoenix rest proxy");
         }
 
         /// <summary>
@@ -52,36 +36,10 @@ namespace WebAPI.Controllers
         [Action("getClientConfiguration")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
         public static KalturaIotClientConfiguration GetClientConfiguration()
         {
-            KalturaIotClientConfiguration response = null;
-            var contextData = KS.GetContextData();
-
-            try
-            {
-                ValidateRequest(contextData);
-
-                Func<GenericResponse<IotClientConfiguration>> coreFunc = () =>
-                    IotManager.Instance.GetClientConfiguration(contextData);
-
-                response = ClientUtils.GetResponseFromWS<KalturaIotClientConfiguration, IotClientConfiguration>(coreFunc);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return response;
-        }
-
-        private static void ValidateRequest(ContextData contextData)
-        {
-            var devices = api.Instance.GetDomainDevices((int)contextData.DomainId, contextData.GroupId);
-
-            if (devices == null || !devices.ContainsKey(contextData.Udid))
-            {
-                throw new BadRequestException(BadRequestException.INVALID_UDID, contextData.Udid);
-            }
+            throw new NotImplementedException("iot.GetClientConfiguration should be used only by phoenix rest proxy");
         }
     }
 }

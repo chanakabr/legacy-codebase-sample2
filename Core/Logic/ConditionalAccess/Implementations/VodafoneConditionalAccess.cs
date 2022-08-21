@@ -307,7 +307,7 @@ namespace Core.ConditionalAccess
                 string sPricingPassword = string.Empty;
                 MediaFilePPVContainer[] oModules = null;
 
-                oModules = Pricing.Module.GetPPVModuleListForMediaFilesWithExpiry(m_nGroupID, fileIds.ToArray(), string.Empty, string.Empty, string.Empty);
+                oModules = Pricing.Module.GetPPVModuleListForMediaFilesWithExpiry(m_nGroupID, fileIds.ToArray());
                 //get only files that are related to any ppvModule 
                 if (oModules == null || oModules.Count() == 0)
                 {

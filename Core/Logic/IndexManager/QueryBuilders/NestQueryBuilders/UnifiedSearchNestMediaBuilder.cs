@@ -1,22 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using ApiLogic.IndexManager.Helpers;
 using ApiLogic.IndexManager.NestData;
 using ApiLogic.IndexManager.QueryBuilders.NestQueryBuilders.Queries;
 using ApiObjects.SearchObjects;
+using Core.Catalog;
 using ElasticSearch.NEST;
 using Phx.Lib.Appconfig;
-using Phx.Lib.Log;
 using Nest;
 
 namespace ApiLogic.IndexManager.QueryBuilders.NestQueryBuilders
 {
     public class UnifiedSearchNestMediaBuilder : IUnifiedSearchNestBuilder
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod()?.DeclaringType?.ToString());
-
+        private static readonly HashSet<string> PrefixesWithLanguage = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            CatalogLogic.TAGS, CatalogLogic.METAS
+        };
 
         private readonly NestMediaQueries _nestMediaQueries;
 
@@ -41,7 +42,7 @@ namespace ApiLogic.IndexManager.QueryBuilders.NestQueryBuilders
         public List<string> GetIndices()
         {
             var indices = new List<string>();
-            indices.Add(NamingHelper.GetMediaIndexAlias(Definitions.m_nGroupId));
+            indices.Add(NamingHelper.GetMediaIndexAlias(this.Definitions.ExtractParentGroupId()));
             return indices;
         }
 
@@ -239,11 +240,7 @@ namespace ApiLogic.IndexManager.QueryBuilders.NestQueryBuilders
             //create the must container
             foreach (var searchValue in searchValuesWithInnerCutAnd)
             {
-                var searchKey =
-                    ElasticSearch.Common.Utils.GetKeyNameWithPrefix(searchValue.m_sKey.ToLower(),
-                        searchValue.m_sKeyPrefix);
-                searchKey = UnifiedSearchNestBuilder.GetElasticsearchFieldName(language, searchKey, searchValue.fieldType);
-
+                var searchKey = GetElasticsearchFieldName(searchValue, language);
                 var termList = searchValue.m_lValue.Select(value =>
                     new QueryContainerDescriptor<object>()
                         .Term(t => t
@@ -258,11 +255,7 @@ namespace ApiLogic.IndexManager.QueryBuilders.NestQueryBuilders
             //create the should container
             foreach (var searchValue in searchValuesWithInnerCutOr)
             {
-                var searchKey =
-                    ElasticSearch.Common.Utils.GetKeyNameWithPrefix(searchValue.m_sKey.ToLower(),
-                        searchValue.m_sKeyPrefix);
-                searchKey = UnifiedSearchNestBuilder.GetElasticsearchFieldName(language, searchKey, searchValue.fieldType);
-
+                var searchKey = GetElasticsearchFieldName(searchValue, language);
                 var queryContainer = new QueryContainerDescriptor<object>().Terms(
                     x => x.Field(searchKey)
                         .Terms(searchValue.m_lValue.Select(s => s.ToLower())
@@ -283,6 +276,21 @@ namespace ApiLogic.IndexManager.QueryBuilders.NestQueryBuilders
                         return b;
                     }
                 );
+        }
+
+        public static string GetElasticsearchFieldName(SearchValue searchValue, string language)
+        {
+            var searchKeyLowered = searchValue.m_sKey.ToLower();
+            // Handle the case when meta/tag is provided with default field type, but with not empty m_sKeyPrefix.
+            if (searchValue.fieldType == eFieldType.Default
+                && PrefixesWithLanguage.Contains(searchValue.m_sKeyPrefix)
+                && !string.IsNullOrEmpty(language))
+            {
+                return $"{searchValue.m_sKeyPrefix}.{language}.{searchKeyLowered}.lowercase";
+            }
+
+            var searchKey = ElasticSearch.Common.Utils.GetKeyNameWithPrefix(searchKeyLowered, searchValue.m_sKeyPrefix);
+            return UnifiedSearchNestBuilder.GetElasticsearchFieldName(language, searchKey, searchValue.fieldType);
         }
 
         private QueryContainer GetMainMediaQuery(MediaSearchObj definitions, bool includeRegionTerms = false)

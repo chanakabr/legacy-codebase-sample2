@@ -4,17 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Http;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
-using WebAPI.Controllers;
-using Newtonsoft.Json;
-using System.Text.RegularExpressions;
-using WebAPI.Models.Renderers;
 using WebAPI.Managers.Models;
-using Validator.Managers.Scheme;
 using System.Runtime.CompilerServices;
 
 namespace Reflector
@@ -70,14 +62,17 @@ namespace Reflector
             file.WriteLine("#pragma warning disable 219");
             file.WriteLine("#pragma warning disable 612");
             file.WriteLine("using System;");
-            file.WriteLine("using System.Linq;");
-            file.WriteLine("using System.Web;");
             file.WriteLine("using System.Collections.Generic;");
+            file.WriteLine("using System.Linq;");
+            file.WriteLine("using System.Net;");
+            file.WriteLine("using System.Text;");
+            file.WriteLine("using System.Web;");
             file.WriteLine("using KalturaRequestContext;");
             file.WriteLine("using TVinciShared;");
             file.WriteLine("using WebAPI.Managers.Scheme;");
             file.WriteLine("using WebAPI.Filters;");
             file.WriteLine("using WebAPI.Managers;");
+            file.WriteLine("using WebAPI.Reflection;");
             file.WriteLine("using WebAPI.Utils;");
             file.WriteLine("using WebAPI.ModelsValidators;");
             file.WriteLine("using WebAPI.ObjectsConvertor.Extensions;");
@@ -86,7 +81,7 @@ namespace Reflector
         protected override void writeBody()
         {
             writeUsing();
-            writePartialClasses();
+            WriteNamespaces();
         }
 
         protected override void writeFooter()
@@ -128,37 +123,37 @@ namespace Reflector
             }
         }
 
-        private void writePartialClasses()
+        private void WriteNamespaces()
         {
-            HashSet<string> namespaces = new HashSet<string>();
-            foreach (Type type in types)
+            var namespaces = new List<Type>(types).Concat(enums).GroupBy(x => x.Namespace);
+            foreach (var namespaceWithTypes in namespaces)
             {
-                if (!namespaces.Contains(type.Namespace))
-                {
-                    namespaces.Add(type.Namespace);
-                    writeNamespace(type.Namespace);
-                }
+                WriteNamespace(namespaceWithTypes.Key, namespaceWithTypes.AsEnumerable());
             }
         }
 
-        private void writeNamespace(string namespaceName)
+        private void WriteNamespace(string namespaceName, IEnumerable<Type> namespaceTypes)
         {
             file.WriteLine("");
             file.WriteLine("namespace " + namespaceName);
             file.WriteLine("{");
 
-            foreach (Type type in types)
+            foreach (var type in namespaceTypes)
             {
-                if (type.Namespace == namespaceName)
+                if (type.IsClass)
                 {
-                    writePartialClass(type);
+                    WritePartialClass(type);
+                }
+                else if (type.IsEnum)
+                {
+                    WriteEnumExtensions(type);
                 }
             }
 
             file.WriteLine("}");
         }
 
-        private void writePartialClass(Type type)
+        private void WritePartialClass(Type type)
         {
             string typeName = GetTypeName(type, true);
             file.WriteLine("    public partial class " + typeName);
@@ -179,6 +174,25 @@ namespace Reflector
             writeSerializeTypeProperties(type, SerializeType.JSON);
             file.WriteLine("            return ret;");
             file.WriteLine("        }");
+            
+            file.WriteLine("        ");
+            file.WriteLine("        public override ISet<string> AppendPropertiesAsJson(StringBuilder stringBuilder, Version currentVersion, bool omitObsolete, bool responseProfile = false)");
+            file.WriteLine("        {");
+            file.WriteLine("            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);");
+            file.WriteLine("            var keys = base.AppendPropertiesAsJson(stringBuilder, currentVersion, omitObsolete, responseProfile);");
+            
+            if (typeName != "KalturaListResponse")
+            {
+                file.WriteLine("            IEnumerable<string> retrievedProperties = null;");
+                file.WriteLine("            if (responseProfile)");
+                file.WriteLine("            {");
+                file.WriteLine("                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();");
+                file.WriteLine("            }");
+            }
+            WriteSerializeTypeProperties(type, SerializeType.JSON);
+            file.WriteLine("            return keys;");
+            file.WriteLine("        }");
+
             file.WriteLine("        ");
             file.WriteLine("        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)");
             file.WriteLine("        {");
@@ -196,7 +210,50 @@ namespace Reflector
             writeSerializeTypeProperties(type, SerializeType.XML);
             file.WriteLine("            return ret;");
             file.WriteLine("        }");
+            
+            file.WriteLine("        ");
+            file.WriteLine("        public override ISet<string> AppendPropertiesAsXml(StringBuilder stringBuilder, Version currentVersion, bool omitObsolete, bool responseProfile = false)");
+            file.WriteLine("        {");
+            file.WriteLine("            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);");
+            file.WriteLine("            var keys = base.AppendPropertiesAsXml(stringBuilder, currentVersion, omitObsolete, responseProfile);");
+            
+            if (typeName != "KalturaListResponse")
+            {
+                file.WriteLine("            IEnumerable<string> retrievedProperties = null;");
+                file.WriteLine("            if (responseProfile)");
+                file.WriteLine("            {");
+                file.WriteLine("                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();");
+                file.WriteLine("            }");
+            }
+            WriteSerializeTypeProperties(type, SerializeType.XML);
+            file.WriteLine("            return keys;");
+            file.WriteLine("        }");
+
             file.WriteLine("    }");
+            file.WriteLine();
+        }
+
+        private void WriteEnumExtensions(Type type)
+        {
+            var typeName = GetTypeName(type, true);
+            file.WriteLine($"    public static class {typeName}Extensions");
+            file.WriteLine("    {");
+            file.WriteLine($"        public static string ToSerializedString(this {typeName} value)");
+            file.WriteLine("        {");
+            file.WriteLine("            switch (value)");
+            file.WriteLine("            {");
+            foreach (var enumValue in type.GetEnumValues())
+            {
+                file.WriteLine($"                case {typeName}.{enumValue}:");
+                file.WriteLine($"                    return \"{Enum.GetName(type, enumValue)}\";");
+            }
+
+            file.WriteLine("                default:");
+            file.WriteLine("                    return string.Empty;");
+            file.WriteLine("            }");
+            file.WriteLine("        }");
+            file.WriteLine("    }");
+            file.WriteLine();
         }
 
         private void writeSerializeTypeProperties(Type type, SerializeType serializeType)
@@ -557,24 +614,529 @@ namespace Reflector
             }
         }
 
-        private IEnumerable<MethodInfo> GetExtensionMethods(Assembly assembly, Type extendedType)
+        private void WriteSerializeTypeProperties(Type type, SerializeType serializeType)
         {
-            var extension_methods = new List<MethodInfo>();
+            var properties = type.GetProperties().ToList();
+            properties.Sort(new PropertyInfoComparer());
 
-            foreach (Type t in assembly.GetTypes())
+            if (properties.Any(doesPropertyRequiresReadPermission))
             {
-                if (t.IsDefined(typeof(ExtensionAttribute), false))
+                file.WriteLine("            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;");
+            }
+
+            file.Write(Environment.NewLine);
+
+            foreach (var property in properties)
+            {
+                if (property.DeclaringType != type)
                 {
-                    foreach (MethodInfo mi in t.GetMethods())
+                    continue;
+                }
+
+                var dataMember = property.GetCustomAttribute<DataMemberAttribute>(false);
+                if (dataMember == null)
+                {
+                    continue;
+                }
+
+                var propertyType = GetPropertyType(property, serializeType);
+                var conditions = GetConditions(type, property, propertyType, dataMember.Name);
+
+                var tab = string.Empty;
+                if (conditions.Count > 0)
+                {
+                    tab = "    ";
+                    file.WriteLine($"{tab}        if({string.Join(" && ", conditions)})");
+                    file.WriteLine($"{tab}        {{");
+                }
+
+                if (serializeType == SerializeType.JSON)
+                {
+                    if (propertyType == PropertyType.ARRAY
+                        || propertyType == PropertyType.NUMERIC_ARRAY
+                        || propertyType == PropertyType.MAP)
+                    {
+                        file.WriteLine($"{tab}            var isFirstItem = true;");
+                    }
+
+                    WriteJsonDataMember($"{tab}            ", propertyType, property, dataMember.Name);
+                }
+                else
+                {
+                    WriteXmlDataMember($"{tab}            ", propertyType, property, dataMember.Name);
+                }
+
+                IEnumerable<OldStandardPropertyAttribute> oldStandardProperties = property
+                    .GetCustomAttributes<OldStandardPropertyAttribute>(false)
+                    .ToArray();
+                foreach (OldStandardPropertyAttribute oldStandardProperty in oldStandardProperties)
+                {
+                    file.WriteLine();
+                    if (oldStandardProperty.sinceVersion != null)
+                    {
+                        file.WriteLine($"{tab}            if (currentVersion == null || isOldVersion || currentVersion.CompareTo(new Version(\"{oldStandardProperty.sinceVersion}\")) > 0)");
+                    }
+                    else
+                    {
+                        file.WriteLine($"{tab}            if (currentVersion == null || isOldVersion)");
+                    }
+
+                    file.WriteLine($"{tab}            {{");
+                    if (serializeType == SerializeType.JSON)
+                    {
+                        WriteJsonDataMember($"{tab}                ", propertyType, property, oldStandardProperty.oldName);
+                    }
+                    else
+                    {
+                        WriteXmlDataMember($"{tab}                ", propertyType, property, dataMember.Name);
+                    }
+
+                    file.WriteLine($"{tab}            }}");
+                }
+
+                if (conditions.Count > 0)
+                {
+                    file.WriteLine($"{tab}        }}");
+                }
+                file.WriteLine();
+            }
+        }
+
+        private IReadOnlyCollection<MethodInfo> GetExtensionMethods(Assembly assembly, Type extendedType)
+        {
+            var extensionMethods = new List<MethodInfo>();
+
+            foreach (var type in assembly.GetTypes())
+            {
+                if (type.IsDefined(typeof(ExtensionAttribute), false))
+                {
+                    foreach (var mi in type.GetMethods())
                     {
                         if (mi.IsDefined(typeof(ExtensionAttribute), false) && mi.GetParameters()[0].ParameterType == extendedType)
                         {
-                            extension_methods.Add(mi);
+                            extensionMethods.Add(mi);
                         }
                     }
                 }
             }
-            return extension_methods;
+
+            return extensionMethods;
+        }
+
+        private PropertyType GetPropertyType(PropertyInfo propertyInfo, SerializeType serializeType)
+        {
+            var propertyType = PropertyType.NATIVE;
+
+            if (typeof(IKalturaSerializable).IsAssignableFrom(propertyInfo.PropertyType))
+            {
+                propertyType = PropertyType.OBJECT;
+                if ((serializeType == SerializeType.JSON && propertyInfo.PropertyType.GetMethod("ToCustomJson") != null) || 
+                    (serializeType == SerializeType.XML && propertyInfo.PropertyType.GetMethod("ToCustomXml") != null))
+                {
+                    propertyType = PropertyType.CUSTOM;
+                }
+                else
+                {
+                    var extensionMethods = GetExtensionMethods(propertyInfo.PropertyType.Assembly, propertyInfo.PropertyType);
+                    if ((serializeType == SerializeType.JSON && extensionMethods.Any(x => x.Name == "ToCustomJson")) ||
+                        (serializeType == SerializeType.XML && extensionMethods.Any(x => x.Name == "ToCustomXml")))
+                    {
+                        propertyType = PropertyType.CUSTOM;
+                    }
+                }
+            }
+            else if (propertyInfo.PropertyType == typeof(string))
+            {
+                propertyType = PropertyType.STRING;
+            }
+            else if (propertyInfo.PropertyType == typeof(bool))
+            {
+                propertyType = PropertyType.BOOLEAN;
+            }
+            else if (propertyInfo.PropertyType.IsGenericType)
+            {
+                if (propertyInfo.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                {
+                    var innerType = propertyInfo.PropertyType.GetGenericArguments()[0];
+                    if (innerType.IsEnum)
+                    {
+                        propertyType = PropertyType.ENUM;
+                    }
+                    else if (innerType == typeof(bool))
+                    {
+                        propertyType = PropertyType.BOOLEAN;
+                    }
+                    else
+                    {
+                        propertyType = PropertyType.NATIVE;
+                    }
+                }
+                else if (propertyInfo.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
+                {
+                    propertyType = typeof(IKalturaOTTObject).IsAssignableFrom(propertyInfo.PropertyType.GetGenericArguments()[0]) ? PropertyType.ARRAY : PropertyType.NUMERIC_ARRAY;
+                }
+                else if (propertyInfo.PropertyType.GetGenericTypeDefinition() == typeof(SerializableDictionary<,>))
+                {
+                    propertyType = PropertyType.MAP;
+                }
+            }
+            else if (propertyInfo.PropertyType.IsEnum)
+            {
+                propertyType = PropertyType.ENUM;
+            }
+
+            return propertyType;
+        }
+
+        private IReadOnlyCollection<string> GetConditions(Type type, PropertyInfo propertyInfo, PropertyType propertyType, string dataMemberName)
+        {
+            var conditions = new List<string>();
+
+            if (type.BaseType != null && type.BaseType.GetProperty(propertyInfo.Name) != null)
+            {
+                conditions.Add("!keys.Contains(\"" + dataMemberName + "\")");
+            }
+
+            var onlyNewStandard = propertyInfo.GetCustomAttribute<OnlyNewStandardAttribute>(false);
+            if (onlyNewStandard != null)
+            {
+                if (onlyNewStandard.SinceVersion == null)
+                {
+                    conditions.Add("!isOldVersion");
+                }
+                else
+                {
+                    conditions.Add("OnlyNewStandardAttribute.IsNew(\"" + onlyNewStandard.SinceVersion + "\", currentVersion)");
+                }
+            }
+
+            if (IsObsolete(propertyInfo))
+            {
+                conditions.Add("!omitObsolete");
+            }
+
+            var deprecationVersion = DeprecationVersion(propertyInfo);
+            if (deprecationVersion != null)
+            {
+                conditions.Add("!DeprecatedAttribute.IsDeprecated(\"" + deprecationVersion + "\", currentVersion)");
+            }
+
+            if (propertyInfo.PropertyType.IsGenericType)
+            {
+                if (propertyInfo.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                {
+                    conditions.Add(propertyInfo.Name + ".HasValue");
+                }
+                else if (propertyInfo.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
+                {
+                    conditions.Add(propertyInfo.Name + " != null");
+                }
+                else if (propertyInfo.PropertyType.GetGenericTypeDefinition() == typeof(SerializableDictionary<,>))
+                {
+                    conditions.Add(propertyInfo.Name + " != null");
+                }
+            }
+
+            if (propertyType == PropertyType.STRING || propertyType == PropertyType.OBJECT)
+            {
+                conditions.Add(propertyInfo.Name + " != null");
+            }
+
+            if (doesPropertyRequiresReadPermission(propertyInfo))
+            {
+                conditions.Add($"(requestType != RequestType.READ || RolesManager.IsPropertyPermitted(\"{type.Name}\", \"{propertyInfo.Name}\", requestType.Value))");
+            }
+
+            // responseProfile
+            if (!RetrievedPropertiesToSkip.Contains(propertyInfo.Name) && propertyInfo.DeclaringType.BaseType.Name != "KalturaListResponse")
+            {
+                conditions.Add("(retrievedProperties == null || retrievedProperties.Contains(\"" + dataMemberName + "\"))");
+            }
+
+            return conditions;
+        }
+
+        private void WriteJsonDataMember(string tab, PropertyType propertyType, PropertyInfo propertyInfo, string dataMemberName)
+        {
+            switch (propertyType)
+            {
+                case PropertyType.NATIVE:
+                    var nativeValue = propertyInfo.Name;
+                    WriteSimpleJsonDataMember(tab, dataMemberName, nativeValue, false);
+                    break;
+
+                case PropertyType.ENUM:
+                    var enumValue = propertyInfo.PropertyType.IsGenericType && propertyInfo.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>)
+                        ? $"{propertyInfo.Name}.Value.ToSerializedString()"
+                        : $"{propertyInfo.Name}.ToSerializedString()";
+                    WriteSimpleJsonDataMember(tab, dataMemberName, enumValue, true);
+                    break;
+
+                case PropertyType.BOOLEAN:
+                    var booleanValue = $"{propertyInfo.Name} == true ? \"true\" : \"false\"";
+                    WriteSimpleJsonDataMember(tab, dataMemberName, booleanValue, false);
+                    break;
+
+                case PropertyType.STRING:
+                    WriteStringJsonDataMember(tab, dataMemberName, propertyInfo.Name);
+                    break;
+
+                case PropertyType.OBJECT:
+                    WriteObjectJsonDataMember(tab, dataMemberName, propertyInfo.Name);
+                    break;
+
+                case PropertyType.CUSTOM:
+                    WriteCustomJsonDataMember(tab, dataMemberName, propertyInfo.Name);
+                    break;
+
+                case PropertyType.ARRAY:
+                    var responseProfileParameter = propertyInfo.DeclaringType?.BaseType?.Name == "KalturaListResponse"
+                        ? "true"
+                        : "false";
+                    WriteArrayJsonDataMember(tab, dataMemberName, propertyInfo.Name, $"item.AppendAsJson(stringBuilder, currentVersion, omitObsolete, {responseProfileParameter});");
+                    break;
+
+                case PropertyType.NUMERIC_ARRAY:
+                    WriteArrayJsonDataMember(tab, dataMemberName, propertyInfo.Name, "stringBuilder.Append(item);");
+                    break;
+
+                case PropertyType.MAP: //TODO: irena - case sensitivity
+                    WriteMapJsonDataMember(tab, dataMemberName, propertyInfo.Name);
+                    break;
+            }
+        }
+
+        private void WriteSimpleJsonDataMember(string tab, string dataMemberName, string dataMemberValue, bool useQuotes)
+        {
+            WriteAddCommaIfRequired(tab);
+            var quotesHolder = useQuotes
+                ? "\\\""
+                : string.Empty;
+            file.WriteLine($"{tab}stringBuilder.Append(\"\\\"{dataMemberName}\\\":{quotesHolder}\");");
+            file.WriteLine($"{tab}stringBuilder.Append({dataMemberValue});");
+            if (useQuotes)
+            {
+                file.WriteLine($"{tab}stringBuilder.Append(\"{quotesHolder}\");");
+            }
+
+            file.WriteLine($"{tab}keys.Add(\"{dataMemberName}\");");
+        }
+
+        private void WriteStringJsonDataMember(string tab, string dataMemberName, string dataMemberValue)
+        {
+            WriteAddCommaIfRequired(tab);
+            file.WriteLine($"{tab}stringBuilder.Append(\"\\\"{dataMemberName}\\\":\");");
+            file.WriteLine($"{tab}stringBuilder.AppendEscapedJsonString({dataMemberValue});");
+            file.WriteLine($"{tab}keys.Add(\"{dataMemberName}\");");
+        }
+
+        private void WriteObjectJsonDataMember(string tab, string dataMemberName, string propertyName)
+        {
+            WriteAddCommaIfRequired(tab);
+            file.WriteLine($"{tab}stringBuilder.Append($\"\\\"{dataMemberName}\\\":\");");
+            file.WriteLine($"{tab}{propertyName}.AppendAsJson(stringBuilder, currentVersion, omitObsolete);");
+            file.WriteLine($"{tab}keys.Add(\"{dataMemberName}\");");
+        }
+
+        private void WriteCustomJsonDataMember(string tab, string dataMemberName, string propertyName)
+        {
+            file.WriteLine($"{tab}{propertyName}.AppendAsJson(stringBuilder, currentVersion, omitObsolete, \"{dataMemberName}\", keys.Count > 0);");
+            file.WriteLine($"{tab}keys.Add(\"{dataMemberName}\");");
+        }
+
+        private void WriteArrayJsonDataMember(string tab, string dataMemberName, string propertyName, string itemWriteInstruction)
+        {
+            WriteAddCommaIfRequired(tab);
+            file.WriteLine($"{tab}stringBuilder.Append(\"\\\"{dataMemberName}\\\":[\");");
+            WriteCollectionAsJson(tab, propertyName, itemWriteInstruction);
+            file.WriteLine($"{tab}stringBuilder.Append(\"]\");");
+            file.WriteLine($"{tab}keys.Add(\"{dataMemberName}\");");
+        }
+
+        private void WriteMapJsonDataMember(string tab, string dataMemberName, string propertyName)
+        {
+            WriteAddCommaIfRequired(tab);
+            file.WriteLine($"{tab}stringBuilder.Append(\"\\\"{dataMemberName}\\\":\");");
+            if (propertyName == "Metas" || propertyName == "Tags")
+            {
+                // filter metas / tags from profile 
+                file.WriteLine($"{tab}if (retrievedProperties != null && !retrievedProperties.Contains(\"{dataMemberName}\"))");
+                file.WriteLine($"{tab}{{");
+                file.WriteLine($"{tab}    var valuesToFilter = retrievedProperties.Where(rp => rp.StartsWith(\"{dataMemberName}.\")).Select(p => p.Replace(\"{dataMemberName}.\", \"\"));");
+                file.WriteLine($"{tab}    var filteredValues = {propertyName}.Where(pair => valuesToFilter.Contains(pair.Key));");
+                file.WriteLine($"{tab}    if (valuesToFilter.Any())");
+                file.WriteLine($"{tab}    {{");
+                file.WriteLine($"{tab}        stringBuilder.Append(\"{{\");");
+                WriteMapAsJson($"{tab}        ", "filteredValues");
+                file.WriteLine($"{tab}        stringBuilder.Append(\"}}\");");
+                file.WriteLine($"{tab}    }}");
+                file.WriteLine($"{tab}}}");
+                file.WriteLine($"{tab}else");
+                file.WriteLine($"{tab}{{");
+                file.WriteLine($"{tab}    stringBuilder.Append(\"{{\");");
+                WriteMapAsJson($"{tab}        ", propertyName);
+                file.WriteLine($"{tab}    stringBuilder.Append(\"}}\");");
+                file.WriteLine($"{tab}}}");
+            }
+            else
+            {
+                file.WriteLine($"{tab}stringBuilder.Append(\"{{\");");
+                WriteMapAsJson($"{tab}", propertyName);
+                file.WriteLine($"{tab}stringBuilder.Append(\"}}\");");
+            }
+
+            file.WriteLine($"{tab}keys.Add(\"{dataMemberName}\");");
+        }
+
+        private void WriteCollectionAsJson(string tab, string collectionVariableName, string itemWriteInstruction)
+        {
+            file.WriteLine($"{tab}isFirstItem = true;");
+            file.WriteLine($"{tab}foreach (var item in {collectionVariableName})");
+            file.WriteLine($"{tab}{{");
+            file.WriteLine($"{tab}    if (!isFirstItem)");
+            file.WriteLine($"{tab}    {{");
+            file.WriteLine($"{tab}        stringBuilder.Append(\",\");");
+            file.WriteLine($"{tab}    }}");
+            file.WriteLine($"{tab}    {itemWriteInstruction}");
+            file.WriteLine($"{tab}    isFirstItem = false;");
+            file.WriteLine($"{tab}}}");
+        }
+
+        private void WriteMapAsJson(string tab, string collectionVariableName)
+        {
+            file.WriteLine($"{tab}isFirstItem = true;");
+            file.WriteLine($"{tab}foreach (var item in {collectionVariableName})");
+            file.WriteLine($"{tab}{{");
+            file.WriteLine($"{tab}    if (!isFirstItem)");
+            file.WriteLine($"{tab}    {{");
+            file.WriteLine($"{tab}        stringBuilder.Append(\",\");");
+            file.WriteLine($"{tab}    }}");
+            file.WriteLine($"{tab}    stringBuilder.Append(\"\\\"\");");
+            file.WriteLine($"{tab}    stringBuilder.Append(item.Key);");
+            file.WriteLine($"{tab}    stringBuilder.Append(\"\\\":\");");
+            file.WriteLine($"{tab}    item.Value.AppendAsJson(stringBuilder, currentVersion, omitObsolete);");
+            file.WriteLine($"{tab}    isFirstItem = false;");
+            file.WriteLine($"{tab}}}");
+        }
+        
+        private void WriteXmlDataMember(string tab, PropertyType propertyType, PropertyInfo propertyInfo, string dataMemberName)
+        {
+            switch (propertyType)
+            {
+                case PropertyType.NATIVE:
+                    var nativeValue = propertyInfo.Name;
+                    WriteSimpleXmlDataMember(tab, dataMemberName, nativeValue, false);
+                    break;
+
+                case PropertyType.ENUM:
+                    var enumValue = propertyInfo.PropertyType.IsGenericType && propertyInfo.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>)
+                        ? $"{propertyInfo.Name}.Value.ToSerializedString()"
+                        : $"{propertyInfo.Name}.ToSerializedString()";
+                    WriteSimpleXmlDataMember(tab, dataMemberName, enumValue, true);
+                    break;
+
+                case PropertyType.BOOLEAN:
+                    var booleanValue = $"{propertyInfo.Name} == true ? \"true\" : \"false\"";
+                    WriteSimpleXmlDataMember(tab, dataMemberName, booleanValue, false);
+                    break;
+
+                case PropertyType.STRING:
+                    WriteStringXmlDataMember(tab, dataMemberName, propertyInfo.Name);
+                    break;
+
+                case PropertyType.OBJECT:
+                    WriteObjectXmlDataMember(tab, dataMemberName, propertyInfo.Name);
+                    break;
+
+                case PropertyType.CUSTOM:
+                    WriteCustomXmlDataMember(tab, dataMemberName, propertyInfo.Name);
+                    break;
+
+                case PropertyType.ARRAY:
+                    var responseProfileParameter = propertyInfo.DeclaringType?.BaseType?.Name == "KalturaListResponse"
+                        ? "true"
+                        : "false";
+                    WriteArrayXmlDataMember(tab, dataMemberName, propertyInfo.Name, $"item.AppendAsXml(stringBuilder, currentVersion, omitObsolete, {responseProfileParameter});");
+                    break;
+
+                case PropertyType.NUMERIC_ARRAY:
+                    WriteArrayXmlDataMember(tab, dataMemberName, propertyInfo.Name, "stringBuilder.Append(item);");
+                    break;
+
+                case PropertyType.MAP: //TODO: irena - case sensitivity
+                    WriteMapXmlDataMember(tab, dataMemberName, propertyInfo.Name);
+                    break;
+            }
+        }
+
+        private void WriteSimpleXmlDataMember(string tab, string dataMemberName, string dataMemberValue, bool useQuotes)
+        {
+            var quotesHolder = useQuotes
+                ? "\\\""
+                : string.Empty;
+            file.WriteLine($"{tab}stringBuilder.Append(\"<{dataMemberName}>{quotesHolder}\");");
+            file.WriteLine($"{tab}stringBuilder.Append({dataMemberValue});");
+            file.WriteLine($"{tab}stringBuilder.Append(\"{quotesHolder}</{dataMemberName}>\");");
+            file.WriteLine($"{tab}keys.Add(\"{dataMemberName}\");");
+        }
+
+        private void WriteStringXmlDataMember(string tab, string dataMemberName, string dataMemberValue)
+        {
+            file.WriteLine($"{tab}stringBuilder.Append(\"<{dataMemberName}>\");");
+            file.WriteLine($"{tab}stringBuilder.AppendEscapedXmlString({dataMemberValue});");
+            file.WriteLine($"{tab}stringBuilder.Append(\"</{dataMemberName}>\");");
+            file.WriteLine($"{tab}keys.Add(\"{dataMemberName}\");");
+        }
+
+        private void WriteObjectXmlDataMember(string tab, string dataMemberName, string propertyName)
+        {
+            file.WriteLine($"{tab}stringBuilder.Append(\"<{dataMemberName}>\");");
+            file.WriteLine($"{tab}stringBuilder.Append({propertyName}.ToXml(currentVersion, omitObsolete));");
+            file.WriteLine($"{tab}stringBuilder.Append(\"</{dataMemberName}>\");");
+            file.WriteLine($"{tab}keys.Add(\"{dataMemberName}\");");
+        }
+
+        private void WriteCustomXmlDataMember(string tab, string dataMemberName, string propertyName)
+        {
+            file.WriteLine($"{tab}{propertyName}.AppendAsXml(stringBuilder, currentVersion, omitObsolete, \"{dataMemberName}\");");
+            file.WriteLine($"{tab}keys.Add(\"{dataMemberName}\");");
+        }
+
+        private void WriteArrayXmlDataMember(string tab, string dataMemberName, string propertyName, string itemWriteInstruction)
+        {
+            file.WriteLine($"{tab}stringBuilder.Append(\"<{dataMemberName}>\");");
+            file.WriteLine($"{tab}foreach (var item in {propertyName})");
+            file.WriteLine($"{tab}{{");
+            file.WriteLine($"{tab}    stringBuilder.Append(\"<item>\");");
+            file.WriteLine($"{tab}    {itemWriteInstruction}");
+            file.WriteLine($"{tab}    stringBuilder.Append(\"</item>\");");
+            file.WriteLine($"{tab}}}");
+            file.WriteLine($"{tab}stringBuilder.Append(\"</{dataMemberName}>\");");
+            file.WriteLine($"{tab}keys.Add(\"{dataMemberName}\");");
+        }
+
+        private void WriteMapXmlDataMember(string tab, string dataMemberName, string propertyName)
+        {            
+            file.WriteLine($"{tab}stringBuilder.Append(\"<{dataMemberName}>\");");
+            file.WriteLine($"{tab}foreach (var item in {propertyName})");
+            file.WriteLine($"{tab}{{");
+            file.WriteLine($"{tab}    stringBuilder.Append(\"<item>\");");
+            file.WriteLine($"{tab}    stringBuilder.Append(\"<itemKey>\");");
+            file.WriteLine($"{tab}    stringBuilder.Append(item.Key);");
+            file.WriteLine($"{tab}    stringBuilder.Append(\"</itemKey>\");");
+            file.WriteLine($"{tab}    item.Value.AppendAsXml(stringBuilder, currentVersion, omitObsolete);");
+            file.WriteLine($"{tab}    stringBuilder.Append(\"</item>\");");
+            file.WriteLine($"{tab}}}");
+            file.WriteLine($"{tab}stringBuilder.Append(\"</{dataMemberName}>\");");
+            file.WriteLine($"{tab}keys.Add(\"{dataMemberName}\");");
+        }
+
+        private void WriteAddCommaIfRequired(string tab)
+        {
+            file.WriteLine($"{tab}if (keys.Count > 0)");
+            file.WriteLine($"{tab}{{");
+            file.WriteLine($"{tab}    stringBuilder.Append(\",\");");
+            file.WriteLine($"{tab}}}");
         }
     }
 }

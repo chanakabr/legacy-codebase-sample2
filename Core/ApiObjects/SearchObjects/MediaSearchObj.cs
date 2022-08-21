@@ -233,6 +233,11 @@ namespace ApiObjects.SearchObjects
             parentMediaTypes = new Dictionary<int, int>();
             associationTags = new Dictionary<int, string>();
         }
+
+        public int ExtractParentGroupId()
+        {
+            return this.m_nIndexGroupId == 0 ? this.m_nGroupId : this.m_nIndexGroupId;
+        }
     }
 
     public class SearchRelated

@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using ApiObjects.SearchObjects;
 using ElasticSearch.NEST;
 using Elasticsearch.Net;
+using ElasticSearch.Utils;
 using Nest;
 
 namespace ElasticSearch.Searcher
@@ -59,22 +60,30 @@ namespace ElasticSearch.Searcher
                 }
             }
         }
-        
+
         private static Field GetEsOrderByMetaFieldValueV7(EsOrderByMetaField field)
         {
-            var prefix = field.IsPadded ? "padded_" : string.Empty;
-            
-            return new Field($"metas.{field.Language.Code}.{prefix}{field.MetaName.ToLower()}");
+            var paddedPrefix = field.IsPadded
+                ? "padded_"
+                : string.Empty;
+            var sortSuffix = SpecialSortingServiceV7.Instance.IsSpecialSortingMeta(field.Language?.Code, field.MetaType)
+                ? ".sort"
+                : string.Empty;
+
+            return new Field($"metas.{field.Language.Code}.{paddedPrefix}{field.MetaName.ToLower()}{sortSuffix}");
         }
         
         private static string GetEsOrderByMetaFieldValue(EsOrderByMetaField field)
         {
-            var prefix = field.IsPadded ? "padded_" : string.Empty;
-            var suffix = field.Language != null && !field.Language.IsDefault
+            var paddedPrefix = field.IsPadded ? "padded_" : string.Empty;
+            var languageSuffix = field.Language != null && !field.Language.IsDefault
                 ? $"_{field.Language.Code}"
                 : string.Empty;
+            var sortSuffix = SpecialSortingServiceV2.Instance.IsSpecialSortingMeta(field.Language?.Code, field.MetaType)
+                ? ".sort"
+                : string.Empty;
 
-            return $"metas.{prefix}{field.MetaName.ToLower()}{suffix}";
+            return $"metas.{paddedPrefix}{field.MetaName.ToLower()}{languageSuffix}{sortSuffix}";
         }
 
         private static Field GetEsOrderByFieldValueV7(EsOrderByField field)
@@ -82,7 +91,12 @@ namespace ElasticSearch.Searcher
             switch (field.OrderByField)
             {
                 case OrderBy.NAME:
-                    return new Field($"name.{field.Language.Code}");
+                    var sortSuffix = SpecialSortingServiceV7.Instance.IsSpecialSortingField(field.Language?.Code)
+                        ? ".sort"
+                        : string.Empty;
+                    var fieldName = $"name.{field.Language.Code}{sortSuffix}";
+
+                    return new Field(fieldName);
                 case OrderBy.ID:
                 {
                     Expression<Func<NestBaseAsset, string>> expression = f => f.DocumentId;
@@ -105,7 +119,12 @@ namespace ElasticSearch.Searcher
                 // case when not default language was requested.
                 if (field.OrderByField == OrderBy.NAME && field.Language != null && !field.Language.IsDefault)
                 {
-                    return $"{formattedValue}_{field.Language.Code}";
+                    formattedValue = $"{formattedValue}_{field.Language.Code}";
+                }
+
+                if (SpecialSortingServiceV2.Instance.IsSpecialSortingField(field.Language?.Code))
+                {
+                    formattedValue = $"{formattedValue}.sort";
                 }
 
                 return formattedValue;

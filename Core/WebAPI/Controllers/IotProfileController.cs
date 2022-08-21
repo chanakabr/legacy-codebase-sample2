@@ -1,11 +1,5 @@
-﻿using ApiLogic.Notification;
-using ApiObjects;
-using ApiObjects.Response;
-using System;
-using WebAPI.Clients;
-using WebAPI.Managers.Models;
+﻿using System;
 using WebAPI.Managers.Scheme;
-using WebAPI.Models.API;
 
 namespace WebAPI.Controllers
 {
@@ -13,54 +7,37 @@ namespace WebAPI.Controllers
     public class IotProfileController : IKalturaController
     {
         /// <summary>
-        /// Add new KalturaIotProfile
+        /// Add new environment in aws
         /// </summary>
+        /// <returns>boolean for processing the creation request</returns>
         /// <remarks>
         /// </remarks>
-        /// <param name="objectToAdd">KalturaIotProfile Object to add</param>
         [Action("add")]
         [ApiAuthorize]
-        [Throws(eResponseStatus.AlreadyExist)]
-        static public KalturaIotProfile Add(KalturaIotProfile objectToAdd)
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        public static bool Add()
         {
-            var contextData = KS.GetContextData();
-            Func<GenericResponse<IotProfile>> addFunc = () => IotProfileManager.Instance.Add(contextData);
-            var response = ClientUtils.GetResponseFromWS<KalturaIotProfile, IotProfile>(addFunc);
-            return response;
+            throw new NotImplementedException("iotProfile.add should be used only by phoenix rest proxy");
         }
 
         /// <summary>
-        /// Get existing KalturaIotProfile
+        /// Delete existing environment in aws
         /// </summary>
+        /// <param name="groupId">groupId</param>
+        /// <returns>boolean for processing the deletion request</returns>
         /// <remarks>
         /// </remarks>
-        /// <param name="id">KalturaIotProfile identifier</param>
-        [Action("get")]
+        [Action("delete", isInternal: true)]
         [ApiAuthorize]
-        [SchemeArgument("id", MinLong = 1)]
-        [Throws(eResponseStatus.AdapterNotExists)]
-        static public KalturaIotProfile Get(long id)
+        [SchemeArgument("groupId", MinLong = 1)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        public static bool Delete(long groupId)
         {
-            var contextData = KS.GetContextData();
-            Func<GenericResponse<IotProfile>> coreFunc = () => IotProfileManager.Instance.Get(contextData, contextData.GroupId);
-            var response = ClientUtils.GetResponseFromWS<KalturaIotProfile, IotProfile>(coreFunc);
-            return response;
-        }
-
-        /// <summary>
-        /// Update existing KalturaIotProfile
-        /// </summary>
-        /// <remarks>
-        /// </remarks>
-        /// <param name="id">id of KalturaIotProfile to update</param>
-        /// <param name="objectToUpdate">KalturaIotProfile Object to update</param>
-        [Action("update")]
-        [ApiAuthorize]
-        [SchemeArgument("id", MinLong = 1)]
-        [Throws(eResponseStatus.NoConfigurationFound)]
-        static public KalturaIotProfile Update(long id, KalturaIotProfile objectToUpdate)
-        {
-            throw new NotImplementedException();
+            throw new NotImplementedException("iotProfile.delete should be used only by phoenix rest proxy");
         }
     }
 }

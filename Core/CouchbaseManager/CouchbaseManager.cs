@@ -2108,8 +2108,10 @@ namespace CouchbaseManager
                         log.DebugFormat("Couchbase manager: GetValues success - get key {0}, status {1}", item.Key, item.Value.Status);
                     }
                 }
-
-                if (shouldAllowPartialQuery || status == Couchbase.IO.ResponseStatus.Success)
+                
+                //shouldAllowPartialQuery will return result only if our query return something
+                //example: shouldAllowPartialQuery with single key but key doesn't exist - shouldn't return anything
+                if ((shouldAllowPartialQuery && getResult.Keys.Count > 0) || status == Couchbase.IO.ResponseStatus.Success)
                 {
                     // if successful - build dictionary based on execution result
                     result = new Dictionary<string, T>();

@@ -1,0 +1,14 @@
+syntax = "proto3";
+option csharp_namespace = "phoenix";
+option go_package = "./models";
+package phoenix;
+
+import "google/protobuf/timestamp.proto";
+
+message PagoProgramAvailability {
+   .google.protobuf.Timestamp EndDate = 1;
+   repeated int64 FileIds = 2 [packed = false];
+   int64 PagoId = 3;
+   .google.protobuf.Timestamp StartDate = 4;
+}
+

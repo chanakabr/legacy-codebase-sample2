@@ -181,13 +181,13 @@ namespace WebAPI.ObjectsConvertor
             return result;
         }
 
-        public static CutWith ConvertCutWith(WebAPI.Models.Catalog.KalturaAssetInfoFilter.KalturaCutWith cutWith)
+        public static CutWith ConvertCutWith(KalturaCutWith cutWith)
         {
             switch (cutWith)
             {
-                case KalturaAssetInfoFilter.KalturaCutWith.and:
+                case KalturaCutWith.and:
                     return CutWith.AND;
-                case KalturaAssetInfoFilter.KalturaCutWith.or:
+                case KalturaCutWith.or:
                     return CutWith.OR;
                 default:
                     throw new ArgumentException("Unknown cut type");

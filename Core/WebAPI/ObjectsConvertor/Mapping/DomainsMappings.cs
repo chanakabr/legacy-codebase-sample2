@@ -256,23 +256,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.IdentityPoolId, opt => opt.MapFrom(src => src.IdentityPoolId))
                 .ForMember(dest => dest.Principal, opt => opt.MapFrom(src => src.Principal))
                 ;
-
-            cfg.CreateMap<IotClientConfiguration, KalturaIotClientConfiguration>()
-                .ForMember(dest => dest.CognitoUserPool, opt => opt.MapFrom(src => src.CognitoUserPool))
-                .ForMember(dest => dest.CredentialsProvider, opt => opt.MapFrom(src => src.CredentialsProvider))
-                .ForMember(dest => dest.AnnouncementTopic, opt => opt.MapFrom(src => src.AnnouncementTopic))
-                .ForMember(dest => dest.Json, opt => opt.MapFrom(src => src.Json))
-                .ForMember(dest => dest.Topics, opt => opt.MapFrom(src => string.Join(",", src.Topics)))
-                ;
-
-            cfg.CreateMap<KalturaIotClientConfiguration, IotClientConfiguration>()
-                .ForMember(dest => dest.CognitoUserPool, opt => opt.MapFrom(src => src.CognitoUserPool))
-                .ForMember(dest => dest.CredentialsProvider, opt => opt.MapFrom(src => src.CredentialsProvider))
-                .ForMember(dest => dest.AnnouncementTopic, opt => opt.MapFrom(src => src.AnnouncementTopic))
-                .ForMember(dest => dest.Json, opt => opt.MapFrom(src => src.Json))
-                .ForMember(dest => dest.Topics, opt => opt.ResolveUsing(src => src.Topics.GetItemsIn<string>(out _)))
-                ;
-
+            
             cfg.CreateMap<CognitoUserPool, KalturaCognitoUserPool>()
                 .ForMember(dest => dest.IotDefault, opt => opt.MapFrom(src => src.IotDefault))
                 ;
@@ -309,10 +293,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.Region, opt => opt.MapFrom(src => src.Region))
                 ;
 
-            cfg.CreateMap<KalturaIotProfile, IotProfile>()
-                 .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
-                 .ForMember(dest => dest.IotProfileAws, opt => opt.MapFrom(src => src.IotProfileAws))
-                 ;
+
             cfg.CreateMap<KalturaIotProfileAws, IotProfileAws>()
                  .ForMember(dest => dest.AccessKeyId, opt => opt.MapFrom(src => src.AccessKeyId))
                  .ForMember(dest => dest.SecretAccessKey, opt => opt.MapFrom(src => src.SecretAccessKey))
@@ -322,12 +303,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                  .ForMember(dest => dest.Region, opt => opt.MapFrom(src => src.Region))
                  .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                  ;
-
-            cfg.CreateMap<IotProfile, KalturaIotProfile>()
-                .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
-                .ForMember(dest => dest.IotProfileAws, opt => opt.MapFrom(src => src.IotProfileAws))
-                ;
-
+            
             cfg.CreateMap<IotProfileAws, KalturaIotProfileAws>()
                  .ForMember(dest => dest.AccessKeyId, opt => opt.MapFrom(src => src.AccessKeyId))
                  .ForMember(dest => dest.SecretAccessKey, opt => opt.MapFrom(src => src.SecretAccessKey))

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -10,6 +11,7 @@ using System.Threading;
 using System.Web;
 using ApiObjects;
 using EventManager;
+using FeatureFlag;
 using KalturaRequestContext;
 using Phx.Lib.Log;
 using Newtonsoft.Json;
@@ -26,7 +28,9 @@ namespace WebAPI.EventNotifications
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient();        
+        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient();
+        
+        private static readonly IPhoenixFeatureFlag PhoenixFeatureFlag = PhoenixFeatureFlagInstance.Get();
 
         #region Override Method
 
@@ -244,6 +248,8 @@ namespace WebAPI.EventNotifications
         public void SendHttpRequest(object phoenixObject, HttpMethod method)
         {
             int statusCode = -1;
+            StreamWriter streamWriter = null;
+            StreamContent streamContent = null;
 
             try
             {
@@ -255,19 +261,31 @@ namespace WebAPI.EventNotifications
 
                 if (method != HttpMethod.Get)
                 {
-                    // content type
-                    string contentType = "application/json";
-                    if (!string.IsNullOrEmpty(this.ContentType))
+                    var jsonManager = JsonManager.GetInstance();
+                    if (PhoenixFeatureFlag.IsEfficientSerializationUsed())
                     {
-                        contentType = this.ContentType;
+                        // serialize object to JSON
+                        var jsonBuilder = jsonManager.Serialize(phoenixObject, true);
+
+                        streamWriter = new StreamWriter(new MemoryStream(), Encoding.UTF8);
+                        streamWriter.Write(jsonBuilder);
+
+                        streamContent = new StreamContent(streamWriter.BaseStream);
+                        request.Content = streamContent;
                     }
+                    else
+                    {
+                        // content type
+                        string contentType = string.IsNullOrEmpty(ContentType)
+                            ? "application/json"
+                            : ContentType;
 
-                    // serialize object to JSON
-                    JsonManager jsonManager = JsonManager.GetInstance();
-                    string postBody = jsonManager.Serialize(phoenixObject, true);
+                        // serialize object to JSON
+                        string postBody = jsonManager.ObsoleteSerialize(phoenixObject, true);
 
-                    StringContent strContent = new StringContent(postBody, Encoding.UTF8, contentType);
-                    request.Content = strContent;
+                        StringContent strContent = new StringContent(postBody, Encoding.UTF8, contentType);
+                        request.Content = strContent;
+                    }
                 }
 
                 // custom headers
@@ -315,6 +333,11 @@ namespace WebAPI.EventNotifications
             catch (Exception ex)
             {
                 log.Error($"HttpNotificationHandler error. ex = {ex}, url = {this.Url}");
+            }
+            finally
+            {
+                streamWriter?.Dispose();
+                streamContent?.Dispose();
             }
 
             if (!this.ValidHttpStatuses.Contains(statusCode))
