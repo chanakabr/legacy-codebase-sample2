@@ -41,8 +41,10 @@ namespace phoenix {
             "IAEoBRINCgVkbG1JZBgCIAEoBSJHCjhHZXRNZWRpYUNvbmN1cnJlbmN5UnVs",
             "ZXNCeURvbWFpbkxpbWl0YXRpb25Nb2R1bGVSZXNwb25zZRILCgNpZHMYASAD",
             "KAUiSQoYSXNEZXZpY2VQbGF5VmFsaWRSZXF1ZXN0Eg8KB2dyb3VwSWQYASAB",
-            "KAUSDgoGdXNlcklkGAIgASgDEgwKBFVkaWQYAyABKAlCFFoILi9tb2RlbHOq",
-            "AgdwaG9lbml4YgZwcm90bzM="));
+            "KAUSDgoGdXNlcklkGAIgASgDEgwKBFVkaWQYAyABKAkiVAoaSXNWYWxpZERl",
+            "dmljZUZhbWlseVJlcXVlc3QSDwoHZ3JvdXBJZBgBIAEoBRIMCgR1ZGlkGAIg",
+            "ASgJEhcKD2RldmljZUZhbWlseUlkcxgDIAMoBUIUWgguL21vZGVsc6oCB3Bo",
+            "b2VuaXhiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::phoenix.StatusReflection.Descriptor, global::phoenix.HouseholdReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -54,7 +56,8 @@ namespace phoenix {
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetDomainDataResponse), global::phoenix.GetDomainDataResponse.Parser, new[]{ "Status", "DomainId", "DomainData" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleRequest), global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleRequest.Parser, new[]{ "GroupId", "DlmId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleResponse), global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleResponse.Parser, new[]{ "Ids" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.IsDevicePlayValidRequest), global::phoenix.IsDevicePlayValidRequest.Parser, new[]{ "GroupId", "UserId", "Udid" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.IsDevicePlayValidRequest), global::phoenix.IsDevicePlayValidRequest.Parser, new[]{ "GroupId", "UserId", "Udid" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.IsValidDeviceFamilyRequest), global::phoenix.IsValidDeviceFamilyRequest.Parser, new[]{ "GroupId", "Udid", "DeviceFamilyIds" }, null, null, null, null)
           }));
     }
     #endregion
@@ -2014,6 +2017,241 @@ namespace phoenix {
           }
           case 26: {
             Udid = input.ReadString();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  public sealed partial class IsValidDeviceFamilyRequest : pb::IMessage<IsValidDeviceFamilyRequest>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<IsValidDeviceFamilyRequest> _parser = new pb::MessageParser<IsValidDeviceFamilyRequest>(() => new IsValidDeviceFamilyRequest());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<IsValidDeviceFamilyRequest> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::phoenix.HouseholdApiReflection.Descriptor.MessageTypes[9]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public IsValidDeviceFamilyRequest() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public IsValidDeviceFamilyRequest(IsValidDeviceFamilyRequest other) : this() {
+      groupId_ = other.groupId_;
+      udid_ = other.udid_;
+      deviceFamilyIds_ = other.deviceFamilyIds_.Clone();
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public IsValidDeviceFamilyRequest Clone() {
+      return new IsValidDeviceFamilyRequest(this);
+    }
+
+    /// <summary>Field number for the "groupId" field.</summary>
+    public const int GroupIdFieldNumber = 1;
+    private int groupId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int GroupId {
+      get { return groupId_; }
+      set {
+        groupId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "udid" field.</summary>
+    public const int UdidFieldNumber = 2;
+    private string udid_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string Udid {
+      get { return udid_; }
+      set {
+        udid_ = value == null ? "" : value;
+      }
+    }
+
+    /// <summary>Field number for the "deviceFamilyIds" field.</summary>
+    public const int DeviceFamilyIdsFieldNumber = 3;
+    private static readonly pb::FieldCodec<int> _repeated_deviceFamilyIds_codec
+        = pb::FieldCodec.ForInt32(26);
+    private readonly pbc::RepeatedField<int> deviceFamilyIds_ = new pbc::RepeatedField<int>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::RepeatedField<int> DeviceFamilyIds {
+      get { return deviceFamilyIds_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as IsValidDeviceFamilyRequest);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(IsValidDeviceFamilyRequest other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (GroupId != other.GroupId) return false;
+      if (Udid != other.Udid) return false;
+      if(!deviceFamilyIds_.Equals(other.deviceFamilyIds_)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (GroupId != 0) hash ^= GroupId.GetHashCode();
+      if (Udid.Length != 0) hash ^= Udid.GetHashCode();
+      hash ^= deviceFamilyIds_.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (GroupId != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(GroupId);
+      }
+      if (Udid.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Udid);
+      }
+      deviceFamilyIds_.WriteTo(output, _repeated_deviceFamilyIds_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (GroupId != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(GroupId);
+      }
+      if (Udid.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Udid);
+      }
+      deviceFamilyIds_.WriteTo(ref output, _repeated_deviceFamilyIds_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (GroupId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(GroupId);
+      }
+      if (Udid.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Udid);
+      }
+      size += deviceFamilyIds_.CalculateSize(_repeated_deviceFamilyIds_codec);
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(IsValidDeviceFamilyRequest other) {
+      if (other == null) {
+        return;
+      }
+      if (other.GroupId != 0) {
+        GroupId = other.GroupId;
+      }
+      if (other.Udid.Length != 0) {
+        Udid = other.Udid;
+      }
+      deviceFamilyIds_.Add(other.deviceFamilyIds_);
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            GroupId = input.ReadInt32();
+            break;
+          }
+          case 18: {
+            Udid = input.ReadString();
+            break;
+          }
+          case 26:
+          case 24: {
+            deviceFamilyIds_.AddEntriesFrom(input, _repeated_deviceFamilyIds_codec);
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            GroupId = input.ReadInt32();
+            break;
+          }
+          case 18: {
+            Udid = input.ReadString();
+            break;
+          }
+          case 26:
+          case 24: {
+            deviceFamilyIds_.AddEntriesFrom(ref input, _repeated_deviceFamilyIds_codec);
             break;
           }
         }

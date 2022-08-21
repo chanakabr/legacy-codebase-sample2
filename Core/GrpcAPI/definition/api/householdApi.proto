@@ -52,3 +52,9 @@ message IsDevicePlayValidRequest{
   int64 userId = 2;
   string Udid = 3;
 }
+
+message IsValidDeviceFamilyRequest{
+  int32 groupId = 1;
+  string udid = 2;
+  repeated int32 deviceFamilyIds = 3;
+}

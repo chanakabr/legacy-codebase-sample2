@@ -1,7 +1,11 @@
 using System;
 using System.Reflection;
+using ApiLogic.Api.Managers;
 using ApiObjects;
+using Core.Catalog.CatalogManagement;
+using Core.Notification;
 using DAL;
+using GrpcAPI.Utils;
 using Microsoft.Extensions.Logging;
 using phoenix;
 using Phx.Lib.Log;
@@ -12,6 +16,11 @@ namespace GrpcAPI.Services
     {
         GetGroupSecretAndCountryCodeResponse GetGroupSecretAndCountryCode(GetGroupSecretAndCountryCodeRequest request);
         GetCDVRAdapterResponse GetCDVRAdapter(GetCDVRAdapterRequest request);
+        bool IsRegionalization(IsRegionalizationRequest request);
+        GetDefaultRegionIdResponse GetDefaultRegionId(GetDefaultRegionIdRequest request);
+
+        GetNotificationPartnerSettingsResponse GetNotificationPartnerSettings(
+            GetNotificationPartnerSettingsRequest request);
     }
 
     public class GroupAndConfigurationService : IGroupAndConfigurationService
@@ -55,6 +64,32 @@ namespace GrpcAPI.Services
             }
 
             return null;
+        }
+        
+        public bool IsRegionalization(IsRegionalizationRequest request)
+        {
+            return CatalogManager.Instance.IsRegionalizationEnabled(request.GroupId);
+        }
+        
+        public GetDefaultRegionIdResponse GetDefaultRegionId(GetDefaultRegionIdRequest request)
+        {
+            var regionId = RegionManager.Instance.GetDefaultRegionId(request.GroupId);
+            return regionId != null
+                ? new GetDefaultRegionIdResponse
+                {
+                    RegionId = (long) regionId
+                }
+                : new GetDefaultRegionIdResponse
+                {
+                    RegionId = -1
+                };
+        }
+
+        public GetNotificationPartnerSettingsResponse GetNotificationPartnerSettings(
+            GetNotificationPartnerSettingsRequest request)
+        {
+            var notificationSettings = NotificationCache.Instance().GetPartnerNotificationSettings(request.GroupId);
+            return new GetNotificationPartnerSettingsResponse{Setting = NotificationPartnerSettings.Parser.ParseFrom(GrpcSerialize.ProtoSerialize(notificationSettings.settings))};
         }
     }
 }

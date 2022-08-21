@@ -236,13 +236,12 @@ namespace Core.Notification.Adapters
         /// <param name="message">Message body</param>
         /// <param name="topic">With groupId prefix</param>
         /// <returns></returns>
-        public static bool IotPublishAnnouncement(int groupId, string message, string topic)
+        public static bool IotPublishAnnouncement(int groupId, string message)
         {
-            var _topic = $@"{groupId}/{topic}";
-
+            log.DebugFormat($"IotPublishAnnouncement message {message.Substring(0, Math.Min(message.Length, 10))}");
             try
             {
-                return IotManager.Instance.PublishIotMessage(groupId, @message, _topic);
+                return IotGrpcClientWrapper.IotClient.Instance.PublishAnnouncement(groupId, message);
             }
             catch (Exception ex)
             {
@@ -258,7 +257,7 @@ namespace Core.Notification.Adapters
 
             try
             {
-                response = IotManager.Instance.AddToThingShadow(groupId, message, thingArn, udid);
+                response = IotGrpcClientWrapper.IotClient.Instance.PublishPrivateMessage(groupId, message, thingArn,udid);
 
                 if (!response)
                     log.Error($"Error while trying to add message to thing shadow. group: {groupId}, message: {message}, thing: {thingArn}");

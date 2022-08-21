@@ -14,6 +14,7 @@ using Core.Notification;
 using DAL;
 using EpgNotificationHandler.Configuration;
 using GroupsCacheManager;
+using IotGrpcClientWrapper;
 using Microsoft.Extensions.DependencyInjection;
 using NotificationHandlers.Common;
 using Module = Core.Domains.Module;
@@ -24,9 +25,9 @@ namespace EpgNotificationHandler.Infrastructure
     {
         public static IServiceCollection AddEpgNotificationHandlerDependencies(this IServiceCollection serviceCollection)
             => serviceCollection
-                .AddScoped<IIotManager, IotManager>()
                 // use overload with delegate to be able to replace implementation (ex: in unit tests)
                 .AddSingleton<IEpgV2PartnerConfigurationManager>(serviceProvider => EpgV2PartnerConfigurationManager.Instance)
+                .AddSingleton<IIotClient>(serviceProvider => IotGrpcClientWrapper.IotClient.Instance)
                 .AddSingleton<IGeneralPartnerConfigManager, GeneralPartnerConfigManager>()
                 .AddSingleton<IGeneralPartnerConfigRepository, ApiDAL>()
                 .AddSingleton<IEpgNotificationConfiguration, EpgNotificationConfiguration>()
@@ -45,7 +46,6 @@ namespace EpgNotificationHandler.Infrastructure
                 .AddSingleton<IAssetStructRepository, AssetStructRepository>()
                 .AddSingleton<IGroupSettingsManager, GroupSettingsManager>()
                 .AddSingleton<IGroupManager, GroupManager>()
-                .AddSingleton<IIotNotificationService, IotNotificationService>()
                 .AddSingleton(DeviceFamilyRepository.Instance);
     }
 }

@@ -18,7 +18,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Core.Users;
+using Core.Users.Cache;
+using iot;
 using TVinciShared;
+using Iot = ApiObjects.Iot;
+using Status = ApiObjects.Response.Status;
 
 namespace Core.Notification
 {
@@ -1111,9 +1116,13 @@ namespace Core.Notification
 
             foreach (var device in userNotificationData.devices)
             {
-                if (IsToIot(partnerId, pushMessage, device))
+                if (pushMessage.PushChannels.Contains(PushChannel.Iot) || device.PushChannel == PushChannel.Iot)
                 {
-                    PublishToIot(partnerId, pushMessage, IotManager.Instance.GetRegisteredDevice(partnerId, device.Udid));
+                    var iotDeviceConfiguration = GetIotUserConfiguration(partnerId, pushMessage, device, userId);
+                    if (iotDeviceConfiguration != null && iotDeviceConfiguration.Status == iot.Status.Success)
+                    {
+                        PublishToIot(partnerId, pushMessage, iotDeviceConfiguration);
+                    }
                 }
                 else if (IsToSns(pushMessage, device))
                 {
@@ -1195,12 +1204,11 @@ namespace Core.Notification
                                 && (device.PushChannel == default || device.PushChannel == PushChannel.Push);
         }
 
-        private static bool IsToIot(int groupId, PushMessage pushMessage, UserDevice device)
+        private static GetClientConfigurationResponse GetIotUserConfiguration(int groupId, PushMessage pushMessage, UserDevice device, int userId)
         {
-            var iotDevice = IotManager.Instance.GetRegisteredDevice(groupId, device.Udid);
-            return iotDevice != null ||
-                (pushMessage.PushChannels == null || pushMessage.PushChannels.Contains(PushChannel.Iot))
-                && device.PushChannel == PushChannel.Iot;
+            long domainId = UsersCache.Instance().GetDomainIdByUser(userId, groupId);
+            var regionId = DomainsCache.Instance().GetDomain((int) domainId, groupId).m_nRegion;
+            return IotGrpcClientWrapper.IotClient.Instance.GetClientConfiguration(groupId, domainId, regionId, device.Udid);
         }
 
         private static Status SendToSingleDevice(int partnerId, int userId, PushMessage pushMessage)
@@ -1224,7 +1232,8 @@ namespace Core.Notification
                 return status;
             }
 
-            var device = IotManager.Instance.GetRegisteredDevice(partnerId, pushMessage.Udid);
+            var domain = DomainsCache.Instance().GetDomain((int) response.m_user.m_domianID, partnerId);
+            var device = IotGrpcClientWrapper.IotClient.Instance.GetClientConfiguration(partnerId, domain.m_nDomainID, domain.m_nRegion, pushMessage.Udid);
             if (device != null)
             {
                 status = PublishToIot(partnerId, pushMessage, device);
@@ -1255,9 +1264,9 @@ namespace Core.Notification
             return counter > allowedPushMsg;
         }
 
-        private static Status PublishToIot(int partnerId, PushMessage pushMessage, Iot iotDevice)
+        private static Status PublishToIot(int partnerId, PushMessage pushMessage, GetClientConfigurationResponse iotDevice)
         {
-            if (!NotificationAdapter.AddPrivateMessageToShadowIot(partnerId, pushMessage.Message, iotDevice.ThingArn, iotDevice.Udid))
+            if (!NotificationAdapter.AddPrivateMessageToShadowIot(partnerId, pushMessage.Message, iotDevice.ThingArn, iotDevice.ThingName))
             {
                 log.Error($"Can't update thing's shadow. thing: {iotDevice.ThingArn}");
                 return new Status() { Code = (int)eResponseStatus.Error, Message = FAILED_TO_UPDATE_THING_SHADOW }; ;

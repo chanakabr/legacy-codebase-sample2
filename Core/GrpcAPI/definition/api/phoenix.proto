@@ -21,10 +21,14 @@ service Phoenix {
   rpc GetSuspensionStatus (GetSuspensionStatusRequest) returns (GetSuspensionStatusResponse);
   rpc GetMediaConcurrencyRulesByDomainLimitationModule (GetMediaConcurrencyRulesByDomainLimitationModuleRequest) returns (GetMediaConcurrencyRulesByDomainLimitationModuleResponse);
   rpc IsDevicePlayValid (IsDevicePlayValidRequest) returns (google.protobuf.Int32Value);
-  
+  rpc IsValidDeviceFamily (IsValidDeviceFamilyRequest) returns (google.protobuf.BoolValue);
+
   //group configuration
   rpc GetGroupSecretAndCountryCode (GetGroupSecretAndCountryCodeRequest) returns (GetGroupSecretAndCountryCodeResponse);
   rpc GetCDVRAdapter (GetCDVRAdapterRequest) returns (GetCDVRAdapterResponse);
+  rpc IsRegionalization (IsRegionalizationRequest) returns (google.protobuf.BoolValue);
+  rpc GetDefaultRegionId (GetDefaultRegionIdRequest) returns (GetDefaultRegionIdResponse);
+  rpc GetNotificationPartnerSettings (GetNotificationPartnerSettingsRequest) returns (GetNotificationPartnerSettingsResponse);
   
   //pricing
   rpc GetItemsPrices (GetItemsPricesRequest) returns (GetItemsPricesResponse);

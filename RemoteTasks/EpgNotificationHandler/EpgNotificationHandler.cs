@@ -8,12 +8,16 @@ using ApiObjects.EventBus;
 using ApiObjects.Notification;
 using Core.Catalog.CatalogManagement;
 using Core.Notification;
+using Core.Users;
+using Core.Users.Cache;
 using EpgNotificationHandler.Configuration;
 using EpgNotificationHandler.DTO;
 using EventBus.Abstraction;
+using IotGrpcClientWrapper;
 using Phx.Lib.Log;
 using Newtonsoft.Json;
 using NotificationHandlers.Common;
+using phoenix;
 using TVinciShared;
 
 namespace EpgNotificationHandler
@@ -22,28 +26,25 @@ namespace EpgNotificationHandler
     public class EpgNotificationHandler : IServiceEventHandler<EpgNotificationEvent>
     {
         private static readonly KLogger Logger = new KLogger(nameof(EpgNotificationHandler));
-        private readonly IIotManager _iotManager;
         private readonly INotificationCache _notificationCache;
         private readonly ICatalogManager _catalogManager;
         private readonly IRegionManager _regionManager;
         private readonly IEpgNotificationConfiguration _configuration;
-        private readonly IIotNotificationService _iotNotificationService;
+        private readonly IIotClient _iotClient;
 
         public EpgNotificationHandler(
             IEpgNotificationConfiguration configuration,
-            IIotManager iotManager,
             INotificationCache notificationCache,
             ICatalogManager catalogManager,
             IRegionManager regionManager,
-            IIotNotificationService iotNotificationService)
+            IIotClient iotClient)
         {
             Logger.Debug("Starting 'EpgNotificationHandler'");
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            _iotManager = iotManager ?? throw new ArgumentNullException(nameof(iotManager));
             _notificationCache = notificationCache ?? throw new ArgumentNullException(nameof(notificationCache));
             _catalogManager = catalogManager ?? throw new ArgumentNullException(nameof(catalogManager));
             _regionManager = regionManager ?? throw new ArgumentNullException(nameof(regionManager));
-            _iotNotificationService = iotNotificationService ?? throw new ArgumentNullException(nameof(iotNotificationService));
+            _iotClient = iotClient ?? throw new ArgumentNullException(nameof(iotClient));
         }
 
         public async Task Handle(EpgNotificationEvent serviceEvent)
@@ -65,11 +66,10 @@ namespace EpgNotificationHandler
 
                     // Don't need to invalidate CloudFront explicitly, for now CF will be invalidated by TTL.
                     await Task.Delay(_configuration.CloudFrontInvalidationTtlInMs);
-
-                    var topics = BuildIotTopics(serviceEvent.GroupId, serviceEvent.LiveAssetId);
+                    
                     var message = Serialize(serviceEvent);
-                    var notificationTasks = topics.Select(x => _iotNotificationService.SendNotificationAsync(serviceEvent.GroupId, message, x));
-                    await Task.WhenAll(notificationTasks);
+                    await _iotClient.SendNotificationAsync(serviceEvent.GroupId, message,
+                        EventNotificationType.EpgUpdate, GetRegions(serviceEvent.GroupId, serviceEvent.LiveAssetId));
 
                     AppMetrics.EventSucceed();
 
@@ -83,24 +83,17 @@ namespace EpgNotificationHandler
             }
         }
 
-        private List<string> BuildIotTopics(int groupId, long linearAssetId)
+        private List<int> GetRegions(int groupId, long linearAssetId)
         {
-            if (!_catalogManager.IsRegionalizationEnabled(groupId))
-            {
-                return new List<string> { _iotManager.GetTopicFormat(groupId, EventType.epg_update) };
-            }
-
             var linearMediaRegions = _regionManager.GetLinearMediaRegions(groupId);
             if (!linearMediaRegions.TryGetValue(linearAssetId, out var regions))
             {
                 Logger.Info($"Linear asset {linearAssetId} doesn't belong to any region. Skip notification.");
 
-                return Enumerable.Empty<string>().ToList();
+                return Enumerable.Empty<int>().ToList();
             }
 
-            return regions
-                .Select(x => _iotManager.GetRegionTopicFormat(groupId, EventType.epg_update, x))
-                .ToList();
+            return regions;
         }
 
         // private async Task InvalidateEpgCache(EpgNotificationEvent serviceEvent)

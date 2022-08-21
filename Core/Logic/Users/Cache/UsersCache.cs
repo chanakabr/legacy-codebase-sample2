@@ -74,7 +74,7 @@ namespace Core.Users
 
         #region Public methods
 
-        internal long GetDomainIdByUser(int userId, int groupId)
+        public long GetDomainIdByUser(int userId, int groupId)
         {
             long domainId = 0;
             try

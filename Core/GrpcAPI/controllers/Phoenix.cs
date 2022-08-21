@@ -378,6 +378,32 @@ namespace Grpc.controllers
             return Task.FromResult(_entitlementService.GetEntitledPagoWindow(request));
         }
 
+        public override Task<BoolValue> IsRegionalization(IsRegionalizationRequest request,
+            ServerCallContext context)
+        {
+            return Task.FromResult(new BoolValue {Value = _groupAndConfigurationService.IsRegionalization(request)});
+        }
+
+        public override Task<GetDefaultRegionIdResponse> GetDefaultRegionId(GetDefaultRegionIdRequest request,
+            ServerCallContext context)
+        {
+            return Task.FromResult(_groupAndConfigurationService.GetDefaultRegionId(request));
+        }
+
+        public override Task<GetNotificationPartnerSettingsResponse> GetNotificationPartnerSettings(
+            GetNotificationPartnerSettingsRequest request,
+            ServerCallContext context)
+        {
+            return Task.FromResult(_groupAndConfigurationService.GetNotificationPartnerSettings(request));
+        }
+        
+        public override Task<BoolValue> IsValidDeviceFamily(
+            IsValidDeviceFamilyRequest request,
+            ServerCallContext context)
+        {
+            return Task.FromResult(new BoolValue {Value = _householdService.IsValidDeviceFamily(request)});
+        }
+       
         public override Task<BoolValue> IsMediaFileFree(IsMediaFileFreeRequest request, ServerCallContext context)
         {
             var response = _pricingService.IsMediaFileFree(request);

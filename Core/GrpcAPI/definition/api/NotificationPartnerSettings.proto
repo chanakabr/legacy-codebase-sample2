@@ -1,0 +1,39 @@
+syntax = "proto3";
+option csharp_namespace = "phoenix";
+option go_package = "./models";
+package phoenix;
+
+message EpgNotificationSettings {
+   int32 BackwardTimeRange = 1;
+   repeated int32 DeviceFamilyIds = 2 [packed = false];
+   bool Enabled = 3;
+   int32 ForwardTimeRange = 4;
+   repeated int64 LiveAssetIds = 5 [packed = false];
+}
+message LineupNotificationSettings {
+   bool Enabled = 1;
+}
+message NotificationPartnerSettings {
+   bool AutomaticIssueFollowNotifications = 1;
+   string ChurnMailSubject = 2;
+   string ChurnMailTemplateName = 3;
+   EpgNotificationSettings EpgNotification = 4;
+   bool IsInboxEnabled = 5;
+   bool IsIotEnabled = 6;
+   bool IsPushNotificationEnabled = 7;
+   bool IsPushSystemAnnouncementsEnabled = 8;
+   bool IsRemindersEnabled = 9;
+   bool IsSMSEnabled = 10;
+   LineupNotificationSettings LineupNotification = 11;
+   int64 MailNotificationAdapterId = 12;
+   string MailSenderName = 13;
+   int32 MessageTTLDays = 14;
+   int32 PartnerId = 15;
+   string PushAdapterUrl = 16;
+   int32 PushEndHour = 17;
+   int32 PushStartHour = 18;
+   int32 RemindersPrePaddingSec = 19;
+   string SenderEmail = 20;
+   int32 TopicExpirationDurationDays = 21;
+}
+

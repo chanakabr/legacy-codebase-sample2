@@ -306,7 +306,7 @@ namespace Core.Users.Cache
         }
         */
 
-        internal Domain GetDomain(int domainId, int groupId)
+        public Domain GetDomain(int domainId, int groupId)
         {
             Domain domain = null;
 

@@ -29,6 +29,7 @@ namespace GrpcAPI.Services
                 GetMediaConcurrencyRulesByDomainLimitationModuleRequest request);
 
         int IsDevicePlayValid(IsDevicePlayValidRequest request);
+        bool IsValidDeviceFamily(IsValidDeviceFamilyRequest request);
     }
 
     public class HouseholdService : IHouseholdService
@@ -149,6 +150,15 @@ namespace GrpcAPI.Services
             {
                 Ids = {limitationModulesRules}
             };
+        }
+        public bool IsValidDeviceFamily(IsValidDeviceFamilyRequest request)
+        {
+            var deviceInfoResponse = Core.Domains.Module.Instance.GetDeviceInfo(request.GroupId, request.Udid, true);
+            var familyId = deviceInfoResponse?.m_oDevice == null || deviceInfoResponse.m_oDevice.m_deviceFamilyID == 0
+                ? default
+                : deviceInfoResponse.m_oDevice.m_deviceFamilyID;
+
+            return request.DeviceFamilyIds.Count == 0 || request.DeviceFamilyIds.Contains(familyId);
         }
     }
 }

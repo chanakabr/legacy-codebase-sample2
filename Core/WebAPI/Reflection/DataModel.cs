@@ -4637,16 +4637,34 @@ namespace WebAPI.Reflection
                 case "KalturaIotClientConfiguration":
                     switch(property.Name)
                     {
-                        case "AnnouncementTopic":
-                            return "announcementTopic";
-                        case "CognitoUserPool":
-                            return "cognitoUserPool";
-                        case "CredentialsProvider":
-                            return "credentialsProvider";
-                        case "Json":
-                            return "json";
+                        case "AppClientId":
+                            return "appClientId";
+                        case "AwsRegion":
+                            return "awsRegion";
+                        case "EndPoint":
+                            return "endPoint";
+                        case "IdentityPoolId":
+                            return "identityPoolId";
+                        case "LegacyEndPoint":
+                            return "legacyEndPoint";
+                        case "Message":
+                            return "message";
+                        case "Password":
+                            return "password";
+                        case "Status":
+                            return "status";
+                        case "ThingArn":
+                            return "thingArn";
+                        case "ThingId":
+                            return "thingId";
+                        case "ThingName":
+                            return "thingName";
                         case "Topics":
                             return "topics";
+                        case "Username":
+                            return "username";
+                        case "UserPoolId":
+                            return "userPoolId";
                     }
                     break;
                     
@@ -4670,16 +4688,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaIotProfile":
-                    switch(property.Name)
-                    {
-                        case "AdapterUrl":
-                            return "adapterUrl";
-                        case "IotProfileAws":
-                            return "iotProfileAws";
-                    }
-                    break;
-                    
                 case "KalturaIotProfileAws":
                     switch(property.Name)
                     {
@@ -4699,14 +4707,6 @@ namespace WebAPI.Reflection
                             return "updateDate";
                         case "UserPoolId":
                             return "userPoolId";
-                    }
-                    break;
-                    
-                case "KalturaIotProfileListResponse":
-                    switch(property.Name)
-                    {
-                        case "Objects":
-                            return "objects";
                     }
                     break;
                     
@@ -11239,15 +11239,11 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             RolesManager.ValidateActionPermitted("iotProfile", "add", WebAPI.Managers.eKSValidation.All);
-                            return IotProfileController.Add((KalturaIotProfile) methodParams[0]);
+                            return IotProfileController.Add();
                             
-                        case "get":
-                            RolesManager.ValidateActionPermitted("iotProfile", "get", WebAPI.Managers.eKSValidation.All);
-                            return IotProfileController.Get((long) methodParams[0]);
-                            
-                        case "update":
-                            RolesManager.ValidateActionPermitted("iotProfile", "update", WebAPI.Managers.eKSValidation.All);
-                            return IotProfileController.Update((long) methodParams[0], (KalturaIotProfile) methodParams[1]);
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("iotProfile", "delete", WebAPI.Managers.eKSValidation.All);
+                            return IotProfileController.Delete((long) methodParams[0]);
                             
                     }
                     break;
@@ -18885,18 +18881,13 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            ret.Add("objectToAdd", new MethodParam(){
-                                NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaIotProfile),
-                            });
                             return ret;
                             
-                        case "get":
-                            ret.Add("id", new MethodParam(){
+                        case "delete":
+                            ret.Add("groupId", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
-                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "iotProfile", "get") {
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("groupId", "iotProfile", "delete") {
                                     RequiresPermission = false,
                                     MaxLength = -1,
                                     MinLength = -1,
@@ -18904,26 +18895,6 @@ namespace WebAPI.Reflection
                                     MinItems = -1,
                                     MaxItems = -1,
                                 },
-                            });
-                            return ret;
-                            
-                        case "update":
-                            ret.Add("id", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
-                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "iotProfile", "update") {
-                                    RequiresPermission = false,
-                                    MaxLength = -1,
-                                    MinLength = -1,
-                                    MinLong = 1,
-                                    MinItems = -1,
-                                    MaxItems = -1,
-                                },
-                            });
-                            ret.Add("objectToUpdate", new MethodParam(){
-                                NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaIotProfile),
                             });
                             return ret;
                             

@@ -8,6 +8,7 @@ using ApiObjects.Notification;
 using ApiObjects.Response;
 using Core.Catalog.CatalogManagement;
 using Core.Notification;
+using IotGrpcClientWrapper;
 using LineupNotificationHandler;
 using LineupNotificationHandler.Configuration;
 using Moq;
@@ -50,11 +51,10 @@ namespace NotificationHandlers.Tests
 
             var handler = new LineupNotificationRequestedHandler(
                 _mockRepository.Create<ILineupNotificationConfiguration>().Object,
-                _mockRepository.Create<IIotManager>().Object,
                 _mockRepository.Create<INotificationCache>().Object,
                 _mockRepository.Create<ICatalogManager>().Object,
                 _mockRepository.Create<IRegionManager>().Object,
-                _mockRepository.Create<IIotNotificationService>().Object);
+                new Mock<IIotClient>().Object);
 
             await handler.Handle(@event);
         }
@@ -70,11 +70,10 @@ namespace NotificationHandlers.Tests
 
             var handler = new LineupNotificationRequestedHandler(
                 _mockRepository.Create<ILineupNotificationConfiguration>().Object,
-                _mockRepository.Create<IIotManager>().Object,
                 GetNotificationCacheMock(GROUP_ID_DISABLED_REGIONALIZATION, IotEnabledSettings).Object,
                 GetCatalogManagerMock(GROUP_ID_DISABLED_REGIONALIZATION, false).Object,
                 _mockRepository.Create<IRegionManager>().Object,
-                _mockRepository.Create<IIotNotificationService>().Object);
+                new Mock<IIotClient>().Object);
 
             await handler.Handle(@event);
         }
@@ -90,11 +89,10 @@ namespace NotificationHandlers.Tests
 
             var handler = new LineupNotificationRequestedHandler(
                 _mockRepository.Create<ILineupNotificationConfiguration>().Object,
-                _mockRepository.Create<IIotManager>().Object,
                 GetNotificationCacheMock(GROUP_ID_ENABLED_REGIONALIZATION, IotEnabledSettings).Object,
                 GetCatalogManagerMock(GROUP_ID_ENABLED_REGIONALIZATION, true).Object,
                 GetRegionManagerMock(GROUP_ID_ENABLED_REGIONALIZATION, Regions).Object,
-                _mockRepository.Create<IIotNotificationService>().Object);
+                new Mock<IIotClient>().Object);
 
             await handler.Handle(@event);
         }
@@ -110,11 +108,10 @@ namespace NotificationHandlers.Tests
 
             var handler = new LineupNotificationRequestedHandler(
                 _mockRepository.Create<ILineupNotificationConfiguration>().Object,
-                _mockRepository.Create<IIotManager>().Object,
                 GetNotificationCacheMock(GROUP_ID_ENABLED_REGIONALIZATION, settings).Object,
                 GetCatalogManagerMock(GROUP_ID_ENABLED_REGIONALIZATION, true).Object,
                 GetRegionManagerMock(GROUP_ID_ENABLED_REGIONALIZATION, Regions).Object,
-                _mockRepository.Create<IIotNotificationService>().Object);
+                new Mock<IIotClient>().Object);
 
             await handler.Handle(@event);
         }
@@ -134,11 +131,10 @@ namespace NotificationHandlers.Tests
 
             var handler = new LineupNotificationRequestedHandler(
                 GetConfigurationMock().Object,
-                GetIotManagerMock(GROUP_ID_ENABLED_REGIONALIZATION, new List<long> { Regions.First() }).Object,
                 GetNotificationCacheMock(GROUP_ID_ENABLED_REGIONALIZATION, IotEnabledSettings).Object,
                 GetCatalogManagerMock(GROUP_ID_ENABLED_REGIONALIZATION, true).Object,
                 regionManager.Object,
-                GetIotNotificationServiceMock(GROUP_ID_ENABLED_REGIONALIZATION, new List<long> { Regions.First() }).Object);
+                new Mock<IIotClient>().Object);
 
             await handler.Handle(@event);
         }
@@ -160,11 +156,10 @@ namespace NotificationHandlers.Tests
 
             var handler = new LineupNotificationRequestedHandler(
                 GetConfigurationMock().Object,
-                GetIotManagerMock(GROUP_ID_ENABLED_REGIONALIZATION, regionsToNotify).Object,
                 GetNotificationCacheMock(GROUP_ID_ENABLED_REGIONALIZATION, IotEnabledSettings).Object,
                 GetCatalogManagerMock(GROUP_ID_ENABLED_REGIONALIZATION, true).Object,
                 regionManager.Object,
-                GetIotNotificationServiceMock(GROUP_ID_ENABLED_REGIONALIZATION, regionsToNotify).Object);
+                new Mock<IIotClient>().Object);
 
             await handler.Handle(@event);
         }
@@ -217,35 +212,6 @@ namespace NotificationHandlers.Tests
             var mock = new Mock<ILineupNotificationConfiguration>();
             mock
                 .Setup(x => x.CloudFrontInvalidationTtlInMs).Returns(0);
-
-            return mock;
-        }
-
-        private static Mock<IIotManager> GetIotManagerMock(int groupId, IEnumerable<long> regionIds)
-        {
-            var mock = new Mock<IIotManager>();
-            mock.Setup(m => m.GetRegionTopicFormat(groupId, EventType.lineup_updated, It.Is<int>(x => regionIds.Contains(x))))
-                .Returns((int g, EventType e, int r) => $"MockRegionTopic_{r}_{0}");
-
-            mock.Setup(m => m.GetTopicPartitionsCount())
-                .Returns(1);
-
-            return mock;
-        }
-
-        private static Mock<IIotNotificationService> GetIotNotificationServiceMock(
-            int groupId,
-            IEnumerable<long> regionIds)
-        {
-            var mock = new Mock<IIotNotificationService>();
-            foreach (var regionId in regionIds)
-            {
-                mock.Setup(x => x.SendNotificationAsync(
-                        groupId,
-                        It.Is<string>(m => m.StartsWith("{\"header\":{\"event_type\":2,\"event_date\":")),
-                        $"MockRegionTopic_lineup_updated_{regionId}_{{0}}"))
-                    .Returns(Task.CompletedTask);
-            }
 
             return mock;
         }
