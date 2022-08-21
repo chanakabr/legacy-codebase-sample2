@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using System.Web;
 using ApiLogic.Catalog.CatalogManagement.Managers;
 using ApiObjects.Catalog;
+using FeatureFlag;
 using TVinciShared;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
@@ -36,10 +37,13 @@ namespace WebAPI.App_Start
     public class ExcelFormatter : BaseFormatter
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        protected JsonManager jsonManager;
+        private readonly JsonManager _jsonManager;
+        private readonly IPhoenixFeatureFlag _phoenixFeatureFlag;
+
         public ExcelFormatter() : base(KalturaResponseType.EXCEL, ExcelFormatterConsts.EXCEL_CONTENT_TYPE)
         {
-            jsonManager = JsonManager.GetInstance();
+            _jsonManager = JsonManager.GetInstance();
+            _phoenixFeatureFlag = PhoenixFeatureFlagInstance.Get();
         }
 
         public override bool CanReadType(Type type)
@@ -219,7 +223,7 @@ namespace WebAPI.App_Start
             dataTable.Rows.Add(row);
         }
 
-        public override async Task WriteToStreamAsync(Type type, object value, Stream writeStream, 
+        public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, 
             HttpContent content, TransportContext transportContext)
         {
             if (value != null && value is StatusWrapper)
@@ -242,7 +246,7 @@ namespace WebAPI.App_Start
                         HttpContext.Current.Response.ContentType = ExcelFormatterConsts.EXCEL_CONTENT_TYPE;
                         HttpContext.Current.Response.Headers.Add("Content-Disposition", "attachment; filename=" + fileName);
                         CreateExcel(writeStream, fileName, fullDataTable, excelStructure);
-                        return;
+                        return Task.CompletedTask;
                     }
                 }
                 catch (ApiException ex)
@@ -258,13 +262,23 @@ namespace WebAPI.App_Start
                 }
             }
 
-            var serializedValue = JsonConvert.SerializeObject(value);
-            log.Debug($"ExcelFormatter.WriteToStreamAsync invalid value is: {serializedValue}.");
-
             using (TextWriter streamWriter = new StreamWriter(writeStream))
             {
-                string json = jsonManager.Serialize(value);
-                streamWriter.Write(json);
+                if (_phoenixFeatureFlag.IsEfficientSerializationUsed())
+                {
+                    var jsonBuilder = _jsonManager.Serialize(value);
+#if NETCOREAPP3_1
+                    return streamWriter.WriteAsync(jsonBuilder);
+#endif
+#if NET48
+                    return streamWriter.WriteAsync(jsonBuilder.ToString());
+#endif
+                }
+                else
+                {
+                    string json = _jsonManager.ObsoleteSerialize(value);
+                    return streamWriter.WriteAsync(json);
+                }
             }
         }
 

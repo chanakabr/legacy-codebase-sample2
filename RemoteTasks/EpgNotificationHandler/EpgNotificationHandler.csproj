@@ -24,6 +24,7 @@
     <PackageReference Include="KLogMonitor" Version="5.9.0.28738" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
     <PackageReference Include="ott.client.epgcache.grpc" Version="0.1.33-regenerate-service" />
+    <PackageReference Include="ott.client.iot.grpc" Version="1.0.0-pr-11-117" />
     <PackageReference Include="prometheus-net" Version="4.1.1" />
   </ItemGroup>
 
@@ -32,6 +33,7 @@
     <ProjectReference Include="..\..\Core\EpgCacheGrpcClientWrapper\EpgCacheGrpcClientWrapper.csproj" />
     <ProjectReference Include="..\..\Core\EventBus.Abstraction\EventBus.Abstraction.csproj" />
     <ProjectReference Include="..\..\Core\EventBus.RabbitMQ\EventBus.RabbitMQ.csproj" />
+    <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />
     <ProjectReference Include="..\..\Core\WebAPI\WebAPI.csproj" />
     <ProjectReference Include="..\NotificationHandlers.Common\NotificationHandlers.Common.csproj" />
   </ItemGroup>

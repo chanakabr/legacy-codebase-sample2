@@ -1,0 +1,26 @@
+syntax = "proto3";
+option csharp_namespace = "phoenix";
+option go_package = "./models";
+package phoenix;
+
+enum PriceReason {
+   PPVPurchased = 0;
+   Free = 1;
+   ForPurchaseSubscriptionOnly = 2;
+   SubscriptionPurchased = 3;
+   ForPurchase = 4;
+   UnKnown = 5;
+   SubscriptionPurchasedWrongCurrency = 6;
+   PrePaidPurchased = 7;
+   GeoCommerceBlocked = 8;
+   EntitledToPreviewModule = 9;
+   FirstDeviceLimitation = 10;
+   CollectionPurchased = 11;
+   UserSuspended = 12;
+   NotForPurchase = 13;
+   InvalidCurrency = 14;
+   CurrencyNotDefinedOnPriceCode = 15;
+   PendingEntitlement = 16;
+   PagoPurchased = 17;
+}
+

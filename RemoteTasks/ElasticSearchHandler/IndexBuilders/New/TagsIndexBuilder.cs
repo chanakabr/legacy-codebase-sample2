@@ -44,7 +44,7 @@ namespace ElasticSearchHandler.IndexBuilders
                     return false;
                 }
 
-                string newIndexName = _IndexManager.SetupTagsIndex();
+                string newIndexName = _IndexManager.SetupTagsIndex(DateTime.UtcNow);
                 #region Populate Index
 
                 var allTagValues = CatalogManager.Instance.GetAllTagValues(groupId);

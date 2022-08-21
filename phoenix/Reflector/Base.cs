@@ -46,6 +46,7 @@ namespace Reflector
     {
         private Assembly assembly;
         protected List<Type> types;
+        protected List<Type> enums;
         protected List<Type> controllers;
         protected StreamWriter file;
 
@@ -57,11 +58,20 @@ namespace Reflector
             }
 
             assembly = Assembly.Load("WebAPI");
-            types = assembly.GetTypes().Where(myType => myType.IsClass && baseClass.IsAssignableFrom(myType)).ToList();
-            types.Sort(new TypeComparer());
+            var typeComparer = new TypeComparer();
+            var allTypes = assembly.GetTypes();
 
-            controllers = assembly.GetTypes().Where(myType => myType.IsClass && typeof(IKalturaController).IsAssignableFrom(myType)).ToList();
-            controllers.Sort(new TypeComparer());
+            types = allTypes.Where(myType => myType.IsClass && baseClass.IsAssignableFrom(myType)).ToList();
+            types.Sort(typeComparer);
+            
+            enums = types
+                .SelectMany(GetUnderlyingEnumTypes)
+                .Distinct()
+                .ToList();
+            enums.Sort(typeComparer);
+
+            controllers = allTypes.Where(myType => myType.IsClass && typeof(IKalturaController).IsAssignableFrom(myType)).ToList();
+            controllers.Sort(typeComparer);
 
             file = new StreamWriter(path);
         }
@@ -107,6 +117,26 @@ namespace Reflector
             }
 
             return match.Value;
+        }
+
+        private IEnumerable<Type> GetUnderlyingEnumTypes(Type type)
+        {
+            var enumTypes = new List<Type>();
+            foreach (var propertyInfo in type.GetProperties())
+            {
+                if (propertyInfo.PropertyType.IsEnum)
+                {
+                    enumTypes.Add(propertyInfo.PropertyType);
+                }
+
+                var underlyingType = Nullable.GetUnderlyingType(propertyInfo.PropertyType);
+                if (underlyingType?.IsEnum == true)
+                {
+                    enumTypes.Add(underlyingType);
+                }
+            }
+
+            return enumTypes;
         }
     }
 }

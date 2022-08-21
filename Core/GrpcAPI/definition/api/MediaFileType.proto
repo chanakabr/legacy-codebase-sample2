@@ -1,0 +1,30 @@
+syntax = "proto3";
+import "StreamerType.proto";
+option csharp_namespace = "phoenix";
+option go_package = "./models";
+package phoenix;
+
+
+message MediaFileType {
+   repeated string AudioCodecs = 1;
+   int64 CreateDate = 2;
+   string Description = 3;
+   int32 DrmId = 4;
+   int64 Id = 5;
+   bool IsActive = 6;
+   bool IsTrailer = 7;
+   string Name = 8;
+   MediaFileTypeQuality Quality = 9;
+   StreamerType StreamerType = 10;
+   int64 UpdateDate = 11;
+   repeated string VideoCodecs = 12;
+   enum MediaFileTypeQuality {
+      None = 0;
+      Adaptive = 1;
+      SD = 2;
+      HD_720 = 3;
+      HD_1080 = 4;
+      UHD_4K = 5;
+   }
+}
+

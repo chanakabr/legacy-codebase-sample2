@@ -7000,7 +7000,7 @@ namespace Core.ConditionalAccess
                 }
 
                 string countryCode = !string.IsNullOrEmpty(ip) ? APILogic.Utils.GetIP2CountryCode(m_nGroupID, ip) : string.Empty;
-                MediaFilePPVContainer[] oModules = Core.Pricing.Module.GetPPVModuleListForMediaFilesWithExpiry(m_nGroupID, mediaFilesForPurchase.ToArray(), countryCode, languageCode, udid);
+                MediaFilePPVContainer[] oModules = Core.Pricing.Module.GetPPVModuleListForMediaFilesWithExpiry(m_nGroupID, mediaFilesForPurchase.ToArray());
 
                 // run over all media files for purchase
                 if (oModules != null && oModules.Length > 0)

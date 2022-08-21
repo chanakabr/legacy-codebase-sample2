@@ -2,8 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using WebAPI.Models.General;
 using WebAPI.ModelsFactory;
+using WebAPI.Reflection;
 
 namespace WebAPI.ObjectsConvertor.Extensions
 {
@@ -72,7 +74,7 @@ namespace WebAPI.ObjectsConvertor.Extensions
 
         public static string GetMultilingualName(string name)
         {
-            return string.Format("multilingual{0}{1}", name.Substring(0, 1).ToUpper(), name.Substring(1)); ;
+            return string.Format("multilingual{0}{1}", name.Substring(0, 1).ToUpper(), name.Substring(1));
         }
 
         public static string ToString(KalturaMultilingualString model)
@@ -100,6 +102,7 @@ namespace WebAPI.ObjectsConvertor.Extensions
             return null;
         }
 
+        [Obsolete]
         public static string ToCustomJson(this KalturaMultilingualString model, Version currentVersion, bool omitObsolete, string propertyName)
         {
             string ret = null;
@@ -122,6 +125,53 @@ namespace WebAPI.ObjectsConvertor.Extensions
             return ret;
         }
 
+        public static void AppendAsJson(this KalturaMultilingualString value, StringBuilder stringBuilder, Version currentVersion, bool omitObsolete, string dataMemberName, bool addSeparator)
+        {
+            var stringValue = ToString(value);
+            if (stringValue != null)
+            {
+                if (addSeparator)
+                {
+                    stringBuilder.Append(",");
+                }
+
+                stringBuilder.Append("\"");
+                stringBuilder.Append(dataMemberName);
+                stringBuilder.Append("\":");
+                stringBuilder.AppendEscapedJsonString(stringValue);
+                addSeparator = true;
+            }
+
+            var language = Utils.Utils.GetLanguageFromRequest();
+            if (value.Values != null && language != null && language.Equals("*"))
+            {
+                if (addSeparator)
+                {
+                    stringBuilder.Append(",");
+                    addSeparator = false;
+                }
+
+                var multilingualName = GetMultilingualName(dataMemberName);
+                stringBuilder.Append("\"");
+                stringBuilder.Append(multilingualName);
+                stringBuilder.Append("\":[");
+                foreach (var translationToken in value.Values)
+                {
+                    if (addSeparator)
+                    {
+                        stringBuilder.Append(",");
+                    }
+
+                    translationToken.AppendAsJson(stringBuilder, currentVersion, omitObsolete);
+
+                    addSeparator = true;
+                }
+
+                stringBuilder.Append("]");
+            }
+        }
+
+        [Obsolete]
         public static string ToCustomXml(this KalturaMultilingualString model, Version currentVersion, bool omitObsolete, string propertyName)
         {
             string ret = "";
@@ -138,6 +188,45 @@ namespace WebAPI.ObjectsConvertor.Extensions
                 ret += "<" + multilingualName + "><item>" + String.Join("</item><item>", model.Values.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item></" + multilingualName + ">";
             }
             return ret;
+        }
+
+        public static void AppendAsXml(this KalturaMultilingualString value, StringBuilder stringBuilder, Version currentVersion, bool omitObsolete, string dataMemberName)
+        {
+            var stringValue = ToString(value);
+            if (stringValue != null)
+            {
+                WriteXmlTag(stringBuilder, dataMemberName, false);
+                stringBuilder.AppendEscapedXmlString(stringValue);
+                WriteXmlTag(stringBuilder, dataMemberName, true);
+            }
+
+            var language = Utils.Utils.GetLanguageFromRequest();
+            if (value.Values != null && language != null && language.Equals("*"))
+            {
+                var multilingualName = GetMultilingualName(dataMemberName);
+                WriteXmlTag(stringBuilder, multilingualName, false);
+                foreach (var translationToken in value.Values)
+                {
+                    translationToken.AppendAsXml(stringBuilder, currentVersion, omitObsolete);
+                }
+
+                WriteXmlTag(stringBuilder, multilingualName, true);
+            }
+        }
+
+        private static void WriteXmlTag(StringBuilder stringBuilder, string dataMemberName, bool isClosing)
+        {
+            if (isClosing)
+            {
+                stringBuilder.Append("</");
+            }
+            else
+            {
+                stringBuilder.Append("<");
+            }
+
+            stringBuilder.Append(dataMemberName);
+            stringBuilder.Append(">");
         }
     }
 }

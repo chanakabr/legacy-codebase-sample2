@@ -18,5 +18,6 @@ namespace ElasticSearch.Common
         public string lowercaseAnalyzer;
         public string phraseStartsWithAnalyzer;
         public string phraseStartsWithSearchAnalyzer;
+        public string sortingAnalyzer;
     }
 }

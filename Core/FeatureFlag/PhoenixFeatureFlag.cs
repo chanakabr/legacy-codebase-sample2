@@ -25,6 +25,7 @@ namespace FeatureFlag
         //public bool IsUdidDynamicListAsExcelEnabled(int groupId) => _featureFlag.Enabled("dynamicList.format", GetUser(groupId));
 
         public bool IsStrictUnlockDisabled() => _featureFlag.Enabled("distributedlock.strict-unlock-disabled", GetUser((int?) _featureFlagContext.GetPartnerId()));
+        public bool IsEfficientSerializationUsed() =>_featureFlag.Enabled("is-efficient-serialization-used", GetUser((int?) _featureFlagContext.GetPartnerId()));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private KalturaFeatureToggleUser GetUser(int? groupId)

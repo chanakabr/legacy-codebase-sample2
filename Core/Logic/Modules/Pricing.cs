@@ -542,14 +542,14 @@ namespace Core.Pricing
             }
         }
 
-        public static MediaFilePPVContainer[] GetPPVModuleListForMediaFilesWithExpiry(int nGroupID, Int32[] nMediaFileIDs,
-            string sCountryCd2, string sLanguageCode3, string sDeviceName)
+        // TODO: check if country / language / udid are needed
+        public static MediaFilePPVContainer[] GetPPVModuleListForMediaFilesWithExpiry(int nGroupID, Int32[] nMediaFileIDs)
         {
             BasePPVModule t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return (new PPVModuleCacheWrapper(t)).GetPPVModuleListForMediaFilesWithExpiry(nMediaFileIDs, sCountryCd2, sLanguageCode3, sDeviceName);
+                return (new PPVModuleCacheWrapper(t)).GetPPVModuleListForMediaFilesWithExpiry(nMediaFileIDs);
             }
             else
             {

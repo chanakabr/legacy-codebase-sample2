@@ -252,6 +252,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
         public MediaSearchObj BuildBaseChannelSearchObject(Channel channel)
         {
             MediaSearchObj searchObject = new MediaSearchObj();
+            searchObject.m_oLangauge = GetDefaultLanguage(channel.m_nParentGroupID);
             searchObject.m_nGroupId = channel.m_nGroupID;
             searchObject.m_bExact = true;
             searchObject.m_eCutWith = channel.m_eCutWith;
@@ -366,7 +367,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
             bool doesGroupUseTemplates = _catalogManager.DoesGroupUsesTemplates(groupId);
 
             // if group uses templates - index inactive channel as well
-            if (doesGroupUseTemplates && channel.m_nIsActive != 1)
+            if (!doesGroupUseTemplates && channel.m_nIsActive != 1)
             {
                 log.ErrorFormat("GetChannelQuery - channel is inactive");
                 return null;

@@ -13,6 +13,7 @@ using Core.GroupManagers;
 using Core.Notification;
 using DAL;
 using GroupsCacheManager;
+using IotGrpcClientWrapper;
 using LineupNotificationHandler.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NotificationHandlers.Common;
@@ -24,9 +25,9 @@ namespace LineupNotificationHandler.Infrastructure
     {
         public static IServiceCollection AddLineupNotificationHandlerDependencies(this IServiceCollection serviceCollection)
             => serviceCollection
-                .AddScoped<IIotManager, IotManager>()
                 // use overload with delegate to be able to replace implementation (ex: in unit tests)
                 .AddSingleton<IEpgV2PartnerConfigurationManager>(serviceProvider => EpgV2PartnerConfigurationManager.Instance)
+                .AddSingleton<IIotClient>(serviceProvider => IotGrpcClientWrapper.IotClient.Instance)
                 .AddSingleton<IGeneralPartnerConfigManager, GeneralPartnerConfigManager>()
                 .AddSingleton<IGeneralPartnerConfigRepository, ApiDAL>()
                 .AddSingleton<ILineupNotificationConfiguration, LineupNotificationConfiguration>()
@@ -45,7 +46,6 @@ namespace LineupNotificationHandler.Infrastructure
                 .AddSingleton<IAssetStructRepository, AssetStructRepository>()
                 .AddSingleton<IGroupSettingsManager, GroupSettingsManager>()
                 .AddSingleton<IGroupManager, GroupManager>()
-                .AddSingleton<IIotNotificationService, IotNotificationService>()
                 .AddSingleton(DeviceFamilyRepository.Instance);
     }
 }

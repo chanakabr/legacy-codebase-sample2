@@ -52,7 +52,7 @@ namespace ElasticSearchHandler.IndexBuilders
                     return false;
                 }
 
-                string newIndexName = _IndexManager.SetupChannelMetadataIndex();
+                string newIndexName = _IndexManager.SetupChannelMetadataIndex(DateTime.UtcNow);
 
                 if (string.IsNullOrEmpty(newIndexName))
                 {

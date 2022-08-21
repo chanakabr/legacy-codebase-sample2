@@ -1,0 +1,35 @@
+syntax = "proto3";
+option csharp_namespace = "phoenix";
+option go_package = "./models";
+package phoenix;
+
+enum RuleActionType {
+   RuleActionType_Block = 0;
+   RuleActionType_StartDateOffset = 1;
+   RuleActionType_EndDateOffset = 2;
+   RuleActionType_UserBlock = 3;
+   RuleActionType_AllowPlayback = 4;
+   RuleActionType_BlockPlayback = 5;
+   RuleActionType_ApplyDiscountModuleRule = 6;
+   RuleActionType_ApplyPlaybackAdapter = 7;
+   RuleActionType_UserFilter = 8;
+   RuleActionType_AssetLifeCycleTransition = 9;
+   RuleActionType_ApplyFreePlayback = 10;
+   RuleActionType_FilterAssetByKsql = 11;
+   RuleActionType_FilterFileByQualityInDiscovery = 12;
+   RuleActionType_FilterFileByQualityInPlayback = 13;
+   RuleActionType_FilterFileByAssetTypeInDiscovery = 14;
+   RuleActionType_FilterFileByAssetTypeInPlayback = 15;
+   RuleActionType_FilterFileByFileTypeIdInDiscovery = 16;
+   RuleActionType_FilterFileByFileTypeIdInPlayback = 17;
+   RuleActionType_FilterFileByAudioCodecInDiscovery = 18;
+   RuleActionType_FilterFileByAudioCodecInPlayback = 19;
+   RuleActionType_FilterFileByVideoCodecInDiscovery = 20;
+   RuleActionType_FilterFileByVideoCodecInPlayback = 21;
+   RuleActionType_FilterFileByStreamerTypeInDiscovery = 22;
+   RuleActionType_FilterFileByStreamerTypeInPlayback = 23;
+   RuleActionType_FilterFileByLabelInDiscovery = 24;
+   RuleActionType_FilterFileByLabelInPlayback = 25;
+   RuleActionType_NONE = 26;
+}
+

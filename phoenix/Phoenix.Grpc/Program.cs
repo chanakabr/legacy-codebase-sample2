@@ -12,7 +12,7 @@ namespace Phoenix.Grpc
         public static async Task Main(string[] args)
         {
             var apiVersion = System.Configuration.ConfigurationManager.AppSettings.Get("apiVersion");
-            var defaultLogDir = $@"/var/log/phoenix/{apiVersion}";
+            var defaultLogDir = $@"/var/log/ott-service-phoenix-api-grpc/{apiVersion}";
             KLogger.InitLogger("log4net.config", KLogEnums.AppType.WS, defaultLogDir);
 
             ApplicationConfiguration.Init();

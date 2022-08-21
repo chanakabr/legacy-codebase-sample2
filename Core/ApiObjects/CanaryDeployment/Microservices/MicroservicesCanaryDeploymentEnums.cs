@@ -41,7 +41,8 @@ namespace ApiObjects.CanaryDeployment.Microservices
             "playbackProfile/action/add", "playbackProfile/action/delete", "playbackProfile/action/update","playbackProfile/action/list", "playbackProfile/action/generateSharedSecret",
             "cdnAdapterProfile/action/add","cdnAdapterProfile/action/delete","cdnAdapterProfile/action/update" , "cdnAdapterProfile/action/list","cdnAdapterProfile/action/generateSharedSecret",
             "cdnPartnerSettings/action/get","cdnPartnerSettings/action/update",
-            "drmProfile/action/add", "drmProfile/action/delete", "drmProfile/action/list"
+            "drmProfile/action/add", "drmProfile/action/delete", "drmProfile/action/list",
+            "streamingDevice/action/bookPlaybackSession"
         };
     }    
 

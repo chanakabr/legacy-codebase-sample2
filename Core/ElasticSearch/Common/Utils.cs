@@ -156,6 +156,11 @@ namespace ElasticSearch.Common
             }
         }
 
+        public static string GetLangCodePropertiesKey(string languageCode, string version)
+        {
+            return $"{languageCode}_properties_v{version}";
+        }
+
         public static string GetLangCodeFilterKey(string languageCode, string version)
         {
             if (string.IsNullOrEmpty(version))

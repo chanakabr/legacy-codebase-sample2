@@ -1,0 +1,55 @@
+syntax = "proto3";
+import "KeyValuePair.proto";
+import "PriceReason.proto";
+import "pricing.proto";
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "phoenix";
+option go_package = "./models";
+
+package phoenix;
+
+message GetItemsPricesResponse {
+  repeated MediaFileEntitlementContainer MediaFileItemPrice = 1;
+}
+
+message GetItemsPricesRequest {
+  repeated int32 MediaFiles = 1;
+  int64 UserId = 2;
+  string CouponCode = 3;
+  bool OnlyLowest = 4;
+  string LanguageCode = 5;
+  string Udid = 6;
+  string Ip = 7;
+  string CurrencyCode = 8;
+  BlockEntitlementType BlockEntitlement = 9;
+  bool IsDownloadPlayContext = 10;
+  bool WithMediaFilesInvalidation = 11;
+  int32 GroupId = 12;
+
+  enum BlockEntitlementType
+  {
+    NONE = 0;
+    BLOCK_ALL = 1;
+    NO_BLOCK = 2;
+    BLOCK_PPV = 3;
+    BLOCK_SUBSCRIPTION = 4;
+  }
+}
+
+message GetPaymentGatewayProfileResponse {
+  repeated PaymentGatewayProfile PaymentGatewayProfileList = 1;
+}
+
+message GetPaymentGatewayProfileRequest {
+  int32 GroupId = 1;
+}
+
+message GetGroupHasSubWithAdsRequest {
+  int32 GroupId = 1;
+}
+
+message IsMediaFileFreeRequest {
+    int32 GroupId = 1;
+    int64 MediaFileID = 2;
+}

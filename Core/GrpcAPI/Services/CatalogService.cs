@@ -1,9 +1,11 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using ApiLogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.Segmentation;
+using AutoMapper;
 using Core.Api;
 using Core.Api.Managers;
 using Core.Users;
@@ -18,6 +20,7 @@ using Tvinci.Core.DAL;
 using eAssetTypes = phoenix.eAssetTypes;
 using EPGChannelProgrammeObject = ApiObjects.EPGChannelProgrammeObject;
 using MediaFile = phoenix.MediaFile;
+using ObjectVirtualAssetInfoType = ApiObjects.ObjectVirtualAssetInfoType;
 using Status = phoenix.Status;
 
 namespace GrpcAPI.Services
@@ -25,6 +28,7 @@ namespace GrpcAPI.Services
     public interface ICatalogService
     {
         string GetEpgChannelId(GetEpgChannelIdRequest request);
+        bool HasVirtualAssetType(HasVirtualAssetTypeRequest request);
         HandleBlockingSegmentResponse HandleBlockingSegment(HandleBlockingSegmentRequest request);
         GetAssetsForValidationResponse GetAssetsForValidation(GetAssetsForValidationRequest request);
 
@@ -40,6 +44,9 @@ namespace GrpcAPI.Services
             GetLinearMediaInfoByEpgChannelIdAndFileTypeRequest request);
 
         public string GetEPGChannelCDVRId(GetEPGChannelCDVRIdRequest request);
+
+        public GetRecordingLinkByFileTypeResponse GetRecordingLinkByFileType(GetRecordingLinkByFileTypeRequest request);
+        public GetGroupMediaFileTypesResponse GetGroupMediaFileTypes(GetGroupMediaFileTypesRequest request);
     }
 
     public class CatalogService : ICatalogService
@@ -51,6 +58,12 @@ namespace GrpcAPI.Services
             return APILogic.Api.Managers.EpgManager.GetEpgChannelId(request.MediaId, request.GroupId);
         }
 
+        public bool HasVirtualAssetType(HasVirtualAssetTypeRequest request)
+        {
+            var objectVirtualAssetInfo = VirtualAssetPartnerConfigManager.Instance.GetObjectVirtualAssetInfo(request.GroupId, (ObjectVirtualAssetInfoType) request.VirtualAssetInfoType);
+            return objectVirtualAssetInfo != null;
+        }
+        
         public HandleBlockingSegmentResponse HandleBlockingSegment(HandleBlockingSegmentRequest request)
         {
             try
@@ -64,7 +77,7 @@ namespace GrpcAPI.Services
                         request.SubscriptionId);
                 return new HandleBlockingSegmentResponse()
                 {
-                    Status = GrpcMapping.Mapper.Map<Status>(status)
+                    Status = Mapper.Map<Status>(status)
                 };
             }
             catch (Exception e)
@@ -88,7 +101,7 @@ namespace GrpcAPI.Services
                 {
                     SlimAsset =
                     {
-                        GrpcMapping.Mapper.Map<RepeatedField<SlimAsset>>(SlimAsset)
+                        Mapper.Map<RepeatedField<SlimAsset>>(SlimAsset)
                     }
                 };
             }
@@ -109,16 +122,17 @@ namespace GrpcAPI.Services
 
                 if (mediaFiles != null)
                 {
+                    mediaFiles = Core.ConditionalAccess.Utils.ValidateMediaFilesUponSecurity(mediaFiles, request.GroupId);
                     return new GetMediaFilesResponse()
                     {
                         MediaFiles =
                         {
-                            GrpcMapping.Mapper.Map<RepeatedField<MediaFile>>(mediaFiles)
+                            Mapper.Map<RepeatedField<MediaFile>>(mediaFiles)
                         }
                     };
                 }
 
-                return null;
+                return new GetMediaFilesResponse();
             }
             catch (Exception e)
             {
@@ -178,15 +192,14 @@ namespace GrpcAPI.Services
                         }
                     }
                 }
-
                 return new GetMediaInfoResponse()
                 {
                     MediaId = mediaId,
-                    Recording = recording != null ? GrpcMapping.Mapper.Map<Recording>(recording) : null,
+                    Recording = recording != null ? Mapper.Map<Recording>(recording) : null,
                     Program = program != null
-                        ? GrpcMapping.Mapper.Map<phoenix.EPGChannelProgrammeObject>(program)
+                        ? phoenix.EPGChannelProgrammeObject.Parser.ParseFrom(GrpcSerialize.ProtoSerialize(program))
                         : null,
-                    Status = GrpcMapping.Mapper.Map<Status>(status),
+                    Status = Mapper.Map<Status>(status),
                     IsExternalRecordingIgnoreMode = isExternalRecordingIgnoreMode
                 };
             }
@@ -202,7 +215,7 @@ namespace GrpcAPI.Services
             try
             {
                 var mediaById = Core.ConditionalAccess.Utils.GetMediaById(request.GroupId, request.MediaId);
-                return mediaById != null ? GrpcMapping.Mapper.Map<GetMediaByIdResponse>(mediaById) : null;
+                return mediaById != null ? Mapper.Map<GetMediaByIdResponse>(mediaById) : new GetMediaByIdResponse();
             }
             catch (Exception e)
             {
@@ -216,7 +229,7 @@ namespace GrpcAPI.Services
             try
             {
                 var program = Core.Api.Module.GetProgramSchedule(request.GroupId, request.ProgramId);
-                return program != null ? GrpcMapping.Mapper.Map<GetProgramScheduleResponse>(program) : null;
+                return program != null ? Mapper.Map<GetProgramScheduleResponse>(program) : new GetProgramScheduleResponse();
             }
             catch (Exception e)
             {
@@ -231,7 +244,7 @@ namespace GrpcAPI.Services
             {
                 var recording = Core.ConditionalAccess.Utils.GetDomainRecordings(request.GroupId,
                     request.DomainId, request.ShouldFilterViewableRecordingsOnly);
-                return recording != null ? GrpcMapping.Mapper.Map<GetDomainRecordingsResponse>(recording) : null;
+                return recording != null ? Mapper.Map<GetDomainRecordingsResponse>(recording) : new GetDomainRecordingsResponse();
             }
             catch (Exception e)
             {
@@ -246,7 +259,7 @@ namespace GrpcAPI.Services
             {
                 var epgIds = Core.ConditionalAccess.Utils.GetEpgsByIds(request.GroupId,
                     request.EpgIds.ToList());
-                return epgIds != null ? GrpcMapping.Mapper.Map<GetEpgsByIdsResponse>(epgIds) : null;
+                return epgIds != null ? Mapper.Map<GetEpgsByIdsResponse>(epgIds) : new GetEpgsByIdsResponse();
             }
             catch (Exception e)
             {
@@ -283,12 +296,12 @@ namespace GrpcAPI.Services
                     {
                         MediaMappers =
                         {
-                            GrpcMapping.Mapper.Map<RepeatedField<MediaMapper>>(mapMediaFilesResponse)
+                            Mapper.Map<RepeatedField<MediaMapper>>(mapMediaFilesResponse)
                         }
                     };
                 }
 
-                return null;
+                return new MapMediaFilesResponse();
             }
             catch (Exception e)
             {
@@ -300,6 +313,46 @@ namespace GrpcAPI.Services
         public string GetEPGChannelCDVRId(GetEPGChannelCDVRIdRequest request)
         {
             return CatalogDAL.GetEPGChannelCDVRId(request.GroupId, request.EpgChannelId);
+        }
+
+        public GetRecordingLinkByFileTypeResponse GetRecordingLinkByFileType(GetRecordingLinkByFileTypeRequest request)
+        {
+            try
+            {
+                var recording = RecordingsDAL.GetRecordingLinkByFileType(request.GroupId, request.RecordingId, request.FileType);
+                return new GetRecordingLinkByFileTypeResponse
+                {
+                    RecordingUrl = recording.Url
+                };
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, $"Error while calling GetRecordingLinkByFileType GRPC service {e.Message}");
+                return null;
+            }
+        }
+        
+        public GetGroupMediaFileTypesResponse GetGroupMediaFileTypes(GetGroupMediaFileTypesRequest request)
+        {
+            try
+            {
+                var mediaFileType =
+                    Core.Catalog.CatalogManagement.FileManager.Instance.GetMediaFileTypes(request.GroupId);
+                return new GetGroupMediaFileTypesResponse
+                {
+                    MediaFileType =
+                    {
+                        new RepeatedField<MediaFileType> {mediaFileType.Objects.Select(x => MediaFileType.Parser.ParseFrom(GrpcSerialize.ProtoSerialize(x)))}   
+                    },
+                    Status = Mapper.Map<phoenix.Status>(mediaFileType.Status),
+                    TotalCount = mediaFileType.TotalItems
+                };
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, $"Error while calling GetGroupMediaFileTypes GRPC service {e.Message}");
+                return null;
+            }
         }
     }
 }

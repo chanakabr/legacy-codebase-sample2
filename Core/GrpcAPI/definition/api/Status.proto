@@ -1,0 +1,13 @@
+syntax = "proto3";
+import "KeyValuePair.proto";
+
+option csharp_namespace = "phoenix";
+option go_package = "./models";
+
+package phoenix;
+
+message Status {
+  string message = 1;
+  int32 code = 2;
+  repeated KeyValuePair args = 3;
+}

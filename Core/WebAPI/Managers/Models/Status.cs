@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Text;
 using WebAPI.Models.General;
 
 namespace WebAPI.Managers.Models
@@ -31,7 +32,7 @@ namespace WebAPI.Managers.Models
                 if (Result is IEnumerable && !(Result is string))
                 {
                     JsonManager jsonManager = JsonManager.GetInstance();
-                    propertyValue = "[" + String.Join(", ", (Result as IEnumerable<object>).Select(item => jsonManager.Serialize(item))) + "]";
+                    propertyValue = "[" + String.Join(", ", (Result as IEnumerable<object>).Select(item => jsonManager.ObsoleteSerialize(item))) + "]";
                 }
                 else if (Result is IKalturaSerializable)
                 {
@@ -40,11 +41,59 @@ namespace WebAPI.Managers.Models
                 else
                 {
                     JsonManager jsonManager = JsonManager.GetInstance();
-                    propertyValue = jsonManager.Serialize(Result);
+                    propertyValue = jsonManager.ObsoleteSerialize(Result);
                 };
                 ret.Add("result", "\"result\": " + propertyValue);
             }
             return ret;
+        }
+
+        public override ISet<string> AppendPropertiesAsJson(StringBuilder stringBuilder, Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            var keys = base.AppendPropertiesAsJson(stringBuilder, currentVersion, omitObsolete, responseProfile);
+            if (keys.Any())
+            {
+                stringBuilder.Append(",");
+            }
+
+            stringBuilder.Append($"\"executionTime\":{ExecutionTime}");
+            keys.Add("executionTime");
+
+            if (Result != null)
+            {
+                stringBuilder.Append(",\"result\":");
+
+                var jsonManager = JsonManager.GetInstance();
+                if (Result is IEnumerable enumerableResult && !(Result is string))
+                {
+                    stringBuilder.Append("[");
+                    var isFirstItem = true;
+                    foreach (var item in enumerableResult)
+                    {
+                        if (!isFirstItem)
+                        {
+                            stringBuilder.Append(",");
+                        }
+
+                        jsonManager.Serialize(stringBuilder, item);
+                        isFirstItem = false;
+                    }
+
+                    stringBuilder.Append("]");
+                }
+                else if (Result is KalturaSerializable serializableResult)
+                {
+                    serializableResult.AppendAsJson(stringBuilder, currentVersion, omitObsolete, responseProfile);
+                }
+                else
+                {
+                    jsonManager.Serialize(stringBuilder, Result);
+                }
+
+                keys.Add("result");
+            }
+
+            return keys;
         }
 
         protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -83,6 +132,62 @@ namespace WebAPI.Managers.Models
                 ret.Add("result", "<result>" + propertyValue + "</result>");
             }
             return ret;
+        }
+
+        public override ISet<string> AppendPropertiesAsXml(StringBuilder stringBuilder, Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            var keys = base.AppendPropertiesAsXml(stringBuilder, currentVersion, omitObsolete);
+
+            stringBuilder.Append($"<executionTime>{ExecutionTime}</executionTime>");
+            keys.Add("executionTime");
+
+            if (Result != null)
+            {
+                stringBuilder.Append("<result>");
+
+                if (Result is string)
+                {
+                    stringBuilder.Append(Result);
+                }
+                else if (Result is IEnumerable enumerableResult)
+                {
+                    stringBuilder.Append("<item>");
+                    foreach (var item in enumerableResult)
+                    {
+                        if (item == null)
+                        {
+                            stringBuilder.Append(string.Empty);
+                        }
+                        else if (item is IKalturaSerializable kalturaSerializable)
+                        {
+                            kalturaSerializable.AppendAsXml(stringBuilder, currentVersion, omitObsolete, true);
+                        }
+                        else
+                        {
+                            stringBuilder.Append(item);
+                        }
+                    }
+
+                    stringBuilder.Append("</item>");
+                }
+                else if (Result is IKalturaSerializable kalturaSerializable)
+                {
+                    kalturaSerializable.AppendAsXml(stringBuilder, currentVersion, omitObsolete, true);
+                }
+                else if (Result is bool boolResult)
+                {
+                    stringBuilder.Append(boolResult.ToString().ToLower());
+                }
+                else
+                {
+                    stringBuilder.Append(Result);
+                }
+
+                stringBuilder.Append("</result>");
+                keys.Add("result");
+            }
+
+            return keys;
         }
 
         [DataMember(Name = "result", Order = 0)]

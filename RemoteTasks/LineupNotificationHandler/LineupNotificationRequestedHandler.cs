@@ -4,16 +4,20 @@ using System.Linq;
 using System.Threading.Tasks;
 using ApiLogic.Api.Managers;
 using ApiLogic.Notification;
+using ApiObjects;
 using ApiObjects.EventBus;
 using ApiObjects.Notification;
 using Core.Catalog.CatalogManagement;
 using Core.Notification;
+using Core.Users;
 using EventBus.Abstraction;
+using IotGrpcClientWrapper;
 using Phx.Lib.Log;
 using LineupNotificationHandler.Configuration;
 using Newtonsoft.Json;
 using NotificationHandlers.Common;
 using NotificationHandlers.Common.DTO;
+using phoenix;
 using TVinciShared;
 
 namespace LineupNotificationHandler
@@ -26,23 +30,23 @@ namespace LineupNotificationHandler
         private readonly INotificationCache _notificationCache;
         private readonly ICatalogManager _catalogManager;
         private readonly IRegionManager _regionManager;
-        private readonly IIotManager _iotManager;
-        private readonly IIotNotificationService _iotNotificationService;
+        private readonly IIotClient _iotClient;
 
         public LineupNotificationRequestedHandler(
             ILineupNotificationConfiguration configuration,
-            IIotManager iotManager,
             INotificationCache notificationCache,
             ICatalogManager catalogManager,
             IRegionManager regionManager,
-            IIotNotificationService iotNotificationService)
+            IIotClient iotClient)
         {
+            Logger.Debug($"LineupNotificationRequestedHandler");
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            _iotManager = iotManager ?? throw new ArgumentNullException(nameof(iotManager));
             _notificationCache = notificationCache ?? throw new ArgumentNullException(nameof(notificationCache));
             _catalogManager = catalogManager ?? throw new ArgumentNullException(nameof(catalogManager));
             _regionManager = regionManager ?? throw new ArgumentNullException(nameof(regionManager));
-            _iotNotificationService = iotNotificationService ?? throw new ArgumentNullException(nameof(iotNotificationService));
+            Logger.Debug($"_iotClient initialization");
+            _iotClient = iotClient ?? throw new ArgumentNullException(nameof(iotClient));
+            Logger.Debug($"_iotClient {_iotClient.ToString()}");
         }
 
         public async Task Handle(LineupNotificationRequestedEvent serviceEvent)
@@ -74,11 +78,8 @@ namespace LineupNotificationHandler
                     }
 
                     var message = GetSerializedMessage();
-                    var notificationTasks = regionsToNotify
-                        .Select(x => _iotManager.GetRegionTopicFormat(serviceEvent.GroupId, EventType.lineup_updated, x))
-                        .Select(x => _iotNotificationService.SendNotificationAsync(serviceEvent.GroupId, message, x))
-                        .ToList();
-                    await Task.WhenAll(notificationTasks);
+                    await _iotClient.SendNotificationAsync(serviceEvent.GroupId, message,
+                        EventNotificationType.LineupUpdated, regionsToNotify.Select(x => (int)x).ToList());
 
                     Logger.Debug("Event is handled successfully");
                     AppMetrics.EventSucceed();
@@ -90,7 +91,7 @@ namespace LineupNotificationHandler
                 }
             }
         }
-
+        
         private static string GetSerializedMessage()
         {
             var message = new LineupNotificationRequestedMessage

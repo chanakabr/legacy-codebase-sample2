@@ -31,7 +31,7 @@ node('Linux') {
 
     stage("Build and Publish Interservice Clients") {
         ws("${WORKSPACE}/Core/GrpcAPI") {
-            buildAndPublishInterserviceClients("phoenix", "", "phx")
+            buildAndPublishInterserviceClients("phoenix", "")
         }
     }
 

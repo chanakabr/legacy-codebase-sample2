@@ -619,7 +619,7 @@ namespace ApiLogic.Pricing.Handlers
             return response;
         }
 
-        private List<long> GetProgramAssetGroupOfferIds(long partnerId, bool inactiveAssets)
+        public List<long> GetProgramAssetGroupOfferIds(long partnerId, bool inactiveAssets)
         {
             var response = new List<long>();
             var result = new Dictionary<long, bool>();

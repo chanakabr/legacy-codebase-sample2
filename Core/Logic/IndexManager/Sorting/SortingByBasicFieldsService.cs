@@ -14,13 +14,20 @@ namespace ApiLogic.IndexManager.Sorting
     {
         private static readonly Lazy<ISortingByBasicFieldsService> LazyInstance =
             new Lazy<ISortingByBasicFieldsService>(
-                () => new SortingByBasicFieldsService(),
+                () => new SortingByBasicFieldsService(StringComparerService.Instance),
                 LazyThreadSafetyMode.PublicationOnly);
 
         private static readonly Func<string, DateTime> DateTimeConverter =
             s => DateTime.TryParse(s, out var value) ? value : default;
 
+        private readonly IStringComparerService _comparerService;
+
         public static ISortingByBasicFieldsService Instance => LazyInstance.Value;
+
+        public SortingByBasicFieldsService(IStringComparerService comparerService)
+        {
+            _comparerService = comparerService;
+        }
 
         [Obsolete]
         public IEnumerable<(long id, string sortValue)> ListOrderedIdsWithSortValues(
@@ -46,7 +53,7 @@ namespace ApiLogic.IndexManager.Sorting
             ?? throw new NotImplementedException(
                 $"It is not possible to determine how to order results in {nameof(SortingByBasicFieldsService)}.");
 
-        private static IEnumerable<(long id, string sortValue)> GetSortedResult(
+        private IEnumerable<(long id, string sortValue)> GetSortedResult(
             IEnumerable<ExtendedUnifiedSearchResult> esAssetDocuments,
             IEsOrderByField field)
         {
@@ -64,11 +71,12 @@ namespace ApiLogic.IndexManager.Sorting
         private static IEnumerable<(long id, string sortValue)> Sort<T>(
             IEnumerable<ExtendedUnifiedSearchResult> esAssetDocuments,
             Func<ExtendedUnifiedSearchResult, T> valueSelector,
+            IComparer<T> comparer,
             OrderDir orderDir)
         {
             var orderedItems = orderDir == OrderDir.ASC
-                ? esAssetDocuments.OrderBy(valueSelector)
-                : esAssetDocuments.OrderByDescending(valueSelector);
+                ? esAssetDocuments.OrderBy(valueSelector, comparer)
+                : esAssetDocuments.OrderByDescending(valueSelector, comparer);
 
             return orderedItems
                 .ThenByDescending(x => x.AssetId)
@@ -85,13 +93,13 @@ namespace ApiLogic.IndexManager.Sorting
             return !string.IsNullOrEmpty(metaValue) ? parseValue(metaValue) : default;
         }
 
-        private static IEnumerable<(long id, string sortValue)> Sort(
+        private IEnumerable<(long id, string sortValue)> Sort(
             IEnumerable<ExtendedUnifiedSearchResult> documents,
             EsOrderByField esOrderByField)
         {
             IEnumerable<(long id, string sortValue)> SortInternal<T>(
-                Func<ExtendedUnifiedSearchResult, T> valueSelector)
-                => Sort(documents, valueSelector, esOrderByField.OrderByDirection);
+                Func<ExtendedUnifiedSearchResult, T> valueSelector, IComparer<T> valueComparer = null)
+                => Sort(documents, valueSelector, valueComparer, esOrderByField.OrderByDirection);
 
             // TODO: Please, be aware that the pretty the same switch clause is placed in SortingService class. If you change smth there, you might need changes in SortingService class as well.
             switch (esOrderByField.OrderByField)
@@ -101,7 +109,8 @@ namespace ApiLogic.IndexManager.Sorting
                 case OrderBy.START_DATE:
                     return SortInternal(document => document.DocAdapter.StartDate);
                 case OrderBy.NAME:
-                    return SortInternal(document => document.DocAdapter.Name);
+                    var comparer = _comparerService.GetComparer(esOrderByField.Language?.Code);
+                    return SortInternal(document => document.DocAdapter.Name, comparer);
                 case OrderBy.CREATE_DATE:
                     return SortInternal(document => document.DocAdapter.CreateDate);
                 case OrderBy.UPDATE_DATE:
@@ -118,14 +127,14 @@ namespace ApiLogic.IndexManager.Sorting
             }
         }
 
-        private static IEnumerable<(long id, string sortValue)> SortByMeta(
+        private IEnumerable<(long id, string sortValue)> SortByMeta(
             IEnumerable<ExtendedUnifiedSearchResult> documents,
             EsOrderByMetaField esOrderByMetaField)
         {
-            IEnumerable<(long id, string sortValue)> SortInternal<T>(Func<string, T> parseValue) =>
+            IEnumerable<(long id, string sortValue)> SortInternal<T>(Func<string, T> parseValue, IComparer<T> valueComparer = null) =>
                 Sort(
                     documents,
-                    document => ExtractFromExtraFields(document, esOrderByMetaField, parseValue),
+                    document => ExtractFromExtraFields(document, esOrderByMetaField, parseValue), valueComparer,
                     esOrderByMetaField.OrderByDirection);
 
             if (esOrderByMetaField.MetaType == typeof(int))
@@ -138,9 +147,18 @@ namespace ApiLogic.IndexManager.Sorting
                 return SortInternal(double.Parse);
             }
 
-            return esOrderByMetaField.MetaType == typeof(DateTime)
-                ? SortInternal(DateTimeConverter)
-                : SortInternal(_ => _);
+            if (esOrderByMetaField.MetaType == typeof(DateTime))
+            {
+                return SortInternal(DateTimeConverter);
+            }
+
+            if (esOrderByMetaField.MetaType == typeof(string))
+            {
+                var comparer = _comparerService.GetComparer(esOrderByMetaField.Language?.Code);
+                return SortInternal(x => x, comparer);
+            }
+
+            return SortInternal(_ => _);
         }
     }
 }

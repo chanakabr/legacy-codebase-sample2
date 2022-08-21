@@ -19,11 +19,13 @@ namespace ApiLogic.Tests.IndexManager
         private static readonly Random Random = new Random();
 
         private MockRepository _mockRepository;
+        private Mock<IStringComparerService> _comparerServiceMock;
 
         [SetUp]
         public void Setup()
         {
             _mockRepository = new MockRepository(MockBehavior.Strict);
+            _comparerServiceMock = _mockRepository.Create<IStringComparerService>();
         }
 
         [TearDown]
@@ -35,7 +37,7 @@ namespace ApiLogic.Tests.IndexManager
         [TestCaseSource(nameof(NotImplementedExceptionData))]
         public void ListOrderedIdsWithSortValues_ThrowsNotImplementedException(IEsOrderByField esOrderByField)
         {
-            var sortingByBasicFieldsService = new SortingByBasicFieldsService();
+            var sortingByBasicFieldsService = new SortingByBasicFieldsService(_comparerServiceMock.Object);
 
             Action act = () => sortingByBasicFieldsService.ListOrderedIdsWithSortValues(
                 Enumerable.Empty<ExtendedUnifiedSearchResult>(),
@@ -50,7 +52,8 @@ namespace ApiLogic.Tests.IndexManager
             IEsOrderByField orderByField,
             IEnumerable<(long id, string sortValue)> expectedResult)
         {
-            var sortingByBasicFieldsService = new SortingByBasicFieldsService();
+            SetupComparerService(orderByField);
+            var sortingByBasicFieldsService = new SortingByBasicFieldsService(_comparerServiceMock.Object);
 
             var actualResult = sortingByBasicFieldsService.ListOrderedIdsWithSortValues(esDocuments, orderByField);
 
@@ -63,7 +66,8 @@ namespace ApiLogic.Tests.IndexManager
             IEsOrderByField orderByField,
             IEnumerable<(long id, string sortValue)> expectedResult)
         {
-            var sortingByBasicFieldsService = new SortingByBasicFieldsService();
+            SetupComparerService(orderByField);
+            var sortingByBasicFieldsService = new SortingByBasicFieldsService(_comparerServiceMock.Object);
 
             var extendedUnifiedSearchResults = esDocuments.Select(x =>
             {
@@ -234,6 +238,25 @@ namespace ApiLogic.Tests.IndexManager
                 shuffledDocuments,
                 new EsOrderByMetaField("meta", OrderDir.ASC, true, typeof(string), new LanguageObj { Code = "eng" }),
                 GetExpectedResult(x => x.extraReturnFields["metas.padded_meta_eng"]).Reverse());
+        }
+
+        private void SetupComparerService(IEsOrderByField field)
+        {
+            if (field is EsOrderByField orderByField && orderByField.OrderByField == OrderBy.NAME)
+            {
+                var languageCode = orderByField.Language?.Code;
+                _comparerServiceMock
+                    .Setup(x => x.GetComparer(languageCode))
+                    .Returns(StringComparer.InvariantCultureIgnoreCase);
+            }
+
+            if (field is EsOrderByMetaField orderByMetaField && orderByMetaField.MetaType == typeof(string))
+            {
+                var languageCode = orderByMetaField.Language?.Code;
+                _comparerServiceMock
+                    .Setup(x => x.GetComparer(languageCode))
+                    .Returns(StringComparer.InvariantCultureIgnoreCase);
+            }
         }
     }
 }
