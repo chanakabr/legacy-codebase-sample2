@@ -192,7 +192,7 @@ namespace Core.ConditionalAccess
                 case eTransactionState.OK:
                     {
                         UnifiedProcess unifiedProcess = null;
-                        if (!ignoreUnifiedBillingCycle && subscriptionCycle != null && subscriptionCycle.UnifiedBillingCycle != null) //should be part of unified cycle 
+                        if (!ignoreUnifiedBillingCycle && subscriptionCycle != null) //should be part of unified cycle 
                         {
                             var paymentGatewayId = paymentDetails != null ? paymentDetails.PaymentGatewayId : 0;
                             unifiedProcess = UpdateMPPRenewalProcessId(groupId, renewDetails, subscriptionCycle, paymentGatewayId);
@@ -300,7 +300,7 @@ namespace Core.ConditionalAccess
                 var renewDuration = new Duration(renewDetails.MaxVLCOfSelectedUsageModule);
                 if (subscriptionCycle.HasCycle && subscriptionCycle.SubscriptionLifeCycle.Equals(renewDuration))
                 {
-                    if (renewDetails.IsAddToUnified)
+                    if (renewDetails.IsAddToUnified && subscriptionCycle.UnifiedBillingCycle != null)
                     {
                         unifiedProcess = GetRenewalProcessId(groupId, renewDetails.DomainId, paymentGatewayId, renewDetails.MaxVLCOfSelectedUsageModule, subscriptionCycle.UnifiedBillingCycle.endDate);
                     }
