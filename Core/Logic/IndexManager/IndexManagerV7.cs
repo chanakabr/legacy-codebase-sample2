@@ -4011,12 +4011,14 @@ namespace Core.Catalog
                 UseMustWhenBooleanQuery = true
             };
 
-            var queryContainer = mediaBuilder.GetQuery();
             //call the search
             var searchResponse = _elasticClient.Search<NestMedia>(searchDescriptor =>
                 {
                     searchDescriptor.Query(q => mediaBuilder.GetQuery());
                     searchDescriptor.Index(Indices.Index(mediaBuilder.GetIndices()));
+                    searchDescriptor.Sort(q => mediaBuilder.GetSort());
+                    searchDescriptor = mediaBuilder.SetSizeAndFrom(searchDescriptor);
+
                     searchDescriptor.Source(
                         s => s.Includes(f =>
                             f.Fields(
