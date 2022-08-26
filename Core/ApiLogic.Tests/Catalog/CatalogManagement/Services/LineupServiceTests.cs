@@ -4,8 +4,11 @@ using ApiLogic.Api.Managers;
 using ApiLogic.Catalog;
 using ApiLogic.Catalog.CatalogManagement.Services;
 using ApiObjects;
+using ApiObjects.Catalog;
 using ApiObjects.Response;
 using Core.Catalog;
+using Core.Catalog.CatalogManagement;
+using Core.Catalog.Response;
 using EventBus.Abstraction;
 using FluentAssertions;
 using Phx.Lib.Log;
@@ -18,17 +21,21 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
     public class LineupServiceTests
     {
         private MockRepository _mockRepository;
+        private Mock<ICatalogManager> _catalogManagerMock;
         private Mock<IRegionManager> _regionManagerMock;
         private Mock<IAssetManager> _assetManagerMock;
-        private Mock<IKLogger> _loggerMock;
+        private Mock<ISearchProvider> _searchProviderMock;
         private Mock<IEventBusPublisher> _publisher;
+        private Mock<IKLogger> _loggerMock;
 
         [SetUp]
         public void SetUp()
         {
             _mockRepository = new MockRepository(MockBehavior.Strict);
+            _catalogManagerMock = _mockRepository.Create<ICatalogManager>();
             _regionManagerMock = _mockRepository.Create<IRegionManager>();
             _assetManagerMock = _mockRepository.Create<IAssetManager>();
+            _searchProviderMock = _mockRepository.Create<ISearchProvider>();
             _publisher = _mockRepository.Create<IEventBusPublisher>();
             _loggerMock = _mockRepository.Create<IKLogger>();
         }
@@ -47,7 +54,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                 .Returns(new GenericResponse<Region>(new Status(2, "Custom Region Error")));
             _loggerMock
                 .Setup(x => x.Error("GetRegion with parameters groupId:10, id:11 completed with status {2 - Custom Region Error}.", null, It.IsAny<string>()));
-            var service = new LineupService(_regionManagerMock.Object, _assetManagerMock.Object, _loggerMock.Object, _publisher.Object);
+            var service = new LineupService(_catalogManagerMock.Object, _regionManagerMock.Object, _assetManagerMock.Object, _searchProviderMock.Object, _publisher.Object, _loggerMock.Object);
 
             var result = service.GetLineupChannelAssets(10, 11, GetUserSearchContext(), 1, 3);
 
@@ -57,26 +64,45 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
         }
 
         [Test]
-        public void GetLineupChannelAssets_RegionDefinedAndGetLinearChannelsError_ReturnsExpectedResponse()
+        public void GetLineupChannelAssets_RegionDefinedAndLinearMediaTypesNotFound_ReturnsExpectedResponse()
         {
             var searchContext = GetUserSearchContext();
             _regionManagerMock
                 .Setup(x => x.GetRegion(10, 11))
                 .Returns(new GenericResponse<Region>(Status.Ok, GetFakeRegion()));
-            _assetManagerMock
-                .Setup(x => x.GetLinearChannels(
-                    10,
-                    It.Is<IEnumerable<long>>(_ => _.SequenceEqual(new List<long> { 106, 102, 107, 101, 108, 104, 103, 105 })),
-                    searchContext))
-                .Returns(new GenericListResponse<Asset>(new Status(3, "Custom Asset Error"), null));
+            _catalogManagerMock
+                .Setup(x => x.GetLinearMediaTypes(10))
+                .Returns(new List<AssetStruct>());
             _loggerMock
-                .Setup(x => x.Error("GetLinearChannels with parameters searchContext:{DomainId:12, UserId:13, LanguageId:14, Udid:udid, UserIp:ip, IgnoreEndDate:True, UseStartDate:True, UseFinal:True, GetOnlyActiveAssets:True, IsAllowedToViewInactiveAssets:True, SessionCharacteristicKey:sessionCharacteristicKey} completed with status {3 - Custom Asset Error}.", null, It.IsAny<string>()));
-            var service = new LineupService(_regionManagerMock.Object, _assetManagerMock.Object, _loggerMock.Object, _publisher.Object);
+                .Setup(x => x.Error("Linear asset structs were not found. groupId:10.", null, It.IsAny<string>()));
+            var service = new LineupService(_catalogManagerMock.Object, _regionManagerMock.Object, _assetManagerMock.Object, _searchProviderMock.Object, _publisher.Object, _loggerMock.Object);
 
             var result = service.GetLineupChannelAssets(10, 11, searchContext, 1, 3);
 
             result.Should().NotBeNull();
-            result.Status.Should().Be(new Status(3, "Custom Asset Error"));
+            result.Status.Should().Be(Status.Error);
+            result.Objects.Should().BeNull();
+        }
+
+        [Test]
+        public void GetLineupChannelAssets_RegionDefinedAndSearchAssetsError_ReturnsExpectedResponse()
+        {
+            var searchContext = GetUserSearchContext();
+            _regionManagerMock
+                .Setup(x => x.GetRegion(10, 11))
+                .Returns(new GenericResponse<Region>(Status.Ok, GetFakeRegion()));
+            _catalogManagerMock
+                .Setup(x => x.GetLinearMediaTypes(10))
+                .Returns(new List<AssetStruct> { new AssetStruct { Id = 1001 }, new AssetStruct { Id = 1002 } });
+            _searchProviderMock
+                .Setup(x => x.SearchAssets(10, searchContext, "(and (or asset_type='1001' asset_type='1002') (or media_id:'106,102,107,101,108,104,103,105'))"))
+                .Returns(new UnifiedSearchResponse { status = new Status(3, "Custom Search Error") });
+            var service = new LineupService(_catalogManagerMock.Object, _regionManagerMock.Object, _assetManagerMock.Object, _searchProviderMock.Object, _publisher.Object, _loggerMock.Object);
+
+            var result = service.GetLineupChannelAssets(10, 11, searchContext, 1, 3);
+
+            result.Should().NotBeNull();
+            result.Status.Should().Be(new Status(3, "Custom Search Error"));
             result.Objects.Should().BeNull();
         }
 
@@ -87,13 +113,19 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
             _regionManagerMock
                 .Setup(x => x.GetRegion(10, 11))
                 .Returns(new GenericResponse<Region>(Status.Ok, GetFakeRegion()));
+            _catalogManagerMock
+                .Setup(x => x.GetLinearMediaTypes(10))
+                .Returns(new List<AssetStruct> { new AssetStruct { Id = 1001 }, new AssetStruct { Id = 1002 } });
+            _searchProviderMock
+                .Setup(x => x.SearchAssets(10, searchContext, "(and (or asset_type='1001' asset_type='1002') (or media_id:'106,102,107,101,108,104,103,105'))"))
+                .Returns(new UnifiedSearchResponse { status = Status.Ok, searchResults = FakeSearchResultsByRegion(), m_nTotalItems = 8 });
             _assetManagerMock
-                .Setup(x => x.GetLinearChannels(
+                .Setup(x => x.GetAssets(
                     10,
-                    It.Is<IEnumerable<long>>(_ => _.SequenceEqual(new List<long> { 106, 102, 107, 101, 108, 104, 103, 105 })),
-                    searchContext))
-                .Returns(new GenericListResponse<Asset>(Status.Ok, GetFakeAssets()));
-            var service = new LineupService(_regionManagerMock.Object, _assetManagerMock.Object, _loggerMock.Object, _publisher.Object);
+                    It.Is<IEnumerable<KeyValuePair<eAssetTypes, long>>>(_ => _.SequenceEqual(new[] { new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, 101), new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, 103) })),
+                    searchContext.IsAllowedToViewInactiveAssets))
+                .Returns(GetFakeAssets());
+            var service = new LineupService(_catalogManagerMock.Object, _regionManagerMock.Object, _assetManagerMock.Object, _searchProviderMock.Object, _publisher.Object, _loggerMock.Object);
 
             var result = service.GetLineupChannelAssets(10, 11, searchContext, 1, 3);
 
@@ -111,57 +143,83 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
 
         [TestCase(0)]
         [TestCase(-1)]
-        public void GetLineupChannelAssets_RegionNotDefinedAndDefaultRegionNotDefinedAndGetLinearChannelsError_ReturnsExpectedResponse(long regionId)
+        public void GetLineupChannelAssets_RegionNotDefinedAndLinearMediaTypesNotFound_ReturnsExpectedResponse(long regionId)
         {
             var searchContext = GetUserSearchContext();
             _regionManagerMock
                 .Setup(x => x.GetDefaultRegionId(10))
                 .Returns(new int?());
-            _assetManagerMock
-                .Setup(x => x.GetLinearChannels(
-                    10,
-                    It.Is<IEnumerable<long>>(_ => !_.Any()),
-                    searchContext))
-                .Returns(new GenericListResponse<Asset>(new Status(3, "Custom Asset Error"), null));
+            _catalogManagerMock
+                .Setup(x => x.GetLinearMediaTypes(10))
+                .Returns(new List<AssetStruct>());
             _loggerMock
-                .Setup(x => x.Error("GetLinearChannels with parameters searchContext:{DomainId:12, UserId:13, LanguageId:14, Udid:udid, UserIp:ip, IgnoreEndDate:True, UseStartDate:True, UseFinal:True, GetOnlyActiveAssets:True, IsAllowedToViewInactiveAssets:True, SessionCharacteristicKey:sessionCharacteristicKey} completed with status {3 - Custom Asset Error}.", null, It.IsAny<string>()));
-            var service = new LineupService(_regionManagerMock.Object, _assetManagerMock.Object, _loggerMock.Object, _publisher.Object);
+                .Setup(x => x.Error("Linear asset structs were not found. groupId:10.", null, It.IsAny<string>()));
+            var service = new LineupService(_catalogManagerMock.Object, _regionManagerMock.Object, _assetManagerMock.Object, _searchProviderMock.Object, _publisher.Object, _loggerMock.Object);
 
             var result = service.GetLineupChannelAssets(10, regionId, searchContext, 1, 3);
 
             result.Should().NotBeNull();
-            result.Status.Should().Be(new Status(3, "Custom Asset Error"));
+            result.Status.Should().Be(Status.Error);
             result.Objects.Should().BeNull();
         }
 
         [TestCase(0)]
         [TestCase(-1)]
-        public void GetLineupChannelAssets_RegionNotDefinedAndDefaultRegionNotDefinedAndValidParameters_ReturnsExpectedResponse(long regionId)
+        public void GetLineupChannelAssets_RegionNotDefinedAndSearchAssetsError_ReturnsExpectedResponse(int regionId)
         {
             var searchContext = GetUserSearchContext();
             _regionManagerMock
                 .Setup(x => x.GetDefaultRegionId(10))
                 .Returns(new int?());
+            _catalogManagerMock
+                .Setup(x => x.GetLinearMediaTypes(10))
+                .Returns(new List<AssetStruct> { new AssetStruct { Id = 1001 }, new AssetStruct { Id = 1002 } });
+            _searchProviderMock
+                .Setup(x => x.SearchAssets(10, searchContext, "(and (or asset_type='1001' asset_type='1002'))", 1, 3))
+                .Returns(new UnifiedSearchResponse { status = new Status(3, "Custom Search Error") });
+            var service = new LineupService(_catalogManagerMock.Object, _regionManagerMock.Object, _assetManagerMock.Object, _searchProviderMock.Object, _publisher.Object, _loggerMock.Object);
+
+            var result = service.GetLineupChannelAssets(10, regionId, searchContext, 1, 3);
+
+            result.Should().NotBeNull();
+            result.Status.Should().Be(new Status(3, "Custom Search Error"));
+            result.Objects.Should().BeNull();
+        }
+
+        [TestCase(0)]
+        [TestCase(-1)]
+        public void GetLineupChannelAssets_RegionNotDefinedAndValidParameters_ReturnsExpectedResponse(int regionId)
+        {
+            var searchContext = GetUserSearchContext();
+            _regionManagerMock
+                .Setup(x => x.GetDefaultRegionId(10))
+                .Returns(new int?());
+            _catalogManagerMock
+                .Setup(x => x.GetLinearMediaTypes(10))
+                .Returns(new List<AssetStruct> { new AssetStruct { Id = 1001 }, new AssetStruct { Id = 1002 } });
+            _searchProviderMock
+                .Setup(x => x.SearchAssets(10, searchContext, "(and (or asset_type='1001' asset_type='1002'))", 1, 3))
+                .Returns(new UnifiedSearchResponse { status = Status.Ok, searchResults = FakePagedSearchResults(), m_nTotalItems = 8 });
             _assetManagerMock
-                .Setup(x => x.GetLinearChannels(
+                .Setup(x => x.GetAssets(
                     10,
-                    It.Is<IEnumerable<long>>(_ => !_.Any()),
-                    searchContext))
-                .Returns(new GenericListResponse<Asset>(Status.Ok, GetFakeAssets()));
-            var service = new LineupService(_regionManagerMock.Object, _assetManagerMock.Object, _loggerMock.Object, _publisher.Object);
+                    It.Is<IEnumerable<KeyValuePair<eAssetTypes, long>>>(_ => _.SequenceEqual(new[] { new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, 103), new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, 106), new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, 108) })),
+                    searchContext.IsAllowedToViewInactiveAssets))
+                .Returns(GetFakePagedAssets());
+            var service = new LineupService(_catalogManagerMock.Object, _regionManagerMock.Object, _assetManagerMock.Object, _searchProviderMock.Object, _publisher.Object, _loggerMock.Object);
 
             var result = service.GetLineupChannelAssets(10, regionId, searchContext, 1, 3);
 
             result.Should().NotBeNull();
             result.Status.Should().Be(Status.Ok);
             result.Objects.Should().NotBeEmpty();
-            result.Objects[0].Id.Should().Be(104);
+            result.Objects[0].Id.Should().Be(103);
             result.Objects[0].LinearChannelNumber.Should().BeNull();
             result.Objects[1].Id.Should().Be(106);
             result.Objects[1].LinearChannelNumber.Should().BeNull();
             result.Objects[2].Id.Should().Be(108);
             result.Objects[2].LinearChannelNumber.Should().BeNull();
-            result.TotalItems.Should().Be(6);
+            result.TotalItems.Should().Be(8);
         }
 
         [TestCase(0)]
@@ -175,13 +233,19 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
             _regionManagerMock
                 .Setup(x => x.GetRegion(10, 11))
                 .Returns(new GenericResponse<Region>(Status.Ok, GetFakeRegion()));
+            _catalogManagerMock
+                .Setup(x => x.GetLinearMediaTypes(10))
+                .Returns(new List<AssetStruct> { new AssetStruct { Id = 1001 }, new AssetStruct { Id = 1002 } });
+            _searchProviderMock
+                .Setup(x => x.SearchAssets(10, searchContext, "(and (or asset_type='1001' asset_type='1002') (or media_id:'106,102,107,101,108,104,103,105'))"))
+                .Returns(new UnifiedSearchResponse { status = Status.Ok, searchResults = FakeSearchResultsByRegion(), m_nTotalItems = 8 });
             _assetManagerMock
-                .Setup(x => x.GetLinearChannels(
+                .Setup(x => x.GetAssets(
                     10,
-                    It.Is<IEnumerable<long>>(_ => _.SequenceEqual(new List<long> { 106, 102, 107, 101, 108, 104, 103, 105 })),
-                    searchContext))
-                .Returns(new GenericListResponse<Asset>(Status.Ok, GetFakeAssets()));
-            var service = new LineupService(_regionManagerMock.Object, _assetManagerMock.Object, _loggerMock.Object, _publisher.Object);
+                    It.Is<IEnumerable<KeyValuePair<eAssetTypes, long>>>(_ => _.SequenceEqual(new[] { new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, 101), new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, 103) })),
+                    searchContext.IsAllowedToViewInactiveAssets))
+                .Returns(GetFakeAssets());
+            var service = new LineupService(_catalogManagerMock.Object, _regionManagerMock.Object, _assetManagerMock.Object, _searchProviderMock.Object, _publisher.Object, _loggerMock.Object);
 
             var result = service.GetLineupChannelAssets(10, regionId, searchContext, 1, 3);
 
@@ -222,17 +286,45 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
             };
         }
 
+        private List<UnifiedSearchResult> FakeSearchResultsByRegion()
+        {
+            return new List<UnifiedSearchResult>
+            {
+                new UnifiedSearchResult { AssetId = "106" },
+                new UnifiedSearchResult { AssetId = "103" },
+                new UnifiedSearchResult { AssetId = "108" },
+                new UnifiedSearchResult { AssetId = "104" },
+                new UnifiedSearchResult { AssetId = "101" },
+                new UnifiedSearchResult { AssetId = "102" }
+            };
+        }
+
+        private List<UnifiedSearchResult> FakePagedSearchResults()
+        {
+            return new List<UnifiedSearchResult>
+            {
+                new UnifiedSearchResult { AssetId = "103" },
+                new UnifiedSearchResult { AssetId = "106" },
+                new UnifiedSearchResult { AssetId = "108" }
+            };
+        }
+
         private List<Asset> GetFakeAssets()
         {
             return new List<Asset>
             {
-                new LiveAsset { Id = 106 },
                 new LiveAsset { Id = 103 },
-                new LiveAsset { Id = 108 },
-                new LiveAsset { Id = 104 },
-                new LiveAsset { Id = 101 },
-                new Asset { Id = 107 },
-                new LiveAsset { Id = 102 }
+                new LiveAsset { Id = 101 }
+            };
+        }
+
+        private List<Asset> GetFakePagedAssets()
+        {
+            return new List<Asset>
+            {
+                new LiveAsset { Id = 103 },
+                new LiveAsset { Id = 106 },
+                new LiveAsset { Id = 108 }
             };
         }
     }

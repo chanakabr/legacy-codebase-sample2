@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using ApiLogic.Api.Managers;
+using ApiObjects;
 using ApiObjects.EventBus;
 using ApiObjects.Response;
 using Core.Catalog;
@@ -17,24 +19,31 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
     {
         private static readonly Lazy<LineupService> Lazy = new Lazy<LineupService>(
             () => new LineupService(
+                CatalogManager.Instance,
                 RegionManager.Instance,
                 AssetManager.Instance,
-                new KLogger(nameof(LineupService)),
-                EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration()),
+                SearchProvider.Instance,
+                EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration(),
+                new KLogger(nameof(LineupService))),
             LazyThreadSafetyMode.PublicationOnly);
+
+        private readonly ICatalogManager _catalogManager;
         private readonly IRegionManager _regionManager;
         private readonly IAssetManager _assetManager;
-        private readonly IKLogger _logger;
+        private readonly ISearchProvider _searchProvider;
         private readonly IEventBusPublisher _publisher;
+        private readonly IKLogger _logger;
 
         public static LineupService Instance => Lazy.Value;
 
-        public LineupService(IRegionManager regionManager, IAssetManager assetManager, IKLogger logger, IEventBusPublisher publisher)
+        public LineupService(ICatalogManager catalogManager, IRegionManager regionManager, IAssetManager assetManager, ISearchProvider searchProvider, IEventBusPublisher publisher, IKLogger logger)
         {
+            _catalogManager = catalogManager;
             _regionManager = regionManager;
             _assetManager = assetManager;
-            _logger = logger;
+            _searchProvider = searchProvider;
             _publisher = publisher;
+            _logger = logger;
         }
 
         public GenericListResponse<LineupChannelAsset> GetLineupChannelAssets(long groupId, long regionId, UserSearchContext searchContext, int pageIndex, int pageSize)
@@ -47,7 +56,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
                     regionId = defaultRegionId.Value;
                 }
             }
-            
+
             var result = regionId > 0
                 ? GetRegionLineup(groupId, regionId, searchContext, pageIndex, pageSize)
                 : GetNonRegionLineup(groupId, searchContext, pageIndex, pageSize);
@@ -65,59 +74,108 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
                 return new GenericListResponse<LineupChannelAsset>(regionResponse.Status, null);
             }
 
-            var linearChannelsIds = regionResponse.Object.linearChannels.Select(x => x.Key).Distinct();
-            var linearChannelsResponse = _assetManager.GetLinearChannels(groupId, linearChannelsIds, searchContext);
-            if (!linearChannelsResponse.IsOkStatusCode())
+            var linearChannelIds = regionResponse.Object.linearChannels
+                .Select(x => x.Key)
+                .ToArray();
+            var linearChannelsKSql = GetLinearChannelsKSql(groupId, linearChannelIds);
+            if (string.IsNullOrEmpty(linearChannelsKSql))
             {
-                _logger.Error($"{nameof(IAssetManager.GetLinearChannels)} with parameters {nameof(searchContext)}:{searchContext} completed with status {{{linearChannelsResponse.Status.Code} - {linearChannelsResponse.Status.Message}}}.");
-
-                return new GenericListResponse<LineupChannelAsset>(linearChannelsResponse.Status, null);
+                return new GenericListResponse<LineupChannelAsset>(Status.Error, null);
             }
 
-            var linearChannels = linearChannelsResponse.Objects
-                .OfType<LiveAsset>()
-                .ToDictionary(x => x.Id, x => x);
+            var searchResult = _searchProvider.SearchAssets(groupId, searchContext, linearChannelsKSql);
+            if (!searchResult.status.IsOkStatusCode())
+            {
+                return new GenericListResponse<LineupChannelAsset>(searchResult.status, null);
+            }
 
-            var pagedLineupChannelAssets = regionResponse.Object.linearChannels
+            var pagedLinearChannels = regionResponse.Object.linearChannels
                 .OrderBy(x => x.Value)
-                .Where(x => linearChannels.Values.Any(_ => _.Id == x.Key))
+                .Where(x => searchResult.searchResults.Any(_ => long.Parse(_.AssetId) == x.Key))
                 .Skip(pageIndex * pageSize)
                 .Take(pageSize)
+                .ToArray();
+
+            var assetsRequestQuery = pagedLinearChannels
+                .Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, x.Key))
+                .Distinct();
+            var linearChannels = _assetManager
+                .GetAssets((int)groupId, assetsRequestQuery.ToList(), searchContext.IsAllowedToViewInactiveAssets)?
+                .OfType<LiveAsset>()
+                .ToDictionary(x => x.Id, x => x) ?? new Dictionary<long, LiveAsset>();
+
+            var pagedLineupChannelAssets = pagedLinearChannels
                 .Select(x => new LineupChannelAsset(linearChannels[x.Key], x.Value))
                 .ToList();
 
-            var totalCount = regionResponse.Object.linearChannels
-                .Count(x => linearChannels.Keys.Contains(x.Key));
-
-            var result = new GenericListResponse<LineupChannelAsset>(Status.Ok, pagedLineupChannelAssets, totalCount);
+            var result = new GenericListResponse<LineupChannelAsset>(Status.Ok, pagedLineupChannelAssets, searchResult.m_nTotalItems);
 
             return result;
         }
 
         private GenericListResponse<LineupChannelAsset> GetNonRegionLineup(long groupId, UserSearchContext searchContext, int pageIndex, int pageSize)
         {
-            var linearChannelsResponse = _assetManager.GetLinearChannels(groupId, Enumerable.Empty<long>(), searchContext);
-            if (!linearChannelsResponse.IsOkStatusCode())
+            var linearChannelsKSql = GetLinearChannelsKSql(groupId, Array.Empty<long>());
+            if (string.IsNullOrEmpty(linearChannelsKSql))
             {
-                _logger.Error($"{nameof(IAssetManager.GetLinearChannels)} with parameters {nameof(searchContext)}:{searchContext} completed with status {{{linearChannelsResponse.Status.Code} - {linearChannelsResponse.Status.Message}}}.");
-
-                return new GenericListResponse<LineupChannelAsset>(linearChannelsResponse.Status, null);
+                return new GenericListResponse<LineupChannelAsset>(Status.Error, null);
             }
 
-            var linearChannels = linearChannelsResponse.Objects
-                .OfType<LiveAsset>()
+            var searchResult = _searchProvider.SearchAssets(groupId, searchContext, linearChannelsKSql, pageIndex, pageSize);
+            if (!searchResult.status.IsOkStatusCode())
+            {
+                return new GenericListResponse<LineupChannelAsset>(searchResult.status, null);
+            }
+
+            var pagedLinearChannelIds = searchResult.searchResults
+                .Select(x => long.Parse(x.AssetId))
                 .ToArray();
 
-            var pagedLinearChannels = linearChannels
-                .OrderBy(x => x.Id)
-                .Skip(pageIndex * pageSize)
-                .Take(pageSize)
-                .Select(x => new LineupChannelAsset(x, null))
+            var assetsRequestQuery = pagedLinearChannelIds.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, x));
+            var linearChannels = _assetManager
+                .GetAssets((int)groupId, assetsRequestQuery.ToList(), searchContext.IsAllowedToViewInactiveAssets)?
+                .OfType<LiveAsset>()
+                .ToDictionary(x => x.Id, x => x) ?? new Dictionary<long, LiveAsset>();
+
+            var pagedLineupChannelAssets = pagedLinearChannelIds
+                .Select(x => new LineupChannelAsset(linearChannels[x], null))
                 .ToList();
 
-            var result = new GenericListResponse<LineupChannelAsset>(Status.Ok, pagedLinearChannels, linearChannels.Length);
+            var result = new GenericListResponse<LineupChannelAsset>(Status.Ok, pagedLineupChannelAssets, searchResult.m_nTotalItems);
 
             return result;
+        }
+
+        private string GetLinearChannelsKSql(long groupId, IReadOnlyCollection<long> linearChannelIds)
+        {
+            var ksqlBuilder = new StringBuilder("(and");
+
+            var linearAssetTypes = _catalogManager.GetLinearMediaTypes((int)groupId);
+            if (linearAssetTypes.Any())
+            {
+                ksqlBuilder.Append(" (or");
+                foreach (var linearAssetType in linearAssetTypes)
+                {
+                    ksqlBuilder.Append($" asset_type='{linearAssetType.Id}'");
+                }
+
+                ksqlBuilder.Append(")");
+            }
+            else
+            {
+                _logger.Error($"Linear asset structs were not found. {nameof(groupId)}:{groupId}.");
+
+                return null;
+            }
+
+            if (linearChannelIds.Any())
+            {
+                ksqlBuilder.Append($" (or media_id:'{string.Join(",", linearChannelIds.Distinct())}')");
+            }
+
+            ksqlBuilder.Append(")");
+
+            return ksqlBuilder.ToString();
         }
 
         public Status SendUpdatedNotification(long groupId, string userId, List<long> regionIds)

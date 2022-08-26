@@ -10,7 +10,6 @@ namespace ApiLogic.Api.Managers
     public interface IAssetManager
     {
         bool InvalidateAsset(eAssetTypes assetType, int groupId, long assetId, [System.Runtime.CompilerServices.CallerMemberName] string callingMethod = "");
-        GenericListResponse<Asset> GetLinearChannels(long groupId, IEnumerable<long> linearChannelIds, UserSearchContext searchContext);
         IEnumerable<Asset> GetAssets(long groupId, IEnumerable<KeyValuePair<eAssetTypes, long>> assetTypes, bool isAllowedToViewInactiveAssets);
         GenericResponse<Asset> GetAsset(int groupId, long id, eAssetTypes assetType, bool isAllowedToViewInactiveAssets);
         Status DeleteAsset(int groupId, long id, eAssetTypes assetType, long userId, bool isFromChannel = false);

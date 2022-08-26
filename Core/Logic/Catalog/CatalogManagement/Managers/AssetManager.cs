@@ -3658,44 +3658,9 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public GenericListResponse<Asset> GetLinearChannels(long groupId, IEnumerable<long> linearChannelIds, UserSearchContext searchContext)
-        {
-            var ksqlBuilder = new StringBuilder("(and");
-
-            var linearAssetTypes = CatalogManager.Instance.GetLinearMediaTypes((int)groupId);
-            if (linearAssetTypes.Any())
-            {
-                ksqlBuilder.Append(" (or");
-                foreach (var linearAssetType in linearAssetTypes)
-                {
-                    ksqlBuilder.Append($" asset_type='{linearAssetType.Id}'");
-                }
-                ksqlBuilder.Append(")");
-            }
-            else
-            {
-                log.Error($"Linear asset structs were not found. {groupId}:{groupId}.");
-
-                return new GenericListResponse<Asset>(Status.Error, null);
-            }
-
-            if (linearChannelIds.Any())
-            {
-                ksqlBuilder.Append($" (or media_id:'{string.Join(",", linearChannelIds)}')");
-            }
-
-            ksqlBuilder.Append(")");
-
-            var searchResult = Utils.SearchAssets(groupId, searchContext, ksqlBuilder.ToString());
-            var assetsRequestQuery = searchResult.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, long.Parse(x.AssetId)));
-            var assets = GetAssets((int)groupId, assetsRequestQuery.ToList(), searchContext.IsAllowedToViewInactiveAssets) ?? Enumerable.Empty<Asset>();
-
-            return new GenericListResponse<Asset>(Status.Ok, assets, assets.Count());
-        }
-
         public IEnumerable<Asset> GetAssets(long groupId, IEnumerable<KeyValuePair<eAssetTypes, long>> assetTypes, bool isAllowedToViewInactiveAssets)
         {
-            return AssetManager.GetAssets((int)groupId, assetTypes.ToList(), isAllowedToViewInactiveAssets);
+            return GetAssets((int)groupId, assetTypes.ToList(), isAllowedToViewInactiveAssets);
         }
 
         #endregion

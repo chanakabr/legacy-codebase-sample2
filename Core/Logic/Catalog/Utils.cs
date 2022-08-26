@@ -1,5 +1,4 @@
-﻿using ApiLogic.Catalog;
-using ApiObjects;
+﻿using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
@@ -18,9 +17,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
-using ApiLogic.Api.Managers.Rule;
 using Tvinci.Core.DAL;
-using ApiLogic.Api.Managers;
 using ApiLogic.IndexManager.Helpers;
 
 namespace Core.Catalog
@@ -1363,58 +1360,6 @@ namespace Core.Catalog
             }
 
             return assets;
-        }
-
-        internal static UnifiedSearchResult[] SearchAssets(long groupId, UserSearchContext searchContext, string filterQuery)
-        {
-            var result = new UnifiedSearchResult[0];
-
-            try
-            {
-                var catalogSignString = Guid.NewGuid().ToString();
-                var catalogSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
-
-                var catalogSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, catalogSignatureString);
-
-                filterQuery = FilterAsset.Instance.UpdateKsql(filterQuery, (int)groupId, searchContext.SessionCharacteristicKey);
-
-                try
-                {
-                    var request = new UnifiedSearchRequest
-                    {
-                        m_sSignature = catalogSignature,
-                        m_sSignString = catalogSignString,
-                        m_nGroupID = (int)groupId,
-                        m_oFilter = new Filter
-                        {
-                            m_sDeviceId = searchContext.Udid,
-                            m_nLanguage = searchContext.LanguageId,
-                            m_bUseStartDate = searchContext.UseStartDate,
-                            m_bUseFinalDate = searchContext.UseFinal,
-                            m_bOnlyActiveMedia = searchContext.GetOnlyActiveAssets
-                        },
-                        filterQuery = filterQuery,
-                        domainId = (int)searchContext.DomainId,
-                        m_sSiteGuid = searchContext.UserId.ToString(),
-                        m_sUserIP = searchContext.UserIp,
-                        shouldIgnoreEndDate = searchContext.IgnoreEndDate,
-                        isAllowedToViewInactiveAssets = searchContext.IsAllowedToViewInactiveAssets
-                    };
-
-                    var response = request.GetResponse(request);
-                    result = ((UnifiedSearchResponse)response).searchResults.ToArray();
-                }
-                catch (Exception ex)
-                {
-                    log.Error("Couldn't retrieve media assets from ElasticSearch", ex);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error("Configuration Reading - Couldn't read values from configuration ", ex);
-            }
-
-            return result;
         }
 
         public static List<BaseObject> GetOrderedAssets(int groupId, List<BaseObject> assets, Filter filter, bool managementData = false)

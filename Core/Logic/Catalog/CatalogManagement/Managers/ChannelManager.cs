@@ -1528,12 +1528,12 @@ namespace Core.Catalog.CatalogManagement
             }
 
             ksqlFilter.Append(")");
-            
-            var searchResult = Utils.SearchAssets(groupId, searchContext, ksqlFilter.ToString());
+
+            var searchResponse = SearchProvider.Instance.SearchAssets(groupId, searchContext, ksqlFilter.ToString());
 
             var missingMediaIds = mediaIds
                 .Concat(epgIds)
-                .Except(searchResult.Select(x => long.Parse(x.AssetId)))
+                .Except(searchResponse.searchResults.Select(x => long.Parse(x.AssetId)))
                 .ToArray();
             if (missingMediaIds.Any())
             {

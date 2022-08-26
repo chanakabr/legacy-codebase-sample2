@@ -1,8 +1,6 @@
 using System.Linq;
 using System.Net;
-using ApiLogic.Catalog;
 using ApiObjects.Response;
-using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
