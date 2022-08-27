@@ -6765,6 +6765,12 @@ namespace Core.Catalog
                     cacheKey.AppendFormat("_gId={0}", groupId);
                     cacheKey.Append($"_l={langId}");  //BEO-11556
 
+                    if (unifiedSearchDefinitions.groupBy != null && unifiedSearchDefinitions.groupBy.Any())
+                    {
+                        var groupByKey = string.Join(",", unifiedSearchDefinitions.groupBy.Select(_ => $"{_.Key}|{_.Type}|{_.Value}"));
+                        cacheKey.AppendFormat("_gb={0}", groupByKey);
+                    }
+
                     if (lastUpdateDate > 0)  //BEO-11618
                     {
                         cacheKey.Append($"_ud={lastUpdateDate}");
@@ -6887,6 +6893,13 @@ namespace Core.Catalog
                     cacheKey.AppendFormat($"_l={langId}"); //BEO-11556
                     cacheKey.AppendFormat("_p={0}|{1}", unifiedSearchDefinitions.pageIndex, unifiedSearchDefinitions.pageSize);
                     cacheKey.Append(BuildOrderCacheKeyPart(unifiedSearchDefinitions));
+                    
+                    if (unifiedSearchDefinitions.groupBy != null && unifiedSearchDefinitions.groupBy.Any())
+                    {
+                        var groupByKey = string.Join(",", unifiedSearchDefinitions.groupBy.Select(_ => $"{_.Key}|{_.Type}|{_.Value}"));
+                        cacheKey.AppendFormat("_gb={0}", groupByKey);
+                    }
+                    
                     if (assetTypes != null && assetTypes.Count > 0)
                     {
                         cacheKey.AppendFormat("_t={0}", string.Join("|", assetTypes.OrderBy(at => at)));
