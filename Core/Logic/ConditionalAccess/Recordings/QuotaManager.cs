@@ -362,7 +362,7 @@ namespace Core.Recordings
                 {
                     long quotaClearanceSeconds = 0;
                     long currentUtcTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
-                    var ordered = domainRecordingIdToRecordingMap.OrderBy(x => x.Value.CreateDate)
+                    var ordered = domainRecordingIdToRecordingMap.OrderBy(x => x.Value.ViewableUntilDate ?? 0)
                         .Where(rec => !IsRecordingProtected(rec.Value, currentUtcTime));
 
                     List<long> domainRecordingIds = new List<long>();
