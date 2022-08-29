@@ -1059,6 +1059,10 @@ namespace Core.Users
             }
 
             retObj.Initialize(ResponseStatus.OK, u);
+
+            //BEO-11890
+            UpdateFailCount(nGroupID, 0, siteGuid, u, true);
+
             return InnerSignIn(ref retObj, nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins, nGroupID);
         }
 
