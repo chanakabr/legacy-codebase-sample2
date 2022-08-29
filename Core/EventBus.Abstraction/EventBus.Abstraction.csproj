@@ -23,7 +23,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="2.2.0" />
     <PackageReference Include="Phx.Lib.Log" Version="1.2.4" />
-    <PackageReference Include="OTT.Lib.Kafka" Version="1.3.0" />
+    <PackageReference Include="OTT.Lib.Kafka" Version="1.4.1" />
   </ItemGroup>
 
 </Project>
