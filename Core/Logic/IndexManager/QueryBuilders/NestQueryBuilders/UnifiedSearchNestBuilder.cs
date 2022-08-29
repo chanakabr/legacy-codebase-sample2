@@ -992,7 +992,11 @@ namespace ApiLogic.IndexManager.QueryBuilders
             {
                 // By default the metas are created with yyyyMMddHHmmss date format.
                 // Consider changing it to default date format in the future for ElasticSearch V7?
-                var dateValue = DateMath.FromString(Convert.ToDateTime(leaf.value).ToString("yyyyMMddHHmmss"));
+                // This is a dirty hack to save time. The story to fix this bug is described there - https://kaltura.atlassian.net/browse/BEO-12693.
+                var dateValue = DateMath.FromString(leaf.isReservedUnifiedSearchDate
+                    ? Convert.ToDateTime(leaf.value).ToString("O")
+                    : Convert.ToDateTime(leaf.value).ToString("yyyyMMddHHmmss"));
+
                 result = queryContainerDescriptor.DateRange(range =>
                 {
                     range = range.Field(field);

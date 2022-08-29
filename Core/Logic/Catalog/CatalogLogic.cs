@@ -7667,6 +7667,7 @@ namespace Core.Catalog
                     // TODO - Lior , ask Ira if to allow this for all types or only EPG\Recording
                     if (CatalogReservedFields.ReservedUnifiedDateFields.Contains(searchKeyLowered))
                     {
+                        leaf.isReservedUnifiedSearchDate = true;
                         definitions.shouldUseStartDateForEpg = false;
                         GetLeafDate(ref leaf, request.m_dServerTime);
 
@@ -7722,6 +7723,7 @@ namespace Core.Catalog
                     }
                     else if (searchKeyLowered == UPDATE_DATE)
                     {
+                        leaf.isReservedUnifiedSearchDate = true;
                         GetLeafDate(ref leaf, request.m_dServerTime);
 
                         leaf.shouldLowercase = false;

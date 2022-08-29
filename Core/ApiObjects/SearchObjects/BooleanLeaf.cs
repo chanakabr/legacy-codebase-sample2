@@ -56,6 +56,14 @@ namespace ApiObjects.SearchObjects
         [JsonProperty()]
         public bool isLanguageSpecific;
 
+        /// <summary>
+        /// This property is going to be used for ES V7 only.
+        /// Once this story is done (https://kaltura.atlassian.net/browse/BEO-12693), this field could be removed.
+        /// </summary>
+        [DataMember]
+        [JsonProperty]
+        public bool isReservedUnifiedSearchDate;
+
         [DataMember]
         [JsonProperty()]
         public eFieldType fieldType;
