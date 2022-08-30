@@ -8789,17 +8789,6 @@ namespace Core.Catalog
                             fieldType = keyLeafFieldDefinition?.FieldType ?? eFieldType.Default
                         };
                     }
-                    else if (innerCutType == eCutType.Or)
-                    {
-                        newNode = new BooleanLeaf(keyLeafFieldDefinition?.Field ?? key,
-                            searchValue.m_lValue,
-                            keyLeafFieldDefinition?.ValueType ?? typeof(string),
-                            ComparisonOperator.In,
-                            shouldLowercase)
-                        {
-                            fieldType = keyLeafFieldDefinition?.FieldType ?? eFieldType.Default
-                        };
-                    }
                     else
                     {
                         // If there are several values, connect all the values with the inner cut type
