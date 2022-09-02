@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ApiLogic.Catalog.CatalogManagement.Managers;
 using TVinciShared;
 
 namespace Core.Catalog
@@ -284,10 +285,9 @@ namespace Core.Catalog
 
         public override void SetExcelValues(int groupId, Dictionary<string, object> columnNamesToValues, Dictionary<string, ExcelColumn> columns, IExcelStructureManager structureManager)
         {
-            this.AssetType = eAssetTypes.MEDIA;
-            AssetStruct assetStruct = structureManager as AssetStruct;
-            CatalogGroupCache catalogGroupCache;
-            if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            AssetType = eAssetTypes.MEDIA;
+            var assetStruct = (structureManager as AssetStructStructureManager)?.AssetStruct;
+            if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out var catalogGroupCache))
             {
                 return;
             }

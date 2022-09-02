@@ -50,41 +50,41 @@ namespace ApiLogic.Catalog.CatalogManagement.Managers
 
         public static IBulkUploadStructureManager Instance(AssetStruct assetStruct) => new AssetStructStructureManager(assetStruct);
 
-        private readonly AssetStruct _assetStruct;
+        public AssetStruct AssetStruct { get; }
 
         public AssetStructStructureManager(AssetStruct assetStruct)
         {
-            _assetStruct = assetStruct;
+            AssetStruct = assetStruct;
         }
 
         public ExcelStructure GetExcelStructure(int groupId, Type objectType = null)
         {
             ExcelStructure excelStructure = null;
 
-            if (_assetStruct.Id > 0)
+            if (AssetStruct.Id > 0)
             {
                 if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
                 {
                     return excelStructure;
                 }
 
-                if (_assetStruct.TopicsMapBySystemName == null || _assetStruct.TopicsMapBySystemName.Count == 0)
+                if (AssetStruct.TopicsMapBySystemName == null || AssetStruct.TopicsMapBySystemName.Count == 0)
                 {
-                    if (!catalogGroupCache.AssetStructsMapById.ContainsKey(_assetStruct.Id))
+                    if (!catalogGroupCache.AssetStructsMapById.ContainsKey(AssetStruct.Id))
                     {
                         return excelStructure;
                     }
 
-                    _assetStruct.Copy(catalogGroupCache.AssetStructsMapById[_assetStruct.Id]);
+                    AssetStruct.Copy(catalogGroupCache.AssetStructsMapById[AssetStruct.Id]);
 
-                    _assetStruct.TopicsMapBySystemName = catalogGroupCache.TopicsMapById.Where(x => _assetStruct.MetaIds.Contains(x.Key))
-                                                                                .OrderBy(x => _assetStruct.MetaIds.IndexOf(x.Key))
+                    AssetStruct.TopicsMapBySystemName = catalogGroupCache.TopicsMapById.Where(x => AssetStruct.MetaIds.Contains(x.Key))
+                                                                                .OrderBy(x => AssetStruct.MetaIds.IndexOf(x.Key))
                                                                                 .ToDictionary(x => x.Value.SystemName, y => y.Value);
                 }
 
                 if (objectType == null)
                 {
-                    objectType = GetAssetType(_assetStruct);
+                    objectType = GetAssetType(AssetStruct);
                 }
 
                 var systemNameToExcelAttribute = ExcelManager.GetSystemNameToProperyData(objectType);
@@ -97,7 +97,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Managers
                     var excelColumn = ExcelManager.GetExcelColumnByAttribute(systemNameToExcelAttribute[MediaAsset.MEDIA_ASSET_TYPE], MediaAsset.MEDIA_ASSET_TYPE);
                     var mediaAssetTypeColumnName = excelColumn.ToString();
                     excelColumns.TryAdd(mediaAssetTypeColumnName, excelColumn);
-                    mandatoryPropertyAndValueMap.Add(mediaAssetTypeColumnName, _assetStruct.SystemName);
+                    mandatoryPropertyAndValueMap.Add(mediaAssetTypeColumnName, AssetStruct.SystemName);
                 }
 
                 // EXTERNAL_ID
@@ -122,7 +122,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Managers
                     var languages = catalogGroupCache.LanguageMapByCode.OrderByDescending(x => x.Value.IsDefault);
                     foreach (var lang in languages)
                     {
-                        foreach (var topic in _assetStruct.TopicsMapBySystemName)
+                        foreach (var topic in AssetStruct.TopicsMapBySystemName)
                         {
                             if (topic.Value.SystemName.Equals(AssetManager.EXTERNAL_ID_META_SYSTEM_NAME) ||
                                 topic.Value.Type == MetaType.ReleatedEntity ||
@@ -203,7 +203,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Managers
                     excelColumns.TryAdd(excelColumn.ToString(), excelColumn);
                 }
 
-                if (_assetStruct.IsLinearAssetStruct && systemNameToExcelAttribute.ContainsKey(LiveAsset.EXTERNAL_EPG_INGEST_ID))
+                if (AssetStruct.IsLinearAssetStruct && systemNameToExcelAttribute.ContainsKey(LiveAsset.EXTERNAL_EPG_INGEST_ID))
                 {
                     var excelColumn = ExcelManager.GetExcelColumnByAttribute(systemNameToExcelAttribute[LiveAsset.EXTERNAL_EPG_INGEST_ID], LiveAsset.EXTERNAL_EPG_INGEST_ID);
                     excelColumns.TryAdd(excelColumn.ToString(), excelColumn);
