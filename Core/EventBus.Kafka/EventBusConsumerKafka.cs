@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 using OTT.Lib.Kafka;
 
 namespace EventBus.Kafka
@@ -12,6 +13,7 @@ namespace EventBus.Kafka
     {
         private readonly IKafkaConsumer<string, string> _consumer;
         private readonly IEnumerable<string> _topics;
+        private readonly IHostApplicationLifetime _hostApplicationLifetime;
         private bool _disposed;
 
         public delegate void OnConsumeAction(Confluent.Kafka.ConsumeResult<string, string> consumeResult);
@@ -24,7 +26,8 @@ namespace EventBus.Kafka
             int maxConsumeMessages,
             int maxConsumeWaitTimeMs,
             OnBatchConsumeAction onBatchConsume,
-            IReadOnlyDictionary<string, string> additionalKafkaConfig)
+            IReadOnlyDictionary<string, string> additionalKafkaConfig,
+            IHostApplicationLifetime hostApplicationLifetime)
         {
             _consumer = KafkaConsumerFactoryInstance.Instance.Acquire(additionalKafkaConfig)
                 .Get<string, string>(
@@ -38,6 +41,7 @@ namespace EventBus.Kafka
                         return new BatchHandleResult();
                     });
             _topics = topics;
+            _hostApplicationLifetime = hostApplicationLifetime;
         }
 
         public EventBusConsumerKafka(
@@ -45,11 +49,14 @@ namespace EventBus.Kafka
             List<string> topics,
             int maxConsumeMessages,
             int maxConsumeWaitTimeMs,
-            OnBatchConsumeAction onBatchConsume) : this(groupName, topics, maxConsumeMessages, maxConsumeWaitTimeMs, onBatchConsume, null)
+            OnBatchConsumeAction onBatchConsume,
+            IHostApplicationLifetime hostApplicationLifetime) 
+            : this(groupName, topics, maxConsumeMessages, maxConsumeWaitTimeMs, onBatchConsume, null, hostApplicationLifetime)
         {
         }
 
-        public EventBusConsumerKafka(string groupName, List<string> topics, OnConsumeAction onSingleMessageConsume, IReadOnlyDictionary<string, string> additionalKafkaConfig)
+        public EventBusConsumerKafka(string groupName, List<string> topics, OnConsumeAction onSingleMessageConsume,
+            IReadOnlyDictionary<string, string> additionalKafkaConfig, IHostApplicationLifetime hostApplicationLifetime)
         {
             KafkaConsumerFactoryInstance.Instance.Acquire(additionalKafkaConfig)
                 .Get<string, string>(
@@ -61,9 +68,12 @@ namespace EventBus.Kafka
                         return new HandleResult();
                     });
             _topics = topics;
+            _hostApplicationLifetime = hostApplicationLifetime;
         }
 
-        public EventBusConsumerKafka(string groupName, List<string> topics, OnConsumeAction onSingleMessageConsume) : this(groupName, topics, onSingleMessageConsume, null)
+        public EventBusConsumerKafka(string groupName, List<string> topics, OnConsumeAction onSingleMessageConsume,
+            IHostApplicationLifetime hostApplicationLifetime) : this(groupName, topics, onSingleMessageConsume, null,
+            hostApplicationLifetime)
         {
         }
 
@@ -75,8 +85,9 @@ namespace EventBus.Kafka
         public Task StartConsumerAsync(CancellationToken cancellationToken)
         {
             _consumer.Subscribe(_topics);
-            _consumer.Run(cancellationToken);
-
+            Task
+                .Run(() => _consumer.Run(cancellationToken), cancellationToken)
+                .ContinueWith(t => _hostApplicationLifetime.StopApplication(), cancellationToken);
             return Task.CompletedTask;
         }
 

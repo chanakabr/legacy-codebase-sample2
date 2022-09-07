@@ -168,7 +168,12 @@ namespace Phoenix.AsyncHandler
         {
             services.AddScoped(typeof(THandler), typeof(THandler));
             services.AddSingleton<IHostedService, BackgroundServiceStarter<THandler, TValue>>(p =>
-                new BackgroundServiceStarter<THandler, TValue>(p.GetService<IKafkaConsumerFactory>(), p.GetService<IServiceScopeFactory>(), kafkaGroupSuffix, topic));
+                new BackgroundServiceStarter<THandler, TValue>(
+                    p.GetService<IKafkaConsumerFactory>(),
+                    p.GetService<IServiceScopeFactory>(),
+                    p.GetService<IHostApplicationLifetime>(),
+                    kafkaGroupSuffix,
+                    topic));
             return services;
         }
 

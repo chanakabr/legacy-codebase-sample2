@@ -13,10 +13,12 @@ namespace Phoenix.AsyncHandler.Kafka
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly string _topic;
         private readonly IKafkaConsumer<string, T> _consumer;
+        private readonly IHostApplicationLifetime _hostApplicationLifetime;
         
-        public BackgroundServiceStarter(IKafkaConsumerFactory consumerFactory, IServiceScopeFactory serviceScopeFactory, string kafkaGroupSuffix, string topic)
+        public BackgroundServiceStarter(IKafkaConsumerFactory consumerFactory, IServiceScopeFactory serviceScopeFactory, IHostApplicationLifetime hostApplicationLifetime, string kafkaGroupSuffix, string topic)
         {
             _serviceScopeFactory = serviceScopeFactory;
+            _hostApplicationLifetime = hostApplicationLifetime;
             _topic = topic;
             _consumer = consumerFactory.Get<string, T>($"{KafkaConfig.KafkaGroupId}-{kafkaGroupSuffix}", HandleWrapper);
         }
@@ -24,7 +26,9 @@ namespace Phoenix.AsyncHandler.Kafka
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             _consumer.Subscribe(new[] { _topic });
-            return Task.Run(() => _consumer.Run(stoppingToken), stoppingToken);
+            return Task
+                .Run(() => _consumer.Run(stoppingToken), stoppingToken)
+                .ContinueWith(t => _hostApplicationLifetime.StopApplication(), stoppingToken);
         }
         
         private HandleResult HandleWrapper(ConsumeResult<string, T> consumeResult)
