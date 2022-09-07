@@ -58,7 +58,7 @@ namespace EventBus.Kafka
         public EventBusConsumerKafka(string groupName, List<string> topics, OnConsumeAction onSingleMessageConsume,
             IReadOnlyDictionary<string, string> additionalKafkaConfig, IHostApplicationLifetime hostApplicationLifetime)
         {
-            KafkaConsumerFactoryInstance.Instance.Acquire(additionalKafkaConfig)
+            _consumer = KafkaConsumerFactoryInstance.Instance.Acquire(additionalKafkaConfig)
                 .Get<string, string>(
                     groupName,
                     result =>
