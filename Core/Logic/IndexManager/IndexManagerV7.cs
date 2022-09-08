@@ -884,8 +884,7 @@ namespace Core.Catalog
         private long GetEpgExpiry(EpgCB program)
         {
             var totalMinutes = _ttlService.GetEpgTtlMinutes(program);
-            var expiry = ODBCWrapper.Utils.DateTimeToUtcUnixTimestampSeconds(program.EndDate.AddMinutes(totalMinutes));
-            return expiry;
+            return ODBCWrapper.Utils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddMinutes(totalMinutes));
         }
 
         private int GetBulkSize(int? defaultValueWhenZero = null)
