@@ -3544,13 +3544,23 @@ namespace Core.Catalog
 
         public bool AddChannelsPercolatorsToIndex(HashSet<int> channelIds, DateTime? indexDate, bool shouldCleanupInvalidChannels = false)
         {
-            bool result = false;
-            var indexName = indexDate.HasValue
-                ? NamingHelper.GetChannelPercolatorIndex(_partnerId, indexDate.Value)
-                : NamingHelper.GetChannelPercolatorIndexAlias(_partnerId);
-
             try
             {
+                var channelPercolatorIndexAlias = NamingHelper.GetChannelPercolatorIndexAlias(_partnerId);
+                if (!indexDate.HasValue)
+                {
+                    var aliasResponse = _elasticClient.Indices.GetAlias(channelPercolatorIndexAlias);
+                    if (!aliasResponse.IsValid)
+                    {
+                        log.ErrorFormat("Channel percolator index alias '{0}' does not exist. Run rebuild media index first.", channelPercolatorIndexAlias);
+
+                        return false;
+                    }
+                }
+
+                var indexName = indexDate.HasValue
+                    ? NamingHelper.GetChannelPercolatorIndex(_partnerId, indexDate.Value)
+                    : channelPercolatorIndexAlias;
                 var groupChannels = IndexManagerCommonHelpers.GetGroupChannels(_partnerId, _channelManager, VerifyGroupUsesTemplates(), ref channelIds);
 
                 var bulkRequests = new List<NestEsBulkRequest<NestPercolatedQuery>>();
@@ -3586,14 +3596,14 @@ namespace Core.Catalog
                     ExecuteAndValidateBulkRequests(bulkRequests);
                 }
 
-                result = true;
+                return true;
             }
             catch (Exception ex)
             {
                 log.Error($"Error when indexing percolators on partner {_partnerId}", ex);
-            }
 
-            return result;
+                return false;
+            }
         }
 
 
