@@ -1218,7 +1218,7 @@ namespace Core.Users
                     purgeScheduledTaskIntervalSec = HANDLE_PURGE_SCHEDULED_TASKS_INTERVAL_SEC;
                 }
 
-                int impactedItems = UsersDal.Purge(); //TODO call DB
+                int impactedItems = UsersDal.Purge();
 
                 if (impactedItems > 0)
                 {

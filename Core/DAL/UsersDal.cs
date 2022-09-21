@@ -2425,7 +2425,7 @@ namespace DAL
                 sqlCommandTimeoutSec = ApplicationConfiguration.Current.DatabaseConfiguration.DbCommandExecuteTimeoutSec.Value;
             }
 
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Purge");
+            var sp = new StoredProcedure("__Purge", true);
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.SetTimeout(sqlCommandTimeoutSec);
             return sp.ExecuteReturnValue<int>();
