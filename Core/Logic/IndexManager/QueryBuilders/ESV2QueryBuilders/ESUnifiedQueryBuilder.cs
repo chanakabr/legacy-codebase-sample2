@@ -41,7 +41,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
         private static eFieldType[] LanguageSpecificGroupByFieldTypes => new []
         {
-            eFieldType.LanguageSpecificField, eFieldType.Tag, eFieldType.StringMeta
+            eFieldType.LanguageSpecificField, eFieldType.Tag, eFieldType.StringMeta, eFieldType.NonStringMeta
         };
 
 
