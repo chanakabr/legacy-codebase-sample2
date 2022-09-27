@@ -2494,7 +2494,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                         recordingId = SearchDefinitions.domainRecordingIdToRecordingIdMapping[domainRecordingId];
                         recordingIds.Add(recordingId);
                     }
-                    else;
+                    else
                     {
                         recordingIds.Add("0");
                     }

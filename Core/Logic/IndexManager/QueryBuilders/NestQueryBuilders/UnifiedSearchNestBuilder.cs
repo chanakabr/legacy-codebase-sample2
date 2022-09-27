@@ -1088,23 +1088,22 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     Value = recordingId
                 };
             }
-            else if (leaf.operand == ApiObjects.ComparisonOperator.In)
+            else if (leaf.operand == ComparisonOperator.In)
             {
-                List<string> domainRecordingIds = Convert.ToString(leaf.value).Split(',').ToList();
-                List<string> recordingIds = new List<string>();
-
-                foreach (string domainRecordingId in domainRecordingIds)
+                var domainRecordingIds = leaf.value is IEnumerable<string>
+                    ? ((IEnumerable<string>)leaf.value).Select(item => item.ToLower()).ToList()
+                    : Convert.ToString(leaf.value).ToLower().Split(',').ToList();
+                var recordingIds = new List<string>();
+                foreach (var domainRecordingId in domainRecordingIds)
                 {
-                    string recordingId = "0";
-                    if (this.SearchDefinitions.domainRecordingIdToRecordingIdMapping.ContainsKey(domainRecordingId))
+                    if (!this.SearchDefinitions.domainRecordingIdToRecordingIdMapping.TryGetValue(
+                        domainRecordingId,
+                        out var recordingId))
                     {
-                        recordingId = this.SearchDefinitions.domainRecordingIdToRecordingIdMapping[domainRecordingId];
-                        recordingIds.Add(recordingId);
+                        recordingId = "0";
                     }
-                    else
-                    {
-                        recordingIds.Add("0");
-                    }
+
+                    recordingIds.Add(recordingId);
                 }
 
                 result = new TermsQuery()
