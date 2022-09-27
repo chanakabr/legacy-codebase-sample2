@@ -3341,10 +3341,11 @@ namespace Core.Catalog
             var languages = GetLanguages();
 
             // get definitions of analyzers, filters and tokenizers
-            GetAnalyzersWithLowercaseAndPhraseStartsWith(languages, out var analyzers, out var customProperties, out var filters, out var tokenizers);
+            GetAnalyzersWithLowercaseAndPhraseStartsWith(languages, out var analyzers, out var customProperties, out var filters, out var tokenizers, out var normalizers);
             AnalyzersDescriptor analyzersDescriptor = GetAnalyzersDesctiptor(analyzers);
             TokenFiltersDescriptor filtersDescriptor = GetTokenFiltersDescriptor(filters);
             TokenizersDescriptor tokenizersDescriptor = GetTokenizersDesctiptor(tokenizers);
+            NormalizersDescriptor normalizersDescriptor = GetNormalizersDescriptor(normalizers);
             _groupManager.RemoveGroup(_partnerId); // remove from cache
 
             if (!GetMetasAndTagsForMapping(
@@ -3376,6 +3377,7 @@ namespace Core.Catalog
                           .Analyzers(an => analyzersDescriptor)
                           .TokenFilters(tf => filtersDescriptor)
                           .Tokenizers(t => tokenizersDescriptor)
+                          .Normalizers(n => normalizersDescriptor)
                       );
                 })
                 .Map(map =>
@@ -3656,10 +3658,11 @@ namespace Core.Catalog
         where T : class
         {
             var languages = GetLanguages();
-            GetAnalyzersWithLowercase(languages.ToList(), out var analyzers, out _, out var filters, out var tokenizers);
+            GetAnalyzersWithLowercase(languages.ToList(), out var analyzers, out _, out var filters, out var tokenizers, out var normalizers);
             var analyzersDescriptor = GetAnalyzersDesctiptor(analyzers);
             var filtersDescriptor = GetTokenFiltersDescriptor(filters);
             var tokenizersDescriptor = GetTokenizersDesctiptor(tokenizers);
+            var normalizersDescriptor = GetNormalizersDescriptor(normalizers);
 
             var createResponse = _elasticClient.Indices.Create(newIndexName,
                 c => c.Settings(settings => settings
@@ -3672,6 +3675,7 @@ namespace Core.Catalog
                             .Analyzers(an => analyzersDescriptor)
                             .TokenFilters(tf => filtersDescriptor)
                             .Tokenizers(t => tokenizersDescriptor)
+                            .Normalizers(n => normalizersDescriptor)
                         ))
                     .Map<T>(map => map
                         .AutoMap<T>()
@@ -4625,7 +4629,7 @@ namespace Core.Catalog
             bool shouldUseNumOfConfiguredShards = true, int? refreshIntervalSeconds = null, int? numOfShards = null)
         {
             List<LanguageObj> languages = GetLanguages();
-            GetAnalyzersWithLowercaseAndPhraseStartsWith(languages, out var analyzers, out var customProperties, out var filters, out var tokenizers);
+            GetAnalyzersWithLowercaseAndPhraseStartsWith(languages, out var analyzers, out var customProperties, out var filters, out var tokenizers, out var normalizers);
             int replicas = shouldBuildWithReplicas ? _numOfReplicas : 0;
             
             // use TCM global sharding configuration or hardcoded default
@@ -4637,6 +4641,7 @@ namespace Core.Catalog
             AnalyzersDescriptor analyzersDescriptor = GetAnalyzersDesctiptor(analyzers);
             TokenFiltersDescriptor filtersDesctiptor = GetTokenFiltersDescriptor(filters);
             TokenizersDescriptor tokenizersDescriptor = GetTokenizersDesctiptor(tokenizers);
+            NormalizersDescriptor normalizersDescriptor = GetNormalizersDescriptor(normalizers);
 
             _groupManager.RemoveGroup(_partnerId); // remove from cache
             
@@ -4665,6 +4670,7 @@ namespace Core.Catalog
                             .Analyzers(an => analyzersDescriptor)
                             .TokenFilters(tf => filtersDesctiptor)
                             .Tokenizers(t => tokenizersDescriptor)
+                            .Normalizers(n => normalizersDescriptor)
                         );
 
                         if (refreshIntervalSeconds.HasValue)
@@ -4815,11 +4821,12 @@ namespace Core.Catalog
             // meaning, no analyzing at all
             // good for sorts and all that
             PropertiesDescriptor<object> fieldsPropertiesDesctiptor = new PropertiesDescriptor<object>()
-                .Keyword(y => y.Name(nameFieldName))
+                .Keyword(y => y
+                    .Name(nameFieldName)
+                    .Normalizer(DEFAULT_LOWERCASE_ANALYZER))
                 .Text(y => lowercaseSubField)
                 .Text(y => autocompleteSubField)
-                .Text(y => analyzedField)
-                ;
+                .Text(y => analyzedField);
 
             if (!string.IsNullOrEmpty(phraseStartsWithAnalyzer) && !string.IsNullOrEmpty(phraseStartsWithSearchAnalyzer))
             {
@@ -4864,8 +4871,8 @@ namespace Core.Catalog
             }
             var keywordPropertyDescriptor = new KeywordPropertyDescriptor<K>()
                 .Name(nameFieldName)
-                .Fields(fields => fieldsPropertiesDesctiptor)
-                ;
+                .Normalizer(DEFAULT_LOWERCASE_ANALYZER)
+                .Fields(fields => fieldsPropertiesDesctiptor);
             propertiesDescriptor.Keyword(x => keywordPropertyDescriptor);
 
             return keywordPropertyDescriptor;
@@ -4907,7 +4914,7 @@ namespace Core.Catalog
                     .Text(y => phraseAutocompleteSubField)
                     .Text(y => autocompleteSubField)
                     .Text(y => analyzedField)
-                    );
+                );
         }
 
         private TokenFiltersDescriptor GetTokenFiltersDescriptor(Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters)
@@ -4985,6 +4992,21 @@ namespace Core.Catalog
             return analyzersDescriptor;
         }
 
+        private NormalizersDescriptor GetNormalizersDescriptor(Dictionary<string, Analyzer> normalizers)
+        {
+            var normalizersDescriptor = new NormalizersDescriptor();
+
+            foreach (var normalizer in normalizers)
+            {
+                normalizersDescriptor = normalizersDescriptor.Custom(normalizer.Key,
+                    cn => cn
+                        .CharFilters(normalizer.Value.char_filter)
+                        .Filters(normalizer.Value.filter));
+            }
+
+            return normalizersDescriptor;
+        }
+
         private TokenizersDescriptor GetTokenizersDesctiptor(Dictionary<string, Tokenizer> tokenizers)
         {
             TokenizersDescriptor tokenizersDescriptor = new TokenizersDescriptor();
@@ -5035,16 +5057,18 @@ namespace Core.Catalog
             out Dictionary<string, Analyzer> analyzers,
             out Dictionary<string, CustomProperty> customProperties,
             out Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters,
-            out Dictionary<string, Tokenizer> tokenizers)
+            out Dictionary<string, Tokenizer> tokenizers,
+            out Dictionary<string, Analyzer> normalizers)
         {
             analyzers = new Dictionary<string, Analyzer>();
             customProperties = new Dictionary<string, CustomProperty>();
             filters = new Dictionary<string, ElasticSearch.Searcher.Settings.Filter>();
             tokenizers = new Dictionary<string, Tokenizer>();
+            normalizers = new Dictionary<string, Analyzer>();
 
             if (languages != null)
             {
-                GetAnalyzersWithLowercase(languages, out analyzers, out customProperties, out filters, out tokenizers);
+                GetAnalyzersWithLowercase(languages, out analyzers, out customProperties, out filters, out tokenizers, out normalizers);
 
                 var defaultCharFilter = new List<string>() { "html_strip" };
 
@@ -5079,27 +5103,40 @@ namespace Core.Catalog
             out Dictionary<string, Analyzer> analyzers,
             out Dictionary<string, CustomProperty> customProperties,
             out Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters,
-            out Dictionary<string, Tokenizer> tokenizers)
+            out Dictionary<string, Tokenizer> tokenizers,
+            out Dictionary<string, Analyzer> normalizers)
         {
+            normalizers = new Dictionary<string, Analyzer>();
+
             GetAnalyzersAndFiltersFromConfiguration(languages, out analyzers, out customProperties, out filters, out tokenizers);
 
             // we always want a lowercase analyzer
             // we always want "autocomplete" ability
             analyzers.Add(DEFAULT_LOWERCASE_ANALYZER,
-                new Analyzer()
+                new Analyzer
                 {
                     tokenizer = "keyword",
                     char_filter = new List<string>()
                     {
-                            "html_strip"
+                        "html_strip"
                     },
                     filter = new List<string>()
                     {
-                            "lowercase",
-                            "asciifolding"
+                        "lowercase",
+                        "asciifolding"
                     }
-                }
-            );
+                });
+            // Normalizers are almost the same as analyzer, so I'd say there is no need to change naming.
+            normalizers.Add(DEFAULT_LOWERCASE_ANALYZER,
+                new Analyzer
+                {
+                    tokenizer = "keyword",
+                    filter = new List<string>()
+                    {
+                        "lowercase",
+                        "asciifolding"
+                    }
+                });
         }
 
         private void GetAnalyzersAndFiltersFromConfiguration(
