@@ -86,9 +86,9 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AdapterNotExists)]
         static public KalturaSmsAdapterProfile Update(long id, KalturaSmsAdapterProfile objectToUpdate)
         {
+            objectToUpdate.Id = id;
             objectToUpdate.ValidateForUpdate();
             var contextData = KS.GetContextData();
-            objectToUpdate.Id = id;
 
             Func<SmsAdapterProfile, GenericResponse<SmsAdapterProfile>> addFunc = (SmsAdapterProfile smsAdapterProfile) =>
                 SmsManager.Instance.Update(contextData, smsAdapterProfile);
