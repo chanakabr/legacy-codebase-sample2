@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using ApiObjects;
 using ApiObjects.BulkUpload;
@@ -3232,7 +3232,7 @@ namespace Core.Catalog
             );
 
             query = WrapQueryIfEpgV3Feature(query);
-            
+
             return new SearchDescriptor<NestEpg>()
                             .Index(index)
                             .Size(_maxResults)
@@ -3439,7 +3439,7 @@ namespace Core.Catalog
         {
             string alias = NamingHelper.GetChannelPercolatorIndexAlias(_partnerId);
             var indexName = NamingHelper.GetChannelPercolatorIndex(_partnerId, indexDate);
-            this.SwitchIndexAlias(indexName, alias, shouldSwitchIndexAlias, shouldDeleteOldIndices);
+            this.SwitchIndexAlias(indexName, alias, shouldDeleteOldIndices, shouldSwitchIndexAlias);
         }
 
         public void InsertMedias(Dictionary<int, Dictionary<int, Media>> groupMedias, DateTime indexDate)
