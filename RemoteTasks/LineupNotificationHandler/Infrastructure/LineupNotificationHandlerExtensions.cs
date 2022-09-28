@@ -26,7 +26,7 @@ namespace LineupNotificationHandler.Infrastructure
         public static IServiceCollection AddLineupNotificationHandlerDependencies(this IServiceCollection serviceCollection)
             => serviceCollection
                 // use overload with delegate to be able to replace implementation (ex: in unit tests)
-                .AddSingleton<IEpgV2PartnerConfigurationManager>(serviceProvider => EpgV2PartnerConfigurationManager.Instance)
+                .AddSingleton<IEpgPartnerConfigurationManager>(serviceProvider => EpgPartnerConfigurationManager.Instance)
                 .AddSingleton<IIotClient>(serviceProvider => IotGrpcClientWrapper.IotClient.Instance)
                 .AddSingleton<IGeneralPartnerConfigManager, GeneralPartnerConfigManager>()
                 .AddSingleton<IGeneralPartnerConfigRepository, ApiDAL>()

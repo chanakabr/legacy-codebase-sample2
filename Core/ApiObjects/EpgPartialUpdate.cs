@@ -5,6 +5,7 @@ namespace ApiObjects
     public class EpgPartialUpdate
     {
         public ulong EpgId { get; set; }
+        public string DocumentId { get; set; }
 
         public DateTime StartDate { get; set; }
 

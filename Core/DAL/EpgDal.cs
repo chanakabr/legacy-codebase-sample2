@@ -16,6 +16,7 @@ namespace Tvinci.Core.DAL
     public interface IEpgDal
     {
         IEnumerable<EpgCB> GetEpgDocs(IEnumerable<string> documentIds, bool isNewEpgIngestEnabled);
+        List<EpgChannelObj> GetAllEpgChannelObjectsList(int GroupID, List<string> channelExternalIds);
     }
 
     public class EpgDal : BaseDal, IEpgDal
@@ -349,7 +350,7 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
-        public static List<EpgChannelObj> GetAllEpgChannelObjectsList(int GroupID, List<string> channelExternalIds)
+        public List<EpgChannelObj> GetAllEpgChannelObjectsList(int GroupID, List<string> channelExternalIds)
         {
             var sp = new StoredProcedure("Get_AllEpgChannelsList");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");

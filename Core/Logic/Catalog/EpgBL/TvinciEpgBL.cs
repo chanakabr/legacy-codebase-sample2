@@ -14,6 +14,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Core.Api;
+using Core.GroupManagers;
 using TVinciShared;
 
 namespace EpgBL
@@ -1151,9 +1153,9 @@ namespace EpgBL
         public List<string> GetEpgsCBKeys(int groupId, IEnumerable<long> epgIds, IEnumerable<LanguageObj> langCodes, bool isAddAction)
         {
             var result = new List<string>();
-            var isNewEpgIngestEnabled = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EPG_INGEST_V2);
+            var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(groupId);
 
-            if (isNewEpgIngestEnabled && !isAddAction)
+            if (epgFeatureVersion != EpgFeatureVersion.V1 && !isAddAction)
             {
                 var indexManager = Core.Catalog.IndexManagerFactory.Instance.GetIndexManager(groupId);
                  //using the new EPG ingest the document id has a suffix cintaining the bulk upload that inserted it

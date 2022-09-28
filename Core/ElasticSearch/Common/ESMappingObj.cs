@@ -13,6 +13,7 @@ namespace ElasticSearch.Common
         protected string m_sName;
 
         public bool ttlEnabled;
+        public string parentDocumentType;
 
         public ESMappingObj(string sName) {
             m_sName = sName;
@@ -47,6 +48,11 @@ namespace ElasticSearch.Common
             if (ttlEnabled)
             {
                 sb.Append("\"_ttl\": {\"enabled\": true },");
+            }
+            
+            if (!string.IsNullOrEmpty(parentDocumentType))
+            {
+                sb.Append("\"_parent\": {\"type\": \""+parentDocumentType+"\" },");
             }
 
             if (m_oRouting != null)

@@ -69,8 +69,11 @@ namespace ApiObjects.SearchObjects
 
         [JsonProperty()]
         [DataMember]
+        [Obsolete("use EpgFeatureVersion inistead")]
         public bool isEpgV2 = false;
 
+        public EpgFeatureVersion EpgFeatureVersion = EpgFeatureVersion.V1;
+        
         [JsonProperty()]
         [DataMember]
         public string permittedWatchRules

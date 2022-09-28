@@ -68,8 +68,7 @@ namespace ApiLogic.Tests.Catalog.Helpers
         {
             var languages = GetLanguages();
             _groupSettingsManagerMock.Setup(x => x.DoesGroupUsesTemplates(GroupId)).Returns(true);
-            _groupsFeaturesMock.Setup(x => x.GetGroupFeatureStatus(GroupId, GroupFeature.EPG_INGEST_V2)).Returns(false);
-
+            _groupSettingsManagerMock.Setup(x => x.GetEpgFeatureVersion(GroupId)).Returns(EpgFeatureVersion.V1);
             var epgAssetMultilingualMutator = new EpgAssetMultilingualMutator(_catalogPartnerConfigManagerMock.Object, _groupSettingsManagerMock.Object, _groupsFeaturesMock.Object);
             var isAllowedToFallback = epgAssetMultilingualMutator.IsAllowedToFallback(GroupId, languages);
             
@@ -81,7 +80,7 @@ namespace ApiLogic.Tests.Catalog.Helpers
         {
             var languages = GetLanguages();
             _groupSettingsManagerMock.Setup(x => x.DoesGroupUsesTemplates(GroupId)).Returns(true);
-            _groupsFeaturesMock.Setup(x => x.GetGroupFeatureStatus(GroupId, GroupFeature.EPG_INGEST_V2)).Returns(true);
+            _groupSettingsManagerMock.Setup(x => x.GetEpgFeatureVersion(GroupId)).Returns(EpgFeatureVersion.V2);
             _catalogPartnerConfigManagerMock.Setup(x => x.GetCatalogConfig(GroupId)).Returns(new GenericResponse<CatalogPartnerConfig>());
 
             var epgAssetMultilingualMutator = new EpgAssetMultilingualMutator(_catalogPartnerConfigManagerMock.Object, _groupSettingsManagerMock.Object, _groupsFeaturesMock.Object);
@@ -96,7 +95,7 @@ namespace ApiLogic.Tests.Catalog.Helpers
         {
             var languages = GetLanguages();
             _groupSettingsManagerMock.Setup(x => x.DoesGroupUsesTemplates(GroupId)).Returns(true);
-            _groupsFeaturesMock.Setup(x => x.GetGroupFeatureStatus(GroupId, GroupFeature.EPG_INGEST_V2)).Returns(true);
+            _groupSettingsManagerMock.Setup(x => x.GetEpgFeatureVersion(GroupId)).Returns(EpgFeatureVersion.V2);
             var genericResponse = new GenericResponse<CatalogPartnerConfig>(new Status(eResponseStatus.OK), new CatalogPartnerConfig {EpgMultilingualFallbackSupport = epgMultilingualFallbackSupport});
             _catalogPartnerConfigManagerMock.Setup(x => x.GetCatalogConfig(GroupId)).Returns(genericResponse);
 
@@ -111,7 +110,7 @@ namespace ApiLogic.Tests.Catalog.Helpers
         {
             var languages = GetLanguages();
             _groupSettingsManagerMock.Setup(x => x.DoesGroupUsesTemplates(GroupId)).Returns(true);
-            _groupsFeaturesMock.Setup(x => x.GetGroupFeatureStatus(GroupId, GroupFeature.EPG_INGEST_V2)).Returns(true);
+            _groupSettingsManagerMock.Setup(x => x.GetEpgFeatureVersion(GroupId)).Returns(EpgFeatureVersion.V2);
             var genericResponse = new GenericResponse<CatalogPartnerConfig>(new Status(eResponseStatus.OK), new CatalogPartnerConfig {EpgMultilingualFallbackSupport = true});
             _catalogPartnerConfigManagerMock.Setup(x => x.GetCatalogConfig(GroupId)).Returns(genericResponse);
 
@@ -127,7 +126,7 @@ namespace ApiLogic.Tests.Catalog.Helpers
             var languages = GetLanguages();
             var defaultLanguage = languages.Single(l => l.Value.IsDefault).Value;
             _groupSettingsManagerMock.Setup(x => x.DoesGroupUsesTemplates(GroupId)).Returns(true);
-            _groupsFeaturesMock.Setup(x => x.GetGroupFeatureStatus(GroupId, GroupFeature.EPG_INGEST_V2)).Returns(true);
+            _groupSettingsManagerMock.Setup(x => x.GetEpgFeatureVersion(GroupId)).Returns(EpgFeatureVersion.V2);
             var genericResponse = new GenericResponse<CatalogPartnerConfig>(new Status(eResponseStatus.OK), new CatalogPartnerConfig {EpgMultilingualFallbackSupport = true});
             _catalogPartnerConfigManagerMock.Setup(x => x.GetCatalogConfig(GroupId)).Returns(genericResponse);
             
@@ -162,7 +161,7 @@ namespace ApiLogic.Tests.Catalog.Helpers
             var languages = GetLanguages();
             var defaultLanguage = languages.Single(l => l.Value.IsDefault).Value;
             _groupSettingsManagerMock.Setup(x => x.DoesGroupUsesTemplates(GroupId)).Returns(true);
-            _groupsFeaturesMock.Setup(x => x.GetGroupFeatureStatus(GroupId, GroupFeature.EPG_INGEST_V2)).Returns(true);
+            _groupSettingsManagerMock.Setup(x => x.GetEpgFeatureVersion(GroupId)).Returns(EpgFeatureVersion.V2);
             var genericResponse = new GenericResponse<CatalogPartnerConfig>(new Status(eResponseStatus.OK), new CatalogPartnerConfig {EpgMultilingualFallbackSupport = true});
             _catalogPartnerConfigManagerMock.Setup(x => x.GetCatalogConfig(GroupId)).Returns(genericResponse);
             

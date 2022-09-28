@@ -1,8 +1,12 @@
-﻿using ApiObjects;
+﻿using ApiLogic.EPG;
+using ApiObjects;
+using ApiObjects.Epg;
 using ApiObjects.Response;
 using ApiObjects.User;
 using Core.GroupManagers;
+using Phx.Lib.Log;
 using System;
+using System.Reflection;
 using WebAPI.ClientManagers;
 using WebAPI.Clients;
 using WebAPI.Exceptions;
@@ -17,6 +21,8 @@ namespace WebAPI.Controllers
     [Service("partner")]
     public class PartnerController : IKalturaController
     {
+        private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         /// <summary>
         /// Returns a login session for external system (like OVP)
         /// </summary>
@@ -54,16 +60,34 @@ namespace WebAPI.Controllers
                 PartnerManager.Instance.AddPartner(partnerBol, partnerSetupBol, userId);
 
             KalturaPartner result = null;
-            try
+            result = ClientUtils.GetResponseFromWS<KalturaPartner, Partner>(addPartnerFunc);
+            Func<Group, Status> addGroupFunc = (Group group) => GroupsManager.Instance.AddBaseConfiguration(result.Id.Value, group);
+            ClientUtils.GetResponseStatusFromWS(addGroupFunc, partnerSetup.BasePartnerConfiguration);
+
+            // setup epg version for new partner
+            if (partnerSetup.BasePartnerConfiguration.EpgFeatureVersion > 1)
             {
-                result = ClientUtils.GetResponseFromWS<KalturaPartner, Partner>(addPartnerFunc);
-                Func<Group, Status> addGroupFunc = (Group group) => GroupsManager.Instance.AddBaseConfiguration(result.Id.Value, group);
-                ClientUtils.GetResponseStatusFromWS(addGroupFunc, partnerSetup.BasePartnerConfiguration);
+                _logger.Info($"gpt epgFeatureVersion:[{partnerSetup.BasePartnerConfiguration.EpgFeatureVersion}], enabling as required");
+
+                var epgFeatureVersion = (EpgFeatureVersion)partnerSetup.BasePartnerConfiguration.EpgFeatureVersion.Value;
+                if (epgFeatureVersion == EpgFeatureVersion.V2)
+                {
+                    var isSuccess = EpgPartnerConfigurationManager.Instance
+                        .SetEpgV2Configuration(partner.Id.Value, new EpgV2PartnerConfiguration { IsEpgV2Enabled = true });
+                    _logger.Info($"enabling epg version 2 isSuccess:[{isSuccess}]");
+                }
+                else if (epgFeatureVersion == EpgFeatureVersion.V3)
+                {
+                    var isSuccess = EpgPartnerConfigurationManager.Instance
+                        .SetEpgV3Configuration(partner.Id.Value, new EpgV3PartnerConfiguration { IsEpgV3Enabled = true });
+                    _logger.Info($"enabling epg version 3 isSuccess:[{isSuccess}]");
+                }
+                else
+                {
+                    throw new ArgumentException($"epgFeatureVersion suppored from [1-3], got:[{partnerSetup.BasePartnerConfiguration.EpgFeatureVersion}]");
+                }
             }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
+
             return result;
         }
 
@@ -88,7 +112,7 @@ namespace WebAPI.Controllers
             {
                 ErrorUtils.HandleClientException(ex);
             }
-            
+
             return result;
         }
 

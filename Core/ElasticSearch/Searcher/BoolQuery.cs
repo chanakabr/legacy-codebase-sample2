@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Thrift.Protocol;
 
 namespace ElasticSearch.Searcher
 {
@@ -26,6 +27,39 @@ namespace ElasticSearch.Searcher
             }
         }
 
+        public static BoolQuery Should(params IESTerm[] terms)
+        {
+            var q = new BoolQuery();
+            foreach (var esTerm in terms)
+            {
+                q.AddShould(esTerm);
+            }
+            
+            return q;
+        }
+        
+        public static BoolQuery Must(params IESTerm[] terms)
+        {
+            var q = new BoolQuery();
+            foreach (var esTerm in terms)
+            {
+                q.AddMust(esTerm);
+            }
+            
+            return q;
+        }
+        
+        public static BoolQuery MustNot(params IESTerm[] terms)
+        {
+            var q = new BoolQuery();
+            foreach (var esTerm in terms)
+            {
+                q.AddMustNot(esTerm);
+            }
+            
+            return q;
+        }
+        
         public BoolQuery()
         {
             must = new List<IESTerm>();
@@ -55,6 +89,25 @@ namespace ElasticSearch.Searcher
                 should.Add(oChild);
             }
         }
+        
+        public BoolQuery AddShould(IESTerm term)
+        {
+            should.Add(term);
+            return this;
+        }
+
+        public BoolQuery AddMustNot(IESTerm term)
+        {
+            mustNot.Add(term);
+            return this;
+        }
+
+        public BoolQuery AddMust(IESTerm term)
+        {
+            must.Add(term);
+            return this;
+        }
+
 
         public void AddNot(IESTerm child)
         {
@@ -71,31 +124,20 @@ namespace ElasticSearch.Searcher
             if (this.IsEmpty())
                 return string.Empty;
 
-            StringBuilder queryString = new StringBuilder();
+            var queryString = new StringBuilder();
             
             queryString.Append("{ \"bool\": {");
 
-            bool hasMustClause = false;
-            bool hasShouldClause = false;
+            var hasMustClause = false;
+            var hasShouldClause = false;
 
             if (must.Count != 0)
             {
                 queryString.Append(" \"must\": [ ");
-                List<string> terms = new List<string>();
+                var terms = GetNonEmptyTerms(must);
+                hasMustClause = terms.Any();
 
-                foreach (IESTerm term in must)
-                {
-                    if (term != null && !term.IsEmpty())
-                    {
-                        hasMustClause = true;
-                        terms.Add(term.ToString());
-                    }
-                }
-
-                if (terms.Count > 0)
-                {
-                    queryString.Append(terms.Aggregate((current, next) => current + "," + next));
-                }
+                if (hasMustClause) { queryString.Append(terms.Aggregate((current, next) => current + "," + next)); }
 
                 queryString.Append("]");
             }
@@ -106,44 +148,20 @@ namespace ElasticSearch.Searcher
                     queryString.Append(",");
 
                 queryString.Append(" \"should\": [ ");
-                List<string> terms = new List<string>();
-
-                foreach (IESTerm term in should)
-                {
-                    if (term != null && !term.IsEmpty())
-                    {
-                        hasShouldClause = true;
-                        terms.Add(term.ToString());
-                    }
-                }
-
-                if (terms.Count > 0)
-                    queryString.Append(terms.Aggregate((current, next) => current + "," + next));
+                var terms = GetNonEmptyTerms(should);
+                hasShouldClause = terms.Any();
+                if (hasShouldClause) { queryString.Append(terms.Aggregate((current, next) => current + "," + next)); }
 
                 queryString.Append("]");
             }
 
             if (mustNot.Count > 0)
             {
-                if (hasMustClause || hasShouldClause)
-                {
-                    queryString.Append(",");
-                }
+                if (hasMustClause || hasShouldClause) { queryString.Append(","); }
 
                 queryString.Append(" \"must_not\": [ ");
-                List<string> terms = new List<string>();
-
-                foreach (IESTerm term in mustNot)
-                {
-                    if (term != null && !term.IsEmpty())
-                    {
-                        terms.Add(term.ToString());
-                    }
-                }
-
-                if (terms.Count > 0)
-                    queryString.Append(terms.Aggregate((current, next) => current + "," + next));
-
+                var terms = GetNonEmptyTerms(mustNot);
+                if (terms.Count > 0) { queryString.Append(terms.Aggregate((current, next) => current + "," + next)); }
                 queryString.Append("]");
             }
 
@@ -155,6 +173,21 @@ namespace ElasticSearch.Searcher
             queryString.Append(" }}");
 
             return queryString.ToString();
+        }
+
+        private List<string> GetNonEmptyTerms(List<IESTerm> source)
+        {
+            var terms = new List<string>();
+
+            foreach (var term in source)
+            {
+                if (term != null && !term.IsEmpty())
+                {
+                    terms.Add(term.ToString());
+                }
+            }
+
+            return terms;
         }
     }
 

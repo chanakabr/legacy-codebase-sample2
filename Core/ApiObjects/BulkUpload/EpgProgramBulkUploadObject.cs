@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using OTT.Lib.MongoDB;
 
 namespace ApiObjects.BulkUpload
 {
     [Serializable]
+    [MongoDbIgnoreExternalElements]
     // TODO: Move and merge with all other epg objects    
     public class EpgProgramBulkUploadObject : IBulkUploadObject, IAffectedObject, IEquatable<EpgProgramBulkUploadObject>
     {
+        public long BulkUploadId { get; set; }
         public programme ParsedProgramObject { get; set; }
         public List<EpgCB> EpgCbObjects { get; set; }
         public ulong EpgId { get; set; }
@@ -22,7 +25,7 @@ namespace ApiObjects.BulkUpload
         public DateTime UpdateDate { get; set; }
         public bool IsAutoFill { get; set; }
         public IDictionary<string, string> CbDocumentIdsMap { get; set; }
-
+        
         ulong IAffectedObject.ObjectId
         {
             get => EpgId;

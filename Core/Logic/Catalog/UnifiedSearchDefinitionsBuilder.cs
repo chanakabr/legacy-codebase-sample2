@@ -25,6 +25,7 @@ using Core.Api.Managers;
 using Core.Catalog.CatalogManagement;
 using ElasticSearch.Utils;
 using OrderDir = ApiObjects.SearchObjects.OrderDir;
+using Core.GroupManagers;
 
 namespace Core.Catalog
 {
@@ -361,7 +362,7 @@ namespace Core.Catalog
                     definitions.shouldReturnExtendedSearchResult = true;
                 }
 
-                definitions.isEpgV2 = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(request.m_nGroupID, GroupFeature.EPG_INGEST_V2);
+                definitions.EpgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(request.m_nGroupID);
 
                 #endregion
 

@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using OTT.Lib.MongoDB;
 
 namespace ApiObjects.BulkUpload
 {
@@ -22,6 +23,7 @@ namespace ApiObjects.BulkUpload
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    [MongoDbIgnoreExternalElements]
     public class BulkUploadProgramAssetResult : BulkUploadResult
     {
         [Obsolete("Use ObjectId instead of ProgramId. ProgramId is always null.")]

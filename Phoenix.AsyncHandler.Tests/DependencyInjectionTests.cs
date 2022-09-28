@@ -24,7 +24,7 @@ namespace Phoenix.AsyncHandler.Tests
                 .AddLogging()
                 .AddDependencies()
                 // EpgV2PartnerConfigurationManager instance has dependency from CouchBase which requires configuration.
-                .Replace(ServiceDescriptor.Singleton(new Mock<IEpgV2PartnerConfigurationManager>().Object))
+                .Replace(ServiceDescriptor.Singleton(new Mock<IEpgPartnerConfigurationManager>().Object))
                 .Replace(ServiceDescriptor.Singleton((Func<IServiceProvider, IKafkaProducerClientFactory>) (
                     provider => new KafkaProducerClientFactory(
                         new Dictionary<string, string>(),

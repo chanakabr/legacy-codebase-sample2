@@ -5,6 +5,13 @@ using ProtoBuf;
 
 namespace ApiObjects
 {
+    public enum EpgFeatureVersion
+    {
+        V1 = 1,
+        V2 = 2,
+        V3 = 3,
+    }
+
     public enum eHttpRequestType
     {
         Post,

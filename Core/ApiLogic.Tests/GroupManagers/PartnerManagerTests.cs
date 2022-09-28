@@ -61,6 +61,7 @@ namespace ApiLogic.Tests.GroupManagers
                                              Mock.Of<IUserPartnerRepository>(), 
                                              Mock.Of<IBillingPartnerRepository>(), 
                                              Mock.Of<ICAPartnerRepository>(),
+                                             Mock.Of<IGroupSettingsManager>(),
                                              Mock.Of<IIndexManagerFactory>());
 
 
@@ -103,7 +104,7 @@ namespace ApiLogic.Tests.GroupManagers
 
             partnerDal.Setup(x => x.GetPartners()).Returns(new List<ApiObjects.Partner>(0));
             partnerDal.Setup(x => x.AddPartner(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<long>())).Returns(1);
-            partnerDal.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<long>())).Returns(true);
+            partnerDal.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<long>(), It.IsAny<bool>())).Returns(true);
             pricingPartnerRepository.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
             userPartnerRepository.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
             billingPartnerRepository.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
@@ -134,6 +135,7 @@ namespace ApiLogic.Tests.GroupManagers
                                             userPartnerRepository.Object,
                                             billingPartnerRepository.Object, 
                                             caPartnerRepository.Object,
+                                            Mock.Of<IGroupSettingsManager>(),
                                             Mock.Of<IIndexManagerFactory>());
 
 
@@ -153,7 +155,7 @@ namespace ApiLogic.Tests.GroupManagers
 
             partnerDal.Setup(x => x.GetPartners()).Returns(new List<ApiObjects.Partner>(0));
             partnerDal.Setup(x => x.AddPartner(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<long>())).Returns(1);
-            partnerDal.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<string>(),It.IsAny<long>())).Returns(true);
+            partnerDal.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<string>(),It.IsAny<long>(), It.IsAny<bool>())).Returns(true);
             pricingPartnerRepository.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
             userPartnerRepository.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
             billingPartnerRepository.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
@@ -177,6 +179,7 @@ namespace ApiLogic.Tests.GroupManagers
                                             userPartnerRepository.Object,
                                             billingPartnerRepository.Object,
                                             caPartnerRepository.Object,
+                                            Mock.Of<IGroupSettingsManager>(),
                                             Mock.Of<IIndexManagerFactory>());
 
             Assert.Throws<Exception>(() => manager.AddPartner(fixture.Create<ApiObjects.Partner>(),
@@ -208,6 +211,7 @@ namespace ApiLogic.Tests.GroupManagers
                                              Mock.Of<IUserPartnerRepository>(),
                                              Mock.Of<IBillingPartnerRepository>(),
                                              Mock.Of<ICAPartnerRepository>(),
+                                             Mock.Of<IGroupSettingsManager>(),
                                              Mock.Of<IIndexManagerFactory>());
 
             var partner = new ApiObjects.Partner { Id = 1, Name = "Abc" };
@@ -231,7 +235,7 @@ namespace ApiLogic.Tests.GroupManagers
             var partnerDal = new Mock<IPartnerDal>();
             partnerDal.Setup(x => x.GetPartners()).Returns(new List<ApiObjects.Partner>(0));
             partnerDal.Setup(x => x.AddPartner(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<long>())).Returns(partnerId);
-            partnerDal.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<long>())).Returns(true);
+            partnerDal.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<long>(), It.IsAny<bool>())).Returns(true);
             pricingPartnerRepository.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
             userPartnerRepository.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
             billingPartnerRepository.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
@@ -263,6 +267,7 @@ namespace ApiLogic.Tests.GroupManagers
                                             userPartnerRepository.Object,
                                             billingPartnerRepository.Object, 
                                             caPartnerRepository.Object,
+                                            Mock.Of<IGroupSettingsManager>(),
                                             Mock.Of<IIndexManagerFactory>());
 
 
@@ -295,6 +300,7 @@ namespace ApiLogic.Tests.GroupManagers
             var userPartnerRepository = new Mock<IUserPartnerRepository>();
             var billingPartnerRepository = new Mock<IBillingPartnerRepository>();
             var caPartnerRepository = new Mock<ICAPartnerRepository>();
+            var groupSettingsManager = new Mock<IGroupSettingsManager>();
 
             var applicationConfiguration = new Mock<IApplicationConfiguration>();
             applicationConfiguration.Setup(x => x.RabbitConfiguration).Returns(_rabbitConfiguration);
@@ -312,6 +318,7 @@ namespace ApiLogic.Tests.GroupManagers
             billingPartnerRepository.Setup(x => x.DeletePartnerBasicDataDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
             userPartnerRepository.Setup(x => x.DeletePartnerDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
             pricingPartnerRepository.Setup(x => x.DeletePartnerBasicDataDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+            groupSettingsManager.Setup(x => x.GetEpgFeatureVersion(It.IsAny<int>())).Returns(ApiObjects.EpgFeatureVersion.V1);
 
             var manager = new PartnerManager(partnerDal.Object,
                                             rabbitConnection.Object,
@@ -325,6 +332,7 @@ namespace ApiLogic.Tests.GroupManagers
                                             userPartnerRepository.Object,
                                             billingPartnerRepository.Object,
                                             caPartnerRepository.Object,
+                                            groupSettingsManager.Object,
                                             Mock.Of<IIndexManagerFactory>());
 
             var response = manager.Delete(fixture.Create<long>(), fixture.Create<int>());
@@ -348,6 +356,7 @@ namespace ApiLogic.Tests.GroupManagers
             var userPartnerRepository = new Mock<IUserPartnerRepository>();
             var billingPartnerRepository = new Mock<IBillingPartnerRepository>();
             var caPartnerRepository = new Mock<ICAPartnerRepository>();
+            var groupSettingsManager = new Mock<IGroupSettingsManager>();
 
             var applicationConfiguration = new Mock<IApplicationConfiguration>();
             applicationConfiguration.Setup(x => x.RabbitConfiguration).Returns(_rabbitConfiguration);
@@ -367,6 +376,7 @@ namespace ApiLogic.Tests.GroupManagers
             userPartnerRepository.Setup(x => x.DeletePartnerDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
             pricingPartnerRepository.Setup(x => x.DeletePartnerBasicDataDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
             partnerDal.Setup(x => x.DeletePartnerBasicDataDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+            groupSettingsManager.Setup(x => x.GetEpgFeatureVersion(It.IsAny<int>())).Returns(ApiObjects.EpgFeatureVersion.V1);
             var manager = new PartnerManager(partnerDal.Object,
                                             rabbitConnection.Object,
                                             applicationConfiguration.Object,
@@ -377,6 +387,7 @@ namespace ApiLogic.Tests.GroupManagers
                                             userPartnerRepository.Object,
                                             billingPartnerRepository.Object,
                                             caPartnerRepository.Object,
+                                            groupSettingsManager.Object,
                                             Mock.Of<IIndexManagerFactory>());
 
             var response = manager.Delete(fixture.Create<long>(), fixture.Create<int>());

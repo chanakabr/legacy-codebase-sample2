@@ -255,6 +255,7 @@ namespace ElasticSearchHandler.Updaters
                 var epgPartialUpdateEsObjects = epgs.Select(e => new EpgPartialUpdate
                     {
                         EpgId = e.EpgID,
+                        DocumentId = e.DocumentId,
                         Language = e.Language,
                         StartDate = e.StartDate,
                         EpgPartial = new EpgPartial

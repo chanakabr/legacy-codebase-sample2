@@ -11,6 +11,7 @@ namespace ElasticSearch.Common
     public class ESBulkRequestObj<T>
     {
         public eOperation Operation { get; set; }
+        public string ParentDocumentID { get; set; }
         public string index { get; set; }
         public string type { get; set; }
         public T docID { get; set; }

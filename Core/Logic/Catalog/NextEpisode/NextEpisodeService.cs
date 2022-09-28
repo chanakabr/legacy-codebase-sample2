@@ -12,6 +12,7 @@ using GroupsCacheManager;
 using System.Collections.Generic;
 using System.Linq;
 using ApiObjects.Catalog;
+using Core.GroupManagers;
 
 namespace ApiLogic.Catalog.NextEpisode
 {
@@ -231,7 +232,8 @@ namespace ApiLogic.Catalog.NextEpisode
                     filterPhrase = filterTree,
                     extraReturnFields = new HashSet<string>() {$"metas.{episodeNumberMetaName}", $"metas.{seasonNumberMetaName}"},
                     shouldReturnExtendedSearchResult = true,
-                    isEpgV2 = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EPG_INGEST_V2)
+                    EpgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(groupId),
+                    
                 };
 
                 ((BooleanLeaf)filterTree).shouldLowercase = true;

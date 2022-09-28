@@ -165,7 +165,7 @@ namespace ElasticSearch.Common
             return result;
         }
 
-        public bool Reindex(string source, string destination, string filterQuery = null)
+        public bool Reindex(string source, string destination, string filterQuery = null, string scriptFileName = null, int? batchSize = null)
         {
             bool result = false;
             /*
@@ -177,6 +177,9 @@ namespace ElasticSearch.Common
               },
               "dest": {
                 "index": "new_twitter"
+              },
+              "script": {
+                "file": "scriptFileName"
               }
             }
              */
@@ -184,24 +187,7 @@ namespace ElasticSearch.Common
             {
                 string url = $"{baseUrl}/_reindex";
 
-                var jsonBody = new JObject();
-
-                jsonBody["source"] = new JObject();
-                jsonBody["source"]["index"] = source;
-
-                if (!string.IsNullOrEmpty(filterQuery))
-                {
-                    var filterQueryObject = JObject.Parse(filterQuery);
-                    jsonBody["source"]["query"] = new JObject();
-                    jsonBody["source"]["query"]["filtered"] = filterQueryObject;
-                }
-
-                jsonBody["dest"] = new JObject();
-                jsonBody["dest"]["index"] = destination;
-
-
-
-
+                JObject jsonBody = BuildReindexRequestBody(source, destination, filterQuery, scriptFileName, batchSize);
                 string body = jsonBody.ToString();
                 int status = 0;
                 string postResult = SendPostHttpReq(url, ref status, string.Empty, string.Empty, body, true);
@@ -222,11 +208,10 @@ namespace ElasticSearch.Common
                         "failures": []
                       }
                      */
+                    log.Debug($"Reindex of {source} to {destination} result is {postResult}");
                     var jsonResult = JObject.Parse(postResult);
 
-                    log.Debug($"Reindex of {source} to {destination} result is {postResult}");
-
-                    result = true;
+                    result = status >= 200;
                 }
             }
             catch (Exception ex)
@@ -236,6 +221,32 @@ namespace ElasticSearch.Common
             }
 
             return result;
+        }
+        
+        private static JObject BuildReindexRequestBody(string source, string destination, string filterQuery, string scriptFileName, int? batchSize)
+        {
+            var jsonBody = new JObject();
+
+            jsonBody["source"] = new JObject();
+            jsonBody["source"]["index"] = source;
+
+            if (!string.IsNullOrEmpty(filterQuery))
+            {
+                var filterQueryObject = JObject.Parse(filterQuery);
+                jsonBody["source"]["query"] = new JObject();
+                jsonBody["source"]["query"]["filtered"] = filterQueryObject;
+            }
+
+            if (batchSize.HasValue)
+            {
+                jsonBody["source"]["size"] = batchSize.Value;
+            }
+
+            jsonBody["dest"] = new JObject();
+            jsonBody["dest"]["index"] = destination;
+            jsonBody["script"] = new JObject();
+            jsonBody["script"]["file"] = scriptFileName;
+            return jsonBody;
         }
 
         public bool UpdateIndexRefreshInterval(string index, string refreshInterval)
@@ -700,13 +711,15 @@ namespace ElasticSearch.Common
 
         #region Insert, Update, Delete
 
-        public bool InsertRecord(string sIndex, string sType, string sID, string sDoc)
+        public bool InsertRecord(string sIndex, string sType, string sID, string sDoc, string sRouting=null)
         {
             bool bRes = false;
             if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType) || string.IsNullOrEmpty(sDoc) || string.IsNullOrEmpty(sID))
                 return bRes;
 
-            string sUrl = string.Format("{0}/{1}/{2}/{3}", baseUrl, sIndex, sType, sID);
+            var routingQuery = string.IsNullOrEmpty(sRouting) ? "" : $"?routing={sRouting}";
+            string sUrl = string.Format("{0}/{1}/{2}/{3}{4}", baseUrl, sIndex, sType, sID, routingQuery);
+            
             int nStatus = 0;
 
             string sRes = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sDoc, true);
@@ -937,6 +950,11 @@ namespace ElasticSearch.Common
                     if (!string.IsNullOrEmpty(bulk.ttl))
                     {
                         requestString.AppendFormat(", \"_ttl\": \"{0}\"", bulk.ttl);
+                    }
+                    
+                    if (!string.IsNullOrEmpty(bulk.ParentDocumentID))
+                    {
+                        requestString.AppendFormat(", \"_parent\": \"{0}\"", bulk.ParentDocumentID);
                     }
 
                     requestString.AppendFormat(",\"_id\" : \"{0}\"", bulk.docID);

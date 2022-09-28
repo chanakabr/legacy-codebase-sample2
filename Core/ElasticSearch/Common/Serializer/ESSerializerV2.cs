@@ -1005,7 +1005,8 @@ namespace ElasticSearch.Common
                                                 MappingAnalyzers specificLanguageAnalyzers, 
                                                 MappingAnalyzers defaultLanguageAnalyzers, 
                                                 string mappingName, 
-                                                bool shouldAddRouting)
+                                                bool shouldAddRouting,
+                                                string transactionParentDocumentType = null)
         {
             string normalIndexAnalyzer = specificLanguageAnalyzers.normalIndexAnalyzer;
             string normalSearchAnalyzer = specificLanguageAnalyzers.normalSearchAnalyzer;
@@ -1045,6 +1046,9 @@ namespace ElasticSearch.Common
 
             // EPG should have TTL enabled
             mappingObj.ttlEnabled = true;
+            
+            
+            
 
             if (shouldAddRouting)
             {
@@ -1069,6 +1073,21 @@ namespace ElasticSearch.Common
                 mappingObj.SetRouting(routing);
             }
 
+            #region Add transactional features (required for epgv3)
+            // if a parent document type was sent it means we want transactional features for epg v3 so we need to add this mapping.
+            if (!string.IsNullOrEmpty(transactionParentDocumentType))
+            {
+                // Parent document is used by epg v3 to mimic transactions and on other version should be sent as null value
+                mappingObj.parentDocumentType = transactionParentDocumentType;
+                mappingObj.AddProperty(new BasicMappingPropertyV2()
+                {
+                    name = Utils.ES_DOCUMENT_TRANSACTIONAL_STATUS_FIELD_NAME,
+                    index = eMappingIndex.not_analyzed,
+                    type = eESFieldType.STRING,
+                });
+            }
+            #endregion
+            
             #region Add basic type mappings - (e.g. epg_id, group_id, description etc)
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {

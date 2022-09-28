@@ -18034,7 +18034,7 @@ namespace Core.ConditionalAccess
                         }
                         catch (Exception ex)
                         {
-
+                            log.Error("error while handle task",ex);
                         }
 
                         break;

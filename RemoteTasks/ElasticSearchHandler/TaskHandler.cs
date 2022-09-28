@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Web;
 using ApiObjects;
+using Core.Api;
 
 namespace ElasticSearchHandler
 {
@@ -31,9 +32,10 @@ namespace ElasticSearchHandler
                 if (request.Action == ApiObjects.eAction.Rebuild)
                 {
                     #region Rebuild
-                    if (request.Type == ApiObjects.eObjectType.EPG && GroupSettingsManager.Instance.DoesGroupUseNewEpgIngest(request.GroupID))
+                    var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(request.GroupID);
+                    if (request.Type == ApiObjects.eObjectType.EPG && epgFeatureVersion != EpgFeatureVersion.V1)
                     {
-                        throw new Exception("Rebuild index is not required / supported for EPG Ingest V2");
+                        throw new Exception($"Rebuild index is required / supported for EPG Ingest V1 only, partner is set to:[{epgFeatureVersion}]");
                     }
 
                     Synchronizer.CouchbaseSynchronizer synchronizer = new Synchronizer.CouchbaseSynchronizer(0, 3600);

@@ -33,14 +33,14 @@ namespace ElasticSearch.Common
         bool IncrementField(string index, string type, string docId, string field);
         bool IndexExists(string sIndex);
         bool InsertMapping(string sIndex, string sMapName, string sMappingObject);
-        bool InsertRecord(string sIndex, string sType, string sID, string sDoc);
+        bool InsertRecord(string sIndex, string sType, string sID, string sDoc, string sRouting = null);
         List<ESIndex> ListIndices(string indexQueryPattern = "*");
         List<ESIndex> ListIndicesByAlias(string aliasQueryPattern = "*");
         bool MappingExists(string sIndex, string sType);
         string MultiGetIDs<T>(string sIndex, string sType, List<T> oIDsList, int nNumOfResultsToReturn);
         string MultiSearch(string sIndex, string sType, List<string> lSearchQueries, List<string> lRouting);
         bool PartialUpdate(string index, string type, string docId, string partialUpdate);
-        bool Reindex(string source, string destination, string filterQuery = null);
+        bool Reindex(string source, string destination, string filterQuery = null, string scriptFileName = null, int? batchSize = null);
         bool RemoveAlias(string index, string alias);
         string Search(string index, string indexType, ref string searchQuery, List<string> routing = null, string preference = null);
         List<string> SearchPercolator(string sIndex, string sType, ref string sDoc);

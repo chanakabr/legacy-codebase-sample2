@@ -6,6 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using OTT.Lib.Kafka;
+using Phx.Lib.Appconfig;
+using Microsoft.Extensions.Logging;
 
 namespace EventBus.Kafka
 {

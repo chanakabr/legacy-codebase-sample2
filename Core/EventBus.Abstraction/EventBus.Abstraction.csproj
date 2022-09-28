@@ -13,18 +13,9 @@
     <TargetFrameworks>netcoreapp3.1;net48</TargetFrameworks>
   </PropertyGroup>
   
-   <!-- This is a workaround that will allow TVM website project to build, if you read this an 
-  TVM no longer exist please remove this <Target Name="GetTargetPath"... element-->
-  <Target Name="GetTargetPath" Returns="@(_FakeOutputPath)">
-    <ItemGroup>
-      <_FakeOutputPath Include="$(MSBuildProjectDirectory)\$(PackageOutputPath)\$(AssemblyName).UNK" />
-    </ItemGroup>
-  </Target>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.0" />
+    <PackageReference Include="OTT.Lib.Kafka" Version="1.5.1" />
     <PackageReference Include="Phx.Lib.Log" Version="1.2.4" />
-    <PackageReference Include="OTT.Lib.Kafka" Version="1.4.2" />
   </ItemGroup>
 
 </Project>

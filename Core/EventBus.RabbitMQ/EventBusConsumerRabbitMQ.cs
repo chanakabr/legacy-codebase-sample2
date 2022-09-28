@@ -17,9 +17,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using Microsoft.AspNetCore.Http;
 
 namespace EventBus.RabbitMQ
 {
+    internal class DummyHttpContextAccessor : IHttpContextAccessor
+    {
+        public HttpContext HttpContext { get; set; }
+    }
+
     public class EventBusConsumerRabbitMQ : IEventBusConsumer, IDisposable
     {
         private readonly ConcurrentDictionary<string, HashSet<SubscriptionInfo>> _Handlers;
@@ -33,7 +39,7 @@ namespace EventBus.RabbitMQ
         private List<IModel> _ConsumerChannels;
         private string _QueueName;
         private bool _Disposed;
-        private IEnumerable<int> _PartnerIds;
+        private List<int> _PartnerIds;
 
         public static EventBusConsumerRabbitMQ GetInstanceUsingTCMConfiguration(
             IServiceProvider serviceProvide,
@@ -67,7 +73,22 @@ namespace EventBus.RabbitMQ
             _ExchangeName = exchangeName;
             _QueueName = queueName;
             _ConcurrentConsumers = concurrentConsumers;
-            _PartnerIds = partnerIds;
+            _PartnerIds = partnerIds?.ToList();
+        }
+
+        public IEnumerable<int> GetDedicatedConsumerPartnerIds()
+        {
+            return _PartnerIds;
+        }
+
+        public void AddNewPartnerDedicatedConsumer(int partnerId) 
+        {
+            _PartnerIds.Add(partnerId);
+            for (var i = 0; i < _ConcurrentConsumers; i++)
+            {
+                _Logger.Info($"Connecting new partner:[{partnerId}] consumer:[{i + 1}/{_ConcurrentConsumers}]");
+                ConnectConsumer(partnerId);
+            }
         }
 
         public Task StartConsumerAsync(CancellationToken cancellationToken)
@@ -321,6 +342,13 @@ namespace EventBus.RabbitMQ
 
                     SetLoggingContext(serviceEvent);
                     SetEventContext(scope, serviceEvent);
+
+                    #if !NETFRAMEWORK
+                    // if we use net core we configure the httpContextAccessor with dummy context for layred cache to have request cache
+                    var dummyCtxAccessor = new DummyHttpContextAccessor { HttpContext = new DefaultHttpContext() };
+                    System.Web.HttpContext.Configure(dummyCtxAccessor);
+                    #endif
+
                     using (var mon = new KMonitor(Events.eEvent.EVENT_API_START, serviceEvent?.GroupId.ToString(), eventName, serviceEvent?.RequestId))
                     {
                         mon.Database = eventName;

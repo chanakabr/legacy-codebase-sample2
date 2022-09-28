@@ -736,7 +736,7 @@ namespace ElasticSearch.Common
 
         public virtual string CreateEpgMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap, List<string> lTags,
             HashSet<string> metasToPad,
-            MappingAnalyzers specificLanguageAnalyzers, MappingAnalyzers defaultLanguageAnalyzers, string mappingName, bool shouldAddRouting)
+            MappingAnalyzers specificLanguageAnalyzers, MappingAnalyzers defaultLanguageAnalyzers, string mappingName, bool shouldAddRouting, string transactionParentDocumentType = null)
         {
             string normalIndexAnalyzer = specificLanguageAnalyzers.normalIndexAnalyzer;
             string normalSearchAnalyzer = specificLanguageAnalyzers.normalSearchAnalyzer;
@@ -1050,12 +1050,16 @@ namespace ElasticSearch.Common
             return sRecord.ToString();
         }
 
-        public virtual string SerializeEpgObject(EpgCB oEpg, string suffix = null, bool doesGroupUsesTemplates = false)
+        public virtual string SerializeEpgObject(EpgCB oEpg, string suffix = null, bool isOpc = false, string documentTransactionalStatus = null)
         {
             StringBuilder sRecord = new StringBuilder();
 
             sRecord.Append("{ ");
-            SerializeEPGBody(EpgMapper.MapEpg(oEpg, doesGroupUsesTemplates), sRecord, suffix);
+            if (!string.IsNullOrEmpty(documentTransactionalStatus))
+            {
+                sRecord.Append($"\"{Utils.ES_DOCUMENT_TRANSACTIONAL_STATUS_FIELD_NAME}\":\"{documentTransactionalStatus}\",");
+            }
+            SerializeEPGBody(EpgMapper.MapEpg(oEpg, isOpc), sRecord, suffix);
             sRecord.Append(" }");
 
             return sRecord.ToString();

@@ -11,16 +11,16 @@ namespace ElasticSearch.Common.Mappers
             return Map(epg, doesGroupUsesTemplates, true);
         }
 
-        public static EpgEs MapRecording(EpgCB epg, bool doesGroupUsesTemplates)
+        public static EpgEs MapRecording(EpgCB epg, bool isOpc)
         {
-            return Map(epg, doesGroupUsesTemplates, false);
+            return Map(epg, isOpc, false);
         }
 
-        private static EpgEs Map(EpgCB epg, bool doesGroupUsesTemplates, bool withRouting)
+        private static EpgEs Map(EpgCB epg, bool isOpc, bool withRouting)
         {
             var epgEs = new EpgEs();
             epgEs.EpgID = epg.EpgID;
-            epgEs.GroupId = doesGroupUsesTemplates ? epg.ParentGroupID : epg.GroupID;
+            epgEs.GroupId = isOpc ? epg.ParentGroupID : epg.GroupID;
             epgEs.ChannelId = epg.ChannelID;
             epgEs.IsActive = epg.IsActive;
             epgEs.StartDate = epg.StartDate;

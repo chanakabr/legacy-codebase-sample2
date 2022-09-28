@@ -35,6 +35,7 @@ namespace Core.GroupManagers
                                UsersDal.Instance,
                                BillingDAL.Instance,
                                ConditionalAccessDAL.Instance,
+                               GroupSettingsManager.Instance,
                                IndexManagerFactory.Instance),
             LazyThreadSafetyMode.PublicationOnly);
 
@@ -52,7 +53,9 @@ namespace Core.GroupManagers
         private readonly IUserPartnerRepository _userPartnerRepository;
         private readonly IBillingPartnerRepository _billingPartnerRepository;
         private readonly ICAPartnerRepository _caPartnerRepository;
+        private readonly IGroupSettingsManager _groupSettingsManager;
         private readonly IIndexManagerFactory _indexManagerFactory;
+        
 
         public PartnerManager(IPartnerDal partnerDal,
                               IRabbitConnection rabbitConnection,
@@ -64,6 +67,7 @@ namespace Core.GroupManagers
                               IUserPartnerRepository userPartnerRepository,
                               IBillingPartnerRepository billingPartnerRepository,
                               ICAPartnerRepository caPartnerRepository,
+                              IGroupSettingsManager groupSettingsManager,
                               IIndexManagerFactory indexManagerFactory)
         {
             _partnerDal = partnerDal;
@@ -76,6 +80,7 @@ namespace Core.GroupManagers
             _userPartnerRepository = userPartnerRepository;
             _billingPartnerRepository = billingPartnerRepository;
             _caPartnerRepository = caPartnerRepository;
+            _groupSettingsManager = groupSettingsManager;
             _indexManagerFactory = indexManagerFactory;
         }
 
@@ -284,7 +289,7 @@ namespace Core.GroupManagers
 
             Task<Status>[] taskArray = {
                 Task<Status>.Factory.StartNew(() => CreateMediaIndex(indexManager, catalogGroupCache, languages)),
-                Task<Status>.Factory.StartNew(() => CreateEpgIndex(indexManager, catalogGroupCache, languages)),
+                Task<Status>.Factory.StartNew(() => CreateEpgIndex(groupId, indexManager, catalogGroupCache, languages)),
                 Task<Status>.Factory.StartNew(() => CreateRecordingIndex(indexManager, catalogGroupCache, languages)),
                 Task<Status>.Factory.StartNew(() => CreateTagsIndex(indexManager)),
                 Task<Status>.Factory.StartNew(() => CreateChannelsIndex(indexManager)),
@@ -315,12 +320,18 @@ namespace Core.GroupManagers
             }
         }
 
-        private Status CreateEpgIndex(IIndexManager indexManager, CatalogGroupCache catalogGroupCache, List<LanguageObj> languages)
+        private Status CreateEpgIndex(long groupId, IIndexManager indexManager, CatalogGroupCache catalogGroupCache, List<LanguageObj> languages)
         {
             try
             {
+                var epgFeatureVersion = _groupSettingsManager.GetEpgFeatureVersion((int)groupId);
+                if (epgFeatureVersion != EpgFeatureVersion.V1)
+                {
+                    Log.InfoFormat($"epg feature version is set to:[{epgFeatureVersion}] skipping creation of index, it will be created on the first ingest");
+                    return Status.Ok;
+                }
+                
                 var epgIndex = indexManager.SetupEpgIndex(DateTime.UtcNow, isRecording: false);
-
                 if (string.IsNullOrEmpty(epgIndex))
                 {
                     Log.Warn("create epg index returned with an empty index name");

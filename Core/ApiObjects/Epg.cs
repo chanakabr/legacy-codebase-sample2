@@ -11,7 +11,7 @@ namespace ApiObjects
 {
     [Serializable]
     [JsonObject(Id = "epg")]
-    public class EpgCB : IBulkUploadObject
+    public class EpgCB : IBulkUploadObject, IEquatable<EpgCB>
     {
         #region DataMembers
 
@@ -446,6 +446,11 @@ namespace ApiObjects
             metaValue = metaValue.PadLeft(7, '0');
 
             return metaValue;
+        }
+
+        public bool Equals(EpgCB other)
+        {
+            return this.EpgID == other.EpgID && this.EpgIdentifier.Equals(other.EpgIdentifier) && this.Language.Equals(other.Language, StringComparison.OrdinalIgnoreCase);
         }
 
         public override string ToString()

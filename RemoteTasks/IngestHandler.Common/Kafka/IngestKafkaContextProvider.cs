@@ -3,15 +3,15 @@ using OTT.Lib.Kafka;
 
 namespace IngestHandler.Common.Kafka
 {
-    public class IngestKafkaContextProvider : IKafkaContextProvider
+    public class EventBusKafkaContextProvider : IKafkaContextProvider
     {
         private readonly IEventContext _eventContext;
 
-        public IngestKafkaContextProvider(IEventContext eventContext)
+        public EventBusKafkaContextProvider(IEventContext eventContext)
         {
             _eventContext = eventContext;
         }
-        
+
         public string GetRequestId()
         {
             return _eventContext.RequestId;
@@ -26,5 +26,20 @@ namespace IngestHandler.Common.Kafka
         {
             return _eventContext.UserId;
         }
+    }
+
+    public class ManualKafkaContextProvider : IKafkaContextProvider, IEventContext
+    {
+        public string RequestId { get; set; }
+        public long? PartnerId { get; set; }    
+        public long? UserId { get; set; }
+
+        public long? GroupId => PartnerId;
+
+        public ManualKafkaContextProvider() { }
+       
+        public long? GetPartnerId() => PartnerId;
+        public string GetRequestId() => RequestId;
+        public long? GetUserId() => UserId;
     }
 }

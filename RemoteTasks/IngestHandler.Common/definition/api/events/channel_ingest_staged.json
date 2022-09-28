@@ -1,0 +1,26 @@
+{
+  "$id": "http://user.schema.bson.com",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ChannelIngestStaged",
+  "type": "object",
+  "description": "an event used to indicate that the data for a given EPG channel has been staged and ready for ingest",
+  "properties": {
+    "partnerId": {
+      "type": "integer",
+      "format": "int64",
+      "x-key-field": true
+    },
+    "linearChannelId": {
+      "type": "integer",
+      "format": "int64",
+      "x-key-field": true,
+      "description": "this is the linearMediaId aka: KalturaLiveAsset id representing the channel that contains the EPG programs"
+    },
+    "bulkUploadId": {
+      "type": "integer",
+      "format": "int64",
+      "description": "the id of the bulk upload containing the file that was uploaded for the ingest process"
+    }
+  }
+}
+

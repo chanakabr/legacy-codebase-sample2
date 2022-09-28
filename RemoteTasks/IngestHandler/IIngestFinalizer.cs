@@ -7,6 +7,7 @@ namespace IngestHandler
 {
     public interface IIngestFinalizer
     {
-        Task FinalizeEpgIngest(BulkUploadIngestEvent serviceEvent, BulkUpload bulkUpload, BulkUploadResultsDictionary relevantResults);
+        Task FinalizeEpgV2Ingest(BulkUploadIngestEvent serviceEvent, BulkUpload bulkUpload, BulkUploadResultsDictionary relevantResults);
+        Task FinalizeEpgV3Ingest(int partnerId, BulkUpload bulkUpload);
     }
 }

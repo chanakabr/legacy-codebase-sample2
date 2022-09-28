@@ -46,6 +46,7 @@ using OrderDir = ApiObjects.SearchObjects.OrderDir;
 using TvinciCache;
 using MoreLinq;
 using System.Globalization;
+using Core.Api;
 using ApiLogic.IndexManager;
 using ApiLogic.IndexManager.Models;
 using ApiLogic.IndexManager.Sorting;
@@ -54,10 +55,12 @@ using ElasticSearch.Searcher;
 using ElasticSearch.Utils;
 using Force.DeepCloner;
 using BoolQuery = Nest.BoolQuery;
+using System.Runtime.Caching;
+using ApiLogic.IndexManager.Transaction;
 
 namespace Core.Catalog
 {
-    public class IndexManagerV7 : IIndexManager
+    public partial class IndexManagerV7 : IIndexManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -192,7 +195,7 @@ namespace Core.Catalog
             return catalogGroupCache;
         }
 
-        private bool VerifyGroupUsesTemplates()
+        private bool IsOpc()
         {
             return _catalogManager.DoesGroupUsesTemplates(_partnerId);
         }
@@ -226,7 +229,7 @@ namespace Core.Catalog
             Dictionary<int, LanguageObj> languagesMap = null;
 
             var metasToPad = new HashSet<string>();
-            if (VerifyGroupUsesTemplates())
+            if (IsOpc())
             {
                 var catalogGroupCache = GetCatalogGroupCache();
                 languagesMap = new Dictionary<int, LanguageObj>(catalogGroupCache.LanguageMapById);
@@ -284,13 +287,13 @@ namespace Core.Catalog
 
         public string SetupEpgV2Index(string indexNmae)
         {
-            EnsureEpgIndexExist(indexNmae);
+            EnsureEpgIndexExist(indexNmae, EpgFeatureVersion.V2);
             SetNoRefresh(indexNmae);
 
             return indexNmae;
         }
 
-        public bool ForceRefreshEpgV2Index(string indexName)
+        public bool ForceRefreshEpgIndex(string indexName)
         {
             var response = _elasticClient.Indices.Refresh(new RefreshRequest(indexName));
             return response.IsValid;
@@ -319,9 +322,9 @@ namespace Core.Catalog
             try
             {
                 var numOfShards = _applicationConfiguration.EPGIngestV2Configuration.NumOfShardsForCompactedIndex.Value;
-                EnsureEpgIndexExist(futureIndexName, numOfShards);
+                EnsureEpgIndexExist(futureIndexName, EpgFeatureVersion.V2, numOfShards);
                 SetNoRefresh(futureIndexName);
-                EnsureEpgIndexExist(pastIndexName, numOfShards);
+                EnsureEpgIndexExist(pastIndexName, EpgFeatureVersion.V2, numOfShards);
                 SetNoRefresh(pastIndexName);
 
                 var epgV2Indices = _elasticClient.GetIndicesPointingToAlias(globalEpgAlias);
@@ -419,7 +422,7 @@ namespace Core.Catalog
 
                 var bulkRequests = new List<NestEsBulkRequest<NestEpg>>();
 
-                var isRegionalizationEnabled = VerifyGroupUsesTemplates()
+                var isRegionalizationEnabled = IsOpc()
                     ? GetCatalogGroupCache().IsRegionalizationEnabled
                     : GetGroupManager().isRegionalizationEnabled;
 
@@ -431,7 +434,7 @@ namespace Core.Catalog
                 _catalogManager.GetLinearChannelValues(epgObjects, _partnerId, _ => { });
 
                 var alias = NamingHelper.GetEpgIndexAlias(_partnerId);
-                var isIngestV2 = _groupSettingsManager.DoesGroupUseNewEpgIngest(_partnerId);
+                var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(_partnerId);
 
                 // Create dictionary by languages
                 foreach (var language in languages)
@@ -449,16 +452,16 @@ namespace Core.Catalog
                     {
                         // Epg V2 has multiple indices connected to the global alias {groupID}_epg
                         // in that case we need to use the specific date alias for each epg item to update
-                        if (isIngestV2)
+                        if (epgFeatureVersion == EpgFeatureVersion.V2)
                         {
-                            alias = EnsureEpgIndexExistsForEpg(epgCb, createdAliases);
+                            alias = EnsureEpgIndexExistsForEpg(epgCb, epgFeatureVersion, createdAliases);
                         }
 
                         UpdateEpgLinearMediaId(linearChannelSettings, epgCb);
                         UpdateEpgRegions(epgCb, linearChannelsRegionsMapping);
 
                         var expiry = GetEpgExpiry(epgCb);
-                        var epg = NestDataCreator.GetEpg(epgCb, language.ID, true, VerifyGroupUsesTemplates(), expiry);
+                        var epg = NestDataCreator.GetEpg(epgCb, language.ID, true, IsOpc(), expiry);
                         var nestEsBulkRequest = GetEpgBulkRequest(alias, epg);
                         bulkRequests.Add(nestEsBulkRequest);
 
@@ -537,14 +540,14 @@ namespace Core.Catalog
             }
         }
 
-        private string EnsureEpgIndexExistsForEpg(EpgCB epgCb, HashSet<string> createdAliases)
+        private string EnsureEpgIndexExistsForEpg(EpgCB epgCb, EpgFeatureVersion epgFeatureVersion, HashSet<string> createdAliases)
         {
             var alias = _namingHelper.GetDailyEpgIndexName(_partnerId, epgCb.StartDate.Date);
 
             // in case alias already created, no need to check in ES
             if (!createdAliases.Contains(alias))
             {
-                EnsureEpgIndexExist(alias);
+                EnsureEpgIndexExist(alias, epgFeatureVersion);
                 createdAliases.Add(alias);
             }
 
@@ -637,11 +640,12 @@ namespace Core.Catalog
             }
 
             var query = _channelQueryBuilder.GetChannelQuery(channel);
-
             if (query == null)
             {
                 return false;
             }
+
+            query.Query = WrapQueryIfEpgV3Feature(query.Query);
 
             foreach (string alias in aliases)
             {
@@ -853,7 +857,7 @@ namespace Core.Catalog
                         var langId = GetLanguageIdByCode(program.Language);
 
                         var expiry = GetEpgExpiry(program);
-                        var buildEpg = NestDataCreator.GetEpg(program, langId, isOpc: VerifyGroupUsesTemplates(), expiryUnixTimeStamp: expiry);
+                        var buildEpg = NestDataCreator.GetEpg(program, langId, isOpc: IsOpc(), expiryUnixTimeStamp: expiry);
                         var bulkRequest = GetEpgBulkRequest(draftIndexName, buildEpg);
                         bulkRequests.Add(bulkRequest);
 
@@ -1062,21 +1066,24 @@ namespace Core.Catalog
             log.Debug(
                 $"GetCurrentProgramsByDate > index alias:[{index}] found, searching current programs, minStartDate:[{fromDate}], maxEndDate:[{toDate}]");
 
+
+            var queryDescriptor = new QueryContainerDescriptor<NestEpg>();
+            QueryContainer query = queryDescriptor.Bool(b=>b.Filter(f => f
+                .Bool(b1 =>
+                    b1.Must(
+                        m => m.Terms(t => t.Field(f1 => f1.ChannelID).Terms(channelId)),
+                        m => m.DateRange(dr => dr.Field(f1 => f1.StartDate).LessThanOrEquals(toDate)),
+                        m => m.DateRange(dr => dr.Field(f1 => f1.EndDate).GreaterThanOrEquals(fromDate))
+                    )
+                )
+            ));
+
+            query = WrapQueryIfEpgV3Feature(query);
+
             var searchResponse = _elasticClient.Search<NestEpg>(s => s
                 .Index(index)
                 .Size(_maxResults)
-                .Query(q => q
-                    .Bool(b => b.Filter(f => f
-                            .Bool(b1 =>
-                                b1.Must(
-                                    m => m.Terms(t => t.Field(f1 => f1.ChannelID).Terms(channelId)),
-                                    m => m.DateRange(dr => dr.Field(f1 => f1.StartDate).LessThanOrEquals(toDate)),
-                                    m => m.DateRange(dr => dr.Field(f1 => f1.EndDate).GreaterThanOrEquals(fromDate))
-                                )
-                            )
-                        )
-                    )
-                )
+                .Query(_=> query)
             );
 
 
@@ -1212,11 +1219,13 @@ namespace Core.Catalog
         
         private ISearchResponse<NestBaseAsset> Search(UnifiedSearchNestBuilder builder)
         {
+            var query = builder.GetQuery();
+            query = WrapQueryIfEpgV3Feature(query);
             var searchResponse = _elasticClient.Search<NestBaseAsset>(searchRequest =>
             {
                 searchRequest
                     .Index(Indices.Index(builder.GetIndices()))
-                    .Query(queryGetter => builder.GetQuery())
+                    .Query(queryGetter => query)
                     .Sort(sortGetter => builder.GetSort())
                     ;
 
@@ -1623,7 +1632,7 @@ namespace Core.Catalog
                         };
                     }
                 }
-                else if (assetType == eAssetTypes.EPG && definitions.isEpgV2)
+                else if (assetType == eAssetTypes.EPG && definitions.EpgFeatureVersion != EpgFeatureVersion.V1)
                 {
                     // TODO: make sure this is functioning
                     var epgCouchbaseKey = doc.Fields.Value<string>("cb_document_id");
@@ -1968,10 +1977,14 @@ namespace Core.Catalog
                 ));
                 must.Add(endDateQueryDescriptor);
                 must.Add(nestBaseQueries.GetIsActiveTerm());
-                
+
+                var queryDescriptor = new QueryContainerDescriptor<NestEpg>();
+                var query = queryDescriptor.Bool(b => b.Must(must.ToArray()));
+                query = WrapQueryIfEpgV3Feature(query);
+
                 s = epgBuilder.SetSizeAndFrom<NestEpg>(s);
                 s.Index(Indices.Index(epgBuilder.GetIndices()));
-                s.Query(q => q.Bool(b => b.Must(must.ToArray())));
+                s.Query(q => query);
                 s.Source(source => source.Includes(include => include.Field(f1 => f1.Name)));
                 if (routing.Any())
                 {
@@ -3192,7 +3205,9 @@ namespace Core.Catalog
             }
 
             // Checking is new Epg ingest here as well to avoid calling GetEpgCBKey if we already called elastic and have all required coument Ids
-            var isNewEpgIngest = _groupsFeatures.GetGroupFeatureStatus(_partnerId, GroupFeature.EPG_INGEST_V2);
+            var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(_partnerId);
+            var isNewEpgIngest = epgFeatureVersion != EpgFeatureVersion.V1;
+
             if (isNewEpgIngest)
             {
                 return searchResponse.Fields.Select(x => x.Value<string>("cb_document_id")).Distinct().ToList();
@@ -3204,23 +3219,26 @@ namespace Core.Catalog
 
         private SearchDescriptor<NestEpg> GetChannelProgramsSearchDescriptor(int channelId, DateTime startDate, DateTime endDate, List<ESOrderObj> esOrderObjs, string index)
         {
+            var queryDescriptor = new QueryContainerDescriptor<NestEpg>();
+            var query = queryDescriptor.Bool(b => b.Filter(f => f
+                    .Bool(b1 =>
+                        b1.Must(
+                            m => m.Terms(t => t.Field(f1 => f1.ChannelID).Terms(channelId)),
+                            m => m.DateRange(dr => dr.Field(f1 => f1.StartDate).GreaterThanOrEquals(startDate)),
+                            m => m.DateRange(dr => dr.Field(f1 => f1.EndDate).LessThanOrEquals(endDate))
+                        )
+                    )
+                )
+            );
+
+            query = WrapQueryIfEpgV3Feature(query);
+            
             return new SearchDescriptor<NestEpg>()
                             .Index(index)
                             .Size(_maxResults)
                             .Fields(sf => sf.Fields(fs => fs.CouchbaseDocumentId, fs => fs.EpgID))
                             .Source(false)
-                            .Query(q => q
-                                .Bool(b => b.Filter(f => f
-                                        .Bool(b1 =>
-                                            b1.Must(
-                                                m => m.Terms(t => t.Field(f1 => f1.ChannelID).Terms(channelId)),
-                                                m => m.DateRange(dr => dr.Field(f1 => f1.StartDate).GreaterThanOrEquals(startDate)),
-                                                m => m.DateRange(dr => dr.Field(f1 => f1.EndDate).LessThanOrEquals(endDate))
-                                            )
-                                        )
-                                    )
-                                )
-                            )
+                            .Query(q => query)
                             .Sort(x =>
                             {
                                 return BuildSortDescriptorFromOrderObj(esOrderObjs);
@@ -3252,10 +3270,8 @@ namespace Core.Catalog
             bool isAddAction)
         {
             var result = new List<string>();
-            var isNewEpgIngestEnabled =
-                _groupsFeatures.GetGroupFeatureStatus(_partnerId, GroupFeature.EPG_INGEST_V2);
-
-            if (isNewEpgIngestEnabled && !isAddAction)
+            var epgFeatureVersion = _groupSettingsManager.GetEpgFeatureVersion(_partnerId);
+            if (epgFeatureVersion != EpgFeatureVersion.V1 && !isAddAction)
             {
                 // elasticsearch holds the current document in CB so we go there to take it
                 return GetEpgCBDocumentIdsByEpgId(epgIds, langCodes);
@@ -3563,7 +3579,7 @@ namespace Core.Catalog
                 var indexName = indexDate.HasValue
                     ? NamingHelper.GetChannelPercolatorIndex(_partnerId, indexDate.Value)
                     : channelPercolatorIndexAlias;
-                var groupChannels = IndexManagerCommonHelpers.GetGroupChannels(_partnerId, _channelManager, VerifyGroupUsesTemplates(), ref channelIds);
+                var groupChannels = IndexManagerCommonHelpers.GetGroupChannels(_partnerId, _channelManager, IsOpc(), ref channelIds);
 
                 var bulkRequests = new List<NestEsBulkRequest<NestPercolatedQuery>>();
                 int sizeOfBulk = 50;
@@ -3774,7 +3790,7 @@ namespace Core.Catalog
                 indexName = NamingHelper.GetNewRecordingIndexName(_partnerId, indexDate);
             }
 
-            CreateNewEpgIndex(indexName, isRecording);
+            CreateNewEpgV1Index(indexName, isRecording);
             return indexName;
         }
 
@@ -3861,7 +3877,7 @@ namespace Core.Catalog
                         var epg = NestDataCreator.GetEpg(epgCb,
                             language.ID,
                             true,
-                            VerifyGroupUsesTemplates(),
+                            IsOpc(),
                             recordingId: recordingId,
                             expiryUnixTimeStamp: expiry);
 
@@ -3921,7 +3937,7 @@ namespace Core.Catalog
 
             Dictionary<long, List<int>> linearChannelsRegionsMapping = null;
 
-            if (VerifyGroupUsesTemplates() ? GetCatalogGroupCache().IsRegionalizationEnabled : GetGroupManager().isRegionalizationEnabled)
+            if (IsOpc() ? GetCatalogGroupCache().IsRegionalizationEnabled : GetGroupManager().isRegionalizationEnabled)
             {
                 linearChannelsRegionsMapping = RegionManager.Instance.GetLinearMediaRegions(_partnerId);
             }
@@ -3939,8 +3955,7 @@ namespace Core.Catalog
                 return false;
             }
 
-            var isIngestV2 = _groupSettingsManager.DoesGroupUseNewEpgIngest(_partnerId);
-
+            var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(_partnerId);
             _catalogManager.GetLinearChannelValues(epgObjects, _partnerId, _ => { });
 
             List<string> epgChannelIds = epgObjects.Select(item => item.ChannelID.ToString()).ToList();
@@ -3960,7 +3975,7 @@ namespace Core.Catalog
                     {
                         // Epg V2 has multiple indices connected to the gloabl alias {groupID}_epg
                         // in that case we need to use the specific date alias for each epg item to update
-                        if (!isRecording && isIngestV2)
+                        if (!isRecording && epgFeatureVersion == EpgFeatureVersion.V2)
                         {
                             alias = _namingHelper.GetDailyEpgIndexName(_partnerId, epgCb.StartDate.Date);
                         }
@@ -3985,7 +4000,7 @@ namespace Core.Catalog
                         var epg = NestDataCreator.GetEpg(epgCb,
                             language.ID,
                             true,
-                            VerifyGroupUsesTemplates(),
+                            IsOpc(),
                             expiry,
                             recodingId);
 
@@ -4385,11 +4400,11 @@ namespace Core.Catalog
 
             // Temporarily - assume success
             bool temporaryResult = true;
-            List<LanguageObj> languages = VerifyGroupUsesTemplates() ? GetCatalogGroupCache().LanguageMapById.Values.ToList() : GetGroupManager().GetLangauges();
+            List<LanguageObj> languages = IsOpc() ? GetCatalogGroupCache().LanguageMapById.Values.ToList() : GetGroupManager().GetLangauges();
 
             // Epg V2 has multiple indices connected to the gloabl alias {groupID}_epg
             // in that case we need to use the specific date alias for each epg item to update
-            bool isIngestV2 = _groupSettingsManager.DoesGroupUseNewEpgIngest(_partnerId);
+            var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(_partnerId);
 
             var alias = NamingHelper.GetEpgIndexAlias(_partnerId);
             if (!_elasticClient.Indices.Exists(alias).Exists)
@@ -4412,7 +4427,7 @@ namespace Core.Catalog
                     {
                         // Epg V2 has multiple indices connected to the gloabl alias {groupID}_epg
                         // in that case we need to use the specific date alias for each epg item to update
-                        if (isIngestV2)
+                        if (epgFeatureVersion == EpgFeatureVersion.V2)
                         {
                             alias = _namingHelper.GetDailyEpgIndexName(_partnerId, epg.StartDate.Date);
                         }
@@ -4524,17 +4539,17 @@ namespace Core.Catalog
 
         private List<LanguageObj> GetLanguages()
         {
-            return VerifyGroupUsesTemplates() ? GetCatalogGroupCache().LanguageMapById.Values.ToList(): GetGroupManager().GetLangauges();
+            return IsOpc() ? GetCatalogGroupCache().LanguageMapById.Values.ToList(): GetGroupManager().GetLangauges();
         }
 
         private LanguageObj GetDefaultLanguage()
         {
-            return VerifyGroupUsesTemplates() ? GetCatalogGroupCache().GetDefaultLanguage() : GetGroupManager().GetGroupDefaultLanguage();
+            return IsOpc() ? GetCatalogGroupCache().GetDefaultLanguage() : GetGroupManager().GetGroupDefaultLanguage();
         }
 
         private LanguageObj GetLanguageByCode(string languageCode)
         {
-            return VerifyGroupUsesTemplates()
+            return IsOpc()
                 ? GetCatalogGroupCache().LanguageMapByCode[languageCode]
                 : GetGroupManager().GetLanguage(languageCode);
         }
@@ -4549,7 +4564,7 @@ namespace Core.Catalog
             return GetLanguages().FirstOrDefault(x => x.ID == id);
         }
 
-        private void EnsureEpgIndexExist(string dailyEpgIndexName, int? numberOfShards = null)
+        private void EnsureEpgIndexExist(string dailyEpgIndexName, EpgFeatureVersion epgFeatureVersion, int? numberOfShards = null)
         {
             // TODO it's possible to create new index with mappings and alias in one request,
             // https://www.elastic.co/guide/en/elasticsearch/reference/2.3/indices-create-index.html#mappings
@@ -4559,8 +4574,8 @@ namespace Core.Catalog
             // EPGs could be added to the index without mapping (e.g. from asset.add)
             try
             {
-                AddEmptyIndex(dailyEpgIndexName, numberOfShards);
-                AddAlias(dailyEpgIndexName);
+                AddEmptyIndex(dailyEpgIndexName, epgFeatureVersion, numberOfShards);
+                AddEpgIndexAlias(dailyEpgIndexName);
             }
             catch (Exception e)
             {
@@ -4609,23 +4624,23 @@ namespace Core.Catalog
             }
         }
 
-        private void AddEmptyIndex(string dailyEpgIndexName, int? numOfShards = null)
+        private void AddEmptyIndex(string indexName, EpgFeatureVersion epgFeatureVersion, int? numOfShards = null)
         {
             IndexManagerCommonHelpers.GetRetryPolicy<Exception>().Execute(() =>
             {
-                var isIndexExist = _elasticClient.Indices.Exists(dailyEpgIndexName);
+                var isIndexExist = _elasticClient.Indices.Exists(indexName);
 
                 if (isIndexExist != null && isIndexExist.Exists)
                 {
                     return;
                 }
 
-                log.Info($"creating new index [{dailyEpgIndexName}]");
-                CreateEmptyEpgIndex(dailyEpgIndexName, true, true, REFRESH_INTERVAL_FOR_EMPTY_INDEX_SECONDS, numOfShards: numOfShards);
+                log.Info($"creating new index [{indexName}]");
+                CreateEmptyEpgIndex(indexName, epgFeatureVersion, true, true, REFRESH_INTERVAL_FOR_EMPTY_INDEX_SECONDS, numOfShards: numOfShards);
             });
         }
 
-        private void CreateEmptyEpgIndex(string newIndexName, bool shouldBuildWithReplicas = true,
+        private void CreateEmptyEpgIndex(string newIndexName, EpgFeatureVersion epgFeatureVersion, bool shouldBuildWithReplicas = true,
             bool shouldUseNumOfConfiguredShards = true, int? refreshIntervalSeconds = null, int? numOfShards = null)
         {
             List<LanguageObj> languages = GetLanguages();
@@ -4654,7 +4669,7 @@ namespace Core.Catalog
                 throw new Exception($"failed to get metas and tags");
             }
 
-            var propertiesDescriptor = GetEpgPropertiesDescriptor(languages, metas, tags, metasToPad, analyzers, customProperties);
+            var propertiesDescriptor = GetEpgPropertiesDescriptor(languages, metas, tags, metasToPad, analyzers, epgFeatureVersion, customProperties);
             var createResponse = _elasticClient.Indices.Create(newIndexName,
                 c => c
                     .Settings(settings =>
@@ -4680,9 +4695,9 @@ namespace Core.Catalog
 
                         return settings;
                     })
-                    .Map(x => x.AutoMap<NestEpg>().AutoMap<NestBaseAsset>())
+                    .Map<NestEpg>(x => x.AutoMap<NestEpg>().AutoMap<NestBaseAsset>())
                     .Map(map => map.RoutingField(rf => new RoutingField() { Required = false }).Properties(props => propertiesDescriptor)
-                ));
+                )); ;
 
             isIndexCreated = createResponse != null && createResponse.Acknowledged && createResponse.IsValid;
             if (!isIndexCreated)
@@ -4690,6 +4705,9 @@ namespace Core.Catalog
                 log.Error($"Failed creating index, debug information: {createResponse.DebugInformation}");
                 throw new Exception(string.Format("Failed creating index for index:{0}", newIndexName));
             }
+
+            //TODO: if epgFeatureVersion == v3 add required mapping..
+
         }
 
         private PropertiesDescriptor<NestEpg> GetEpgPropertiesDescriptor(
@@ -4698,6 +4716,7 @@ namespace Core.Catalog
             List<string> tags,
             HashSet<string> metasToPad,
             Dictionary<string, Analyzer> analyzers,
+            EpgFeatureVersion epgFeatureVersion,
             Dictionary<string, CustomProperty> customProperties)
         {
             var propertiesDescriptor = new PropertiesDescriptor<NestEpg>();
@@ -4719,12 +4738,21 @@ namespace Core.Catalog
                 .Date(x => x.Name("end_date"))
                 .Date(x => x.Name("cache_date"))
                 .Date(x => x.Name("create_date"))
+                .Keyword(x => x.Name(n => n.DocumentTransactionalStatus))
                 .Keyword(x => InitializeDefaultTextPropertyDescriptor<string>("crid"))
                 .Keyword(x => InitializeDefaultTextPropertyDescriptor<string>("external_id"))
-                .Keyword(x => x.Name(e => e.CouchbaseDocumentId))
-                ;
+                .Keyword(x => x.Name(e => e.CouchbaseDocumentId));
 
             AddLanguageSpecificMappingToPropertyDescriptor(languages, metas, tags, metasToPad, analyzers, customProperties, propertiesDescriptor);
+
+            // for epg v3 we need to set up the require parent child relation for transactions
+            if (epgFeatureVersion == EpgFeatureVersion.V3)
+            {
+                propertiesDescriptor.Join(j => j
+                    .Name(p => p.Transaction)
+                    .Relations(r => r.Join<NESTEpgTransaction, NestEpg>())
+                );
+            }
 
             return propertiesDescriptor;
         }
@@ -5327,7 +5355,7 @@ namespace Core.Catalog
             metasToPad = new HashSet<string>();
 
             var catalogGroupCache = GetCatalogGroupCache();
-            if (VerifyGroupUsesTemplates() && catalogGroupCache != null)
+            if (IsOpc() && catalogGroupCache != null)
             {
                 try
                 {
@@ -5465,16 +5493,16 @@ namespace Core.Catalog
             return result;
         }
 
-        private void AddAlias(string dailyEpgIndexName)
+        private void AddEpgIndexAlias(string indexName, bool isWriteIndex = false)
         {
             // create alias is idempotent request
             var epgIndexAlias = NamingHelper.GetEpgIndexAlias(_partnerId);
-            log.Info($"creating alias. index [{dailyEpgIndexName}], alias [{epgIndexAlias}]");
+            log.Info($"creating alias. index [{indexName}], alias [{epgIndexAlias}]");
             IndexManagerCommonHelpers.GetRetryPolicy<Exception>().Execute(() =>
             {
-                var putAliasResponse = _elasticClient.Indices.PutAlias(dailyEpgIndexName, epgIndexAlias);
+                var putAliasResponse = _elasticClient.Indices.PutAlias(indexName, epgIndexAlias, i=>i.IsWriteIndex(isWriteIndex));
                 bool isAliasAdded = putAliasResponse != null && putAliasResponse.IsValid;
-                if (!isAliasAdded) throw new Exception($"index set alias failed [{dailyEpgIndexName}], alias [{epgIndexAlias}]");
+                if (!isAliasAdded) throw new Exception($"index set alias failed [{indexName}], alias [{epgIndexAlias}]");
             });
         }
 
@@ -5880,7 +5908,7 @@ namespace Core.Catalog
             }
         }
 
-        private SortProperty GetCurrentLanguageSortProperty(Dictionary<string, CustomProperty> customProperties, LanguageObj language)
+	   private SortProperty GetCurrentLanguageSortProperty(Dictionary<string, CustomProperty> customProperties, LanguageObj language)
         {
             if (customProperties.TryGetValue($"{language.Code}_sort", out var customProperty)
                 && customProperty is SortProperty sortProperty)
@@ -5891,10 +5919,10 @@ namespace Core.Catalog
             return null;
         }
 
-        private void CreateNewEpgIndex(string newIndexName, bool isRecording = false, bool shouldBuildWithReplicas = true, bool shouldUseNumOfConfiguredShards = true,
-            int? refreshInterval = null)
+        private void CreateNewEpgV1Index(string newIndexName, bool isRecording = false, bool shouldBuildWithReplicas = true, bool shouldUseNumOfConfiguredShards = true,
+        	int? refreshInterval = null)
         {
-            CreateEmptyEpgIndex(newIndexName, shouldBuildWithReplicas, shouldUseNumOfConfiguredShards, refreshInterval);
+            CreateEmptyEpgIndex(newIndexName, EpgFeatureVersion.V1, shouldBuildWithReplicas, shouldUseNumOfConfiguredShards, refreshInterval);
         }
 
         private bool SwitchIndexAlias(string newIndexName, string alias, bool shouldDeleteOldIndices, bool shouldSwitchIndex)

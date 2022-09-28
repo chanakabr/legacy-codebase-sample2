@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: epg-v3-rollback-{{ .Values.partner }}-conf
+  namespace: default
+data:
+  appsettings.json: |
+    {
+      "PartnerId": {{ .Values.partner }},
+      "BatchSize": 20000,
+      "OriginalEpgVersion": {{ .Values.original_epg_version }}
+    }

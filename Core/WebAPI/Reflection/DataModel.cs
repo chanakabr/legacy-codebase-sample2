@@ -1041,6 +1041,8 @@ namespace WebAPI.Reflection
                             return "apptokenUserValidationDisabled";
                         case "AutoRefreshAppToken":
                             return "autoRefreshAppToken";
+                        case "EpgFeatureVersion":
+                            return "epgFeatureVersion";
                         case "KsExpirationSeconds":
                             return "ksExpirationSeconds";
                         case "RefreshExpirationForPinLoginSeconds":
@@ -1321,6 +1323,32 @@ namespace WebAPI.Reflection
                             return "status";
                         case "Warnings":
                             return "warnings";
+                    }
+                    break;
+                    
+                case "KalturaBulkUploadSummary":
+                    switch(property.Name)
+                    {
+                        case "Failed":
+                            return "failed";
+                        case "Fatal":
+                            return "fatal";
+                        case "Parsing":
+                            return "parsing";
+                        case "Partial":
+                            return "partial";
+                        case "Pending":
+                            return "pending";
+                        case "Processed":
+                            return "processed";
+                        case "Processing":
+                            return "processing";
+                        case "Queued":
+                            return "queued";
+                        case "Success":
+                            return "success";
+                        case "Uploaded":
+                            return "uploaded";
                     }
                     break;
                     

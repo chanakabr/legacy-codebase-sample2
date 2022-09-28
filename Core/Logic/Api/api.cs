@@ -3464,7 +3464,9 @@ namespace Core.Api
                 {
                     if (channelMediaId == 0)
                     {
-                        var isNewEpgIngestEnabled = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EPG_INGEST_V2);
+                        var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(groupId);
+                        var isNewEpgIngestEnabled = epgFeatureVersion != EpgFeatureVersion.V1;
+
                         if (isNewEpgIngestEnabled) //BEO-10851
                         {
                             TvinciEpgBL epgBLTvinci = new TvinciEpgBL(groupId);  

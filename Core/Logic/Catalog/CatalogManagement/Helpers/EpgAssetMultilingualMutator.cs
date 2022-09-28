@@ -41,7 +41,8 @@ namespace ApiLogic.Catalog.CatalogManagement.Helpers
                 return false;
             }
 
-            if (!_groupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EPG_INGEST_V2))
+            var epgFeatureVersion = _groupSettingsManager.GetEpgFeatureVersion(groupId);
+            if (epgFeatureVersion == EpgFeatureVersion.V1)
             {
                 return false;
             }

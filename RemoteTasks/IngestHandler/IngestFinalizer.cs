@@ -28,6 +28,9 @@ namespace IngestHandler
         private readonly IEpgIngestMessaging _epgIngestMessaging;
         private readonly EpgNotificationManager _notificationManager;
         private readonly IProgramAssetCrudMessageService _crudMessageService;
+        private Events.eEvent _kmonEvt = Events.eEvent.EVENT_WS;
+        private string _partnerIdStr;
+        private string _bulkUploadId;
 
         public IngestFinalizer(IIndexManagerFactory indexManagerFactory, IEpgIngestMessaging epgIngestMessaging, EpgNotificationManager notificationManager, IProgramAssetCrudMessageService crudMessageService)
         {
@@ -37,30 +40,42 @@ namespace IngestHandler
             _crudMessageService = crudMessageService;
         }
 
-        public async Task FinalizeEpgIngest(BulkUploadIngestEvent serviceEvent, BulkUpload bulkUpload, BulkUploadResultsDictionary relevantResults)
+        public async Task FinalizeEpgV3Ingest(int partnerId, BulkUpload bulkUpload)
         {
+            _partnerIdStr = partnerId.ToString();
+            _bulkUploadId = bulkUpload.Id.ToString();
+            if (BulkUpload.IsProcessCompletedByStatus(bulkUpload.Status))
+            {
+                await FinalizeEpgCommon(bulkUpload, bulkUpload.Status);
+            }
+        }
+        
+        public async Task FinalizeEpgV2Ingest(BulkUploadIngestEvent serviceEvent, BulkUpload bulkUpload, BulkUploadResultsDictionary relevantResults)
+        {
+            _partnerIdStr = bulkUpload.GroupId.ToString();
+            _bulkUploadId = bulkUpload.Id.ToString();
             try
             {
-                Logger.Debug($"Starting IngestFinalizer BulkUploadId:[{bulkUpload.Id}]");
+                Logger.Debug($"Starting IngestFinalizer for epg v2 BulkUploadId:[{bulkUpload.Id}]");
 
                 var indexManager = _indexManagerFactory.GetIndexManager(serviceEvent.GroupId);
-                var isRefreshSuccess = indexManager.ForceRefreshEpgV2Index(serviceEvent.TargetIndexName);
+                var isRefreshSuccess = indexManager.ForceRefreshEpgIndex(serviceEvent.TargetIndexName);
 
                 if (!isRefreshSuccess)
                 {
                     Logger.Error($"BulkUploadId [{bulkUpload.Id}], targetIndexName:[{serviceEvent.TargetIndexName}] > index refresh failed");
                 }
 
-                var newStatus = SetOkayStatusToAllResults(serviceEvent, bulkUpload, relevantResults);
+                var newBulkUploadStatus = SetOkayStatusToResults(bulkUpload, relevantResults);
 
                 // Need to refresh the data from the bulk upload object after updating with the validation result
                 bulkUpload = BulkUploadMethods.GetBulkUploadData(bulkUpload.GroupId, bulkUpload.Id);
 
                 // All separated jobs of bulkUpload were completed, we are the last one, we need to switch the alias and commit the changes.
-                if (BulkUpload.IsProcessCompletedByStatus(newStatus))
+                if (BulkUpload.IsProcessCompletedByStatus(newBulkUploadStatus))
                 {
                     var bulkUploadJobData = bulkUpload.JobData as BulkUploadIngestJobData;
-                    Logger.Debug($"BulkUploadId: [{bulkUpload.Id}] targetIndexName:[{serviceEvent.TargetIndexName}], Final part of bulk is marked, status is: [{newStatus}], finalizing bulk object");
+                    Logger.Debug($"BulkUploadId: [{bulkUpload.Id}] targetIndexName:[{serviceEvent.TargetIndexName}], Final part of bulk is marked, status is: [{newBulkUploadStatus}], finalizing bulk object");
                     bool finalizeResult = indexManager.FinalizeEpgV2Indices(bulkUploadJobData.DatesOfProgramsToIngest.ToList());
 
                     if (!finalizeResult)
@@ -69,43 +84,12 @@ namespace IngestHandler
                         throw new Exception("Could not set index refresh interval");
                     }
 
-                    InvalidateEpgAssets(bulkUpload);
-                    BulkUploadResultsDictionary bulkUploadResultsDictionaries = bulkUpload.ConstructResultsDictionary();
-                    var operations = CalculateOperations(bulkUpload, bulkUploadResultsDictionaries);
-                    UpdateRecordings(bulkUpload, operations);
-                    await PublishProgramAssetMessages(bulkUpload.GroupId, operations, bulkUpload.UpdaterId);
-
-                    var result = BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(bulkUpload, newStatus);
-                    if (result.IsOkStatusCode()) TrySendIngestCompleted(bulkUpload, newStatus);
-                    Logger.Info($"BulkUploadId: [{bulkUpload.Id}] targetIndexName:[{serviceEvent.TargetIndexName}]] > Ingest Validation for entire bulk is completed, status:[{newStatus}]");
-                    if (newStatus == BulkUploadJobStatus.Success)
-                    {
-                        // DatesOfProgramsToIngest are ordered ascending [min..max]. 
-                        // DatesOfProgramsToIngest - these are dates for ALL channels
-                        // and potentially specific channel could have no updates on some dates,
-                        // but we still notify that it was changed in date range [min..max]. could be better.
-                        var minDate = bulkUploadJobData.DatesOfProgramsToIngest.First().StartOfDay();
-                        var maxDate = bulkUploadJobData.DatesOfProgramsToIngest.Last().EndOfDay();
-                        foreach ((var epgChannelId, var externalIdToProgram) in bulkUploadResultsDictionaries)
-                        {
-                            var linearAssetId = externalIdToProgram.Values.First().LiveAssetId;
-
-                            _notificationManager.ChannelWasUpdated(
-                                serviceEvent.RequestId,
-                                bulkUpload.GroupId,
-                                bulkUpload.UpdaterId,
-                                linearAssetId,
-                                epgChannelId,
-                                minDate,
-                                maxDate,
-                                bulkUploadJobData.DisableEpgNotification);
-                        }
-                    }
+                    await FinalizeEpgCommon(bulkUpload, newBulkUploadStatus);
                 }
 
                 SendIngestPartCompletedEvent(bulkUpload, relevantResults);
 
-                Logger.Info($"BulkUploadId: [{bulkUpload.Id}] targetIndexName:[{serviceEvent.TargetIndexName}]] > Ingest Validation for part of the bulk is completed, status:[{newStatus}]");
+                Logger.Info($"BulkUploadId: [{bulkUpload.Id}] targetIndexName:[{serviceEvent.TargetIndexName}]] > Ingest Validation for part of the bulk is completed, status:[{newBulkUploadStatus}]");
             }
             catch (Exception ex)
             {
@@ -127,18 +111,68 @@ namespace IngestHandler
             }
         }
 
-        private BulkUploadJobStatus SetOkayStatusToAllResults(BulkUploadIngestEvent serviceEvent, BulkUpload bulkUpload, BulkUploadResultsDictionary relevantResults)
+        /// <summary>
+        /// This part of finalization is common for v2 and v3 and is called by both
+        /// </summary>
+        private async Task FinalizeEpgCommon(BulkUpload bulkUpload, BulkUploadJobStatus newBulkUploadStatus)
+        {
+            using var km = CreateKMonitor("FinalizeEpgCommon-Total");
+            var bulkUploadJobData = bulkUpload.JobData as BulkUploadIngestJobData;
+            Logger.Debug($"BulkUploadId: [{bulkUpload.Id}] : Final part of bulk is marked, status is: [{newBulkUploadStatus}], finalizing bulk object");
+            InvalidateEpgAssets(bulkUpload);
+            var bulkUploadResultsDictionaries = bulkUpload.ConstructResultsDictionary();
+            var operations = CalculateOperations(bulkUpload, bulkUploadResultsDictionaries);
+            UpdateRecordings(bulkUpload, operations);
+            await PublishProgramAssetMessages(bulkUpload.GroupId, operations, bulkUpload.UpdaterId);
+
+            var result = BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(bulkUpload, newBulkUploadStatus);
+            if (result.IsOkStatusCode()) { TrySendIngestCompleted(bulkUpload, newBulkUploadStatus); }
+
+            Logger.Info($"BulkUploadId: [{bulkUpload.Id}] > Ingest Validation for entire bulk is completed, status:[{newBulkUploadStatus}]");
+            if (newBulkUploadStatus == BulkUploadJobStatus.Success)
+            {
+                NotifyChannelUpdated(bulkUpload, bulkUploadJobData, bulkUploadResultsDictionaries);
+            }
+        }
+
+        private void NotifyChannelUpdated(BulkUpload bulkUpload, BulkUploadIngestJobData bulkUploadJobData, BulkUploadResultsDictionary bulkUploadResultsDictionaries)
+        {
+            using var km = CreateKMonitor("NotifyChannelUpdated");
+            // DatesOfProgramsToIngest are ordered ascending [min..max]. 
+            // DatesOfProgramsToIngest - these are dates for ALL channels
+            // and potentially specific channel could have no updates on some dates,
+            // but we still notify that it was changed in date range [min..max]. could be better.
+            foreach ((var epgChannelId, var externalIdToProgram) in bulkUploadResultsDictionaries)
+            {
+                var minDate = bulkUploadResultsDictionaries[epgChannelId].Values.Min(p => p.StartDate).StartOfDay();
+                var maxDate = bulkUploadResultsDictionaries[epgChannelId].Values.Max(p => p.EndDate).EndOfDay();
+                var linearAssetId = externalIdToProgram.Values.First().LiveAssetId;
+
+                _notificationManager.ChannelWasUpdated(
+                    KLogger.GetRequestId(),
+                    bulkUpload.GroupId,
+                    bulkUpload.UpdaterId,
+                    linearAssetId,
+                    epgChannelId,
+                    minDate,
+                    maxDate,
+                    bulkUploadJobData.DisableEpgNotification);
+            }
+        }
+
+        private BulkUploadJobStatus SetOkayStatusToResults(BulkUpload bulkUpload, BulkUploadResultsDictionary relevantResults)
         {
             var bulkUploadResultsOfCurrentDate = relevantResults.SelectMany(channel => channel.Value).Select(prog => prog.Value).ToList();
             bulkUploadResultsOfCurrentDate.ForEach(r => r.Status = BulkUploadResultStatus.Ok);
 
             BulkUploadManager.UpdateBulkUploadResults(bulkUploadResultsOfCurrentDate, out BulkUploadJobStatus newStatus);
-            Logger.Info($"updated result bulkUploadId: [{bulkUpload.Id}] targetIndexName:[{serviceEvent.TargetIndexName}], countOfUpdates:[{bulkUploadResultsOfCurrentDate.Count}], results updated in CB, calculated status [{newStatus}]");
+            Logger.Info($"updated result bulkUploadId: [{bulkUpload.Id}], countOfUpdates:[{bulkUploadResultsOfCurrentDate.Count}], results updated in CB, calculated status [{newStatus}]");
             return newStatus;
         }
 
         private void InvalidateEpgAssets(BulkUpload bulkUpload)
         {
+            using var km = CreateKMonitor("InvalidateEpgAssets");
             var affectedProgramIds = bulkUpload.AffectedObjects?.Select(p => (long)p.ObjectId).ToArray();
             var ingestedProgramIds = bulkUpload.Results.Where(r => r.ObjectId.HasValue).Select(r => r.ObjectId.Value) ?? new List<long>();
             var programIdsToInvalidate = affectedProgramIds?.Any() == true
@@ -195,6 +229,7 @@ namespace IngestHandler
 
         private void UpdateRecordings(BulkUpload bulkUpload, Operations operations)
         {
+            using var km = CreateKMonitor("UpdateRecordings");
             UpdateRecordings(bulkUpload, operations.DeletedEpgIds, eAction.Delete);
             UpdateRecordings(bulkUpload, operations.AddedEpgIds, eAction.On);
             UpdateRecordings(bulkUpload, operations.UpdatedEpgIds, eAction.Update);
@@ -225,6 +260,7 @@ namespace IngestHandler
 
         private void TrySendIngestCompleted(BulkUpload bulkUpload, BulkUploadJobStatus newStatus)
         {
+            using var km = CreateKMonitor("TrySendIngestCompleted");
             if (!BulkUpload.IsProcessCompletedByStatus(newStatus)) return;
 
             var updateDate = DateTime.UtcNow; // TODO looks like _bulUpload.UpdateDate is not updated in CB
@@ -262,11 +298,18 @@ namespace IngestHandler
 
         private Task PublishProgramAssetMessages(long groupId, Operations operations, long updaterId)
         {
+            using var km = CreateKMonitor("PublishProgramAssetMessages");
             var createdEventsTask = _crudMessageService.PublishCreateEventsAsync(groupId, operations.AddedEpgIds, updaterId);
             var updatedEventsTask = _crudMessageService.PublishUpdateEventsAsync(groupId, operations.UpdatedEpgIds, updaterId);
             var deletedEventsTask = _crudMessageService.PublishDeleteEventsAsync(groupId, operations.DeletedEpgIds, updaterId);
 
             return Task.WhenAll(createdEventsTask, updatedEventsTask, deletedEventsTask);
+        }
+
+        private KMonitor CreateKMonitor(string name, params string[] args)
+        {
+            var argsStr = args?.Any() == true ? $"-{string.Join("-", args)}" : "";
+            return new KMonitor(_kmonEvt, _partnerIdStr, $"ingest-profiler-{name}-{_partnerIdStr}-{_bulkUploadId}{argsStr}");
         }
     }
 }

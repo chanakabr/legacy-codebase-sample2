@@ -103,8 +103,8 @@ namespace ApiLogic.Tests.IndexManager
 
         private INamingHelper GetMockNamingHelper()
         {
-            var epgV2ConfigManagerMock = new Mock<IEpgV2PartnerConfigurationManager>(MockBehavior.Loose);
-            epgV2ConfigManagerMock.Setup(m => m.GetConfiguration(It.IsAny<int>())).Returns(new EpgV2PartnerConfiguration()
+            var epgV2ConfigManagerMock = new Mock<IEpgPartnerConfigurationManager>(MockBehavior.Loose);
+            epgV2ConfigManagerMock.Setup(m => m.GetEpgV2Configuration(It.IsAny<int>())).Returns(new EpgV2PartnerConfiguration()
             {
                 IsEpgV2Enabled = true,
                 FutureIndexCompactionStart = 7,
@@ -161,8 +161,8 @@ namespace ApiLogic.Tests.IndexManager
             _mockStatisticsSortStrategy = _mockRepository.Create<IStatisticsSortStrategy>();
             _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitionsNest(_mockElasticSearchCommonUtils.Object, ApplicationConfiguration.Current);
             
-            var epgV2ConfigManagerMock = new Mock<IEpgV2PartnerConfigurationManager>(MockBehavior.Loose);
-            epgV2ConfigManagerMock.Setup(m => m.GetConfiguration(It.IsAny<int>())).Returns(new EpgV2PartnerConfiguration()
+            var epgV2ConfigManagerMock = new Mock<IEpgPartnerConfigurationManager>(MockBehavior.Loose);
+            epgV2ConfigManagerMock.Setup(m => m.GetEpgV2Configuration(It.IsAny<int>())).Returns(new EpgV2PartnerConfiguration()
             {
                 // all tests assume they use epg v1 unless a method for epg v2 is explcitly called
                 IsEpgV2Enabled = false,
@@ -240,7 +240,7 @@ namespace ApiLogic.Tests.IndexManager
 
             indexManager.DeletePrograms(programsToIndex, index, languageObjs);
 
-            var res = indexManager.ForceRefreshEpgV2Index(indexName);
+            var res = indexManager.ForceRefreshEpgIndex(indexName);
             Assert.IsTrue(res);
 
             res = indexManager.FinalizeEpgV2Indices(new List<DateTime>() { DateTime.Today, DateTime.UtcNow.AddDays(-1) });

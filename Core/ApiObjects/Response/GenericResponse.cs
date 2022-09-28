@@ -6,6 +6,14 @@ using System.Threading.Tasks;
 
 namespace ApiObjects.Response
 {
+    public static class GenericResponse
+    {
+        public static GenericResponse<T> Create<T>(Status status, T obj = default)
+        {
+            return new GenericResponse<T> (status, obj);
+        }
+    }
+
     public class GenericResponse<T>
     {
         public Status Status { get; private set; }
@@ -41,6 +49,11 @@ namespace ApiObjects.Response
             }
             
             Object = default(T);
+        }
+
+        public static GenericResponse<TResponse> Create<TResponse>(Status status, TResponse obj = default)
+        {
+            return new GenericResponse<TResponse> { Status = status, Object = obj };
         }
 
         public void SetStatus(eResponseStatus responseStatus, string message = null, List<KeyValuePair> args = null)

@@ -29,6 +29,7 @@ using ApiObjects.SearchPriorityGroups;
 using FeatureFlag;
 using Tvinci.Core.DAL;
 using TVinciShared;
+using Core.GroupManagers;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -2824,7 +2825,7 @@ namespace Core.Catalog.CatalogManagement
                     var recordingsMap = new Dictionary<string, RecordingSearchResult>();
 
                     var epgIdToDocumentId = new Dictionary<string, string>();
-                    var isEpgV2 = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EPG_INGEST_V2);
+                    var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(groupId);
 
                     foreach (var item in assets)
                     {
@@ -2848,7 +2849,7 @@ namespace Core.Catalog.CatalogManagement
 
                             assetType = eAssetTypes.EPG;
                         }
-                        else if (item.AssetType == eAssetTypes.EPG && isEpgV2 && item is EpgSearchResult)
+                        else if (item.AssetType == eAssetTypes.EPG && epgFeatureVersion != EpgFeatureVersion.V1 && item is EpgSearchResult)
                         {
                             var epgSearchResult = item as EpgSearchResult;
                             if (!string.IsNullOrEmpty(epgSearchResult.DocumentId))

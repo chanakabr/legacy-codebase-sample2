@@ -14,6 +14,10 @@ using Nest;
 using ApiLogic.IndexManager.Helpers;
 using ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders;
 using ApiLogic.IndexManager.Sorting;
+using Core.Api;
+using Core.Catalog.Searchers;
+using Core.GroupManagers;
+using ElasticSearch.Common;
 using ApiObjects;
 using ElasticSearch.Utils;
 
@@ -179,7 +183,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
             var doc_id_field = "\"document_id\"";
 
-            if (this.SearchDefinitions.isEpgV2)
+            if (this.SearchDefinitions.EpgFeatureVersion != EpgFeatureVersion.V1)
             {
                 if (!this.ReturnFields.Contains(doc_id_field))
                 {
@@ -226,6 +230,15 @@ namespace ApiLogic.IndexManager.QueryBuilders
             {
                 FilterSettings = filterRoot
             };
+
+            if (this.SearchDefinitions.shouldSearchEpg)
+            {
+                var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(GroupID);
+                if (epgFeatureVersion == EpgFeatureVersion.V3)
+                {
+                    Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(GroupID, filterPart, new ElasticSearchApi(ApplicationConfiguration.Current));
+                }
+            }
 
             int pageSize = this.PageSize;
 

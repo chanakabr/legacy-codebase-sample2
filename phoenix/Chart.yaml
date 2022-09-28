@@ -1,6 +1,0 @@
-apiVersion: v1
-appVersion: "@VERSION@"
-description: Kaltura OTT Phoenix
-name: phoenix
-fullname: phoenix
-version: @VERSION@

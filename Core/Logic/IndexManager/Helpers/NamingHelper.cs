@@ -13,7 +13,7 @@ namespace ApiLogic.IndexManager.Helpers
 
     public class NamingHelper : INamingHelper
     {
-        private readonly IEpgV2PartnerConfigurationManager _epgV2PartnerConfigurationManager;
+        private readonly IEpgPartnerConfigurationManager _epgV2PartnerConfigurationManager;
         internal const string SUB_SUM_AGGREGATION_NAME = "sub_sum";
         internal const string SUB_STATS_AGGREGATION_NAME = "sub_stats";
         internal const string STAT_ACTION_RATE_VALUE_FIELD = "rate_value";
@@ -35,6 +35,8 @@ namespace ApiLogic.IndexManager.Helpers
         public const string IS_AUTO_FILL_FIELD = "is_auto_fill";
         public const string ENABLE_CDVR = "enable_cdvr";
         public const string ENABLE_CATCHUP = "enable_catchup";
+        public const string EPG_V3_TRANSACTION_DOCUMENT_TYPE_NAME = "transaction";
+        public const string EPG_V3_DUMMY_TRANSACTION_CHILD_DOCUMENT_TYPE_NAME = "dummy_transaction_child";
         public const string IS_ACTIVE = "is_active";
 
         public const string EPG_IDENTIFIER = "epg_identifier";
@@ -50,19 +52,20 @@ namespace ApiLogic.IndexManager.Helpers
 
         private const string EPG_V2_PAST_INDEX_NAME_SUFFIX = "past";
         private const string EPG_V2_FUTURE_INDEX_NAME_SUFFIX = "future";
+        
 
 
         private static readonly Lazy<INamingHelper> _lazy =
             new Lazy<INamingHelper>(GetNamingHelperInstance, LazyThreadSafetyMode.PublicationOnly);
 
-        public NamingHelper(IEpgV2PartnerConfigurationManager epgV2PartnerConfigurationManager)
+        public NamingHelper(IEpgPartnerConfigurationManager epgV2PartnerConfigurationManager)
         {
             _epgV2PartnerConfigurationManager = epgV2PartnerConfigurationManager;
         }
 
         private static INamingHelper GetNamingHelperInstance()
         {
-            return new NamingHelper(EpgV2PartnerConfigurationManager.Instance);
+            return new NamingHelper(EpgPartnerConfigurationManager.Instance);
         }
 
         public static INamingHelper Instance => _lazy.Value;
@@ -74,6 +77,11 @@ namespace ApiLogic.IndexManager.Helpers
             return $"{groupId}_epg";
         }
 
+        public static string GetEpgV3TransactionId(long linearChannelId, long bulkUploadId)
+        {
+            return $"{bulkUploadId}_{linearChannelId}";
+        }
+
         public string GetDailyEpgIndexName(int groupId, DateTime indexDate)
         {
             var dateString = GetEpgIndexDateSuffix(groupId, indexDate);
@@ -83,7 +91,7 @@ namespace ApiLogic.IndexManager.Helpers
         public string GetEpgIndexDateSuffix(int groupId, DateTime d)
         {
             var currDate = DateTime.UtcNow.Date;
-            var epgV2Conf = _epgV2PartnerConfigurationManager.GetConfiguration(groupId);
+            var epgV2Conf = _epgV2PartnerConfigurationManager.GetEpgV2Configuration(groupId);
             if (epgV2Conf.IsIndexCompactionEnabled)
             {
                 if (d > currDate && d.Subtract(currDate).TotalDays > epgV2Conf.FutureIndexCompactionStart)

@@ -26,8 +26,6 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.0" />
     <Compile Include="EventBusConsumerRabbitMQ.cs" />
     <Compile Include="KalturaEventBusRabbitMQConsumerServiceExtensions.cs" />
   </ItemGroup>

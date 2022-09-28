@@ -1,0 +1,1 @@
+﻿docker run -it --rm -v ${PWD}:/userdir -e GITHUB_TOKEN=<GITHUB_TOKEN> 870777418594.dkr.ecr.us-west-2.amazonaws.com/master/ott-tool-codegen:build service -s IngestHandler.Common -l debug --lang csharp

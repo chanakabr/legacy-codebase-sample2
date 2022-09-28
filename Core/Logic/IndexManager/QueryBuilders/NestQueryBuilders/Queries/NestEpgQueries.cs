@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Caching;
+using ApiLogic.IndexManager.Helpers;
 using ApiLogic.IndexManager.NestData;
+using ApiLogic.IndexManager.Transaction;
 using ApiObjects.SearchObjects;
 using Nest;
 using TVinciShared;

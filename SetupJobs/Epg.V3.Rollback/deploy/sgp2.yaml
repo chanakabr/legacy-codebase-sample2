@@ -1,0 +1,12 @@
+account: "681016013154"
+region: ap-southeast-1
+cluster_name: sgp2
+destination_cluster: https://653A5040E55B80DB8C3A0020DFDEBDA8.gr7.ap-southeast-1.eks.amazonaws.com
+branch: master
+
+# TCM Config for all components
+tcm_from_local: "false"
+tcm_url: http://ktcm
+tcm_app: OTT_API_SV_Linux
+tcm_section: main
+tcm_host: PROD_v5_3_5

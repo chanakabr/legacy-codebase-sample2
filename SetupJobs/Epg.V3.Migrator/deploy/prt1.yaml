@@ -1,0 +1,12 @@
+account: "122637030685"
+region: eu-west-3
+cluster_name: prt1
+destination_cluster: https://35D24C1791AAFC6E9A51FEEC83F376BE.yl4.eu-west-3.eks.amazonaws.com
+branch: dev
+
+# TCM Config for all components
+tcm_from_local: "false"
+tcm_url: http://ktcm
+tcm_app: OTT_API_K8S
+tcm_section: PROD_v5_2_2
+tcm_host: main

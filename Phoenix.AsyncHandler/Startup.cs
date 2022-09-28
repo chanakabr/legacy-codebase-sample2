@@ -124,7 +124,7 @@ namespace Phoenix.AsyncHandler
                 .AddScoped<IAssetStructMetaRepository, AssetStructMetaRepository>()
                 .AddScoped<IAssetStructRepository, AssetStructRepository>()
                 .AddScoped<IGroupSettingsManager, GroupSettingsManager>()
-                .AddScoped<IEpgV2PartnerConfigurationManager>(serviceProvider => EpgV2PartnerConfigurationManager.Instance)
+                .AddScoped<IEpgPartnerConfigurationManager>(serviceProvider => EpgPartnerConfigurationManager.Instance)
                 .AddScoped<IGroupManager, GroupManager>()
                 .AddSingleton<ICatalogCache, CatalogCache>()
                 // live to vod

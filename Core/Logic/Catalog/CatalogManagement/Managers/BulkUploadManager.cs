@@ -21,6 +21,7 @@ using ApiLogic.Api.Managers;
 using ApiLogic.Catalog.CatalogManagement.Helpers;
 using ApiLogic.Catalog.CatalogManagement.Models;
 using ApiObjects.EventBus.EpgIngest;
+using Core.Api;
 using Core.Catalog.CatalogManagement.Services;
 using EventBus.Kafka;
 using Tvinci.Core.DAL;
@@ -63,6 +64,44 @@ namespace Core.Catalog.CatalogManagement
                 response.SetStatus(eResponseStatus.Error);
             }
 
+            return response;
+        }
+
+        public static GenericResponse<BulkUploadSummary> GetBulkUploadSummary(long groupId, string bulkObjectType, long CreateDateGreaterThanOrEqual)
+        {
+            var response = new GenericResponse<BulkUploadSummary>();
+            var fileObjectTypeName = ApiLogic.FileManager.Instance.GetFileObjectTypeName(bulkObjectType);
+            if (!fileObjectTypeName.HasObject())
+            {
+                response.SetStatus(fileObjectTypeName.Status);
+                return response;
+            }
+
+            var dt = CatalogDAL.GetBulkUploadSummary(groupId, fileObjectTypeName.Object, CreateDateGreaterThanOrEqual);
+            var summary = new BulkUploadSummary();
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                var summaryDict = new Dictionary<BulkUploadJobStatus, long>();
+                foreach (DataRow row in dt.Rows)
+                {
+                    var status = (BulkUploadJobStatus)ODBCWrapper.Utils.GetIntSafeVal(row, "STATUS");
+                    summaryDict[status] = ODBCWrapper.Utils.GetLongSafeVal(row, "BULK_UPLOAD_COUNT");
+                }
+
+                summary.Pending = summaryDict.GetValueOrDefault(BulkUploadJobStatus.Pending);
+                summary.Uploaded = summaryDict.GetValueOrDefault(BulkUploadJobStatus.Uploaded);
+                summary.Queued = summaryDict.GetValueOrDefault(BulkUploadJobStatus.Queued);
+                summary.Parsing = summaryDict.GetValueOrDefault(BulkUploadJobStatus.Parsing);
+                summary.Processing = summaryDict.GetValueOrDefault(BulkUploadJobStatus.Processing);
+                summary.Processed = summaryDict.GetValueOrDefault(BulkUploadJobStatus.Processed);
+                summary.Success = summaryDict.GetValueOrDefault(BulkUploadJobStatus.Success);
+                summary.Partial = summaryDict.GetValueOrDefault(BulkUploadJobStatus.Partial);
+                summary.Failed = summaryDict.GetValueOrDefault(BulkUploadJobStatus.Failed);
+                summary.Fatal = summaryDict.GetValueOrDefault(BulkUploadJobStatus.Fatal);
+            }
+
+            response.Object = summary;
+            response.SetStatus(Status.Ok);
             return response;
         }
 
@@ -150,14 +189,14 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static GenericResponse<BulkUpload> AddBulkUpload(int groupId,  
-            long userId,  
-            string objectTypeName, 
-            BulkUploadJobAction action, 
-            BulkUploadJobData jobData, 
+        public static GenericResponse<BulkUpload> AddBulkUpload(int groupId,
+            long userId,
+            string objectTypeName,
+            BulkUploadJobAction action,
+            BulkUploadJobData jobData,
             BulkUploadObjectData objectData,
             OTTBasicFile fileData)
-        {                
+        {
             var response = new GenericResponse<BulkUpload>();
             try
             {
@@ -205,8 +244,8 @@ namespace Core.Catalog.CatalogManagement
                 // Enqueue to CeleryQueue new BulkUpload (the remote will handle the file and its content).
                 if (jobData is BulkUploadIngestJobData ingestJobData)
                 {
-                    var doesGroupUseNewEpgIngest = GroupManagers.GroupSettingsManager.Instance.DoesGroupUseNewEpgIngest(groupId);
-                    if (!doesGroupUseNewEpgIngest)
+                    var epgFeatureVersion = GroupManagers.GroupSettingsManager.Instance.GetEpgFeatureVersion(groupId);
+                    if (epgFeatureVersion == EpgFeatureVersion.V1)
                     {
                         var msg = $"AddBulkUpload > GroupId :[{groupId}]. epg ingest using bulk upload is not supported for this account";
                         log.Warn(msg);
@@ -216,9 +255,9 @@ namespace Core.Catalog.CatalogManagement
                         return response;
                     }
 
+                    response = UpdateBulkUploadStatusWithVersionCheck(response.Object, BulkUploadJobStatus.Queued);
                     SendTransformationEventToServiceEventBus(groupId, userId, response.Object.Id,
                         ingestJobData.IngestProfileId, response.Object.FileName, response.Object.CreateDate);
-                    response = UpdateBulkUploadStatusWithVersionCheck(response.Object, BulkUploadJobStatus.Queued);
                 }
                 else
                 {
@@ -378,7 +417,7 @@ namespace Core.Catalog.CatalogManagement
 
             if (objectsListResponse.IsOkStatusCode())
             {
-                if (objectsListResponse.Objects.Any(x=> x.Errors?.Length > 0))
+                if (objectsListResponse.Objects.Any(x => x.Errors?.Length > 0))
                 {
                     bulkUploadResponse.Object.AddError(eResponseStatus.Error, "Errors found during deserialization, review errors on result items.");
                 }

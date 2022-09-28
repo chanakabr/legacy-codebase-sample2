@@ -1116,6 +1116,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Errors, opt => opt.MapFrom(src => src.Errors))
                ;
 
+            cfg.CreateMap<BulkUploadSummary, KalturaBulkUploadSummary>()
+                .ForMember(dest => dest.Queued, opt => opt.MapFrom(src => src.Queued))
+                .ForMember(dest => dest.Failed, opt => opt.MapFrom(src => src.Failed))
+                .ForMember(dest => dest.Success, opt => opt.MapFrom(src => src.Success))
+                .ForMember(dest => dest.Pending, opt => opt.MapFrom(src => src.Pending))
+                .ForMember(dest => dest.Parsing, opt => opt.MapFrom(src => src.Parsing))
+                .ForMember(dest => dest.Processed, opt => opt.MapFrom(src => src.Processed))
+                .ForMember(dest => dest.Processing, opt => opt.MapFrom(src => src.Processing))
+                .ForMember(dest => dest.Fatal, opt => opt.MapFrom(src => src.Fatal))
+                .ForMember(dest => dest.Partial, opt => opt.MapFrom(src => src.Partial))
+                .ForMember(dest => dest.Uploaded, opt => opt.MapFrom(src => src.Uploaded))
+                .ReverseMap();
+
+
             cfg.CreateMap<BulkUploadJobStatus, KalturaBulkUploadJobStatus>()
                .ConvertUsing(bulkUploadJobStatus =>
                {

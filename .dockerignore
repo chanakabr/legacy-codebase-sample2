@@ -2,3 +2,8 @@
 **/[Oo]bj
 **/.vs
 **/packages
+**/.Dockerfile
+Docker
+**/.Jenkinsfile
+.nuget
+.vs

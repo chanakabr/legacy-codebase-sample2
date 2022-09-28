@@ -13,8 +13,12 @@ using System.IO;
 using System.Reflection;
 using System.ServiceModel;
 using System.Xml;
-using ApiLogic.Api.Managers.Handlers;
+using Core.Api;
 using TVinciShared;
+using System.Text;
+using System.Threading;
+using System.Linq;
+using System.Diagnostics;
 
 namespace Ingest
 {
@@ -28,6 +32,7 @@ namespace Ingest
         private const string INGEST_V2_ERROR_MSG = "Please Use AddFromBulkUpload instead,using this route with IngestV2 is deprecated.";
         private const string ERROR_STATUS = "ERROR";
         private const string ERROR_DEPRECATED = "DEPRECATED";
+        private const string KALTURA_PROGRAM_ASSET_BULK_UPLOAD_TYPE_NAME = "KalturaProgramAsset";
 
         // TODO need to delete this mmethod and use Core.Catalog.Controller.IngestController insted (delete this class)
         public static IngestResponse IngestData(IngestRequest request, eIngestType ingestType)
@@ -63,7 +68,7 @@ namespace Ingest
                     IngestStatus = new Status() { Code = (int)eResponseStatus.Error, Message = "No username or password" }
                 };
             }
-            
+
             string response = string.Empty;
             try
             {
@@ -73,8 +78,6 @@ namespace Ingest
 
                 if (groupID > 0)
                 {
-                    UploadXmlToS3(request, groupID);
-
                     switch (ingestType)
                     {
                         case eIngestType.Tvinci:
@@ -106,18 +109,10 @@ namespace Ingest
                                     KLogger.LogContextData[Constants.TOPIC] = "EPG Ingest";
                                 }
 
-                                var isNewIngestEnabled = Core.GroupManagers.GroupSettingsManager.Instance.DoesGroupUseNewEpgIngest(groupID);
-                                if (isNewIngestEnabled)
+                                var ingestFeatureVersion = Core.GroupManagers.GroupSettingsManager.Instance.GetEpgFeatureVersion(groupID);
+                                if (ingestFeatureVersion != EpgFeatureVersion.V1)
                                 {
-                                    // invalid credentials
-                                    var msg = "Please Use AddFromBulkUpload instead,using this route with IngestV2 is deprecated.";
-                                    log.Error(string.Format(msg));
-                                    return new IngestResponse()
-                                    {
-                                        Status = ERROR_STATUS,
-                                        Description = ERROR_DEPRECATED,
-                                        IngestStatus = new Status() { Code = (int)eResponseStatus.Error, Message = INGEST_V2_ERROR_MSG }
-                                    };
+                                    return HandleIngestUsingAddFromBulkUpload(request, ingestResponse, groupID);
                                 }
 
 
@@ -173,57 +168,68 @@ namespace Ingest
             return ingestResponse;
         }
 
-        private static void UploadXmlToS3(IngestRequest request, int groupID)
+        private static IngestResponse HandleIngestUsingAddFromBulkUpload(IngestRequest request, IngestResponse ingestResponse, int groupID)
         {
-            try
+            ingestResponse.AssetsStatus = new List<IngestAssetStatus>();
+            var jobData = new BulkUploadIngestJobData();
+            var objectData = new BulkUploadEpgAssetData();
+            objectData.GroupId = groupID;
+            var byteArray = Encoding.UTF8.GetBytes(request.Data);
+            using var xmlDataStream = new MemoryStream(byteArray);
+            var file = new OTTStreamFile(xmlDataStream, $"{groupID}_{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}_{Guid.NewGuid()}");
+            var addFromBulkResponse = BulkUploadManager.AddBulkUpload(groupID, 0, KALTURA_PROGRAM_ASSET_BULK_UPLOAD_TYPE_NAME, BulkUploadJobAction.Upsert, jobData, objectData, file);
+            if (!addFromBulkResponse.IsOkStatusCode())
             {
-                string should = Environment.GetEnvironmentVariable("SHOULD_UPLOAD_XML_TO_S3");
+                ingestResponse.Status = addFromBulkResponse.Status.Code.ToString();
+                ingestResponse.Description = addFromBulkResponse.Status.Message;
+                return ingestResponse;
+            }
 
-                if (!string.IsNullOrEmpty(should) && should.ToLower() == "true")
+            var isIngestCompleted = false;
+            var sw = Stopwatch.StartNew();
+            while (!isIngestCompleted || sw.Elapsed.TotalMinutes >= 5)
+            {
+                Thread.Sleep(500);
+                var getBulkUploadResp = BulkUploadManager.GetBulkUpload(groupID, addFromBulkResponse.Object.Id);
+                if (!getBulkUploadResp.IsOkStatusCode())
                 {
-                    log.Debug($"uploading xml to s3...");
+                    ingestResponse.Status = addFromBulkResponse.Status.Code.ToString();
+                    ingestResponse.Description = addFromBulkResponse.Status.Message;
+                    return ingestResponse;
+                }
 
-                    var s3Handler = new S3FileHandler(ApplicationConfiguration.Current.FileUpload.S3, false);
-                    var fileManager = new ApiLogic.FileManager(s3Handler);
+                var bulkUpload = getBulkUploadResp.Object;
+                log.Debug($"bulk uploadId:[{bulkUpload.Id}] status:[{bulkUpload.Status}], results count:[{bulkUpload.Results.Count}], groupId:[{groupID}]");
 
-                    string fileId = $"{groupID}_{DateUtils.GetUtcUnixTimestampNow()}";
+                if (bulkUpload.IsProcessCompleted)
 
-                    using (var stream = GenerateStreamFromString(request.Data))
+                    log.Info($"completed bulk uploadId:[{bulkUpload.Id}] status:[{bulkUpload.Status}], results count:[{bulkUpload.Results.Count}], groupId:[{groupID}]");
+                {
+                    ingestResponse.IngestStatus = Status.Ok;
+                    foreach (var res in bulkUpload.Results)
                     {
-                        var file = new ApiLogic.Catalog.OTTStreamFile(stream, fileId);
+                        var programResult = (BulkUploadProgramAssetResult)res;
+                        var programWarnnings = new List<Status>();
+                        if (programResult.Warnings.Any()) { programWarnnings.AddRange(programResult.Warnings); }
+                        if (programResult.Errors.Any()) { programWarnnings.AddRange(programResult.Errors); }
 
-                        var saveFileResponse = ApiLogic.FileManager.Instance.SaveFile(fileId, file, "xmllog");
-
-                        if (saveFileResponse != null)
+                        var ingestAssetStatus = new IngestAssetStatus
                         {
-                            if (saveFileResponse.Status != null)
-                            {
-                                log.Debug($"SaveFile response status = {saveFileResponse.Status}");
-                            }
+                            EntryID = programResult.ObjectId.ToString(),
+                            ExternalAssetId = programResult.ProgramExternalId.ToString(),
+                            InternalAssetId = programResult.ChannelId,
+                            Warnings = programWarnnings,
+                            Status = programResult.Status == BulkUploadResultStatus.Ok ? Status.Ok : Status.Error,
+                        };
 
-                            if (!string.IsNullOrEmpty(saveFileResponse.Object))
-                            {
-                                log.Debug($"SaveFile response object = {saveFileResponse.Object}");
-                            }
-                        }
                     }
+                    isIngestCompleted = true;
                 }
             }
-            catch (Exception ex)
-            {
-                log.Error("oy, failed uploading to s3...", ex);
-            }
+
+            return ingestResponse;
         }
-        
-        public static Stream GenerateStreamFromString(string s)
-        {
-            var stream = new MemoryStream();
-            var writer = new StreamWriter(stream);
-            writer.Write(s);
-            writer.Flush();
-            stream.Position = 0;
-            return stream;
-        }
+
 
         private static string GetItemParameterVal(ref XmlNode theNode, string sParameterName)
         {

@@ -312,12 +312,10 @@ namespace ApiLogic.IndexManager.QueryBuilders
             return m_oEpgSearchObj != null && m_oEpgSearchObj.m_oEpgChannelIDs != null && m_oEpgSearchObj.m_oEpgChannelIDs.Count > 0;
         }
 
-        public virtual string BuildEpgAutoCompleteQuery()
+        public FilteredQuery BuildEpgAutoCompleteQuery()
         {
-            string sResult = string.Empty;
-
             if (m_oEpgSearchObj == null)
-                return sResult;
+                return new FilteredQuery();
 
             FilteredQuery filteredQuery = new FilteredQuery();
             MultiMatchQuery phrasePrefix = new MultiMatchQuery();
@@ -368,8 +366,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
             filteredQuery.PageSize = m_oEpgSearchObj.m_nPageSize;
             filteredQuery.PageIndex = m_oEpgSearchObj.m_nPageIndex;
 
-            sResult = filteredQuery.ToString();
-            return sResult;
+            return filteredQuery;
         }
 
         /*Build query by channelId and spesipic dates*/

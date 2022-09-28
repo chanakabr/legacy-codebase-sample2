@@ -14,7 +14,10 @@ namespace IngestHandler.Common.Kafka
             {
                 { KafkaConfigKeys.BootstrapServers, tcmConfig.BootstrapServers.Value },
                 { KafkaConfigKeys.SocketTimeoutMs, tcmConfig.SocketTimeoutMs.Value.ToString() },
-                { KafkaConfigKeys.ClientId, KLogger.GetServerName() }
+                { KafkaConfigKeys.ClientId, KLogger.GetServerName() },
+                { KafkaConfigKeys.AutoOffsetReset, "earliest" },
+                { KafkaConfigKeys.AllowAutoCreateTopics, "true" },
+                { KafkaConfigKeys.EnableAutoCommit, "false" }
             };
 
             return config;

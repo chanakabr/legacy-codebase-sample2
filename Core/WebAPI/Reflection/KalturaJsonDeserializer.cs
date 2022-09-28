@@ -490,6 +490,9 @@ namespace WebAPI.Reflection
                 case "KalturaBulkUploadResult":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
+                case "KalturaBulkUploadSummary":
+                    return new KalturaBulkUploadSummary(parameters, true);
+                    
                 case "KalturaBulkUploadUdidDynamicListData":
                     return new KalturaBulkUploadUdidDynamicListData(parameters, true);
                     
@@ -36271,6 +36274,22 @@ namespace WebAPI.Models.Partner
             MinItems = -1,
             MaxItems = -1,
         };
+        private static RuntimeSchemePropertyAttribute EpgFeatureVersionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBasePartnerConfiguration")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MaxInteger = 3,
+            MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            Default = 2,
+        };
         public KalturaBasePartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
@@ -36314,6 +36333,11 @@ namespace WebAPI.Models.Partner
                 if (parameters.ContainsKey("apptokenUserValidationDisabled") && parameters["apptokenUserValidationDisabled"] != null)
                 {
                     ApptokenUserValidationDisabled = (Boolean) Convert.ChangeType(parameters["apptokenUserValidationDisabled"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("epgFeatureVersion") && parameters["epgFeatureVersion"] != null)
+                {
+                    EpgFeatureVersionSchemaProperty.Validate("epgFeatureVersion", parameters["epgFeatureVersion"]);
+                    EpgFeatureVersion = (Int32) Convert.ChangeType(parameters["epgFeatureVersion"], typeof(Int32));
                 }
             }
         }
@@ -38310,6 +38334,55 @@ namespace WebAPI.Models.Upload
                     {
                         Warnings = OTTObjectBuilder.buildList(typeof(KalturaMessage), parameters["warnings"] as object[]);
                     }
+                }
+            }
+        }
+    }
+    public partial class KalturaBulkUploadSummary
+    {
+        public KalturaBulkUploadSummary(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("pending") && parameters["pending"] != null)
+                {
+                    Pending = (Int64) Convert.ChangeType(parameters["pending"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("uploaded") && parameters["uploaded"] != null)
+                {
+                    Uploaded = (Int64) Convert.ChangeType(parameters["uploaded"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("queued") && parameters["queued"] != null)
+                {
+                    Queued = (Int64) Convert.ChangeType(parameters["queued"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("parsing") && parameters["parsing"] != null)
+                {
+                    Parsing = (Int64) Convert.ChangeType(parameters["parsing"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("processing") && parameters["processing"] != null)
+                {
+                    Processing = (Int64) Convert.ChangeType(parameters["processing"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("processed") && parameters["processed"] != null)
+                {
+                    Processed = (Int64) Convert.ChangeType(parameters["processed"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("success") && parameters["success"] != null)
+                {
+                    Success = (Int64) Convert.ChangeType(parameters["success"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("partial") && parameters["partial"] != null)
+                {
+                    Partial = (Int64) Convert.ChangeType(parameters["partial"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("failed") && parameters["failed"] != null)
+                {
+                    Failed = (Int64) Convert.ChangeType(parameters["failed"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("fatal") && parameters["fatal"] != null)
+                {
+                    Fatal = (Int64) Convert.ChangeType(parameters["fatal"], typeof(Int64));
                 }
             }
         }

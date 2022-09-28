@@ -4,22 +4,16 @@ stage('Unified-CI'){
         AWS_REGION = 'us-west-2'
         ECR_URL = '870777418594.dkr.ecr.us-west-2.amazonaws.com'
         component = env.JOB_NAME
-        //ECR_REPOSITORY = "${ECR_URL}/${REPOSITORY_NAME}"
         STAGE = 'build'
         PIPECLI = cd.get_pipecli()
-        //currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME} - ${committerEmail}"
 
         properties([
             [$class: 'BuildDiscarderProperty', strategy: [$class: 'LogRotator', artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '50']],
             disableConcurrentBuilds()
-            //buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '50')),
-            //skipDefaultCheckout()
-            //quietPeriod(50)
         ])
         skipDefaultCheckout()
-        //currentBuild.rawBuild.getParent().setQuietPeriod(50)
 
-        parallel(
+        parallel(   
             "Linux" : {
                 node('Linux'){   
                     try{                        
@@ -29,40 +23,30 @@ stage('Unified-CI'){
                                 committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim() 
                             }
                         }
+                        stage('Build Base Images'){
+                            sh(label:'Bulid Base OTT-BE image', script: 'docker build -t ott-be-base-build:latest -f ./Docker/Base.Build.Dockerfile .')               
+                            sh(label:'Bulid Base OTT-BE image', script: 'docker build -t ott-be-base-runtime:latest -f ./Docker/Base.Runtime.Dockerfile .')           
+                        }
                         stage('Test')
                         {
                             ansiColor('xterm') {
                                 runTests()
                             }
                         }
-                        stage ('ECR Login') {
+                        stage('Build Docker Images'){ 
                             sh(label: "ECR Login", script: "login=\$(aws ecr get-login --no-include-email --region ${AWS_REGION}) && \${login}")
+                            parallel(
+                                "phoenix" : { buildDockerAndPushToEcr("phoenix","./Docker/Phoenix.Api.Rest.Dockerfile") },
+                                "ingesthandlers" : { buildDockerAndPushToEcr("ingesthandlers","./Docker/IngestHandlers.Dockerfile") },
+                                "wsingest" : { buildDockerAndPushToEcr("wsingest","./Docker/WSIngest.Dockerfile") },
+                                "opc-migration" : { buildDockerAndPushToEcr("opc-migration","./Docker/OPCMigrator.Dockerfile") },
+                                "phoenix-api-grpc" : { buildDockerAndPushToEcr("ott-service-phoenix-api-grpc","./Docker/Phoenix.Api.Grpc.Dockerfile") },
+                                "phoenix-setup-job" : { buildDockerAndPushToEcr("ott-service-phoenix-setup-job","./Docker/Phoenix.SetupJob.Dockerfile") },
+                                "phoenix-async-handler" : { buildDockerAndPushToEcr("ott-service-phoenix-async-handler","./Docker/Phoenix.Async.Handler.Dockerfile") },
+                                "epg-v3-migrator" : { buildDockerAndPushToEcr("ott-service-phoenix-epg-v3-migrator","./Docker/Epg.V3.Migrator.Dockerfile") },
+                                "epg-v3-rollback" : { buildDockerAndPushToEcr("ott-service-phoenix-epg-v3-rollback","./Docker/Epg.V3.Rollback.Dockerfile") }
+                            )
                         }
-                        stage('Build Docker Images'){                
-                            buildDockerAndPushToEcr("phoenix","Phoenix.Dockerfile")
-                            buildDockerAndPushToEcr("tvpapi","Tvpapi.Dockerfile")
-                            buildDockerAndPushToEcr("wsingest","WSIngest.Dockerfile")
-                            buildDockerAndPushToEcr("ingesthandlers","IngestHandlers.Dockerfile")
-                            buildDockerAndPushToEcr("opc-migration","OPC_Migration.Dockerfile")                            
-                        }
-                        // stage("Trigger Release Candidate"){
-                        //     steps{
-                        //         script {
-                        //             SHORT_JOB_NAME = sh (script: "echo ${JOB_NAME} | cut -f1 -d'/'", returnStdout: true).trim()  
-                        //         }
-                        //         build (
-                        //             job: "OTT-BE-Create-Release-Candidate", 
-                        //             wait: false,
-                        //             parameters: [
-                        //                 [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
-                        //                 [$class: 'StringParameterValue', name: 'callingjob', value: "${SHORT_JOB_NAME}"],
-                        //             ]
-                        //         )
-                        //         script {
-                        //             component = "${env.JOB_NAME}"
-                        //         }
-                        //     }
-                        // }
                         stage("Trigger Sonar Scan"){
                             if (BRANCH_NAME == "master") {
                                 build (
@@ -85,9 +69,6 @@ stage('Unified-CI'){
             },
             "Windows" : {
                 node('Windows'){
-                    //STAGE = "build"
-                    //AWS_REGION="us-west-2"
-                    //PIPECLI = cd.get_pipecli()
                     def msbuild = tool name: 'default', type:'hudson.plugins.msbuild.MsBuildInstallation'
                     try{
                         withEnv(['MSBUILD=msbuild', "component=${env.JOB_NAME}"]){
@@ -163,18 +144,6 @@ stage('Unified-CI'){
                                         }   
                                     }
                                 }
-                                // stage("Trigger Release Candidate"){
-                                //     SHORT_JOB_NAME = sh (script: "echo ${JOB_NAME} | cut -f1 -d'/'", returnStdout: true).trim()
-                                //     build (
-                                //         wait: false, 
-                                //         job: 'OTT-BE-Create-Release-Candidate', 
-                                //         parameters: [
-                                //             string(name: 'BRANCH_NAME', value: "${BRANCH_NAME}"), 
-                                //             string(name: 'callingjob', value: "${SHORT_JOB_NAME}")
-                                //         ]
-                                //     )
-                                //     component = "${env.JOB_NAME}"
-                                // }
                                 stage("Trigger Sonar Scan"){
                                     if (BRANCH_NAME == "master") {
                                         build (
@@ -227,8 +196,9 @@ def runTestInDocker(testProjects){
             sh "exit 1"
         } 
         echo "${GREEN}------------------------------------------- Starting Tests: ${project} -------------------------------------------${ANSI_END}"
-        withTestbed(['DOTNET_CLI_HOME=/tmp/DOTNET_CLI_HOME'], "mcr.microsoft.com/dotnet/core/sdk:3.1-alpine", project) {
-            def testStatus = sh ( script: "dotnet test ${project} --logger \"junit;LogFilePath=./test-results.xml\"", returnStatus: true)
+        sh('docker images')
+        withTestbed(['DOTNET_CLI_HOME=/tmp/DOTNET_CLI_HOME'], "ott-be-base-build:latest", project) {
+            def testStatus = sh ( script: "dotnet test /src/${project} --logger \"junit;LogFilePath=${WORKSPACE}/test-results/${project}/test-results.xml\"", returnStatus: true)
             if(testStatus != 0) {
                 echo "${RED}------------------------------------------- Test: ${project} FAILED!!! -------------------------------------------${ANSI_END}"
                 currentBuild.result = 'FAILURE'

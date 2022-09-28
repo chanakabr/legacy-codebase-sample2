@@ -8,6 +8,7 @@ using Catalog.Response;
 using ApiObjects.Statistics;
 using GroupsCacheManager;
 using ApiObjects.BulkUpload;
+using Core.Api;
 
 namespace Core.Catalog
 {
@@ -17,8 +18,11 @@ namespace Core.Catalog
         #region added from IndexManager
         bool UpsertMedia(long assetId);
         string SetupEpgV2Index(string indexNmae);
-
-        bool ForceRefreshEpgV2Index(string indexName);
+        void SetupEpgV3Index();
+        void MigrateEpgToV3(int batchSize, EpgFeatureVersion originalEpgVersion);
+        void RollbackEpgV3ToV2(int batchSize);
+        void RollbackEpgV3ToV1(int batchSize);
+        bool ForceRefreshEpgIndex(string indexName);
         bool FinalizeEpgV2Indices(List<DateTime> date);
 
         bool CompactEpgV2Indices(int futureIndexCompactionStart, int pastIndexCompactionStart);
@@ -39,6 +43,14 @@ namespace Core.Catalog
         void UpsertPrograms(IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName, LanguageObj defaultLanguage, IDictionary<string, LanguageObj> languages);
         void DeletePrograms(IList<EpgProgramBulkUploadObject> programsToDelete, string epgIndexName,
             IDictionary<string, LanguageObj> languages);
+
+        /// <summary>
+        /// applies CRUD operations of epg to elasticsearch with transaction using parent child relation
+        /// NOTE! it is expected that the items to update will contain the original in items to delete
+        /// </summary>
+        void ApplyEpgCrudOperationWithTransaction(string transactionId, List<EpgCB> programsToIndex, List<EpgCB> programsToDelete);
+
+        void CommitEpgCrudTransaction(string transactionId, long linearChannelId);
         // ................................................................................................
 
         IList<EpgProgramBulkUploadObject> GetCurrentProgramsByDate(int channelId, DateTime fromDate, DateTime toDate);
@@ -98,8 +110,7 @@ namespace Core.Catalog
         // programs
 
         List<string> GetChannelPrograms(int channelId, DateTime startDate, DateTime endDate, List<ESOrderObj> esOrderObjs);
-        List<string> GetEpgCBDocumentIdsByEpgId(
-            IEnumerable<long> epgIds, IEnumerable<LanguageObj> languages);
+        List<string> GetEpgCBDocumentIdsByEpgId(IEnumerable<long> epgIds, IEnumerable<LanguageObj> languages);
 
         // rebuilders
         bool SetupMediaIndex(DateTime indexDate);
@@ -138,6 +149,6 @@ namespace Core.Catalog
         SearchResultsObj SearchMedias(MediaSearchObj search, int langId, bool useStartDate);
         SearchResultsObj SearchSubscriptionMedias(List<MediaSearchObj> oSearch, int nLangID, bool shouldUseStartDate, string sMediaTypes, OrderObj orderObj, int nPageIndex, int nPageSize);
         SearchResultsObj SearchEpgs(EpgSearchObj epgSearch);
-        List<string> GetAutoCompleteList(MediaSearchObj mediaSearch, int nLangID, ref int nTotalItems);    
+        List<string> GetAutoCompleteList(MediaSearchObj mediaSearch, int nLangID, ref int nTotalItems);
     }
 }

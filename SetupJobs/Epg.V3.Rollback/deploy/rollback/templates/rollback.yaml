@@ -1,0 +1,55 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: epg-v3-rollback-{{ .Values.partner }}
+  namespace: default
+spec:
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
+      labels:
+        app: phoenix-epg-v3-rollback-{{ .Values.partner }}
+        allow_db: "true"
+    spec:
+      serviceAccountName: phoenix
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      volumes:
+      - name: epg-v3-rollback-{{ .Values.partner }}-conf
+        configMap:
+          name: epg-v3-rollback-{{ .Values.partner }}-conf
+      containers:
+      - name: epg-v3-rollback-{{ .Values.partner }}
+        image: {{ .Values.account }}.dkr.ecr.{{ .Values.region }}.amazonaws.com/{{ .Values.image }}
+        imagePullPolicy: "Always"
+        resources:
+          limits:
+            cpu: 2
+            memory: 2G
+          requests:
+            cpu: 2
+            memory: 2G
+        env:
+          - name: TCM_URL
+            value: {{ .Values.tcm_url | quote }}
+          - name: TCM_APP
+            value: {{ .Values.tcm_app | quote }}
+          - name: TCM_SECTION
+            value: {{ .Values.tcm_section | quote }}
+          - name: TCM_HOST
+            value: {{ .Values.tcm_host | quote }}
+          - name: TCM_APP_ID
+            value: '5bf8cf60'
+          - name: TCM_APP_SECRET
+            value: '5aaa99331c18f6bad4adeef93ab770c2'
+        volumeMounts:
+          - name: epg-v3-rollback-{{ .Values.partner }}-conf
+            mountPath: /opt/Epg.V3.Rollback/appsettings.json
+            subPath: appsettings.json
+        ports:
+          - name: http
+            containerPort: 6060
+      restartPolicy: Never

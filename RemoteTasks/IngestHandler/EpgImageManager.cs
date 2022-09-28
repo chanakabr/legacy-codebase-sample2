@@ -79,6 +79,7 @@ namespace IngestHandler
 
         public static async Task<IEnumerable<GenericResponse<EpgPicture>>> UploadEPGPictures(int groupID, IList<EpgPicture> pics)
         {
+            var groupDefaultEpgRatio = ImageUtils.GetGroupDefaultEpgRatio(groupID);
             var results = pics.Select(p => new GenericResponse<EpgPicture>(Status.Ok, p)).ToList();
             ValidatePicturesHasUrl(results);
             var validPicturesToUpload = results.Where(p => p.IsOkStatusCode()).ToList();
@@ -88,7 +89,7 @@ namespace IngestHandler
 
             foreach (var pic in validPicturesToUpload)
             {
-                if (pic.Object.RatioId <= 0) { pic.Object.RatioId = ImageUtils.GetGroupDefaultEpgRatio(groupID); }
+                if (pic.Object.RatioId <= 0) { pic.Object.RatioId = groupDefaultEpgRatio; }
                 var picName = getPictureFileName(pic.Object.Url);
                 picName = string.Format("{0}_{1}_{2}", pic.Object.ChannelId, pic.Object.RatioId, picName);
                 pic.Object.PicName = picName;

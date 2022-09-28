@@ -13,7 +13,7 @@ namespace DAL
     {
         int AddPartner(int? partnerId, string partnerName, long updaterId);
         List<Partner> GetPartners();
-        bool SetupPartnerInDb(long partnerId, string name, long updaterId);
+        bool SetupPartnerInDb(long partnerId, string name, long updaterId, bool enableEpgV2 = false);
         bool DeletePartnerBasicDataDb(long partnerId, long updaterId);
         bool IsPartnerExists(int partnerId);
         bool DeletePartner(int partnerId, long updaterId);
@@ -59,12 +59,13 @@ namespace DAL
             return returnList;
         }
 
-        public bool SetupPartnerInDb(long partnerId, string name, long updaterId)
+        public bool SetupPartnerInDb(long partnerId, string name, long updaterId, bool enableEpgV2 = false)
         {
             var sp = new StoredProcedure("Create_GroupBasicData");
             sp.AddParameter("@groupId", partnerId);
             sp.AddParameter("@name", name);
             sp.AddParameter("@updaterId", updaterId);
+            sp.AddParameter("@isEpgIngestV2", enableEpgV2? 1:0);
 
             return sp.ExecuteReturnValue<int>() > 0;
         }

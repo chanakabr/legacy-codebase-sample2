@@ -68,6 +68,7 @@ namespace Tvinci.Core.DAL
     public interface IChannelRepository
     {
         bool IsChannelExists(int groupId, long id);
+        List<LinearChannelSettings> GetLinearChannelSettings(int groupId, List<int> epgChannelIDs);
     }
 
     public class CatalogDAL : BaseDal, ICategoryRepository, ITopicRepository, IChannelRepository
@@ -4186,7 +4187,7 @@ namespace Tvinci.Core.DAL
             return UtilsDal.GetObjectFromCB<PlayCycleSession>(eCouchbaseBucket.SOCIAL, key);
         }
 
-        public static List<LinearChannelSettings> GetLinearChannelSettings(int groupId, List<int> epgChannelIDs)
+        public List<LinearChannelSettings> GetLinearChannelSettings(int groupId, List<int> epgChannelIDs)
         {
             try
             {
@@ -5951,6 +5952,23 @@ namespace Tvinci.Core.DAL
             return sp.Execute();
         }
 
+        public static DataTable GetBulkUploadSummary(long groupId, string bulkObjectType, long CreateDateGreaterThanOrEqual)
+        {
+            var sinceDate = DateTimeOffset.FromUnixTimeSeconds(CreateDateGreaterThanOrEqual);
+            var q = new DataSetSelectQuery();
+            q.SetConnectionKey("MAIN_CONNECTION_STRING");
+            q += "SELECT [STATUS], count([ID]) as [BULK_UPLOAD_COUNT] FROM dbo.bulk_uploads with (nolock) WHERE ";
+            q += ODBCWrapper.Parameter.NEW_PARAM("[GROUP_ID]", "=", groupId);
+            q += " and ";
+            q += ODBCWrapper.Parameter.NEW_PARAM("[BULK_OBJECT_TYPE]", "=", bulkObjectType);
+            q += " and ";
+            q += ODBCWrapper.Parameter.NEW_PARAM("[CREATE_DATE]", ">=", sinceDate);
+
+            q += "GROUP BY [STATUS]";
+
+            return q.Execute("query", true);
+        }
+
         public static bool SaveBulkUploadCB(BulkUpload bulkUploadToSave, uint ttl)
         {
             var bulkUploadKey = GetBulkUploadKey(bulkUploadToSave.Id);
@@ -5967,7 +5985,7 @@ namespace Tvinci.Core.DAL
             var isUpdateSuccess = UtilsDal.SaveObjectWithVersionCheckInCB<BulkUpload>(ttl, eCouchbaseBucket.OTT_APPS, bulkUploadKey, bulkUpload =>
             {
                 bulkUpload.Results[resultIndex] = bulkUploadResultToSave;
-                bulkUpload.Status = GetBulkStatusByResultsStatus(bulkUpload);
+                bulkUpload.Status = BulkUpload.GetBulkStatusByResultsStatus(bulkUpload);
                 log.Debug($"SaveBulkUploadResultsCB > updated from status {currentBulkUpload.Status}, calculated bulkUpload.Status:[{bulkUpload.Status}]");
 
                 actualStatusThatWasUpdated = bulkUpload.Status;
@@ -5997,7 +6015,7 @@ namespace Tvinci.Core.DAL
                 {
                     bulkUpload.Results[resultToSave.Index] = resultToSave;
                 }
-                statusAfterUpdate = GetBulkStatusByResultsStatus(bulkUpload);
+                statusAfterUpdate = BulkUpload.GetBulkStatusByResultsStatus(bulkUpload);
                 log.Debug($"SaveBulkUploadResultsCB > updated resultsToSave.Count:[{resultsToSave.Count}], calculated bulkUpload.Status:[{bulkUpload.Status}]");
 
             }, compress: true, updateObjectActionIfNotExist: false, limitMaxNumOfInsertTries: MAX_CB_UPDATE_ATTEMPTS_FOR_BULK_UPLOAD, retryStrategy: BulkUploadRetryStrategy.Linear);
@@ -6014,7 +6032,7 @@ namespace Tvinci.Core.DAL
             var isSaveSuccess = UtilsDal.SaveObjectWithVersionCheckInCB<BulkUpload>(ttl, eCouchbaseBucket.OTT_APPS, bulkUploadKey, bulkUpload =>
             {
                 bulkUpload.Status = bulkUploadToSave.Status;
-                bulkUpload.Status = GetBulkStatusByResultsStatus(bulkUpload);
+                bulkUpload.Status = BulkUpload.GetBulkStatusByResultsStatus(bulkUpload);
                 log.Debug($"SaveBulkUploadResultsCB > updated from status {bulkUploadToSave.Status}, calculated bulkUpload.Status:[{bulkUpload.Status}]");
 
                 statusThatWasActuallyUpdated = bulkUpload.Status;
@@ -6029,46 +6047,6 @@ namespace Tvinci.Core.DAL
         {
             string bulkUploadKey = GetBulkUploadKey(bulkUploadId);
             return UtilsDal.GetObjectFromCB<BulkUpload>(eCouchbaseBucket.OTT_APPS, bulkUploadKey);
-        }
-
-        // TODO: Arthur find a better name for this method
-        private static BulkUploadJobStatus GetBulkStatusByResultsStatus(BulkUpload bulkUpload)
-        {
-            var newStatus = bulkUpload.Status;
-            var noObjectsToIngest = !bulkUpload.NumOfObjects.HasValue || bulkUpload.NumOfObjects.Value == 0;
-            var noResultsToIngest = bulkUpload.Results == null || bulkUpload.Results.Count == 0;
-            if (noObjectsToIngest || noResultsToIngest)
-            {
-                return newStatus;
-            }
-
-            var isAnyInError = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Error);
-            var isAnyInOk = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Ok);
-            var isAnyInProgress = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.InProgress);
-
-            // there are still items in progress we will return the current proccessing\parsing etc.. status 
-            if (isAnyInProgress)
-            {
-                return newStatus;
-            }
-
-            // there are no items in progress anymore, so we check if all OK or some failed..
-            // found some errors there might be partial or total failue 
-            if (isAnyInError)
-            {
-                if (isAnyInOk)
-                {
-                    return BulkUploadJobStatus.Partial;
-                }
-                else
-                {
-                    return BulkUploadJobStatus.Failed;
-                }
-            }
-            else
-            {
-                return BulkUploadJobStatus.Success;
-            }
         }
 
         #endregion

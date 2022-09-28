@@ -80,6 +80,24 @@ namespace WebAPI.Models.Partner
         [XmlElement(ElementName = "apptokenUserValidationDisabled")]
         public bool ApptokenUserValidationDisabled { get; set; }
 
+
+        /// <summary>
+        /// epgFeatureVersion
+        /// defines the epg feature version from version 1 to version 3
+        /// if not provided v2 will be used
+        /// </summary>
+        [DataMember(Name = "epgFeatureVersion")]
+        [JsonProperty("epgFeatureVersion")]
+        [XmlElement(ElementName = "epgFeatureVersion")]
+        [SchemeProperty(MinInteger = 1, MaxInteger = 3, Default = 2,IsNullable = true)]
+        public int? EpgFeatureVersion { get; set; }
+
+        protected override void Init()
+        {
+            base.Init();
+            EpgFeatureVersion = 1;
+        }
+
         internal override bool Update(int groupId)
         {
             throw new NotImplementedException();

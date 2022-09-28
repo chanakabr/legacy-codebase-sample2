@@ -79,5 +79,35 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+
+        //TODO bulkUpload/action/summary is used for testing and was not approved yet by SA, once approved we can get it back
+        ///// <summary>
+        ///// Get BulkUpload count summary by status
+        ///// </summary>
+        ///// <param name="bulkObjectTypeEqual">bulkUploadObject for status summary</param>
+        ///// <param name="createDateGreaterThanOrEqual">date created filter</param>
+        ///// <returns></returns>
+        //[Action("summary")]
+        //// TODO: Arthur only commit for OHS testing so we wont have to update DB otherwise remove before pr review or PROD!!!!!!
+        ////[ApiAuthorize]
+        //[ValidationException(SchemeValidationType.ACTION_NAME)]
+        //[ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        //static public KalturaBulkUploadSummary Summary(string bulkObjectTypeEqual, long createDateGreaterThanOrEqual)
+        //{
+        //    KalturaBulkUploadSummary response = null;
+        //    int groupId = KS.GetFromRequest().GroupId;
+
+        //    try
+        //    {
+        //        response = ClientsManager.CatalogClient().GetBulkUploadStatusSummary(groupId, bulkObjectTypeEqual, createDateGreaterThanOrEqual);
+        //    }
+        //    catch (ClientException ex)
+        //    {
+        //        ErrorUtils.HandleClientException(ex);
+        //    }
+
+        //    return response;
+        //}
     }
 }

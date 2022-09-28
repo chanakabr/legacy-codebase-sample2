@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Polly;
 using Polly.Retry;
+using System.Timers;
 
 namespace EventBus.RabbitMQ
 {
@@ -28,6 +29,8 @@ namespace EventBus.RabbitMQ
 
     public static class KalturaEventBusRabbitMQConsumerServiceExtensions
     {
+        private const string ENABLE_NEW_PARTNER_DETECTION_POLLING_ENV_KEY = "OTT_ENABLE_NEW_PARTNER_DETECTION_POLLING";
+        private const string NEW_PARTNER_DETECTION_POLLING_INTERVAL_SEC_ENV_KEY = "OTT_NEW_PARTNER_DETECTION_POLLING_INTERVAL_SEC";
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private static readonly Assembly _EntryAssembly = Assembly.GetEntryAssembly();
@@ -140,8 +143,50 @@ namespace EventBus.RabbitMQ
                     eventBus.Subscribe(eventType, handler);
                 }
 
+                AddNewPartnerDetectionPolling(eventBus);
+
                 return eventBus;
             }));
+        }
+
+        private static void AddNewPartnerDetectionPolling(EventBusConsumerRabbitMQ eventBus)
+        {
+            var isNewPartnerDetectionPollingEnabled = Environment.GetEnvironmentVariable(ENABLE_NEW_PARTNER_DETECTION_POLLING_ENV_KEY);
+            var newPartnerDetectionPollingIntervalSec = Environment.GetEnvironmentVariable(NEW_PARTNER_DETECTION_POLLING_INTERVAL_SEC_ENV_KEY);
+            _Logger.InfoFormat($"[{ENABLE_NEW_PARTNER_DETECTION_POLLING_ENV_KEY}]=[{isNewPartnerDetectionPollingEnabled}], [{NEW_PARTNER_DETECTION_POLLING_INTERVAL_SEC_ENV_KEY}] = [{newPartnerDetectionPollingIntervalSec}]");
+
+            if (isNewPartnerDetectionPollingEnabled != null)
+            {
+                if (isNewPartnerDetectionPollingEnabled.Equals("true", StringComparison.OrdinalIgnoreCase) || isNewPartnerDetectionPollingEnabled.Equals("1", StringComparison.OrdinalIgnoreCase))
+                {
+                    var pollingInterval = TimeSpan.FromSeconds(5);
+                    if (newPartnerDetectionPollingIntervalSec != null && int.TryParse(newPartnerDetectionPollingIntervalSec, out var pollingIntervalFromEnv))
+                    {
+                        pollingInterval = TimeSpan.FromSeconds(pollingIntervalFromEnv);
+                    }
+
+                    _Logger.InfoFormat($"[{NEW_PARTNER_DETECTION_POLLING_INTERVAL_SEC_ENV_KEY}] is set to value [{newPartnerDetectionPollingIntervalSec}], using:[{pollingInterval}]");
+
+                    var t = new Timer(pollingInterval.TotalMilliseconds);
+                    t.Elapsed += (sender, e) =>
+                    {
+                        var currentPartners = eventBus.GetDedicatedConsumerPartnerIds();
+                        var polledPartners = GetDedicatedConsumerPartnerIds();
+                        _Logger.Debug($"pollin new partners new currentPartners:[{string.Join(",", currentPartners)}], polledPartners:[{string.Join(",", polledPartners)}]");
+                        var newPartnerIds = polledPartners.Distinct().Except(currentPartners.Distinct());
+                        if (newPartnerIds.Any())
+                        {
+                            foreach (var newPartnerId in newPartnerIds)
+                            {
+                                _Logger.Info($"detected new partnerID:[{newPartnerId}], adding new consumer");
+                                eventBus.AddNewPartnerDedicatedConsumer(newPartnerId);
+                            }
+                        }
+
+                    };
+                    t.Start();
+                }
+            }
         }
 
         private static IEnumerable<int> GetDedicatedConsumerPartnerIds()

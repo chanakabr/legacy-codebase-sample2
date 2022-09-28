@@ -9,7 +9,9 @@ using System.Text;
 using System.Threading;
 using ApiLogic.EPG;
 using ApiObjects.Epg;
+using Core.Api;
 using Tvinci.Core.DAL;
+using System.Data;
 
 namespace Core.GroupManagers
 {
@@ -17,31 +19,32 @@ namespace Core.GroupManagers
     {
         bool IsOpc(int groupId);
         bool IsTvm(int groupId);
-        
+
         bool DoesGroupUsesTemplates(int groupId);
 
-        bool DoesGroupUseNewEpgIngest(int groupId);
+        EpgFeatureVersion GetEpgFeatureVersion(int partnerId);
+        IEnumerable<int> GetPartnersByEpgFeatureVersion(params EpgFeatureVersion[] versionsIn);
     }
-    
+
     public class GroupSettingsManager : IGroupSettingsManager
     {
         private readonly ILayeredCache _layeredCache;
-        private readonly IEpgV2PartnerConfigurationManager _epgV2PartnerConfigurationManager;
+        private readonly IEpgPartnerConfigurationManager _epgPartnerConfigurationManager;
         private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private static readonly Lazy<IGroupSettingsManager> _lazy =
             new Lazy<IGroupSettingsManager>(GetGroupSettingsManagerInstance, LazyThreadSafetyMode.PublicationOnly);
 
         public static IGroupSettingsManager Instance => _lazy.Value;
-        
-        private static IGroupSettingsManager GetGroupSettingsManagerInstance() => new GroupSettingsManager(LayeredCache.Instance, EpgV2PartnerConfigurationManager.Instance);
 
-        public GroupSettingsManager(ILayeredCache layeredCache, IEpgV2PartnerConfigurationManager epgV2PartnerConfigurationManager)
+        private static IGroupSettingsManager GetGroupSettingsManagerInstance() => new GroupSettingsManager(LayeredCache.Instance, EpgPartnerConfigurationManager.Instance);
+
+        public GroupSettingsManager(ILayeredCache layeredCache, IEpgPartnerConfigurationManager epgPartnerConfigurationManager)
         {
             _layeredCache = layeredCache;
-            _epgV2PartnerConfigurationManager = epgV2PartnerConfigurationManager;
+            _epgPartnerConfigurationManager = epgPartnerConfigurationManager;
         }
-        
+
         public bool IsOpc(int groupId) => DoesGroupUsesTemplates(groupId);
         public bool IsTvm(int groupId) => !IsOpc(groupId);
 
@@ -66,13 +69,42 @@ namespace Core.GroupManagers
             return result;
         }
 
-        public bool DoesGroupUseNewEpgIngest(int groupId)
+        public EpgFeatureVersion GetEpgFeatureVersion(int partnerId)
         {
-            var epgV2PartnerConfig = _epgV2PartnerConfigurationManager.GetConfiguration(groupId);
-            
-            
+            var epgV3PartnerConfig = _epgPartnerConfigurationManager.GetEpgV3Configuration(partnerId);
+            if (epgV3PartnerConfig.IsEpgV3Enabled) { return EpgFeatureVersion.V3; }
 
-            return epgV2PartnerConfig.IsEpgV2Enabled;
+            var epgV2PartnerConfig = _epgPartnerConfigurationManager.GetEpgV2Configuration(partnerId);
+            if (epgV2PartnerConfig.IsEpgV2Enabled) { return EpgFeatureVersion.V2; }
+
+            return EpgFeatureVersion.V1;
+        }
+
+        public IEnumerable<int> GetPartnersByEpgFeatureVersion(params EpgFeatureVersion[] versionsIn)
+        {
+            var dt = DAL.ApiDAL.Get_SubGroupsTree();
+            if (dt == null) { _logger.Error($"error while getting list of groups from db."); }
+            var parentGroupIds = new HashSet<long>();
+            if (dt.Rows != null)
+            {
+                foreach (DataRow row in dt.Rows)
+                {
+                    var id = (long)row["ID"];
+                    var parentId = (long)row["PARENT_GROUP_ID"];
+                    if (parentId == 1) { parentGroupIds.Add(id); }
+                }
+            }
+
+            _logger.Debug($"found list of parentGroupIds:[{string.Join(",", parentGroupIds)}]");
+
+            var groupsThatImplementRequiredEpgVersion = parentGroupIds
+                .Select(pId => (int)pId)
+                .Where(pId => versionsIn
+                .Contains(GetEpgFeatureVersion(pId)))
+                .ToList();
+
+            return groupsThatImplementRequiredEpgVersion;
+
         }
 
         private static Tuple<bool, bool> DoesGroupUsesTemplates(Dictionary<string, object> funcParams)

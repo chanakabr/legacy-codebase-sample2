@@ -1,0 +1,149 @@
+library identifier: 'ott-lib-jenkins@master', retriever: modernSCM([$class: 'GitSCMSource', credentialsId: 'github-ott-ci-cd', remote: 'https://github.com/kaltura/ott-lib-jenkins'])
+GREEN="\u001B[32m"
+RED="\u001B[31m"
+ANSI_END="\u001B[0m"
+BLUE="\u001B[34m"
+CYAN="\u001B[36m"
+YELLOW="\u001B[33m"
+
+properties([
+    parameters([
+        choice(name: 'target_env', choices: ['onebox','frs1', 'sgs1', 'frt1', 'vrs1', 'ohs1', 'prt1', 'ort2', 'sgt2', 'orp2'], defaultValue: "onebox"),
+        string(name: 'onebox_host'),
+        string(name: 'partner'),
+        string(name: 'batch_size', defaultValue: "2000"),
+        choice(name: 'original_epg_version', choices: ['1','2']),
+        string(name: 'tag', defaultValue: "build"),
+    ])
+])
+
+lock(resource: "Queue_${env.JOB_NAME}_${target_env}_${partner}", inversePrecedence: false) {
+    node('Linux'){
+        
+        AWS_REGION="us-west-2"
+        ECR_URL ='870777418594.dkr.ecr.us-west-2.amazonaws.com'
+        PIPECLI_VERSION="1.0.3"
+        PIPECLI="docker run 870777418594.dkr.ecr.us-west-2.amazonaws.com/pipecli:${PIPECLI_VERSION} python pipecli.py"
+        HELM="docker run -i --rm -v \$(pwd)/SetupJobs/Epg.V3.Rollback/deploy:/deploy -w /deploy 870777418594.dkr.ecr.us-west-2.amazonaws.com/helm3-aws:latest"
+        sh "region=\$(wget -qO- http://169.254.169.254/latest/meta-data/placement/availability-zone | sed 's/.\$//');login=\$(aws ecr get-login --no-include-email --region \$region); \$login "
+        sh "\$(aws ecr get-login --no-include-email --region ${AWS_REGION})"
+        sh "docker pull 870777418594.dkr.ecr.us-west-2.amazonaws.com/pipecli:${PIPECLI_VERSION}"
+       
+        branch = "$BRANCH_NAME"
+        repo = "ott-service-phoenix-epg-v3-rollback"
+        image = "${branch.toLowerCase()}/${repo}:${tag}"
+        app_name = "phoenix-epg-v3-rollback"
+        component_name = "epg-v3-rollback"
+        component_name_und = sh (script: "echo ${component_name} | sed -r 's/-/_/g'",returnStdout: true).trim()
+
+        deleteDir()
+        checkout scm
+        currentBuild.displayName = "#${BUILD_NUMBER} - ${target_env} - ${tag} - ${partner}"
+
+        src_region = "us-west-2"
+        region =  "us-west-2"
+        if (target_env != 'onebox') { region = cd.getEnvRegion("${target_env}") }
+        ansiColor('xterm') {
+            try {
+                stage ("Check and Copy ECR")
+                {
+                    checkDestRepoImage()
+                }
+
+                stage("Deploy ${repo}:${tag} to K8s cluster")
+                {
+                    deployComponent(component_name,component_name_und)
+                }
+            }
+            catch (err) {
+                currentBuild.result = "FAILURE"
+                println(err)
+                echo "${RED}-------------------------------- Deployment failed for ${repo} Version ${tag} --------------------------------${ANSI_END}"
+            }
+        }
+    }
+}
+
+def checkDestRepoImage () {
+    if (target_env == 'onebox'){
+        echo "${GREEN}-------------------------------- Env set to ONEBOX no need to copy ECR !! --------------------------------${ANSI_END}"
+        return
+    }
+    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: "${target_env}", secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+        def exists = sh(script: "set +x; aws ecr describe-repositories --region=${region} --repository-names ${repo} --output=json > /dev/null 2>&1", returnStatus: true)
+        if (exists == 0){ // Repo exists
+            if (sh(script: "set +x; aws ecr describe-images --repository-name ${repo} --region ${region} --image-ids imageTag=${tag} > /dev/null 2>&1", returnStatus: true) != 0){
+                checkSourceRepoImage()
+                cd.copyECR(target_env, repo, tag, true)
+            } else {
+                echo "${GREEN}-------------------------------- Found ${image} Destination ECR !! --------------------------------${ANSI_END}"
+            }
+        } else {
+            checkSourceRepoImage()
+            cd.copyECR(target_env, repo, tag, true)
+        }
+    }
+}
+
+def checkSourceRepoImage () {
+    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: "qa-rnd", secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+        def exists = sh(script: "set +x; aws ecr describe-repositories --region=${src_region} --repository-names ${repo} --output=json > /dev/null 2>&1", returnStatus: true)
+        if (exists == 0){ // Repo exists
+            if (sh(script: "set +x; aws ecr describe-images --repository-name ${repo} --region ${src_region} --image-ids imageTag=${tag} > /dev/null 2>&1", returnStatus: true) != 0){
+                echo "${RED}-------------------------------- Version ${tag} for ${repo}  Not found In Source ECR !! --------------------------------${ANSI_END}"
+                currentBuild.result = "FAILURE"
+                sh "exit 1"
+            } else {
+                echo "${GREEN}-------------------------------- Found ${image} in Source ECR !! --------------------------------${ANSI_END}"
+            }
+        } else {
+            echo "${RED}-------------------------------- ${repo} Not found In Source ECR !! --------------------------------${ANSI_END}"
+            currentBuild.result = "FAILURE"
+            sh "exit 1"
+        }
+    }
+}
+
+
+def deployComponent(component_name,component_name_und){
+    withCredentials([string(credentialsId: "${target_env}_token", variable: 'argo_token')]){
+        argo_server = "argo.rnd.ott.kaltura.com"
+        insecure = ""
+        grpc_web = "--grpc-web"
+        if (target_env == 'onebox') {argo_server = onebox_host}
+        if (target_env == 'onebox') {insecure = "--insecure"}
+        if (target_env == 'onebox') {grpc_web = ""}
+        sh """
+        set +x
+        echo ${BLUE}-------------------------------- Starting Deployment Of ${component_name}-${partner} on ${target_env}... --------------------------------${ANSI_END}
+        
+        ${HELM} template argo/ -f ${target_env}.yaml\
+        --set image=${image}\
+        --set partner=${partner}\
+        --set branch=${branch}\
+        --set batch_size=${batch_size}\
+        --set original_epg_version=${original_epg_version}\
+         > deploy.yaml
+        
+        argocd app create --file deploy.yaml --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web} --upsert
+        sleep 10
+        echo ${CYAN}-------------------------------- Waiting For ${component_name}-${partner} To Start... --------------------------------${ANSI_END}
+        
+        argocd app sync ${target_env}-${component_name}-${partner} --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web} > /dev/null
+        
+        echo ${BLUE}-------------------------------- logs start --------------------------------${ANSI_END}
+        result=\$(argocd app logs ${target_env}-${component_name}-${partner} --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web})
+        while [[ "\$result" == *"ContainerCreating"* ]]; do
+            echo "Waiting for app to start..."
+            sleep 2
+            result=\$(argocd app logs ${target_env}-${component_name}-${partner} --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web})
+        done
+        argocd app logs ${target_env}-${component_name}-${partner} --server ${argo_server} --auth-token ${argo_token} --follow ${insecure} ${grpc_web} 
+        echo ${GREEN}--------------------------------  logs end --------------------------------${ANSI_END}
+
+        echo ${YELLOW}-------------------------------- Deleting ${component_name} on ${target_env}... --------------------------------${ANSI_END}
+        argocd app delete ${target_env}-${component_name}-${partner} --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web} > /dev/null
+        echo ${YELLOW}-------------------------------- ${component_name}-${partner} was Deleted Successfully --------------------------------${ANSI_END}
+        """
+    }
+}

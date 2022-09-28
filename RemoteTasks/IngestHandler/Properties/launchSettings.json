@@ -3,7 +3,16 @@
     "IngestHandler": {
       "commandName": "Project",
       "environmentVariables": {
-        "CONCURRENT_CONSUMERS": "4",
+        "OTT_ENABLE_NEW_PARTNER_DETECTION_POLLING": "true",
+        "OTT_NEW_PARTNER_DETECTION_POLLING_INTERVAL_SEC": "20",
+        //"OTT_TEST_INGEST_CONSUMER_PARTNER_IDS": "1483,8390,203",
+        "CONCURRENT_CONSUMERS": "1",
+        "MONGO_DB_CONFIGURATION__USERNAME": "kaltura",
+        "MONGO_DB_CONFIGURATION__PASSWORD": "123456",
+        "MONGO_DB_CONFIGURATION__HOSTNAME": "mongodb",
+        "MONGO_DB_CONFIGURATION__PORT": "27017",
+        "MIN_WORKER_THREADS": "5000",
+        "MIN_IO_WORKER_THREADS": "8000",
         "FeatureToggle__LaunchDarkly__SdkKey": "sdk-39ee44c3-d726-4c9a-a561-506e82c1e0c1"
       }
     }

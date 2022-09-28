@@ -11,8 +11,6 @@ using System.Linq;
 using ApiLogic.EPG;
 using ApiLogic.IndexManager.Helpers;
 using Phx.Lib.Appconfig;
-using ApiLogic.EPG;
-using ApiLogic.IndexManager.Helpers;
 using ApiObjects;
 using ApiObjects.Catalog;
 using Core.Catalog.Cache;
@@ -62,7 +60,11 @@ namespace IngestHandler.Common
         /// </summary>
         public static async Task UpdateCouchbase(CRUDOperations<EpgProgramBulkUploadObject> crudOperations, int groupId)
         {
-            var programsToAdd = crudOperations.ItemsToAdd.Concat(crudOperations.ItemsToUpdate).Concat(crudOperations.AffectedItems).ToList();
+            var programsToAdd = crudOperations.ItemsToAdd
+                .Concat(crudOperations.ItemsToUpdate)
+                .Concat(crudOperations.AffectedItems)
+                .ToList();
+            
             var dal = new EpgDal_Couchbase(groupId);
             var retryCount = 3;
             var policy = Policy.Handle<Exception>()
@@ -96,8 +98,17 @@ namespace IngestHandler.Common
 
             return languages.ToDictionary(l => l.Code);
         }
+        
+        public static IEnumerable<DateTime> CalculateIngestDates(IEnumerable<BulkUploadResult> epgBulkUploadResults)
+        {
+            var allPrograms = epgBulkUploadResults.Where(p => p.Object != null).Select(p => p.Object as EpgProgramBulkUploadObject).ToList();
+            var allProgramDates = allPrograms.Select(p => p.StartDate.Date).Distinct().ToList();
 
+            allProgramDates.Add(allPrograms.Max(x => x.StartDate.Date).AddDays(1));
+            allProgramDates.Add(allPrograms.Min(x => x.StartDate.Date).AddDays(-1));
 
+            return allProgramDates;
+        }
 
 
         /// <summary>
@@ -166,14 +177,6 @@ namespace IngestHandler.Common
                 _Logger.Error($"Error EPG ingest threw an exception. (in GetSearchEndDate). Exception={ex.Message};Stack={ex.StackTrace}", ex);
                 throw;
             }
-        }
-
-        private static List<LinearChannelSettings> GetLinearChannelSettings(int groupId, List<string> channelExternalIds)
-        {
-            var kalturaChannels = EpgDal.GetAllEpgChannelObjectsList(groupId, channelExternalIds);
-            var kalturaChannelIds = kalturaChannels.Select(k => k.ChannelId).ToList();
-            var liveAsstes = CatalogDAL.GetLinearChannelSettings(groupId, kalturaChannelIds);
-            return liveAsstes;
         }
 
         public static string GetIngestLockKey(string indexName)

@@ -109,8 +109,8 @@ namespace ApiLogic.Tests.IndexManager
             _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitions(ElasticSearch.Common.Utils.Instance, ApplicationConfiguration.Current);
             _mockMappingTypeResolver = _mockRepository.Create<IMappingTypeResolver>();
 
-            var epgV2ConfigManagerMock = new Mock<IEpgV2PartnerConfigurationManager>(MockBehavior.Loose);
-            epgV2ConfigManagerMock.Setup(m => m.GetConfiguration(It.IsAny<int>())).Returns(new EpgV2PartnerConfiguration()
+            var epgV2ConfigManagerMock = new Mock<IEpgPartnerConfigurationManager>(MockBehavior.Loose);
+            epgV2ConfigManagerMock.Setup(m => m.GetEpgV2Configuration(It.IsAny<int>())).Returns(new EpgV2PartnerConfiguration()
             {
                 // all tests assume they use epg v1 unless a method for epg v2 is explcitly called
                 IsEpgV2Enabled = false,

@@ -1,0 +1,12 @@
+account: "580180864418"
+region: eu-central-1
+cluster_name: frs1
+destination_cluster: https://14673F5AA454BCD119BA82A7A0D2555F.gr7.eu-central-1.eks.amazonaws.com
+branch: dev
+
+# TCM Url for all components
+tcm_from_local: "false"
+tcm_url: https://tcm.service.consul:8443
+tcm_app: OTT_API_SV
+tcm_section: httpsk8s
+tcm_host: main

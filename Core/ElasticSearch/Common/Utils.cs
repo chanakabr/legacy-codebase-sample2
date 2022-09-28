@@ -27,10 +27,11 @@ namespace ElasticSearch.Common
         {
         }
 
-        public static readonly string ES_STATS_TYPE = "stats";
-        public static readonly string ES_DATE_FORMAT = "yyyyMMddHHmmss";
-        public static readonly string ES_DATEONLY_FORMAT = "yyyyMMdd";
-        public static readonly string ES_PERCOLATOR_TYPE = ".percolator";
+        public const string ES_STATS_TYPE = "stats";
+        public const string ES_DATE_FORMAT = "yyyyMMddHHmmss";
+        public const string ES_DATEONLY_FORMAT = "yyyyMMdd";
+        public const string ES_PERCOLATOR_TYPE = ".percolator";
+        public const string ES_DOCUMENT_TRANSACTIONAL_STATUS_FIELD_NAME = "__documentTransactionalStatus";
 
         public string GetTcmValue(string sKey)
         {

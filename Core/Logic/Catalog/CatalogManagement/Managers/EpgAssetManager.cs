@@ -16,6 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ApiLogic.Catalog.CatalogManagement.Helpers;
 using ApiLogic.Catalog.CatalogManagement.Services;
+using Core.Api;
 using ElasticSearch.Utilities;
 using EventBus.Kafka;
 using OTT.Lib.Kafka;
@@ -200,14 +201,8 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                var isIngestV2 = GroupSettingsManager.Instance.DoesGroupUseNewEpgIngest(groupId);
-                if (isIngestV2)
-                {
-                    var epgBl = new TvinciEpgBL(groupId);
-                    newEpgId = (long)epgBl.GetNewEpgId();
-                    epgCbToAdd.IsIngestV2 = true;
-                }
-                else
+                var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(groupId);
+                if (epgFeatureVersion == EpgFeatureVersion.V1)
                 {
                     newEpgId = EpgDal.InsertEpgToDB(epgCbToAdd, userId, dateTimeNow, epgMetaIdToValues, catalogGroupCache.GetDefaultLanguage().ID, epgTagsIds);
                     if (newEpgId == 0)
@@ -216,6 +211,14 @@ namespace Core.Catalog.CatalogManagement
                         return result;
                     }
                 }
+                else // V2 , V3 using CB to generate IDs and do not use Sql
+                {
+                    var epgBl = new TvinciEpgBL(groupId);
+                    newEpgId = (long)epgBl.GetNewEpgId();
+
+                    // TODO: Why is this field assigned, it is never in use.
+                    epgCbToAdd.IsIngestV2 = true;
+                }
 
                 epgCbToAdd.EpgID = (ulong)newEpgId;
 
@@ -223,8 +226,7 @@ namespace Core.Catalog.CatalogManagement
                 var epgTags = GetEpgTags(epgAssetToAdd.Tags, allNames, defaultLanguageCode);
 
                 // insert epgCb to CB in all languages
-                var epgsToIndex = SaveEpgCbToCB(groupId, epgCbToAdd,
-                    defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags, true);
+                var epgsToIndex = SaveEpgCbToCB(groupId, epgCbToAdd, defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags, true);
 
                 var linearChannelSettingsForEpgCb = Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, new List<string>() { epgCbToAdd.ChannelID.ToString() });
                 bool indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertProgram(
@@ -242,7 +244,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 SendActionEvent(groupId, newEpgId, eAction.On);
-                
+
                 result = AssetManager.Instance.GetAsset(groupId, newEpgId, eAssetTypes.EPG, true);
                 if (result.IsOkStatusCode())
                 {
@@ -306,8 +308,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                // Ingest V2 does not use DB anymore so we will wrap all EpgDAL calls in !isIngestV2
-                var isIngestV2 = GroupSettingsManager.Instance.DoesGroupUseNewEpgIngest(groupId);
+                var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(groupId);
 
                 // update Epg_channels_schedule table (basic data)
                 epgCBToUpdate = CreateEpgCbFromEpgAsset(epgAssetToUpdate, groupId, epgAssetToUpdate.CreateDate.Value, updateDate);
@@ -318,7 +319,7 @@ namespace Core.Catalog.CatalogManagement
                     epgCBToUpdate.Name = epgAssetToUpdate.Name;
                     epgCBToUpdate.Description = epgAssetToUpdate.Description;
 
-                    if (!isIngestV2)
+                    if (epgFeatureVersion == EpgFeatureVersion.V1)
                     {
                         DataTable dtEpgChannelsScheduleToUpdate = GetEpgChannelsScheduleTable();
                         dtEpgChannelsScheduleToUpdate.Rows.Add(GetEpgChannelsScheduleRow(epgCBToUpdate, dtEpgChannelsScheduleToUpdate, updateDate, userId));
@@ -347,7 +348,7 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
 
-                    if (!isIngestV2)
+                    if (epgFeatureVersion == EpgFeatureVersion.V1)
                     {
                         EpgDal.UpdateEpgMetas(epgAssetToUpdate.Id, epgMetaIdToValues, userId, updateDate, groupId, catalogGroupCache.GetDefaultLanguage().ID);
                     }
@@ -355,7 +356,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (needToUpdateTags)
                 {
-                    if (!isIngestV2)
+                    if (epgFeatureVersion == EpgFeatureVersion.V1)
                     {
                         EpgDal.UpdateEpgTags(epgAssetToUpdate.Id, epgTagsIds, userId, updateDate, groupId);
                     }
@@ -380,7 +381,7 @@ namespace Core.Catalog.CatalogManagement
 
                 // delete index, if EPG moved to another day
                 var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
-                if (epgAssetToUpdate.StartDate?.Date != oldEpgAsset.StartDate?.Date && isIngestV2)
+                if (epgFeatureVersion == EpgFeatureVersion.V2 && epgAssetToUpdate.StartDate?.Date != oldEpgAsset.StartDate?.Date)
                 {
                     var epgIds = new List<long> { epgAssetToUpdate.Id };
                     var deleteIndexResult = indexManager.DeleteProgram(epgIds);
@@ -435,10 +436,9 @@ namespace Core.Catalog.CatalogManagement
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-            var isIngestV2 = GroupSettingsManager.Instance.DoesGroupUseNewEpgIngest(groupId);
-
-            // Ingest V2 is not using DB anymore so we will skip the DB deletion and move to deleting the index and CB
-            if (!isIngestV2)
+            var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(groupId);
+            // only Ingest V1 is using DB
+            if (epgFeatureVersion == EpgFeatureVersion.V1)
             {
                 var isEpgDeletedFromDB = EpgDal.DeleteEpgAsset(epgId, userId);
                 if (!isEpgDeletedFromDB)
@@ -544,8 +544,8 @@ namespace Core.Catalog.CatalogManagement
                     var programTagIds = tagTopics.Select(x => mappingFields[FieldTypes.Tag][x.SystemName.ToLower()]).ToList();
                     var tagsToRemoveByName = tagTopics.Select(x => x.SystemName.ToLower()).ToList();
 
-                    var isIngestV2 = GroupSettingsManager.Instance.DoesGroupUseNewEpgIngest(groupId);
-                    if (!isIngestV2)
+                    var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(groupId);
+                    if (epgFeatureVersion == EpgFeatureVersion.V1)
                     {
                         var metasAndTagsRemoved = EpgDal.RemoveMetasAndTagsFromProgram(groupId, epgAsset.Id, programMetaIds, programTagIds, userId);
                         if (!metasAndTagsRemoved)
@@ -665,7 +665,9 @@ namespace Core.Catalog.CatalogManagement
 
                         var groupEpgPicturesSizes = ImageManager.GetGroupEpgPicturesSizes(groupId.Value);
 
-                        var isNewEpgIngestEnabled = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId.Value, GroupFeature.EPG_INGEST_V2);
+                        var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(groupId.Value);
+                        // isNewEpgIngestEnabled = means epg v2 or v3
+                        var isNewEpgIngestEnabled = epgFeatureVersion != EpgFeatureVersion.V1;
 
                         Dictionary<string, string> epgIdToDocumentId = null;
                         if (isNewEpgIngestEnabled && funcParams.ContainsKey("epgIdToDocumentId"))
@@ -761,7 +763,7 @@ namespace Core.Catalog.CatalogManagement
                 programs.Add((docId, epgCB));
             }
 
-            CatalogManager.Instance.GetLinearChannelValues(programs.Select(p => p.epg).ToList(), groupId, _ => {});
+            CatalogManager.Instance.GetLinearChannelValues(programs.Select(p => p.epg).ToList(), groupId, _ => { });
 
             foreach (var program in programs)
             {

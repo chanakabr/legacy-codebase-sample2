@@ -4,9 +4,11 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using ApiLogic.IndexManager.Transaction;
 using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Epg;
+using Elasticsearch.Net;
 using ElasticSearch.NEST;
 using Nest;
 using Newtonsoft.Json;
@@ -66,13 +68,18 @@ namespace ApiLogic.IndexManager.NestData
         public long? RecordingId { get; set; }
 
         [PropertyName("regions")]
-        public List<int> Regions{ get; set; }
+        public List<int> Regions { get; set; }
 
         [PropertyName("__expiration")]
         public long? Expiration { get; set; }
 
         [PropertyName("external_offer_ids")]
         public List<string> ExternalOfferIds { get; set; }
+
+        [PropertyName("__documentTransactionalStatus")]
+        public string DocumentTransactionalStatus { get; set; }
+
+        public JoinField Transaction { get; set; }
 
         #endregion
 
@@ -131,7 +138,7 @@ namespace ApiLogic.IndexManager.NestData
 
             if (epgCb.Metas != null)
             {
-                foreach (var epgCbMeta in epgCb.Metas.Where(x=>!x.Key.IsNullOrEmptyOrWhiteSpace()))
+                foreach (var epgCbMeta in epgCb.Metas.Where(x => !x.Key.IsNullOrEmptyOrWhiteSpace()))
                 {
                     metas[epgCbMeta.Key.ToLower()] =
                         epgCbMeta.Value.Select(x => ESUtils.ReplaceDocumentReservedCharacters(x, false)).ToHashSet();
@@ -146,7 +153,7 @@ namespace ApiLogic.IndexManager.NestData
 
             if (epgCb.Tags != null)
             {
-                foreach (var tag in epgCb.Tags.Where(x=>!x.Key.IsNullOrEmptyOrWhiteSpace()))
+                foreach (var tag in epgCb.Tags.Where(x => !x.Key.IsNullOrEmptyOrWhiteSpace()))
                 {
                     tags[tag.Key.ToLower()] = tag.Value.Select(x => ESUtils.ReplaceDocumentReservedCharacters(x, false)).ToHashSet();
                 }
@@ -201,5 +208,12 @@ namespace ApiLogic.IndexManager.NestData
             return epgItem;
         }
 
+    }
+
+
+    [ElasticsearchType(RelationName = "epg_transaction")]
+    public class NESTEpgTransaction 
+    {
+        public JoinField Transaction { get; set; }
     }
 }

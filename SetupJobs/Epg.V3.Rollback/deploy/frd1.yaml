@@ -1,0 +1,12 @@
+account: "342110038163"
+region: eu-central-1
+cluster_name: frd1
+destination_cluster: https://4F987CDA817FE6426E381AB40059229F.sk1.eu-central-1.eks.amazonaws.com
+branch: prodit
+
+# TCM Config for all components
+tcm_from_local: "false"
+tcm_url: http://ktcm
+tcm_app: OTT_API_Modeled_Linux
+tcm_section: main
+tcm_host: PROD_v5_3_2

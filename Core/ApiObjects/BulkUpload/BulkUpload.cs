@@ -128,6 +128,45 @@ namespace ApiObjects.BulkUpload
             || status == BulkUploadJobStatus.Fatal;
         }
 
+        public static BulkUploadJobStatus GetBulkStatusByResultsStatus(BulkUpload bulkUpload)
+        {
+            var newStatus = bulkUpload.Status;
+            var noObjectsToIngest = !bulkUpload.NumOfObjects.HasValue || bulkUpload.NumOfObjects.Value == 0;
+            var noResultsToIngest = bulkUpload.Results == null || bulkUpload.Results.Count == 0;
+            if (noObjectsToIngest || noResultsToIngest)
+            {
+                return newStatus;
+            }
+
+            var isAnyInError = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Error);
+            var isAnyInOk = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Ok);
+            var isAnyInProgress = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.InProgress);
+
+            // there are still items in progress we will return the current proccessing\parsing etc.. status 
+            if (isAnyInProgress)
+            {
+                return newStatus;
+            }
+
+            // there are no items in progress anymore, so we check if all OK or some failed..
+            // found some errors there might be partial or total failue 
+            if (isAnyInError)
+            {
+                if (isAnyInOk)
+                {
+                    return BulkUploadJobStatus.Partial;
+                }
+                else
+                {
+                    return BulkUploadJobStatus.Failed;
+                }
+            }
+            else
+            {
+                return BulkUploadJobStatus.Success;
+            }
+        }
+
         public override CoreObject CoreClone()
         {
             throw new NotImplementedException();

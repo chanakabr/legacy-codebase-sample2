@@ -857,6 +857,11 @@ namespace CachingProvider.LayeredCache
             return string.Format($"{partnerId}_EpgV2PartnerConfiguration");
         }
 
+        public static string GetEpgV3PartnerConfigurationKey(int partnerId)
+        {
+            return string.Format($"{partnerId}_EpgV3PartnerConfiguration");
+        }
+
         public static string GetDomainSubscriptionPurchaseKey(long domainId, string subscriptionId)
         {
             return $"domain_subcription_purchase_v1_{domainId}_{subscriptionId}";
@@ -1305,6 +1310,16 @@ namespace CachingProvider.LayeredCache
         public static string GetEpgInvalidationKey(int groupId, long epgId)
         {
             return string.Format("invalidationKeyEpg_groupId_{0}_epgId_{1}", groupId, epgId);
+        }
+
+        public static string GetEpgV2PartnerConfigurationInvalidationKey(int partnerId)
+        {
+            return $"{partnerId}_InvalidateEpgV2PartnerConfiguration";
+        }
+
+        public static string GetEpgV3PartnerConfigurationInvalidationKey(int partnerId)
+        {
+            return $"{partnerId}_InvalidateEpgV3PartnerConfiguration";
         }
 
         public static string GetDeviceConcurrencyPriorityKey(int groupId)

@@ -4068,6 +4068,16 @@ namespace WebAPI.Clients
             return response;
         }
 
+        internal KalturaBulkUploadSummary GetBulkUploadStatusSummary(long groupId, string bulkObjectType, long CreateDateGreaterThanOrEqual)
+        {
+            Func<GenericResponse<BulkUploadSummary>> getBulkUploadsFunc = () =>
+              BulkUploadManager.GetBulkUploadSummary(groupId, bulkObjectType, CreateDateGreaterThanOrEqual);
+
+            var response = ClientUtils.GetResponseFromWS<KalturaBulkUploadSummary, BulkUploadSummary>(getBulkUploadsFunc);
+
+            return response;
+        }
+
         internal KalturaBulkUploadListResponse GetBulkUploadList(int groupId, string bulkObjectType, List<KalturaBulkUploadJobStatus> statuses, DateTime createDate, long? userId, KalturaBulkUploadOrderBy orderBy, KalturaFilterPager pager)
         {
             var statusesIn = Mapper.Map<List<BulkUploadJobStatus>>(statuses);

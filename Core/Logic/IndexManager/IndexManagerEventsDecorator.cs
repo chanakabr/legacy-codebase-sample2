@@ -23,6 +23,7 @@ using MoreLinq;
 using OTT.Lib.Kafka;
 using TVinciShared;
 using Channel = GroupsCacheManager.Channel;
+using Core.Api;
 
 namespace ApiLogic.Catalog.IndexManager
 {
@@ -365,7 +366,35 @@ namespace ApiLogic.Catalog.IndexManager
         {
             return Execute<string>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, indexName);
         }
+        
+        public void SetupEpgV3Index()
+        {
+            Execute<object>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG);
+        }
 
+        public void MigrateEpgToV3(int batchSize, EpgFeatureVersion originalEpgVersion)
+        {
+            Execute<object>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, batchSize, originalEpgVersion);
+        }
+
+        public void RollbackEpgV3ToV2(int batchSize)
+        {
+            Execute<object>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, batchSize);
+        }
+        public void RollbackEpgV3ToV1(int batchSize)
+        {
+            Execute<object>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, batchSize);
+        }
+
+        public void ApplyEpgCrudOperationWithTransaction(string transactionId, List<EpgCB> programsToIndex, List<EpgCB> programsToDelete)
+        {
+            Execute<object>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, transactionId, programsToIndex, programsToDelete);
+        }
+
+        public void CommitEpgCrudTransaction(string transactionId, long linearChannelId)
+        {
+            Execute<object>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, transactionId, linearChannelId);
+        }
         //CUD
         public bool SetupSocialStatisticsDataIndex()
         {
@@ -379,7 +408,7 @@ namespace ApiLogic.Catalog.IndexManager
 
 
         //CUD
-        public bool ForceRefreshEpgV2Index(string indexName)
+        public bool ForceRefreshEpgIndex(string indexName)
         {
             return Execute<bool>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, indexName);
         }

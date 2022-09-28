@@ -1,0 +1,12 @@
+account: "870777418594"
+region: us-east-1
+cluster_name: vrs1
+destination_cluster: https://EF13538EE455456E6D50C03218B2367F.gr7.us-east-1.eks.amazonaws.com
+branch: master
+
+# TCM Config for all components
+tcm_from_local: "false"
+tcm_url: http://ktcm
+tcm_app: OTT_API_Modeled_Linux
+tcm_section: main
+tcm_host: MS

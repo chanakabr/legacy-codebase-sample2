@@ -9393,8 +9393,8 @@ namespace Core.Catalog
                         searchDefinitions.pageSize = elasticSearchPageSize;
                         searchDefinitions.shouldReturnExtendedSearchResult =
                             searchDefinitions.extraReturnFields?.Count > 0;
-                        searchDefinitions.isEpgV2 =
-                            TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EPG_INGEST_V2);
+                        
+                        searchDefinitions.EpgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(groupId);
 
                         if (elasticSearchPageSize > 0)
                         {

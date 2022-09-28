@@ -9,6 +9,7 @@ using ApiLogic.IndexManager.QueryBuilders.NestQueryBuilders.Queries;
 using ApiLogic.IndexManager.Sorting;
 using ApiObjects;
 using ApiObjects.SearchObjects;
+using Core.Api;
 using ElasticSearch.NEST;
 using ElasticSearch.Searcher;
 using ElasticSearch.Utils;
@@ -1452,7 +1453,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
             }
 
 
-            if (SearchDefinitions.isEpgV2)
+            if (SearchDefinitions.EpgFeatureVersion != EpgFeatureVersion.V1)
             {
                 var doc_id_field = "cb_document_id";
                 if (!fields.Contains(doc_id_field))

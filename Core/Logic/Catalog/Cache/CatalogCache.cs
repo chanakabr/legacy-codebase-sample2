@@ -335,7 +335,7 @@ namespace Core.Catalog.Cache
                 if (missingsKeys != null && missingsKeys.Count > 0)
                 {
                     //get from DB
-                    var linearChannelSettingsFromDb = CatalogDAL.GetLinearChannelSettings(groupID, missingsKeys);
+                    var linearChannelSettingsFromDb = CatalogDAL.Instance.GetLinearChannelSettings(groupID, missingsKeys);
                     foreach (var linearFromDb in linearChannelSettingsFromDb)
                     {
                         string sKey = string.Format("LinearChannelSettings_{0}_{1}", groupID, linearFromDb.ChannelID);
