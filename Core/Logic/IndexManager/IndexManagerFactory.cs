@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using Phx.Lib.Log;
 using System.Reflection;
 using System.Threading;
+using ApiLogic.Api.Managers;
 using ApiLogic.Catalog.IndexManager;
 using CachingProvider.LayeredCache;
 using CanaryDeploymentManager;
@@ -111,7 +112,8 @@ namespace Core.Catalog
                         StatisticsSortStrategyV7.Instance,
                         SortingAdapter.Instance,
                         EsSortingService.Instance(ElasticsearchVersion.ES_7),
-                        UnifiedQueryBuilderInitializer.Instance(ElasticsearchVersion.ES_7));
+                        UnifiedQueryBuilderInitializer.Instance(ElasticsearchVersion.ES_7),
+                        RegionManager.Instance);
 
                     if (isMigrationEventsEnabled)
                     {
@@ -144,7 +146,8 @@ namespace Core.Catalog
                         StatisticsSortStrategy.Instance,
                         SortingAdapter.Instance,
                         EsSortingService.Instance(ElasticsearchVersion.ES_2_3),
-                        UnifiedQueryBuilderInitializer.Instance(ElasticsearchVersion.ES_2_3));
+                        UnifiedQueryBuilderInitializer.Instance(ElasticsearchVersion.ES_2_3),
+                        RegionManager.Instance);
 
                     if (isMigrationEventsEnabled)
                     {

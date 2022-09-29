@@ -124,6 +124,7 @@ namespace Core.Catalog
         private readonly INamingHelper _namingHelper;
         private readonly IGroupSettingsManager _groupSettingsManager;
         private readonly IUnifiedQueryBuilderInitializer _queryInitializer;
+        private readonly IRegionManager _regionManager;
 
         /// <summary>
         /// Initialiezs an instance of Index Manager for work with ElasticSearch 2.3. 
@@ -149,6 +150,7 @@ namespace Core.Catalog
         /// <param name="sortingAdapter"></param>
         /// <param name="esSortingService"></param>
         /// <param name="queryInitializer"></param>
+        /// <param name="regionManager"></param>
         public IndexManagerV2(int partnerId,
             IElasticSearchApi elasticSearchClient,
             IGroupManager groupManager,
@@ -168,7 +170,8 @@ namespace Core.Catalog
             IStatisticsSortStrategy statisticsSortStrategy,
             ISortingAdapter sortingAdapter,
             IEsSortingService esSortingService,
-            IUnifiedQueryBuilderInitializer queryInitializer)
+            IUnifiedQueryBuilderInitializer queryInitializer,
+            IRegionManager regionManager)
         {
             _elasticSearchApi = elasticSearchClient;
             _groupManager = groupManager;
@@ -190,6 +193,7 @@ namespace Core.Catalog
             _sortingAdapter = sortingAdapter;
             _esSortingService = esSortingService;
             _queryInitializer = queryInitializer;
+            _regionManager = regionManager;
         }
 
         #region OPC helpers
@@ -209,6 +213,22 @@ namespace Core.Catalog
         private bool isOpc()
         {
             return _catalogManager.DoesGroupUsesTemplates(_partnerId);
+        }
+
+        private IReadOnlyDictionary<long, List<int>> GetLinearChannelsMapping()
+        {
+            if (isOpc())
+            {
+                return _catalogManager.TryGetCatalogGroupCacheFromCache(_partnerId, out var catalogGroupCache)
+                    && catalogGroupCache.IsRegionalizationEnabled
+                        ? _regionManager.GetLinearMediaRegions(_partnerId)
+                        : new Dictionary<long, List<int>>();
+            }
+
+            var groupManager = GetGroupManager();
+            return groupManager?.isRegionalizationEnabled == true
+                ? _regionManager.GetLinearMediaRegions(_partnerId)
+                : new Dictionary<long, List<int>>();
         }
 
         public HashSet<string> GetMetasToPad()
@@ -637,7 +657,7 @@ namespace Core.Catalog
                     return result;
                 }
 
-                // This is an upsert program for epg version 1 and 2... 
+                // This is an upsert program for epg version 1 and 2...
                 result = UpsertProgramLegacy(epgObjects, linearChannelSettings, epgFeatureVersion, result);
             }
             catch (Exception ex)
@@ -716,7 +736,7 @@ namespace Core.Catalog
             if ((groupUsesTemplates && catalogGroupCache.IsRegionalizationEnabled) ||
                 (groupManager != null && groupManager.isRegionalizationEnabled))
             {
-                linearChannelsRegionsMapping = RegionManager.Instance.GetLinearMediaRegions(_partnerId);
+                linearChannelsRegionsMapping = _regionManager.GetLinearMediaRegions(_partnerId);
             }
 
             #endregion
@@ -5169,7 +5189,7 @@ namespace Core.Catalog
             // get the epg document ids from elasticsearch
             var searchQuery = query.ToString();
 
-            
+
 
             var searchResult = _elasticSearchApi.Search(index, type, ref searchQuery);
 
@@ -6562,7 +6582,7 @@ namespace Core.Catalog
             if ((groupUsesTemplates && catalogGroupCache != null && catalogGroupCache.IsRegionalizationEnabled) ||
              (groupManager != null && groupManager.isRegionalizationEnabled))
             {
-                linearChannelsRegionsMapping = RegionManager.Instance.GetLinearMediaRegions(_partnerId);
+                linearChannelsRegionsMapping = _regionManager.GetLinearMediaRegions(_partnerId);
             }
 
             var alias = NamingHelper.GetEpgIndexAlias(_partnerId);
@@ -6848,7 +6868,7 @@ namespace Core.Catalog
             var bulkSize = GetBulkSizeForUpsertPrograms();
             var policy = GetRetryPolicyForUpsertPrograms();
             var metasToPad = GetMetasToPad();
-
+            var linearChannelsRegionsMapping = GetLinearChannelsMapping();
 
             policy.Execute(() =>
             {
@@ -6858,10 +6878,10 @@ namespace Core.Catalog
                     var programTranslationsToIndex = calculatedPrograms.SelectMany(p => p.EpgCbObjects);
                     foreach (var program in programTranslationsToIndex)
                     {
-                        var bulkRequest = MapEpgCBToEsBulkRequest(program, draftIndexName, languages, defaultLanguage, metasToPad);
+                        var bulkRequest = MapEpgCBToEsBulkRequest(program, draftIndexName, languages, defaultLanguage, metasToPad, linearChannelsRegionsMapping);
                         bulkRequests.Add(bulkRequest);
 
-                        // If we exceeded maximum size of bulk 
+                        // If we exceeded maximum size of bulk
                         if (bulkRequests.Count >= bulkSize)
                         {
                             ExecuteAndValidateBulkRequests(bulkRequests);
@@ -6888,11 +6908,17 @@ namespace Core.Catalog
 
         }
 
-        private ESBulkRequestObj<string> MapEpgCBToEsBulkRequest(EpgCB program, string indexName, IDictionary<string, LanguageObj> languages, LanguageObj defaultLanguage, HashSet<string> metasToPad)
+        private ESBulkRequestObj<string> MapEpgCBToEsBulkRequest(EpgCB program, string indexName, IDictionary<string, LanguageObj> languages, LanguageObj defaultLanguage, HashSet<string> metasToPad, IReadOnlyDictionary<long, List<int>> linearChannelsRegionsMapping)
         {
             program.PadMetas(metasToPad);
             var suffix = program.Language == defaultLanguage.Code ? "" : program.Language;
             var language = languages[program.Language];
+
+            // We don't store regions in CB that's why we need to calculate regions before insertion to ES on every program update during ingest.
+            if (program.LinearMediaId > 0 && linearChannelsRegionsMapping.TryGetValue(program.LinearMediaId, out var regions))
+            {
+                program.regions = regions;
+            }
 
             // Serialize EPG object to string
             string serializedEpg = TryGetSerializedEpg(isOpc(), program, suffix);

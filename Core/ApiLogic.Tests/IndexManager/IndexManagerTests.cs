@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using ApiLogic.Api.Managers;
 using ApiLogic.Tests.IndexManager.helpers;
 using ApiObjects.BulkUpload;
 using ApiObjects.Response;
@@ -63,6 +64,7 @@ namespace ApiLogic.Tests.IndexManager
         private Mock<ISortingAdapter> _mockSortingAdapter;
         private Mock<IEsSortingService> _mockEsSortingService;
         private Mock<IUnifiedQueryBuilderInitializer> _mockQueryInitializer;
+        private Mock<IRegionManager> _mockRegionManager;
 
         private IndexManagerV2 GetIndexV2Manager(int partnerId)
         {
@@ -85,7 +87,8 @@ namespace ApiLogic.Tests.IndexManager
                 _mockStatisticsSortStrategy.Object,
                 _mockSortingAdapter.Object,
                 _mockEsSortingService.Object,
-                _mockQueryInitializer.Object
+                _mockQueryInitializer.Object,
+                _mockRegionManager.Object
             );
         }
 

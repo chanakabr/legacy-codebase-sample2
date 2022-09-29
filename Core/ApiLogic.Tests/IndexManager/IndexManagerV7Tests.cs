@@ -16,6 +16,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ApiLogic.Api.Managers;
 using ApiLogic.EPG;
 using ApiLogic.IndexManager;
 using ApiLogic.IndexManager.Helpers;
@@ -69,6 +70,7 @@ namespace ApiLogic.Tests.IndexManager
         private Mock<IEsSortingService> _mockEsSortingService;
         private Mock<ISortingAdapter> _mockSortingAdapter;
         private Mock<IUnifiedQueryBuilderInitializer> _mockQueryInitializer;
+        private Mock<IRegionManager> _mockRegionManager;
 
         private static int _nextPartnerId = 10000;
         private Random _random;
@@ -98,7 +100,8 @@ namespace ApiLogic.Tests.IndexManager
                     _mockStatisticsSortStrategy.Object,
                     _mockSortingAdapter.Object,
                     _mockEsSortingService.Object,
-                    _mockQueryInitializer.Object);
+                    _mockQueryInitializer.Object,
+                    _mockRegionManager.Object);
         }
 
         private INamingHelper GetMockNamingHelper()
