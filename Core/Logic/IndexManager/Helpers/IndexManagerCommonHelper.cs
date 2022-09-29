@@ -164,10 +164,15 @@ namespace ApiLogic.IndexManager.Helpers
                 case OrderBy.NONE:
                 case OrderBy.ID:
                 case OrderBy.CREATE_DATE:
-                case OrderBy.START_DATE: return new GroupByWithOrderByNumericField();
+                case OrderBy.START_DATE:
+                    return new GroupByWithOrderByNumericField();
                 case OrderBy.NAME:
-                case OrderBy.META: return GroupByWithOrderByNonNumericField.Instance;
-                default: return null;
+                case OrderBy.META:
+                    return GroupByWithOrderByNonNumericField.Instance;
+                case OrderBy.RECOMMENDATION:
+                    return new GroupByWithSpecificOrder();
+                default:
+                    return null;
             }
         }
 
