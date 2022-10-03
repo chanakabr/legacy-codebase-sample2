@@ -37,6 +37,7 @@ stage('Unified-CI'){
                             sh(label: "ECR Login", script: "login=\$(aws ecr get-login --no-include-email --region ${AWS_REGION}) && \${login}")
                             parallel(
                                 "phoenix" : { buildDockerAndPushToEcr("phoenix","./Docker/Phoenix.Api.Rest.Dockerfile") },
+                                "tvpapi" : { buildDockerAndPushToEcr("phoenix","./Docker/Tvpapi.Dockerfile") },
                                 "ingesthandlers" : { buildDockerAndPushToEcr("ingesthandlers","./Docker/IngestHandlers.Dockerfile") },
                                 "wsingest" : { buildDockerAndPushToEcr("wsingest","./Docker/WSIngest.Dockerfile") },
                                 "opc-migration" : { buildDockerAndPushToEcr("opc-migration","./Docker/OPCMigrator.Dockerfile") },
@@ -45,6 +46,7 @@ stage('Unified-CI'){
                                 "phoenix-async-handler" : { buildDockerAndPushToEcr("ott-service-phoenix-async-handler","./Docker/Phoenix.Async.Handler.Dockerfile") },
                                 "epg-v3-migrator" : { buildDockerAndPushToEcr("ott-service-phoenix-epg-v3-migrator","./Docker/Epg.V3.Migrator.Dockerfile") },
                                 "epg-v3-rollback" : { buildDockerAndPushToEcr("ott-service-phoenix-epg-v3-rollback","./Docker/Epg.V3.Rollback.Dockerfile") }
+                                
                             )
                         }
                         stage("Trigger Sonar Scan"){
