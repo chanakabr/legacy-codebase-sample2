@@ -23,6 +23,11 @@ namespace WebAPI
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string FORM_URL_ENCODED = "application/x-www-form-urlencoded";
+        private static readonly List<string> ACTIONS_WITHOUT_CREDENTIALS = new List<string>
+        {
+            "retrieveservicecontent", "updaterecommendationengineconfiguration", "buildiptocountryindex", "updatecache", "getchannelassets",
+            "searchassets"
+        };
 
         protected void Application_Start()
         {
@@ -90,37 +95,54 @@ namespace WebAPI
             KLogger.Configure("log4net.config", KLogEnums.AppType.WS);
         }
 
-        static private Int32 GetGroupID(string requestString)
+        private static Int32 GetGroupID(string requestString)
         {
             XmlDocument doc = new XmlDocument();
             doc.LoadXml(requestString);
 
             // get action name
+            var actionName = string.Empty;
             XmlNodeList tempXmlNodeList = doc.GetElementsByTagName("soap:Body");
             if (tempXmlNodeList.Count > 0)
+            {
+                actionName = tempXmlNodeList[0].ChildNodes[0].Name;
                 HttpContext.Current.Items[Constants.ACTION] = tempXmlNodeList[0].ChildNodes[0].Name;
+            }
 
             // get group ID
             XmlNodeList xmlUserName = doc.GetElementsByTagName("sWSUserName");
             XmlNodeList xmlPassword = doc.GetElementsByTagName("sWSPassword");
 
+            if (xmlUserName == null || xmlUserName.Count == 0)
+            {
+                xmlUserName = doc.GetElementsByTagName("userName");
+                if (xmlUserName == null || xmlUserName.Count == 0)
+                {
+                    xmlUserName = doc.GetElementsByTagName("username");
+                }
+            }
+
+            if (xmlPassword == null || xmlPassword.Count == 0)
+                xmlPassword = doc.GetElementsByTagName("password");
+            
             string module = "USERS";
 
-            bool isValid = true;
-
+            var isValid = true;
             if (xmlUserName != null && xmlUserName.Count > 0)
             {
                 module = GetWsModuleByUserName(xmlUserName[0].InnerText);
             }
             else
             {
-                log.ErrorFormat("sWSUserName was not found in XML request. Request: {0}", requestString);
+                if(!ACTIONS_WITHOUT_CREDENTIALS.Contains(actionName.ToLower()))
+                    log.Error($"sWSUserName was not found in XML request. Request: {requestString}");
                 isValid = false;
             }
 
             if (xmlPassword != null && xmlPassword.Count == 0)
             {
-                log.ErrorFormat("sWSPassword was not found in XML request. Request: {0}", requestString);
+                if(!ACTIONS_WITHOUT_CREDENTIALS.Contains(actionName.ToLower()))
+                    log.Error($"sWSPassword was not found in XML request. Request: {requestString}");
                 isValid = false;
             }
 
