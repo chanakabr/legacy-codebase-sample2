@@ -27,6 +27,12 @@ using TVinciShared;
 using ApiObjects.Base;
 using CachingProvider.LayeredCache;
 using System.Threading;
+using ApiLogic.Modules.Services;
+using ApiLogic.Notification.Managers;
+using ApiObjects.EventBus;
+using EventBus.Abstraction;
+using EventBus.Kafka;
+using Phoenix.Generated.Api.Events.Logical.announcementMessage;
 
 namespace Core.Notification
 {
@@ -64,7 +70,6 @@ namespace Core.Notification
         private readonly INotificationDal _notificationRepository;
         private readonly INotificationSettings _notificationSettings;
         private readonly INotificationCache _notificationCache;
-
         public static AnnouncementManager Instance { get { return lazy.Value; } }
 
         public AnnouncementManager(ILayeredCache layeredCache, INotificationDal notificationRepository, INotificationSettings notificationSettings, INotificationCache notificationCache)
@@ -1132,14 +1137,18 @@ namespace Core.Notification
 
         private static void PublishIotSystemAnnouncement(int groupId, string message)
         {
-            log.DebugFormat($"PublishIotSystemAnnouncement message {message.Substring(0, Math.Min(message.Length, 10))}");
-            var result = NotificationAdapter.IotPublishAnnouncement(groupId, message);
-            var _print = $"{message.Substring(0, Math.Min(message.Length, 10))}...";//Shorten message for log
-
-            if (result)
-                log.Debug($"Successfully sent IoT system announcement. message = {_print}");
-            else
-                log.Error($"Failed to send IoT system announcement. message = {_print}");
+            var shorterMessage = message.Substring(0, Math.Min(message.Length, 10));
+            try
+            {
+                log.DebugFormat(
+                    $"PublishIotSystemAnnouncement message {shorterMessage}");
+                new IotManager(new IotAnnouncementMessageRequest {GroupId = groupId})
+                    .PublishIotAnnouncementMessageKafkaEvent(groupId, message);
+            }
+            catch (Exception e)
+            {
+                log.Error($"Failed to send IoT system announcement. message = {shorterMessage}, exception = {e}");
+            }
         }
 
         private static void PublishMailSystemAnnouncement(int groupId, DataRow messageAnnouncementDataRow, List<DbAnnouncement> announcements, string template, string subject)

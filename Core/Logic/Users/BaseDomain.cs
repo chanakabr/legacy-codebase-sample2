@@ -958,7 +958,7 @@ namespace Core.Users
             DomainsCache oDomainCache = DomainsCache.Instance();
 
             // validate domain
-            var domain = oDomainCache.GetDomain(nDomainID, m_nGroupID);
+            var domain = DomainFactory.GetDomain(m_nGroupID, nDomainID);
             if (domain == null || domain.m_DomainStatus == DomainStatus.Error || domain.m_DomainStatus == DomainStatus.DomainNotExists)
             {
                 result.Code = (int)eResponseStatus.Error;
@@ -1117,7 +1117,7 @@ namespace Core.Users
             DomainsCache oDomainCache = DomainsCache.Instance();
 
             // validate domain
-            var domain = oDomainCache.GetDomain(nDomainID, m_nGroupID);
+            var domain = DomainFactory.GetDomain(m_nGroupID, nDomainID);
             if (domain == null || domain.m_DomainStatus == DomainStatus.Error || domain.m_DomainStatus == DomainStatus.DomainNotExists)
             {
                 result.Code = (int)eResponseStatus.Error;

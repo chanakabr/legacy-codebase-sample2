@@ -24,6 +24,14 @@ message EntitlementContainer {
   .google.protobuf.Timestamp EndDate = 8;
   repeated int32 RelatedMediaFileIDs = 9 [packed = false];
   int32 PurchasedMediaFileID = 10;
+  int32 PrePaidId = 11;
+  UsageModule UsageModule = 12;
+}
+
+message UsageModule{
+  int32 ViewLifeCycle = 1;
+  int32 MaxUsageLifeCycle = 2;
+  bool IsOfflinePlayback = 3;
 }
 
 message PaymentGatewayProfile {

@@ -12323,11 +12323,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["topics"] is JArray)
                     {
-                        Topics = OTTObjectBuilder.buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["topics"]);
+                        Topics = OTTObjectBuilder.buildList<KalturaKeyValue>(typeof(KalturaKeyValue), (JArray) parameters["topics"]);
                     }
                     else if (parameters["topics"] is IList)
                     {
-                        Topics = OTTObjectBuilder.buildList(typeof(KalturaStringValue), parameters["topics"] as object[]);
+                        Topics = OTTObjectBuilder.buildList(typeof(KalturaKeyValue), parameters["topics"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
@@ -13624,26 +13624,26 @@ namespace WebAPI.Models.API
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPermission")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DependsOnPermissionNamesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPermission")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -13710,13 +13710,13 @@ namespace WebAPI.Models.API
         private static RuntimeSchemePropertyAttribute RoleIDInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPermissionFilter")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 1,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -13743,13 +13743,13 @@ namespace WebAPI.Models.API
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPermissionItem")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -13968,26 +13968,26 @@ namespace WebAPI.Models.API
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPlaybackProfile")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SharedSecretSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPlaybackProfile")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -14068,13 +14068,13 @@ namespace WebAPI.Models.API
         private static RuntimeSchemePropertyAttribute DiscountModuleIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPromotion")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
@@ -14164,26 +14164,26 @@ namespace WebAPI.Models.API
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRecommendationProfile")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SharedSecretSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRecommendationProfile")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -14278,52 +14278,52 @@ namespace WebAPI.Models.API
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRegion")
         {
             ReadOnly = false,
+            MinLength = 1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = 1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRegion")
         {
             ReadOnly = false,
+            MinLength = 1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = 1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsDefaultSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRegion")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ParentIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRegion")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
@@ -14527,26 +14527,26 @@ namespace WebAPI.Models.API
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRule")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DescriptionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRule")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -14609,104 +14609,104 @@ namespace WebAPI.Models.API
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSearchHistory")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSearchHistory")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute FilterSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSearchHistory")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute LanguageSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSearchHistory")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CreatedAtSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSearchHistory")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ServiceSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSearchHistory")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ActionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSearchHistory")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DeviceIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSearchHistory")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -14790,14 +14790,14 @@ namespace WebAPI.Models.API
         private static RuntimeSchemePropertyAttribute SegmentsIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentsCondition")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             DynamicMinInt = 0,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -14820,14 +14820,14 @@ namespace WebAPI.Models.API
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscriptionCondition")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             DynamicMinInt = 0,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -14850,13 +14850,13 @@ namespace WebAPI.Models.API
         private static RuntimeSchemePropertyAttribute PaddingBeforeProgramStartsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinLong = 0,
             MinItems = -1,
             MaxItems = -1,
@@ -14864,13 +14864,13 @@ namespace WebAPI.Models.API
         private static RuntimeSchemePropertyAttribute PaddingAfterProgramEndsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinLong = 0,
             MinItems = -1,
             MaxItems = -1,
@@ -14878,13 +14878,13 @@ namespace WebAPI.Models.API
         private static RuntimeSchemePropertyAttribute ProtectionPeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinInteger = 0,
             MinItems = -1,
             MaxItems = -1,
@@ -14892,13 +14892,13 @@ namespace WebAPI.Models.API
         private static RuntimeSchemePropertyAttribute ProtectionQuotaPercentageSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MaxInteger = 100,
             MinInteger = 10,
             MinItems = -1,
@@ -14907,13 +14907,13 @@ namespace WebAPI.Models.API
         private static RuntimeSchemePropertyAttribute RecordingLifetimePeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinInteger = 0,
             MinItems = -1,
             MaxItems = -1,
@@ -14921,13 +14921,13 @@ namespace WebAPI.Models.API
         private static RuntimeSchemePropertyAttribute CleanupNoticePeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinInteger = 0,
             MinItems = -1,
             MaxItems = -1,
@@ -14935,13 +14935,13 @@ namespace WebAPI.Models.API
         private static RuntimeSchemePropertyAttribute RecoveryGracePeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinInteger = 0,
             MinItems = -1,
             MaxItems = -1,
@@ -14949,13 +14949,13 @@ namespace WebAPI.Models.API
         private static RuntimeSchemePropertyAttribute DefaultQuotaSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinInteger = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -15126,13 +15126,13 @@ namespace WebAPI.Models.API
         private static RuntimeSchemePropertyAttribute TriggerConditionsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTriggerCampaign")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 1,
-            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -15246,26 +15246,26 @@ namespace WebAPI.Models.API
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTvmRule")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute RuleTypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTvmRule")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -15350,14 +15350,14 @@ namespace WebAPI.Models.API
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUdidDynamicListCondition")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             DynamicMinInt = 1,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -15380,13 +15380,13 @@ namespace WebAPI.Models.API
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserAssetRule")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -15468,26 +15468,26 @@ namespace WebAPI.Models.API
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserRole")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserRole")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -15562,14 +15562,14 @@ namespace WebAPI.Models.API
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserRoleCondition")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             DynamicMinInt = 0,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -15668,13 +15668,13 @@ namespace WebAPI.Models.API
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserSessionProfileCondition")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
@@ -15805,13 +15805,13 @@ namespace WebAPI.Models.IngestStatus
         private static RuntimeSchemePropertyAttribute IngestNameContainsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByCompoundFilter")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             Pattern = @"^(?!\s*$).+",
             MinItems = -1,
             MaxItems = -1,
@@ -15819,13 +15819,13 @@ namespace WebAPI.Models.IngestStatus
         private static RuntimeSchemePropertyAttribute IngestedByUserIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByCompoundFilter")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             Pattern = @"^\d+(\s*,\s*\d+){0,19}$",
             MinItems = -1,
             MaxItems = -1,
@@ -15833,26 +15833,26 @@ namespace WebAPI.Models.IngestStatus
         private static RuntimeSchemePropertyAttribute IngestStatusInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByCompoundFilter")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CreatedDateGreaterThanSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByCompoundFilter")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
@@ -15860,13 +15860,13 @@ namespace WebAPI.Models.IngestStatus
         private static RuntimeSchemePropertyAttribute CreatedDateSmallerThanSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByCompoundFilter")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
@@ -15910,13 +15910,13 @@ namespace WebAPI.Models.IngestStatus
         private static RuntimeSchemePropertyAttribute IngestIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestByIdsFilter")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             Pattern = @"^\d+(\s*,\s*\d+){0,19}$",
             MinItems = -1,
             MaxItems = -1,
@@ -15940,13 +15940,13 @@ namespace WebAPI.Models.IngestStatus
         private static RuntimeSchemePropertyAttribute IngestIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestEpg")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinLong = 0,
             MinItems = -1,
             MaxItems = -1,
@@ -15954,52 +15954,52 @@ namespace WebAPI.Models.IngestStatus
         private static RuntimeSchemePropertyAttribute IngestNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestEpg")
         {
             ReadOnly = false,
+            MinLength = 0,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = 0,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IngestFilenameExtensionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestEpg")
         {
             ReadOnly = false,
+            MinLength = 0,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = 0,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CompletedDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestEpg")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IngestProfileIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestEpg")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -16212,13 +16212,13 @@ namespace WebAPI.Models.IngestStatus
         private static RuntimeSchemePropertyAttribute CombinedFieldsValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestProgramResultsByCombinedFieldsFilter")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -16241,13 +16241,13 @@ namespace WebAPI.Models.IngestStatus
         private static RuntimeSchemePropertyAttribute LinearChannelIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestProgramResultsByCompoundFilter")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -16270,13 +16270,13 @@ namespace WebAPI.Models.IngestStatus
         private static RuntimeSchemePropertyAttribute ExternalProgramIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestProgramResultsByExternalIdsFilter")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -16299,13 +16299,13 @@ namespace WebAPI.Models.IngestStatus
         private static RuntimeSchemePropertyAttribute ProgramIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestProgramResultsByProgramIdsFilter")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -16328,39 +16328,39 @@ namespace WebAPI.Models.IngestStatus
         private static RuntimeSchemePropertyAttribute IngestStatusIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestProgramResultsByRefineFilter")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StartDateGreaterThanSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestProgramResultsByRefineFilter")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StartDateSmallerThanSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestProgramResultsByRefineFilter")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -16393,26 +16393,26 @@ namespace WebAPI.Models.IngestStatus
         private static RuntimeSchemePropertyAttribute IsSupportedSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestStatusEpgConfiguration")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute RetainingPeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestStatusEpgConfiguration")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinLong = 0,
             MinItems = -1,
             MaxItems = -1,
@@ -16481,13 +16481,13 @@ namespace WebAPI.Models.IngestStatus
         private static RuntimeSchemePropertyAttribute EpgSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestStatusPartnerConfiguration")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -16608,39 +16608,39 @@ namespace WebAPI.Models.Notifications
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAnnouncement")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAnnouncement")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IncludeUserInboxSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAnnouncement")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -16794,26 +16794,26 @@ namespace WebAPI.Models.Notifications
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaReminder")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaReminder")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -16855,26 +16855,26 @@ namespace WebAPI.Models.Notifications
         private static RuntimeSchemePropertyAttribute SeriesIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSeriesReminder")
         {
             ReadOnly = false,
+            MinLength = 1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = 1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EpgChannelIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSeriesReminder")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
@@ -16919,13 +16919,13 @@ namespace WebAPI.Models.Notifications
         private static RuntimeSchemePropertyAttribute SubscriptionIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscriptionSubscribeReference")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
@@ -16976,26 +16976,26 @@ namespace WebAPI.Models.Notifications
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTopicNotification")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTopicNotification")
         {
             ReadOnly = false,
+            MinLength = 1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = 1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -17078,26 +17078,26 @@ namespace WebAPI.Models.Notifications
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTopicNotificationMessage")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TopicNotificationIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTopicNotificationMessage")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
@@ -17105,13 +17105,13 @@ namespace WebAPI.Models.Notifications
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTopicNotificationMessage")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -17260,52 +17260,52 @@ namespace WebAPI.Models.Notification
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetEvent")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute AssetIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetEvent")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetEvent")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetEvent")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -17349,13 +17349,13 @@ namespace WebAPI.Models.Notification
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBookmarkEvent")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinLong = 0,
             MinItems = -1,
             MaxItems = -1,
@@ -17363,13 +17363,13 @@ namespace WebAPI.Models.Notification
         private static RuntimeSchemePropertyAttribute HouseholdIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBookmarkEvent")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinLong = 0,
             MinItems = -1,
             MaxItems = -1,
@@ -17377,13 +17377,13 @@ namespace WebAPI.Models.Notification
         private static RuntimeSchemePropertyAttribute AssetIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBookmarkEvent")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinLong = 0,
             MinItems = -1,
             MaxItems = -1,
@@ -17391,13 +17391,13 @@ namespace WebAPI.Models.Notification
         private static RuntimeSchemePropertyAttribute FileIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBookmarkEvent")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinLong = 0,
             MinItems = -1,
             MaxItems = -1,
@@ -17405,13 +17405,13 @@ namespace WebAPI.Models.Notification
         private static RuntimeSchemePropertyAttribute PositionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBookmarkEvent")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinInteger = 0,
             MinItems = -1,
             MaxItems = -1,
@@ -17419,13 +17419,13 @@ namespace WebAPI.Models.Notification
         private static RuntimeSchemePropertyAttribute ProductIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBookmarkEvent")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinInteger = 0,
             MinItems = -1,
             MaxItems = -1,
@@ -17587,26 +17587,26 @@ namespace WebAPI.Models.Notification
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEngagement")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TotalNumberOfRecipientsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEngagement")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -17672,13 +17672,13 @@ namespace WebAPI.Models.Notification
         private static RuntimeSchemePropertyAttribute SharedSecretSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEngagementAdapter")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -17720,13 +17720,13 @@ namespace WebAPI.Models.Notification
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEngagementAdapterBase")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -17810,13 +17810,13 @@ namespace WebAPI.Models.Notification
         private static RuntimeSchemePropertyAttribute BackwardTimeRangeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEpgNotificationSettings")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MaxInteger = 72,
             MinInteger = 0,
             MinItems = -1,
@@ -17825,13 +17825,13 @@ namespace WebAPI.Models.Notification
         private static RuntimeSchemePropertyAttribute ForwardTimeRangeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEpgNotificationSettings")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MaxInteger = 72,
             MinInteger = 0,
             MinItems = -1,
@@ -17873,13 +17873,13 @@ namespace WebAPI.Models.Notification
         private static RuntimeSchemePropertyAttribute AssetIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFeed")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -17907,65 +17907,65 @@ namespace WebAPI.Models.Notification
         private static RuntimeSchemePropertyAttribute AnnouncementIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFollowDataBase")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFollowDataBase")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TitleSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFollowDataBase")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TimestampSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFollowDataBase")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute FollowPhraseSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFollowDataBase")
         {
             ReadOnly = true,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -18037,13 +18037,13 @@ namespace WebAPI.Models.Notification
         private static RuntimeSchemePropertyAttribute AssetIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFollowTvSeries")
         {
             ReadOnly = false,
+            MinLength = -1,
+            MaxLength = -1,
+            IsNullable = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
             MinInteger = 1,
             MinItems = -1,
             MaxItems = -1,
@@ -29498,13 +29498,13 @@ namespace WebAPI.Models.Pricing
     {
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPreviewModuleFilter")
         {
+            DynamicMinInt = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
@@ -29733,13 +29733,13 @@ namespace WebAPI.Models.Pricing
     {
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPriceDetailsFilter")
         {
+            DynamicMinInt = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
@@ -29907,13 +29907,13 @@ namespace WebAPI.Models.Pricing
     {
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPricePlanFilter")
         {
+            DynamicMinInt = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
@@ -30476,13 +30476,13 @@ namespace WebAPI.Models.Pricing
     {
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProgramAssetGroupOfferIdInFilter")
         {
+            DynamicMinInt = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
@@ -31707,13 +31707,13 @@ namespace WebAPI.Models.Pricing
     {
         private static RuntimeSchemePropertyAttribute BaseSubscriptionIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscriptionDependencySetFilter")
         {
+            DynamicMinInt = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
@@ -31737,13 +31737,13 @@ namespace WebAPI.Models.Pricing
     {
         private static RuntimeSchemePropertyAttribute SubscriptionIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscriptionFilter")
         {
+            DynamicMinInt = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
@@ -32209,13 +32209,13 @@ namespace WebAPI.Models.Pricing
     {
         private static RuntimeSchemePropertyAttribute IdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUsageModuleFilter")
         {
+            DynamicMinInt = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
@@ -34222,12 +34222,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCountry")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -34302,12 +34302,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceReferenceData")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -34315,12 +34315,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceReferenceData")
         {
             ReadOnly = false,
+            MaxLength = 128,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = 128,
             MinLength = 1,
             MinItems = -1,
             MaxItems = -1,
@@ -34357,12 +34357,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceReferenceDataFilter")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = 1,
             MinItems = -1,
             MaxItems = -1,
@@ -34430,12 +34430,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFavorite")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -34619,12 +34619,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute HouseholdIDSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUser")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -34632,12 +34632,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute AffiliateCodeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUser")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -34645,12 +34645,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute ExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUser")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 4,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -34658,12 +34658,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute IsHouseholdMasterSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUser")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -34671,12 +34671,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute SuspentionStateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUser")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -34684,12 +34684,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute SuspensionStateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUser")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -34697,12 +34697,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute UserStateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUser")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -34710,12 +34710,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute RoleIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUser")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 6,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -34723,12 +34723,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUser")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -34736,12 +34736,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUser")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -34749,12 +34749,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute LastLoginDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUser")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 1,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -34762,12 +34762,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute FailedLoginCountSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUser")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 1,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -35021,12 +35021,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserDynamicData")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -35065,12 +35065,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserDynamicDataList")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -35101,12 +35101,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute UsernameEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 1,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -35114,12 +35114,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute ExternalIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 1,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -35127,12 +35127,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 1,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -35140,13 +35140,13 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute RoleIdsInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 6,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             DynamicMinInt = 0,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -35154,12 +35154,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute EmailEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 1,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -35223,12 +35223,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserType")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -35256,12 +35256,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPartner")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -35269,12 +35269,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPartner")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = 1,
             MinItems = -1,
             MaxItems = -1,
@@ -35311,13 +35311,13 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPartnerFilter")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             DynamicMinInt = 1,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -35361,12 +35361,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute AdminUsernameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPartnerSetup")
         {
             ReadOnly = false,
+            MaxLength = 256,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = 256,
             MinLength = 1,
             MinItems = -1,
             MaxItems = -1,
@@ -35374,12 +35374,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute AdminPasswordSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPartnerSetup")
         {
             ReadOnly = false,
+            MaxLength = 128,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = 128,
             MinLength = 1,
             MinItems = -1,
             MaxItems = -1,
@@ -35419,12 +35419,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPasswordPolicy")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -35432,12 +35432,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPasswordPolicy")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = 1,
             MinItems = -1,
             MaxItems = -1,
@@ -35445,13 +35445,13 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute UserRoleIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPasswordPolicy")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             DynamicMinInt = 0,
-            MaxLength = -1,
             MinLength = 1,
             MinItems = -1,
             MaxItems = -1,
@@ -35508,13 +35508,13 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute UserRoleIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPasswordPolicyFilter")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             DynamicMinInt = 0,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -35558,12 +35558,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute privilegesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSession")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 1,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -35625,12 +35625,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSessionCharacteristic")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -35638,12 +35638,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute RegionIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSessionCharacteristic")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -35651,12 +35651,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute UserSegmentsIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSessionCharacteristic")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -35664,12 +35664,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute UserRolesIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSessionCharacteristic")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -35677,12 +35677,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute UserSessionProfilesIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSessionCharacteristic")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -35732,12 +35732,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSSOAdapterProfile")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -35963,12 +35963,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserAssetsListItem")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -36051,12 +36051,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserInterest")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -36139,12 +36139,12 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserLoginPin")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -36193,12 +36193,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute KsExpirationSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBasePartnerConfiguration")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
             MinItems = -1,
@@ -36207,12 +36207,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute AppTokenSessionMaxDurationSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBasePartnerConfiguration")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
             MinItems = -1,
@@ -36221,12 +36221,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute AnonymousKSExpirationSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBasePartnerConfiguration")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
             MinItems = -1,
@@ -36235,12 +36235,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute RefreshExpirationForPinLoginSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBasePartnerConfiguration")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
             MinItems = -1,
@@ -36249,12 +36249,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute AppTokenMaxExpirySecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBasePartnerConfiguration")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
             MinItems = -1,
@@ -36263,12 +36263,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute UploadTokenExpirySecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBasePartnerConfiguration")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
             MinItems = -1,
@@ -36277,12 +36277,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute EpgFeatureVersionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBasePartnerConfiguration")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MaxInteger = 3,
             MinInteger = 1,
@@ -36398,12 +36398,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute ThresholdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBookmarkEventThreshold")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
             MinItems = -1,
@@ -36442,12 +36442,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute SingleMultilingualModeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCatalogPartnerConfig")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -36455,12 +36455,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute CategoryManagementSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCatalogPartnerConfig")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -36468,12 +36468,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute EpgMultilingualFallbackSupportSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCatalogPartnerConfig")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -36481,12 +36481,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute UploadExportDatalakeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCatalogPartnerConfig")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -36494,12 +36494,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute ShopMarkerMetaIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCatalogPartnerConfig")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -36550,12 +36550,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute DefaultCategoryTreeIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryManagement")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -36563,12 +36563,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute DeviceFamilyToCategoryTreeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryManagement")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -36600,12 +36600,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute KeepSubscriptionAddOnsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCommercePartnerConfig")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -36613,12 +36613,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute ProgramAssetEntitlementPaddingStartSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCommercePartnerConfig")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MaxInteger = 7200,
             MinInteger = 0,
@@ -36628,12 +36628,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute ProgramAssetEntitlementPaddingEndSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCommercePartnerConfig")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MaxInteger = 7200,
             MinInteger = 0,
@@ -36680,12 +36680,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute ConcurrencyThresholdInSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConcurrencyPartnerConfig")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MaxLong = 1200,
             MinLong = 30,
@@ -36737,12 +36737,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute MetaSystemNameInsteadOfAliasListSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCustomFieldsPartnerConfiguration")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -36786,12 +36786,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute DefaultMoviesParentalRuleIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultParentalSettingsPartnerConfig")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -36799,12 +36799,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute DefaultTvSeriesParentalRuleIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultParentalSettingsPartnerConfig")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -36812,12 +36812,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute DefaultParentalPinSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultParentalSettingsPartnerConfig")
         {
             ReadOnly = false,
+            MaxLength = 50,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = 50,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -36825,12 +36825,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute DefaultPurchasePinSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultParentalSettingsPartnerConfig")
         {
             ReadOnly = false,
+            MaxLength = 50,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = 50,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -36838,12 +36838,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute DefaultPurchaseSettingsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultParentalSettingsPartnerConfig")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -36887,12 +36887,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute MediaAdapterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultPlaybackAdapters")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
             MinItems = -1,
@@ -36901,12 +36901,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute EpgAdapterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultPlaybackAdapters")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
             MinItems = -1,
@@ -36915,12 +36915,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute RecordingAdapterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultPlaybackAdapters")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
             MinItems = -1,
@@ -36978,12 +36978,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute MainLanguageSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGeneralPartnerConfig")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -36991,12 +36991,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute DeleteMediaPolicySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGeneralPartnerConfig")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -37004,12 +37004,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute MainCurrencySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGeneralPartnerConfig")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -37017,12 +37017,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute DowngradePolicySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGeneralPartnerConfig")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -37030,12 +37030,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute HouseholdLimitationModuleSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGeneralPartnerConfig")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -37043,12 +37043,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute EnableRegionFilteringSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGeneralPartnerConfig")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -37056,12 +37056,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute DefaultRegionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGeneralPartnerConfig")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -37069,12 +37069,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute RollingDeviceRemovalDataSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGeneralPartnerConfig")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -37082,12 +37082,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute FinishedPercentThresholdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGeneralPartnerConfig")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MaxInteger = 99,
             MinInteger = 90,
@@ -37097,12 +37097,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute SuspensionProfileInheritanceTypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGeneralPartnerConfig")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -37110,12 +37110,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute AllowDeviceMobilitySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGeneralPartnerConfig")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -37123,12 +37123,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute EnableMultiLcnsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGeneralPartnerConfig")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -37486,12 +37486,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaResetPasswordPartnerConfigTemplate")
         {
             ReadOnly = false,
+            MaxLength = 255,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = 255,
             MinLength = 1,
             MinItems = -1,
             MaxItems = -1,
@@ -37499,12 +37499,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute LabelSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaResetPasswordPartnerConfigTemplate")
         {
             ReadOnly = false,
+            MaxLength = 255,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = 255,
             MinLength = 1,
             MinItems = -1,
             MaxItems = -1,
@@ -37537,12 +37537,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute RollingDeviceRemovalPolicySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRollingDeviceRemovalData")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -37600,12 +37600,12 @@ namespace WebAPI.Models.Partner
         private static RuntimeSchemePropertyAttribute PaymentGatewayIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUnifiedBillingCycle")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
             MinItems = -1,
@@ -37653,12 +37653,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -37666,12 +37666,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute FileNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -37679,12 +37679,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -37692,12 +37692,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute ActionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -37705,12 +37705,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute NumOfObjectsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -37718,12 +37718,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -37731,12 +37731,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -37744,12 +37744,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute UploadedByUserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -37757,12 +37757,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute ResultsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -37770,12 +37770,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute ErrorsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -37878,12 +37878,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute TypeIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadAssetData")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinLong = 0,
             MinItems = -1,
@@ -37908,12 +37908,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadAssetResult")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -37921,12 +37921,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute ExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadAssetResult")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -37955,12 +37955,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute DynamicListIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadDynamicListData")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
             MinItems = -1,
@@ -37997,13 +37997,13 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute StatusInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadFilter")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             DynamicType = typeof(KalturaBulkUploadJobStatus),
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -38039,12 +38039,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute IngestProfileIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadIngestJobData")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
             MinItems = -1,
@@ -38135,12 +38135,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute ProgramIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadProgramAssetResult")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -38148,12 +38148,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute ProgramExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadProgramAssetResult")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -38161,12 +38161,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute LiveAssetIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadProgramAssetResult")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -38200,12 +38200,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute ObjectIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -38213,12 +38213,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute IndexSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -38226,12 +38226,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute BulkUploadIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -38239,12 +38239,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -38252,12 +38252,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute ErrorsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -38265,12 +38265,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute WarningsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -38398,12 +38398,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute UdidSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadUdidDynamicListResult")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -38427,12 +38427,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -38440,12 +38440,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -38453,12 +38453,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute FileSizeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -38466,12 +38466,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -38479,12 +38479,12 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -38674,12 +38674,12 @@ namespace WebAPI.Models.DMS
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -38687,12 +38687,12 @@ namespace WebAPI.Models.DMS
         private static RuntimeSchemePropertyAttribute PartnerIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -38700,12 +38700,12 @@ namespace WebAPI.Models.DMS
         private static RuntimeSchemePropertyAttribute IsDefaultSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
             ReadOnly = false,
+            MaxLength = -1,
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -38713,12 +38713,12 @@ namespace WebAPI.Models.DMS
         private static RuntimeSchemePropertyAttribute TagsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -38726,12 +38726,12 @@ namespace WebAPI.Models.DMS
         private static RuntimeSchemePropertyAttribute NumberOfDevicesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -38739,12 +38739,12 @@ namespace WebAPI.Models.DMS
         private static RuntimeSchemePropertyAttribute ConfigurationIdentifiersSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -38811,12 +38811,12 @@ namespace WebAPI.Models.DMS
         private static RuntimeSchemePropertyAttribute PartnerIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroupDevice")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -38901,12 +38901,12 @@ namespace WebAPI.Models.DMS
         private static RuntimeSchemePropertyAttribute PartnerIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroupTag")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -38988,12 +38988,12 @@ namespace WebAPI.Models.DMS
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurations")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -39001,12 +39001,12 @@ namespace WebAPI.Models.DMS
         private static RuntimeSchemePropertyAttribute PartnerIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurations")
         {
             ReadOnly = true,
+            MaxLength = -1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,

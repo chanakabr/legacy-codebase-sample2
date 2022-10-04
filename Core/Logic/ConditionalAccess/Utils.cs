@@ -1782,10 +1782,10 @@ namespace Core.ConditionalAccess
                     isValidCurrencyCode = true;
                 }
 
+                countryCode = !string.IsNullOrEmpty(ip) ? APILogic.Utils.GetIP2CountryCode(groupId, ip): string.Empty;
                 // Get price code according to country and currency (if exists on the request)
-                if (!string.IsNullOrEmpty(ip) && (isValidCurrencyCode || GeneralPartnerConfigManager.Instance.GetGroupDefaultCurrency(groupId, ref currencyCode)))
+                if (!string.IsNullOrEmpty(countryCode) && (isValidCurrencyCode || GeneralPartnerConfigManager.Instance.GetGroupDefaultCurrency(groupId, ref currencyCode)))
                 {
-                    countryCode = APILogic.Utils.GetIP2CountryCode(groupId, ip);
                     PriceCode priceCodeWithCurrency = Pricing.Module.GetPriceCodeDataByCountyAndCurrency(groupId, priceCode.m_nObjectID, countryCode, currencyCode);
                     if (priceCodeWithCurrency == null)
                     {
@@ -2619,6 +2619,9 @@ namespace Core.ConditionalAccess
                 mediaID = ExtractMediaIDOutOfMediaMapper(mapper, nMediaFileID);
             }
 
+            fullPrice.OriginalPrice = ObjectCopier.Clone((Price)(ppvModule.m_oPriceCode.m_oPrise));
+            fullPrice.FinalPrice = ObjectCopier.Clone((Price)(ppvModule.m_oPriceCode.m_oPrise));
+
             if (!IsAnonymousUser(sSiteGUID))
             {
                 bool bEnd = false;
@@ -2755,7 +2758,6 @@ namespace Core.ConditionalAccess
                     if (domainEntitlements != null && domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions != null && domainEntitlements.DomainBundleEntitlements.EntitledCollections != null)
                     {
                         subsPurchase = domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions;
-
 
                         // filter pre sale subs
                         if (subsPurchase?.Count > 0 && domainEntitlements.DomainBundleEntitlements?.SubscriptionsData?.Count > 0)

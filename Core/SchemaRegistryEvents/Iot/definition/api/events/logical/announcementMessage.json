@@ -1,0 +1,12 @@
+{
+  "$id": "http://ott.schema.registry/events/logical/iot/announcementMessage",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "announcementMessage",
+  "type": "object",
+  "description": "Announcement Messages for IOT",
+  "allOf": [
+    {
+      "$ref": "ott-schema-registry/events/logical/iot/announcementMessage"
+    }
+  ]
+}
