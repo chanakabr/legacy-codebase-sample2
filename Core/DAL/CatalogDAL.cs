@@ -62,7 +62,7 @@ namespace Tvinci.Core.DAL
         CategoryVersion GetCategoryVersionById(int groupId, long id);
         bool DeleteCategoryVersion(int groupId, long userId, CategoryVersion categoryVersion);
         bool UpdateDefaultCategoryVersion(int groupId, long userId, long updateDate, long newDefaultVersionId, long currentDefaultVersionId);
-    }  
+    }
 
 
     public interface IChannelRepository
@@ -1796,8 +1796,8 @@ namespace Tvinci.Core.DAL
 
         public static DataSet GetGroupCategoriesAndChannels(int nGroupID, int nLangID = 0)
         {
-            // SELECT ID, CATEGORY_NAME, PARENT_CATEGORY_ID, PIC_ID, ORDER_NUM, CO_GUID FROM CATEGORIES 
-            // SELECT CH.ID,CH.PIC_ID,CH.NAME,CH.DESCRIPTION,CH.EDITOR_REMARKS  
+            // SELECT ID, CATEGORY_NAME, PARENT_CATEGORY_ID, PIC_ID, ORDER_NUM, CO_GUID FROM CATEGORIES
+            // SELECT CH.ID,CH.PIC_ID,CH.NAME,CH.DESCRIPTION,CH.EDITOR_REMARKS
 
             StoredProcedure sp = new StoredProcedure("Get_GroupCategoriesAndChannels");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -2073,7 +2073,7 @@ namespace Tvinci.Core.DAL
                 ? JsonConvert.DeserializeObject<MediaMarkLog>(data).LastMark
                 : currentUserMediaMark;
         }
-        
+
         public static void UpdateOrInsertUsersMediaMark(UserMediaMark userMediaMark, bool isFirstPlay, int groupId)
         {
             int limitRetries = RETRY_LIMIT;
@@ -2725,7 +2725,7 @@ namespace Tvinci.Core.DAL
         {
             List<long> epgIdentifiers = new List<long>();
 
-            // SP does a join between media and media_regions, 
+            // SP does a join between media and media_regions,
             // thus finding the ID of the channels from 'media' table,
             // while also filtering by REGION_ID from 'media_regions' table
 
@@ -4159,14 +4159,14 @@ namespace Tvinci.Core.DAL
                 devicePlayData.LinearWatchHistoryThreshold = linearWatchHistoryThreshold;
                 devicePlayData.IsFree = isFree;
             }
-            // save firstPlay in cache 
+            // save firstPlay in cache
             else if (deviceFamilyId > 0)
             {
                 devicePlayData = new DevicePlayData(udid, assetId, userId, 0, playType, mediaPlayAction, deviceFamilyId, 0, programId, npvrId,
                                                     domainId, mediaConcurrencyRuleIds, assetMediaRuleIds, assetEpgRuleIds, bookmarkEventThreshold,
                                                     productType, productId, linearWatchHistoryThreshold: linearWatchHistoryThreshold, isFree);
             }
-            
+
             if (devicePlayData != null)
             {
                 if (overrideCreatedAt)
@@ -4264,7 +4264,7 @@ namespace Tvinci.Core.DAL
             }
             linearChannelSettings.EnableTrickPlay = enable == 1 ? true : false;
 
-            // Buffer setting from Channel - if zero - get it from account            
+            // Buffer setting from Channel - if zero - get it from account
             int buffer = Utils.GetIntSafeVal(drChannel, "CATCH_UP_BUFFER"); // channel settings
             if (buffer == 0)
             {
@@ -4637,7 +4637,7 @@ namespace Tvinci.Core.DAL
             return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.DOMAIN_CONCURRENCY, key);
         }
 
-        public static List<DevicePlayData> GetDevicePlayDataList(Dictionary<string, int> domainDevices, List<ePlayType> playTypes, int ttl, string udid, 
+        public static List<DevicePlayData> GetDevicePlayDataList(Dictionary<string, int> domainDevices, List<ePlayType> playTypes, int ttl, string udid,
             bool shouldExcludeFreeContent = false)
         {
             if (domainDevices != null && domainDevices.Count > 0)
@@ -4892,9 +4892,31 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
+        public static DataSet GetMediaAssetMetas(int groupId, long id, long defaultLanguageId)
+        {
+            var sp = new StoredProcedure("GetMediaAssetMetas");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@Id", id);
+            sp.AddParameter("@DefaultLanguageId", defaultLanguageId);
+
+            return sp.ExecuteDataSet();
+        }
+
+        public static DataSet GetMediaAssetTags(int groupId, long id, long defaultLanguageId)
+        {
+            var sp = new StoredProcedure("GetMediaAssetTags");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@Id", id);
+            sp.AddParameter("@DefaultLanguageId", defaultLanguageId);
+
+            return sp.ExecuteDataSet();
+        }
+
         public static DataSet InsertMediaAsset(int groupId, long defaultLanguageId, System.Xml.XmlDocument metas, System.Xml.XmlDocument tags, string coGuid, string entryId, int? deviceRuleId,
                                                 int? geoBlockRuleId, bool? isActive, DateTime startDate, DateTime endDate, DateTime catalogStartDate, DateTime? finalEndDate, long assetStructId,
-                                                long userId, int InheritancePolicy, System.Xml.XmlDocument relatedEntities)
+                                                long userId, int InheritancePolicy, System.Xml.XmlDocument relatedEntities, bool isMinimalOutput)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertMediaAsset");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4918,13 +4940,15 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@InheritancePolicy", InheritancePolicy);
             sp.AddParameter("@RelatedEntitiesExist", relatedEntities != null && !string.IsNullOrEmpty(relatedEntities.InnerXml) ? 1 : 0);
             sp.AddParameter("@RelatedEntitiesXml", relatedEntities != null ? relatedEntities.InnerXml : string.Empty);
+            sp.AddParameter("@MinimalOutput", isMinimalOutput);
+
             return sp.ExecuteDataSet();
         }
 
         public static DataSet UpdateMediaAsset(int groupId, long id, long defaultLanguageId, System.Xml.XmlDocument metasToAdd, System.Xml.XmlDocument tagsToAdd, System.Xml.XmlDocument metasToUpdate,
                                                 System.Xml.XmlDocument tagsToUpdate, string coGuid, string entryId, int? deviceRuleId, int? geoBlockRuleId, bool? isActive, DateTime? startDate,
                                                 DateTime? endDate, DateTime? catalogStartDate, DateTime? finalEndDate, long userId, int inheritancePolicy,
-                                                System.Xml.XmlDocument relatedEntitiesToAdd, System.Xml.XmlDocument relatedEntitiesToUpdate)
+                                                System.Xml.XmlDocument relatedEntitiesToAdd, System.Xml.XmlDocument relatedEntitiesToUpdate, bool isMinimalOutput)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMediaAsset");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4954,6 +4978,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@RelatedEntitiesToAddXml", relatedEntitiesToAdd != null ? relatedEntitiesToAdd.InnerXml : string.Empty);
             sp.AddParameter("@RelatedEntitiesToUpdateExist", relatedEntitiesToUpdate != null && !string.IsNullOrEmpty(relatedEntitiesToUpdate.InnerXml) ? 1 : 0);
             sp.AddParameter("@RelatedEntitiesToUpdateXml", relatedEntitiesToUpdate != null ? relatedEntitiesToUpdate.InnerXml : string.Empty);
+            sp.AddParameter("@MinimalOutput", isMinimalOutput);
 
             return sp.ExecuteDataSet();
         }
@@ -5626,17 +5651,17 @@ namespace Tvinci.Core.DAL
         }
 
         public static DataSet UpdateChannel(
-            int groupId, 
+            int groupId,
             int id,
-            string systemName, 
-            string name, 
+            string systemName,
+            string name,
             string description,
             int? isActive,
             int? orderBy,
-            int? orderByDir, 
-            string orderByValue, 
-            bool? isSlidingWindow, 
-            int? slidingWindowPeriod, 
+            int? orderByDir,
+            string orderByValue,
+            bool? isSlidingWindow,
+            int? slidingWindowPeriod,
             List<AssetOrder> orderingParameters,
             string filterQuery,
             List<int> assetTypes,
@@ -5646,14 +5671,14 @@ namespace Tvinci.Core.DAL
             List<KeyValuePair<long, int>> mediaIdsToOrderNum,
             long userId,
             bool supportSegmentBasedOrdering,
-            long? assetUserRuleId, 
+            long? assetUserRuleId,
             int assetTypesValuesInd,
-            bool? hasMetadata, 
-            List<ManualAsset> manualAssets, 
+            bool? hasMetadata,
+            List<ManualAsset> manualAssets,
             int? channelType = null)
         {
             DataTable manualAssetsDt = SetManualAssetsTable(manualAssets);
-            
+
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateChannel");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
@@ -6542,7 +6567,7 @@ namespace Tvinci.Core.DAL
                 translations[item.mediaId] = item;
             }
         }
-        
+
         private static string GetMediaTagsTranslationsKey(long mediaId)
         {
             return $"media_tags_translations_{mediaId}";
