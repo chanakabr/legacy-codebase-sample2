@@ -186,15 +186,10 @@ namespace GrpcAPI.Utils
                 .ForPath(src => src.m_oPrice,
                     opt =>
                     {
-                        opt.MapFrom(dest =>
-                            dest.Price == 0 && string.IsNullOrEmpty(dest.Currency)
-                                ? null
-                                : new Core.Pricing.Price
+                        opt.MapFrom(dest => new Core.Pricing.Price
                                 {
                                     m_dPrice = dest.Price,
-                                    m_oCurrency = string.IsNullOrEmpty(dest.Currency)
-                                        ? null
-                                        : new Core.Pricing.Currency
+                                    m_oCurrency =  new Core.Pricing.Currency
                                         {
                                             m_sCurrencyCD3 = dest.Currency
                                         }

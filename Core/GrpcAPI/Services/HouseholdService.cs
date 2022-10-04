@@ -53,20 +53,16 @@ namespace GrpcAPI.Services
             try
             {
                 long domainId = request.DomainId;
-                Domain domain;
-                ApiObjects.Response.Status status;
+                Domain domain = null;
+                ApiObjects.Response.Status status = ApiObjects.Response.Status.Error;
                 if (!string.IsNullOrEmpty(request.UserId.ToString()))
                 {
                     status = Core.ConditionalAccess.Utils.ValidateUserAndDomain(request.GroupId,
                         request.UserId.ToString(), ref domainId, out domain);
                 }
-                else
-                {
-                    status = Core.ConditionalAccess.Utils.ValidateDomain(request.GroupId,
-                        (int)domainId, out domain);
-                }
 
                 DomainData domainData = null;
+                // in case that user is in problematic status ValidateUserAndDomain won't fetch domain data
                 if (domain != null)
                 {
                     domainData = new DomainData()
@@ -75,9 +71,30 @@ namespace GrpcAPI.Services
                         DlmId = domain.m_nLimit,
                         DeviceFamilies =
                         {
-                            Mapper.Map<RepeatedField<deviceFamilyData>>(domain.m_deviceFamilies)
+                            domain.m_deviceFamilies != null
+                                ? Mapper.Map<RepeatedField<deviceFamilyData>>(domain.m_deviceFamilies)
+                                : new RepeatedField<deviceFamilyData>()
                         }
                     };
+                }
+                else
+                {
+                    Core.ConditionalAccess.Utils.ValidateDomain(request.GroupId,
+                        (int) domainId, out domain);
+                    if (domain != null)
+                    {
+                        domainData = new DomainData()
+                        {
+                            Concurrency = domain.m_oLimitationsManager?.Concurrency ?? 0,
+                            DlmId = domain.m_nLimit,
+                            DeviceFamilies =
+                            {
+                                domain.m_deviceFamilies != null
+                                    ? Mapper.Map<RepeatedField<deviceFamilyData>>(domain.m_deviceFamilies)
+                                    : new RepeatedField<deviceFamilyData>()
+                            }
+                        };
+                    }
                 }
 
                 return new GetDomainDataResponse()
@@ -98,18 +115,16 @@ namespace GrpcAPI.Services
         {
             try
             {
-                long domainId = 0;
-
-                Core.ConditionalAccess.Utils.ValidateUserAndDomain(request.GroupId,
-                    request.UserId.ToString(), ref domainId, out var domain);
                 Core.Users.BaseDomain d = null;
                 Core.Users.Utils.GetBaseImpl(ref d, request.GroupId);
-                if (d != null && d.IsDevicePlayValid(request.Udid, domain, out var deviceFamilyId))
+                if (d != null)
                 {
+                    var domain = d.GetDomainByUser(request.GroupId, request.UserId.ToString());
+                    d.IsDevicePlayValid(request.Udid, domain, out var deviceFamilyId);
                     return deviceFamilyId;
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.LogError(e, $"Error in IsDevicePlayValid GRPC service {e.Message}");
             }
@@ -119,9 +134,10 @@ namespace GrpcAPI.Services
 
         public GetSuspensionStatusResponse GetSuspensionStatus(GetSuspensionStatusRequest request)
         {
-            try{
+            try
+            {
                 var status =
-                    RolesPermissionsManager.GetSuspentionStatus(request.GroupId, (int)request.DomainId);
+                    RolesPermissionsManager.GetSuspentionStatus(request.GroupId, (int) request.DomainId);
                 return new GetSuspensionStatusResponse()
                 {
                     Status = Mapper.Map<Status>(status)
@@ -151,6 +167,7 @@ namespace GrpcAPI.Services
                 Ids = {limitationModulesRules}
             };
         }
+
         public bool IsValidDeviceFamily(IsValidDeviceFamilyRequest request)
         {
             var deviceInfoResponse = Core.Domains.Module.Instance.GetDeviceInfo(request.GroupId, request.Udid, true);
