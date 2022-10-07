@@ -41,9 +41,9 @@ stage('Unified-CI'){
                                 "ingesthandlers" : { buildDockerAndPushToEcr("ingesthandlers","./Docker/IngestHandlers.Dockerfile") },
                                 "wsingest" : { buildDockerAndPushToEcr("wsingest","./Docker/WSIngest.Dockerfile") },
                                 "opc-migration" : { buildDockerAndPushToEcr("opc-migration","./Docker/OPCMigrator.Dockerfile") },
-                                "phoenix-api-grpc" : { buildDockerAndPushToEcr("ott-service-phoenix-api-grpc","./Docker/Phoenix.Api.Grpc.Dockerfile") },
-                                "phoenix-setup-job" : { buildDockerAndPushToEcr("ott-service-phoenix-setup-job","./Docker/Phoenix.SetupJob.Dockerfile") },
-                                "phoenix-async-handler" : { buildDockerAndPushToEcr("ott-service-phoenix-async-handler","./Docker/Phoenix.Async.Handler.Dockerfile") },
+                                // "phoenix-api-grpc" : { buildDockerAndPushToEcr("ott-service-phoenix-api-grpc","./Docker/Phoenix.Api.Grpc.Dockerfile") },
+                                // "phoenix-setup-job" : { buildDockerAndPushToEcr("ott-service-phoenix-setup-job","./Docker/Phoenix.SetupJob.Dockerfile") },
+                                // "phoenix-async-handler" : { buildDockerAndPushToEcr("ott-service-phoenix-async-handler","./Docker/Phoenix.Async.Handler.Dockerfile") },
                                 "epg-v3-migrator" : { buildDockerAndPushToEcr("ott-service-phoenix-epg-v3-migrator","./Docker/Epg.V3.Migrator.Dockerfile") },
                                 "epg-v3-rollback" : { buildDockerAndPushToEcr("ott-service-phoenix-epg-v3-rollback","./Docker/Epg.V3.Rollback.Dockerfile") }
                                 
