@@ -704,7 +704,10 @@ namespace EpgIngest
                                     dEpgTags.Add(tag.TagType, new List<string>());
                                 }
 
-                                dEpgTags[tag.TagType].Add(value.Value);
+                                if (dEpgTags[tag.TagType].All(x => !x.Equals(value.Value, StringComparison.OrdinalIgnoreCase)))
+                                {
+                                    dEpgTags[tag.TagType].Add(value.Value);
+                                }
                             }
                         }
                     }
@@ -1153,49 +1156,37 @@ namespace EpgIngest
                 {
                     if (sTagValue != "")
                     {
-                        kvp = new KeyValuePair<string, int>(sTagValue, nTagTypeID);
+                        var isOldTagValueEpg = false;
 
                         if (tagTypeIdWithValueFromDB.ContainsKey(nTagTypeID))
                         {
                             // Search for the EPG tag in the tags in DB
-                            List<KeyValuePair<string, int>> list = tagTypeIdWithValueFromDB[nTagTypeID].Where(x => x.Key.ToLower() == sTagValue.ToLower()).ToList();
-
-                            if (list != null && list.Count > 0)
+                            List<KeyValuePair<string, int>> list = tagTypeIdWithValueFromDB[nTagTypeID].Where(x => x.Key.Equals(sTagValue, StringComparison.OrdinalIgnoreCase)).ToList();
+                            if (list.Count > 0)
                             {
                                 //Insert New EPG Tag Value in EPG_Program_Tags, we are assuming this tag value was not assigned to the program because the program is new                                                    
                                 InitTables.FillEpgExtraDataTable(ref dtEpgTags, false, "", epg.EpgID, list[0].Value, epg.GroupID, epg.Status, nUpdaterID, DateTime.UtcNow, DateTime.UtcNow);
-                            }
-                            else//tha tag value does not exist in the DB
-                            {
-                                //the newTagValueEpgs has this tag + value: only need to update that this specific EPG is using it
-                                if (newTagValueEpgs.Where(x => x.Key.Key.ToLower() == kvp.Key.ToLower() && x.Key.Value == kvp.Value).ToList().Count > 0)
-                                {
-                                    newTagValueEpgs[kvp].Add(epg.EpgIdentifier);
-                                }
-                                else //need to insert a new tag +value to the newTagValueEpgs and update the relevant table 
-                                {
-                                    InitTables.FillEpgTagValueTable(ref dtEpgTagsValues, sTagValue, epg.EpgID, nTagTypeID, epg.GroupID, epg.Status, nUpdaterID, DateTime.UtcNow, DateTime.UtcNow);
-                                    List<string> lEpgGUID = new List<string>() { epg.EpgIdentifier };
-                                    newTagValueEpgs.Add(kvp, lEpgGUID);
-                                }
+                                isOldTagValueEpg = true;
                             }
                         }
-                        else //this tag type does not have the relevant values in the DB, need to insert a new tag +value to the newTagValueEpgs and update the relevant table 
+
+                        if (!isOldTagValueEpg)
                         {
-                            //check if it was not already added to the newTagValueEpgs
-                            if (newTagValueEpgs.Where(x => x.Key.Key.ToLower() == kvp.Key.ToLower() && x.Key.Value == kvp.Value).ToList().Count == 0)
+                            //check if it was already added to the newTagValueEpgs
+                            if (newTagValueEpgs.Any(x => x.Key.Key.Equals(sTagValue, StringComparison.OrdinalIgnoreCase) && x.Key.Value == nTagTypeID))
+                            {
+                                newTagValueEpgs.Single(x => x.Key.Key.Equals(sTagValue, StringComparison.OrdinalIgnoreCase) && x.Key.Value == nTagTypeID).Value.Add(epg.EpgIdentifier);
+                            }
+                            else
                             {
                                 InitTables.FillEpgTagValueTable(ref dtEpgTagsValues, sTagValue, epg.EpgID, nTagTypeID, epg.GroupID, epg.Status, nUpdaterID, DateTime.UtcNow, DateTime.UtcNow);
-                                List<string> lEpgGUID = new List<string>() { epg.EpgIdentifier };
-                                newTagValueEpgs.Add(kvp, lEpgGUID);
-                            }
-                            else ////the newTagValueEpgs has this tag + value: only need to update that this  specific EPG is using it
-                            {
-                                newTagValueEpgs[kvp].Add(epg.EpgIdentifier);
+
+                                var key = new KeyValuePair<string, int>(sTagValue, nTagTypeID);
+                                var value = new List<string> { epg.EpgIdentifier };
+                                newTagValueEpgs.Add(key, value);
                             }
                         }
                     }
-                    tagField = null;
                 }
             }
         }

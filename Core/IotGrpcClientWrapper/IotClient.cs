@@ -35,18 +35,16 @@ namespace IotGrpcClientWrapper
 
         private IotClient()
         {
-            Logger.DebugFormat($"*********** IotClient loaded");
-            var address = ApplicationConfiguration.Current.MicroservicesClientConfiguration.Iot.Address.Value ??
-                          "localhost:9090";
+            var address = ApplicationConfiguration.Current.MicroservicesClientConfiguration.Iot.Address.Value;
             var certFilePath =
-                ApplicationConfiguration.Current.MicroservicesClientConfiguration.Iot.CertFilePath.Value ?? "";
+                ApplicationConfiguration.Current.MicroservicesClientConfiguration.Iot.CertFilePath.Value;
             var retryCount = ApplicationConfiguration.Current.MicroservicesClientConfiguration.Iot.RetryCount.Value;
             _client = new Iot.IotClient(GrpcCommon.CreateChannel(address, certFilePath, retryCount));
         }
 
         public void RegisterDevice(int groupId, long domainId, string udid)
         {
-            Logger.DebugFormat($"PublishAnnouncement groupId {groupId} domainId {domainId} udid {udid}");
+            Logger.DebugFormat($"RegisterDevice groupId {groupId} domainId {domainId} udid {udid}");
             _client.RegisterDevice(new RegisterDeviceRequest()
             {
                 GroupId = groupId,
@@ -82,7 +80,6 @@ namespace IotGrpcClientWrapper
         public GetClientConfigurationResponse GetClientConfiguration(int groupId, long domainId, int regionId,
             string udid)
         {
-            Logger.DebugFormat($"GetClientConfiguration groupId {groupId} domainId {domainId} regionId {regionId} udid {udid}");
             return _client.GetClientConfiguration(new GetClientConfigurationRequest()
             {
                 GroupId = groupId,

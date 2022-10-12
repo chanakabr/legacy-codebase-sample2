@@ -17,16 +17,16 @@ namespace Core.Catalog.CatalogManagement
     {
         private static readonly IKLogger Log = new KLogger(nameof(MediaAssetService));
         private static readonly Lazy<MediaAssetService> Lazy = new Lazy<MediaAssetService>(() => new MediaAssetService(CatalogManager.Instance), LazyThreadSafetyMode.PublicationOnly);
-        
+
         private readonly ICatalogManager _catalogManager;
-        
+
         public static MediaAssetService Instance => Lazy.Value;
 
         public MediaAssetService(ICatalogManager catalogManager)
         {
             _catalogManager = catalogManager;
         }
-        
+
         public MediaAsset CreateMediaAsset(
             long groupId,
             DataTable basicTable,
@@ -41,12 +41,13 @@ namespace Core.Catalog.CatalogManagement
             DataTable nameRelatedEntitiesTable,
             DataTable liveToVodAssetTable,
             bool isForIndex = false,
-            bool isForMigration = false)
+            bool isForMigration = false,
+            bool isMinimalOutput = false)
         {
             if (!_catalogManager.TryGetCatalogGroupCacheFromCache((int)groupId, out var catalogGroupCache))
             {
                 Log.Error($"{nameof(ICatalogManager.TryGetCatalogGroupCacheFromCache)} failed with parameters ({groupId}).");
-                
+
                 return null;
             }
 
@@ -58,13 +59,13 @@ namespace Core.Catalog.CatalogManagement
             }
 
             var basicDataRow = basicTable.Rows[0];
-            
+
             var id = ODBCWrapper.Utils.GetLongSafeVal(basicDataRow, "ID", 0);
             var assetStructId = ODBCWrapper.Utils.GetLongSafeVal(basicDataRow, "ASSET_STRUCT_ID", 0);
             if (!TryGetMediaTypeFromAssetStructId(groupId, assetStructId, catalogGroupCache, out var mediaType))
             {
                 Log.LogWarning($"Media type (assetStruct) is not valid for media with Id: {id}, assetStructId: {assetStructId}.");
-                
+
                 return null;
             }
 
@@ -83,10 +84,10 @@ namespace Core.Catalog.CatalogManagement
             List<Tags> tags = null;
             List<RelatedEntities> relatedEntitiesList = null;
 
-            if (!TryGetMetasAndTags(groupId, catalogGroupCache.LanguageMapById.Values.ToList(), metasTable, tagsTable, ref metas, ref tags, ref maxUpdateDate))
+            if (!isMinimalOutput && !TryGetMetasAndTags(groupId, catalogGroupCache.LanguageMapById.Values.ToList(), metasTable, tagsTable, ref metas, ref tags, ref maxUpdateDate))
             {
                 Log.LogWarning("CreateMediaAssetFromDataSet - failed to get media metas and tags for Id: {0}", id);
-                
+
                 return null;
             }
 
@@ -181,10 +182,10 @@ namespace Core.Catalog.CatalogManagement
             string description = null;
             List<LanguageContainer> namesWithLanguages = null;
             List<LanguageContainer> descriptionsWithLanguages = null;
-            if (!ExtractMediaAssetNamesAndDescriptionsFromMetas(metas, ref name, ref description, ref namesWithLanguages, ref descriptionsWithLanguages))
+            if (!isMinimalOutput && !ExtractMediaAssetNamesAndDescriptionsFromMetas(metas, ref name, ref description, ref namesWithLanguages, ref descriptionsWithLanguages))
             {
                 Log.LogWarning("Name is not valid for media with Id: {0}", id);
-                
+
                 return null;
             }
 
@@ -247,7 +248,7 @@ namespace Core.Catalog.CatalogManagement
                 if (dataSet == null || dataSet.Tables.Count < 6)
                 {
                     Log.LogWarning("CreateMediaAssets didn't receive dataset with 7 or more tables");
-                    
+
                     return null;
                 }
 
@@ -255,7 +256,7 @@ namespace Core.Catalog.CatalogManagement
                 if (dataSet.Tables[0] == null || dataSet.Tables[0].Rows.Count <= 0)
                 {
                     Log.LogWarning("CreateMediaAssets - basic details table is not valid");
-                    
+
                     return null;
                 }
 
@@ -333,7 +334,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 epgChannelId = ODBCWrapper.Utils.GetLongSafeVal(dataRow, "ID");
             }
-            
+
             var updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dataRow, "UPDATE_DATE");
 
             if (updateDate.HasValue && (!mediaAsset.UpdateDate.HasValue || updateDate.Value > mediaAsset.UpdateDate.Value))
@@ -342,12 +343,12 @@ namespace Core.Catalog.CatalogManagement
             }
 
             var result = new LiveAsset(
-                epgChannelId.Value, 
-                enableCdvr, 
-                enableCatchUp, 
+                epgChannelId.Value,
+                enableCdvr,
+                enableCatchUp,
                 enableStartOver,
-                enableTrickPlay, 
-                enableRecordingPlaybackNonEntitledChannel, 
+                enableTrickPlay,
+                enableRecordingPlaybackNonEntitledChannel,
                 catchUpBuffer,
                 paddingBeforeProgramStats,
                 paddingAfterProgramEnds,
@@ -400,7 +401,7 @@ namespace Core.Catalog.CatalogManagement
             return true;
         }
 
-        private bool TryGetMetasAndTags(long groupId, IEnumerable<LanguageObj> groupLanguages, DataTable metasTable, DataTable tagsTable, ref List<Metas> metas, ref List<Tags> tags, ref DateTime? maxUpdateDate)
+        public bool TryGetMetasAndTags(long groupId, IEnumerable<LanguageObj> groupLanguages, DataTable metasTable, DataTable tagsTable, ref List<Metas> metas, ref List<Tags> tags, ref DateTime? maxUpdateDate)
         {
             bool res = false;
             Dictionary<long, List<LanguageContainer>> topicIdToMeta = new Dictionary<long, List<LanguageContainer>>();
@@ -608,7 +609,7 @@ namespace Core.Catalog.CatalogManagement
                 return false;
             }
         }
-        
+
         private static EnumerableRowCollection<DataRow> GetDataRows(DataSet ds, int tableIndex)
         {
             var dataRows = new DataTable().AsEnumerable();

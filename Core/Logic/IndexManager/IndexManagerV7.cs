@@ -2153,7 +2153,7 @@ namespace Core.Catalog
                                 string value = definitions.AutocompleteSearchValue.ToLower();
                                 string field = "name.autocomplete";
                                 mustQueryContainers.Add(queryContainerDescriptor.
-                                    Match(match => match.Field(field).Query(value)));
+                                    Match(match => match.Field(field).Query(value).Operator(Operator.And)));
                             }
                             else if (!string.IsNullOrEmpty(definitions.ExactSearchValue))
                             {
@@ -5300,7 +5300,7 @@ namespace Core.Catalog
                     "asciifolding",
                     "lowercase",
                 },
-                tokenizer = "keyword"
+                tokenizer = "whitespace"
             });
             _defaultFilters.Add($"default_ngram_filter", new NgramFilter()
             {
@@ -5312,7 +5312,7 @@ namespace Core.Catalog
             var defaultEdgeNgramFilter = new NgramFilter()
             {
                 type = "edgeNGram",
-                min_gram = 2,
+                min_gram = 1,
                 max_gram = 20,
                 token_chars = defaultTokenChars
             };

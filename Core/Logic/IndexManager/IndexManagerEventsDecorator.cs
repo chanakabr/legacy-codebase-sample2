@@ -139,7 +139,23 @@ namespace ApiLogic.Catalog.IndexManager
         //CUD
         public void UpsertPrograms(IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName, LanguageObj defaultLanguage, IDictionary<string, LanguageObj> languages)
         {
-            Execute(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, null, calculatedPrograms, draftIndexName, defaultLanguage, languages);
+            // Constant value for chunking is used to make is as simple as it could be.
+            // Possible solutions:
+            // 1. Move it to TCM configuration and empirically choose batch size.
+            // 2. Calculate the size of the message to be published in memory. There are a lot of possible problems (LOH grows, memory consumption, etc.)
+            // Taking into account that replication between ESV2 and ESV7 is a temporary solution - let's avoid unnecessary complexity.
+            var transformedParameters = calculatedPrograms.Batch(BatchChunkSize)
+                .Select(batch => new object[] { batch.ToList(), draftIndexName, defaultLanguage, languages })
+                .ToArray();
+
+            Execute(
+                MethodBase.GetCurrentMethod(),
+                IndexManagerMigrationEventKeys.EPG,
+                transformedParameters,
+                calculatedPrograms,
+                draftIndexName,
+                defaultLanguage,
+                languages);
         }
 
         //CUD

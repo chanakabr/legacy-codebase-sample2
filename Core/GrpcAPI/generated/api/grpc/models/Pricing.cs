@@ -28,34 +28,39 @@ namespace phoenix {
             "EVByaWNlUmVhc29uLnByb3RvGh9nb29nbGUvcHJvdG9idWYvdGltZXN0YW1w",
             "LnByb3RvInEKHU1lZGlhRmlsZUVudGl0bGVtZW50Q29udGFpbmVyEhMKC21l",
             "ZGlhRmlsZUlEGAEgASgFEjsKFGVudGl0bGVtZW50Q29udGFpbmVyGAIgAygL",
-            "Mh0ucGhvZW5peC5FbnRpdGxlbWVudENvbnRhaW5lciK6AgoURW50aXRsZW1l",
+            "Mh0ucGhvZW5peC5FbnRpdGxlbWVudENvbnRhaW5lciL4AgoURW50aXRsZW1l",
             "bnRDb250YWluZXISFgoOU3Vic2NyaXB0aW9uSWQYASABKAkSFAoMQ29sbGVj",
             "dGlvbklkGAIgASgJEg0KBVBQVklkGAMgASgJEikKC1ByaWNlUmVhc29uGAQg",
             "ASgOMhQucGhvZW5peC5QcmljZVJlYXNvbhINCgVQcmljZRgFIAEoARIQCghD",
             "dXJyZW5jeRgGIAEoCRItCglTdGFydERhdGUYByABKAsyGi5nb29nbGUucHJv",
             "dG9idWYuVGltZXN0YW1wEisKB0VuZERhdGUYCCABKAsyGi5nb29nbGUucHJv",
             "dG9idWYuVGltZXN0YW1wEh8KE1JlbGF0ZWRNZWRpYUZpbGVJRHMYCSADKAVC",
-            "AhAAEhwKFFB1cmNoYXNlZE1lZGlhRmlsZUlEGAogASgFIqgEChVQYXltZW50",
-            "R2F0ZXdheVByb2ZpbGUSCgoCSWQYASABKAUSDAoETmFtZRgCIAEoCRIRCglJ",
-            "c0RlZmF1bHQYAyABKAgSHAoUU3VwcG9ydFBheW1lbnRNZXRob2QYBCABKAgS",
-            "LgoOUGF5bWVudE1ldGhvZHMYBSABKAsyFi5waG9lbml4LlBheW1lbnRNZXRo",
-            "b2QSEAoISXNBY3RpdmUYBiABKAUSEgoKQWRhcHRlclVybBgHIAEoCRIXCg9Q",
-            "ZW5kaW5nSW50ZXJ2YWwYCCABKAUSFgoOUGVuZGluZ1JldHJpZXMYCSABKAUS",
-            "FAoMU2hhcmVkU2VjcmV0GAogASgJEhAKCFNlbGVjdGVkGAsgASgFEg4KBlN0",
-            "YXR1cxgMIAEoBRIcChRFeHRlcm5hbFZlcmlmaWNhdGlvbhgNIAEoCBIVCg1J",
-            "c0FzeW5jUG9saWN5GA4gASgIEhMKC1RyYW5zYWN0VXJsGA8gASgJEhEKCVN0",
-            "YXR1c1VybBgQIAEoCRIQCghSZW5ld1VybBgRIAEoCRInCghTZXR0aW5ncxgS",
-            "IAMoCzIVLnBob2VuaXguS2V5VmFsdWVQYWlyEhoKEkV4dGVybmFsSWRlbnRp",
-            "ZmllchgTIAEoCRIeChZSZW5ld2FsSW50ZXJ2YWxNaW51dGVzGBQgASgFEhsK",
-            "E1JlbmV3YWxTdGFydE1pbnV0ZXMYFSABKAUSFAoMU2tpcFNldHRpbmdzGBYg",
-            "ASgIIl8KDVBheW1lbnRNZXRob2QSCgoCSWQYASABKAUSDAoETmFtZRgCIAEo",
-            "CRIaChJBbGxvd011bHRpSW5zdGFuY2UYAyABKAgSGAoQUGF5bWVudEdhdGV3",
-            "YXlJZBgEIAEoBUIUWgguL21vZGVsc6oCB3Bob2VuaXhiBnByb3RvMw=="));
+            "AhAAEhwKFFB1cmNoYXNlZE1lZGlhRmlsZUlEGAogASgFEhEKCVByZVBhaWRJ",
+            "ZBgLIAEoBRIpCgtVc2FnZU1vZHVsZRgMIAEoCzIULnBob2VuaXguVXNhZ2VN",
+            "b2R1bGUiWgoLVXNhZ2VNb2R1bGUSFQoNVmlld0xpZmVDeWNsZRgBIAEoBRIZ",
+            "ChFNYXhVc2FnZUxpZmVDeWNsZRgCIAEoBRIZChFJc09mZmxpbmVQbGF5YmFj",
+            "axgDIAEoCCKoBAoVUGF5bWVudEdhdGV3YXlQcm9maWxlEgoKAklkGAEgASgF",
+            "EgwKBE5hbWUYAiABKAkSEQoJSXNEZWZhdWx0GAMgASgIEhwKFFN1cHBvcnRQ",
+            "YXltZW50TWV0aG9kGAQgASgIEi4KDlBheW1lbnRNZXRob2RzGAUgASgLMhYu",
+            "cGhvZW5peC5QYXltZW50TWV0aG9kEhAKCElzQWN0aXZlGAYgASgFEhIKCkFk",
+            "YXB0ZXJVcmwYByABKAkSFwoPUGVuZGluZ0ludGVydmFsGAggASgFEhYKDlBl",
+            "bmRpbmdSZXRyaWVzGAkgASgFEhQKDFNoYXJlZFNlY3JldBgKIAEoCRIQCghT",
+            "ZWxlY3RlZBgLIAEoBRIOCgZTdGF0dXMYDCABKAUSHAoURXh0ZXJuYWxWZXJp",
+            "ZmljYXRpb24YDSABKAgSFQoNSXNBc3luY1BvbGljeRgOIAEoCBITCgtUcmFu",
+            "c2FjdFVybBgPIAEoCRIRCglTdGF0dXNVcmwYECABKAkSEAoIUmVuZXdVcmwY",
+            "ESABKAkSJwoIU2V0dGluZ3MYEiADKAsyFS5waG9lbml4LktleVZhbHVlUGFp",
+            "chIaChJFeHRlcm5hbElkZW50aWZpZXIYEyABKAkSHgoWUmVuZXdhbEludGVy",
+            "dmFsTWludXRlcxgUIAEoBRIbChNSZW5ld2FsU3RhcnRNaW51dGVzGBUgASgF",
+            "EhQKDFNraXBTZXR0aW5ncxgWIAEoCCJfCg1QYXltZW50TWV0aG9kEgoKAklk",
+            "GAEgASgFEgwKBE5hbWUYAiABKAkSGgoSQWxsb3dNdWx0aUluc3RhbmNlGAMg",
+            "ASgIEhgKEFBheW1lbnRHYXRld2F5SWQYBCABKAVCFFoILi9tb2RlbHOqAgdw",
+            "aG9lbml4YgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::phoenix.KeyValuePairReflection.Descriptor, global::phoenix.PriceReasonReflection.Descriptor, global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.MediaFileEntitlementContainer), global::phoenix.MediaFileEntitlementContainer.Parser, new[]{ "MediaFileID", "EntitlementContainer" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.EntitlementContainer), global::phoenix.EntitlementContainer.Parser, new[]{ "SubscriptionId", "CollectionId", "PPVId", "PriceReason", "Price", "Currency", "StartDate", "EndDate", "RelatedMediaFileIDs", "PurchasedMediaFileID" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.EntitlementContainer), global::phoenix.EntitlementContainer.Parser, new[]{ "SubscriptionId", "CollectionId", "PPVId", "PriceReason", "Price", "Currency", "StartDate", "EndDate", "RelatedMediaFileIDs", "PurchasedMediaFileID", "PrePaidId", "UsageModule" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.UsageModule), global::phoenix.UsageModule.Parser, new[]{ "ViewLifeCycle", "MaxUsageLifeCycle", "IsOfflinePlayback" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.PaymentGatewayProfile), global::phoenix.PaymentGatewayProfile.Parser, new[]{ "Id", "Name", "IsDefault", "SupportPaymentMethod", "PaymentMethods", "IsActive", "AdapterUrl", "PendingInterval", "PendingRetries", "SharedSecret", "Selected", "Status", "ExternalVerification", "IsAsyncPolicy", "TransactUrl", "StatusUrl", "RenewUrl", "Settings", "ExternalIdentifier", "RenewalIntervalMinutes", "RenewalStartMinutes", "SkipSettings" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.PaymentMethod), global::phoenix.PaymentMethod.Parser, new[]{ "Id", "Name", "AllowMultiInstance", "PaymentGatewayId" }, null, null, null, null)
           }));
@@ -300,6 +305,8 @@ namespace phoenix {
       endDate_ = other.endDate_ != null ? other.endDate_.Clone() : null;
       relatedMediaFileIDs_ = other.relatedMediaFileIDs_.Clone();
       purchasedMediaFileID_ = other.purchasedMediaFileID_;
+      prePaidId_ = other.prePaidId_;
+      usageModule_ = other.usageModule_ != null ? other.usageModule_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -417,6 +424,28 @@ namespace phoenix {
       }
     }
 
+    /// <summary>Field number for the "PrePaidId" field.</summary>
+    public const int PrePaidIdFieldNumber = 11;
+    private int prePaidId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int PrePaidId {
+      get { return prePaidId_; }
+      set {
+        prePaidId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "UsageModule" field.</summary>
+    public const int UsageModuleFieldNumber = 12;
+    private global::phoenix.UsageModule usageModule_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::phoenix.UsageModule UsageModule {
+      get { return usageModule_; }
+      set {
+        usageModule_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as EntitlementContainer);
@@ -440,6 +469,8 @@ namespace phoenix {
       if (!object.Equals(EndDate, other.EndDate)) return false;
       if(!relatedMediaFileIDs_.Equals(other.relatedMediaFileIDs_)) return false;
       if (PurchasedMediaFileID != other.PurchasedMediaFileID) return false;
+      if (PrePaidId != other.PrePaidId) return false;
+      if (!object.Equals(UsageModule, other.UsageModule)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -456,6 +487,8 @@ namespace phoenix {
       if (endDate_ != null) hash ^= EndDate.GetHashCode();
       hash ^= relatedMediaFileIDs_.GetHashCode();
       if (PurchasedMediaFileID != 0) hash ^= PurchasedMediaFileID.GetHashCode();
+      if (PrePaidId != 0) hash ^= PrePaidId.GetHashCode();
+      if (usageModule_ != null) hash ^= UsageModule.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -509,6 +542,14 @@ namespace phoenix {
         output.WriteRawTag(80);
         output.WriteInt32(PurchasedMediaFileID);
       }
+      if (PrePaidId != 0) {
+        output.WriteRawTag(88);
+        output.WriteInt32(PrePaidId);
+      }
+      if (usageModule_ != null) {
+        output.WriteRawTag(98);
+        output.WriteMessage(UsageModule);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -555,6 +596,14 @@ namespace phoenix {
         output.WriteRawTag(80);
         output.WriteInt32(PurchasedMediaFileID);
       }
+      if (PrePaidId != 0) {
+        output.WriteRawTag(88);
+        output.WriteInt32(PrePaidId);
+      }
+      if (usageModule_ != null) {
+        output.WriteRawTag(98);
+        output.WriteMessage(UsageModule);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -591,6 +640,12 @@ namespace phoenix {
       size += relatedMediaFileIDs_.CalculateSize(_repeated_relatedMediaFileIDs_codec);
       if (PurchasedMediaFileID != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(PurchasedMediaFileID);
+      }
+      if (PrePaidId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(PrePaidId);
+      }
+      if (usageModule_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(UsageModule);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -636,6 +691,15 @@ namespace phoenix {
       relatedMediaFileIDs_.Add(other.relatedMediaFileIDs_);
       if (other.PurchasedMediaFileID != 0) {
         PurchasedMediaFileID = other.PurchasedMediaFileID;
+      }
+      if (other.PrePaidId != 0) {
+        PrePaidId = other.PrePaidId;
+      }
+      if (other.usageModule_ != null) {
+        if (usageModule_ == null) {
+          UsageModule = new global::phoenix.UsageModule();
+        }
+        UsageModule.MergeFrom(other.UsageModule);
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -696,6 +760,17 @@ namespace phoenix {
           }
           case 80: {
             PurchasedMediaFileID = input.ReadInt32();
+            break;
+          }
+          case 88: {
+            PrePaidId = input.ReadInt32();
+            break;
+          }
+          case 98: {
+            if (usageModule_ == null) {
+              UsageModule = new global::phoenix.UsageModule();
+            }
+            input.ReadMessage(UsageModule);
             break;
           }
         }
@@ -759,6 +834,261 @@ namespace phoenix {
             PurchasedMediaFileID = input.ReadInt32();
             break;
           }
+          case 88: {
+            PrePaidId = input.ReadInt32();
+            break;
+          }
+          case 98: {
+            if (usageModule_ == null) {
+              UsageModule = new global::phoenix.UsageModule();
+            }
+            input.ReadMessage(UsageModule);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  public sealed partial class UsageModule : pb::IMessage<UsageModule>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<UsageModule> _parser = new pb::MessageParser<UsageModule>(() => new UsageModule());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<UsageModule> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::phoenix.PricingReflection.Descriptor.MessageTypes[2]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public UsageModule() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public UsageModule(UsageModule other) : this() {
+      viewLifeCycle_ = other.viewLifeCycle_;
+      maxUsageLifeCycle_ = other.maxUsageLifeCycle_;
+      isOfflinePlayback_ = other.isOfflinePlayback_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public UsageModule Clone() {
+      return new UsageModule(this);
+    }
+
+    /// <summary>Field number for the "ViewLifeCycle" field.</summary>
+    public const int ViewLifeCycleFieldNumber = 1;
+    private int viewLifeCycle_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int ViewLifeCycle {
+      get { return viewLifeCycle_; }
+      set {
+        viewLifeCycle_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "MaxUsageLifeCycle" field.</summary>
+    public const int MaxUsageLifeCycleFieldNumber = 2;
+    private int maxUsageLifeCycle_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int MaxUsageLifeCycle {
+      get { return maxUsageLifeCycle_; }
+      set {
+        maxUsageLifeCycle_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "IsOfflinePlayback" field.</summary>
+    public const int IsOfflinePlaybackFieldNumber = 3;
+    private bool isOfflinePlayback_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool IsOfflinePlayback {
+      get { return isOfflinePlayback_; }
+      set {
+        isOfflinePlayback_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as UsageModule);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(UsageModule other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (ViewLifeCycle != other.ViewLifeCycle) return false;
+      if (MaxUsageLifeCycle != other.MaxUsageLifeCycle) return false;
+      if (IsOfflinePlayback != other.IsOfflinePlayback) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (ViewLifeCycle != 0) hash ^= ViewLifeCycle.GetHashCode();
+      if (MaxUsageLifeCycle != 0) hash ^= MaxUsageLifeCycle.GetHashCode();
+      if (IsOfflinePlayback != false) hash ^= IsOfflinePlayback.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (ViewLifeCycle != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(ViewLifeCycle);
+      }
+      if (MaxUsageLifeCycle != 0) {
+        output.WriteRawTag(16);
+        output.WriteInt32(MaxUsageLifeCycle);
+      }
+      if (IsOfflinePlayback != false) {
+        output.WriteRawTag(24);
+        output.WriteBool(IsOfflinePlayback);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (ViewLifeCycle != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(ViewLifeCycle);
+      }
+      if (MaxUsageLifeCycle != 0) {
+        output.WriteRawTag(16);
+        output.WriteInt32(MaxUsageLifeCycle);
+      }
+      if (IsOfflinePlayback != false) {
+        output.WriteRawTag(24);
+        output.WriteBool(IsOfflinePlayback);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (ViewLifeCycle != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(ViewLifeCycle);
+      }
+      if (MaxUsageLifeCycle != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(MaxUsageLifeCycle);
+      }
+      if (IsOfflinePlayback != false) {
+        size += 1 + 1;
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(UsageModule other) {
+      if (other == null) {
+        return;
+      }
+      if (other.ViewLifeCycle != 0) {
+        ViewLifeCycle = other.ViewLifeCycle;
+      }
+      if (other.MaxUsageLifeCycle != 0) {
+        MaxUsageLifeCycle = other.MaxUsageLifeCycle;
+      }
+      if (other.IsOfflinePlayback != false) {
+        IsOfflinePlayback = other.IsOfflinePlayback;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            ViewLifeCycle = input.ReadInt32();
+            break;
+          }
+          case 16: {
+            MaxUsageLifeCycle = input.ReadInt32();
+            break;
+          }
+          case 24: {
+            IsOfflinePlayback = input.ReadBool();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            ViewLifeCycle = input.ReadInt32();
+            break;
+          }
+          case 16: {
+            MaxUsageLifeCycle = input.ReadInt32();
+            break;
+          }
+          case 24: {
+            IsOfflinePlayback = input.ReadBool();
+            break;
+          }
         }
       }
     }
@@ -778,7 +1108,7 @@ namespace phoenix {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::phoenix.PricingReflection.Descriptor.MessageTypes[2]; }
+      get { return global::phoenix.PricingReflection.Descriptor.MessageTypes[3]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1704,7 +2034,7 @@ namespace phoenix {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::phoenix.PricingReflection.Descriptor.MessageTypes[3]; }
+      get { return global::phoenix.PricingReflection.Descriptor.MessageTypes[4]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

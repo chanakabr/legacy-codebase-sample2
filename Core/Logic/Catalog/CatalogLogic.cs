@@ -7535,7 +7535,8 @@ namespace Core.Catalog
             // Add prefix (meta/tag) e.g. metas.{key}
             Type metaType;
             var searchKeys = new HashSet<BooleanLeafFieldDefinitions>();
-            if (catalogManager.DoesGroupUsesTemplates(groupId))
+            bool doesGroupUseTemplates = catalogManager.DoesGroupUsesTemplates(groupId);
+            if (doesGroupUseTemplates)
             {
                 searchKeys = catalogManager.GetUnifiedSearchKey(groupId, leaf.field);
             }
@@ -7636,7 +7637,10 @@ namespace Core.Catalog
                     {
                         HandleNumericLeaf(leaf);
 
-                        definitions.numericEpgMetas.Add(searchKey.Field);
+                        if (doesGroupUseTemplates)
+                        {
+                            definitions.numericEpgMetas.Add(searchKey.Field);
+                        }
                         leaf.valueType = typeof(double);
                         leaf.shouldLowercase = false;
                     }
@@ -7652,7 +7656,10 @@ namespace Core.Catalog
                             leaf.value = default(long);
                         }
 
-                        definitions.numericEpgMetas.Add(searchKey.Field);   
+                        if (doesGroupUseTemplates)
+                        {
+                            definitions.numericEpgMetas.Add(searchKey.Field);
+                        }
                         leaf.valueType = typeof(long);
                         leaf.shouldLowercase = false;   
                     }

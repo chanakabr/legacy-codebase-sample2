@@ -19,7 +19,8 @@ namespace Core.Catalog.CatalogManagement
             DataTable nameRelatedEntitiesTable,
             DataTable liveToVodAssetTable,
             bool isForIndex = false,
-            bool isForMigration = false);
+            bool isForMigration = false,
+            bool isMinimalOutput = false);
 
         IEnumerable<MediaAsset> CreateMediaAssets(long groupId, DataSet dataSet);
 

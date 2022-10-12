@@ -16,9 +16,6 @@ namespace RemoteTasksService
 
         protected void Application_Start(object sender, EventArgs e)
         {
-            //added to support GRPC for IOT service
-            System.Environment.SetEnvironmentVariable("GRPC_DNS_RESOLVER", "native");
-            
             string logDir = System.Environment.GetEnvironmentVariable("REMOTE_TASK_LOG_DIR");
             if (logDir != null)
             {

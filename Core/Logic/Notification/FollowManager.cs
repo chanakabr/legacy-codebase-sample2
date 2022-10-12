@@ -495,6 +495,15 @@ namespace Core.Notification
                 return response;
             }
 
+            var tags = episodeMediaAsset.Tags;
+            var metas = episodeMediaAsset.Metas;
+
+
+            if ((tags == null || tags.Count == 0) && (metas == null || metas.Count == 0))
+            {
+                AssetManager.GetMediaAssetMetasAndTags(groupId, episodeMediaAsset.Id, out metas, out tags);
+            }
+
             var topic = cache.TopicsMapById[episodeAssetStruct.ConnectedParentMetaId.Value];
             var seriesName = GetSeriesNames(topic.Type, topic.SystemName, episodeMediaAsset.Tags, episodeMediaAsset.Metas).FirstOrDefault();
             if (string.IsNullOrEmpty(seriesName))

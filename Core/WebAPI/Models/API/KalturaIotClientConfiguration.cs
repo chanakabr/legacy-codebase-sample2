@@ -107,7 +107,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "topics")]
         [JsonProperty(PropertyName = "topics")]
         [XmlElement(ElementName = "topics")]
-        public List<KalturaStringValue> Topics { get; set; }
+        public List<KalturaKeyValue> Topics { get; set; }
         
         /// <summary>
         /// status
