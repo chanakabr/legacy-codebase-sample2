@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -1994,11 +1994,11 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     else
                     {
                         string rangeValue = value;
+
                         if (this.SearchDefinitions.numericEpgMetas.Contains(leaf.field) && this.SearchDefinitions.shouldSearchEpg)
                         {
-                            leafField = $"padded_{leafField}";
+                            leafField = GetElasticsearchFieldName(leaf.isLanguageSpecific, this.SearchDefinitions.langauge, $"padded_{leaf.field}", leaf.fieldType);
                             rangeValue = Media.PadValue(rangeValue);
-
                         }
 
                         term = ConvertToRange(leafField, rangeValue, leaf.operand, isNumeric);
