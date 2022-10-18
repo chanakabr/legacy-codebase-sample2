@@ -1253,7 +1253,7 @@ namespace Core.Catalog
                     .Index(Indices.Index(builder.GetIndices()))
                     .Query(queryGetter => query)
                     .Sort(sortGetter => builder.GetSort())
-                    ;
+                    .TrackTotalHits();
 
                 // aggs = optional
                 var aggs = builder.GetAggs();
@@ -4071,6 +4071,7 @@ namespace Core.Catalog
                     searchDescriptor.Query(q => mediaBuilder.GetQuery());
                     searchDescriptor.Index(Indices.Index(mediaBuilder.GetIndices()));
                     searchDescriptor.Sort(q => mediaBuilder.GetSort());
+                    searchDescriptor.TrackTotalHits();
                     searchDescriptor = mediaBuilder.SetSizeAndFrom(searchDescriptor);
 
                     searchDescriptor.Source(
@@ -4228,6 +4229,7 @@ namespace Core.Catalog
                 s.Query(q => q.Bool(b => b.Should(shouldContainer.ToArray())));
                 s = unifiedSearchNestMediaBuilder.SetSizeAndFrom<NestMedia>(s);
                 s.Index(NamingHelper.GetMediaIndexAlias(_partnerId));
+                s.TrackTotalHits();
                 return s;
             });
             
@@ -4307,6 +4309,7 @@ namespace Core.Catalog
                         s.Index(Indices.Index(NamingHelper.GetEpgIndexAlias(epgSearch.m_nGroupID)));
                         s.Routing(string.Join(",", routing));
                         s.Query(q => unifiedSearchNestEpgBuilder.GetQuery());
+                        s.TrackTotalHits();
                         return s;
                     }
                 );
