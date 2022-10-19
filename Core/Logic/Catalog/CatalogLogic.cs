@@ -8339,7 +8339,7 @@ namespace Core.Catalog
                 bool hasMinusTwentySixMediaType =
                     definitions.mediaTypes.Remove(GroupsCacheManager.Channel.EPG_ASSET_TYPE);
 
-                var indexesModel = filterTreeValidator.ValidateTree(initialTree);
+                var indexesModel = filterTreeValidator.ValidateTree(initialTree, definitions.mediaTypes);
                 // Special case - if no type was specified or "All" is contained, search all types
                 if ((!doesGroupUsesTemplates && hasZeroMediaType && definitions.mediaTypes.Count == 0) ||
                     (!hasZeroMediaType && (definitions.mediaTypes == null || definitions.mediaTypes.Count == 0)))
