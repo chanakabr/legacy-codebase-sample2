@@ -344,6 +344,11 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType DEVICE_FAMILY_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.DeviceFamilyDoesNotExist, "Device family does not exist");
         public static ClientExceptionType DEVICE_BRAND_ID_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.DeviceBrandIdAlreadyInUse, "Device brand id already in use");
         public static ClientExceptionType DEVICE_BRAND_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.DeviceBrandDoesNotExist, "Device brand does not exist");
+        public static ClientExceptionType CANNOT_DELETE_ATTACHED_SEGMENT = new ClientExceptionType(eResponseStatus.CannotDeleteAttachedSegment, "Cannot delete attached segment");
+        public static ClientExceptionType DYNAMIC_SEGMENTS_EXCEEDED = new ClientExceptionType(eResponseStatus.DynamicSegmentsExceeded, "Dynamic segments exceeded ");
+        public static ClientExceptionType DYNAMIC_SEGMENT_PERIOD_EXCEEDED = new ClientExceptionType(eResponseStatus.DynamicSegmentPeriodExceeded, "Dynamic segment period exceeded ");
+        public static ClientExceptionType DYNAMIC_SEGMENT_CONDITIONS_EXCEEDED = new ClientExceptionType(eResponseStatus.DynamicSegmentConditionsExceeded, "Dynamic segment conditions exceeded");
+        public static ClientExceptionType NAME_MUST_BE_UNIQUE = new ClientExceptionType(eResponseStatus.NameMustBeUnique, "Name must be unique");
 
         #endregion
 

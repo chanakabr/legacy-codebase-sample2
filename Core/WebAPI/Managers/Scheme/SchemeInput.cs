@@ -122,7 +122,12 @@ namespace WebAPI.Managers.Scheme
                     foreach (string number in splitNumbers)
                     {
                         long parsedNumber;
-                        if (!long.TryParse(number, out parsedNumber) || parsedNumber < DynamicMinInt)
+                        if (!long.TryParse(number, out parsedNumber))
+                        {
+                            throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, name);
+                        }
+
+                        if (parsedNumber < DynamicMinInt)
                         {
                             throw new BadRequestException(BadRequestException.ARGUMENT_STRING_CONTAINED_MIN_VALUE_CROSSED, name, DynamicMinInt);
                         }
@@ -146,7 +151,12 @@ namespace WebAPI.Managers.Scheme
                     foreach (string number in splitNumbers)
                     {
                         long parsedNumber;
-                        if (!long.TryParse(number, out parsedNumber) || parsedNumber > DynamicMaxInt)
+                        if (!long.TryParse(number, out parsedNumber))
+                        {
+                            throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, name);
+                        }
+
+                        if (parsedNumber > DynamicMaxInt)
                         {
                             throw new BadRequestException(BadRequestException.ARGUMENT_STRING_CONTAINED_MAX_VALUE_CROSSED, name, DynamicMaxInt);
                         }

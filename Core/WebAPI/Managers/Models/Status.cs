@@ -294,6 +294,8 @@ namespace WebAPI.Managers.Models
         StartDateShouldBeLessThanEndDate = 500089,
         ArgumentMatchPatternCrossed = 500090,
         ArgumentMinItemsCrossed = 500091,
-        ArgumentNotInPredefinedRange = 500092
+        ArgumentNotInPredefinedRange = 500092,
+        ArgumentMinPropertiesCrossed = 500093,
+        ArgumentMaxPropertiesCrossed = 500094,
     }
 }

@@ -2,13 +2,13 @@
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
-using System.Collections.Generic;
 
 namespace WebAPI.Models.Segmentation
 {
     /// <summary>
     /// Defines a condition which is essentially a combination of several monetization-based actions, each has their own score multiplier
     /// </summary>
+    [SchemeClass(Required = new[] { "days", "type", "operator", "currencyCode" }, AnyOf = new[] { "minValue", "maxValue" })]
     public partial class KalturaMonetizationCondition : KalturaBaseSegmentCondition
     {
         /// <summary>
@@ -17,7 +17,7 @@ namespace WebAPI.Models.Segmentation
         [DataMember(Name = "minValue")]
         [JsonProperty(PropertyName = "minValue")]
         [XmlElement(ElementName = "minValue")]
-        [SchemeProperty()]
+        [SchemeProperty(IsNullable = true, MinInteger = 0)]
         public int? MinValue { get; set; }
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace WebAPI.Models.Segmentation
         [DataMember(Name = "maxValue")]
         [JsonProperty(PropertyName = "maxValue")]
         [XmlElement(ElementName = "maxValue")]
-        [SchemeProperty()]
+        [SchemeProperty(IsNullable = true, MinInteger = 0)]
         public int? MaxValue { get; set; }
 
         /// <summary>
@@ -35,8 +35,8 @@ namespace WebAPI.Models.Segmentation
         [DataMember(Name = "days")]
         [JsonProperty(PropertyName = "days")]
         [XmlElement(ElementName = "days")]
-        [SchemeProperty()]
-        public int? Days { get; set; }
+        [SchemeProperty(MinInteger = 0, MaxInteger = 700)]
+        public int Days { get; set; }
 
         /// <summary>
         /// Purchase type
@@ -44,7 +44,6 @@ namespace WebAPI.Models.Segmentation
         [DataMember(Name = "type")]
         [JsonProperty(PropertyName = "type")]
         [XmlElement(ElementName = "type")]
-        [SchemeProperty()]
         public KalturaMonetizationType Type { get; set; }
 
         /// <summary>
@@ -53,7 +52,6 @@ namespace WebAPI.Models.Segmentation
         [DataMember(Name = "operator")]
         [JsonProperty(PropertyName = "operator")]
         [XmlElement(ElementName = "operator")]
-        [SchemeProperty()]
         public KalturaMathemticalOperatorType Operator { get; set; }
 
         /// <summary>
@@ -62,12 +60,16 @@ namespace WebAPI.Models.Segmentation
         [DataMember(Name = "businessModuleIdIn")]
         [JsonProperty(PropertyName = "businessModuleIdIn")]
         [XmlElement(ElementName = "businessModuleIdIn")]
-        [SchemeProperty()]
+        [SchemeProperty(IsNullable = true, MinLength = 1)]
         public string BusinessModuleIdIn { get; set; }
 
-        internal List<int> GetBusinessModuleIdIn()
-        {
-            return Utils.Utils.ParseCommaSeparatedValues<List<int>, int>(BusinessModuleIdIn, "KalturaMonetizationCondition.businessModuleIdIn");
-        }
+        /// <summary>
+        /// Which currency code should be taken into consideration
+        /// </summary>
+        [DataMember(Name = "currencyCode")]
+        [JsonProperty(PropertyName = "currencyCode")]
+        [XmlElement(ElementName = "currencyCode")]
+        [SchemeProperty(MinLength = 1, MaxLength = 4)]
+        public string CurrencyCode { get; set; }
     }
 }

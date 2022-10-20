@@ -11,6 +11,7 @@ using System.IO;
 using WebAPI.ModelsValidators;
 using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Managers;
+using System.Text;
 
 namespace Reflector
 {
@@ -60,6 +61,7 @@ namespace Reflector
             file.WriteLine("using WebAPI.ObjectsConvertor.Extensions;");
             file.WriteLine("using WebAPI.ModelsFactory;");
             file.WriteLine("using WebAPI.Utils;");
+            file.WriteLine("using System.Linq;");
         }
 
         protected override void writeBody()
@@ -293,17 +295,79 @@ namespace Reflector
             }
 
             var schemeClass = type.GetCustomAttribute<SchemeClassAttribute>();
-            if (schemeClass != null && schemeClass.Required?.Length > 0)
+            var hasRequired = schemeClass?.Required?.Length > 0;
+            var hasOneOf = schemeClass?.OneOf?.Length > 0;
+            var hasAnyOf = schemeClass?.AnyOf?.Length > 0;
+            var hasMinProperties = schemeClass?.MinProperties > -1;
+            var hasMaxProperties = schemeClass?.MaxProperties > -1;
+
+            if (hasRequired || hasOneOf || hasAnyOf || hasMinProperties || hasMaxProperties)
             {
                 file.WriteLine("            if (fromRequest)");
                 file.WriteLine("            {");
-                file.WriteLine("                if (parameters == null)");
-                file.WriteLine("                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, \"" + string.Join(",", schemeClass.Required) + "\");");
-                foreach (var required in schemeClass.Required)
+
+                if (hasRequired)
                 {
-                    file.WriteLine($"               if (!parameters.ContainsKey(\"{required}\") || parameters[\"{required}\"] == null)");
-                    file.WriteLine($"                   throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, \"{ required}\");");
+                    file.WriteLine("                if (parameters == null || parameters.Count == 0)");
+                    file.WriteLine("                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, \"" + string.Join(",", schemeClass.Required) + "\");");
+                    file.WriteLine();
+                    foreach (var required in schemeClass.Required)
+                    {
+                        file.WriteLine($"               if (!parameters.ContainsKey(\"{required}\") || string.IsNullOrWhiteSpace(parameters[\"{required}\"]?.ToString()))");
+                        file.WriteLine($"                   throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, \"{ required}\");");
+                    }
+                    file.WriteLine();
                 }
+                else if (hasOneOf || hasAnyOf || hasMinProperties)
+                {
+                    file.WriteLine("                if (parameters == null || parameters.Count == 0)");
+                    file.WriteLine($"                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, \"{type.Name}\");");
+                    file.WriteLine();
+                }
+
+                if (hasOneOf)
+                {
+                    var existOneOfString = string.Join(" && ", schemeClass.OneOf.Select(x => $"(!parameters.ContainsKey(\"{x}\") || string.IsNullOrWhiteSpace(parameters[\"{x}\"]?.ToString()))"));
+                    file.WriteLine($"                if ({existOneOfString})");
+                    file.WriteLine($"                   throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, \"{string.Join(", ", schemeClass.OneOf)}\");");
+                    file.WriteLine();
+
+                    // getting pairs of conflicted args
+                    for (int i = 0; i < schemeClass.OneOf.Length - 1; i++)
+                    {
+                        var exactlyOneOfString1 = $"(parameters.ContainsKey(\"{schemeClass.OneOf[i]}\") && !string.IsNullOrWhiteSpace(parameters[\"{schemeClass.OneOf[i]}\"]?.ToString()))";
+                        for (int j = i + 1; j < schemeClass.OneOf.Length; j++)
+                        {
+                            var exactlyOneOfString2 = $"(parameters.ContainsKey(\"{schemeClass.OneOf[j]}\") && string.IsNullOrWhiteSpace(parameters[\"{schemeClass.OneOf[j]}\"]?.ToString()))";
+                            file.WriteLine($"                if ({exactlyOneOfString1} && {exactlyOneOfString2})");
+                            file.WriteLine($"                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, \"{schemeClass.OneOf[i]}, {schemeClass.OneOf[j]}\");");
+                        }
+                    }
+                    file.WriteLine();
+                }
+
+                if (hasAnyOf)
+                {
+                    var existAnyOfString = string.Join(" && ", schemeClass.AnyOf.Select(x => $"(!parameters.ContainsKey(\"{x}\") || string.IsNullOrWhiteSpace(parameters[\"{x}\"]?.ToString()))"));
+                    file.WriteLine($"                if ({existAnyOfString})");
+                    file.WriteLine($"                   throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, \"{string.Join(", ", schemeClass.AnyOf)}\");");
+                    file.WriteLine();
+                }
+
+                if (hasMinProperties)
+                {
+                    file.WriteLine($"                if (parameters.Where(x => x.Key != \"objectType\").Count() < {schemeClass.MinProperties})");
+                    file.WriteLine($"                    throw new BadRequestException(BadRequestException.ARGUMENT_MIN_PROPERTIES_CROSSED, \"{type.Name}\", {schemeClass.MinProperties});");
+                    file.WriteLine();
+                }
+
+                if (hasMaxProperties)
+                {
+                    file.WriteLine($"                if (parameters != null && parameters.Where(x => x.Key != \"objectType\").Count() > {schemeClass.MaxProperties})");
+                    file.WriteLine($"                    throw new BadRequestException(BadRequestException.ARGUMENT_MAX_PROPERTIES_CROSSED, \"{type.Name}\", {schemeClass.MaxProperties});");
+                    file.WriteLine();
+                }
+
                 file.WriteLine("            }");
             }
 

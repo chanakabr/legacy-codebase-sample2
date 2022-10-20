@@ -2,8 +2,6 @@ syntax = "proto3";
 import "Status.proto";
 import "asset.proto";
 import "MediaFileType.proto";
-import "AdsPolicy.proto";
-import "StreamerType.proto";
 import "catalog.proto";
 import "EPGChannelProgrammeObject.proto";
 import "google/protobuf/timestamp.proto";
@@ -183,4 +181,34 @@ message GetGroupMediaFileTypesResponse{
   Status status = 1;
   repeated MediaFileType mediaFileType = 2;
   int32 totalCount = 3;
+}
+
+message AddVirtualAssetInfoRequest{
+    int32 groupId = 1;
+    VirtualAssetInfo virtualAssetInfo = 2;
+}
+
+message AddVirtualAssetInfoResponse{
+    Status status = 1;
+    int64 assetId = 2;
+}
+
+message UpdateVirtualAssetInfoRequest{
+    int32 groupId = 1;
+    VirtualAssetInfo virtualAssetInfo = 2;
+}
+
+message UpdateVirtualAssetInfoResponse{
+    Status status = 1;
+    int64 assetId = 2;
+}
+
+message DeleteVirtualAssetInfoRequest{
+    int32 groupId = 1;
+    int64 id = 2;
+    ObjectVirtualAssetInfoType type = 3;
+}
+
+message DeleteVirtualAssetInfoResponse{
+    Status status = 1;
 }

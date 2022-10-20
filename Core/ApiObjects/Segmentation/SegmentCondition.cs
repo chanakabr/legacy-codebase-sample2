@@ -71,6 +71,9 @@ namespace ApiObjects.Segmentation
 
         [JsonProperty()]
         public List<int> BusinessModuleIds;
+
+        [JsonProperty()]
+        public string CurrencyCode;
     }
-    
+
 }

@@ -8,6 +8,8 @@ namespace WebAPI.Models.Segmentation
     {
         ppv,
         subscription,
-        boxset
+        boxset,
+        any,
+        ppv_live
     }
 }

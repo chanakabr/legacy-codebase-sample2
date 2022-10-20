@@ -22,10 +22,8 @@ namespace OffersGrpcClientWrapper
         private OffersClient()
         {
             var address = ApplicationConfiguration.Current.MicroservicesClientConfiguration.Offers.Address.Value;
-            Logger.Error($"GRPC address {address}");
             var certFilePath = ApplicationConfiguration.Current.MicroservicesClientConfiguration.Offers
                 .CertFilePath.Value;
-            Logger.Error($"GRPC certFilePath {certFilePath}");
             var retryCount = ApplicationConfiguration.Current.MicroservicesClientConfiguration.Offers.RetryCount
                 .Value;
             _client = new Offers.OffersClient(GrpcCommon.CreateChannel(address, certFilePath, retryCount));

@@ -6,6 +6,7 @@ import "eBusinessModule.proto";
 import "ConcurrencyRestrictionPolicy.proto";
 import "MediaConcurrencyRule.proto";
 import "RuleActionType.proto";
+import "ruleCondition.proto";
 option csharp_namespace = "phoenix";
 option go_package = "./models";
 

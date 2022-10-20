@@ -1,5 +1,4 @@
 syntax = "proto3";
-import "Status.proto";
 
 option csharp_namespace = "phoenix";
 option go_package = "./models";

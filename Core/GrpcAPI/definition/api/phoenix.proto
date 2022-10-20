@@ -7,7 +7,7 @@ import "entitlementApi.proto";
 import "pricingApi.proto";
 import "householdApi.proto";
 import "groupAndConfigurationApi.proto";
-
+import "segmentApi.proto";
 option csharp_namespace = "phoenix";
 option go_package = "./models";
 
@@ -70,4 +70,10 @@ service Phoenix {
   rpc GetEPGChannelCDVRId(GetEPGChannelCDVRIdRequest) returns (google.protobuf.StringValue);
   rpc GetMediaById(GetMediaByIdRequest) returns (GetMediaByIdResponse);
   rpc GetMediaInfo(GetMediaInfoRequest) returns (GetMediaInfoResponse);
+  rpc AddVirtualAssetInfo(AddVirtualAssetInfoRequest) returns (AddVirtualAssetInfoResponse);
+  rpc UpdateVirtualAssetInfo(UpdateVirtualAssetInfoRequest) returns (UpdateVirtualAssetInfoResponse);
+  rpc DeleteVirtualAssetInfo(DeleteVirtualAssetInfoRequest) returns (DeleteVirtualAssetInfoResponse);
+
+  // segment
+  rpc IsSegmentUsed (IsSegmentUsedRequest) returns (IsSegmentUsedResponse);
 }

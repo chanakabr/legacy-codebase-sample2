@@ -9,7 +9,7 @@ using pb = global::Google.Protobuf;
 using pbc = global::Google.Protobuf.Collections;
 using pbr = global::Google.Protobuf.Reflection;
 using scg = global::System.Collections.Generic;
-namespace grpc.health.v1 {
+namespace phoenix {
 
   /// <summary>Holder for reflection information generated from healthCheckApi.proto</summary>
   public static partial class HealthCheckApiReflection {
@@ -24,21 +24,20 @@ namespace grpc.health.v1 {
     static HealthCheckApiReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "ChRoZWFsdGhDaGVja0FwaS5wcm90bxIOZ3JwYy5oZWFsdGgudjEiJQoSSGVh",
-            "bHRoQ2hlY2tSZXF1ZXN0Eg8KB3NlcnZpY2UYASABKAkilAEKE0hlYWx0aENo",
-            "ZWNrUmVzcG9uc2USQQoGc3RhdHVzGAEgASgOMjEuZ3JwYy5oZWFsdGgudjEu",
-            "SGVhbHRoQ2hlY2tSZXNwb25zZS5TZXJ2aW5nU3RhdHVzIjoKDVNlcnZpbmdT",
-            "dGF0dXMSCwoHVU5LTk9XThAAEgsKB1NFUlZJTkcQARIPCgtOT1RfU0VSVklO",
-            "RxACMq4BCgZIZWFsdGgSUAoFQ2hlY2sSIi5ncnBjLmhlYWx0aC52MS5IZWFs",
-            "dGhDaGVja1JlcXVlc3QaIy5ncnBjLmhlYWx0aC52MS5IZWFsdGhDaGVja1Jl",
-            "c3BvbnNlElIKBVdhdGNoEiIuZ3JwYy5oZWFsdGgudjEuSGVhbHRoQ2hlY2tS",
-            "ZXF1ZXN0GiMuZ3JwYy5oZWFsdGgudjEuSGVhbHRoQ2hlY2tSZXNwb25zZTAB",
-            "QiNaEC4vZ3JwYy5oZWFsdGgudjGqAg5ncnBjLmhlYWx0aC52MWIGcHJvdG8z"));
+            "ChRoZWFsdGhDaGVja0FwaS5wcm90bxIHcGhvZW5peCIlChJIZWFsdGhDaGVj",
+            "a1JlcXVlc3QSDwoHc2VydmljZRgBIAEoCSKNAQoTSGVhbHRoQ2hlY2tSZXNw",
+            "b25zZRI6CgZzdGF0dXMYASABKA4yKi5waG9lbml4LkhlYWx0aENoZWNrUmVz",
+            "cG9uc2UuU2VydmluZ1N0YXR1cyI6Cg1TZXJ2aW5nU3RhdHVzEgsKB1VOS05P",
+            "V04QABILCgdTRVJWSU5HEAESDwoLTk9UX1NFUlZJTkcQAjKSAQoGSGVhbHRo",
+            "EkIKBUNoZWNrEhsucGhvZW5peC5IZWFsdGhDaGVja1JlcXVlc3QaHC5waG9l",
+            "bml4LkhlYWx0aENoZWNrUmVzcG9uc2USRAoFV2F0Y2gSGy5waG9lbml4Lkhl",
+            "YWx0aENoZWNrUmVxdWVzdBocLnBob2VuaXguSGVhbHRoQ2hlY2tSZXNwb25z",
+            "ZTABQhRaCC4vbW9kZWxzqgIHcGhvZW5peGIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::grpc.health.v1.HealthCheckRequest), global::grpc.health.v1.HealthCheckRequest.Parser, new[]{ "Service" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::grpc.health.v1.HealthCheckResponse), global::grpc.health.v1.HealthCheckResponse.Parser, new[]{ "Status" }, null, new[]{ typeof(global::grpc.health.v1.HealthCheckResponse.Types.ServingStatus) }, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.HealthCheckRequest), global::phoenix.HealthCheckRequest.Parser, new[]{ "Service" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.HealthCheckResponse), global::phoenix.HealthCheckResponse.Parser, new[]{ "Status" }, null, new[]{ typeof(global::phoenix.HealthCheckResponse.Types.ServingStatus) }, null, null)
           }));
     }
     #endregion
@@ -57,7 +56,7 @@ namespace grpc.health.v1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::grpc.health.v1.HealthCheckApiReflection.Descriptor.MessageTypes[0]; }
+      get { return global::phoenix.HealthCheckApiReflection.Descriptor.MessageTypes[0]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -229,7 +228,7 @@ namespace grpc.health.v1 {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::grpc.health.v1.HealthCheckApiReflection.Descriptor.MessageTypes[1]; }
+      get { return global::phoenix.HealthCheckApiReflection.Descriptor.MessageTypes[1]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -257,9 +256,9 @@ namespace grpc.health.v1 {
 
     /// <summary>Field number for the "status" field.</summary>
     public const int StatusFieldNumber = 1;
-    private global::grpc.health.v1.HealthCheckResponse.Types.ServingStatus status_ = global::grpc.health.v1.HealthCheckResponse.Types.ServingStatus.Unknown;
+    private global::phoenix.HealthCheckResponse.Types.ServingStatus status_ = global::phoenix.HealthCheckResponse.Types.ServingStatus.Unknown;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::grpc.health.v1.HealthCheckResponse.Types.ServingStatus Status {
+    public global::phoenix.HealthCheckResponse.Types.ServingStatus Status {
       get { return status_; }
       set {
         status_ = value;
@@ -286,7 +285,7 @@ namespace grpc.health.v1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (Status != global::grpc.health.v1.HealthCheckResponse.Types.ServingStatus.Unknown) hash ^= Status.GetHashCode();
+      if (Status != global::phoenix.HealthCheckResponse.Types.ServingStatus.Unknown) hash ^= Status.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -303,7 +302,7 @@ namespace grpc.health.v1 {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (Status != global::grpc.health.v1.HealthCheckResponse.Types.ServingStatus.Unknown) {
+      if (Status != global::phoenix.HealthCheckResponse.Types.ServingStatus.Unknown) {
         output.WriteRawTag(8);
         output.WriteEnum((int) Status);
       }
@@ -316,7 +315,7 @@ namespace grpc.health.v1 {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (Status != global::grpc.health.v1.HealthCheckResponse.Types.ServingStatus.Unknown) {
+      if (Status != global::phoenix.HealthCheckResponse.Types.ServingStatus.Unknown) {
         output.WriteRawTag(8);
         output.WriteEnum((int) Status);
       }
@@ -329,7 +328,7 @@ namespace grpc.health.v1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (Status != global::grpc.health.v1.HealthCheckResponse.Types.ServingStatus.Unknown) {
+      if (Status != global::phoenix.HealthCheckResponse.Types.ServingStatus.Unknown) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Status);
       }
       if (_unknownFields != null) {
@@ -343,7 +342,7 @@ namespace grpc.health.v1 {
       if (other == null) {
         return;
       }
-      if (other.Status != global::grpc.health.v1.HealthCheckResponse.Types.ServingStatus.Unknown) {
+      if (other.Status != global::phoenix.HealthCheckResponse.Types.ServingStatus.Unknown) {
         Status = other.Status;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -361,7 +360,7 @@ namespace grpc.health.v1 {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            Status = (global::grpc.health.v1.HealthCheckResponse.Types.ServingStatus) input.ReadEnum();
+            Status = (global::phoenix.HealthCheckResponse.Types.ServingStatus) input.ReadEnum();
             break;
           }
         }
@@ -379,7 +378,7 @@ namespace grpc.health.v1 {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 8: {
-            Status = (global::grpc.health.v1.HealthCheckResponse.Types.ServingStatus) input.ReadEnum();
+            Status = (global::phoenix.HealthCheckResponse.Types.ServingStatus) input.ReadEnum();
             break;
           }
         }

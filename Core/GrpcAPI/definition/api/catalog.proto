@@ -1,7 +1,5 @@
 syntax = "proto3";
 import "Status.proto";
-import "asset.proto";
-import "MediaFileType.proto";
 import "AdsPolicy.proto";
 import "StreamerType.proto";
 import "google/protobuf/timestamp.proto";
@@ -126,4 +124,13 @@ message DevicePlayData {
   int32 ProductId = 18;
   bool Revoke = 19;
   int32 LinearWatchHistoryThreshold = 20;
+}
+
+message VirtualAssetInfo {
+    ObjectVirtualAssetInfoType type = 1;
+    int64 id = 2;
+    string name = 3;
+    string description = 4;
+    int64 userId = 5;
+    bool isActive = 6;
 }

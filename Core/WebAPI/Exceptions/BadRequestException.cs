@@ -73,6 +73,8 @@ namespace WebAPI.Exceptions
         public static ApiExceptionType ARGUMENT_MAX_ITEMS_CROSSED = new ApiExceptionType(StatusCode.ArgumentMaxItemsCrossed, StatusCode.BadRequest, "Argument [@argument@] maximum items is [@value@]", "argument", "value");
         public static ApiExceptionType ARGUMENT_MATCH_PATTERN_CROSSED = new ApiExceptionType(StatusCode.ArgumentMatchPatternCrossed, StatusCode.BadRequest, "Argument [@argument@] value must be match with in pattern [@pattern@]", "argument", "pattern");
         public static ApiExceptionType ARGUMENT_MIN_ITEMS_CROSSED = new ApiExceptionType(StatusCode.ArgumentMinItemsCrossed, StatusCode.InvalidActionParameters, "Argument [@argument@] minimum items is [@value@]", "argument", "value");
+        public static ApiExceptionType ARGUMENT_MIN_PROPERTIES_CROSSED = new ApiExceptionType(StatusCode.ArgumentMinPropertiesCrossed, StatusCode.InvalidActionParameters, "Argument [@argument@] minimum properties is [@value@]", "argument", "value");
+        public static ApiExceptionType ARGUMENT_MAX_PROPERTIES_CROSSED = new ApiExceptionType(StatusCode.ArgumentMaxPropertiesCrossed, StatusCode.InvalidActionParameters, "Argument [@argument@] maximum properties is [@value@]", "argument", "value");
 
         public BadRequestException()
             : this(BAD_REQUEST)

@@ -1,0 +1,135 @@
+syntax = "proto3";
+
+import "RuleActionType.proto";
+
+option csharp_namespace = "phoenix";
+option go_package = "./models";
+
+package phoenix;
+
+message RuleAction{
+  RuleActionType Type = 1;
+  string Description = 2;
+
+  message AssetBlockAction{
+    RuleActionType Type = 1;
+    string Description = 2;
+  }
+
+  message AssetUserRuleBlockAction{
+    RuleActionType Type = 1;
+    string Description = 2;
+  }
+
+  message AllowPlaybackAction{
+    RuleActionType Type = 1;
+    string Description = 2;
+  }
+
+  message BlockPlaybackAction{
+    RuleActionType Type = 1;
+    string Description = 2;
+  }
+
+  message TimeOffsetRuleAction{
+    RuleActionType Type = 1;
+    string Description = 2;
+    int32 Offset = 3;
+    bool TimeZone = 4;
+  }
+
+  message EndDateOffsetRuleAction{
+    RuleActionType Type = 1;
+    string Description = 2;
+    int32 Offset = 3;
+    bool TimeZone = 4;
+  }
+
+  message StartDateOffsetRuleAction{
+    RuleActionType Type = 1;
+    string Description = 2;
+    int32 Offset = 3;
+    bool TimeZone = 4;
+  }
+
+  message AssetUserRuleFilterAction{
+    RuleActionType Type = 1;
+    string Description = 2;
+    bool ApplyOnChannel = 3;
+  }
+
+  message ApplyDiscountModuleRuleAction {
+    RuleActionType Type = 1;
+    string Description = 2;
+    int64 DiscountModuleId = 3;
+  }
+
+  message ApplyPlaybackAdapterRuleAction {
+    RuleActionType Type = 1;
+    string Description = 2;
+    int32 AdapterId = 3;
+  }
+
+  enum AssetLifeCycleRuleAction
+  {
+    Unknown = 0;
+    Add = 1;
+    Remove = 2;
+  }
+
+  enum AssetLifeCycleRuleTransitionType
+  {
+    Tag = 0;
+    BusinessModel = 1;
+  }
+
+  message AssetLifeCycleTransitionAction{
+    RuleActionType Type = 1;
+    string Description = 2;
+    AssetLifeCycleRuleAction ActionType = 3;
+    AssetLifeCycleRuleTransitionType TransitionType = 4;
+  }
+
+  message AssetLifeCycleTagTransitionAction{
+    RuleActionType Type = 1;
+    string Description = 2;
+    AssetLifeCycleRuleAction ActionType = 3;
+    AssetLifeCycleRuleTransitionType TransitionType = 4;
+    repeated int32 TagIds = 5;
+  }
+
+  message LifeCycleFileTypesAndPpvsTransitions{
+    repeated int32 FileTypeIds = 1;
+    repeated int32 PpvIds = 2;
+  }
+
+  message AssetLifeCycleBuisnessModuleTransitionAction{
+    RuleActionType Type = 1;
+    string Description = 2;
+    AssetLifeCycleRuleAction ActionType = 3;
+    AssetLifeCycleRuleTransitionType TransitionType = 4;
+    LifeCycleFileTypesAndPpvsTransitions Transitions = 5;
+  }
+
+  message ApplyFreePlaybackAction{
+    RuleActionType Type = 1;
+    string Description = 2;
+  }
+}
+
+message RuleActionKind{
+  oneof kind{
+    RuleAction.AssetBlockAction AssetBlockAction = 1;
+    RuleAction.EndDateOffsetRuleAction EndDateOffsetRuleAction = 2;
+    RuleAction.StartDateOffsetRuleAction StartDateOffsetRuleAction = 3;
+    RuleAction.AssetUserRuleBlockAction AssetUserRuleBlockAction = 4;
+    RuleAction.AssetUserRuleFilterAction AssetUserRuleFilterAction = 5;
+    RuleAction.AllowPlaybackAction AllowPlaybackAction = 6;
+    RuleAction.BlockPlaybackAction BlockPlaybackAction = 7;
+    RuleAction.ApplyDiscountModuleRuleAction ApplyDiscountModuleRuleAction = 8;
+    RuleAction.ApplyPlaybackAdapterRuleAction ApplyPlaybackAdapterRuleAction = 9;
+    RuleAction.AssetLifeCycleTagTransitionAction AssetLifeCycleTagTransitionAction = 10;
+    RuleAction.AssetLifeCycleBuisnessModuleTransitionAction AssetLifeCycleBuisnessModuleTransitionAction = 11;
+    RuleAction.ApplyFreePlaybackAction ApplyFreePlaybackAction = 12;
+  }
+}

@@ -7,7 +7,7 @@
         PHOENIX_REST_PROXY = 1,
         //MULTIREQUEST = 2,
         HOUSEHOLD = 3,
-        PLAYBACK = 4,
+        PLAYBACK = 4
     }
 
     public enum KalturaCanaryDeploymentMicroservicesRoutingAction
@@ -24,6 +24,7 @@
         MULTIREQUEST = 9, // ottuser/action/multirequest
         HOUSEHOLD_USER = 10, // ottuser/action/get
         PLAYBACK = 11, // asset/action/getPlaybackContext => all playback service
+        SEGMENTATION = 12 // all segments api's (segmentationType, userSegment, householdSegment)
     }
 
     public enum KalturaCanaryDeploymentMicroservicesMigrationEvent
@@ -37,5 +38,4 @@
         USER_LOGIN_HISTORY = 5,
         DEVICE_LOGIN_HISTORY = 6
     }
-
 }

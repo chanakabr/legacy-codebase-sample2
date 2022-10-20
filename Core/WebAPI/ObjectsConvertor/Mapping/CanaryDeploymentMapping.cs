@@ -1,16 +1,13 @@
-﻿using ApiObjects.CanaryDeployment;
+﻿using ApiObjects.CanaryDeployment.Elasticsearch;
+using ApiObjects.CanaryDeployment.Microservices;
 using AutoMapper.Configuration;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using ApiObjects.CanaryDeployment.Elasticsearch;
-using ApiObjects.CanaryDeployment.Microservices;
-using WebAPI.Models.CanaryDeployment;
 using WebAPI.Models.CanaryDeployment.Elasticsearch;
 using WebAPI.Models.CanaryDeployment.Microservices;
 using WebAPI.Models.General;
 using KalturaCanaryDeploymentAuthenticationMsOwnerShip = WebAPI.Models.CanaryDeployment.Microservices.KalturaCanaryDeploymentAuthenticationMsOwnerShip;
-using WebAPI.ObjectsConvertor.Extensions;
+using KalturaCanaryDeploymentSegmentationMsOwnerShip = WebAPI.Models.CanaryDeployment.Microservices.KalturaCanaryDeploymentSegmentationMsOwnerShip;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -19,7 +16,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
         public static void RegisterMappings(MapperConfigurationExpression cfg)
         {
             cfg.CreateMap<MicroservicesCanaryDeploymentDataOwnership, KalturaMicroservicesCanaryDeploymentDataOwnerShip>()
-                .ForMember(dest => dest.AuthenticationMsOwnerShip, opt => opt.MapFrom(src => src.AuthenticationMsOwnership));
+                .ForMember(dest => dest.AuthenticationMsOwnerShip, opt => opt.MapFrom(src => src.AuthenticationMsOwnership))
+                .ForMember(dest => dest.SegmentationMsOwnerShip, opt => opt.MapFrom(src => src.SegmentationMsOwnership));
 
             cfg.CreateMap<CanaryDeploymentAuthenticationMsOwnership, KalturaCanaryDeploymentAuthenticationMsOwnerShip>()
                 .ForMember(dest => dest.DeviceLoginHistory, opt => opt.MapFrom(src => src.DeviceLoginHistory))
@@ -28,6 +26,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.SSOAdapterProfiles, opt => opt.MapFrom(src => src.SSOAdapterProfiles))
                 .ForMember(dest => dest.UserLoginHistory, opt => opt.MapFrom(src => src.UserLoginHistory))
                 .ForMember(dest => dest.SessionRevocation, opt => opt.MapFrom(src => src.SessionRevocation));
+
+            cfg.CreateMap<CanaryDeploymentSegmentationMsOwnership, KalturaCanaryDeploymentSegmentationMsOwnerShip>()
+                .ForMember(dest => dest.Segmentation, opt => opt.MapFrom(src => src.Segmentation));
 
             cfg.CreateMap<MicroservicesCanaryDeploymentMigrationEvents, KalturaMicroservicesCanaryDeploymentMigrationEvents>()
                 .ForMember(dest => dest.AppToken, opt => opt.MapFrom(src => src.AppToken))
@@ -94,74 +95,54 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         public static CanaryDeploymentRoutingAction ConvertRoutingAction(KalturaCanaryDeploymentMicroservicesRoutingAction microservicesRoutingAction)
         {
-            CanaryDeploymentRoutingAction? res = null;
             switch (microservicesRoutingAction)
             {
                 case KalturaCanaryDeploymentMicroservicesRoutingAction.ANONYMOUSLOGIN:
-                    res = CanaryDeploymentRoutingAction.AnonymousLogin;
-                    break;
+                    return CanaryDeploymentRoutingAction.AnonymousLogin;
                 case KalturaCanaryDeploymentMicroservicesRoutingAction.APPTOKEN_CONTROLLER:
-                    res = CanaryDeploymentRoutingAction.AppTokenController;
-                    break;
+                    return CanaryDeploymentRoutingAction.AppTokenController;
                 case KalturaCanaryDeploymentMicroservicesRoutingAction.HOUSEHOLD_DEVICE_PIN_ACTIONS:
-                    res = CanaryDeploymentRoutingAction.HouseHoldDevicePinActions;
-                    break;
+                    return CanaryDeploymentRoutingAction.HouseHoldDevicePinActions;
                 case KalturaCanaryDeploymentMicroservicesRoutingAction.LOGIN:
-                    res = CanaryDeploymentRoutingAction.Login;
-                    break;
+                    return CanaryDeploymentRoutingAction.Login;
                 case KalturaCanaryDeploymentMicroservicesRoutingAction.LOGOUT:
-                    res = CanaryDeploymentRoutingAction.Logout;
-                    break;
+                    return CanaryDeploymentRoutingAction.Logout;
                 case KalturaCanaryDeploymentMicroservicesRoutingAction.REFRESHSESSION:
-                    res = CanaryDeploymentRoutingAction.RefreshSession;
-                    break;
+                    return CanaryDeploymentRoutingAction.RefreshSession;
                 case KalturaCanaryDeploymentMicroservicesRoutingAction.SESSION_CONTROLLER:
-                    res = CanaryDeploymentRoutingAction.SessionController;
-                    break;
+                    return CanaryDeploymentRoutingAction.SessionController;
                 case KalturaCanaryDeploymentMicroservicesRoutingAction.SSO_ADAPTER_PROFILE_CONTROLLER:
-                    res = CanaryDeploymentRoutingAction.SsoAdapterProfileController;
-                    break;
+                    return CanaryDeploymentRoutingAction.SsoAdapterProfileController;
                 case KalturaCanaryDeploymentMicroservicesRoutingAction.USER_LOGIN_PIN_CONTROLLER:
-                    res = CanaryDeploymentRoutingAction.UserLoginPinController;
-                    break;
+                    return CanaryDeploymentRoutingAction.UserLoginPinController;
                 case KalturaCanaryDeploymentMicroservicesRoutingAction.MULTIREQUEST:
-                    res = CanaryDeploymentRoutingAction.MultiRequestController;
-                    break;
+                    return CanaryDeploymentRoutingAction.MultiRequestController;
                 case KalturaCanaryDeploymentMicroservicesRoutingAction.HOUSEHOLD_USER:
-                    res = CanaryDeploymentRoutingAction.HouseholdUser;
-                    break;
+                    return CanaryDeploymentRoutingAction.HouseholdUser;
                 case KalturaCanaryDeploymentMicroservicesRoutingAction.PLAYBACK:
-                    res = CanaryDeploymentRoutingAction.PlaybackController;
-                    break;
+                    return CanaryDeploymentRoutingAction.PlaybackController;
+                case KalturaCanaryDeploymentMicroservicesRoutingAction.SEGMENTATION:
+                    return CanaryDeploymentRoutingAction.Segmentation;
                 default:
                     throw new Exception("invalid KalturaCanaryDeploymentRoutingAction type");
             }
-
-            return res.Value;
         }
 
         public static MicroservicesCanaryDeploymentRoutingService ConvertRoutingService(KalturaCanaryDeploymentMicroservicesRoutingService microservicesRoutingAction)
         {
-            MicroservicesCanaryDeploymentRoutingService? res = null;
             switch (microservicesRoutingAction)
             {
                 case KalturaCanaryDeploymentMicroservicesRoutingService.PHOENIX:
-                    res = MicroservicesCanaryDeploymentRoutingService.Phoenix;
-                    break;
+                    return MicroservicesCanaryDeploymentRoutingService.Phoenix;
                 case KalturaCanaryDeploymentMicroservicesRoutingService.PHOENIX_REST_PROXY:
-                    res = MicroservicesCanaryDeploymentRoutingService.PhoenixRestProxy;
-                    break;
+                    return MicroservicesCanaryDeploymentRoutingService.PhoenixRestProxy;
                 case KalturaCanaryDeploymentMicroservicesRoutingService.HOUSEHOLD:
-                    res = MicroservicesCanaryDeploymentRoutingService.HouseholdService;
-                    break;
+                    return MicroservicesCanaryDeploymentRoutingService.HouseholdService;
                 case KalturaCanaryDeploymentMicroservicesRoutingService.PLAYBACK:
-                    res = MicroservicesCanaryDeploymentRoutingService.PlaybackService;
-                    break;
+                    return MicroservicesCanaryDeploymentRoutingService.PlaybackService;
                 default:
                     throw new Exception("invalid KalturaCanaryDeploymentRoutingService type");
             }
-
-            return res.Value;
         }
 
     }

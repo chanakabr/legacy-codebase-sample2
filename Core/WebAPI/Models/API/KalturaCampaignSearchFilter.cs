@@ -65,7 +65,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "stateIn")]
         [JsonProperty("stateIn")]
         [XmlElement(ElementName = "stateIn", IsNullable = true)]
-        [SchemeProperty(RequiresPermission = (int)RequestType.ALL)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.ALL, MinLength = 1, IsNullable = true)]
         public string StateIn { get; set; }
     }
 }

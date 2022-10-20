@@ -47,6 +47,15 @@ namespace WebAPI.Models.Segmentation
         public List<KalturaBaseSegmentCondition> Conditions { get; set; }
 
         /// <summary>
+        /// Boolean operator between segmentation type's conditions - defaults to "And"
+        /// </summary>
+        [DataMember(Name = "conditionsOperator")]
+        [JsonProperty(PropertyName = "conditionsOperator")]
+        [XmlElement(ElementName = "conditionsOperator", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
+        public KalturaBooleanOperator? ConditionsOperator { get; set; }
+
+        /// <summary>
         /// Segmentation conditions - can be empty
         /// </summary>
         [DataMember(Name = "actions", EmitDefaultValue = true)]
@@ -71,7 +80,25 @@ namespace WebAPI.Models.Segmentation
         [XmlElement(ElementName = "createDate", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
         public long CreateDate { get; set; }
-        
+
+        /// <summary>
+        /// Update date of segmentation type
+        /// </summary>
+        [DataMember(Name = "updateDate")]
+        [JsonProperty(PropertyName = "updateDate")]
+        [XmlElement(ElementName = "updateDate")]
+        [SchemeProperty(ReadOnly = true)]
+        public long UpdateDate { get; set; }
+
+        /// <summary>
+        /// Last date of execution of segmentation type
+        /// </summary>
+        [DataMember(Name = "executeDate")]
+        [JsonProperty(PropertyName = "executeDate")]
+        [XmlElement(ElementName = "executeDate")]
+        [SchemeProperty(ReadOnly = true)]
+        public long ExecuteDate { get; set; }
+
         /// <summary>
         /// Segmentation type version
         /// </summary>

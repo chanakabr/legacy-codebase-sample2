@@ -7,10 +7,10 @@
 
 using grpc = global::Grpc.Core;
 
-namespace grpc.health.v1 {
+namespace phoenix {
   public static partial class Health
   {
-    static readonly string __ServiceName = "grpc.health.v1.Health";
+    static readonly string __ServiceName = "phoenix.Health";
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static void __Helper_SerializeMessage(global::Google.Protobuf.IMessage message, grpc::SerializationContext context)
@@ -46,30 +46,30 @@ namespace grpc.health.v1 {
     }
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::grpc.health.v1.HealthCheckRequest> __Marshaller_grpc_health_v1_HealthCheckRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::grpc.health.v1.HealthCheckRequest.Parser));
+    static readonly grpc::Marshaller<global::phoenix.HealthCheckRequest> __Marshaller_phoenix_HealthCheckRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.HealthCheckRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::grpc.health.v1.HealthCheckResponse> __Marshaller_grpc_health_v1_HealthCheckResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::grpc.health.v1.HealthCheckResponse.Parser));
+    static readonly grpc::Marshaller<global::phoenix.HealthCheckResponse> __Marshaller_phoenix_HealthCheckResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.HealthCheckResponse.Parser));
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Method<global::grpc.health.v1.HealthCheckRequest, global::grpc.health.v1.HealthCheckResponse> __Method_Check = new grpc::Method<global::grpc.health.v1.HealthCheckRequest, global::grpc.health.v1.HealthCheckResponse>(
+    static readonly grpc::Method<global::phoenix.HealthCheckRequest, global::phoenix.HealthCheckResponse> __Method_Check = new grpc::Method<global::phoenix.HealthCheckRequest, global::phoenix.HealthCheckResponse>(
         grpc::MethodType.Unary,
         __ServiceName,
         "Check",
-        __Marshaller_grpc_health_v1_HealthCheckRequest,
-        __Marshaller_grpc_health_v1_HealthCheckResponse);
+        __Marshaller_phoenix_HealthCheckRequest,
+        __Marshaller_phoenix_HealthCheckResponse);
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Method<global::grpc.health.v1.HealthCheckRequest, global::grpc.health.v1.HealthCheckResponse> __Method_Watch = new grpc::Method<global::grpc.health.v1.HealthCheckRequest, global::grpc.health.v1.HealthCheckResponse>(
+    static readonly grpc::Method<global::phoenix.HealthCheckRequest, global::phoenix.HealthCheckResponse> __Method_Watch = new grpc::Method<global::phoenix.HealthCheckRequest, global::phoenix.HealthCheckResponse>(
         grpc::MethodType.ServerStreaming,
         __ServiceName,
         "Watch",
-        __Marshaller_grpc_health_v1_HealthCheckRequest,
-        __Marshaller_grpc_health_v1_HealthCheckResponse);
+        __Marshaller_phoenix_HealthCheckRequest,
+        __Marshaller_phoenix_HealthCheckResponse);
 
     /// <summary>Service descriptor</summary>
     public static global::Google.Protobuf.Reflection.ServiceDescriptor Descriptor
     {
-      get { return global::grpc.health.v1.HealthCheckApiReflection.Descriptor.Services[0]; }
+      get { return global::phoenix.HealthCheckApiReflection.Descriptor.Services[0]; }
     }
 
     /// <summary>Base class for server-side implementations of Health</summary>
@@ -77,13 +77,13 @@ namespace grpc.health.v1 {
     public abstract partial class HealthBase
     {
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::System.Threading.Tasks.Task<global::grpc.health.v1.HealthCheckResponse> Check(global::grpc.health.v1.HealthCheckRequest request, grpc::ServerCallContext context)
+      public virtual global::System.Threading.Tasks.Task<global::phoenix.HealthCheckResponse> Check(global::phoenix.HealthCheckRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
 
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::System.Threading.Tasks.Task Watch(global::grpc.health.v1.HealthCheckRequest request, grpc::IServerStreamWriter<global::grpc.health.v1.HealthCheckResponse> responseStream, grpc::ServerCallContext context)
+      public virtual global::System.Threading.Tasks.Task Watch(global::phoenix.HealthCheckRequest request, grpc::IServerStreamWriter<global::phoenix.HealthCheckResponse> responseStream, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
@@ -118,32 +118,32 @@ namespace grpc.health.v1 {
       }
 
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::grpc.health.v1.HealthCheckResponse Check(global::grpc.health.v1.HealthCheckRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      public virtual global::phoenix.HealthCheckResponse Check(global::phoenix.HealthCheckRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return Check(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::grpc.health.v1.HealthCheckResponse Check(global::grpc.health.v1.HealthCheckRequest request, grpc::CallOptions options)
+      public virtual global::phoenix.HealthCheckResponse Check(global::phoenix.HealthCheckRequest request, grpc::CallOptions options)
       {
         return CallInvoker.BlockingUnaryCall(__Method_Check, null, options, request);
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::grpc.health.v1.HealthCheckResponse> CheckAsync(global::grpc.health.v1.HealthCheckRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      public virtual grpc::AsyncUnaryCall<global::phoenix.HealthCheckResponse> CheckAsync(global::phoenix.HealthCheckRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return CheckAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::grpc.health.v1.HealthCheckResponse> CheckAsync(global::grpc.health.v1.HealthCheckRequest request, grpc::CallOptions options)
+      public virtual grpc::AsyncUnaryCall<global::phoenix.HealthCheckResponse> CheckAsync(global::phoenix.HealthCheckRequest request, grpc::CallOptions options)
       {
         return CallInvoker.AsyncUnaryCall(__Method_Check, null, options, request);
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncServerStreamingCall<global::grpc.health.v1.HealthCheckResponse> Watch(global::grpc.health.v1.HealthCheckRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      public virtual grpc::AsyncServerStreamingCall<global::phoenix.HealthCheckResponse> Watch(global::phoenix.HealthCheckRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return Watch(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncServerStreamingCall<global::grpc.health.v1.HealthCheckResponse> Watch(global::grpc.health.v1.HealthCheckRequest request, grpc::CallOptions options)
+      public virtual grpc::AsyncServerStreamingCall<global::phoenix.HealthCheckResponse> Watch(global::phoenix.HealthCheckRequest request, grpc::CallOptions options)
       {
         return CallInvoker.AsyncServerStreamingCall(__Method_Watch, null, options, request);
       }
@@ -172,8 +172,8 @@ namespace grpc.health.v1 {
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     public static void BindService(grpc::ServiceBinderBase serviceBinder, HealthBase serviceImpl)
     {
-      serviceBinder.AddMethod(__Method_Check, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::grpc.health.v1.HealthCheckRequest, global::grpc.health.v1.HealthCheckResponse>(serviceImpl.Check));
-      serviceBinder.AddMethod(__Method_Watch, serviceImpl == null ? null : new grpc::ServerStreamingServerMethod<global::grpc.health.v1.HealthCheckRequest, global::grpc.health.v1.HealthCheckResponse>(serviceImpl.Watch));
+      serviceBinder.AddMethod(__Method_Check, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.HealthCheckRequest, global::phoenix.HealthCheckResponse>(serviceImpl.Check));
+      serviceBinder.AddMethod(__Method_Watch, serviceImpl == null ? null : new grpc::ServerStreamingServerMethod<global::phoenix.HealthCheckRequest, global::phoenix.HealthCheckResponse>(serviceImpl.Watch));
     }
 
   }

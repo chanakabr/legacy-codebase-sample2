@@ -1,6 +1,6 @@
-﻿using System.Runtime.Serialization;
+﻿using Newtonsoft.Json;
+using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.CanaryDeployment.Microservices
@@ -13,6 +13,14 @@ namespace WebAPI.Models.CanaryDeployment.Microservices
         [DataMember(Name = "authenticationMsOwnerShip")]
         [JsonProperty("authenticationMsOwnerShip")]
         [XmlElement(ElementName = "authenticationMsOwnerShip")]
-        public Microservices.KalturaCanaryDeploymentAuthenticationMsOwnerShip AuthenticationMsOwnerShip { get; set; }
+        public KalturaCanaryDeploymentAuthenticationMsOwnerShip AuthenticationMsOwnerShip { get; set; }
+
+        /// <summary>
+        /// SegmentationMsOwnerShip
+        /// </summary>
+        [DataMember(Name = "segmentationMsOwnerShip")]
+        [JsonProperty("segmentationMsOwnerShip")]
+        [XmlElement(ElementName = "segmentationMsOwnerShip")]
+        public KalturaCanaryDeploymentSegmentationMsOwnerShip SegmentationMsOwnerShip { get; set; }
     }
 }
