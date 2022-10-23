@@ -1,7 +1,8 @@
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Segmentation
@@ -9,6 +10,7 @@ namespace WebAPI.Models.Segmentation
     /// <summary>
     /// Asset order segment action
     /// </summary>
+    [SchemeClass(Required = new[] { "name", "values" })]
     public partial class KalturaAssetOrderSegmentAction : KalturaBaseSegmentAction
     {
         /// <summary>
@@ -17,6 +19,7 @@ namespace WebAPI.Models.Segmentation
         [DataMember(Name = "name")]
         [JsonProperty(PropertyName = "name")]
         [XmlElement(ElementName = "name")]
+        [SchemeProperty(MinLength = 1)]
         public string Name { get; set; }
 
         /// <summary>
@@ -25,6 +28,7 @@ namespace WebAPI.Models.Segmentation
         [DataMember(Name = "values")]
         [JsonProperty(PropertyName = "values")]
         [XmlElement(ElementName = "values")]
+        [SchemeProperty(MinItems = 1)]
         public List<KalturaStringValue> Values { get; set; }
     }
 }

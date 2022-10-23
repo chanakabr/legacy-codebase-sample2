@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace WebAPI.Managers.Scheme
 {
@@ -8,5 +6,26 @@ namespace WebAPI.Managers.Scheme
     public class SchemeClassAttribute : Attribute
     {
         public string[] Required { get; set; }
+        public string[] OneOf { get; set; }
+        public string[] AnyOf { get; set; }
+
+        /// <summary>
+        /// minimum properties allowed in class
+        /// </summary>
+        public int MinProperties { get; set; }
+
+        /// <summary>
+        /// maximum properties allowed in class
+        /// </summary>
+        public int MaxProperties { get; set; }
+
+        public SchemeClassAttribute()
+        {
+            Required = null;
+            OneOf = null;
+            AnyOf = null;
+            MinProperties = -1;
+            MaxProperties = -1;
+        }
     }
 }

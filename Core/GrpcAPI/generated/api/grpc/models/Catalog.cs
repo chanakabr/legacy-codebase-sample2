@@ -24,65 +24,69 @@ namespace phoenix {
     static CatalogReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "Cg1jYXRhbG9nLnByb3RvEgdwaG9lbml4GgxTdGF0dXMucHJvdG8aC2Fzc2V0",
-            "LnByb3RvGhNNZWRpYUZpbGVUeXBlLnByb3RvGg9BZHNQb2xpY3kucHJvdG8a",
-            "ElN0cmVhbWVyVHlwZS5wcm90bxofZ29vZ2xlL3Byb3RvYnVmL3RpbWVzdGFt",
-            "cC5wcm90byLIAwoJTWVkaWFGaWxlEg8KB01lZGlhSWQYASABKAMSCgoCSWQY",
-            "AiABKAMSDAoEVHlwZRgDIAEoCRIOCgZUeXBlSWQYBCABKAMSCwoDVXJsGAUg",
-            "ASgJEg4KBkFsdFVybBgGIAEoCRIRCglEaXJlY3RVcmwYByABKAkSFAoMQWx0",
-            "RGlyZWN0VXJsGAggASgJEhAKCER1cmF0aW9uGAkgASgDEhIKCkV4dGVybmFs",
-            "SWQYCiABKAkSKwoMU3RyZWFtZXJUeXBlGAsgASgOMhUucGhvZW5peC5TdHJl",
-            "YW1lclR5cGUSEQoJSXNUcmFpbGVyGAwgASgIEg0KBUNkbklkGA0gASgFEhAK",
-            "CEFsdENkbklkGA4gASgFEg0KBURybUlkGA8gASgFEiUKCUFkc1BvbGljeRgQ",
-            "IAEoDjISLnBob2VuaXguQWRzUG9saWN5EhAKCEFkc1BhcmFtGBEgASgJEgsK",
-            "A09wbBgSIAEoCRI9ChVCdXNpbmVzc01vZHVsZURldGFpbHMYEyABKAsyHi5w",
-            "aG9lbml4LkJ1c2luZXNzTW9kdWxlRGV0YWlscxIPCgdHcm91cElkGBQgASgD",
-            "Eg4KBkxhYmVscxgVIAEoCSK7AQoVQnVzaW5lc3NNb2R1bGVEZXRhaWxzEhgK",
-            "EEJ1c2luZXNzTW9kdWxlSWQYASABKAUSSgoSQnVzaW5lc3NNb2R1bGVUeXBl",
-            "GAIgASgOMi4ucGhvZW5peC5CdXNpbmVzc01vZHVsZURldGFpbHMuVHJhbnNh",
-            "Y3Rpb25UeXBlIjwKD1RyYW5zYWN0aW9uVHlwZRIHCgNQUFYQABIQCgxTdWJz",
-            "Y3JpcHRpb24QARIOCgpDb2xsZWN0aW9uEAIi3AYKCVJlY29yZGluZxIfCgZz",
-            "dGF0dXMYASABKAsyDy5waG9lbml4LlN0YXR1cxIKCgJJZBgCIAEoAxINCgVF",
-            "cGdJZBgDIAEoAxIRCglDaGFubmVsSWQYBCABKAMSPwoPUmVjb3JkaW5nU3Rh",
-            "dHVzGAUgASgOMiYucGhvZW5peC5SZWNvcmRpbmcuVHN0dlJlY29yZGluZ1N0",
-            "YXR1cxIbChNFeHRlcm5hbFJlY29yZGluZ0lkGAYgASgJEjAKDEVwZ1N0YXJ0",
-            "RGF0ZRgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLgoKRXBn",
-            "RW5kRGF0ZRgIIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLgoE",
-            "VHlwZRgJIAEoDjIgLnBob2VuaXguUmVjb3JkaW5nLlJlY29yZGluZ1R5cGUS",
-            "GAoQR2V0U3RhdHVzUmV0cmllcxgKIAEoBRIaChJQcm90ZWN0ZWRVbnRpbERh",
-            "dGUYCyABKAMSGQoRVmlld2FibGVVbnRpbERhdGUYDCABKAMSLgoKQ3JlYXRl",
-            "RGF0ZRgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLgoKVXBk",
-            "YXRlRGF0ZRgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASDAoE",
-            "Q3JpZBgPIAEoCRIbChNpc0V4dGVybmFsUmVjb3JkaW5nGBAgASgIEhMKC0lz",
-            "UHJvdGVjdGVkGBEgASgIEg4KBlVzZXJJZBgSIAEoAyLCAQoTVHN0dlJlY29y",
-            "ZGluZ1N0YXR1cxIGCgJPSxAAEgoKBkZhaWxlZBABEg0KCVNjaGVkdWxlZBAC",
-            "Eg0KCVJlY29yZGluZxADEgwKCFJlY29yZGVkEAQSDAoIQ2FuY2VsZWQQBRIL",
-            "CgdEZWxldGVkEAYSGQoVTGlmZVRpbWVQZXJpb2RFeHBpcmVkEAcSEAoMU2Vy",
-            "aWVzQ2FuY2VsEAgSEAoMU2VyaWVzRGVsZXRlEAkSEQoNRGVsZXRlUGVuZGlu",
-            "ZxAKIkoKDVJlY29yZGluZ1R5cGUSCgoGU2luZ2xlEAASCgoGU2Vhc29uEAES",
-            "CgoGU2VyaWVzEAISFQoRT3JpZ2luYWxCcm9hZGNhc3QQAyLABAoORGV2aWNl",
-            "UGxheURhdGESDAoEVURJRBgBIAEoCRIPCgdBc3NldElkGAIgASgFEg4KBlVz",
-            "ZXJJZBgDIAEoAxIQCghwbGF5VHlwZRgEIAEoCRITCgtBc3NldEFjdGlvbhgF",
-            "IAEoCRIRCglUaW1lU3RhbXAYBiABKAMSEQoJQ3JlYXRlZEF0GAcgASgDEh8K",
-            "F01lZGlhQ29uY3VycmVuY3lSdWxlSWRzGAggAygFEiQKHEFzc2V0TWVkaWFD",
-            "b25jdXJyZW5jeVJ1bGVJZHMYCSADKAMSIgoaQXNzZXRFcGdDb25jdXJyZW5j",
-            "eVJ1bGVJZHMYCiADKAMSFgoORGV2aWNlRmFtaWx5SWQYCyABKAUSDgoGTnB2",
-            "cklkGAwgASgJEhEKCVByb2dyYW1JZBgNIAEoBRIQCghkb21haW5JZBgOIAEo",
-            "AxIUCgxQbGF5Q3ljbGVLZXkYDyABKAkSHgoWQm9va21hcmtFdmVudFRocmVz",
-            "aG9sZBgQIAEoBRI9CgtQcm9kdWN0VHlwZRgRIAEoDjIoLnBob2VuaXguRGV2",
-            "aWNlUGxheURhdGEuZVRyYW5zYWN0aW9uVHlwZRIRCglQcm9kdWN0SWQYEiAB",
-            "KAUSDgoGUmV2b2tlGBMgASgIEiMKG0xpbmVhcldhdGNoSGlzdG9yeVRocmVz",
-            "aG9sZBgUIAEoBSI9ChBlVHJhbnNhY3Rpb25UeXBlEgcKA1BQVhAAEhAKDFN1",
-            "YnNjcmlwdGlvbhABEg4KCkNvbGxlY3Rpb24QAipJChpPYmplY3RWaXJ0dWFs",
-            "QXNzZXRJbmZvVHlwZRIQCgxTdWJzY3JpcHRpb24QABILCgdTZWdtZW50EAES",
-            "DAoIQ2F0ZWdvcnkQAkIUWgguL21vZGVsc6oCB3Bob2VuaXhiBnByb3RvMw=="));
+            "Cg1jYXRhbG9nLnByb3RvEgdwaG9lbml4GgxTdGF0dXMucHJvdG8aD0Fkc1Bv",
+            "bGljeS5wcm90bxoSU3RyZWFtZXJUeXBlLnByb3RvGh9nb29nbGUvcHJvdG9i",
+            "dWYvdGltZXN0YW1wLnByb3RvIsgDCglNZWRpYUZpbGUSDwoHTWVkaWFJZBgB",
+            "IAEoAxIKCgJJZBgCIAEoAxIMCgRUeXBlGAMgASgJEg4KBlR5cGVJZBgEIAEo",
+            "AxILCgNVcmwYBSABKAkSDgoGQWx0VXJsGAYgASgJEhEKCURpcmVjdFVybBgH",
+            "IAEoCRIUCgxBbHREaXJlY3RVcmwYCCABKAkSEAoIRHVyYXRpb24YCSABKAMS",
+            "EgoKRXh0ZXJuYWxJZBgKIAEoCRIrCgxTdHJlYW1lclR5cGUYCyABKA4yFS5w",
+            "aG9lbml4LlN0cmVhbWVyVHlwZRIRCglJc1RyYWlsZXIYDCABKAgSDQoFQ2Ru",
+            "SWQYDSABKAUSEAoIQWx0Q2RuSWQYDiABKAUSDQoFRHJtSWQYDyABKAUSJQoJ",
+            "QWRzUG9saWN5GBAgASgOMhIucGhvZW5peC5BZHNQb2xpY3kSEAoIQWRzUGFy",
+            "YW0YESABKAkSCwoDT3BsGBIgASgJEj0KFUJ1c2luZXNzTW9kdWxlRGV0YWls",
+            "cxgTIAEoCzIeLnBob2VuaXguQnVzaW5lc3NNb2R1bGVEZXRhaWxzEg8KB0dy",
+            "b3VwSWQYFCABKAMSDgoGTGFiZWxzGBUgASgJIrsBChVCdXNpbmVzc01vZHVs",
+            "ZURldGFpbHMSGAoQQnVzaW5lc3NNb2R1bGVJZBgBIAEoBRJKChJCdXNpbmVz",
+            "c01vZHVsZVR5cGUYAiABKA4yLi5waG9lbml4LkJ1c2luZXNzTW9kdWxlRGV0",
+            "YWlscy5UcmFuc2FjdGlvblR5cGUiPAoPVHJhbnNhY3Rpb25UeXBlEgcKA1BQ",
+            "VhAAEhAKDFN1YnNjcmlwdGlvbhABEg4KCkNvbGxlY3Rpb24QAiLcBgoJUmVj",
+            "b3JkaW5nEh8KBnN0YXR1cxgBIAEoCzIPLnBob2VuaXguU3RhdHVzEgoKAklk",
+            "GAIgASgDEg0KBUVwZ0lkGAMgASgDEhEKCUNoYW5uZWxJZBgEIAEoAxI/Cg9S",
+            "ZWNvcmRpbmdTdGF0dXMYBSABKA4yJi5waG9lbml4LlJlY29yZGluZy5Uc3R2",
+            "UmVjb3JkaW5nU3RhdHVzEhsKE0V4dGVybmFsUmVjb3JkaW5nSWQYBiABKAkS",
+            "MAoMRXBnU3RhcnREYXRlGAcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVz",
+            "dGFtcBIuCgpFcGdFbmREYXRlGAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRp",
+            "bWVzdGFtcBIuCgRUeXBlGAkgASgOMiAucGhvZW5peC5SZWNvcmRpbmcuUmVj",
+            "b3JkaW5nVHlwZRIYChBHZXRTdGF0dXNSZXRyaWVzGAogASgFEhoKElByb3Rl",
+            "Y3RlZFVudGlsRGF0ZRgLIAEoAxIZChFWaWV3YWJsZVVudGlsRGF0ZRgMIAEo",
+            "AxIuCgpDcmVhdGVEYXRlGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVz",
+            "dGFtcBIuCgpVcGRhdGVEYXRlGA4gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRp",
+            "bWVzdGFtcBIMCgRDcmlkGA8gASgJEhsKE2lzRXh0ZXJuYWxSZWNvcmRpbmcY",
+            "ECABKAgSEwoLSXNQcm90ZWN0ZWQYESABKAgSDgoGVXNlcklkGBIgASgDIsIB",
+            "ChNUc3R2UmVjb3JkaW5nU3RhdHVzEgYKAk9LEAASCgoGRmFpbGVkEAESDQoJ",
+            "U2NoZWR1bGVkEAISDQoJUmVjb3JkaW5nEAMSDAoIUmVjb3JkZWQQBBIMCghD",
+            "YW5jZWxlZBAFEgsKB0RlbGV0ZWQQBhIZChVMaWZlVGltZVBlcmlvZEV4cGly",
+            "ZWQQBxIQCgxTZXJpZXNDYW5jZWwQCBIQCgxTZXJpZXNEZWxldGUQCRIRCg1E",
+            "ZWxldGVQZW5kaW5nEAoiSgoNUmVjb3JkaW5nVHlwZRIKCgZTaW5nbGUQABIK",
+            "CgZTZWFzb24QARIKCgZTZXJpZXMQAhIVChFPcmlnaW5hbEJyb2FkY2FzdBAD",
+            "IsAECg5EZXZpY2VQbGF5RGF0YRIMCgRVRElEGAEgASgJEg8KB0Fzc2V0SWQY",
+            "AiABKAUSDgoGVXNlcklkGAMgASgDEhAKCHBsYXlUeXBlGAQgASgJEhMKC0Fz",
+            "c2V0QWN0aW9uGAUgASgJEhEKCVRpbWVTdGFtcBgGIAEoAxIRCglDcmVhdGVk",
+            "QXQYByABKAMSHwoXTWVkaWFDb25jdXJyZW5jeVJ1bGVJZHMYCCADKAUSJAoc",
+            "QXNzZXRNZWRpYUNvbmN1cnJlbmN5UnVsZUlkcxgJIAMoAxIiChpBc3NldEVw",
+            "Z0NvbmN1cnJlbmN5UnVsZUlkcxgKIAMoAxIWCg5EZXZpY2VGYW1pbHlJZBgL",
+            "IAEoBRIOCgZOcHZySWQYDCABKAkSEQoJUHJvZ3JhbUlkGA0gASgFEhAKCGRv",
+            "bWFpbklkGA4gASgDEhQKDFBsYXlDeWNsZUtleRgPIAEoCRIeChZCb29rbWFy",
+            "a0V2ZW50VGhyZXNob2xkGBAgASgFEj0KC1Byb2R1Y3RUeXBlGBEgASgOMigu",
+            "cGhvZW5peC5EZXZpY2VQbGF5RGF0YS5lVHJhbnNhY3Rpb25UeXBlEhEKCVBy",
+            "b2R1Y3RJZBgSIAEoBRIOCgZSZXZva2UYEyABKAgSIwobTGluZWFyV2F0Y2hI",
+            "aXN0b3J5VGhyZXNob2xkGBQgASgFIj0KEGVUcmFuc2FjdGlvblR5cGUSBwoD",
+            "UFBWEAASEAoMU3Vic2NyaXB0aW9uEAESDgoKQ29sbGVjdGlvbhACIpYBChBW",
+            "aXJ0dWFsQXNzZXRJbmZvEjEKBHR5cGUYASABKA4yIy5waG9lbml4Lk9iamVj",
+            "dFZpcnR1YWxBc3NldEluZm9UeXBlEgoKAmlkGAIgASgDEgwKBG5hbWUYAyAB",
+            "KAkSEwoLZGVzY3JpcHRpb24YBCABKAkSDgoGdXNlcklkGAUgASgDEhAKCGlz",
+            "QWN0aXZlGAYgASgIKkkKGk9iamVjdFZpcnR1YWxBc3NldEluZm9UeXBlEhAK",
+            "DFN1YnNjcmlwdGlvbhAAEgsKB1NlZ21lbnQQARIMCghDYXRlZ29yeRACQhRa",
+            "CC4vbW9kZWxzqgIHcGhvZW5peGIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::phoenix.StatusReflection.Descriptor, global::phoenix.AssetReflection.Descriptor, global::phoenix.MediaFileTypeReflection.Descriptor, global::phoenix.AdsPolicyReflection.Descriptor, global::phoenix.StreamerTypeReflection.Descriptor, global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, },
+          new pbr::FileDescriptor[] { global::phoenix.StatusReflection.Descriptor, global::phoenix.AdsPolicyReflection.Descriptor, global::phoenix.StreamerTypeReflection.Descriptor, global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::phoenix.ObjectVirtualAssetInfoType), }, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.MediaFile), global::phoenix.MediaFile.Parser, new[]{ "MediaId", "Id", "Type", "TypeId", "Url", "AltUrl", "DirectUrl", "AltDirectUrl", "Duration", "ExternalId", "StreamerType", "IsTrailer", "CdnId", "AltCdnId", "DrmId", "AdsPolicy", "AdsParam", "Opl", "BusinessModuleDetails", "GroupId", "Labels" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.BusinessModuleDetails), global::phoenix.BusinessModuleDetails.Parser, new[]{ "BusinessModuleId", "BusinessModuleType" }, null, new[]{ typeof(global::phoenix.BusinessModuleDetails.Types.TransactionType) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.Recording), global::phoenix.Recording.Parser, new[]{ "Status", "Id", "EpgId", "ChannelId", "RecordingStatus", "ExternalRecordingId", "EpgStartDate", "EpgEndDate", "Type", "GetStatusRetries", "ProtectedUntilDate", "ViewableUntilDate", "CreateDate", "UpdateDate", "Crid", "IsExternalRecording", "IsProtected", "UserId" }, null, new[]{ typeof(global::phoenix.Recording.Types.TstvRecordingStatus), typeof(global::phoenix.Recording.Types.RecordingType) }, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.DevicePlayData), global::phoenix.DevicePlayData.Parser, new[]{ "UDID", "AssetId", "UserId", "PlayType", "AssetAction", "TimeStamp", "CreatedAt", "MediaConcurrencyRuleIds", "AssetMediaConcurrencyRuleIds", "AssetEpgConcurrencyRuleIds", "DeviceFamilyId", "NpvrId", "ProgramId", "DomainId", "PlayCycleKey", "BookmarkEventThreshold", "ProductType", "ProductId", "Revoke", "LinearWatchHistoryThreshold" }, null, new[]{ typeof(global::phoenix.DevicePlayData.Types.eTransactionType) }, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.DevicePlayData), global::phoenix.DevicePlayData.Parser, new[]{ "UDID", "AssetId", "UserId", "PlayType", "AssetAction", "TimeStamp", "CreatedAt", "MediaConcurrencyRuleIds", "AssetMediaConcurrencyRuleIds", "AssetEpgConcurrencyRuleIds", "DeviceFamilyId", "NpvrId", "ProgramId", "DomainId", "PlayCycleKey", "BookmarkEventThreshold", "ProductType", "ProductId", "Revoke", "LinearWatchHistoryThreshold" }, null, new[]{ typeof(global::phoenix.DevicePlayData.Types.eTransactionType) }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.VirtualAssetInfo), global::phoenix.VirtualAssetInfo.Parser, new[]{ "Type", "Id", "Name", "Description", "UserId", "IsActive" }, null, null, null, null)
           }));
     }
     #endregion
@@ -2916,6 +2920,358 @@ namespace phoenix {
 
     }
     #endregion
+
+  }
+
+  public sealed partial class VirtualAssetInfo : pb::IMessage<VirtualAssetInfo>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<VirtualAssetInfo> _parser = new pb::MessageParser<VirtualAssetInfo>(() => new VirtualAssetInfo());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<VirtualAssetInfo> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::phoenix.CatalogReflection.Descriptor.MessageTypes[4]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public VirtualAssetInfo() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public VirtualAssetInfo(VirtualAssetInfo other) : this() {
+      type_ = other.type_;
+      id_ = other.id_;
+      name_ = other.name_;
+      description_ = other.description_;
+      userId_ = other.userId_;
+      isActive_ = other.isActive_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public VirtualAssetInfo Clone() {
+      return new VirtualAssetInfo(this);
+    }
+
+    /// <summary>Field number for the "type" field.</summary>
+    public const int TypeFieldNumber = 1;
+    private global::phoenix.ObjectVirtualAssetInfoType type_ = global::phoenix.ObjectVirtualAssetInfoType.Subscription;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::phoenix.ObjectVirtualAssetInfoType Type {
+      get { return type_; }
+      set {
+        type_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "id" field.</summary>
+    public const int IdFieldNumber = 2;
+    private long id_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long Id {
+      get { return id_; }
+      set {
+        id_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "name" field.</summary>
+    public const int NameFieldNumber = 3;
+    private string name_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string Name {
+      get { return name_; }
+      set {
+        name_ = value == null ? "" : value;
+      }
+    }
+
+    /// <summary>Field number for the "description" field.</summary>
+    public const int DescriptionFieldNumber = 4;
+    private string description_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string Description {
+      get { return description_; }
+      set {
+        description_ = value == null ? "" : value;
+      }
+    }
+
+    /// <summary>Field number for the "userId" field.</summary>
+    public const int UserIdFieldNumber = 5;
+    private long userId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long UserId {
+      get { return userId_; }
+      set {
+        userId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "isActive" field.</summary>
+    public const int IsActiveFieldNumber = 6;
+    private bool isActive_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool IsActive {
+      get { return isActive_; }
+      set {
+        isActive_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as VirtualAssetInfo);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(VirtualAssetInfo other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Type != other.Type) return false;
+      if (Id != other.Id) return false;
+      if (Name != other.Name) return false;
+      if (Description != other.Description) return false;
+      if (UserId != other.UserId) return false;
+      if (IsActive != other.IsActive) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Type != global::phoenix.ObjectVirtualAssetInfoType.Subscription) hash ^= Type.GetHashCode();
+      if (Id != 0L) hash ^= Id.GetHashCode();
+      if (Name.Length != 0) hash ^= Name.GetHashCode();
+      if (Description.Length != 0) hash ^= Description.GetHashCode();
+      if (UserId != 0L) hash ^= UserId.GetHashCode();
+      if (IsActive != false) hash ^= IsActive.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (Type != global::phoenix.ObjectVirtualAssetInfoType.Subscription) {
+        output.WriteRawTag(8);
+        output.WriteEnum((int) Type);
+      }
+      if (Id != 0L) {
+        output.WriteRawTag(16);
+        output.WriteInt64(Id);
+      }
+      if (Name.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Name);
+      }
+      if (Description.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(Description);
+      }
+      if (UserId != 0L) {
+        output.WriteRawTag(40);
+        output.WriteInt64(UserId);
+      }
+      if (IsActive != false) {
+        output.WriteRawTag(48);
+        output.WriteBool(IsActive);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (Type != global::phoenix.ObjectVirtualAssetInfoType.Subscription) {
+        output.WriteRawTag(8);
+        output.WriteEnum((int) Type);
+      }
+      if (Id != 0L) {
+        output.WriteRawTag(16);
+        output.WriteInt64(Id);
+      }
+      if (Name.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Name);
+      }
+      if (Description.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(Description);
+      }
+      if (UserId != 0L) {
+        output.WriteRawTag(40);
+        output.WriteInt64(UserId);
+      }
+      if (IsActive != false) {
+        output.WriteRawTag(48);
+        output.WriteBool(IsActive);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (Type != global::phoenix.ObjectVirtualAssetInfoType.Subscription) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Type);
+      }
+      if (Id != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(Id);
+      }
+      if (Name.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
+      }
+      if (Description.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Description);
+      }
+      if (UserId != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(UserId);
+      }
+      if (IsActive != false) {
+        size += 1 + 1;
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(VirtualAssetInfo other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Type != global::phoenix.ObjectVirtualAssetInfoType.Subscription) {
+        Type = other.Type;
+      }
+      if (other.Id != 0L) {
+        Id = other.Id;
+      }
+      if (other.Name.Length != 0) {
+        Name = other.Name;
+      }
+      if (other.Description.Length != 0) {
+        Description = other.Description;
+      }
+      if (other.UserId != 0L) {
+        UserId = other.UserId;
+      }
+      if (other.IsActive != false) {
+        IsActive = other.IsActive;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            Type = (global::phoenix.ObjectVirtualAssetInfoType) input.ReadEnum();
+            break;
+          }
+          case 16: {
+            Id = input.ReadInt64();
+            break;
+          }
+          case 26: {
+            Name = input.ReadString();
+            break;
+          }
+          case 34: {
+            Description = input.ReadString();
+            break;
+          }
+          case 40: {
+            UserId = input.ReadInt64();
+            break;
+          }
+          case 48: {
+            IsActive = input.ReadBool();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            Type = (global::phoenix.ObjectVirtualAssetInfoType) input.ReadEnum();
+            break;
+          }
+          case 16: {
+            Id = input.ReadInt64();
+            break;
+          }
+          case 26: {
+            Name = input.ReadString();
+            break;
+          }
+          case 34: {
+            Description = input.ReadString();
+            break;
+          }
+          case 40: {
+            UserId = input.ReadInt64();
+            break;
+          }
+          case 48: {
+            IsActive = input.ReadBool();
+            break;
+          }
+        }
+      }
+    }
+    #endif
 
   }
 

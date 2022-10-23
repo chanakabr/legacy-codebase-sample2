@@ -1,5 +1,4 @@
 ﻿using ApiObjects.Base;
-using ApiObjects.Response;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -168,6 +167,11 @@ namespace ApiObjects
 
     public class BatchCampaignFilter : CampaignSearchFilter
     {
+    }
+
+    public class CampaignSegmentFilter : CampaignSearchFilter
+    {
+        public long SegmentIdEqual { get; set; }
     }
 
     public enum CampaignOrderBy

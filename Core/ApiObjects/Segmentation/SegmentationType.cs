@@ -27,6 +27,9 @@ namespace ApiObjects.Segmentation
         [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Auto)]
         public List<SegmentCondition> Conditions;
 
+        [JsonProperty()]
+        public eCutType ConditionsOperator;
+
         [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Auto)]
         public List<SegmentAction> Actions;
 
@@ -35,6 +38,12 @@ namespace ApiObjects.Segmentation
 
         [JsonProperty()]
         public long CreateDate;
+
+        [JsonProperty()]
+        public long UpdateDate;
+
+        [JsonProperty()]
+        public long ExecuteDate;
 
         [JsonProperty()]
         public bool AffectsContentOrdering;

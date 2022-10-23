@@ -409,6 +409,11 @@ namespace ApiObjects.Response
         DeviceFamilyDoesNotExist = 5087,
         DeviceBrandIdAlreadyInUse = 5088,
         DeviceBrandDoesNotExist = 5089,
+        CannotDeleteAttachedSegment = 5090,
+        DynamicSegmentsExceeded = 5091,
+        DynamicSegmentPeriodExceeded = 5092,
+        DynamicSegmentConditionsExceeded = 5093,
+        NameMustBeUnique = 5094,
 
         #endregion
 

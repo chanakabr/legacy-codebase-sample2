@@ -18,7 +18,7 @@
   </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Phx.Lib.Appconfig" Version="1.4.9" />
+        <PackageReference Include="Phx.Lib.Appconfig" Version="1.5.1" />
         <PackageReference Include="Phx.Lib.Log" Version="1.2.4" />
     </ItemGroup>
 

@@ -1,4 +1,5 @@
 ﻿using ApiLogic.Api.Managers;
+using APILogic.ConditionalAccess;
 using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Notification;
@@ -244,6 +245,29 @@ namespace ApiLogic.Users.Managers
 
             response.Objects = filter.ApplyOrderBy(response.Objects);
             ManagePagination(pager, response);
+
+            return response;
+        }
+
+        public GenericListResponse<Campaign> ListCampaignsBySegment(ContextData contextData, CampaignSegmentFilter filter)
+        {
+            var response = new GenericListResponse<Campaign>();
+            response.SetStatus(Status.Ok);
+
+            var filteredCampaigns = SearchCampaigns(contextData, filter);
+
+            if (filteredCampaigns.HasObjects())
+            {
+                foreach (var campaign in filteredCampaigns.Objects)
+                {
+                    var conditions = campaign.GetConditions();
+                    if (ConditionsContainsValidator.ValidateSegmentExist(conditions, filter.SegmentIdEqual))
+                    {
+                        response.Objects.Add(campaign);
+                    }
+                }
+            }
+            response.TotalItems = response.Objects.Count;
 
             return response;
         }

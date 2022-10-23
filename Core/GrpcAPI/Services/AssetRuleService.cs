@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Reflection;
-using ApiObjects;
-using AutoMapper;
+﻿using AutoMapper;
 using Core.Api.Managers;
-using Google.Protobuf;
 using Google.Protobuf.Collections;
 using GrpcAPI.Utils;
 using Microsoft.Extensions.Logging;
 using phoenix;
 using Phx.Lib.Log;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
 using ConcurrencyRestrictionPolicy = phoenix.ConcurrencyRestrictionPolicy;
-using eAssetTypes = phoenix.eAssetTypes;
 using RuleActionType = ApiObjects.RuleActionType;
 using RuleConditionType = ApiObjects.RuleConditionType;
 

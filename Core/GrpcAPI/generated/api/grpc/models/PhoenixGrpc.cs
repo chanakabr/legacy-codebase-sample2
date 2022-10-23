@@ -205,6 +205,22 @@ namespace phoenix {
     static readonly grpc::Marshaller<global::phoenix.GetMediaInfoRequest> __Marshaller_phoenix_GetMediaInfoRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetMediaInfoRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::phoenix.GetMediaInfoResponse> __Marshaller_phoenix_GetMediaInfoResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetMediaInfoResponse.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.AddVirtualAssetInfoRequest> __Marshaller_phoenix_AddVirtualAssetInfoRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.AddVirtualAssetInfoRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.AddVirtualAssetInfoResponse> __Marshaller_phoenix_AddVirtualAssetInfoResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.AddVirtualAssetInfoResponse.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.UpdateVirtualAssetInfoRequest> __Marshaller_phoenix_UpdateVirtualAssetInfoRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.UpdateVirtualAssetInfoRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.UpdateVirtualAssetInfoResponse> __Marshaller_phoenix_UpdateVirtualAssetInfoResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.UpdateVirtualAssetInfoResponse.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.DeleteVirtualAssetInfoRequest> __Marshaller_phoenix_DeleteVirtualAssetInfoRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.DeleteVirtualAssetInfoRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.DeleteVirtualAssetInfoResponse> __Marshaller_phoenix_DeleteVirtualAssetInfoResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.DeleteVirtualAssetInfoResponse.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.IsSegmentUsedRequest> __Marshaller_phoenix_IsSegmentUsedRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.IsSegmentUsedRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.IsSegmentUsedResponse> __Marshaller_phoenix_IsSegmentUsedResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.IsSegmentUsedResponse.Parser));
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::phoenix.GetDomainDataRequest, global::phoenix.GetDomainDataResponse> __Method_GetDomainData = new grpc::Method<global::phoenix.GetDomainDataRequest, global::phoenix.GetDomainDataResponse>(
@@ -566,6 +582,38 @@ namespace phoenix {
         __Marshaller_phoenix_GetMediaInfoRequest,
         __Marshaller_phoenix_GetMediaInfoResponse);
 
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::phoenix.AddVirtualAssetInfoRequest, global::phoenix.AddVirtualAssetInfoResponse> __Method_AddVirtualAssetInfo = new grpc::Method<global::phoenix.AddVirtualAssetInfoRequest, global::phoenix.AddVirtualAssetInfoResponse>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "AddVirtualAssetInfo",
+        __Marshaller_phoenix_AddVirtualAssetInfoRequest,
+        __Marshaller_phoenix_AddVirtualAssetInfoResponse);
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::phoenix.UpdateVirtualAssetInfoRequest, global::phoenix.UpdateVirtualAssetInfoResponse> __Method_UpdateVirtualAssetInfo = new grpc::Method<global::phoenix.UpdateVirtualAssetInfoRequest, global::phoenix.UpdateVirtualAssetInfoResponse>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "UpdateVirtualAssetInfo",
+        __Marshaller_phoenix_UpdateVirtualAssetInfoRequest,
+        __Marshaller_phoenix_UpdateVirtualAssetInfoResponse);
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::phoenix.DeleteVirtualAssetInfoRequest, global::phoenix.DeleteVirtualAssetInfoResponse> __Method_DeleteVirtualAssetInfo = new grpc::Method<global::phoenix.DeleteVirtualAssetInfoRequest, global::phoenix.DeleteVirtualAssetInfoResponse>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "DeleteVirtualAssetInfo",
+        __Marshaller_phoenix_DeleteVirtualAssetInfoRequest,
+        __Marshaller_phoenix_DeleteVirtualAssetInfoResponse);
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::phoenix.IsSegmentUsedRequest, global::phoenix.IsSegmentUsedResponse> __Method_IsSegmentUsed = new grpc::Method<global::phoenix.IsSegmentUsedRequest, global::phoenix.IsSegmentUsedResponse>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "IsSegmentUsed",
+        __Marshaller_phoenix_IsSegmentUsedRequest,
+        __Marshaller_phoenix_IsSegmentUsedResponse);
+
     /// <summary>Service descriptor</summary>
     public static global::Google.Protobuf.Reflection.ServiceDescriptor Descriptor
     {
@@ -878,6 +926,36 @@ namespace phoenix {
 
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::System.Threading.Tasks.Task<global::phoenix.GetMediaInfoResponse> GetMediaInfo(global::phoenix.GetMediaInfoRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::phoenix.AddVirtualAssetInfoResponse> AddVirtualAssetInfo(global::phoenix.AddVirtualAssetInfoRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::phoenix.UpdateVirtualAssetInfoResponse> UpdateVirtualAssetInfo(global::phoenix.UpdateVirtualAssetInfoRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::phoenix.DeleteVirtualAssetInfoResponse> DeleteVirtualAssetInfo(global::phoenix.DeleteVirtualAssetInfoRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      /// <summary>
+      /// segment
+      /// </summary>
+      /// <param name="request">The request received from the client.</param>
+      /// <param name="context">The context of the server-side call handler being invoked.</param>
+      /// <returns>The response to send back to the client (wrapped by a task).</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::phoenix.IsSegmentUsedResponse> IsSegmentUsed(global::phoenix.IsSegmentUsedRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
@@ -1979,6 +2057,114 @@ namespace phoenix {
       {
         return CallInvoker.AsyncUnaryCall(__Method_GetMediaInfo, null, options, request);
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.AddVirtualAssetInfoResponse AddVirtualAssetInfo(global::phoenix.AddVirtualAssetInfoRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return AddVirtualAssetInfo(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.AddVirtualAssetInfoResponse AddVirtualAssetInfo(global::phoenix.AddVirtualAssetInfoRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_AddVirtualAssetInfo, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.AddVirtualAssetInfoResponse> AddVirtualAssetInfoAsync(global::phoenix.AddVirtualAssetInfoRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return AddVirtualAssetInfoAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.AddVirtualAssetInfoResponse> AddVirtualAssetInfoAsync(global::phoenix.AddVirtualAssetInfoRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_AddVirtualAssetInfo, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.UpdateVirtualAssetInfoResponse UpdateVirtualAssetInfo(global::phoenix.UpdateVirtualAssetInfoRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return UpdateVirtualAssetInfo(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.UpdateVirtualAssetInfoResponse UpdateVirtualAssetInfo(global::phoenix.UpdateVirtualAssetInfoRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_UpdateVirtualAssetInfo, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.UpdateVirtualAssetInfoResponse> UpdateVirtualAssetInfoAsync(global::phoenix.UpdateVirtualAssetInfoRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return UpdateVirtualAssetInfoAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.UpdateVirtualAssetInfoResponse> UpdateVirtualAssetInfoAsync(global::phoenix.UpdateVirtualAssetInfoRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_UpdateVirtualAssetInfo, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.DeleteVirtualAssetInfoResponse DeleteVirtualAssetInfo(global::phoenix.DeleteVirtualAssetInfoRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return DeleteVirtualAssetInfo(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.DeleteVirtualAssetInfoResponse DeleteVirtualAssetInfo(global::phoenix.DeleteVirtualAssetInfoRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_DeleteVirtualAssetInfo, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.DeleteVirtualAssetInfoResponse> DeleteVirtualAssetInfoAsync(global::phoenix.DeleteVirtualAssetInfoRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return DeleteVirtualAssetInfoAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.DeleteVirtualAssetInfoResponse> DeleteVirtualAssetInfoAsync(global::phoenix.DeleteVirtualAssetInfoRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_DeleteVirtualAssetInfo, null, options, request);
+      }
+      /// <summary>
+      /// segment
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+      /// <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+      /// <param name="cancellationToken">An optional token for canceling the call.</param>
+      /// <returns>The response received from the server.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.IsSegmentUsedResponse IsSegmentUsed(global::phoenix.IsSegmentUsedRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return IsSegmentUsed(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      /// <summary>
+      /// segment
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="options">The options for the call.</param>
+      /// <returns>The response received from the server.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.IsSegmentUsedResponse IsSegmentUsed(global::phoenix.IsSegmentUsedRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_IsSegmentUsed, null, options, request);
+      }
+      /// <summary>
+      /// segment
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+      /// <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+      /// <param name="cancellationToken">An optional token for canceling the call.</param>
+      /// <returns>The call object.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.IsSegmentUsedResponse> IsSegmentUsedAsync(global::phoenix.IsSegmentUsedRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return IsSegmentUsedAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      /// <summary>
+      /// segment
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="options">The options for the call.</param>
+      /// <returns>The call object.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.IsSegmentUsedResponse> IsSegmentUsedAsync(global::phoenix.IsSegmentUsedRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_IsSegmentUsed, null, options, request);
+      }
       /// <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       protected override PhoenixClient NewInstance(ClientBaseConfiguration configuration)
@@ -2037,7 +2223,11 @@ namespace phoenix {
           .AddMethod(__Method_MapMediaFiles, serviceImpl.MapMediaFiles)
           .AddMethod(__Method_GetEPGChannelCDVRId, serviceImpl.GetEPGChannelCDVRId)
           .AddMethod(__Method_GetMediaById, serviceImpl.GetMediaById)
-          .AddMethod(__Method_GetMediaInfo, serviceImpl.GetMediaInfo).Build();
+          .AddMethod(__Method_GetMediaInfo, serviceImpl.GetMediaInfo)
+          .AddMethod(__Method_AddVirtualAssetInfo, serviceImpl.AddVirtualAssetInfo)
+          .AddMethod(__Method_UpdateVirtualAssetInfo, serviceImpl.UpdateVirtualAssetInfo)
+          .AddMethod(__Method_DeleteVirtualAssetInfo, serviceImpl.DeleteVirtualAssetInfo)
+          .AddMethod(__Method_IsSegmentUsed, serviceImpl.IsSegmentUsed).Build();
     }
 
     /// <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
@@ -2092,6 +2282,10 @@ namespace phoenix {
       serviceBinder.AddMethod(__Method_GetEPGChannelCDVRId, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetEPGChannelCDVRIdRequest, global::Google.Protobuf.WellKnownTypes.StringValue>(serviceImpl.GetEPGChannelCDVRId));
       serviceBinder.AddMethod(__Method_GetMediaById, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetMediaByIdRequest, global::phoenix.GetMediaByIdResponse>(serviceImpl.GetMediaById));
       serviceBinder.AddMethod(__Method_GetMediaInfo, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetMediaInfoRequest, global::phoenix.GetMediaInfoResponse>(serviceImpl.GetMediaInfo));
+      serviceBinder.AddMethod(__Method_AddVirtualAssetInfo, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.AddVirtualAssetInfoRequest, global::phoenix.AddVirtualAssetInfoResponse>(serviceImpl.AddVirtualAssetInfo));
+      serviceBinder.AddMethod(__Method_UpdateVirtualAssetInfo, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.UpdateVirtualAssetInfoRequest, global::phoenix.UpdateVirtualAssetInfoResponse>(serviceImpl.UpdateVirtualAssetInfo));
+      serviceBinder.AddMethod(__Method_DeleteVirtualAssetInfo, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.DeleteVirtualAssetInfoRequest, global::phoenix.DeleteVirtualAssetInfoResponse>(serviceImpl.DeleteVirtualAssetInfo));
+      serviceBinder.AddMethod(__Method_IsSegmentUsed, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.IsSegmentUsedRequest, global::phoenix.IsSegmentUsedResponse>(serviceImpl.IsSegmentUsed));
     }
 
   }

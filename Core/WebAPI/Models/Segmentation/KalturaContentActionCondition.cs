@@ -17,7 +17,6 @@ namespace WebAPI.Models.Segmentation
         [DataMember(Name = "action")]
         [JsonProperty(PropertyName = "action")]
         [XmlElement(ElementName = "action")]
-        [SchemeProperty()]
         public KalturaContentAction Action { get; set; }
 
         /// <summary>
@@ -26,7 +25,7 @@ namespace WebAPI.Models.Segmentation
         [DataMember(Name = "length")]
         [JsonProperty(PropertyName = "length")]
         [XmlElement(ElementName = "length")]
-        [SchemeProperty()]
+        [SchemeProperty(IsNullable = true)]
         public int? Length { get; set; }
 
         /// <summary>
@@ -35,7 +34,7 @@ namespace WebAPI.Models.Segmentation
         [DataMember(Name = "lengthType")]
         [JsonProperty(PropertyName = "lengthType")]
         [XmlElement(ElementName = "lengthType")]
-        [SchemeProperty()]
+        [SchemeProperty(IsNullable = true)]
         public KalturaContentActionConditionLengthType? LengthType { get; set; }
 
         /// <summary>
@@ -44,8 +43,6 @@ namespace WebAPI.Models.Segmentation
         [DataMember(Name = "multiplier")]
         [JsonProperty(PropertyName = "multiplier")]
         [XmlElement(ElementName = "multiplier")]
-        [SchemeProperty()]
         public int Multiplier { get; set; }
     }
-
 }

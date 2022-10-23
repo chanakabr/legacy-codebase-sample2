@@ -1711,6 +1711,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .IncludeBase<KalturaCampaignSearchFilter, CampaignSearchFilter>()
               ;
 
+            cfg.CreateMap<KalturaCampaignSegmentFilter, CampaignSegmentFilter>()
+                .IncludeBase<KalturaCampaignSearchFilter, CampaignSearchFilter>()
+                .ForMember(dest => dest.SegmentIdEqual, opt => opt.MapFrom(src => src.SegmentIdEqual));
+
             cfg.CreateMap<KalturaObjectState, CampaignState>()
                .ConvertUsing(state =>
                {

@@ -10,7 +10,6 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Segmentation;
-using WebAPI.ModelsValidators;
 using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 
@@ -29,6 +28,10 @@ namespace WebAPI.Controllers
         [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.InvalidParameters)]
+        [Throws(eResponseStatus.DynamicSegmentsExceeded)]
+        [Throws(eResponseStatus.DynamicSegmentPeriodExceeded)]
+        [Throws(eResponseStatus.DynamicSegmentConditionsExceeded)]
+        [Throws(eResponseStatus.NameMustBeUnique)]
         static public KalturaSegmentationType Add(KalturaSegmentationType segmentationType)
         {
             try
@@ -56,6 +59,9 @@ namespace WebAPI.Controllers
         [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.ObjectNotExist)]
+        [Throws(eResponseStatus.DynamicSegmentPeriodExceeded)]
+        [Throws(eResponseStatus.DynamicSegmentConditionsExceeded)]
+        [Throws(eResponseStatus.NameMustBeUnique)]
         static public KalturaSegmentationType Update(long segmentationTypeId, KalturaSegmentationType segmentationType)
         {
             try
@@ -82,6 +88,7 @@ namespace WebAPI.Controllers
         [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.ObjectNotExist)]
+        [Throws(eResponseStatus.CannotDeleteAttachedSegment)]
         static public bool Delete(long id)
         {
             bool response = false;
@@ -115,20 +122,12 @@ namespace WebAPI.Controllers
         static public KalturaSegmentationTypeListResponse List(KalturaBaseSegmentationTypeFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaSegmentationTypeListResponse response = null;
-            bool isFilterValid = false;
 
             if (pager == null)
                 pager = new KalturaFilterPager();
 
             if (filter == null)
-            {
                 filter = new KalturaSegmentationTypeFilter();
-                isFilterValid = true;
-            }
-            else
-            {
-                isFilterValid = filter.Validate();
-            }
 
             try
             {
@@ -176,6 +175,35 @@ namespace WebAPI.Controllers
             return ClientsManager.ApiClient().GetSegmentationTypesBySegmentIds(groupId, filter.GetIdIn(),
                 new AssetSearchDefinition() { UserId = userId, IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets },
                 pager.GetRealPageIndex(), pager.PageSize.Value);
+        }
+
+        /// <summary>
+        /// Gets existing partner segmentation configuration
+        /// </summary>
+        /// <returns>partner segmentation configuration</returns>
+        [Action("getPartnerConfiguration")]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public static KalturaSegmentationPartnerConfiguration GetPartnerConfiguration()
+        {
+            throw new ApiException() { Code = 1, Message = "SegmentationTypeController.GetPartnerConfiguration is not implemented in phoenix" };
+        }
+
+        /// <summary>
+        /// Sets partner configuration for segments configuration
+        /// </summary>
+        /// <param name="configuration">1. maxDynamicSegments - how many dynamic segments (segments with conditions) the operator is allowed to have.
+        /// Displayed in the OPC as *'Maximum Number of Dynamic Segments' 
+        /// *maxCalculatedPeriod - 
+        /// the maximum number of past days to be calculated for dynamic segments. e.g. the last 60 days, the last 90 days etc.
+        /// Displayed in OPC as *'Maximum of Dynamic Segments period'*</param>
+        /// <returns></returns>
+        [Action("updatePartnerConfiguration")]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public static bool UpdatePartnerConfiguration(KalturaSegmentationPartnerConfiguration configuration)
+        {
+            throw new ApiException() { Code = 1, Message = "SegmentationTypeController.UpdatePartnerConfiguration is not implemented in phoenix" };
         }
     }
 }

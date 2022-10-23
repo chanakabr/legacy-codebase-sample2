@@ -1,7 +1,6 @@
 ﻿using AutoMapper.Configuration;
 using Core.Middleware;
 using Grpc.controllers;
-using Grpc.HealthCheck;
 using GrpcAPI.controllers;
 using GrpcAPI.Services;
 using GrpcAPI.Utils;
@@ -41,6 +40,7 @@ namespace Phoenix.Grpc
             services.AddSingleton<ICatalogService, CatalogService>();
             services.AddSingleton<IAssetRuleService, AssetRuleService>();
             services.AddSingleton<IGroupAndConfigurationService, GroupAndConfigurationService>();
+            services.AddSingleton<ISegmentService, SegmentService>();
         }
         
 

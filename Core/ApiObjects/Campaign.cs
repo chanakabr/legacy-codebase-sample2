@@ -220,7 +220,9 @@ namespace ApiObjects
         {
             base.FillEmpty(oldCampaign);
 
-            if (this.PopulationConditions == null)
+            var nullablePopulation = new NullableObj<List<RuleCondition>>(this.PopulationConditions, this.IsNullablePropertyExists("PopulationConditions"));
+
+            if (!nullablePopulation.IsNull && this.PopulationConditions == null)
             {
                 this.PopulationConditions = oldCampaign.PopulationConditions;
             }

@@ -54,6 +54,7 @@ namespace WebAPI.Models.Segmentation
     /// <summary>
     /// Filter for user segments
     /// </summary>
+    [SchemeClass(Required = new[] { "userIdEqual" })]
     public partial class KalturaUserSegmentFilter : KalturaFilter<KalturaUserSegmentOrder>
     {
         /// <summary>

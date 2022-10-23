@@ -1074,6 +1074,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaBaseSegmentationTypeFilter":
+                    switch(property.Name)
+                    {
+                        case "OrderBy":
+                            return "orderBy";
+                    }
+                    break;
+                    
                 case "KalturaBatchCampaign":
                     switch(property.Name)
                     {
@@ -1516,6 +1524,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaCampaignSegmentFilter":
+                    switch(property.Name)
+                    {
+                        case "SegmentIdEqual":
+                            return "segmentIdEqual";
+                    }
+                    break;
+                    
                 case "KalturaCanaryDeploymentAuthenticationMsOwnerShip":
                     switch(property.Name)
                     {
@@ -1531,6 +1547,14 @@ namespace WebAPI.Reflection
                             return "sSOAdapterProfiles";
                         case "UserLoginHistory":
                             return "userLoginHistory";
+                    }
+                    break;
+                    
+                case "KalturaCanaryDeploymentSegmentationMsOwnerShip":
+                    switch(property.Name)
+                    {
+                        case "Segmentation":
+                            return "segmentation";
                     }
                     break;
                     
@@ -5469,6 +5493,8 @@ namespace WebAPI.Reflection
                     {
                         case "AuthenticationMsOwnerShip":
                             return "authenticationMsOwnerShip";
+                        case "SegmentationMsOwnerShip":
+                            return "segmentationMsOwnerShip";
                     }
                     break;
                     
@@ -5497,6 +5523,8 @@ namespace WebAPI.Reflection
                     {
                         case "BusinessModuleIdIn":
                             return "businessModuleIdIn";
+                        case "CurrencyCode":
+                            return "currencyCode";
                         case "Days":
                             return "days";
                         case "MaxValue":
@@ -7658,6 +7686,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaSegmentationPartnerConfiguration":
+                    switch(property.Name)
+                    {
+                        case "MaxCalculatedPeriod":
+                            return "maxCalculatedPeriod";
+                        case "MaxDynamicSegments":
+                            return "maxDynamicSegments";
+                    }
+                    break;
+                    
                 case "KalturaSegmentationType":
                     switch(property.Name)
                     {
@@ -7665,14 +7703,20 @@ namespace WebAPI.Reflection
                             return "actions";
                         case "Conditions":
                             return "conditions";
+                        case "ConditionsOperator":
+                            return "conditionsOperator";
                         case "CreateDate":
                             return "createDate";
                         case "Description":
                             return "description";
+                        case "ExecuteDate":
+                            return "executeDate";
                         case "Id":
                             return "id";
                         case "Name":
                             return "name";
+                        case "UpdateDate":
+                            return "updateDate";
                         case "Value":
                             return "value";
                         case "Version":
@@ -7687,6 +7731,8 @@ namespace WebAPI.Reflection
                             return "idIn";
                         case "Ksql":
                             return "kSql";
+                        case "NameContain":
+                            return "nameContain";
                     }
                     break;
                     
@@ -7857,6 +7903,8 @@ namespace WebAPI.Reflection
                 case "KalturaSingleSegmentValue":
                     switch(property.Name)
                     {
+                        case "AffectedHouseholds":
+                            return "affectedHouseholds";
                         case "AffectedUsers":
                             return "affectedUsers";
                         case "Id":
@@ -12776,6 +12824,10 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("segmentationType", "delete", WebAPI.Managers.eKSValidation.All);
                             return SegmentationTypeController.Delete((long) methodParams[0]);
                             
+                        case "getpartnerconfiguration":
+                            RolesManager.ValidateActionPermitted("segmentationType", "getPartnerConfiguration", WebAPI.Managers.eKSValidation.All);
+                            return SegmentationTypeController.GetPartnerConfiguration();
+                            
                         case "list":
                             RolesManager.ValidateActionPermitted("segmentationType", "list", WebAPI.Managers.eKSValidation.All);
                             return SegmentationTypeController.List((KalturaBaseSegmentationTypeFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
@@ -12783,6 +12835,10 @@ namespace WebAPI.Reflection
                         case "update":
                             RolesManager.ValidateActionPermitted("segmentationType", "update", WebAPI.Managers.eKSValidation.All);
                             return SegmentationTypeController.Update((long) methodParams[0], (KalturaSegmentationType) methodParams[1]);
+                            
+                        case "updatepartnerconfiguration":
+                            RolesManager.ValidateActionPermitted("segmentationType", "updatePartnerConfiguration", WebAPI.Managers.eKSValidation.All);
+                            return SegmentationTypeController.UpdatePartnerConfiguration((KalturaSegmentationPartnerConfiguration) methodParams[0]);
                             
                     }
                     break;
@@ -22084,6 +22140,9 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
+                        case "getpartnerconfiguration":
+                            return ret;
+                            
                         case "list":
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,
@@ -22110,6 +22169,14 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaSegmentationType),
+                            });
+                            return ret;
+                            
+                        case "updatepartnerconfiguration":
+                            ret.Add("configuration", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSegmentationPartnerConfiguration),
                             });
                             return ret;
                             

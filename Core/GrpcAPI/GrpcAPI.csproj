@@ -16,5 +16,9 @@
       <ProjectReference Include="..\Core.Middleware\Core.Middleware.csproj" />
       <ProjectReference Include="..\Logic\ApiLogic.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="generated\api\" />
+    </ItemGroup>
     
 </Project>

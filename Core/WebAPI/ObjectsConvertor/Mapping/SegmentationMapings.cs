@@ -25,9 +25,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => src.Conditions))
+                .ForMember(dest => dest.ConditionsOperator, opt => opt.MapFrom(src => ConvertConditionsOperator(src.ConditionsOperator)))
                 .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
                 .ForMember(dest => dest.CreateDate, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdateDate, opt => opt.Ignore())
+                .ForMember(dest => dest.ExecuteDate, opt => opt.Ignore())
                 .ForMember(dest => dest.Version, opt => opt.Ignore());
 
             cfg.CreateMap<SegmentationType, KalturaSegmentationType>()
@@ -38,6 +41,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
+                .ForMember(dest => dest.ExecuteDate, opt => opt.MapFrom(src => src.ExecuteDate))
+                .ForMember(dest => dest.ConditionsOperator, opt => opt.MapFrom(src => ConvertConditionsOperator(src.ConditionsOperator)))
                 .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version));
 
             // Segmentation source
@@ -219,6 +225,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.MinValue, opt => opt.MapFrom(src => src.MinValue))
                 .ForMember(dest => dest.MaxValue, opt => opt.MapFrom(src => src.MaxValue))
                 .ForMember(dest => dest.Days, opt => opt.MapFrom(src => src.Days))
+                .ForMember(dest => dest.CurrencyCode, opt => opt.MapFrom(src => src.CurrencyCode))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertMonetizationType(src.Type)))
                 .ForMember(dest => dest.Operator, opt => opt.MapFrom(src => ConvertMathematicalOperator(src.Operator)))
                 .ForMember(dest => dest.BusinessModuleIds, opt => opt.MapFrom(src => src.GetBusinessModuleIdIn()))
@@ -228,6 +235,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.MinValue, opt => opt.MapFrom(src => src.MinValue))
                 .ForMember(dest => dest.MaxValue, opt => opt.MapFrom(src => src.MaxValue))
                 .ForMember(dest => dest.Days, opt => opt.MapFrom(src => src.Days))
+                .ForMember(dest => dest.CurrencyCode, opt => opt.MapFrom(src => src.CurrencyCode))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertMonetizationType(src.Type)))
                 .ForMember(dest => dest.Operator, opt => opt.MapFrom(src => ConvertMathematicalOperator(src.Operator)))
                 .ForMember(dest => dest.BusinessModuleIdIn, opt => opt.MapFrom(src => string.Join(",", src.BusinessModuleIds)))
@@ -252,10 +260,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<SegmentDummyValue, KalturaSingleSegmentValue>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.AffectedUsers, opt => opt.MapFrom(src => src.AffectedUsersTtl >= DateTime.UtcNow ? src.AffectedUsers : 0))
+                .ForMember(dest => dest.AffectedHouseholds, opt => opt.MapFrom(src => src.AffectedUsersTtl >= DateTime.UtcNow ? src.AffectedHouseholds : 0))
                 ;
 
             cfg.CreateMap<KalturaSingleSegmentValue, SegmentDummyValue>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.AffectedUsers, opt => opt.MapFrom(src => src.AffectedUsers))
+                .ForMember(dest => dest.AffectedHouseholds, opt => opt.MapFrom(src => src.AffectedHouseholds))
                 ;
 
             // segment value
@@ -368,6 +379,43 @@ namespace WebAPI.ObjectsConvertor.Mapping
         }
 
         #region Private Convertors
+
+        private static KalturaBooleanOperator ConvertConditionsOperator(eCutType? conditionsOperator)
+        {
+            if (conditionsOperator == null)
+            {
+                return KalturaBooleanOperator.And;
+            }
+
+            switch (conditionsOperator)
+            {
+                case eCutType.And:
+                    return KalturaBooleanOperator.And;
+                case eCutType.Or:
+                    return KalturaBooleanOperator.Or;
+                default:
+                    return KalturaBooleanOperator.And;
+            }
+        }
+
+        private static eCutType ConvertConditionsOperator(KalturaBooleanOperator? conditionsOperator)
+        {
+            if (conditionsOperator == null)
+            {
+                return eCutType.And;
+            }
+
+            switch (conditionsOperator)
+            {
+                case KalturaBooleanOperator.And:
+                    return eCutType.And;
+                case KalturaBooleanOperator.Or:
+                    return eCutType.Or;
+                default:
+                    return eCutType.And;
+            }
+        }
+
         private static ContentConditionLengthType? ConvertLengthType(KalturaContentActionConditionLengthType? lengthType)
         {
             ContentConditionLengthType? result = null;

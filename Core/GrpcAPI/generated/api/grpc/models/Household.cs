@@ -24,21 +24,21 @@ namespace phoenix {
     static HouseholdReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "Cg9ob3VzZWhvbGQucHJvdG8SB3Bob2VuaXgaDFN0YXR1cy5wcm90byJIChBk",
-            "ZXZpY2VGYW1pbHlEYXRhEhAKCGZhbWlseUlkGAEgASgFEhMKC2NvbmN1cnJl",
-            "bmN5GAIgASgFEg0KBXVkaWRzGAMgAygJImMKCkRvbWFpbkRhdGESDQoFZGxt",
-            "SWQYASABKAUSEwoLY29uY3VycmVuY3kYAiABKAUSMQoOZGV2aWNlRmFtaWxp",
-            "ZXMYAyADKAsyGS5waG9lbml4LmRldmljZUZhbWlseURhdGEqwgIKD1JvbGVQ",
-            "ZXJtaXNzaW9ucxIZChVQTEFZQkFDS19TVUJTQ1JJUFRJT04QABIQCgxQTEFZ",
-            "QkFDS19QUFYQARIZChVQVVJDSEFTRV9TVUJTQ1JJUFRJT04QAhIQCgxQVVJD",
-            "SEFTRV9QUFYQAxIWChJSRU5FV19TVUJTQ1JJUFRJT04QBBIUChBQVVJDSEFT",
-            "RV9TRVJWSUNFEAUSCQoFTE9HSU4QBhIZChVERUxFVEVfQUxMX0FQUF9UT0tF",
-            "TlMQBxIYChRWSUVXX0lOQUNUSVZFX0FTU0VUUxAIEhAKDFBMQVlCQUNLX0VQ",
-            "RxAJEhYKElBMQVlCQUNLX1JFQ09SRElORxAKEhcKE1BVUkNIQVNFX0NPTExF",
-            "Q1RJT04QCxIkCiBBTExPV19BQ1RJT05fSU5fU1VTUEVOREVEX0RPTUFJThAM",
-            "QhRaCC4vbW9kZWxzqgIHcGhvZW5peGIGcHJvdG8z"));
+            "Cg9ob3VzZWhvbGQucHJvdG8SB3Bob2VuaXgiSAoQZGV2aWNlRmFtaWx5RGF0",
+            "YRIQCghmYW1pbHlJZBgBIAEoBRITCgtjb25jdXJyZW5jeRgCIAEoBRINCgV1",
+            "ZGlkcxgDIAMoCSJjCgpEb21haW5EYXRhEg0KBWRsbUlkGAEgASgFEhMKC2Nv",
+            "bmN1cnJlbmN5GAIgASgFEjEKDmRldmljZUZhbWlsaWVzGAMgAygLMhkucGhv",
+            "ZW5peC5kZXZpY2VGYW1pbHlEYXRhKsICCg9Sb2xlUGVybWlzc2lvbnMSGQoV",
+            "UExBWUJBQ0tfU1VCU0NSSVBUSU9OEAASEAoMUExBWUJBQ0tfUFBWEAESGQoV",
+            "UFVSQ0hBU0VfU1VCU0NSSVBUSU9OEAISEAoMUFVSQ0hBU0VfUFBWEAMSFgoS",
+            "UkVORVdfU1VCU0NSSVBUSU9OEAQSFAoQUFVSQ0hBU0VfU0VSVklDRRAFEgkK",
+            "BUxPR0lOEAYSGQoVREVMRVRFX0FMTF9BUFBfVE9LRU5TEAcSGAoUVklFV19J",
+            "TkFDVElWRV9BU1NFVFMQCBIQCgxQTEFZQkFDS19FUEcQCRIWChJQTEFZQkFD",
+            "S19SRUNPUkRJTkcQChIXChNQVVJDSEFTRV9DT0xMRUNUSU9OEAsSJAogQUxM",
+            "T1dfQUNUSU9OX0lOX1NVU1BFTkRFRF9ET01BSU4QDEIUWgguL21vZGVsc6oC",
+            "B3Bob2VuaXhiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::phoenix.StatusReflection.Descriptor, },
+          new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::phoenix.RolePermissions), }, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.deviceFamilyData), global::phoenix.deviceFamilyData.Parser, new[]{ "FamilyId", "Concurrency", "Udids" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.DomainData), global::phoenix.DomainData.Parser, new[]{ "DlmId", "Concurrency", "DeviceFamilies" }, null, null, null, null)

@@ -1,6 +1,6 @@
-﻿using System.Runtime.Serialization;
+﻿using Newtonsoft.Json;
+using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.CanaryDeployment.Microservices

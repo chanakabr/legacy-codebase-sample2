@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-option csharp_namespace = "grpc.health.v1";
-option go_package = "./grpc.health.v1";
-package grpc.health.v1;
+option csharp_namespace = "phoenix";
+option go_package = "./models";
+package phoenix;
 
 message HealthCheckRequest {
   string service = 1;

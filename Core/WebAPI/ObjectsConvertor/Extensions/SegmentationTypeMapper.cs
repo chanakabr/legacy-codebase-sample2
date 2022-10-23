@@ -53,4 +53,12 @@ namespace WebAPI.ObjectsConvertor.Extensions
             return list;
         }
     }
+
+    public static class MonetizationConditionMapper 
+    {
+        public static List<int> GetBusinessModuleIdIn(this KalturaMonetizationCondition model)
+        {
+            return Utils.Utils.ParseCommaSeparatedValues<List<int>, int>(model.BusinessModuleIdIn, "KalturaMonetizationCondition.businessModuleIdIn");
+        }
+    }
 }

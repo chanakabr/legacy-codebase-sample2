@@ -21,7 +21,8 @@ namespace ApiObjects.CanaryDeployment.Microservices
                     {AnonymousLogin, PhoenixRestProxy},
                     {MultiRequestController, MultiRequestMicroService},
                     {HouseholdUser, HouseholdService},
-                    {PlaybackController, PlaybackService}
+                    {PlaybackController, PlaybackService},
+                    {CanaryDeploymentRoutingAction.Segmentation, PhoenixRestProxy}
                 };
                 
         public static readonly List<string> AppTokenControllerRouting = new List<string>() { "appToken/action/add", "appToken/action/delete", "appToken/action/get", "appToken/action/startSession" };
@@ -43,6 +44,22 @@ namespace ApiObjects.CanaryDeployment.Microservices
             "cdnPartnerSettings/action/get","cdnPartnerSettings/action/update",
             "drmProfile/action/add", "drmProfile/action/delete", "drmProfile/action/list",
             "streamingDevice/action/bookPlaybackSession"
+        };
+
+        public static readonly List<string> SegmentationRouting = new List<string>()
+        {
+            "segmentationType/action/add",
+            "segmentationType/action/update",
+            "segmentationType/action/delete",
+            "segmentationType/action/list",
+            "segmentationType/action/getPartnerConfiguration",
+            "segmentationType/action/updatePartnerConfiguration",
+            "userSegment/action/add",
+            "userSegment/action/delete",
+            "userSegment/action/list",
+            "householdSegment/action/add",
+            "householdSegment/action/delete",
+            "householdSegment/action/list",
         };
     }    
 
@@ -68,7 +85,8 @@ namespace ApiObjects.CanaryDeployment.Microservices
         AnonymousLogin = 8, // ottuser/action/anonymousLogin        
         MultiRequestController = 9, // multirequest/  + multirequest/action/do
         HouseholdUser = 10, // ottuser/action/get
-        PlaybackController = 11 // playback requests
+        PlaybackController = 11, // playback requests
+        Segmentation = 12
     }
 
     public enum CanaryDeploymentMigrationEvent
@@ -92,6 +110,6 @@ namespace ApiObjects.CanaryDeployment.Microservices
         AuthenticationRefreshToken = 3,
         AuthenticationDeviceLoginPin = 4,
         AuthenticationSessionRevocation = 5,
+        Segmentation = 6,
     }
-
 }

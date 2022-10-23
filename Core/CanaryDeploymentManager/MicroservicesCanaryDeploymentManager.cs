@@ -209,7 +209,6 @@ namespace CanaryDeploymentManager
 
         public bool IsDataOwnershipFlagEnabled(int groupId, CanaryDeploymentDataOwnershipEnum ownershipFlag)
         {
-            var res = false;
             try
             {
                 var cdc = GetCanaryDeploymentConfigurationFromLayeredCache(groupId);
@@ -218,23 +217,19 @@ namespace CanaryDeploymentManager
                     switch (ownershipFlag)
                     {
                         case CanaryDeploymentDataOwnershipEnum.AuthenticationUserLoginHistory:
-                            res = cdc.DataOwnership.AuthenticationMsOwnership.UserLoginHistory;
-                            break;
+                            return cdc.DataOwnership.AuthenticationMsOwnership.UserLoginHistory;
                         case CanaryDeploymentDataOwnershipEnum.AuthenticationDeviceLoginHistory:
-                            res = cdc.DataOwnership.AuthenticationMsOwnership.DeviceLoginHistory;
-                            break;
+                            return cdc.DataOwnership.AuthenticationMsOwnership.DeviceLoginHistory;
                         case CanaryDeploymentDataOwnershipEnum.AuthenticationSSOAdapterProfiles:
-                            res = cdc.DataOwnership.AuthenticationMsOwnership.SSOAdapterProfiles;
-                            break;
+                            return cdc.DataOwnership.AuthenticationMsOwnership.SSOAdapterProfiles;
                         case CanaryDeploymentDataOwnershipEnum.AuthenticationRefreshToken:
-                            res = cdc.DataOwnership.AuthenticationMsOwnership.RefreshToken;
-                            break;
+                            return cdc.DataOwnership.AuthenticationMsOwnership.RefreshToken;
                         case CanaryDeploymentDataOwnershipEnum.AuthenticationDeviceLoginPin:
-                            res = cdc.DataOwnership.AuthenticationMsOwnership.DeviceLoginPin;
-                            break;
+                            return cdc.DataOwnership.AuthenticationMsOwnership.DeviceLoginPin;
                         case CanaryDeploymentDataOwnershipEnum.AuthenticationSessionRevocation:
-                            res = cdc.DataOwnership.AuthenticationMsOwnership.SessionRevocation;
-                            break;
+                            return cdc.DataOwnership.AuthenticationMsOwnership.SessionRevocation;
+                        case CanaryDeploymentDataOwnershipEnum.Segmentation:
+                            return cdc.DataOwnership.SegmentationMsOwnership.Segmentation;
                         default:
                             throw new ArgumentOutOfRangeException(nameof(ownershipFlag), ownershipFlag, null);
                     }
@@ -246,7 +241,7 @@ namespace CanaryDeploymentManager
                 log.Error($"Failed checking if ownership flag {ownershipFlag} is enabled for groupId {groupId}", ex);
             }
 
-            return res;
+            return false;
         }
 
         public bool IsEnabledMigrationEvent(int groupId, CanaryDeploymentMigrationEvent migrationEvent)
@@ -438,6 +433,10 @@ namespace CanaryDeploymentManager
                 case CanaryDeploymentRoutingAction.PlaybackController:
                     apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.PlaybackControllerRouting);
                     break;
+                case CanaryDeploymentRoutingAction.Segmentation:
+                    cdc.DataOwnership.SegmentationMsOwnership.Segmentation = isRoutingToPhoenixRestProxy;
+                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.SegmentationRouting);
+                    break;
                 default:
                     break;
             }
@@ -507,6 +506,9 @@ namespace CanaryDeploymentManager
                     res = okStatus;
                     break;
                 case CanaryDeploymentRoutingAction.PlaybackController:
+                    res = okStatus;
+                    break;
+                case CanaryDeploymentRoutingAction.Segmentation:
                     res = okStatus;
                     break;
                 default:

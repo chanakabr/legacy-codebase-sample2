@@ -1,8 +1,5 @@
 syntax = "proto3";
-import "KeyValuePair.proto";
-import "PriceReason.proto";
 import "pricing.proto";
-import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "phoenix";
 option go_package = "./models";

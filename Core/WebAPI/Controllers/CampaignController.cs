@@ -197,6 +197,7 @@ namespace WebAPI.Controllers
             {
                 case KalturaTriggerCampaignSearchFilter f: result = ListByTriggerCampaignSearchFilter(contextData, corePager, f); break;
                 case KalturaBatchCampaignSearchFilter f: result = ListByBatchCampaignSearchFilter(contextData, corePager, f); break;
+                case KalturaCampaignSegmentFilter f: result = ListByCampaignSegmentFilter(contextData, f); break;
                 case KalturaCampaignSearchFilter f: result = ListByCampaignSearchFilter(contextData, corePager, f); break;
                 case KalturaCampaignIdInFilter f: result = ListByCampaignIdInFilter(contextData, f); break;
                 case KalturaCampaignFilter f: result = ListByCampaignSearchFilter(contextData, corePager, new KalturaCampaignSearchFilter()); break;
@@ -271,6 +272,19 @@ namespace WebAPI.Controllers
 
             Func<GenericListResponse<Campaign>> listFunc = () =>
                 CampaignManager.Instance.ListCampaingsByIds(contextData, coreFilter);
+
+            KalturaGenericListResponse<KalturaCampaign> response =
+               ClientUtils.GetResponseListFromWS<KalturaCampaign, Campaign>(listFunc);
+
+            return response;
+        }
+
+        private static KalturaGenericListResponse<KalturaCampaign> ListByCampaignSegmentFilter(ContextData contextData, KalturaCampaignSegmentFilter filter)
+        {
+            var coreFilter = AutoMapper.Mapper.Map<CampaignSegmentFilter>(filter);
+
+            Func<GenericListResponse<Campaign>> listFunc = () =>
+                CampaignManager.Instance.ListCampaignsBySegment(contextData, coreFilter);
 
             KalturaGenericListResponse<KalturaCampaign> response =
                ClientUtils.GetResponseListFromWS<KalturaCampaign, Campaign>(listFunc);
