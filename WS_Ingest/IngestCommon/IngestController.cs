@@ -187,7 +187,7 @@ namespace Ingest
 
             var isIngestCompleted = false;
             var sw = Stopwatch.StartNew();
-            while (!isIngestCompleted || sw.Elapsed.TotalMinutes >= 5)
+            while (!isIngestCompleted || sw.Elapsed.TotalMinutes >= 10)
             {
                 Thread.Sleep(500);
                 var getBulkUploadResp = BulkUploadManager.GetBulkUpload(groupID, addFromBulkResponse.Object.Id);
@@ -206,6 +206,7 @@ namespace Ingest
                     log.Info($"completed bulk uploadId:[{bulkUpload.Id}] status:[{bulkUpload.Status}], results count:[{bulkUpload.Results.Count}], groupId:[{groupID}]");
                 {
                     ingestResponse.IngestStatus = Status.Ok;
+                    ingestResponse.AssetsStatus = new List<IngestAssetStatus>();
                     foreach (var res in bulkUpload.Results)
                     {
                         var programResult = (BulkUploadProgramAssetResult)res;
@@ -222,6 +223,7 @@ namespace Ingest
                             Status = programResult.Status == BulkUploadResultStatus.Ok ? Status.Ok : Status.Error,
                         };
 
+                        ingestResponse.AssetsStatus.Add(ingestAssetStatus);
                     }
                     isIngestCompleted = true;
                 }

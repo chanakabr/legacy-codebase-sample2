@@ -20,9 +20,10 @@ using ESUtils = ElasticSearch.Common.Utils;
 
 namespace ApiLogic.IndexManager.NestData
 {
-    [ElasticsearchType(RelationName = "epg")]
+    [ElasticsearchType(RelationName = NestEpg.RELATION_NAME)]
     public class NestEpg : NestBaseAsset
     {
+        public const string RELATION_NAME = "epg";
         #region DataMembers
 
         [PropertyName("epg_id")]
@@ -211,9 +212,10 @@ namespace ApiLogic.IndexManager.NestData
     }
 
 
-    [ElasticsearchType(RelationName = "epg_transaction")]
+    [ElasticsearchType(RelationName = NESTEpgTransaction.RELATION_NAME)]
     public class NESTEpgTransaction 
     {
+        public const string RELATION_NAME = "epg_transaction";
         public JoinField Transaction { get; set; }
     }
 }

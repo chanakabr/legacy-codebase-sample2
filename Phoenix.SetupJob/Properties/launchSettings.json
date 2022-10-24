@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Phoenix.SetupJob": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "KAFKACONNECTIONSTRING": "tcm.service.consul:9092"
+      }
+    }
+  }
+}

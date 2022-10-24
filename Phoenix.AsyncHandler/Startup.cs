@@ -36,6 +36,7 @@ using Phoenix.AsyncHandler.Pricing;
 using Phoenix.Generated.Api.Events.Crud.Household;
 using Phoenix.Generated.Api.Events.Crud.ProgramAsset;
 using Phoenix.Generated.Api.Events.Logical.appstoreNotification;
+using Phoenix.Generated.Tasks.Recurring.EpgV3Cleanup;
 using Phoenix.Generated.Tasks.Recurring.LiveToVodTearDown;
 using Phx.Lib.Appconfig;
 using Phx.Lib.Log;
@@ -78,6 +79,7 @@ namespace Phoenix.AsyncHandler
             services.AddKronosHandlers(kafkaConfig[KafkaConfigKeys.BootstrapServers],
                 p => p
                     .AddHandler<LiveToVodTearDownHandler>(LiveToVodTearDown.LiveToVodTearDownQualifiedName)
+                    .AddHandler<EpgV3CleanupHandler>(EpgV3Cleanup.EpgV3CleanupQualifiedName)
                 );
 
             services.AddKafkaProducerFactory(kafkaConfig);
@@ -158,7 +160,16 @@ namespace Phoenix.AsyncHandler
             {
                 services
                     .AddScoped(type)
-                    .AddAsyncGrpcTaskHandlerService(taskName, brokerConnectionString);
+                    .AddSingleton<IHostedService>(p =>
+                    {
+                        // we do not use AddAsyncGrpcTaskHandlerService because it will call addHostedService which will register only a single hosted service
+                        // see: https://github.com/dotnet/runtime/issues/38751
+                        // as a special case we allow phoenix.asyncHandler to hold multiple task handlers, so we will register the hosted services manually like this.
+                        TaskHandler.TaskHandlerBase requiredService = p.GetRequiredService<TaskHandler.TaskHandlerBase>();
+                        IHostApplicationLifetime service = p.GetService<IHostApplicationLifetime>();
+                        ILoggerFactory service2 = p.GetService<ILoggerFactory>();
+                        return new AsyncGrpcTaskHandlerServerHostedService(taskName, requiredService, brokerConnectionString, service, service2);
+                    });          
             }
 
             return services;

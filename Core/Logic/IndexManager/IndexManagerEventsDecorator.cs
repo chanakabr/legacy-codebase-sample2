@@ -444,6 +444,10 @@ namespace ApiLogic.Catalog.IndexManager
                 indexDate, shouldSwitchIndexAlias, shouldDeleteOldIndices);
         }
 
+        public void CleanupEpgV3Index() {
+            Execute(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, null);
+        }
+
         #endregion
 
         #region READ

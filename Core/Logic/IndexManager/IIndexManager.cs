@@ -35,7 +35,8 @@ namespace Core.Catalog
         bool UpsertChannel(int channelId, Channel channel = null, long userId = 0);
         bool DeleteMedia(long assetId);
         void DeleteMediaByTypeAndFinalEndDate(long mediaTypeId, DateTime finalEndDate);
-        
+        void CleanupEpgV3Index();
+
         #endregion
 
         #region added from the epg ingest v2

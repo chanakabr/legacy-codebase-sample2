@@ -80,6 +80,7 @@ namespace Core.Catalog.Searchers
         public static void WrapFilterWithCommittedOnlyTransactionsForEpgV3(int partnerId, QueryFilter originalQuery, IElasticSearchApi esApi)
         {
             // TODO: should we use a better cache mechanism here or configure the cache expiration ? 
+            // TODO: we can remove this code as the index name for epg v3 has been made static witout any epoch attached to it
             var epgV3IndexNameKey = $"epg_v3_index_name_{partnerId}";
             var epgV3IndexName = MemoryCache.Default.Get(epgV3IndexNameKey)?.ToString();
             if (string.IsNullOrEmpty(epgV3IndexName))

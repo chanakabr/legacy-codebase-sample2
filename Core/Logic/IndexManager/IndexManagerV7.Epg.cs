@@ -26,13 +26,14 @@ namespace Core.Catalog
     // TODO: For now it contains new methods of epg v3 but before merge we will move all epg related methods here...
     public partial class IndexManagerV7
     {
+        const string EPG_V3_CLEANUP_QUERY = "{\"query\":{\"bool\":{\"should\":[{\"bool\":{\"must\":[{\"has_parent\":{\"parent_type\":\""+ NESTEpgTransaction.RELATION_NAME + "\",\"query\":{\"match_all\":{}}}},{\"term\":{\""+ ESUtils.ES_DOCUMENT_TRANSACTIONAL_STATUS_FIELD_NAME+"\":\"DELETING\"}}]}},{\"bool\":{\"must\":[{\"match\":{\"transaction\":\""+NamingHelper.EPG_V3_TRANSACTION_DOCUMENT_TYPE_NAME+"\"}},{\"bool\":{\"must_not\":{\"has_child\":{\"type\":[\""+ NestEpg.RELATION_NAME + "\"],\"query\":{\"match_all\":{}}}}}}]}}]}}}";
         public void SetupEpgV3Index()
         {
             var aliasName = NamingHelper.GetEpgIndexAlias(_partnerId);
             var isIndexExist = _elasticClient.Indices.Exists(aliasName);
             if (isIndexExist?.Exists != true)
             {
-                var indexName = $"{NamingHelper.GetEpgIndexAlias(_partnerId)}_v3_{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
+                var indexName = $"{NamingHelper.GetEpgIndexAlias(_partnerId)}_v3";
                 log.Info($"EPG v3 creating new index with name:{indexName}");
                 AddEmptyIndex(indexName, EpgFeatureVersion.V3);
                 AddEpgIndexAlias(indexName, isWriteIndex:true);
@@ -102,6 +103,19 @@ namespace Core.Catalog
             var transactionDoc = new NESTEpgTransaction { Transaction = JoinField.Root<NESTEpgTransaction>() };
             var indexResp = _elasticClient.Index(transactionDoc, i => i.Index(epgIndex).Id(transactionId).Routing(linearChannelId));
             if (!indexResp.IsValid) { throw new Exception($"error while indexing transaction document {transactionId}, channel:{linearChannelId}, err:{indexResp.ServerError}"); }
+        }
+
+        public void CleanupEpgV3Index()
+        {
+            var epgIndex = NamingHelper.GetEpgIndexAlias(_partnerId);
+            var deleteResponse = _elasticClient.DeleteByQuery<NestTag>(request => request
+                .Index(epgIndex)
+                .Query(q => q.Raw(EPG_V3_CLEANUP_QUERY)));
+
+            if (!deleteResponse.IsValid)
+            {
+                log.Error($"Failed performing delete query {deleteResponse.DebugInformation}");
+            }
         }
 
         private NestEsBulkRequest<NestEpg> MapEpgCbToEpgV3EsNestBulkRequest(string transactionId, string epgAlias, Dictionary<string, LanguageObj> languages, eTransactionOperation transactionOperation, EpgCB prog)

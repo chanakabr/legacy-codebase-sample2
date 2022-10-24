@@ -4,6 +4,8 @@
   "title": "LiveToVodTearDown",
   "type": "object",
   "description": "Live to vod tear down task definition.",
+  "x-recurrence-task-timeout-seconds": "600",
+  "x-recurrence-cron-expression": "@every 1h",
   "allOf": [
     {
       "$ref": "ott-schema-registry/tasks/recurring/liveToVodTearDown"

@@ -401,11 +401,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Epg.V3.Migrator", "SetupJob
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Epg.V3.Rollback", "SetupJobs\Epg.V3.Rollback\Epg.V3.Rollback.csproj", "{48428238-D6DE-4798-ADA8-25F921A253EB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Phoenix.SetupJob", "Phoenix.SetupJob\Phoenix.SetupJob.csproj", "{8B2E9346-FFB7-4857-9259-B88EFFC0B4D7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Phoenix.SetupJob", "Phoenix.SetupJob\Phoenix.SetupJob.csproj", "{8B2E9346-FFB7-4857-9259-B88EFFC0B4D7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Generator.Grpc", "phoenix\Generator.Grpc\Generator.Grpc.csproj", "{3C1BFD74-4374-488D-B2F4-BF42240E4871}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Generator.Grpc", "phoenix\Generator.Grpc\Generator.Grpc.csproj", "{3C1BFD74-4374-488D-B2F4-BF42240E4871}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IotGrpcClientWrapper", "Core\IotGrpcClientWrapper\IotGrpcClientWrapper.csproj", "{DC04EB69-7F7C-4475-8318-A01C676168DD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IotGrpcClientWrapper", "Core\IotGrpcClientWrapper\IotGrpcClientWrapper.csproj", "{DC04EB69-7F7C-4475-8318-A01C676168DD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TaskHandlers", "TaskHandlers", "{4A0F42D5-10D2-4919-9A79-406230618612}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -4064,6 +4066,7 @@ Global
 		{424AB597-927D-4B09-A98A-0415C0E40E3B} = {428EC7F8-E16E-4BB8-B773-36AED1D370D9}
 		{E4288B13-E24B-4D5A-904D-40E41496A1A1} = {360B9CF7-84C1-4D18-84DE-E364158F5FE1}
 		{48428238-D6DE-4798-ADA8-25F921A253EB} = {360B9CF7-84C1-4D18-84DE-E364158F5FE1}
+		{8B2E9346-FFB7-4857-9259-B88EFFC0B4D7} = {360B9CF7-84C1-4D18-84DE-E364158F5FE1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35

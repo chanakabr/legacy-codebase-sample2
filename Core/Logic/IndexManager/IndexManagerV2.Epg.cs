@@ -22,6 +22,7 @@ namespace Core.Catalog
     // TODO: For now it contains new methods of epg v3 but before merge we will move all epg related methods here...
     public partial class IndexManagerV2
     {
+        const string EPG_V3_CLEANUP_QUERY = "{\"query\":{\"bool\":{\"should\":[{\"bool\":{\"must\":[{\"has_parent\":{\"parent_type\":\"" + NamingHelper.EPG_V3_TRANSACTION_DOCUMENT_TYPE_NAME + "\",\"query\":{\"match_all\":{}}}},{\"term\":{\"" + ElasticSearch.Common.Utils.ES_DOCUMENT_TRANSACTIONAL_STATUS_FIELD_NAME + "\":\"DELETING\"}}]}},{\"bool\":{\"must\":[{\"match\":{\"_type\":\"" + NamingHelper.EPG_V3_TRANSACTION_DOCUMENT_TYPE_NAME + "\"}},{\"bool\":{\"must_not\":{\"has_child\":{\"type\":\"epg\",\"query\":{\"match_all\":{}}}}}}]}}]}}}";
         public void SetupEpgV3Index()
         {
             var aliasName = NamingHelper.GetEpgIndexAlias(_partnerId);
@@ -100,6 +101,20 @@ namespace Core.Catalog
         {
             var epgIndex = NamingHelper.GetEpgIndexAlias(_partnerId);
             _elasticSearchApi.InsertRecord(epgIndex, NamingHelper.EPG_V3_TRANSACTION_DOCUMENT_TYPE_NAME, transactionId, "{}", linearChannelId.ToString());
+        }
+
+        public void CleanupEpgV3Index()
+        {
+            var epgIndex = NamingHelper.GetEpgIndexAlias(_partnerId);
+            var languages = isOpc()? 
+                GetCatalogGroupCache().LanguageMapById.Values.ToList():
+                GetGroupManager().GetLangauges();
+            var deleteUnuseEpgV3dArtifacts = EPG_V3_CLEANUP_QUERY;
+            foreach (var lang in languages)
+            {
+                string typeWithLanguage = GetTranslationType(ES_EPG_TYPE, lang);
+                _elasticSearchApi.DeleteDocsByQuery(epgIndex, typeWithLanguage, ref deleteUnuseEpgV3dArtifacts);
+            }
         }
 
         private ESBulkRequestObj<string> MapEpgCBToEsTransactionBulkRequest(string transactionId, eTransactionOperation transactionOperation, EpgCB program, string indexName, IDictionary<string, LanguageObj> languages, LanguageObj defaultLanguage, HashSet<string> metasToPad)

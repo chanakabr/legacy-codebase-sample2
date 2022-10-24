@@ -1,0 +1,14 @@
+{
+  "$id": "http://ott.service.phoenix/tasks/recurring/epgV3Cleanup",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "EpgV3Cleanup",
+  "type": "object",
+  "description": "This task is triggered to cleanup epg v3 deleted artifacts (e.g. unused transaction documents and deleted program documents from elasticsearch).",
+  "x-recurrence-task-timeout-seconds": "600",
+  "x-recurrence-cron-expression": "@every 4h",
+  "allOf": [
+    {
+      "$ref": "ott-schema-registry/tasks/recurring/epgV3Cleanup"
+    }
+  ]
+}

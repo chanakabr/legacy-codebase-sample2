@@ -310,8 +310,6 @@ namespace IngestHandler
             _bulkUpload.AffectedObjects = _crudOperations.AffectedItems.Cast<IAffectedObject>().ToList();
             _bulkUpload.UpdatedObjects = _crudOperations.ItemsToUpdate.Cast<IAffectedObject>().ToList();
             _bulkUpload.DeletedObjects = _crudOperations.ItemsToDelete.Cast<IAffectedObject>().ToList();
-            // new items don't have EpgId on this step, EpgId will appear in BulkUploadIngestHandler.SetResultsWithObjectId.
-            // and we'll retrieve EpgId by EpgExternalId in IngestFinalizer
             _bulkUpload.AddedObjects = _crudOperations.ItemsToAdd.Cast<IAffectedObject>().ToList();
         }
 
