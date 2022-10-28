@@ -95,12 +95,17 @@ namespace ApiLogic.IndexManager.NestData
             Initialize(epgCb, isOpc, withRouting, esDateOnlyFormat, languageId, recordingId, expiryUnixTimeStamp);
         }
 
+        public NestEpg(EpgCB epgCb, LanguageObj language, bool isOpc = false, bool withRouting = true,
+            string esDateOnlyFormat = "", long? recordingId = null, long? expiryUnixTimeStamp = null)
+        {
+            Initialize(epgCb, isOpc, withRouting, esDateOnlyFormat, language.ID, recordingId, expiryUnixTimeStamp, language.Code);
+        }
+
         #endregion
 
         #region Initialize
 
-        private void Initialize(EpgCB epgCb, bool isOpc, bool withRouting, string esDateOnlyFormat, int languageId,
-            long? recordingId, long? expiryUnixTimeStamp)
+        private void Initialize(EpgCB epgCb, bool isOpc, bool withRouting, string esDateOnlyFormat, int languageId, long? recordingId, long? expiryUnixTimeStamp, string languageCode = null)
         {
             EpgID = epgCb.EpgID;
             GroupID = isOpc ? epgCb.ParentGroupID : epgCb.GroupID;
@@ -133,7 +138,7 @@ namespace ApiLogic.IndexManager.NestData
             }
 
             var metasDict = new Dictionary<string, Dictionary<string, HashSet<string>>>();
-            var langCode = epgCb.Language;
+            var langCode = languageCode ?? epgCb.Language;
 
             var metas = new Dictionary<string, HashSet<string>>();
 

@@ -4024,7 +4024,7 @@ namespace Core.Catalog
                         }
 
                         var epg = NestDataCreator.GetEpg(epgCb,
-                            language.ID,
+                            language,
                             true,
                             IsOpc(),
                             expiry,
