@@ -31,6 +31,7 @@ namespace WebAPI.Models.Catalog
 
         /// <summary>
         ///The position of the user in the specific asset (in seconds)
+        ///For external recordings will always be '0'
         /// </summary>
         [DataMember(Name = "position")]
         [JsonProperty("position")]
@@ -49,6 +50,7 @@ namespace WebAPI.Models.Catalog
 
         /// <summary>
         ///Specifies whether the user's current position exceeded 95% of the duration
+        ///For external recordings will always be 'True'
         /// </summary>
         [DataMember(Name = "finishedWatching")]
         [JsonProperty("finishedWatching")]
