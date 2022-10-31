@@ -47,6 +47,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using ApiLogic.Segmentation;
 using TVinciShared;
 using Tvinic.GoogleAPI;
 using SlimAsset = ApiObjects.Rules.SlimAsset;
@@ -1836,10 +1837,10 @@ namespace Core.ConditionalAccess
                     }
 
                     int totalCount = 0;
-                    var householdSegment = ApiObjects.Segmentation.HouseholdSegment.List(groupId, domainId, out totalCount);
+                    var householdSegment = HouseholdSegmentLogic.List(groupId, domainId, out totalCount);
                     if (totalCount > 0)
                     {
-                        segmentIds.AddRange(householdSegment.Select(x => x.SegmentId));
+                        segmentIds.AddRange(householdSegment);
                     }
 
                     if (segmentIds.Count > 0)

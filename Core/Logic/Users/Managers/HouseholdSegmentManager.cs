@@ -177,11 +177,11 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
-                var householdSegments = HouseholdSegment.List(contextData.GroupId, contextData.DomainId.Value, out int totalCount);
+                var householdSegments = ApiLogic.Segmentation.HouseholdSegmentLogic.List(contextData.GroupId, contextData.DomainId.Value, out int totalCount);
 
                 if (totalCount > 0)
                 {
-                    var segmentTypeIds = SegmentBaseValue.GetSegmentationTypeOfSegmentIds(householdSegments.Select( x =>x.SegmentId).ToList());
+                    var segmentTypeIds = SegmentBaseValue.GetSegmentationTypeOfSegmentIds(householdSegments.ToList());
                     if (segmentTypeIds?.Count > 0)
                     {
                         AssetSearchDefinition assetSearchDefinition = new AssetSearchDefinition() { UserId = contextData.UserId.Value, Filter = filter.Ksql };
@@ -203,13 +203,13 @@ namespace ApiLogic.Users.Managers
                         {
                             response.Objects = new List<HouseholdSegment>();
 
-                            foreach (var item in householdSegments)
+                            foreach (var segmentId in householdSegments)
                             {
-                                if (segmentTypeIds.ContainsKey(item.SegmentId))
+                                if (segmentTypeIds.ContainsKey(segmentId))
                                 {
-                                    if (filtered.ObjectIds.Contains(segmentTypeIds[item.SegmentId]))
+                                    if (filtered.ObjectIds.Contains(segmentTypeIds[segmentId]))
                                     {
-                                        response.Objects.Add(item);
+                                        response.Objects.Add(new HouseholdSegment{HouseholdId = contextData.DomainId.Value, GroupId = contextData.GroupId, SegmentId = segmentId});
                                     }
                                 }
                             }

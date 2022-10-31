@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ApiLogic.Segmentation;
 
 namespace Core.Users
 {
@@ -167,7 +168,7 @@ namespace Core.Users
 
         public TriggerCampaignConditionScope CreateTriggerCampaignConditionScope(ContextData contextData)
         {
-            var userSegments = ApiObjects.Segmentation.UserSegment.List(contextData.GroupId, contextData.UserId.ToString(), out int totalCount);
+            var userSegments = UserSegmentLogic.List(contextData.GroupId, contextData.UserId.ToString(), out int totalCount);
 
             var conditionScope = new TriggerCampaignConditionScope()
             {
@@ -179,7 +180,7 @@ namespace Core.Users
                 FamilyId = (int)this.DeviceFamilyId,
                 Udid = this.Udid,
                 FilterBySegments = true,
-                SegmentIds = userSegments?.Select(x => x.SegmentId).ToList()
+                SegmentIds = userSegments
             };
 
             return conditionScope;

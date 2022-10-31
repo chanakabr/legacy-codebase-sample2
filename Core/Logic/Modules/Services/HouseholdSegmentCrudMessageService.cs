@@ -6,7 +6,6 @@ using OTT.Lib.Kafka;
 using SchemaRegistryEvents.Catalog;
 using Phoenix.Generated.Api.Events.Crud.HouseholdSegment;
 
-
 namespace ApiLogic.Modules.Services
 {
     public class HouseholdSegmentCrudMessageService : IHouseholdSegmentCrudMessageService

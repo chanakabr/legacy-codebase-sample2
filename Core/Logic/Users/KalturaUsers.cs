@@ -616,7 +616,7 @@ namespace Core.Users
                 if (UsersDal.DeleteUser(GroupId, userId))
                 {
                     // GDPR TTV
-                    UserSegment.Remove(userId.ToString());
+                    ApiObjects.Segmentation.UserSegment.Remove(userId.ToString());
 
                     response.Code = (int)eResponseStatus.OK;
                     response.Message = eResponseStatus.OK.ToString();

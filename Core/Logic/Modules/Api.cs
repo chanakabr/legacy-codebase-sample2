@@ -22,10 +22,11 @@ using System.Linq;
 using System.Reflection;
 using System.Web;
 using System.Xml;
-using ApiLogic.Catalog.CatalogManagement.Services;
 using ApiLogic.Modules.Services;
 using EventBus.Kafka;
 using OTT.Lib.Kafka;
+using HouseholdSegment = ApiObjects.Segmentation.HouseholdSegment;
+using UserSegment = ApiObjects.Segmentation.UserSegment;
 
 namespace Core.Api
 {
@@ -2159,7 +2160,7 @@ namespace Core.Api
                     }
                 }
 
-                var segmentationTypeList = SegmentationType.List(groupId, new List<long>() { id }, 0, 0, out int totalcount);
+                var segmentationTypeList = SegmentationType.ListFromCb(groupId, new List<long>() { id }, 0, 0, out int totalcount);
                 if (segmentationTypeList == null || segmentationTypeList.Count != 1 || segmentationTypeList[0].Id != id)
                 {
                     result.Set(eResponseStatus.ObjectNotExist, "Given Id does not exist for group");
@@ -2232,7 +2233,7 @@ namespace Core.Api
                 }
 
                 int totalCount;
-                result.Objects = SegmentationType.List(groupId, filter.ObjectIds?.ToList(), pageIndex, pageSize, out totalCount);
+                result.Objects = ApiLogic.Segmentation.SegmentationTypeLogic.List(groupId, filter.ObjectIds?.ToList(), pageIndex, pageSize, out totalCount);
                 result.TotalItems = totalCount;
                 result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
@@ -2266,10 +2267,10 @@ namespace Core.Api
 
             try
             {
-                var userSegments = UserSegment.List(groupId, userId, out int totalCount);
+                var userSegments = ApiLogic.Segmentation.UserSegmentLogic.List(groupId, userId, out int totalCount);
                 if (totalCount > 0)
                 {
-                    var segmentTypeIds = SegmentBaseValue.GetSegmentationTypeOfSegmentIds(userSegments.Select(x => x.SegmentId).ToList());
+                    var segmentTypeIds = SegmentBaseValue.GetSegmentationTypeOfSegmentIds(userSegments);
                     if (segmentTypeIds?.Count > 0)
                     {
                         var filtered = api.Instance.GetObjectVirtualAssetObjectIds(groupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, new HashSet<long>(segmentTypeIds.Values.ToList()));
@@ -2289,13 +2290,13 @@ namespace Core.Api
                         {
                             result.Objects = new List<UserSegment>();
 
-                            foreach (var item in userSegments)
+                            foreach (var segmentId in userSegments)
                             {
-                                if (segmentTypeIds.ContainsKey(item.SegmentId))
+                                if (segmentTypeIds.ContainsKey(segmentId))
                                 {
-                                    if (filtered.ObjectIds.Contains(segmentTypeIds[item.SegmentId]))
+                                    if (filtered.ObjectIds.Contains(segmentTypeIds[segmentId]))
                                     {
-                                        result.Objects.Add(item);
+                                        result.Objects.Add(new UserSegment{UserId = userId, SegmentId = segmentId});
                                     }
                                 }
                             }
@@ -2653,7 +2654,7 @@ namespace Core.Api
 
             try
             {
-                result = UserSegment.List(groupId, userId, out int totalCount).Select(x => x.SegmentId).ToList();
+                result = ApiLogic.Segmentation.UserSegmentLogic.List(groupId, userId, out int totalCount);
 
                 if (householdId == -1)
                 {
@@ -2666,7 +2667,7 @@ namespace Core.Api
 
                 if (householdId > 0)
                 {
-                    result.AddRange(HouseholdSegment.List(groupId, householdId, out totalCount).Select(x => x.SegmentId));
+                    result.AddRange(ApiLogic.Segmentation.HouseholdSegmentLogic.List(groupId, householdId, out totalCount));
                 }
             }
             catch (Exception ex)

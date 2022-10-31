@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  
+  <PropertyGroup>
+    <Version>5.2.0.3673</Version>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+    
+  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+    <TargetFrameworks>netcoreapp3.1;net48</TargetFrameworks>
+  </PropertyGroup>
+    
+  <ItemGroup>
+    <PackageReference Include="morelinq" Version="3.3.2" />
+    <PackageReference Include="ott.client.segmentation.grpc" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Phx.Lib.Appconfig" Version="1.5.1" />
+    <ProjectReference Include="..\ApiObjects\ApiObjects.csproj" />
+    <ProjectReference Include="..\GrpcClientCommon\GrpcClientCommon.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="SegmentationGrpcClientWrapper, Version=5.2.0.3673, Culture=neutral, PublicKeyToken=null">
+      <HintPath>bin\Debug\netcoreapp3.1\SegmentationGrpcClientWrapper.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

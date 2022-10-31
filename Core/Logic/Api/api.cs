@@ -44,6 +44,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Xml;
 using ApiLogic.Repositories;
+using ApiLogic.Segmentation;
 using ApiObjects.MediaMarks;
 using Core.GroupManagers;
 using CouchbaseManager;
@@ -12201,20 +12202,20 @@ namespace Core.Api
             }
 
             List<long> segmentsIds = new List<long>();
-            var userSegments = UserSegment.List(groupId, userId, out int totalCount);
+            var userSegments = UserSegmentLogic.List(groupId, userId, out int totalCount);
             if (totalCount > 0)
             {
-                segmentsIds.AddRange(userSegments.Select(x => x.SegmentId).ToList());
+                segmentsIds.AddRange(userSegments);
             }
 
             var user = Users.Module.GetUserData(groupId, userId, string.Empty);
 
             if (user != null && user.m_user != null && user.m_user.m_domianID > 0)
             {
-                var householdSegments = HouseholdSegment.List(groupId, user.m_user.m_domianID, out totalCount);
+                var householdSegments = HouseholdSegmentLogic.List(groupId, user.m_user.m_domianID, out totalCount);
                 if (totalCount > 0)
                 {
-                    segmentsIds.AddRange(householdSegments.Select(x => x.SegmentId).ToList());
+                    segmentsIds.AddRange(householdSegments.ToList());
                 }
             }
 
@@ -12224,7 +12225,7 @@ namespace Core.Api
 
                 if (segmentTypeIds?.Count > 0)
                 {
-                    segmentations = SegmentationType.ListActionOfType<T>(groupId, segmentTypeIds.Values.ToList());
+                    segmentations = ApiLogic.Segmentation.SegmentationTypeLogic.ListActionOfType<T>(groupId, segmentTypeIds.Values.ToList());
                 }
             }
 

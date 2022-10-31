@@ -61,6 +61,13 @@ namespace WebAPI.Reflection
 {
     public class Deserializer
     {
+        internal static readonly HashSet<string> PropertiesToIgnore = new HashSet<string>()
+        {
+            "objectType",
+            "relatedObjects",
+            "orderBy"
+        };
+
         public static IKalturaOTTObject deserialize(Type type, Dictionary<string, object> parameters)
         {
             string objectType = type.Name;
@@ -33338,7 +33345,7 @@ namespace WebAPI.Models.Segmentation
         {
             if (fromRequest)
             {
-                if (parameters != null && parameters.Where(x => x.Key != "objectType").Count() > 1)
+                if (parameters?.Where(x => !Deserializer.PropertiesToIgnore.Contains(x.Key)).Count() > 1)
                     throw new BadRequestException(BadRequestException.ARGUMENT_MAX_PROPERTIES_CROSSED, "KalturaSegmentationTypeFilter", 1);
 
             }

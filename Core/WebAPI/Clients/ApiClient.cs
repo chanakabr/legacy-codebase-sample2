@@ -37,6 +37,7 @@ using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
 using WebAPI.ObjectsConvertor.Extensions;
 using KalturaPersonalListListResponse = WebAPI.Models.Api.KalturaPersonalListListResponse;
+using UserSegments = ApiObjects.Segmentation.UserSegments;
 
 namespace WebAPI.Clients
 {

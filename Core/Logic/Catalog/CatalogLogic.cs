@@ -57,6 +57,7 @@ using System.Threading;
 using ApiLogic.Catalog.NextEpisode;
 using ApiLogic.IndexManager.QueryBuilders.SearchPriority;
 using ApiLogic.IndexManager.Sorting;
+using ApiLogic.Segmentation;
 using ChannelsSchema;
 using ElasticSearch.Searcher;
 using ElasticSearch.Utils;
@@ -8596,10 +8597,9 @@ namespace Core.Catalog
             if (channel.SupportSegmentBasedOrdering && !string.IsNullOrEmpty(request.m_sSiteGuid) &&
                 request.m_sSiteGuid != "0")
             {
-                var userSegments = UserSegment.ListAll(groupId, request.m_sSiteGuid);
-                HashSet<long> userSegmentIds = new HashSet<long>(userSegments.Select(i => i.SegmentId));
+                var userSegmentIds = UserSegmentLogic.ListAll(groupId, request.m_sSiteGuid);
                 List<SegmentationType> segmentationTypes =
-                    SegmentationType.GetSegmentationTypesBySegmentIds(groupId, userSegmentIds);
+                    SegmentationTypeLogic.GetSegmentationTypesBySegmentIds(groupId, userSegmentIds);
 
                 definitions.boostScoreValues = new List<BoostScoreValueDefinition>();
 

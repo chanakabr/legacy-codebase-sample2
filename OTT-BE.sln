@@ -409,6 +409,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IotGrpcClientWrapper", "Cor
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TaskHandlers", "TaskHandlers", "{4A0F42D5-10D2-4919-9A79-406230618612}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SegmentationGrpcClientWrapper", "Core\SegmentationGrpcClientWrapper\SegmentationGrpcClientWrapper.csproj", "{A44B6D49-8F97-4FB1-BFA7-D19367486218}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -3883,6 +3885,26 @@ Global
 		{DC04EB69-7F7C-4475-8318-A01C676168DD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DC04EB69-7F7C-4475-8318-A01C676168DD}.Release|x86.ActiveCfg = Release|Any CPU
 		{DC04EB69-7F7C-4475-8318-A01C676168DD}.Release|x86.Build.0 = Release|Any CPU
+		{A44B6D49-8F97-4FB1-BFA7-D19367486218}.Basic|Any CPU.ActiveCfg = Debug|Any CPU
+		{A44B6D49-8F97-4FB1-BFA7-D19367486218}.Basic|Any CPU.Build.0 = Debug|Any CPU
+		{A44B6D49-8F97-4FB1-BFA7-D19367486218}.Basic|x86.ActiveCfg = Debug|Any CPU
+		{A44B6D49-8F97-4FB1-BFA7-D19367486218}.Basic|x86.Build.0 = Debug|Any CPU
+		{A44B6D49-8F97-4FB1-BFA7-D19367486218}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A44B6D49-8F97-4FB1-BFA7-D19367486218}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A44B6D49-8F97-4FB1-BFA7-D19367486218}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A44B6D49-8F97-4FB1-BFA7-D19367486218}.Debug|x86.Build.0 = Debug|Any CPU
+		{A44B6D49-8F97-4FB1-BFA7-D19367486218}.Local|Any CPU.ActiveCfg = Debug|Any CPU
+		{A44B6D49-8F97-4FB1-BFA7-D19367486218}.Local|Any CPU.Build.0 = Debug|Any CPU
+		{A44B6D49-8F97-4FB1-BFA7-D19367486218}.Local|x86.ActiveCfg = Debug|Any CPU
+		{A44B6D49-8F97-4FB1-BFA7-D19367486218}.Local|x86.Build.0 = Debug|Any CPU
+		{A44B6D49-8F97-4FB1-BFA7-D19367486218}.LocalRelease|Any CPU.ActiveCfg = Debug|Any CPU
+		{A44B6D49-8F97-4FB1-BFA7-D19367486218}.LocalRelease|Any CPU.Build.0 = Debug|Any CPU
+		{A44B6D49-8F97-4FB1-BFA7-D19367486218}.LocalRelease|x86.ActiveCfg = Debug|Any CPU
+		{A44B6D49-8F97-4FB1-BFA7-D19367486218}.LocalRelease|x86.Build.0 = Debug|Any CPU
+		{A44B6D49-8F97-4FB1-BFA7-D19367486218}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A44B6D49-8F97-4FB1-BFA7-D19367486218}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A44B6D49-8F97-4FB1-BFA7-D19367486218}.Release|x86.ActiveCfg = Release|Any CPU
+		{A44B6D49-8F97-4FB1-BFA7-D19367486218}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -4067,6 +4089,7 @@ Global
 		{E4288B13-E24B-4D5A-904D-40E41496A1A1} = {360B9CF7-84C1-4D18-84DE-E364158F5FE1}
 		{48428238-D6DE-4798-ADA8-25F921A253EB} = {360B9CF7-84C1-4D18-84DE-E364158F5FE1}
 		{8B2E9346-FFB7-4857-9259-B88EFFC0B4D7} = {360B9CF7-84C1-4D18-84DE-E364158F5FE1}
+        {A44B6D49-8F97-4FB1-BFA7-D19367486218} = {6469A277-48FE-400B-84BC-1378FA799512}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35

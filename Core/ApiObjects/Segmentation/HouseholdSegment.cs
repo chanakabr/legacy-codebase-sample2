@@ -96,7 +96,7 @@ namespace ApiObjects.Segmentation
 
             long segmentationTypeId = SegmentBaseValue.GetSegmentationTypeOfSegmentId(this.SegmentId);
 
-            var segmentationTypesList = SegmentationType.List(this.GroupId, new List<long>() { segmentationTypeId }, 0, 0, out int totalCount);
+            var segmentationTypesList = SegmentationType.ListFromCb(this.GroupId, new List<long>() { segmentationTypeId }, 0, 0, out int totalCount);
 
             SegmentationType segmentationType = null;
 
@@ -160,7 +160,7 @@ namespace ApiObjects.Segmentation
             return true;
         }
         
-        public static List<HouseholdSegment> List(int groupId, long householdId, out int totalCount, List<long> segmentsIds = null)
+        public static List<HouseholdSegment> ListFromCb(int groupId, long householdId, out int totalCount, List<long> segmentsIds = null)
         {
             totalCount = 0;
             List<HouseholdSegment> result = new List<HouseholdSegment>();

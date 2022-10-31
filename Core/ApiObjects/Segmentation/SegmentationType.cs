@@ -87,7 +87,7 @@ namespace ApiObjects.Segmentation
 
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
 
-            long newId = (long)couchbaseManager.Increment(GetSegmentationTypeSequenceDocument(), 1);
+            long newId = (long)couchbaseManager.Increment(GetSegmentationTypeSequenceDocumentFromCb(), 1);
 
             if (newId == 0)
             {
@@ -97,7 +97,7 @@ namespace ApiObjects.Segmentation
 
             this.Id = newId;
 
-            string segmentationTypesKey = GetGroupSegmentationTypeDocumentKey(this.GroupId);
+            string segmentationTypesKey = GetGroupSegmentationTypeDocumentKeyForCb(this.GroupId);
 
             if (this.Value == null)
             {
@@ -145,7 +145,7 @@ namespace ApiObjects.Segmentation
                 }
             }
 
-            string newDocumentKey = GetSegmentationTypeDocumentKey(this.GroupId, this.Id);
+            string newDocumentKey = GetSegmentationTypeDocumentKeyForCb(this.GroupId, this.Id);
 
             setResult = couchbaseManager.Set<SegmentationType>(newDocumentKey, this);
 
@@ -164,7 +164,7 @@ namespace ApiObjects.Segmentation
             var response = new GenericResponse<SegmentationType>();
             response.SetStatus(eResponseStatus.OK);
 
-            GetSegmentationType(this.GroupId, this.Id, out Status status);
+            GetSegmentationTypeFromCb(this.GroupId, this.Id, out Status status);
 
             if (!status.IsOkStatusCode())
             {
@@ -194,7 +194,7 @@ namespace ApiObjects.Segmentation
 
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
 
-            SegmentationType source = GetSegmentationType(this.GroupId, this.Id, out Status status);
+            SegmentationType source = GetSegmentationTypeFromCb(this.GroupId, this.Id, out Status status);
 
             if(!status.IsOkStatusCode())
             {
@@ -221,7 +221,7 @@ namespace ApiObjects.Segmentation
                 this.Value = source.Value;
             }
 
-            string updatedDocumentKey = GetSegmentationTypeDocumentKey(this.GroupId, this.Id);
+            string updatedDocumentKey = GetSegmentationTypeDocumentKeyForCb(this.GroupId, this.Id);
 
             // copy and icnrease version of segmentation type
             this.Version = source.Version + 1;
@@ -248,7 +248,7 @@ namespace ApiObjects.Segmentation
             bool result = false;
 
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-            string segmentationTypesKey = GetGroupSegmentationTypeDocumentKey(this.GroupId);
+            string segmentationTypesKey = GetGroupSegmentationTypeDocumentKeyForCb(this.GroupId);
 
             GroupSegmentationTypes groupSegmentationTypes = couchbaseManager.Get<GroupSegmentationTypes>(segmentationTypesKey);
 
@@ -267,7 +267,7 @@ namespace ApiObjects.Segmentation
                 log.ErrorFormat("Error removing segment type from group segmentation types document.");
             }
 
-            string updatedDocumentKey = GetSegmentationTypeDocumentKey(this.GroupId, this.Id);
+            string updatedDocumentKey = GetSegmentationTypeDocumentKeyForCb(this.GroupId, this.Id);
 
             this.Status = 2;
 
@@ -303,27 +303,27 @@ namespace ApiObjects.Segmentation
             return this.MemberwiseClone() as CoreObject;
         }
 
-        public static string GetSegmentationTypeDocumentKey(int groupId, long id)
+        private static string GetSegmentationTypeDocumentKeyForCb(int groupId, long id)
         {
             return string.Format("segment_type_{0}_{1}", groupId, id);
         }
 
-        public static string GetSegmentationTypeSequenceDocument()
+        private static string GetSegmentationTypeSequenceDocumentFromCb()
         {
             return "segmentation_type_sequence";
         }
 
-        public static string GetSegmentSequenceDocument()
+        public static string GetSegmentSequenceDocumentFromCb()
         {
             return "segment_sequence";
         }
 
-        public static string GetGroupSegmentationTypeDocumentKey(int groupId)
+        private static string GetGroupSegmentationTypeDocumentKeyForCb(int groupId)
         {
             return string.Format("segmentation_types_{0}", groupId);
         }
 
-        public static List<SegmentationType> List(int groupId, List<long> ids, int pageIndex, int pageSize, out int totalCount)
+        public static List<SegmentationType> ListFromCb(int groupId, List<long> ids, int pageIndex, int pageSize, out int totalCount)
         {
             List<SegmentationType> result = new List<SegmentationType>();
             totalCount = 0;
@@ -379,7 +379,7 @@ namespace ApiObjects.Segmentation
             return result;
         }
 
-        public static List<SegmentationType> ListActionOfType<T>(int groupId, List<long> ids) where T : SegmentAction
+        public static List<SegmentationType> ListActionOfTypeFromCb<T>(int groupId, List<long> ids) where T : SegmentAction
         {
             List<SegmentationType> segmentations = new List<SegmentationType>();
 
@@ -407,7 +407,7 @@ namespace ApiObjects.Segmentation
             return segmentations;
         }
 
-        public static List<SegmentationType> GetSegmentationTypesBySegmentIds(int groupId, IEnumerable<long> segmentIds)
+        public static List<SegmentationType> GetSegmentationTypesBySegmentIdsFromCb(int groupId, IEnumerable<long> segmentIds)
         {
             List<SegmentationType> result = new List<SegmentationType>();
             HashSet<long> segmentationTypeIds = new HashSet<long>();
@@ -418,7 +418,7 @@ namespace ApiObjects.Segmentation
                 segmentationTypeIds.Add(segmentationTypeId);
             }
 
-            List<string> keys = segmentationTypeIds.Select(id => GetSegmentationTypeDocumentKey(groupId, id)).ToList();
+            List<string> keys = segmentationTypeIds.Select(id => GetSegmentationTypeDocumentKeyForCb(groupId, id)).ToList();
 
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
 
@@ -442,7 +442,7 @@ namespace ApiObjects.Segmentation
             int totalCount;
             long segmentationTypeId = SegmentBaseValue.GetSegmentationTypeOfSegmentId(segmentId);
 
-            var segmentationTypes = SegmentationType.List(groupId, new List<long>() { segmentationTypeId }, 0, 1000, out totalCount);
+            var segmentationTypes = SegmentationType.ListFromCb(groupId, new List<long>() { segmentationTypeId }, 0, 1000, out totalCount);
 
             SegmentationType segmentationType = null;
 
@@ -513,7 +513,7 @@ namespace ApiObjects.Segmentation
                 int? groupId = funcParams["groupId"] as int?;
                 if (groupId.HasValue)
                 {
-                    string segmentationTypesKey = GetGroupSegmentationTypeDocumentKey(groupId.Value);
+                    string segmentationTypesKey = GetGroupSegmentationTypeDocumentKeyForCb(groupId.Value);
 
                     CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
                     // get list of Ids of segmentaiton types in group
@@ -540,7 +540,7 @@ namespace ApiObjects.Segmentation
                 foreach (long segmentId in segmentIds)
                 {
                     string key = LayeredCacheKeys.GetSegmentationTypeKey(groupId, segmentId);
-                    keysToOriginalValueMap.Add(key, GetSegmentationTypeDocumentKey(groupId, segmentId));
+                    keysToOriginalValueMap.Add(key, GetSegmentationTypeDocumentKeyForCb(groupId, segmentId));
                     invalidationKeysMap.Add(key, new List<string>() { LayeredCacheKeys.GetSegmentationTypeInvalidationKey(groupId, segmentId) });
                 }
 
@@ -696,14 +696,14 @@ namespace ApiObjects.Segmentation
             return new Tuple<GroupSegmentationTypes, bool>(result, result != null);
         }
 
-        public static SegmentationType GetSegmentationType(int groupId, long segmentationTypeId, out Status status )
+        private static SegmentationType GetSegmentationTypeFromCb(int groupId, long segmentationTypeId, out Status status )
         {
             status = new Status() { Code = (int)eResponseStatus.OK };
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-            string segmentationTypesKey = GetGroupSegmentationTypeDocumentKey(groupId);
+            string segmentationTypesKey = GetGroupSegmentationTypeDocumentKeyForCb(groupId);
 
             GroupSegmentationTypes groupSegmentationTypes = couchbaseManager.Get<GroupSegmentationTypes>(segmentationTypesKey);
-            SegmentationType source = couchbaseManager.Get<SegmentationType>(GetSegmentationTypeDocumentKey(groupId, segmentationTypeId), true);
+            SegmentationType source = couchbaseManager.Get<SegmentationType>(GetSegmentationTypeDocumentKeyForCb(groupId, segmentationTypeId), true);
 
             if (groupSegmentationTypes == null || groupSegmentationTypes.segmentationTypes == null || !groupSegmentationTypes.segmentationTypes.Contains(segmentationTypeId) ||
                 source == null)
@@ -716,122 +716,9 @@ namespace ApiObjects.Segmentation
 
         public Status ValidateForDelete(int groupid, long segmentationTypeId)
         {
-            GetSegmentationType(groupid, segmentationTypeId, out Status status);
+            GetSegmentationTypeFromCb(groupid, segmentationTypeId, out Status status);
 
             return status;
-        }
-    }
-
-    public class GroupSegmentationTypes
-    {
-        [JsonProperty(PropertyName = "segmentationTypes")]
-        public List<long> segmentationTypes;
-    }
-
-    public enum ContentAction
-    {
-        watch_linear,
-        watch_vod,
-        catchup,
-        npvr,
-        favorite,
-        recording,
-        social_action
-    }
-
-    public enum MonetizationType
-    {
-        ppv,
-        subscription,
-        boxset
-    }
-
-    public enum MathemticalOperatorType
-    {
-        count,
-        sum,
-        avg
-    }
-
-    public enum ContentConditionLengthType
-    {
-        minutes,
-        percentage
-    }
-
-    public class GroupSegmentationTypesWithActions
-    {
-        public static string GetKey(int groupId)
-        {
-            return $"GroupSegmentationTypesWithActions_{groupId}";
-        }
-
-        private static bool Set(int groupId, HashSet<long> segmentationTypeIds)
-        {
-            string key = GetKey(groupId);
-
-            CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-            bool setResult = couchbaseManager.Set<HashSet<long>>(key, segmentationTypeIds);
-            return setResult;
-        }
-
-        public static HashSet<long> Get(int groupId)
-        {
-            string key = GetKey(groupId);
-
-            CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-            return couchbaseManager.Get<HashSet<long>>(key);
-        }
-
-        public static bool Update(int groupId, long segmentTypeId, bool add = true)
-        {
-            string key = GetKey(groupId);
-
-            CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-            var segmentationTypeIds = couchbaseManager.Get<HashSet<long>>(key);
-
-            if (segmentationTypeIds != null)
-            {
-                bool exist = segmentationTypeIds.Contains(segmentTypeId);
-                if (add && !exist)
-                {
-                    segmentationTypeIds.Add(segmentTypeId);
-                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupSegmentationTypeIdsOfActionInvalidationKey(groupId));
-                    return Set(groupId, segmentationTypeIds);
-                }
-                if (!add && exist)
-                {
-                    segmentationTypeIds.Remove(segmentTypeId);
-                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupSegmentationTypeIdsOfActionInvalidationKey(groupId));
-                    return Set(groupId, segmentationTypeIds);
-                }
-            }
-            else
-            {
-                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupSegmentationTypeIdsOfActionInvalidationKey(groupId));
-                return Init(groupId);
-            }
-
-            return true;
-        }
-
-        public static bool Init(int groupId)
-        {
-            HashSet<long> ids = new HashSet<long>();
-
-            var segments = SegmentationType.List(groupId, null, 0, 0, out int totalCount);
-            if (totalCount > 0)
-            {
-                foreach (var segment in segments)
-                {
-                    if (segment.Actions?.Count > 0)
-                    {
-                        ids.Add(segment.Id);
-                    }
-                }
-            }
-
-            return Set(groupId, ids);
         }
     }
 }

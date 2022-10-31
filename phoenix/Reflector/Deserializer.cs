@@ -363,7 +363,7 @@ namespace Reflector
 
                 if (hasMaxProperties)
                 {
-                    file.WriteLine($"                if (parameters != null && parameters.Where(x => x.Key != \"objectType\").Count() > {schemeClass.MaxProperties})");
+                    file.WriteLine($"                if (parameters?.Where(x => !Deserializer.PropertiesToIgnore.Contains(x.Key)).Count() > {schemeClass.MaxProperties})");
                     file.WriteLine($"                    throw new BadRequestException(BadRequestException.ARGUMENT_MAX_PROPERTIES_CROSSED, \"{type.Name}\", {schemeClass.MaxProperties});");
                     file.WriteLine();
                 }
@@ -497,6 +497,13 @@ namespace Reflector
             file.WriteLine("{");
             file.WriteLine("    public class Deserializer");
             file.WriteLine("    {");
+            file.WriteLine("        internal static readonly HashSet<string> PropertiesToIgnore = new HashSet<string>()");
+            file.WriteLine("        {");
+            file.WriteLine("            \"objectType\",");
+            file.WriteLine("            \"relatedObjects\",");
+            file.WriteLine("            \"orderBy\"");
+            file.WriteLine("        };");
+            file.WriteLine();
             file.WriteLine("        public static IKalturaOTTObject deserialize(Type type, Dictionary<string, object> parameters)");
             file.WriteLine("        {");
             file.WriteLine("            string objectType = type.Name;");

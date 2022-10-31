@@ -20,7 +20,7 @@ namespace ApiObjects.Segmentation
 
             foreach (var segment in this.Ranges)
             {
-                segment.Id = (long)couchbaseManager.Increment(SegmentationType.GetSegmentSequenceDocument(), 1);
+                segment.Id = (long)couchbaseManager.Increment(SegmentationType.GetSegmentSequenceDocumentFromCb(), 1);
 
                 if (segment.Id == 0)
                 {
@@ -61,7 +61,7 @@ namespace ApiObjects.Segmentation
                 }
                 else
                 {
-                    destinationValue.Id = (long)couchbaseManager.Increment(SegmentationType.GetSegmentSequenceDocument(), 1);
+                    destinationValue.Id = (long)couchbaseManager.Increment(SegmentationType.GetSegmentSequenceDocumentFromCb(), 1);
                 }
 
                 if (destinationValue.Id == 0)

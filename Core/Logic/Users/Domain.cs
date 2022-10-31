@@ -537,7 +537,7 @@ namespace Core.Users
                 if (rowsAffected > 0)
                 {
                     // GDPR TTV
-                    UserSegment.Remove(nUserID.ToString());
+                    ApiObjects.Segmentation.UserSegment.Remove(nUserID.ToString());
 
                     // send message to update data of the user in the domain (like series recordings, entitlements)
                     var queue = new QueueWrapper.GenericCeleryQueue();
@@ -3002,7 +3002,7 @@ namespace Core.Users
                     usersCache.RemoveUser(userId, m_nGroupID);
 
                     // GDPR TTV
-                    UserSegment.Remove(userId.ToString());
+                    ApiObjects.Segmentation.UserSegment.Remove(userId.ToString());
 
                     // add invalidation key for user roles cache
                     string userRoleInvalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(m_nGroupID, userId.ToString());

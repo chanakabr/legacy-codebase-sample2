@@ -112,7 +112,7 @@ namespace ApiObjects.Segmentation
 
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.OTT_APPS);
 
-            this.Id = (long)couchbaseManager.Increment(SegmentationType.GetSegmentSequenceDocument(), 1);
+            this.Id = (long)couchbaseManager.Increment(SegmentationType.GetSegmentSequenceDocumentFromCb(), 1);
 
             if (this.Id == 0)
             {

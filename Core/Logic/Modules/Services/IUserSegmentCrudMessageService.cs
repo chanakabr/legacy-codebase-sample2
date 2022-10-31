@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using ApiObjects.Segmentation;
+using UserSegment = ApiObjects.Segmentation.UserSegment;
 
 namespace ApiLogic.Modules.Services
 {

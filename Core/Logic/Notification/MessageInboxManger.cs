@@ -16,6 +16,7 @@ using ApiLogic.Users.Managers;
 using ApiLogic.Modules;
 using CachingProvider.LayeredCache;
 using System.Threading;
+using ApiLogic.Segmentation;
 using Phx.Lib.Appconfig;
 
 namespace Core.Notification
@@ -207,11 +208,11 @@ namespace Core.Notification
 
                 if (missingBatchCampaigns.Count > 0)
                 {
-                    var userSegments = UserSegment.List(groupId, userId.ToString(), out int totalCount);
+                    var userSegments = UserSegmentLogic.List(groupId, userId.ToString(), out int totalCount);
                     var scope = new BatchCampaignConditionScope()
                     {
                         FilterBySegments = true,
-                        SegmentIds = userSegments != null ? userSegments.Select(x => x.SegmentId).ToList() : null
+                        SegmentIds = userSegments.Any() ? userSegments : null
                     };
 
                     //filter relevant campaigns by populationConditions.

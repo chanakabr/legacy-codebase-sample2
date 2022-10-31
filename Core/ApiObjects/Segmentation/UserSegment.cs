@@ -73,7 +73,7 @@ namespace ApiObjects.Segmentation
 
             long segmentationTypeId = SegmentBaseValue.GetSegmentationTypeOfSegmentId(this.SegmentId);
 
-            var segmentationTypesList = SegmentationType.List(this.GroupId, new List<long>() { segmentationTypeId }, 0, 1000, out int totalCount);
+            var segmentationTypesList = SegmentationType.ListFromCb(this.GroupId, new List<long>() { segmentationTypeId }, 0, 1000, out int totalCount);
 
             SegmentationType segmentationType = null;
 
@@ -195,7 +195,7 @@ namespace ApiObjects.Segmentation
 
         #region Public methods
 
-        public static List<UserSegment> List(int groupId, string userId, out int totalCount, List<long> segmentsIds = null)
+        public static List<UserSegment> ListFromCb(int groupId, string userId, out int totalCount, List<long> segmentsIds = null)
         {
             List<UserSegment> result = new List<UserSegment>();
             totalCount = 0;           
@@ -237,7 +237,7 @@ namespace ApiObjects.Segmentation
             return result;
         }
 
-        public static List<UserSegment> ListAll(int groupId, string userId)
+        public static List<UserSegment> ListAllFromCb(int groupId, string userId)
         {
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
             string userSegmentsKey = GetUserSegmentsKey(userId);
@@ -414,7 +414,7 @@ namespace ApiObjects.Segmentation
             }
         }
 
-        private static string GetUserSegmentsKey(string userId)
+        public static string GetUserSegmentsKey(string userId)
         {
             return string.Format("user_segments_{0}", userId);
         }
@@ -424,7 +424,7 @@ namespace ApiObjects.Segmentation
             return "user_segment_sequence";
         }
 
-        private static List<long> GetUserSegmentsToCleanup(int groupId, List<UserSegment> userSegments)
+        public static List<long> GetUserSegmentsToCleanup(int groupId, List<UserSegment> userSegments)
         {
             List<long> segmentsToRemove = new List<long>();
 
@@ -442,7 +442,7 @@ namespace ApiObjects.Segmentation
                 int tempCount;
 
                 // get the segmentation type of this segment id
-                var segmentationTypes = SegmentationType.List(groupId, new List<long>() { segmentationTypeId }, 0, 1, out tempCount);
+                var segmentationTypes = SegmentationType.ListFromCb(groupId, new List<long>() { segmentationTypeId }, 0, 1, out tempCount);
 
                 // if we didn't find the type of this segment id - delete it
                 if (segmentationTypes == null || segmentationTypes.Count == 0)
@@ -477,7 +477,7 @@ namespace ApiObjects.Segmentation
             return segmentsToRemove;
         }
 
-        private static uint GetDocumentTTL()
+        public static uint GetDocumentTTL()
         {
             return (uint)USER_SEGMENT_TTL_HOURS * 2 * 60 * 60;
         }
