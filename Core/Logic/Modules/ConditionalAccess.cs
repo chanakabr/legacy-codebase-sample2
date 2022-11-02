@@ -65,7 +65,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public static bool RenewUnifiedTransaction(int groupID, long householdId, long processId, long endDate)
+        public static bool RenewUnifiedTransaction(int groupID, long householdId, long processId, long endDate, Boolean isKronos)
         {
             bool response = false;
 
@@ -81,7 +81,7 @@ namespace Core.ConditionalAccess
                 List<long> purchasesIds = new List<long>();
                 try
                 {
-                    response = casImpl.RenewUnifiedTransaction(householdId, endDate, processId, ref purchasesIds);
+                    response = casImpl.RenewUnifiedTransaction(householdId, endDate, processId, ref purchasesIds, isKronos);
                 }
                 catch (Exception ex)
                 {
@@ -2132,12 +2132,15 @@ namespace Core.ConditionalAccess
         }
 
 
-        public static bool Renew(int groupID, string siteguid, long purchaseId, string billingGuid, long endDate)
+        public static bool Renew(int groupID, string siteguid, long purchaseId, string billingGuid, long endDate, bool isKronos)
         {
             bool response = false;
 
-            // add siteguid to logs/monitor
-            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = siteguid != null ? siteguid : "null";
+            if (HttpContext.Current != null)
+            {
+                // add siteguid to logs/monitor
+                HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = siteguid != null ? siteguid : "null";
+            }
 
             // get partner implementation and group ID
             BaseConditionalAccess casImpl = null;
@@ -2148,7 +2151,7 @@ namespace Core.ConditionalAccess
                 bool shouldUpdateTaskStatus = true;
                 try
                 {
-                    response = casImpl.Renew(siteguid, purchaseId, billingGuid, endDate, ref shouldUpdateTaskStatus);
+                    response = casImpl.Renew(siteguid, purchaseId, billingGuid, endDate, ref shouldUpdateTaskStatus, isKronos);
                 }
                 catch (Exception ex)
                 {
@@ -3338,7 +3341,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public static bool UnifiedRenewalReminder(int groupId, long householdId, long processId, long endDate)
+        public static bool UnifiedRenewalReminder(int groupId, long householdId, long processId, long endDate, bool isKronos)
         {
             bool response = false;
 
@@ -3350,7 +3353,7 @@ namespace Core.ConditionalAccess
             {
                 try
                 {
-                    response = t.UnifiedRenewalReminder(householdId, processId, endDate);
+                    response = t.UnifiedRenewalReminder(householdId, processId, endDate, isKronos);
                 }
                 catch (Exception ex)
                 {

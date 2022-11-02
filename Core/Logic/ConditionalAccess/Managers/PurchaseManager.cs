@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using FeatureFlag;
 using TVinciShared;
 
 namespace Core.ConditionalAccess
@@ -444,23 +445,32 @@ namespace Core.ConditionalAccess
 
                                     var enqueueSuccessful = true;
                                     var data = new RenewTransactionData(groupId, userId, purchaseID, billingGuid, endDateUnix, nextRenewalDate);
-                                    var queue = new RenewTransactionsQueue();
-
-                                    enqueueSuccessful &= queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
-
-                                    if (!enqueueSuccessful)
+                                    if (PhoenixFeatureFlagInstance.Get().IsRenewUseKronos())
                                     {
-                                        log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                                        ConditionalAccessDAL.Insert_SubscriptionsPurchasesKronos(purchaseID);
+                                        
+                                        log.Debug($"Kronos - Renew purchaseID:{purchaseID}");
+                                        RenewManager.addEventToKronos(groupId, data);
                                     }
                                     else
                                     {
-                                        log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}",
-                                            nextRenewalDate, data);
+                                        var queue = new RenewTransactionsQueue();
+                                        enqueueSuccessful &= queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+
+                                        if (!enqueueSuccessful)
+                                        {
+                                            log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                                        }
+                                        else
+                                        {
+                                            log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}",
+                                                nextRenewalDate, data);
+                                        }
                                     }
 
                                     if (enqueueSuccessful)
                                     {
-                                        PurchaseManager.SendRenewalReminder(data, domainId);
+                                        PurchaseManager.SendRenewalReminder(groupId, data, domainId);
                                     }
 
                                     #endregion
@@ -577,12 +587,12 @@ namespace Core.ConditionalAccess
             }
 
             var eta = previousSubsriptionPurchaseDetails.dtEndDate.AddHours(-6);
-
-            // enqueue scheduled purchase transaction
-            var queue = new GenericCeleryQueue();
             var data = new RenewTransactionData(groupId, userId, subscriptionSetModifyDetailsId, string.Empty, 0,
                                                                  eta, eSubscriptionRenewRequestType.Downgrade);
+            // enqueue scheduled purchase transaction
+            var queue = new GenericCeleryQueue();
             bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+            
             if (!enqueueSuccessful)
             {
                 log.ErrorFormat("Failed enqueue of subscription set downgrade scheduled purchase {0}", data);
@@ -654,10 +664,12 @@ namespace Core.ConditionalAccess
                 {
                     bool enqueueSuccessful = true;
 
-                    var queue = new GenericCeleryQueue();
+                    
                     var data = new RenewTransactionData(groupId, downgradeDetails.UserId, subscriptionSetModifyDetailsId, string.Empty, 0,
                             nextAttempt, eSubscriptionRenewRequestType.Downgrade);
-                    enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+                    var queue = new GenericCeleryQueue();
+                    enqueueSuccessful = queue.Enqueue(data,
+                        string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
 
                     if (!enqueueSuccessful)
                     {
@@ -1489,7 +1501,8 @@ namespace Core.ConditionalAccess
                                         */
                                         if (isNew) // need to insert new unified billing message to queue
                                         {
-                                            Utils.RenewUnifiedTransactionMessageInQueue(contextData.GroupId, householdId, DateUtils.DateTimeToUtcUnixTimestampMilliseconds(endDate.Value), nextRenewalDate, processId);
+                                            bool isKronos = PhoenixFeatureFlagInstance.Get().IsUnifiedRenewUseKronos();
+                                            Utils.RenewUnifiedTransactionMessageInQueue(contextData.GroupId, householdId, DateUtils.DateTimeToUtcUnixTimestampMilliseconds(endDate.Value), nextRenewalDate, processId, isKronos);
                                         }
                                         else if (subscriptionCycle.UnifiedBillingCycle == null || ((entitleToPreview || !string.IsNullOrEmpty(couponCode)) && !isNew))
                                         {
@@ -1515,10 +1528,11 @@ namespace Core.ConditionalAccess
                                         {
                                             RenewTransactionData data = new RenewTransactionData(contextData.GroupId, userId, purchaseID, billingGuid,
                                             endDateUnix, endDate.Value, eSubscriptionRenewRequestType.Reminder);
-                                            PurchaseManager.SendRenewalReminder(data, householdId);
+                                            PurchaseManager.SendRenewalReminder(cas.m_nGroupID, data, householdId);
                                         }
 
-                                        RenewManager.EnqueueSubscriptionEndsMessage(contextData.GroupId, userId, purchaseID, endDateUnix);
+                                        bool isKronos = PhoenixFeatureFlagInstance.Get().IsRenewSubscriptionEndsUseKronos();
+                                        RenewManager.EnqueueSubscriptionEndsMessage(contextData.GroupId, userId, purchaseID, endDateUnix, isKronos);
                                     }
 
                                     // build notification message
@@ -1563,7 +1577,7 @@ namespace Core.ConditionalAccess
                         // incorrect price
                         response.Status = new Status((int)eResponseStatus.IncorrectPrice, BaseConditionalAccess.INCORRECT_PRICE);
                         log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
-                    }
+                    } 
                 }
                 else
                 {
@@ -1644,17 +1658,24 @@ namespace Core.ConditionalAccess
                 if (domain != null && domain.m_nStatus == 1 && domain.m_masterGUIDs != null && domain.m_masterGUIDs.Count > 0)
                 {
                     string masterSiteGuid = domain.m_masterGUIDs.First().ToString();
-
-                    RenewTransactionsQueue queue = new RenewTransactionsQueue();
-
                     DateTime eta = endDate.AddDays(-1 * renewalReminderSettings);
 
                     if (eta > DateTime.UtcNow)
                     {
+                        bool enqueueSuccessful = true;
                         var data = new RenewTransactionData(groupId, masterSiteGuid, purchaseId, billingGuid,
                         endDateUnix, eta, eSubscriptionRenewRequestType.RenewalReminder);
-                        bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
-
+                         if (PhoenixFeatureFlagInstance.Get().IsRenewalReminderUseKronos())
+                         {
+                             log.Debug($"Kronos - RenewalReminder purchaseID:{purchaseId}");
+                             RenewManager.addEventToKronos(groupId, data);
+                         }
+                         else
+                        {
+                            RenewTransactionsQueue queue = new RenewTransactionsQueue();
+                            enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+                        }
+                        
                         if (!enqueueSuccessful)
                         {
                             log.ErrorFormat("Failed enqueue of reminder transaction {0}", data);
@@ -1668,19 +1689,12 @@ namespace Core.ConditionalAccess
             }
         }
 
-        public static void SendRenewalReminder(RenewTransactionData data, long householdId)
+        public static void SendRenewalReminder(int groupId, RenewTransactionData data, long householdId)
         {
             try
             {
                 if (data == null || data.ETA == null || !data.ETA.HasValue)
                 {
-                    return;
-                }
-
-                if (data.ETA.Value > DateTime.Now.AddYears(1))
-                {
-                    //BEO-11219
-                    log.Debug($"BEO-11219 - skip Enqueue SendRenewalReminder msg (more then 1 year)! purchaseId:{data.purchaseId}, endDateUnix:{data.endDate}");
                     return;
                 }
 
@@ -1707,9 +1721,6 @@ namespace Core.ConditionalAccess
                     if (domain != null && domain.m_nStatus == 1 && domain.m_masterGUIDs != null && domain.m_masterGUIDs.Count > 0)
                     {
                         string masterSiteGuid = domain.m_masterGUIDs.First().ToString();
-
-                        var queue = new RenewTransactionsQueue();
-
                         DateTime eta = data.ETA.Value.AddDays(-1 * renewalReminderSettings);
 
                         if (eta > DateTime.UtcNow)
@@ -1718,16 +1729,32 @@ namespace Core.ConditionalAccess
                             var newData = new RenewTransactionData(data.GroupId, masterSiteGuid, data.purchaseId, data.billingGuid,
                             data.endDate, eta, type);
 
-                            bool enqueueSuccessful = queue.Enqueue(newData, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, data.GroupId));
-
-                            if (!enqueueSuccessful)
+                            if (PhoenixFeatureFlagInstance.Get().IsRenewalReminderUseKronos())
                             {
-                                log.ErrorFormat("Failed enqueue of reminder transaction {0}", data);
+                                log.Debug($"Kronos - RenewalReminder purchaseID:{data.purchaseId}");
+                                RenewManager.addEventToKronos(groupId, data);
                             }
                             else
                             {
-                                log.DebugFormat("New task created - normal renewal reminder. next reminder date: {0}, data: {1}", eta, newData);
+                                if (data.ETA.Value > DateTime.Now.AddYears(1))
+                                {
+                                    //BEO-11219
+                                    log.Debug($"BEO-11219 - skip Enqueue SendRenewalReminder msg (more then 1 year)! purchaseId:{data.purchaseId}, endDateUnix:{data.endDate}");
+                                    return;
+                                }
+
+                                var queue = new RenewTransactionsQueue();
+                                bool enqueueSuccessful = queue.Enqueue(newData,
+                                    string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, data.GroupId));
+
+                                if (!enqueueSuccessful)
+                                {
+                                    log.ErrorFormat("Failed enqueue of reminder transaction {0}", data);
+                                    return;
+                                }
                             }
+
+                            log.DebugFormat("New task created - normal renewal reminder. next reminder date: {0}, data: {1}", eta, newData);
                         }
                     }
                 }
@@ -1738,7 +1765,7 @@ namespace Core.ConditionalAccess
             }
         }
 
-        public static void SendRenewalReminder(RenewUnifiedData data)
+        public static void SendRenewalReminder(int groupId, RenewUnifiedData data)
         {
             try
             {
@@ -1757,10 +1784,18 @@ namespace Core.ConditionalAccess
 
                     if (eta > DateTime.UtcNow)
                     {
+                        bool enqueueSuccessful = true;
                         RenewUnifiedData newData = new RenewUnifiedData(data.GroupId, data.householdId, data.processId,
                             data.endDate, eta, eSubscriptionRenewRequestType.RenewalReminder);
-                        bool enqueueSuccessful = queue.Enqueue(newData, string.Format(Utils.ROUTING_KEY_PROCESS_UNIFIED_RENEW_SUBSCRIPTION, data.GroupId));
-
+                        if (PhoenixFeatureFlagInstance.Get().IsUnifiedRenewUseKronos())
+                        {
+                            RenewManager.addEventToKronos(groupId, newData);
+                        }
+                        else
+                        {
+                            enqueueSuccessful = queue.Enqueue(newData, string.Format(Utils.ROUTING_KEY_PROCESS_UNIFIED_RENEW_SUBSCRIPTION, data.GroupId));
+                        }
+                        
                         if (!enqueueSuccessful)
                         {
                             log.ErrorFormat("Failed enqueue of reminder transaction {0}", data);
@@ -1781,37 +1816,39 @@ namespace Core.ConditionalAccess
         public static bool RenewTransactionMessageInQueue(int groupId, string siteguid, string billingGuid,
             long purchaseID, long endDateUnix, DateTime nextRenewalDate, long householdId = 0)
         {
-            if (nextRenewalDate > DateTime.UtcNow.AddYears(1).AddDays(5))
-            {
-                //BEO-11219
-                log.Debug($"BEO-11219 - skip Enqueue renew msg (more then 1 year)! purchaseID:{purchaseID}, endDateUnix:{endDateUnix}");
-                return true;
-            }
-
-            log.DebugFormat("RenewTransactionMessageInQueue (RenewTransactionData) purchaseId:{0}", purchaseID);
-
             RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseID, billingGuid, endDateUnix, nextRenewalDate);
 
-            bool enqueueSuccessful = true;
-            var queue = new RenewTransactionsQueue();
-            enqueueSuccessful &= queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
-
-            if (!enqueueSuccessful)
+            if (PhoenixFeatureFlagInstance.Get().IsRenewUseKronos())
             {
-                log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                ConditionalAccessDAL.Insert_SubscriptionsPurchasesKronos(purchaseID);
+                
+                log.Debug($"Kronos - Renewal purchaseID:{purchaseID}");
+                RenewManager.addEventToKronos(groupId, data);
             }
             else
             {
-                log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}",
-                    nextRenewalDate, data);
+                if (nextRenewalDate > DateTime.UtcNow.AddYears(1).AddDays(5))
+                {
+                    //BEO-11219
+                    log.Debug($"BEO-11219 - skip Enqueue renew msg (more then 1 year)! purchaseID:{purchaseID}, endDateUnix:{endDateUnix}");
+                    return true;
+                }
+
+                var queue = new RenewTransactionsQueue();
+                bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+                if (!enqueueSuccessful)
+                {
+                    log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                    return false;
+                }
             }
 
-            if (enqueueSuccessful)
-            {
-                PurchaseManager.SendRenewalReminder(data, householdId);
-            }
+            log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}",
+                nextRenewalDate, data);
 
-            return enqueueSuccessful;
+            PurchaseManager.SendRenewalReminder(groupId, data, householdId);
+
+            return true;
         }
 
         private static void SendGiftCardReminderEmails(BaseConditionalAccess cas, int groupId, long endDate, DateTime renewDate,
@@ -1838,7 +1875,6 @@ namespace Core.ConditionalAccess
                             var data = new RenewTransactionData(groupId, masterSiteGuid, purchaseId, billingGuid,
                             endDate, eta, eSubscriptionRenewRequestType.GiftCardReminder);
                             bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
-
                             if (!enqueueSuccessful)
                             {
                                 log.ErrorFormat("Failed enqueue of reminder transaction {0}", data);

@@ -48,7 +48,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("viewLifeCycle")]
         [XmlElement(ElementName = "viewLifeCycle", IsNullable = true)]
         [OldStandardProperty("view_life_cycle")]
-        [SchemeProperty(InsertOnly = true, MinInteger = 1)]
+        [SchemeProperty(MinInteger = 1)]
         public int? ViewLifeCycle { get; set; }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("fullLifeCycle")]
         [XmlElement(ElementName = "fullLifeCycle", IsNullable = true)]
         [OldStandardProperty("full_life_cycle")]
-        [SchemeProperty(InsertOnly = true, MinInteger = 1)]
+        [SchemeProperty(MinInteger = 1)]
         public int? FullLifeCycle { get; set; }
 
         /// <summary>

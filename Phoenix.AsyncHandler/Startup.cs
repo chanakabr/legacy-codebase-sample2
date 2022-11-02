@@ -30,6 +30,7 @@ using Microsoft.Extensions.Logging;
 using OTT.Lib.Kafka;
 using OTT.Service.TaskScheduler.Extensions.TaskHandler;
 using Phoenix.AsyncHandler.Catalog;
+using Phoenix.AsyncHandler.ConditionalAccess;
 using Phoenix.AsyncHandler.Kafka;
 using Phoenix.AsyncHandler.Kronos;
 using Phoenix.AsyncHandler.Pricing;
@@ -38,6 +39,7 @@ using Phoenix.Generated.Api.Events.Crud.ProgramAsset;
 using Phoenix.Generated.Api.Events.Logical.appstoreNotification;
 using Phoenix.Generated.Tasks.Recurring.EpgV3Cleanup;
 using Phoenix.Generated.Tasks.Recurring.LiveToVodTearDown;
+using Phoenix.Generated.Tasks.Scheduled.renewSubscription;
 using Phx.Lib.Appconfig;
 using Phx.Lib.Log;
 using Module = Core.Pricing.Module;
@@ -78,6 +80,7 @@ namespace Phoenix.AsyncHandler
 
             services.AddKronosHandlers(kafkaConfig[KafkaConfigKeys.BootstrapServers],
                 p => p
+                    .AddHandler<RenewHandler>(RenewSubscription.RenewSubscriptionQualifiedName)
                     .AddHandler<LiveToVodTearDownHandler>(LiveToVodTearDown.LiveToVodTearDownQualifiedName)
                     .AddHandler<EpgV3CleanupHandler>(EpgV3Cleanup.EpgV3CleanupQualifiedName)
                 );

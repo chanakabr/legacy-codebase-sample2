@@ -33,12 +33,12 @@ namespace SubscriptionRenewHandler
                 {
                     case eSubscriptionRenewRequestType.Renew:
                         {
-                            success = Core.ConditionalAccess.Module.Renew(request.GroupID, request.SiteGuid, request.PurchaseId, request.BillingGuid, request.EndDate);
+                            success = Core.ConditionalAccess.Module.Renew(request.GroupID, request.SiteGuid, request.PurchaseId, request.BillingGuid, request.EndDate, isKronos: false);
                             break;
                         }
                     case eSubscriptionRenewRequestType.RenewUnifiedTransaction:
                         {
-                            success = Core.ConditionalAccess.Module.RenewUnifiedTransaction(request.GroupID, request.HouseholdId, request.ProcessId, request.EndDate);
+                            success = Core.ConditionalAccess.Module.RenewUnifiedTransaction(request.GroupID, request.HouseholdId, request.ProcessId, request.EndDate, isKronos: false);
                             break;
                         }
                     case eSubscriptionRenewRequestType.GiftCardReminder:
@@ -56,7 +56,7 @@ namespace SubscriptionRenewHandler
                             if (request.ProcessId > 0)
                             {
                                 success = Core.ConditionalAccess.Module.UnifiedRenewalReminder(
-                                    request.GroupID, request.HouseholdId, request.ProcessId, request.EndDate);
+                                    request.GroupID, request.HouseholdId, request.ProcessId, request.EndDate, isKronos: false);
                             }
                             else if (request.PurchaseId > 0)
                             {

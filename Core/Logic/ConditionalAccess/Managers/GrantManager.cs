@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using FeatureFlag;
 
 namespace Core.ConditionalAccess
 {
@@ -361,22 +362,31 @@ namespace Core.ConditionalAccess
 
                         var data = new RenewTransactionData(groupId, userId, purchaseID, billingGuid,
                             TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds((DateTime)endDate), nextRenewalDate);
-
-                        var queue = new RenewTransactionsQueue();
-                        enqueueSuccessful &= queue.Enqueue(data, string.Format(BaseConditionalAccess.ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
-
-                        if (!enqueueSuccessful)
+                        if (PhoenixFeatureFlagInstance.Get().IsRenewUseKronos())
                         {
-                            log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                            ConditionalAccessDAL.Insert_SubscriptionsPurchasesKronos(purchaseID);
+                            
+                            log.Debug($"Kronos - Renew purchaseID:{purchaseID}");
+                            RenewManager.addEventToKronos(groupId, data);
                         }
                         else
                         {
-                            log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}", nextRenewalDate, data);
+                            var queue = new RenewTransactionsQueue();
+                            enqueueSuccessful &= queue.Enqueue(data,
+                                string.Format(BaseConditionalAccess.ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+                            if (!enqueueSuccessful)
+                            {
+                                log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                            }
+                            else
+                            {
+                                log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}", nextRenewalDate, data);
+                            }
                         }
-
+                        
                         if (enqueueSuccessful)
                         {
-                            PurchaseManager.SendRenewalReminder(data, householdId);
+                            PurchaseManager.SendRenewalReminder(groupId, data, householdId);
                         }
                     }
                 }

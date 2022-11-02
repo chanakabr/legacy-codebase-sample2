@@ -916,6 +916,14 @@ namespace DAL
 
             sp.ExecuteNonQuery();
         }
+        
+        public static void Insert_SubscriptionsPurchasesKronos(long purchaseID)
+        {
+            StoredProcedure sp = new StoredProcedure("Insert_SubscriptionsPurchasesKronos");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
+            sp.AddParameter("@SubscriptionsPurchasesId", purchaseID);
+            sp.ExecuteNonQuery();
+        }
 
         public static void Update_MPPFailCountByPurchaseID(long lPurchaseID, bool bTrueForIncrementingByOneFalseForSettingNewValue, int nNewValue, string sConnKey)
         {

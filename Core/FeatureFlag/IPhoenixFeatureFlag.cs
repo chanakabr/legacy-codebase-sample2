@@ -7,5 +7,9 @@
         //bool IsUdidDynamicListAsExcelEnabled(int groupId);
         bool IsStrictUnlockDisabled();
         bool IsEfficientSerializationUsed();
+        bool IsRenewUseKronos();
+        bool IsUnifiedRenewUseKronos();
+        bool IsRenewalReminderUseKronos();
+        bool IsRenewSubscriptionEndsUseKronos();
     }
 }

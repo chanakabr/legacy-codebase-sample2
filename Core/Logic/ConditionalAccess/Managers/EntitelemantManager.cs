@@ -25,6 +25,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml;
+using FeatureFlag;
 using TVinciShared;
 
 namespace Core.ConditionalAccess
@@ -445,8 +446,6 @@ namespace Core.ConditionalAccess
 
                                 if (subscriptionEntitlement.recurringStatus)
                                 {
-                                    // enqueue renew transaction 
-                                    var queue = new RenewTransactionsQueue();
                                     var nextRenewalDate = subscriptionEntitlement.endDate.AddMinutes(-5);
 
                                     if (subscriptionEntitlement.paymentGatewayId == 0) //BEO-9428
@@ -469,15 +468,29 @@ namespace Core.ConditionalAccess
                                         }
                                     }
 
+                                    bool enqueueSuccessful = true;
                                     var data = new RenewTransactionData(groupId, userId, subscriptionEntitlement.purchaseID, billingGuid, DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate), nextRenewalDate);
-                                    bool enqueueSuccessful = queue.Enqueue(data, string.Format(BaseConditionalAccess.ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+                                    if (PhoenixFeatureFlagInstance.Get().IsRenewUseKronos())
+                                    {
+                                        ConditionalAccessDAL.Insert_SubscriptionsPurchasesKronos(subscriptionEntitlement.purchaseID);
+                                        
+                                        log.Debug($"Kronos - Renew purchaseID:{subscriptionEntitlement.purchaseID}");
+                                        RenewManager.addEventToKronos(groupId, data);
+                                    }
+                                    else
+                                    {
+                                        // enqueue renew transaction 
+                                        var queue = new RenewTransactionsQueue();
+                                        enqueueSuccessful = queue.Enqueue(data, string.Format(BaseConditionalAccess.ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+                                    }
+                                    
                                     if (!enqueueSuccessful)
                                     {
                                         log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
                                     }
                                     else
                                     {
-                                        PurchaseManager.SendRenewalReminder(data, domainId);
+                                        PurchaseManager.SendRenewalReminder(groupId, data, domainId);
                                         log.DebugFormat("New task created (upon UpdateEntitlementEndDate). Next renewal date: {0}, data: {1}", nextRenewalDate, data);
                                     }
                                 }

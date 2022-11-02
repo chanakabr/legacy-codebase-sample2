@@ -833,9 +833,12 @@ namespace Core.Billing
 
         public static TransactResult ProcessRenewal(RenewDetails renewDetails, string productCode, List<KeyValuePair<VerificationPaymentGateway, string>> productCodes = null)
         {
-            // add siteguid to logs/monitor
-            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = renewDetails.UserId ?? "null";
-
+            if (HttpContext.Current != null)
+            {
+                // add siteguid to logs/monitor
+                HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = renewDetails.UserId ?? "null";
+            }
+            
             TransactResult response = null;
 
             try

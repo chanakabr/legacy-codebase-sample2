@@ -47,6 +47,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using FeatureFlag;
 using ApiLogic.Segmentation;
 using TVinciShared;
 using Tvinic.GoogleAPI;
@@ -725,7 +726,8 @@ namespace Core.ConditionalAccess
                         nextRenewalDate = endDate.AddMinutes(paymentGateway.RenewalIntervalMinutes);
                     }
 
-                    Utils.RenewUnifiedTransactionMessageInQueue(groupId, domainId, DateUtils.DateTimeToUtcUnixTimestampMilliseconds(endDate), nextRenewalDate, processId);
+                    bool isKronos = PhoenixFeatureFlagInstance.Get().IsUnifiedRenewUseKronos();
+                    Utils.RenewUnifiedTransactionMessageInQueue(groupId, domainId, DateUtils.DateTimeToUtcUnixTimestampMilliseconds(endDate), nextRenewalDate, processId, isKronos);
                 }
 
                 if (processId > 0) // already have message to queue so update subscription purchase row
@@ -9743,28 +9745,38 @@ namespace Core.ConditionalAccess
             }
         }
 
-        internal static bool RenewUnifiedTransactionMessageInQueue(int groupId, long householdId, long endDateUnix, DateTime nextRenewalDate, long processId)
+        internal static bool RenewUnifiedTransactionMessageInQueue(int groupId, long householdId, long endDateUnix, DateTime nextRenewalDate, long processId, bool isKronos)
         {
-            if (nextRenewalDate > DateTime.UtcNow.AddYears(1).AddDays(5))
-            {
-                //BEO-11219
-                log.Debug($"BEO-11219 - skip Enqueue unified renew msg (more then 1 year)! processId:{processId}, endDateUnix:{endDateUnix}");
-                return true;
-            }
-
             log.DebugFormat("RenewUnifiedTransactionMessageInQueue (RenewUnifiedData) processId:{0}", processId);
-
-            // add new message to new routing key queue
-            RenewTransactionsQueue queue = new RenewTransactionsQueue();
+            
+            bool enqueueSuccessful = true;
             RenewUnifiedData data = new RenewUnifiedData(groupId, householdId, processId, endDateUnix, nextRenewalDate);
-            bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_UNIFIED_RENEW_SUBSCRIPTION, groupId));
+
+            if (isKronos)
+            {
+                log.Debug($"Kronos - RenewUnified processId:{processId}");
+                RenewManager.addEventToKronos(groupId, data);
+            }
+            else
+            {
+                if (nextRenewalDate > DateTime.UtcNow.AddYears(1).AddDays(5))
+                {
+                    //BEO-11219
+                    log.Debug($"BEO-11219 - skip Enqueue unified renew msg (more then 1 year)! processId:{processId}, endDateUnix:{endDateUnix}");
+                    return true;
+                }
+                // add new message to new routing key queue
+                RenewTransactionsQueue queue = new RenewTransactionsQueue();
+                enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_UNIFIED_RENEW_SUBSCRIPTION, groupId)); 
+             }
+
             if (!enqueueSuccessful)
             {
                 log.ErrorFormat("Failed enqueue of renew unified transaction {0}", data);
             }
             else
             {
-                PurchaseManager.SendRenewalReminder(data);
+                PurchaseManager.SendRenewalReminder(groupId, data);
                 log.DebugFormat("New task created (upon subscription purchase success). next unified renewal date: {0}, data: {1}",
                     nextRenewalDate, data);
             }

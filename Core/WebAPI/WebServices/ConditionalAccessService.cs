@@ -2342,7 +2342,7 @@ namespace WebAPI.WebServices
                 bool shouldUpdateTaskStatus = true;
                 try
                 {
-                    response = casImpl.Renew(siteguid, purchaseId, billingGuid, endDate, ref shouldUpdateTaskStatus);
+                    response = casImpl.Renew(siteguid, purchaseId, billingGuid, endDate, ref shouldUpdateTaskStatus, true);
                 }
                 catch (Exception ex)
                 {

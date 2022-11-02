@@ -98,7 +98,7 @@ namespace WebAPI.Controllers
             bool result = false;
 
             var contextData = KS.GetContextData();
-
+            
             try
             {
                 Func<Status> delete = () => DiscountDetailsManager.Instance.Delete(contextData, id);

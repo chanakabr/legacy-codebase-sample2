@@ -21,6 +21,7 @@ using KeyValuePair = ApiObjects.KeyValuePair;
 using ApiObjects.Base;
 using ApiLogic.Users.Security;
 using log4net;
+using FeatureFlag;
 
 namespace Core.Users
 {
@@ -1180,6 +1181,7 @@ namespace Core.Users
 
             return result;
         }
+
         private void ResumeDomainSubscriptions(int domainId)
         {
             try
@@ -1192,13 +1194,16 @@ namespace Core.Users
                     List<DataRow> drs = dt.AsEnumerable().Where(x => x.Field<long>("unified_process_id") == 0 && x.Field<DateTime>("end_date") < DateTime.UtcNow).ToList();
                     if (drs != null && drs.Count > 0)
                     {
+                        bool isKronos = PhoenixFeatureFlagInstance.Get().IsRenewUseKronos();
+
                         foreach (DataRow dr in drs)
                         {
                             string siteguid = ODBCWrapper.Utils.GetSafeStr(dr, "SITE_USER_GUID");
                             long purchaseId = ODBCWrapper.Utils.GetLongSafeVal(dr, "id");
                             string billingGuid = ODBCWrapper.Utils.GetSafeStr(dr, "billing_guid");
                             DateTime endDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "end_date");
-                            if (!Core.ConditionalAccess.RenewManager.HandleResumeDomainSubscription(m_nGroupID, domainId, siteguid, purchaseId, billingGuid, endDate))
+
+                            if (!Core.ConditionalAccess.RenewManager.HandleResumeDomainSubscription(m_nGroupID, domainId, siteguid, purchaseId, billingGuid, endDate, isKronos))
                             {
                                 log.ErrorFormat("fail to add new message to queue groupID:{0}, domainId:{1}, siteguid:{2}, purchaseId:{3}, billingGuid:{4}, endDate:{5}",
                                     m_nGroupID, domainId, siteguid, purchaseId, billingGuid, endDate);
