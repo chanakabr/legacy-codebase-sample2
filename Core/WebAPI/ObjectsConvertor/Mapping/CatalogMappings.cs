@@ -1116,7 +1116,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Errors, opt => opt.MapFrom(src => src.Errors))
                ;
 
-            cfg.CreateMap<BulkUploadSummary, KalturaBulkUploadSummary>()
+            cfg.CreateMap<BulkUploadStatistics, KalturaBulkUploadStatistics>()
                 .ForMember(dest => dest.Queued, opt => opt.MapFrom(src => src.Queued))
                 .ForMember(dest => dest.Failed, opt => opt.MapFrom(src => src.Failed))
                 .ForMember(dest => dest.Success, opt => opt.MapFrom(src => src.Success))

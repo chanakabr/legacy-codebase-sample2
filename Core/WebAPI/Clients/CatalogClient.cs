@@ -4068,12 +4068,12 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal KalturaBulkUploadSummary GetBulkUploadStatusSummary(long groupId, string bulkObjectType, long CreateDateGreaterThanOrEqual)
+        internal Models.Upload.KalturaBulkUploadStatistics GetBulkUploadStatusSummary(long groupId, string bulkObjectType, long CreateDateGreaterThanOrEqual)
         {
-            Func<GenericResponse<BulkUploadSummary>> getBulkUploadsFunc = () =>
+            Func<GenericResponse<ApiObjects.BulkUpload.BulkUploadStatistics>> getBulkUploadsFunc = () =>
               BulkUploadManager.GetBulkUploadSummary(groupId, bulkObjectType, CreateDateGreaterThanOrEqual);
 
-            var response = ClientUtils.GetResponseFromWS<KalturaBulkUploadSummary, BulkUploadSummary>(getBulkUploadsFunc);
+            var response = ClientUtils.GetResponseFromWS<Models.Upload.KalturaBulkUploadStatistics, ApiObjects.BulkUpload.BulkUploadStatistics>(getBulkUploadsFunc);
 
             return response;
         }

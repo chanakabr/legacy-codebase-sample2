@@ -67,9 +67,9 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static GenericResponse<BulkUploadSummary> GetBulkUploadSummary(long groupId, string bulkObjectType, long CreateDateGreaterThanOrEqual)
+        public static GenericResponse<BulkUploadStatistics> GetBulkUploadSummary(long groupId, string bulkObjectType, long CreateDateGreaterThanOrEqual)
         {
-            var response = new GenericResponse<BulkUploadSummary>();
+            var response = new GenericResponse<BulkUploadStatistics>();
             var fileObjectTypeName = ApiLogic.FileManager.Instance.GetFileObjectTypeName(bulkObjectType);
             if (!fileObjectTypeName.HasObject())
             {
@@ -78,7 +78,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             var dt = CatalogDAL.GetBulkUploadSummary(groupId, fileObjectTypeName.Object, CreateDateGreaterThanOrEqual);
-            var summary = new BulkUploadSummary();
+            var summary = new BulkUploadStatistics();
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 var summaryDict = new Dictionary<BulkUploadJobStatus, long>();

@@ -1334,7 +1334,7 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaBulkUploadSummary":
+                case "KalturaBulkUploadStatistics":
                     switch(property.Name)
                     {
                         case "Failed":
@@ -9778,6 +9778,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "bulkuploadstatistics":
+                    switch(action)
+                    {
+                        case "get":
+                            RolesManager.ValidateActionPermitted("bulkUploadStatistics", "get", WebAPI.Managers.eKSValidation.All);
+                            return BulkUploadStatisticsController.Get((string) methodParams[0], (long) methodParams[1]);
+                            
+                    }
+                    break;
+                    
                 case "businessmodulerule":
                     switch(action)
                     {
@@ -15633,6 +15643,23 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "bulkuploadstatistics":
+                    switch(action)
+                    {
+                        case "get":
+                            ret.Add("bulkObjectTypeEqual", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
+                            });
+                            ret.Add("createDateGreaterThanOrEqual", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
                             });
                             return ret;
                             

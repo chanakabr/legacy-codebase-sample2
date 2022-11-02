@@ -498,8 +498,8 @@ namespace WebAPI.Reflection
                 case "KalturaBulkUploadResult":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
-                case "KalturaBulkUploadSummary":
-                    return new KalturaBulkUploadSummary(parameters, true);
+                case "KalturaBulkUploadStatistics":
+                    return new KalturaBulkUploadStatistics(parameters, true);
                     
                 case "KalturaBulkUploadUdidDynamicListData":
                     return new KalturaBulkUploadUdidDynamicListData(parameters, true);
@@ -38712,9 +38712,9 @@ namespace WebAPI.Models.Upload
             }
         }
     }
-    public partial class KalturaBulkUploadSummary
+    public partial class KalturaBulkUploadStatistics
     {
-        public KalturaBulkUploadSummary(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBulkUploadStatistics(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {

@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace ApiObjects.BulkUpload
 {
-    public class BulkUploadSummary
+    public class BulkUploadStatistics
     {
         public long Pending { get; set; }
         public long Uploaded { get; set; }
