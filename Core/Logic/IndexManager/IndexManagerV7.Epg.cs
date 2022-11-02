@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Caching;
 using System.Text;
+using BoolQuery = Nest.BoolQuery;
 using ESUtils = ElasticSearch.Common.Utils;
 
 namespace Core.Catalog
@@ -153,15 +154,12 @@ namespace Core.Catalog
                 Value = eTransactionOperation.DELETING.ToString(),
             };
 
-            var insertingAndCommitted = hasTransactionParentDocument & insertingStatusTerm;
-            var deletingAndNotCommitted = !(hasTransactionParentDocument & deletingStatusTerm);
+            var insertingAndCommitted = insertingStatusTerm & hasTransactionParentDocument;
+            var deletingAndNotCommitted = deletingStatusTerm & !hasTransactionParentDocument;
             var allCommittedDocuments = insertingAndCommitted | deletingAndNotCommitted;
             var epgv3CommittedOnly = allCommittedDocuments & epgIndexTerm;
-
-            var finalQuery = epgv3CommittedOnly && originalQuery;
-
-
-            return finalQuery;
+            var epgV3Final = epgv3CommittedOnly | !epgIndexTerm;
+            return epgV3Final & originalQuery;
         }
 
         private QueryContainer WrapQueryIfEpgV3Feature(QueryContainer query)

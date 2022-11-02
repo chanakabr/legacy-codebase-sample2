@@ -40,7 +40,7 @@ ctx._source.remove('transaction');
             log.Info($"getting distinct list of channels for migration:{epgAlias}");
             var distinctChannelIds = GetAllEpgChannelIds(epgAlias);
 
-            var newEpgV3IndexName = $"{NamingHelper.GetEpgIndexAlias(_partnerId)}_v3_{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
+            var newEpgV3IndexName = $"{NamingHelper.GetEpgIndexAlias(_partnerId)}_v3";
             log.Info($"EPG v3 creating new index and mappings with name:{newEpgV3IndexName}");
             AddEmptyIndex(newEpgV3IndexName, EpgFeatureVersion.V3);
 
