@@ -69,9 +69,9 @@ def checkDestRepoImage () {
         return
     }
     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: "${target_env}", secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-        def exists = sh(script: "set +x; aws ecr describe-repositories --region=${region} --repository-names ${repo} --output=json > /dev/null 2>&1", returnStatus: true)
+        def exists = sh(script: "set +x; aws ecr describe-repositories --region=${region} --repository-names ${branch.toLowerCase()}/${repo} --output=json > /dev/null 2>&1", returnStatus: true)
         if (exists == 0){ // Repo exists
-            if (sh(script: "set +x; aws ecr describe-images --repository-name ${repo} --region ${region} --image-ids imageTag=${tag} > /dev/null 2>&1", returnStatus: true) != 0){
+            if (sh(script: "set +x; aws ecr describe-images --repository-name ${branch.toLowerCase()}/${repo} --region ${region} --image-ids imageTag=${tag} > /dev/null 2>&1", returnStatus: true) != 0){
                 checkSourceRepoImage()
                 cd.copyECR(target_env, repo, tag, true)
             } else {
@@ -86,9 +86,9 @@ def checkDestRepoImage () {
 
 def checkSourceRepoImage () {
     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: "qa-rnd", secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-        def exists = sh(script: "set +x; aws ecr describe-repositories --region=${src_region} --repository-names ${repo} --output=json > /dev/null 2>&1", returnStatus: true)
+        def exists = sh(script: "set +x; aws ecr describe-repositories --region=${src_region} --repository-names ${branch.toLowerCase()}/${repo} --output=json > /dev/null 2>&1", returnStatus: true)
         if (exists == 0){ // Repo exists
-            if (sh(script: "set +x; aws ecr describe-images --repository-name ${repo} --region ${src_region} --image-ids imageTag=${tag} > /dev/null 2>&1", returnStatus: true) != 0){
+            if (sh(script: "set +x; aws ecr describe-images --repository-name ${branch.toLowerCase()}/${repo} --region ${src_region} --image-ids imageTag=${tag} > /dev/null 2>&1", returnStatus: true) != 0){
                 echo "${RED}-------------------------------- Version ${tag} for ${repo}  Not found In Source ECR !! --------------------------------${ANSI_END}"
                 currentBuild.result = "FAILURE"
                 sh "exit 1"
