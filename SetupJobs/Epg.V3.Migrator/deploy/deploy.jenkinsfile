@@ -113,7 +113,7 @@ def deployComponent(component_name,component_name_und){
         if (target_env == 'onebox') {insecure = "--insecure"}
         if (target_env == 'onebox') {grpc_web = ""}
         sh """
-        set +x
+        set -x
         echo ${BLUE}-------------------------------- Starting Deployment Of ${component_name}-${partner} on ${target_env}... --------------------------------${ANSI_END}
         
         ${HELM} template argo/ -f ${target_env}.yaml\
