@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Threading;
 using ApiObjects;
 using ApiObjects.Epg;
-using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using Core.GroupManagers;
 using CouchbaseManager;
@@ -31,7 +29,8 @@ namespace ApiLogic.EPG
     public class EpgPartnerConfigurationManager : IEpgPartnerConfigurationManager
     {
         private readonly ILayeredCache _layeredCache;
-        private readonly ICouchbaseManager _cbManager;
+        private readonly ICouchbaseManager _appsCbManager;
+        private readonly ICouchbaseManager _epgCbManager;
 
         private static readonly KLogger _log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -95,7 +94,7 @@ namespace ApiLogic.EPG
         
         public bool SetEpgV2Configuration(int partnerId, EpgV2PartnerConfiguration conf)
         {
-            var result = _cbManager.Set(GetEpgV2PartnerConfigurationKey(partnerId), conf, expiration:0);
+            var result = _appsCbManager.Set(GetEpgV2PartnerConfigurationKey(partnerId), conf, expiration:0);
             var invalidationKey = LayeredCacheKeys.GetEpgV2PartnerConfigurationInvalidationKey(partnerId);
             result &= _layeredCache.SetInvalidationKey(invalidationKey);
             return result;
@@ -103,7 +102,7 @@ namespace ApiLogic.EPG
 
         public bool SetEpgV3Configuration(int partnerId, EpgV3PartnerConfiguration conf)
         {
-            var result = _cbManager.Set(GetEpgV3PartnerConfigurationKey(partnerId), conf, expiration: 0);
+            var result = _appsCbManager.Set(GetEpgV3PartnerConfigurationKey(partnerId), conf, expiration: 0);
             var invalidationKey = LayeredCacheKeys.GetEpgV3PartnerConfigurationInvalidationKey(partnerId);
             result &= _layeredCache.SetInvalidationKey(invalidationKey);
             return result;
@@ -111,9 +110,8 @@ namespace ApiLogic.EPG
 
         public Dictionary<string, EpgCB> GetAutofillTemplate(int partnerId)
         {
-            Dictionary<string, EpgCB> result;
             var key = $"autofill_{partnerId}";
-            result = _cbManager.Get<Dictionary<string, EpgCB>>(key, true);
+            var result = _epgCbManager.Get<Dictionary<string, EpgCB>>(key, true);
             if (result == null)
             {
                 _log.Info($"Could not find default auto fill document under key: {key}");
@@ -137,16 +135,19 @@ namespace ApiLogic.EPG
             return result;
         }
 
-        private EpgPartnerConfigurationManager(ILayeredCache layeredCache, ICouchbaseManager cbManager)
+        private EpgPartnerConfigurationManager(ILayeredCache layeredCache, ICouchbaseManager appsCbManager, ICouchbaseManager epgCbManager)
         {
-            _cbManager = cbManager;
+            _appsCbManager = appsCbManager;
+            _epgCbManager = epgCbManager;
             _layeredCache = layeredCache;
         }
 
         private static EpgPartnerConfigurationManager GetEpgIngestConfigurationManagerInstance()
         {
-            ICouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-            return new EpgPartnerConfigurationManager(LayeredCache.Instance, cbManager);
+            var appsCbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+            var epgCbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.EPG);
+
+            return new EpgPartnerConfigurationManager(LayeredCache.Instance, appsCbManager, epgCbManager);
         }
 
         private Tuple<EpgV2PartnerConfiguration, bool> GetEpgV2ConfigurationFromSource(Dictionary<string, object> args)
@@ -157,7 +158,7 @@ namespace ApiLogic.EPG
             }
 
             var partnerId = (int)args["partnerId"];
-            var config = _cbManager.GetWithVersion<EpgV2PartnerConfiguration>(GetEpgV2PartnerConfigurationKey(partnerId), out _, out var resultStatus);
+            var config = _appsCbManager.GetWithVersion<EpgV2PartnerConfiguration>(GetEpgV2PartnerConfigurationKey(partnerId), out _, out var resultStatus);
 
             // we don't store in cache if config not found because we expect the check of IsEpgV2Enabled to write this doc as soon as it find that key not exists
             // and we don't want to handle invalidation keys because this config is updated manually only.
@@ -178,7 +179,7 @@ namespace ApiLogic.EPG
             }
 
             var partnerId = (int)args["partnerId"];
-            var config = _cbManager.GetWithVersion<EpgV3PartnerConfiguration>(GetEpgV3PartnerConfigurationKey(partnerId), out _, out var resultStatus);
+            var config = _appsCbManager.GetWithVersion<EpgV3PartnerConfiguration>(GetEpgV3PartnerConfigurationKey(partnerId), out _, out var resultStatus);
 
             if (resultStatus == eResultStatus.KEY_NOT_EXIST)
             {
