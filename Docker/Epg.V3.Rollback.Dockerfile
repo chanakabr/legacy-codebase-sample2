@@ -10,7 +10,7 @@ FROM ${RUN_IMAGE}
 
 ENV API_LOG_DIR=/var/log/epg_v3_rollback/
 
-COPY --chown=${USER_ID}:${GROUP_ID} --from=builder /src/published .
+COPY --chown=${USER_ID}:${GROUP_ID} --from=builder /src/published /opt
 COPY --chown=${USER_ID}:${GROUP_ID} --from=builder /src/Core/GrpcClientCommon/lib/libgrpc_csharp_ext.x64.so /opt/Epg.V3.Rollback/runtimes/linux/native/libgrpc_csharp_ext.x64.so
 
 
