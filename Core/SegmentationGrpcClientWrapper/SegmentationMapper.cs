@@ -1,13 +1,10 @@
-﻿using System;
+﻿using Google.Protobuf.Collections;
+using MoreLinq;
+using OTT.Service.Segmentation;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Threading;
-using Google.Protobuf.Collections;
-using Grpc.Core;
-using MoreLinq;
-using OTT.Service.Segmentation;
 using Segmentation = ApiObjects.Segmentation;
 using SegmentationTypeObject = ApiObjects.Segmentation.SegmentationType;
 

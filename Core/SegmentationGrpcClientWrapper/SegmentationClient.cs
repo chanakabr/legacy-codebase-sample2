@@ -1,11 +1,10 @@
 ﻿using GrpcClientCommon;
 using OTT.Service.Segmentation;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
-using Phx.Lib.Appconfig;
-using Phx.Lib.Log;
 using SegmentationType = ApiObjects.Segmentation.SegmentationType;
 
 namespace SegmentationGrpcClientWrapper
