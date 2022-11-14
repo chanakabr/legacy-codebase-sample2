@@ -211,7 +211,14 @@ namespace ElasticSearch.Common
                     log.Debug($"Reindex of {source} to {destination} result is {postResult}");
                     var jsonResult = JObject.Parse(postResult);
 
-                    result = status >= 200;
+                    if (status != 200)
+                    {
+                        log.Error($"Failed reindex of {source} to {destination}. Response - {postResult}");
+                    }
+                    else
+                    {
+                        result = true;
+                    }
                 }
             }
             catch (Exception ex)
