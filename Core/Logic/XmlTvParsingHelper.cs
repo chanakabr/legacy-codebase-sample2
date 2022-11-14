@@ -3,6 +3,7 @@ using ApiObjects.Response;
 using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -156,7 +157,7 @@ namespace ApiLogic
         {
             theDate = default(DateTime);
             if (string.IsNullOrEmpty(dateStr) || dateStr.Length < 14) { return false; }
-            bool res = DateTime.TryParseExact(dateStr.Substring(0, 14), XML_TV_DATE_FORMAT, null, System.Globalization.DateTimeStyles.None, out theDate);
+            bool res = DateTime.TryParseExact(dateStr.Substring(0, 14), XML_TV_DATE_FORMAT, null, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out theDate);
             return res;
         }
 
