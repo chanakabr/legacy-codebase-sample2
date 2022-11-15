@@ -205,18 +205,7 @@ namespace Core.Catalog
 
         private IReadOnlyDictionary<long, List<int>> GetLinearChannelsMapping()
         {
-            if (IsOpc())
-            {
-                return _catalogManager.TryGetCatalogGroupCacheFromCache(_partnerId, out var catalogGroupCache)
-                    && catalogGroupCache.IsRegionalizationEnabled
-                        ? _regionManager.GetLinearMediaRegions(_partnerId)
-                        : new Dictionary<long, List<int>>();
-            }
-
-            var groupManager = GetGroupManager();
-            return groupManager?.isRegionalizationEnabled == true
-                ? _regionManager.GetLinearMediaRegions(_partnerId)
-                : new Dictionary<long, List<int>>();
+            return _regionManager.GetLinearMediaRegions(_partnerId);
         }
 
         public HashSet<string> GetMetasToPad()
@@ -441,13 +430,7 @@ namespace Core.Catalog
 
                 var bulkRequests = new List<NestEsBulkRequest<NestEpg>>();
 
-                var isRegionalizationEnabled = IsOpc()
-                    ? GetCatalogGroupCache().IsRegionalizationEnabled
-                    : GetGroupManager().isRegionalizationEnabled;
-
-                var linearChannelsRegionsMapping = isRegionalizationEnabled
-                    ? _regionManager.GetLinearMediaRegions(_partnerId)
-                    : new Dictionary<long, List<int>>();
+                var linearChannelsRegionsMapping = _regionManager.GetLinearMediaRegions(_partnerId);
 
                 var createdAliases = new HashSet<string>();
                 _catalogManager.GetLinearChannelValues(epgObjects, _partnerId, _ => { });
@@ -3961,12 +3944,7 @@ namespace Core.Catalog
             var sizeOfBulk = GetBulkSize(500);
             var languages = GetLanguages();
 
-            Dictionary<long, List<int>> linearChannelsRegionsMapping = null;
-
-            if (IsOpc() ? GetCatalogGroupCache().IsRegionalizationEnabled : GetGroupManager().isRegionalizationEnabled)
-            {
-                linearChannelsRegionsMapping = _regionManager.GetLinearMediaRegions(_partnerId);
-            }
+            var linearChannelsRegionsMapping = _regionManager.GetLinearMediaRegions(_partnerId);
 
             var alias = NamingHelper.GetEpgIndexAlias(_partnerId);
 

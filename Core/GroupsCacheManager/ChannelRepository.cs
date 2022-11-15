@@ -68,20 +68,16 @@ namespace GroupsCacheManager
         /// <param name="newGroup"></param>
         private static void SetGroupDefaults(Group group)
         {
-            bool isRegionalizationEnabled;
-            int defaultRegion;
-            int defaultRecommendationEngine;
-            int relatedRecommendationEngine;
-            int searchRecommendationEngine;
-            int relatedRecommendationEngineEnrichments;
-            int searchRecommendationEngineEnrichments;
-            bool isGeoAvailabilityEnabled;
-            bool isAssetUserRuleEnabled;
-
             CatalogDAL.GetGroupDefaultParameters(group.m_nParentGroupID,
-                out isRegionalizationEnabled, out defaultRegion, out defaultRecommendationEngine,
-                out relatedRecommendationEngine, out searchRecommendationEngine,
-                out relatedRecommendationEngineEnrichments, out searchRecommendationEngineEnrichments, out isGeoAvailabilityEnabled, out isAssetUserRuleEnabled);
+                out var isRegionalizationEnabled,
+                out var defaultRegion,
+                out var defaultRecommendationEngine,
+                out var relatedRecommendationEngine,
+                out var searchRecommendationEngine,
+                out var relatedRecommendationEngineEnrichments,
+                out var searchRecommendationEngineEnrichments,
+                out var isGeoAvailabilityEnabled,
+                out var isAssetUserRuleEnabled);
 
             group.isRegionalizationEnabled = isRegionalizationEnabled;
             group.defaultRegion = defaultRegion;

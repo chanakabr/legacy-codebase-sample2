@@ -35,6 +35,7 @@ namespace Core.Catalog
         public Dictionary<long, Topic> TopicsMapById { get; set; }
 
 
+        /// <summary>
         /// Indicates if this group has DTT regionalisation support or not
         /// </summary>
         public bool IsRegionalizationEnabled { get; set; }
@@ -154,11 +155,16 @@ namespace Core.Catalog
 
         private static void SetCatalogGroupCacheDefaults(int groupId, CatalogGroupCache catalogGroupCache)
         {
-            bool isRegionalizationEnabled, isGeoAvailabilityEnabled, isAssetUserRuleEnabled;
-            int defaultRegion, defaultRecommendationEngine, relatedRecommendationEngine, searchRecommendationEngine, relatedRecommendationEngineEnrichments, searchRecommendationEngineEnrichments;
-
-            CatalogDAL.GetGroupDefaultParameters(groupId, out isRegionalizationEnabled, out defaultRegion, out defaultRecommendationEngine, out relatedRecommendationEngine, out searchRecommendationEngine,
-                                                out relatedRecommendationEngineEnrichments, out searchRecommendationEngineEnrichments, out isGeoAvailabilityEnabled, out isAssetUserRuleEnabled);
+            CatalogDAL.GetGroupDefaultParameters(groupId,
+                out var isRegionalizationEnabled,
+                out var defaultRegion,
+                out var defaultRecommendationEngine,
+                out var relatedRecommendationEngine,
+                out var searchRecommendationEngine,
+                out var relatedRecommendationEngineEnrichments,
+                out var searchRecommendationEngineEnrichments,
+                out var isGeoAvailabilityEnabled,
+                out var isAssetUserRuleEnabled);
             catalogGroupCache.IsRegionalizationEnabled = isRegionalizationEnabled;
             catalogGroupCache.DefaultRegion = defaultRegion;
             catalogGroupCache.DefaultRecommendationEngine = defaultRecommendationEngine;

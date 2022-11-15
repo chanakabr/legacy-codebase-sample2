@@ -2785,8 +2785,7 @@ namespace Core.Catalog.CatalogManagement
                 return _groupManager.GetGroup(groupId)?.isRegionalizationEnabled ?? false;
             }
 
-            return TryGetCatalogGroupCacheFromCache(groupId, out var catalogGroupCache)
-                   && catalogGroupCache.IsRegionalizationEnabled;
+            return TryGetCatalogGroupCacheFromCache(groupId, out var catalogGroupCache) && catalogGroupCache.IsRegionalizationEnabled;
         }
 
         internal static List<int> GetRegions(int groupId)

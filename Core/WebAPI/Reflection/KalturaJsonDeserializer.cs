@@ -32150,7 +32150,7 @@ namespace WebAPI.Models.Pricing
         private static RuntimeSchemePropertyAttribute ViewLifeCycleSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUsageModule")
         {
             ReadOnly = false,
-            InsertOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
@@ -32164,7 +32164,7 @@ namespace WebAPI.Models.Pricing
         private static RuntimeSchemePropertyAttribute FullLifeCycleSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUsageModule")
         {
             ReadOnly = false,
-            InsertOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,

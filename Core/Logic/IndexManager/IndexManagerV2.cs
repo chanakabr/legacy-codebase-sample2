@@ -217,18 +217,7 @@ namespace Core.Catalog
 
         private IReadOnlyDictionary<long, List<int>> GetLinearChannelsMapping()
         {
-            if (isOpc())
-            {
-                return _catalogManager.TryGetCatalogGroupCacheFromCache(_partnerId, out var catalogGroupCache)
-                    && catalogGroupCache.IsRegionalizationEnabled
-                        ? _regionManager.GetLinearMediaRegions(_partnerId)
-                        : new Dictionary<long, List<int>>();
-            }
-
-            var groupManager = GetGroupManager();
-            return groupManager?.isRegionalizationEnabled == true
-                ? _regionManager.GetLinearMediaRegions(_partnerId)
-                : new Dictionary<long, List<int>>();
+            return _regionManager.GetLinearMediaRegions(_partnerId);
         }
 
         public HashSet<string> GetMetasToPad()
@@ -731,15 +720,9 @@ namespace Core.Catalog
 
             #region Get Linear Channels Regions
 
-            Dictionary<long, List<int>> linearChannelsRegionsMapping = null;
+            var linearChannelsRegionsMapping = RegionManager.Instance.GetLinearMediaRegions(_partnerId);
 
-            if ((groupUsesTemplates && catalogGroupCache.IsRegionalizationEnabled) ||
-                (groupManager != null && groupManager.isRegionalizationEnabled))
-            {
-                linearChannelsRegionsMapping = _regionManager.GetLinearMediaRegions(_partnerId);
-            }
-
-            #endregion
+           #endregion
 
             // Temporarily - assume success
             var temporaryResult = true;
@@ -6578,12 +6561,7 @@ namespace Core.Catalog
                 languages = groupManager.GetLangauges();
             }
 
-            Dictionary<long, List<int>> linearChannelsRegionsMapping = null;
-            if ((groupUsesTemplates && catalogGroupCache != null && catalogGroupCache.IsRegionalizationEnabled) ||
-             (groupManager != null && groupManager.isRegionalizationEnabled))
-            {
-                linearChannelsRegionsMapping = _regionManager.GetLinearMediaRegions(_partnerId);
-            }
+            var linearChannelsRegionsMapping = _regionManager.GetLinearMediaRegions(_partnerId);
 
             var alias = NamingHelper.GetEpgIndexAlias(_partnerId);
 

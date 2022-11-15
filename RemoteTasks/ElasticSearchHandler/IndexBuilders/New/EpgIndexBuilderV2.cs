@@ -89,10 +89,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
             #region Get Linear Channels Regions
 
-            if (doesGroupUsesTemplates ? catalogGroupCache.IsRegionalizationEnabled : group.isRegionalizationEnabled)
-            {
-                linearChannelsRegionsMapping = RegionManager.Instance.GetLinearMediaRegions(groupId);
-            }
+            linearChannelsRegionsMapping = RegionManager.Instance.GetLinearMediaRegions(groupId);
 
             #endregion
 

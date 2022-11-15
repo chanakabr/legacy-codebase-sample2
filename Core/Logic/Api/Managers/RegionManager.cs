@@ -239,10 +239,7 @@ namespace ApiLogic.Api.Managers
             return response;
         }
 
-        public IReadOnlyDictionary<long, List<int>> GetLinearMediaToRegionsMapWhenEnabled(int groupId)
-            => _catalogManager.IsRegionalizationEnabled(groupId)
-                ? GetLinearMediaRegions(groupId)
-                : new Dictionary<long, List<int>>();
+        public IReadOnlyDictionary<long, List<int>> GetLinearMediaToRegionsMapWhenEnabled(int groupId) => GetLinearMediaRegions(groupId);
 
         public Dictionary<long, List<int>> GetLinearMediaRegions(int groupId)
         {

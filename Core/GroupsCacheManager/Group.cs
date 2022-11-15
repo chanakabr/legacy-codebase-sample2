@@ -74,6 +74,7 @@ namespace GroupsCacheManager
         /// </summary>
         protected Dictionary<string, int> mediaTypesNameToId;
 
+        /// <summary>
         /// Indicates if this group has DTT regionalization support or not
         /// </summary>
         [JsonProperty("m_bIsRegionalizationEnabled")]

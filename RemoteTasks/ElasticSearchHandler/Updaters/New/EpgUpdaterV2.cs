@@ -109,12 +109,6 @@ namespace ElasticSearchHandler.Updaters
                 {
                     log.Debug($"Start {nameof(eAction.EpgRegionUpdate)}.");
                     result = true;
-                    if (!IsRegionalizationEnabled())
-                    {
-                        log.Debug($"Regionalization is turned off! Can't proceed with {nameof(eAction.EpgRegionUpdate)} action.");
-                        return result;
-                    }
-
                     foreach (var linearMediaId in IDs)
                     {
                         var epgIds = GetEpgIds(linearMediaId);
@@ -268,32 +262,6 @@ namespace ElasticSearchHandler.Updaters
             }
 
             return true;
-        }
-
-        private bool IsRegionalizationEnabled()
-        {
-            var doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
-            CatalogGroupCache catalogGroupCache = null;
-            Group group = null;
-            if (doesGroupUsesTemplates)
-            {
-                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                {
-                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateEpg", groupId);
-                    return false;
-                }
-            }
-            else
-            {
-                group = GroupsCache.Instance().GetGroup(this.groupId);
-                if (group == null)
-                {
-                    log.ErrorFormat("Couldn't get group {0}", this.groupId);
-                    return false;
-                }
-            }
-            
-            return doesGroupUsesTemplates ? catalogGroupCache.IsRegionalizationEnabled : group.isRegionalizationEnabled;
         }
     }
 }
