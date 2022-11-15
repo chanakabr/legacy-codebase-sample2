@@ -57,7 +57,7 @@
   
   <ItemGroup>
     <PackageReference Include="OTT.Lib.MongoDB" Version="2.0.0" />
-    <PackageReference Include="Phx.Lib.Appconfig" Version="1.5.1" />
+    <PackageReference Include="Phx.Lib.Appconfig" Version="1.5.3" />
     <ProjectReference Include="..\EventBus.Abstraction\EventBus.Abstraction.csproj" />
     <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj" />
     <ProjectReference Include="..\EventManager\EventManager.csproj" />

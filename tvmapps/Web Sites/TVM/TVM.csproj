@@ -205,8 +205,8 @@
     <Reference Include="OTT.Lib.Tracing, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\OTT.Lib.Tracing.1.0.3\lib\netstandard2.0\OTT.Lib.Tracing.dll</HintPath>
     </Reference>
-    <Reference Include="Phx.Lib.Appconfig, Version=1.5.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\Phx.Lib.Appconfig.1.5.1\lib\netstandard2.0\Phx.Lib.Appconfig.dll</HintPath>
+    <Reference Include="Phx.Lib.Appconfig, Version=1.5.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Phx.Lib.Appconfig.1.5.3\lib\netstandard2.0\Phx.Lib.Appconfig.dll</HintPath>
     </Reference>
     <Reference Include="Phx.Lib.Log, Version=1.2.4.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Phx.Lib.Log.1.2.4\lib\net48\Phx.Lib.Log.dll</HintPath>

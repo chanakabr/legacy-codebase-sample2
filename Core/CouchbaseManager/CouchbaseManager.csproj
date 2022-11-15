@@ -22,7 +22,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Phx.Lib.Appconfig" Version="1.5.1" />
+    <PackageReference Include="Phx.Lib.Appconfig" Version="1.5.3" />
   </ItemGroup>
   
   
