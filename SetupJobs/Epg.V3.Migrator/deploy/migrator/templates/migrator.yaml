@@ -45,6 +45,8 @@ spec:
             value: '5bf8cf60'
           - name: TCM_APP_SECRET
             value: '5aaa99331c18f6bad4adeef93ab770c2'
+          - name: ELASTIC_SEARCH_HTTP_CLIENT_CONFIGURATION__TIMEOUT
+            value: 5400000
         volumeMounts:
           - name: epg-v3-migrator-{{ .Values.partner }}-conf
             mountPath: /opt/Epg.V3.Migrator/appsettings.json
