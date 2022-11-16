@@ -24165,5 +24165,25 @@ namespace WebAPI.Reflection
             return false;
         }
         
+        public static bool UnauthorizedResponseEnabled(string service, string action)
+        {
+            service = service.ToLower();
+            action = action.ToLower();
+            switch (service)
+            {
+                case "lineup":
+                    switch(action)
+                    {
+                        case "get":
+                            return true;
+                            
+                    }
+                    break;
+                    
+            }
+            
+            return false;
+        }
+        
     }
 }

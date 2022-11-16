@@ -14,6 +14,7 @@ using WebAPI;
 using WebAPI.App_Start;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Reflection;
 
 namespace Phoenix.Rest.Middleware
 {
@@ -101,9 +102,17 @@ namespace Phoenix.Rest.Middleware
             {
                 httpStatusCode = HttpStatusCode.InternalServerError;
             }
-            else if (apiException != null && apiException.FailureHttpCode != 0)
+            else if (apiException != null)
             {
-                httpStatusCode = apiException.FailureHttpCode;
+                if (apiException is UnauthorizedException
+                    && DataModel.UnauthorizedResponseEnabled(ctx.RouteData.Service, ctx.RouteData.Action))
+                {
+                    httpStatusCode = HttpStatusCode.Unauthorized;
+                }
+                else if (apiException.FailureHttpCode != 0)
+                {
+                    httpStatusCode = apiException.FailureHttpCode;
+                }
             }
 
             var response = new ApiExceptionHandlerResponse

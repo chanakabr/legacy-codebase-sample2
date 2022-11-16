@@ -32,6 +32,7 @@ namespace WebAPI.Controllers
         [Action("get")]
         [ApiAuthorize]
         [AllowContentNotModifiedResponse]
+        [AllowUnauthorizedResponse]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
         public static KalturaLineupChannelAssetListResponse Get(int? pageIndex, int? pageSize)

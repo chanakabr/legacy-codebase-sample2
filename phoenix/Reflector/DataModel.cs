@@ -84,7 +84,7 @@ namespace Reflector
             WriteExecAction();
             WriteGetMethodParams();
             wrtieGetFailureHttpCode();
-            WriteContentNotModifiedResponseEnabled();
+            WriteCustomStatusCodeResponseEnabled();
         }
 
         protected override void writeFooter()
@@ -772,9 +772,23 @@ namespace Reflector
             file.WriteLine("                    ");
         }
 
-        private void WriteContentNotModifiedResponseEnabled()
+        private void WriteCustomStatusCodeResponseEnabled()
         {
-            file.WriteLine("        public static bool ContentNotModifiedResponseEnabled(string service, string action)");
+            WriteCustomStatusCodeResponseEnabled<AllowContentNotModifiedResponseAttribute>();
+            WriteCustomStatusCodeResponseEnabled<AllowUnauthorizedResponseAttribute>();
+        }
+
+        private void WriteCustomStatusCodeResponseEnabled<T>() where T : Attribute
+        {
+            const string allowPrefix = "Allow";
+            const string attributeSuffix = "Attribute";
+            var statusCodeName = typeof(T).Name;
+            if (statusCodeName.StartsWith(allowPrefix) && statusCodeName.EndsWith(attributeSuffix))
+            {
+                statusCodeName = statusCodeName.Substring(allowPrefix.Length, statusCodeName.Length - allowPrefix.Length - attributeSuffix.Length);
+            }
+
+            file.WriteLine("        public static bool " + statusCodeName + "Enabled(string service, string action)");
             file.WriteLine("        {");
             file.WriteLine("            service = service.ToLower();");
             file.WriteLine("            action = action.ToLower();");
@@ -794,7 +808,7 @@ namespace Reflector
                     .ToList();
                 actions.Sort(new MethodInfoComparer());
 
-                var anyActionHasAttribute = actions.Any(x => x.GetCustomAttribute<AllowContentNotModifiedResponseAttribute>(true) != null);
+                var anyActionHasAttribute = actions.Any(x => x.GetCustomAttribute<T>(true) != null);
                 if (!anyActionHasAttribute)
                 {
                     continue;
@@ -807,8 +821,8 @@ namespace Reflector
                 foreach (var action in actions)
                 {
                     var actionAttribute = action.GetCustomAttribute<ActionAttribute>(true);
-                    var allowContentNotModifiedResponseAttribute = action.GetCustomAttribute<AllowContentNotModifiedResponseAttribute>(true);
-                    if (actionAttribute != null && allowContentNotModifiedResponseAttribute != null)
+                    var responseAttribute = action.GetCustomAttribute<T>(true);
+                    if (actionAttribute != null && responseAttribute != null)
                     {
                         file.WriteLine("                        case \"" + actionAttribute.Name.ToLower() + "\":");
                         file.WriteLine("                            return true;");
