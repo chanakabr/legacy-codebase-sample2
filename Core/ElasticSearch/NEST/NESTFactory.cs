@@ -87,7 +87,8 @@ namespace ElasticSearch.NEST
                 .DisableDirectStreaming()
                 .ConnectionLimit(appConfig.ElasticSearchHttpClientConfiguration.MaxConnectionsPerServer.Value)
                 .OnRequestDataCreated(HandleLoggingCreatedRequest)
-                .OnRequestCompleted(HandleElasticsearchRequestLogging);
+                .OnRequestCompleted(HandleElasticsearchRequestLogging)
+                .RequestTimeout(TimeSpan.FromMilliseconds(appConfig.ElasticSearchHttpClientConfiguration.TimeOutInMiliSeconds.Value));
             var esClient = new ElasticClient(settings);
             return esClient;
         }
