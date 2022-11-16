@@ -73,13 +73,13 @@ def checkDestRepoImage () {
         if (exists == 0){ // Repo exists
             if (sh(script: "set +x; aws ecr describe-images --repository-name ${branch.toLowerCase()}/${repo} --region ${region} --image-ids imageTag=${tag} > /dev/null 2>&1", returnStatus: true) != 0){
                 checkSourceRepoImage()
-                cd.copyECR(target_env, repo, tag, true)
+                cd.copyECR(target_env, "${branch.toLowerCase()}/${repo}", tag, true)
             } else {
                 echo "${GREEN}-------------------------------- Found ${image} Destination ECR !! --------------------------------${ANSI_END}"
             }
         } else {
             checkSourceRepoImage()
-            cd.copyECR(target_env, repo, tag, true)
+            cd.copyECR(target_env, "${branch.toLowerCase()}/${repo}", tag, true)
         }
     }
 }
@@ -105,43 +105,98 @@ def checkSourceRepoImage () {
 
 
 def deployComponent(component_name,component_name_und){
-    withCredentials([string(credentialsId: "${target_env}_token", variable: 'argo_token')]){
-        argo_server = "argo.rnd.ott.kaltura.com"
-        insecure = ""
-        grpc_web = "--grpc-web"
-        if (target_env == 'onebox') {argo_server = onebox_host}
-        if (target_env == 'onebox') {insecure = "--insecure"}
-        if (target_env == 'onebox') {grpc_web = ""}
-        sh """
-        set -x
-        echo ${BLUE}-------------------------------- Starting Deployment Of ${component_name}-${partner} on ${target_env}... --------------------------------${ANSI_END}
-        
-        ${HELM} template argo/ -f ${target_env}.yaml\
-        --set image=${image}\
-        --set partner=${partner}\
-        --set branch=${branch}\
-        --set batch_size=${batch_size}\
-         > deploy.yaml
-        
-        argocd app create --file deploy.yaml --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web} --upsert
-        sleep 10
-        echo ${CYAN}-------------------------------- Waiting For ${component_name}-${partner} To Start... --------------------------------${ANSI_END}
-        
-        argocd app sync ${target_env}-${component_name}-${partner} --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web} > /dev/null
-        
-        echo ${BLUE}-------------------------------- logs start --------------------------------${ANSI_END}
-        result=\$(argocd app logs ${target_env}-${component_name}-${partner} --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web})
-        while [[ "\$result" == *"ContainerCreating"* ]]; do
-            echo "Waiting for app to start..."
-            sleep 2
-            result=\$(argocd app logs ${target_env}-${component_name}-${partner} --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web})
-        done
-        argocd app logs ${target_env}-${component_name}-${partner} --server ${argo_server} --auth-token ${argo_token} --follow ${insecure} ${grpc_web} 
-        echo ${GREEN}--------------------------------  logs end --------------------------------${ANSI_END}
+    argo_server = "argo.rnd.ott.kaltura.com"
+    insecure = ""
+    grpc_web = "--grpc-web"
+    if(target_env == 'onebox') {
+        withCredentials([string(credentialsId: "${target_env}_token", variable: 'argo_token')]){
+            argo_server = onebox_host
+            insecure = "--insecure"
+            grpc_web = ""
+            sh """
+                set +x
+                echo ${BLUE}-------------------------------- Starting Deployment Of ${component_name}-${partner} on ${target_env}... --------------------------------${ANSI_END}
 
-        echo ${YELLOW}-------------------------------- Deleting ${component_name} on ${target_env}... --------------------------------${ANSI_END}
-        argocd app delete ${target_env}-${component_name}-${partner} --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web} > /dev/null
-        echo ${YELLOW}-------------------------------- ${component_name}-${partner} was Deleted Successfully --------------------------------${ANSI_END}
-        """
+                ${HELM} template argo/ -f ${target_env}.yaml\
+                --set image=${image}\
+                --set partner=${partner}\
+                --set branch=${branch}\
+                --set batch_size=${batch_size}\
+                 > deploy.yaml
+
+                argocd app create --file deploy.yaml --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web} --upsert
+                sleep 10
+                echo ${CYAN}-------------------------------- Waiting For ${component_name}-${partner} To Start... --------------------------------${ANSI_END}
+
+                argocd app sync ${target_env}-${component_name}-${partner} --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web} > /dev/null
+
+                echo ${BLUE}-------------------------------- logs start --------------------------------${ANSI_END}
+                result=\$(argocd app logs ${target_env}-${component_name}-${partner} --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web})
+                while [[ "\$result" == *"ContainerCreating"* ]]; do
+                    echo "Waiting for app to start..."
+                    sleep 2
+                    result=\$(argocd app logs ${target_env}-${component_name}-${partner} --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web})
+                done
+                argocd app logs ${target_env}-${component_name}-${partner} --server ${argo_server} --auth-token ${argo_token} --follow ${insecure} ${grpc_web}
+                echo ${GREEN}--------------------------------  logs end --------------------------------${ANSI_END}
+
+                echo ${YELLOW}-------------------------------- Deleting ${component_name} on ${target_env}... --------------------------------${ANSI_END}
+                argocd app delete ${target_env}-${component_name}-${partner} --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web} > /dev/null
+                echo ${YELLOW}-------------------------------- ${component_name}-${partner} was Deleted Successfully --------------------------------${ANSI_END}
+            """
+        }
+    }
+    else {
+        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: "${target_env}", secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+            withCredentials([string(credentialsId: "${target_env}_token", variable: 'argo_token')]) {
+                argo_server = "argo.rnd.ott.kaltura.com"
+                insecure = ""
+                grpc_web = "--grpc-web"
+                argo_component_name = "${target_env}-${component_name}-${partner}"
+                sh """
+                    set -x
+                    aws eks update-kubeconfig --name ${target_env} --region ${region}
+
+                    pod_name=\$(kubectl get pods -l app=phoenix-epg-v3-migrator-${partner} -o json | jq '.items[0].metadata.name' | tr -d '\"')
+                    echo \$pod_name
+                    if [ -z \$pod_name ]
+                    then
+                        echo ${BLUE}-------------------------------- Deleting --in case it has not been done previously-- ${argo_component_name} on ${target_env}... --------------------------------${ANSI_END}
+                        argocd app delete ${argo_component_name} --server ${argo_server} --auth-token ${argo_token} --grpc-web > /dev/null
+                    fi
+
+                    echo ${BLUE}-------------------------------- Starting Deployment Of ${component_name}-${partner} on ${target_env}... --------------------------------${ANSI_END}
+
+                    ${HELM} template argo/ -f ${target_env}.yaml\
+                    --set image=${image}\
+                    --set partner=${partner}\
+                    --set branch=${branch}\
+                    --set batch_size=${batch_size}\
+                     > deploy.yaml
+
+                    argocd app create --file deploy.yaml --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web} --upsert
+                    sleep 10
+                    echo ${CYAN}-------------------------------- Waiting For ${component_name}-${partner} To Start... --------------------------------${ANSI_END}
+
+                    argocd app sync ${argo_component_name} --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web} > /dev/null
+
+                    echo ${BLUE}-------------------------------- logs start --------------------------------${ANSI_END}
+
+                    pod_name=\$(kubectl get pods -l app=phoenix-epg-v3-migrator-${partner} -o json | jq '.items[0].metadata.name' | tr -d '\"')
+                    pod_status=\$(kubectl get pods -l app=phoenix-epg-v3-migrator-${partner} -o json | jq '.items[0].status.phase' | tr -d '\"')
+                    while [ \$pod_status == "Pending" ]; do
+                        echo "Waiting for \$pod_name to start..."
+                        pod_status=\$(kubectl get pods -l app=phoenix-epg-v3-migrator-${partner} -o json | jq '.items[0].status.phase' | tr -d '\"')
+                        sleep 2
+                    done
+                    kubectl logs -f \$pod_name
+                    echo ${GREEN}--------------------------------  logs end --------------------------------${ANSI_END}
+
+                    echo ${YELLOW}-------------------------------- Deleting ${component_name} on ${target_env}... --------------------------------${ANSI_END}
+                    argocd app delete ${argo_component_name} --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web} > /dev/null
+                    echo ${YELLOW}-------------------------------- ${component_name}-${partner} was Deleted Successfully --------------------------------${ANSI_END}
+                """
+            }
+        }
     }
 }
