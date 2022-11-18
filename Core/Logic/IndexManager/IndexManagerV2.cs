@@ -5221,6 +5221,11 @@ namespace Core.Catalog
             composite.AddChild(terms);
 
             filter.FilterSettings = composite;
+            var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(_partnerId);
+            if (epgFeatureVersion == EpgFeatureVersion.V3)
+            {
+                Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, filter, _elasticSearchApi);
+            }
             query.Filter = filter;
 
             string searchQuery = query.ToString();
