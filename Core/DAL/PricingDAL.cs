@@ -484,13 +484,11 @@ namespace DAL
                     CreateDate = Utils.GetDateSafeVal((ppvModule["CREATE_DATE"])),
                     UpdateDate = Utils.GetDateSafeVal((ppvModule["UPDATE_DATE"])),
                 };
-                var virtualAssetId = Utils.GetIntSafeVal((ppvModule["VIRTUAL_ASSET_ID"]));
-                if (virtualAssetId > 0)
-                {
-                    ppv.VirtualAssetId = virtualAssetId;
-                }
+                
+                ppv.VirtualAssetId = Utils.GetNullableLong(ppvModule, "VIRTUAL_ASSET_ID");
+                ppv.AssetUserRuleId = Utils.GetNullableLong(ppvModule, "ASSET_USER_RULE_ID");
+               
                 int adsPolicyInt = Utils.GetIntSafeVal(ppvModule["ADS_POLICY"]);
-                AdsPolicy? adsPolicy = null;
                 if (adsPolicyInt > 0)
                 {
                     ppv.AdsPolicy = (AdsPolicy)adsPolicyInt;
@@ -841,6 +839,10 @@ namespace DAL
             sp.AddParameter("@startDate", collection.StartDate);
             sp.AddParameter("@updaterId", updaterId);
             sp.AddParameter("@fileTypesIds_json", JsonConvert.SerializeObject(collection.FileTypesIds));
+            if (collection.AssetUserRuleId.HasValue && collection.AssetUserRuleId > 0)
+            {
+                sp.AddParameter("@assetUserRuleId", collection.AssetUserRuleId);
+            }
 
             return sp.ExecuteReturnValue<long>();
         }
@@ -1656,6 +1658,11 @@ namespace DAL
             {
                 sp.AddParameter("@AdsPolicy", (int)ppv.AdsPolicy);
             }
+            
+            if (ppv.AssetUserRuleId > 0)
+            {
+                sp.AddParameter("@assetUserRuleId", ppv.AssetUserRuleId.Value);
+            }
 
             if (ppv.Descriptions != null)
             {
@@ -2359,6 +2366,35 @@ namespace DAL
                 foreach (DataRow dr in dt.Rows)
                 {
                     res.Add(Utils.GetLongSafeVal(dr, "ID"), Utils.GetIntSafeVal(dr, "IS_ACTIVE") == 0 ? false : true);
+                }
+            }
+
+            return res;
+        }
+
+        public static List<CollectionItemDTO> GetGroupCollectionsItems(int groupId)
+        {
+            List<CollectionItemDTO> res = null;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_AllCollectionsIds");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            DataTable dt = sp.Execute();
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                res = new List<CollectionItemDTO>();
+                CollectionItemDTO collectionItemDTO;
+                foreach (DataRow dr in dt.Rows)
+                {
+                    collectionItemDTO = new CollectionItemDTO()
+                    {
+                        Id = Utils.GetLongSafeVal(dr, "ID"),
+                        IsActive = Utils.GetIntSafeVal(dr, "IS_ACTIVE") == 0 ? false : true,
+                        AssetUserRuleId = Utils.GetNullableLong(dr, "ASSET_USER_RULE_ID")
+                    };
+
+                    res.Add(collectionItemDTO);
                 }
             }
 

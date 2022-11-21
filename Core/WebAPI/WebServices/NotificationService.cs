@@ -770,7 +770,7 @@ namespace WebAPI.WebServices
             {
                 if (groupID != 0)
                 {
-                    return Core.Notification.Module.UpdateInboxMessage(groupID, userId, messageId, status);
+                    return Core.Notification.Module.UpdateInboxMessage(groupID, 0, userId, messageId, status);
                 }
             }
             catch (Exception ex)
@@ -791,7 +791,7 @@ namespace WebAPI.WebServices
             {
                 if (groupID != 0)
                 {
-                    return Core.Notification.Module.GetInboxMessage(groupID, userId, messageId);
+                    return Core.Notification.Module.GetInboxMessage(groupID, 0, userId, messageId);
                 }
             }
             catch (Exception ex)
@@ -812,7 +812,7 @@ namespace WebAPI.WebServices
             {
                 if (groupID != 0)
                 {
-                    return Core.Notification.Module.GetInboxMessages(groupID, userId, pageSize, pageIndex, messageCategorys, CreatedAtGreaterThanOrEqual, CreatedAtLessThanOrEqual);
+                    return Core.Notification.Module.GetInboxMessages(groupID, 0, userId, pageSize, pageIndex, messageCategorys, CreatedAtGreaterThanOrEqual, CreatedAtLessThanOrEqual);
                 }
             }
             catch (Exception ex)

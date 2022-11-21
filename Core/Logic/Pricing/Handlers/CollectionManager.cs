@@ -155,6 +155,24 @@ namespace ApiLogic.Pricing.Handlers
             }
             #endregion validate FileTypesIds     
 
+            bool isShopUser = false;
+            if (collectionToInsert.AssetUserRuleId > 0)
+            {
+                var assetRuleResponse = Core.Api.Managers.AssetUserRuleManager.GetAssetUserRuleByRuleId(contextData.GroupId, collectionToInsert.AssetUserRuleId.Value);
+                if (!assetRuleResponse.IsOkStatusCode())
+                {
+                    response.SetStatus(assetRuleResponse.Status);
+                    return response;
+                }
+            }
+
+            var assetUserRulesResponse = Core.Api.Managers.AssetUserRuleManager.GetAssetUserRuleList(contextData.GroupId, contextData.UserId, true, RuleActionType.UserFilter, RuleConditionType.AssetShop);
+            if (assetUserRulesResponse.HasObjects())
+            {
+                isShopUser = true;
+                collectionToInsert.AssetUserRuleId = assetUserRulesResponse.Objects[0].Id;
+            }
+
             long id = _repository.AddCollection(contextData.GroupId, contextData.UserId.Value, collectionToInsert);
             if (id == 0)
             {
@@ -178,11 +196,17 @@ namespace ApiLogic.Pricing.Handlers
                                 collectionToInsert.Descriptions[0].m_sValue : string.Empty
             };
 
+            if (!isShopUser && collectionToInsert.AssetUserRuleId > 0)
+            {
+                virtualAssetInfo.AssetUserRuleId = collectionToInsert.AssetUserRuleId;
+            }
+
             var virtualAssetInfoResponse = _virtualAssetManager.AddVirtualAsset(contextData.GroupId, virtualAssetInfo);
             if (virtualAssetInfoResponse.Status == VirtualAssetInfoStatus.Error)
             {
                 log.Error($"Error while AddVirtualAsset - Collection (boxset) Id: {id} will delete ");
-                Delete(contextData, id);
+                //Delete(contextData, id);
+                int Id = _repository.DeleteCollection(contextData.GroupId, id, contextData.UserId.Value);
                 return response;
             }
 
@@ -227,27 +251,43 @@ namespace ApiLogic.Pricing.Handlers
                 return result;
             }
 
-            if (!_repository.IsCollectionExists(contextData.GroupId, id))
+            var collection = _pricingModule.GetCollectionData(contextData.GroupId, id.ToString(), string.Empty, string.Empty, string.Empty, false);
+            if (collection == null)
             {
                 result.Set(eResponseStatus.CollectionNotExist, $"Collection {id} does not exist");
                 return result;
             }
 
-            // Due to atomic action delete virtual asset before collection delete
-            // Delete the virtual asset
-            var vai = new VirtualAssetInfo()
+            var assetUserRulesResponse = Core.Api.Managers.AssetUserRuleManager.GetAssetUserRuleList(contextData.GroupId, contextData.UserId, true, RuleActionType.UserFilter, RuleConditionType.AssetShop);
+            if (assetUserRulesResponse.HasObjects())
             {
-                Type = ObjectVirtualAssetInfoType.Boxset,
-                Id = id,
-                UserId = contextData.UserId.Value
-            };
+                long assetUserruleId = assetUserRulesResponse.Objects[0].Id;
 
-            var response = _virtualAssetManager.DeleteVirtualAsset(contextData.GroupId, vai);
-            if (response.Status == VirtualAssetInfoStatus.Error)
+                if (collection.AssetUserRuleId != assetUserruleId)
+                {
+                    result.Set(eResponseStatus.CollectionNotExist, $"Collection {id} does not exist");
+                    return result;
+                }
+            }
+
+            if (collection.VirtualAssetId > 0)
             {
-                log.Error($"Error while delete Collection virtual asset id {vai.ToString()}");
-                result.Set(eResponseStatus.Error, $"Failed to delete Collection {id}");
-                return result;
+                // Due to atomic action delete virtual asset before collection delete
+                // Delete the virtual asset
+                var vai = new VirtualAssetInfo()
+                {
+                    Type = ObjectVirtualAssetInfoType.Boxset,
+                    Id = id,
+                    UserId = contextData.UserId.Value
+                };
+
+                var response = _virtualAssetManager.DeleteVirtualAsset(contextData.GroupId, vai);
+                if (response.Status == VirtualAssetInfoStatus.Error)
+                {
+                    log.Error($"Error while delete Collection virtual asset id {vai.ToString()}");
+                    result.Set(eResponseStatus.Error, $"Failed to delete Collection {id}");
+                    return result;
+                }
             }
 
             int Id = _repository.DeleteCollection(contextData.GroupId, id, contextData.UserId.Value);
@@ -268,25 +308,40 @@ namespace ApiLogic.Pricing.Handlers
             return result;
         }
 
-        public GenericListResponse<Collection> GetCollectionsData(int groupId, string[] collCodes, string country, string language, string udid, int pageIndex = 0, int pageSize = 30,
+        public GenericListResponse<Collection> GetCollectionsData(ContextData contextData, string[] collCodes, string country, string language, string udid, int pageIndex = 0, int pageSize = 30,
             bool shouldIgnorePaging = true, int? couponGroupIdEqual = null, bool inactiveAssets = false, CollectionOrderBy orderBy = CollectionOrderBy.None)
         {
             GenericListResponse<Collection> response = new GenericListResponse<Collection>();
             List<long> collectionsIds = null;
             int totalResults = 0;
 
+            int groupId = contextData.GroupId;
+
+            long? assetUserruleId = null; 
+            var assetUserRulesResponse = Core.Api.Managers.AssetUserRuleManager.GetAssetUserRuleList(contextData.GroupId, contextData.UserId, true, RuleActionType.UserFilter, RuleConditionType.AssetShop);
+            if (assetUserRulesResponse.HasObjects())
+            {
+                assetUserruleId = assetUserRulesResponse.Objects[0].Id;
+            }
+
             if (collCodes == null || collCodes.Length == 0)
             {
-                collectionsIds = PricingCache.GetCollectionsIds(groupId, inactiveAssets);
-
-                if (collectionsIds == null)
-                {
-                    return response;
-                }
+                collectionsIds = PricingCache.GetCollectionsIds(groupId, inactiveAssets, assetUserruleId);
             }
             else
             {
                 collectionsIds = collCodes.Select(x => long.Parse(x)).ToList();
+
+                if (assetUserruleId > 0)
+                {
+                    collectionsIds = PricingCache.FilterCollectionsByAssetUserRuleId(groupId, collectionsIds, assetUserruleId.Value);
+                }
+            }
+
+            if (collectionsIds == null || collectionsIds.Count == 0)
+            {
+                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                return response;
             }
 
             if (orderBy == CollectionOrderBy.None)
@@ -357,18 +412,10 @@ namespace ApiLogic.Pricing.Handlers
             return response;
         }
 
-        public GenericListResponse<Collection> GetCollectionsData(int groupId, string country, string language, string udid, int pageIndex, int pageSize, bool shouldIgnorePaging, int? couponGroupIdEqual = null,
+        public GenericListResponse<Collection> GetCollectionsData(ContextData contextData, string country, string language, string udid, int pageIndex, int pageSize, bool shouldIgnorePaging, int? couponGroupIdEqual = null,
             bool inactiveAssets = false, CollectionOrderBy orderBy = CollectionOrderBy.None)
         {
-            // get group's CollectionIds
-            List<long> collCodes = PricingCache.GetCollectionsIds(groupId, inactiveAssets);
-
-            if (collCodes == null)
-            {
-                return null;
-            }
-
-            return GetCollectionsData(groupId, collCodes.Select(x => x.ToString()).ToArray(), country, language, udid, pageIndex, pageSize, shouldIgnorePaging, couponGroupIdEqual, inactiveAssets, orderBy);
+            return GetCollectionsData(contextData, null, country, language, udid, pageIndex, pageSize, shouldIgnorePaging, couponGroupIdEqual, inactiveAssets, orderBy);
         }
 
         public IdsResponse GetCollectionIdsContainingMediaFile(int groupId, int mediaId, int mediaFileID)
@@ -503,6 +550,18 @@ namespace ApiLogic.Pricing.Handlers
             {
                 response.SetStatus(eResponseStatus.CollectionNotExist, $"Collection {collectionToUpdate.Id} does not exist");
                 return response;
+            }
+
+            var assetUserRulesResponse = Core.Api.Managers.AssetUserRuleManager.GetAssetUserRuleList(contextData.GroupId, contextData.UserId, true, RuleActionType.UserFilter, RuleConditionType.AssetShop);
+            if (assetUserRulesResponse.HasObjects())
+            {
+                long assetUserruleId = assetUserRulesResponse.Objects[0].Id;
+
+                if (collection.AssetUserRuleId != assetUserruleId)
+                {
+                    response.SetStatus(eResponseStatus.CollectionNotExist, $"Collection {collectionToUpdate.Id} does not exist");
+                    return response;
+                }
             }
 
             #region validate ExternalId - must be unique
@@ -839,6 +898,59 @@ namespace ApiLogic.Pricing.Handlers
             }
 
             return status;
+        }
+
+        private GenericListResponse<long> FilterByVirtualAsset(ContextData contextData, List<long> collectionsIds)
+        {
+            GenericListResponse<long> response = new GenericListResponse<long>(Status.Ok, collectionsIds);
+            try
+            {
+                int groupId = contextData.GroupId;
+
+                if (_groupSettingsManager.IsOpc(groupId) && contextData.UserId.HasValue && contextData.UserId.Value > 0)
+                {
+                    var assetUserRulesResponse = Core.Api.Managers.AssetUserRuleManager.GetAssetUserRuleList(groupId, contextData.UserId, true, RuleActionType.UserFilter, RuleConditionType.AssetShop);
+                    if (assetUserRulesResponse.Status.Code == (int)eResponseStatus.OK && assetUserRulesResponse.HasObjects())
+                    {
+                        response = new GenericListResponse<long>();
+
+                        AssetSearchDefinition assetSearchDefinition = new AssetSearchDefinition()
+                        {
+                            UserId = contextData.UserId.Value,
+                            IsAllowedToViewInactiveAssets = true,
+                            NoSegmentsFilter = true,
+                            FilterEmpty = true
+                        };
+
+                        HashSet<long> ids = new HashSet<long>();
+                        foreach (var tId in collectionsIds)
+                        {
+                            ids.Add(tId);
+                        }
+
+                        var filter = _virtualAssetManager.GetObjectVirtualAssetObjectIds(groupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Boxset, ids);
+
+                        if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
+                        {
+                            response.SetStatus(filter.Status);
+                            return response;
+                        }
+
+                        response.SetStatus((int)eResponseStatus.OK, "OK");
+                        if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Results && filter.ObjectIds?.Count > 0)
+                        {
+                            response.Objects = filter.ObjectIds;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            response.SetStatus((int)eResponseStatus.OK, "OK");
+            return response;
         }
     }
 }

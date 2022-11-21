@@ -8543,15 +8543,14 @@ namespace Core.Catalog
                 .CurrentRequestDaysOffset.Value;
 
             #region Regions and associations
+            
+            if (!definitions.isAllowedToViewInactiveAssets)
+            {
+                CatalogLogic.SetSearchRegions(request.m_nGroupID, doesGroupUsesTemplates, request.domainId, request.m_sSiteGuid, out var regionIds, out var linearMediaTypes);
 
-            List<int> regionIds;
-            List<string> linearMediaTypes;
-
-            CatalogLogic.SetSearchRegions(request.m_nGroupID, doesGroupUsesTemplates, request.domainId,
-                request.m_sSiteGuid, out regionIds, out linearMediaTypes);
-
-            definitions.regionIds = regionIds;
-            definitions.linearChannelMediaTypes = linearMediaTypes;
+                definitions.regionIds = regionIds;
+                definitions.linearChannelMediaTypes = linearMediaTypes;
+            }
 
             if (doesGroupUsesTemplates)
             {

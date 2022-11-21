@@ -116,7 +116,7 @@ namespace ApiLogic.Pricing.Handlers
             }
             
             // check if usageModule exists in ppv 
-            var ppvResponse = PpvManager.Instance.GetPPVModules(contextData.GroupId);
+            var ppvResponse = PpvManager.Instance.GetPPVModules(contextData);
             if (ppvResponse.HasObjects())
             {
                 var UsageModulePpvs =ppvResponse.Objects.Where(ppv => ppv.m_oUsageModule.m_nObjectID == id).ToList();

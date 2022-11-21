@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using System.Threading;
 using ApiObjects.Rules;
 using Microsoft.Extensions.Logging;
@@ -46,6 +47,20 @@ namespace ApiLogic.Api.Managers.Rule
                 _logger.LogError($"ShopMarkerMeta has not been determined and Ksql can not be built: {nameof(shopMetaResponse)}.{nameof(shopMetaResponse.Status)}={{{shopMetaResponse.Status.Code} - {shopMetaResponse.Status.Message}}}.");
 
                 throw new Exception(shopMetaResponse.Status.Message);
+            }
+
+            if (condition.Values?.Count > 0)
+            {
+                StringBuilder query = new StringBuilder("(or ");
+                
+                foreach (var value in condition.Values)
+                {
+                    query.Append($"{shopMetaResponse.Object.SystemName}='{value}' ");
+                }
+                
+                query.Append(")");
+                
+                return query.ToString();
             }
 
             return $"{shopMetaResponse.Object.SystemName}='{condition.Value}'";

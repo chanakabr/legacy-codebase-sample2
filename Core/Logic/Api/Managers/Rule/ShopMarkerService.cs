@@ -73,13 +73,45 @@ namespace ApiLogic.Api.Managers.Rule
                 return Status.Ok;
             }
 
-            var shopMeta = asset.Metas.SingleOrDefault(x => x.m_oTagMeta.m_sName == shopMarkerTopic.SystemName);
-            if (shopMeta == null)
+            bool shopMarkerTopicPopulted = false;
+
+            if (shopMarkerTopic.Type == MetaType.Tag)
             {
-                var newShopMeta = new Metas(
-                    new TagMeta(shopMarkerTopic.SystemName, shopMarkerTopic.Type.ToString()),
-                    shopCondition.Value);
-                asset.Metas.Add(newShopMeta);
+                shopMarkerTopicPopulted = asset.Tags.Any(x => x.m_oTagMeta.m_sName == shopMarkerTopic.SystemName);
+            }
+            else
+            {
+                shopMarkerTopicPopulted = asset.Metas.Any(x => x.m_oTagMeta.m_sName == shopMarkerTopic.SystemName);
+            }
+
+            if (!shopMarkerTopicPopulted)
+            {
+                TagMeta tm = new TagMeta()
+                {
+                    m_sName = shopMarkerTopic.SystemName,
+                    m_sType = shopMarkerTopic.Type.ToString()
+                };
+
+                if (shopMarkerTopic.Type == MetaType.Tag)
+                {
+                    Tags tag = new Tags()
+                    {
+                        m_oTagMeta = tm,
+                        m_lValues = shopCondition.Values
+                    };
+
+                    asset.Tags.Add(tag);
+                }
+                else
+                {
+                    string filter = shopCondition.Values[0];
+
+                    asset.Metas.Add(new Metas()
+                    {
+                        m_oTagMeta = tm,
+                        m_sValue = filter
+                    });
+                }
             }
 
             return Status.Ok;

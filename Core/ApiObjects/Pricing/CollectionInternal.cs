@@ -34,5 +34,7 @@ namespace ApiObjects.Pricing
         public List<SubscriptionCouponGroupDTO> CouponGroups { get; set; }
 
         public List<long> FileTypesIds { get; set; }
+
+        public long? AssetUserRuleId { get; set; }
     }
 }

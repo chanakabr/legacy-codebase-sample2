@@ -502,7 +502,7 @@ namespace Core.Catalog.CatalogManagement
             AssetStruct assetStruct = GetAssetStructIdByChannelType(groupId, channel.m_nChannelTypeID);
 
             return CreateVirtualChannel(groupId, userId, assetStruct, channel.m_sName, channel.m_nChannelID.ToString(), channel.m_sDescription,
-                channel.m_nIsActive, channel.NamesInOtherLanguages, channel.DescriptionInOtherLanguages);
+                channel.m_nIsActive, channel.NamesInOtherLanguages, channel.DescriptionInOtherLanguages, channel.AssetUserRuleId);
         }
 
         private static AssetStruct GetAssetStructIdByChannelType(int groupId, int channelTypeId)
@@ -638,7 +638,7 @@ namespace Core.Catalog.CatalogManagement
         }
 
         internal static long CreateVirtualChannel(int groupId, long userId, AssetStruct assetStruct, string name, string channelId,
-            string description, int? isActive, List<LanguageContainer> namesWithLanguages = null, List<LanguageContainer> descriptionsWithLanguages = null)
+            string description, int? isActive, List<LanguageContainer> namesWithLanguages = null, List<LanguageContainer> descriptionsWithLanguages = null, long? assetUserRuleId = null)
         {
             long assetId = 0;
 
@@ -670,6 +670,15 @@ namespace Core.Catalog.CatalogManagement
                     },
                     m_sValue = channelId
                 });
+
+                if (assetUserRuleId > 0)
+                {
+                    CatalogGroupCache catalogGroupCache = null;
+                    if (CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    {
+                        AssetManager.Instance.HandleAssetUserRuleForVirtualAsset(groupId, assetUserRuleId.Value, catalogGroupCache, ref virtualChannel);
+                    }
+                }
 
                 GenericResponse<Asset> virtualChannelResponse = AssetManager.Instance.AddAsset(groupId, virtualChannel, userId);
                 if (!virtualChannelResponse.HasObject())

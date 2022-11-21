@@ -25,4 +25,12 @@ namespace ApiObjects.Pricing.Dto
         public string Name { get; set; }
         public bool IsActive { get; set; }
     }
+
+    [Serializable]
+    public class CollectionItemDTO
+    {
+        public long Id { get; set; }
+        public bool IsActive { get; set; }
+        public long? AssetUserRuleId { get; set; }
+    }
 }

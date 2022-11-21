@@ -292,6 +292,7 @@ namespace Core.Pricing
             retCollection.UpdateDate = ODBCWrapper.Utils.GetDateSafeVal(collectionRow["UPDATE_DATE"]);
             retCollection.VirtualAssetId = ODBCWrapper.Utils.GetNullableLong(collectionRow, "VIRTUAL_ASSET_ID");
             retCollection.IsActive = ODBCWrapper.Utils.GetIntSafeVal(collectionRow, "IS_ACTIVE") == 0 ? false : true;
+            retCollection.AssetUserRuleId = ODBCWrapper.Utils.GetNullableLong(collectionRow, "ASSET_USER_RULE_ID");
 
             if (fileTypsIds?.Count > 0)
             {
@@ -633,10 +634,22 @@ namespace Core.Pricing
             try
             {
                 //get from DB subscription List
-                DataTable dt = PricingDAL.GetCollectionsChannels(m_nGroupID);
-                if (dt == null || dt.Rows == null || dt.Rows.Count == 0)
+                var dt = PricingDAL.GetCollectionsChannels(m_nGroupID);
+                if (dt == null)
+                {
+                    log.Error($"An error has occurred: {nameof(PricingDAL.GetCollectionsChannels)} returned null.");
+                
                     return null;
+                }
 
+                if (dt.Rows.Count == 0)
+                {
+                    log.Warn($"{nameof(PricingDAL.GetCollectionsChannels)} returned 0 rows.");
+                    
+                    response.Status = Status.Ok;
+                    return response;
+                }
+                
                 Dictionary<int, List<int>> channelsCollectionsMapping = new Dictionary<int, List<int>>(); /*channelID , Collections*/
 
                 foreach (DataRow dr in dt.Rows)

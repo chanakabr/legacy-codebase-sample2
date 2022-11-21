@@ -2,6 +2,9 @@
 using Phx.Lib.Log;
 using System;
 using System.Reflection;
+using ApiObjects.Base;
+using ApiObjects.User;
+using OfficeOpenXml.ConditionalFormatting;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -25,7 +28,7 @@ namespace WebAPI.Controllers
         [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetDoesNotExist)]
-        static public KalturaAssetFilePpvListResponse List(KalturaAssetFilePpvFilter filter)
+        public static KalturaAssetFilePpvListResponse List(KalturaAssetFilePpvFilter filter)
         {
             KalturaAssetFilePpvListResponse response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -39,7 +42,10 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.PricingClient().GetAssetFilePPVList(groupId, filter.AssetIdEqual.GetValueOrDefault(), filter.AssetFileIdEqual.GetValueOrDefault());
+                long userId = KS.GetFromRequest().UserId.ParseUserId();
+                var contextData = new ContextData(groupId) { UserId = userId };
+                response = ClientsManager.PricingClient().GetAssetFilePPVList(contextData,
+                    filter.AssetIdEqual.GetValueOrDefault(), filter.AssetFileIdEqual.GetValueOrDefault());
             }
             catch (ClientException ex)
             {
@@ -57,13 +63,13 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.UnKnownPPVModule)]
         [Throws(eResponseStatus.MediaFileDoesNotExist)]
-        static public KalturaAssetFilePpv Add(KalturaAssetFilePpv assetFilePpv)
+        public static KalturaAssetFilePpv Add(KalturaAssetFilePpv assetFilePpv)
         {
             KalturaAssetFilePpv response = null;
 
             try
             {
-                if (assetFilePpv.AssetFileId <0 )
+                if (assetFilePpv.AssetFileId < 0)
                 {
                     throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "assetFileId");
                 }
@@ -73,15 +79,19 @@ namespace WebAPI.Controllers
                     throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "ppvModuleId");
                 }
 
-                if (assetFilePpv.StartDate.HasValue && assetFilePpv.EndDate.HasValue && assetFilePpv.StartDate >= assetFilePpv.EndDate)
+                if (assetFilePpv.StartDate.HasValue && assetFilePpv.EndDate.HasValue &&
+                    assetFilePpv.StartDate >= assetFilePpv.EndDate)
                 {
-                    throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "startDate", "endDate");
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "startDate",
+                        "endDate");
                 }
 
                 int groupId = KS.GetFromRequest().GroupId;
-                // call client                
-                response = ClientsManager.PricingClient().AddAssetFilePpv(groupId, assetFilePpv);
+                long userId = KS.GetFromRequest().UserId.ParseUserId();
+                var contextData = new ContextData(groupId) { UserId = userId };
 
+                // call client                
+                response = ClientsManager.PricingClient().AddAssetFilePpv(contextData, assetFilePpv);
             }
             catch (ClientException ex)
             {
@@ -102,7 +112,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UnKnownPPVModule)]
         [Throws(eResponseStatus.MediaFileDoesNotExist)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        static public bool Delete(long assetFileId, long ppvModuleId)
+        public static bool Delete(long assetFileId, long ppvModuleId)
         {
             bool response = false;
 
@@ -119,9 +129,11 @@ namespace WebAPI.Controllers
                 }
 
                 int groupId = KS.GetFromRequest().GroupId;
+                long userId = KS.GetFromRequest().UserId.ParseUserId();
+                var contextData = new ContextData(groupId) { UserId = userId };
+                
                 // call client                
-                response = ClientsManager.PricingClient().DeleteAssetFilePpv(groupId, assetFileId, ppvModuleId);
-
+                response = ClientsManager.PricingClient().DeleteAssetFilePpv(contextData, assetFileId, ppvModuleId);
             }
             catch (ClientException ex)
             {
@@ -143,7 +155,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UnKnownPPVModule)]
         [Throws(eResponseStatus.MediaFileDoesNotExist)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        static public KalturaAssetFilePpv Update(long assetFileId, long ppvModuleId, KalturaAssetFilePpv assetFilePpv)
+        public static KalturaAssetFilePpv Update(long assetFileId, long ppvModuleId, KalturaAssetFilePpv assetFilePpv)
         {
             KalturaAssetFilePpv response = null;
 
@@ -163,9 +175,11 @@ namespace WebAPI.Controllers
                 assetFilePpv.PpvModuleId = ppvModuleId;
 
                 int groupId = KS.GetFromRequest().GroupId;
+                long userId = KS.GetFromRequest().UserId.ParseUserId();
+                var contextData = new ContextData(groupId) { UserId = userId };
+                
                 // call client                
-                response = ClientsManager.PricingClient().UpdateAssetFilePpv(groupId, assetFilePpv);
-
+                response = ClientsManager.PricingClient().UpdateAssetFilePpv(contextData, assetFilePpv);
             }
             catch (ClientException ex)
             {

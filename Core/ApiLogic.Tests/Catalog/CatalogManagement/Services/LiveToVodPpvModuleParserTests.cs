@@ -4,6 +4,7 @@ using System.Linq;
 using ApiLogic.Catalog.CatalogManagement.Models;
 using ApiLogic.Catalog.CatalogManagement.Services;
 using ApiLogic.Pricing.Handlers;
+using ApiObjects.Base;
 using ApiObjects.Pricing;
 using ApiObjects.Response;
 using Core.Pricing;
@@ -75,9 +76,8 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                 Metas = new[] { new AssetMeta { Name = "l2v_ppv_module", Value = "1;aaa" } }
             };
 
-            var partnerId = (int)programAsset.PartnerId;
             _ppvManagerMock.Setup(x => x.GetPPVModules(
-                    partnerId,
+                    It.IsAny<ContextData>(),
                     null,
                     false,
                     null,
@@ -105,7 +105,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
             };
 
             _ppvManagerMock.Setup(x => x.GetPPVModules(
-                    (int)programAsset.PartnerId,
+                    It.IsAny<ContextData>(),
                     null,
                     false,
                     null,
@@ -132,9 +132,8 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                 Metas = new[] { new AssetMeta { Name = "l2v_ppv_module", Value = ppvMetaValue } }
             };
 
-            var partnerId = (int)programAsset.PartnerId;
             _ppvManagerMock.Setup(x => x.GetPPVModules(
-                    partnerId,
+                    It.IsAny<ContextData>(),
                     null,
                     false,
                     null,

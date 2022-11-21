@@ -67,7 +67,7 @@ namespace Core.Notification
             return connectionString;
         }
 
-        public InboxMessageResponse GetInboxMessageCache(int groupId, int userId, string messageId)
+        public InboxMessageResponse GetInboxMessageCache(int groupId, long domainId, int userId, string messageId)
         {
             var response = new InboxMessageResponse();
             //check for empty message
@@ -78,7 +78,7 @@ namespace Core.Notification
                 return response;
             }
 
-            response = GetUserInboxCachedMessages(groupId, userId);
+            response = GetUserInboxCachedMessages(groupId, domainId, userId);
             if (response != null && response.InboxMessages.Any())
             {
                 response.InboxMessages = response.InboxMessages.Where(m => m.Id.Equals(messageId)).ToList();
@@ -89,7 +89,7 @@ namespace Core.Notification
             return response;
         }
 
-        public Status UpdateInboxMessageStatus(int groupId, int userId, string messageId, eMessageState status)
+        public Status UpdateInboxMessageStatus(int groupId, long domainId, int userId, string messageId, eMessageState status)
         {
             var _status = new Status();
             
@@ -112,7 +112,7 @@ namespace Core.Notification
             }
 
             // get user inbox messages
-            var messages = GetUserInboxCachedMessages(groupId, userId);
+            var messages = GetUserInboxCachedMessages(groupId, domainId, userId);
             if (messages == null || messages.InboxMessages == null || messages.InboxMessages.IsEmpty())
                 _status.Set(eResponseStatus.UserInboxMessagesNotExist, $"No messages for user: {userId}");
             else
@@ -134,11 +134,11 @@ namespace Core.Notification
             return _status;
         }
 
-        public UserInboxMessageStatus GetInboxMessageStatus(int groupId, int userId, string messageId)
+        public UserInboxMessageStatus GetInboxMessageStatus(int groupId, long domainId, int userId, string messageId)
         {
             var _status = new UserInboxMessageStatus();
 
-            var message = GetUserInboxCachedMessages(groupId, userId);
+            var message = GetUserInboxCachedMessages(groupId, domainId, userId);
             if (message != null && message.InboxMessages.Any(m => m.Id.Equals(messageId)))
             {
                 _status = _inboxMessageStatusRepository.GetMessageStatus(groupId, messageId);
@@ -178,11 +178,10 @@ namespace Core.Notification
             return new Tuple<Dictionary<string, UserInboxMessageStatus>, bool>(messages, messages != null);
         }
 
-        private static CampaignInboxMessageMap HandleCampaignsToUser(int groupId, int userId)
+        private static CampaignInboxMessageMap HandleCampaignsToUser(int groupId, long domainId, int userId)
         {
             //get all valid batch campaigns(by dates and status = active).
             var utcNow = DateUtils.GetUtcUnixTimestampNow();
-            var contextData = new ContextData(groupId) { UserId = userId };
 
             var batchFilter = new BatchCampaignFilter()
             {
@@ -190,7 +189,7 @@ namespace Core.Notification
                 IsActiveNow = true
             };
 
-            var batchCampaignsResponse = ApiLogic.Users.Managers.CampaignManager.Instance.ListBatchCampaigns(contextData, batchFilter);
+            var batchCampaignsResponse = CampaignManager.Instance.ListBatchCampaigns(new ContextData(groupId) { UserId = userId }, batchFilter);
             List<BatchCampaign> batchCampaigns = batchCampaignsResponse.HasObjects() ? batchCampaignsResponse.Objects : null;
             NotificationDal.RemoveOldCampaignsFromInboxMessageMapCB(groupId, userId, utcNow);
 
@@ -212,8 +211,8 @@ namespace Core.Notification
                     var scope = new BatchCampaignConditionScope()
                     {
                         FilterBySegments = true,
-                        SegmentIds = userSegments.Any() ? userSegments : null
-                    };
+                        SegmentIds = ConditionalAccess.Utils.GetDomainSegments(groupId, domainId, new List<string> { userId.ToString()})
+                };
 
                     //filter relevant campaigns by populationConditions.
                     foreach (var campaign in missingBatchCampaigns)
@@ -290,9 +289,9 @@ namespace Core.Notification
             }
         }
 
-        internal InboxMessageResponse GetUserInboxCachedMessages(int nGroupID, int userId)
+        internal InboxMessageResponse GetUserInboxCachedMessages(int nGroupID, long domainId, int userId)
         {
-            var inboxMessages = ListUserInboxMessages(nGroupID, userId);
+            var inboxMessages = ListUserInboxMessages(nGroupID, domainId, userId);
             return new InboxMessageResponse()
             {
                 InboxMessages = inboxMessages.messages,
@@ -301,11 +300,11 @@ namespace Core.Notification
             };
         }
 
-        private (bool success, List<InboxMessage> messages) ListUserInboxMessages(int groupId, int userId)
+        private (bool success, List<InboxMessage> messages) ListUserInboxMessages(int groupId, long domainId, int userId)
         {
             var messages = new List<InboxMessage>();
 
-            var potentialMessages = GetAllUserPotentialMessages(groupId, userId)?.OrderBy(x=> x.CreatedAtSec).ToList();
+            var potentialMessages = GetAllUserPotentialMessages(groupId, domainId, userId)?.OrderBy(x=> x.CreatedAtSec).ToList();
             var contextData = new ContextData(groupId) { UserId = userId };
             Dictionary<string, UserInboxMessageStatus> statuses = null;
 
@@ -335,13 +334,13 @@ namespace Core.Notification
             return (potentialMessages != null, messages);
         }
 
-        private List<InboxMessage> GetAllUserPotentialMessages(int groupId, int userId)
+        private List<InboxMessage> GetAllUserPotentialMessages(int groupId, long domainId, int userId)
         {
             //Get system announcements
             var _systemAnnouncements = _announcementManager.Get_AllMessageAnnouncements(groupId, 0, 0,null, false);
 
             //Get active campaigns
-            var _campaigns = HandleCampaignsToUser(groupId, userId);
+            var _campaigns = HandleCampaignsToUser(groupId, domainId, userId);
 
             //Get user followed series
             var _usersFollowedSeries = _announcementManager.GetUserFollowedSeries(groupId, userId);

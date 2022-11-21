@@ -53,7 +53,7 @@ namespace ApiLogic.Pricing.Handlers
         {
             var response = new GenericResponse<PpvModuleInternal>();
             VirtualAssetInfo virtualAssetInfo = null;
-            var oldPpvResponse = GetPpvById(contextData.GroupId, id, true);
+            var oldPpvResponse = GetPpvById(contextData, id, true);
             if (!oldPpvResponse.HasObject())
             {
                 response.SetStatus(oldPpvResponse.Status);
@@ -177,6 +177,24 @@ namespace ApiLogic.Pricing.Handlers
                 return response;
             }
 
+            bool isShopUser = false;
+            if (ppvToInsert.AssetUserRuleId > 0)
+            {
+                var assetRuleResponse = Core.Api.Managers.AssetUserRuleManager.GetAssetUserRuleByRuleId(contextData.GroupId, ppvToInsert.AssetUserRuleId.Value);
+                if (!assetRuleResponse.IsOkStatusCode())
+                {
+                    response.SetStatus(assetRuleResponse.Status);
+                    return response;
+                }
+            }
+
+            var assetUserRulesResponse = Core.Api.Managers.AssetUserRuleManager.GetAssetUserRuleList(contextData.GroupId, contextData.UserId, true, RuleActionType.UserFilter, RuleConditionType.AssetShop);
+            if (assetUserRulesResponse.HasObjects())
+            {
+                isShopUser = true;
+                ppvToInsert.AssetUserRuleId = assetUserRulesResponse.Objects[0].Id;
+            }
+
             ppvToInsert.CreateDate = ppvToInsert.UpdateDate = DateTime.UtcNow;
             int id = _repository.InsertPPV(contextData.GroupId, contextData.UserId.Value, convertToDto(ppvToInsert));
             if (id == 0)
@@ -193,6 +211,11 @@ namespace ApiLogic.Pricing.Handlers
                 Name = ppvToInsert.Name,
                 UserId = contextData.UserId.Value
             };
+
+            if (!isShopUser && ppvToInsert.AssetUserRuleId > 0)
+            {
+                virtualAssetInfo.AssetUserRuleId = ppvToInsert.AssetUserRuleId;
+            }
 
             var virtualAssetInfoResponse = _virtualAssetManager.AddVirtualAsset(contextData.GroupId, virtualAssetInfo);
             if (virtualAssetInfoResponse.Status == VirtualAssetInfoStatus.Error)
@@ -218,7 +241,7 @@ namespace ApiLogic.Pricing.Handlers
         public Status Delete(ContextData contextData, long id)
         {
             Status result = new Status();
-            var oldPpvResponse = GetPpvById(contextData.GroupId, id, true);
+            var oldPpvResponse = GetPpvById(contextData, id, true);
             if (!oldPpvResponse.HasObject())
             {
                 result.Set(oldPpvResponse.Status);
@@ -256,14 +279,14 @@ namespace ApiLogic.Pricing.Handlers
             return result;
         }
         
-        public GenericResponse<PPVModule> GetPpvById(int groupId, long ppvId, bool alsoInActive = false)
+        public GenericResponse<PPVModule> GetPpvById(ContextData contextData, long ppvModuleId, bool alsoInactive = false)
         {
-            GenericResponse<PPVModule> response = new GenericResponse<PPVModule>();
-            var ppvResponse = GetPPVModules(groupId, new List<long> { ppvId }, alsoInActive: alsoInActive);
+            var response = new GenericResponse<PPVModule>();
+            var ppvResponse = GetPPVModules(contextData, new List<long> { ppvModuleId }, alsoInactive: alsoInactive);
 
             if (!ppvResponse.HasObjects())
             {
-                response.SetStatus(eResponseStatus.PpvModuleNotExist, $"PpvModule Code {ppvId} does not exist");
+                response.SetStatus(eResponseStatus.PpvModuleNotExist, $"PpvModule Code {ppvModuleId} does not exist");
                 return response;
             }
             response.Object = ppvResponse.Objects[0];
@@ -272,11 +295,13 @@ namespace ApiLogic.Pricing.Handlers
             return response;
         }
         
-        public GenericListResponse<PPVModule> GetPPVModules(int groupId, List<long> PppvModuleIds = null, 
-            bool shouldShrink = false, int? couponGroupIdEqual = null, bool alsoInActive = false,
+        public GenericListResponse<PPVModule> GetPPVModules(ContextData contextData, List<long> ppvModuleIds = null, 
+            bool shouldShrink = false, int? couponGroupIdEqual = null, bool alsoInactive = false,
             PPVOrderBy orderBy = PPVOrderBy.NameAsc, int pageIndex = 0, int pageSize = 30, bool shouldIgnorePaging = true)
         {
-            GenericListResponse<PPVModule> response = new GenericListResponse<PPVModule>();
+            var response = new GenericListResponse<PPVModule>();
+
+            int groupId = contextData.GroupId;
 
             List<PpvDTO> allPpvs = new List<PpvDTO>();
             string allPpvsKey = LayeredCacheKeys.GetAllPpvsKey(groupId);
@@ -292,16 +317,16 @@ namespace ApiLogic.Pricing.Handlers
                 LayeredCacheConfigNames.PPV_MODULES_CACHE_CONFIG_NAME,
                 new List<string>() {LayeredCacheKeys.GetPpvGroupInvalidationKey(groupId)}))
             {
-                log.Error($"faild to GetPPVModules list .GetPPVModules from layeredCache for groupId:{groupId}.");
+                log.Error($"Failed to GetPPVModules list. GetPPVModules from layeredCache for groupId:{groupId}.");
                 return response;
             }
 
-            if (PppvModuleIds != null && PppvModuleIds.Count > 0)
+            if (ppvModuleIds != null && ppvModuleIds.Count > 0)
             {
-                allPpvs = allPpvs.Where(p => PppvModuleIds.Contains(p.Id)).ToList();
+                allPpvs = allPpvs.Where(p => ppvModuleIds.Contains(p.Id)).ToList();
             }
 
-            if (!alsoInActive)
+            if (!alsoInactive)
             {
                 allPpvs = allPpvs.Where(p => p.IsActive).ToList();
             }
@@ -311,6 +336,23 @@ namespace ApiLogic.Pricing.Handlers
                 allPpvs = allPpvs.Where(ppv => ppv.CouponsGroupCode == couponGroupIdEqual.Value).ToList();
             }
             
+            try
+            {
+                if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId) && contextData.UserId.HasValue && contextData.UserId.Value > 0)
+                {
+                    var assetUserRulesResponse = Core.Api.Managers.AssetUserRuleManager.GetAssetUserRuleList(groupId, contextData.UserId, true, RuleActionType.UserFilter, RuleConditionType.AssetShop);
+                    if (assetUserRulesResponse.Status.Code == (int)eResponseStatus.OK && assetUserRulesResponse.HasObjects())
+                    {
+                        var assetUserRuleId = assetUserRulesResponse.Objects[0].Id;
+                        allPpvs = allPpvs.Where(x => x.AssetUserRuleId.HasValue && x.AssetUserRuleId == assetUserRuleId).ToList();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
             switch (orderBy)
             {
                 case PPVOrderBy.NameAsc:
@@ -325,9 +367,10 @@ namespace ApiLogic.Pricing.Handlers
                 case PPVOrderBy.UpdateDataDesc:
                     allPpvs = allPpvs.OrderByDescending(ppv => ppv.UpdateDate).ToList();
                     break;
-            }	
+            }
+                
             response.TotalItems = allPpvs.Count;
-            
+
             if (!shouldIgnorePaging)
             {
                 int startIndexOnList = pageIndex * pageSize;
@@ -360,16 +403,16 @@ namespace ApiLogic.Pricing.Handlers
             return new Tuple<List<PpvDTO>, bool>(ppvDtos, res);
         }
 
-          private List<PPVModule> GetPpvsData(List<PpvDTO> ppvDtos, bool shouldShrink, int groupId)
+        private List<PPVModule> GetPpvsData(List<PpvDTO> ppvDtos, bool shouldShrink, int groupId)
         {
-            List<PPVModule> ppvModules = new  List<PPVModule>();
-            
+            List<PPVModule> ppvModules = new List<PPVModule>();
+
             if (ppvDtos != null && ppvDtos.Count > 0)
             {
                 foreach (var ppvDto in ppvDtos)
                 {
                     PPVModule ppvModule = new PPVModule();
-                    
+
                     string PpvKey = LayeredCacheKeys.GetPpvKey(ppvDto.Id);
                     if (!_layeredCache.Get<PPVModule>(PpvKey,
                         ref ppvModule,
@@ -382,11 +425,11 @@ namespace ApiLogic.Pricing.Handlers
                         },
                         groupId,
                         LayeredCacheConfigNames.PPV_MODULE_CACHE_CONFIG_NAME,
-                        new List<string>() {LayeredCacheKeys.GetPpvInvalidationKey(ppvDto.Id)}))
+                        new List<string>() { LayeredCacheKeys.GetPpvInvalidationKey(ppvDto.Id) }))
                     {
                         log.Error($"faild to GetPPVModules list .GetPPVModules from layeredCache for groupId:{groupId}.");
                     }
-                    
+
                     ppvModules.Add(ppvModule);
                 }
             }
@@ -424,7 +467,8 @@ namespace ApiLogic.Pricing.Handlers
                             ppvDto.Id.ToString(), ppvDto.SubscriptionOnly,
                             ppvDto.Name, string.Empty, string.Empty, string.Empty,
                             GetPPVFileTypes(groupId.Value, ppvDto.Id), ppvDto.FirstDeviceLimitation,
-                            ppvDto.ProductCode, 0, ppvDto.AdsPolicy, ppvDto.AdsParam, ppvDto.CreateDate, ppvDto.UpdateDate, ppvDto.IsActive, ppvDto.VirtualAssetId);
+                            ppvDto.ProductCode, 0, ppvDto.AdsPolicy, ppvDto.AdsParam, ppvDto.CreateDate, 
+                            ppvDto.UpdateDate, ppvDto.IsActive, ppvDto.VirtualAssetId, ppvDto.AssetUserRuleId);
                     }
                     else
                     {
@@ -514,6 +558,12 @@ namespace ApiLogic.Pricing.Handlers
                 ppvDto.CreateDate = ppv.CreateDate.Value;
             if (ppv.UpdateDate.HasValue)
                 ppvDto.UpdateDate = ppv.UpdateDate;
+            
+            if (ppv.AssetUserRuleId.HasValue)
+            {
+                ppvDto.AssetUserRuleId = ppv.AssetUserRuleId;
+            }
+            
             return ppvDto;
         }
         
@@ -531,7 +581,8 @@ namespace ApiLogic.Pricing.Handlers
                 ProductCode = ppv.m_Product_Code,
                 FirstDeviceLimitation = ppv.m_bFirstDeviceLimitation,
                 alias = ppv.alias,
-                AdsPolicy = ppv.AdsPolicy
+                AdsPolicy = ppv.AdsPolicy,
+                AssetUserRuleId = ppv.AssetUserRuleId
             };
             if (ppv.m_oDiscountModule != null)
             {
@@ -541,10 +592,11 @@ namespace ApiLogic.Pricing.Handlers
             {
                 ppvDto.CouponsGroupCode = int.Parse(ppv.m_oCouponsGroup.m_sGroupCode);
             }
+
             return ppvDto;
         }
         
-        private Status Validate(int groupId, int? PriceId, long? usageModuleId, long? discountModuleId, long? couponsGroupId ,List<int> fileTypesIds = null)
+        private Status Validate(int groupId, int? PriceId, long? usageModuleId, long? discountModuleId, long? couponsGroupId, List<int> fileTypesIds = null)
         {
             if (PriceId.HasValue && PriceId.Value != 0)
             {
@@ -597,6 +649,7 @@ namespace ApiLogic.Pricing.Handlers
                     }
                 }
             }
+
             return Status.Ok;
         }
 

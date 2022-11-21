@@ -141,7 +141,7 @@ namespace Phoenix.AsyncHandler
             var images = programAsset.Images?.Select(_liveToVodAssetMapper.Map) ?? Enumerable.Empty<Image>();
             _liveToVodImageService.AddImages(programAsset.PartnerId, images, liveToVodAsset.Id, programAsset.UpdaterId);
             // asset files
-            var assetFiles = _liveToVodAssetFileService.AddAssetFiles(programAsset.PartnerId, liveToVodAsset.Id, liveAsset.Files, programAsset.UpdaterId);
+            var assetFiles = _liveToVodAssetFileService.AddAssetFiles(programAsset.PartnerId, liveToVodAsset.Id, liveAsset.Id, programAsset.UpdaterId);
             var ppv = _ppvModuleParser.GetParsedPpv(programAsset);
             _liveToVodAssetFileService.AssignPpvOnAssetCreated(programAsset.PartnerId, liveToVodAsset.Id, assetFiles, ppv);
 
@@ -195,7 +195,7 @@ namespace Phoenix.AsyncHandler
             var images = programAsset.Images?.Select(_liveToVodAssetMapper.Map) ?? Enumerable.Empty<Image>();
             _liveToVodImageService.UpdateImages(programAsset.PartnerId, images, liveToVodAsset.Id, programAsset.UpdaterId);
             // asset files
-            var assetFiles = _liveToVodAssetFileService.UpdateAssetFiles(programAsset.PartnerId, liveAsset.Files, liveToVodAsset, programAsset.UpdaterId);
+            var assetFiles = _liveToVodAssetFileService.UpdateAssetFiles(programAsset.PartnerId, liveAsset.Id, liveToVodAsset, programAsset.UpdaterId);
             var ppv = _ppvModuleParser.GetParsedPpv(programAsset);
             _liveToVodAssetFileService.AssignPpvOnAssetUpdated(programAsset.PartnerId, liveToVodAsset.Id, assetFiles, ppv);
             

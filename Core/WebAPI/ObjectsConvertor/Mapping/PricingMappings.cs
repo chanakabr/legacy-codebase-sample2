@@ -501,7 +501,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                .ForMember(dest => dest.AdsPolicy, opt => opt.MapFrom(src => src.AdsPolicy))
                .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId))
-               .ForMember(dest => dest.FirstDeviceLimitation, opt => opt.MapFrom(src => src.m_bFirstDeviceLimitation));
+               .ForMember(dest => dest.FirstDeviceLimitation, opt => opt.MapFrom(src => src.m_bFirstDeviceLimitation))
+               .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.AssetUserRuleId));
 
             cfg.CreateMap<KalturaPpv, PPVModule>()
                 .ForMember(dest => dest.m_sDescription, opt => opt.MapFrom(src => src.Descriptions))
@@ -517,8 +518,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.m_oUsageModule, opt => opt.MapFrom(src => src.UsageModule))
                 .ForMember(dest => dest.AdsPolicy, opt => opt.MapFrom(src => src.AdsPolicy))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-                .ForMember(dest => dest.m_bFirstDeviceLimitation, opt => opt.MapFrom(src => src.FirstDeviceLimitation));
-            
+                .ForMember(dest => dest.m_bFirstDeviceLimitation, opt => opt.MapFrom(src => src.FirstDeviceLimitation))
+                .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId))
+                .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.AssetUserRuleId));
+
             cfg.CreateMap<KalturaPpv, PpvModuleInternal>()
                 .ForMember(dest => dest.CouponsGroupId, opt => opt.MapFrom(src => src.CouponsGroupId))
                 .ForMember(dest => dest.DiscountId, opt => opt.MapFrom(src => src.DiscountId))
@@ -531,6 +534,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                 .ForMember(dest => dest.AdsPolicy, opt => opt.MapFrom(src => src.AdsPolicy))
                 .ForMember(dest => dest.FirstDeviceLimitation, opt => opt.MapFrom(src => src.FirstDeviceLimitation))
+                .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.AssetUserRuleId))
+                .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId))
                 .AfterMap((src, dest) =>  dest.RelatedFileTypes = src.GetFileTypesIds())       
                 .AfterMap((src, dest) =>  dest.Description = GetDescriptions(src.Descriptions));
 
@@ -548,7 +553,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                 .ForMember(dest => dest.AdsPolicy, opt => opt.MapFrom(src => src.AdsPolicy))
                 .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId))
-                .ForMember(dest => dest.FirstDeviceLimitation, opt => opt.MapFrom(src => src.FirstDeviceLimitation));
+                .ForMember(dest => dest.FirstDeviceLimitation, opt => opt.MapFrom(src => src.FirstDeviceLimitation))
+                .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.AssetUserRuleId));
 
             //KalturaPpvPrice
             cfg.CreateMap<ItemPriceContainer, KalturaPpvPrice>()
@@ -655,6 +661,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                    src.m_sFileTypes != null && src.m_sFileTypes.Length > 0 ?
                    string.Join(",", src.m_sFileTypes) :
                    string.Empty))
+               .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.AssetUserRuleId))
                ;
 
             cfg.CreateMap<KalturaCollection, CollectionInternal>()
@@ -671,6 +678,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.PriceDetailsId, opt => opt.MapFrom(src => src.PriceDetailsId))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate.HasValue ? DateTimeOffset.FromUnixTimeSeconds(src.StartDate.Value).DateTime : (DateTime?)null))
                 .ForMember(dest => dest.UsageModuleId, opt => opt.MapFrom(src => src.UsageModuleId))
+                .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.AssetUserRuleId))
                 .ForMember(dest => dest.NullableProperties, opt => opt.MapFrom(src => src.NullableProperties))
                 .ForMember(dest => dest.FileTypesIds, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.FileTypesIds) ? WebAPI.Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(src.FileTypesIds, "KalturaCollection.FileTypesIds", true) : null))
                 .AfterMap((src, dest) => dest.ChannelsIds = src.ChannelsIds != null ? dest.ChannelsIds : null)
@@ -695,6 +703,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => MultilingualStringFactory.Create(src.Names)))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.StartDate)))
                 .ForMember(dest => dest.FileTypesIds, opt => opt.MapFrom(src => src.FileTypesIds != null ? string.Join(",", src.FileTypesIds) : string.Empty))
+                .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.AssetUserRuleId))
                 ;
 
             cfg.CreateMap<KalturaCollectionOrderBy, CollectionOrderBy>()

@@ -25,6 +25,8 @@ namespace Core.Pricing
         public long? VirtualAssetId { get; set; }
         public DateTime? CreateDate { get; set; }
         public DateTime? UpdateDate { get; set; }
+        public long? AssetUserRuleId { get; set; }
+
 
         public bool ShouldUpdate(PPVModule oldPPVModule)
         {

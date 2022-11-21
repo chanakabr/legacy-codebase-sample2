@@ -373,28 +373,29 @@ namespace Core.Pricing
             return result;
         }
 
-        public static List<long> GetCollectionsIds(int groupId, bool inactiveAssets)
+        public static List<long> GetCollectionsIds(int groupId, bool inactiveAssets, long? assetUserRuleId)
         {
             var response = new List<long>();
-            var result= new Dictionary<long, bool>();
+            
             try
             {
-                var key = GetCollectionsIdsCacheKey(groupId);
-                if (!LayeredCache.Instance.Get(key, ref result,
-                    GetGroupCollectionIds, new Dictionary<string, object>() { { "groupId", groupId } },
-                groupId, LayeredCacheConfigNames.GET_GROUP_COLLECTIONS, new List<string>()
-                { LayeredCacheKeys.GetCollectionsIdsInvalidationKey(groupId) }))
-                {
-                    log.ErrorFormat($"GetGroupCollectionIds - Failed get data from cache. groupId: {groupId}");
-                    return response;
-                }
+                var result = GetGroupCollectionsItems(groupId);
 
                 if (result?.Count > 0)
                 {
-                    response = result.Select(y => y.Key).ToList();
-                    if (!inactiveAssets)
+                    foreach (var item in result)
                     {
-                        response = result.Where(x => x.Value == true).Select(y => y.Key).ToList();
+                        if (!inactiveAssets && !item.IsActive)
+                        {
+                            continue;
+                        }
+
+                        if (assetUserRuleId > 0 && item.AssetUserRuleId != assetUserRuleId)
+                        {
+                            continue;
+                        }
+
+                        response.Add(item.Id);
                     }
                 }
             }
@@ -404,6 +405,52 @@ namespace Core.Pricing
             }
 
             return response;
+        }
+
+        public static List<long> FilterCollectionsByAssetUserRuleId(int groupId, List<long> collectionIds, long assetUserRuleId)
+        {
+            var response = new List<long>();
+
+            try
+            {
+                var result = GetGroupCollectionsItems(groupId);
+
+                if (result?.Count > 0)
+                {
+                    response = result.Where(x => x.AssetUserRuleId == assetUserRuleId && collectionIds.Contains(x.Id)).Select(x => x.Id).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed FilterCollectionsByAssetUserRuleId for groupId: {0}, ex: {1}", groupId, ex);
+            }
+
+            return response;
+        }
+
+        private static List<CollectionItemDTO> GetGroupCollectionsItems(int groupId)
+        {
+            var result = new List<CollectionItemDTO>();
+
+            try
+            {
+                var key = GetGroupCollectionsItemsCacheKey(groupId);
+                if (!LayeredCache.Instance.Get(key, ref result,
+                    GetGroupCollectionsItems, new Dictionary<string, object>() { { "groupId", groupId } },
+                groupId, LayeredCacheConfigNames.GET_GROUP_COLLECTIONS, new List<string>()
+                { LayeredCacheKeys.GetCollectionsIdsInvalidationKey(groupId) }))
+                {
+                    log.ErrorFormat($"GetGroupCollectionsItems - Failed get data from cache. groupId: {groupId}");
+                    return result;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed GetGroupCollectionsItems for groupId: {0}, ex: {1}", groupId, ex);
+            }
+
+            return result;
         }
 
         public List<SubscriptionItemDTO> GetGroupSubscriptionsItems(int groupId, bool getAlsoInActive)
@@ -440,6 +487,11 @@ namespace Core.Pricing
             return $"CollectionsIds_V2_{groupId}";
         }
 
+        public static string GetGroupCollectionsItemsCacheKey(int groupId)
+        {
+            return $"GroupCollectionsItems_{groupId}";
+        }
+
         public static Tuple<Dictionary<long, bool>, bool> GetGroupCollectionIds(Dictionary<string, object> funcParams)
         {
             int? groupId = 0;
@@ -456,6 +508,25 @@ namespace Core.Pricing
             }
 
             Dictionary<long, bool> res = DAL.PricingDAL.GetAllCollectionIds(groupId.Value);
+            return Tuple.Create(res, res?.Count > 0);
+        }
+
+        public static Tuple<List<CollectionItemDTO>, bool> GetGroupCollectionsItems(Dictionary<string, object> funcParams)
+        {
+            int? groupId = 0;
+            if (funcParams != null && funcParams.Count == 1)
+            {
+                if (funcParams.ContainsKey("groupId"))
+                {
+                    groupId = funcParams["groupId"] as int?;
+                    if (groupId == null)
+                    {
+                        return Tuple.Create(new List<CollectionItemDTO>(), false);
+                    }
+                }
+            }
+
+            List<CollectionItemDTO> res = DAL.PricingDAL.GetGroupCollectionsItems(groupId.Value);
             return Tuple.Create(res, res?.Count > 0);
         }
 

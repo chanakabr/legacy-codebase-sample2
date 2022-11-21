@@ -93,12 +93,12 @@ namespace CachingProvider.LayeredCache
 
         public static string GetPermissionsRolesIdsKey(int groupId)
         {
-            return string.Format("getPermissionRoleIds_V1_groupId_{0}", groupId);
+            return string.Format("getPermissionRoleIds_V2_groupId_{0}", groupId);
         }
 
         public static string GetGroupPermissionItemsDictionaryKey(int groupId)
         {
-            return string.Format("groupPermissionItemsDictionaryKey_groupId_{0}", groupId);
+            return string.Format("groupPermissionItemsDictionaryKey_V1_groupId_{0}", groupId);
         }
 
         public static string GetGroupIotClientConfig(int groupId)

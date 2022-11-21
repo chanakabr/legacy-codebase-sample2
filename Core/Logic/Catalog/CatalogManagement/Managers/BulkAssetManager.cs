@@ -235,7 +235,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 // handle existing assetFiles
-                GenericListResponse<AssetFile> assetFilesResponse = FileManager.GetMediaFiles(groupId, 0, assetId);
+                GenericListResponse<AssetFile> assetFilesResponse = FileManager.Instance.GetMediaFiles(groupId, 0, assetId);
                 if (assetFilesResponse != null && assetFilesResponse.HasObjects())
                 {
                     foreach (var assetFile in assetFilesResponse.Objects)

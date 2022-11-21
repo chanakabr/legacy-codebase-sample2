@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Xml;
 using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
@@ -17,12 +18,14 @@ using CouchbaseManager;
 using DAL;
 using DAL.BulkUpload;
 using DAL.DTO;
+using FeatureFlag;
 using ODBCWrapper;
 using Phx.Lib.Appconfig;
 using Phx.Lib.Log;
 using Newtonsoft.Json;
 using static ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData;
 using CategoryItemDTO = DAL.DTO.CategoryItemDTO;
+using Formatting = Newtonsoft.Json.Formatting;
 using LanguageContainerDTO = DAL.DTO.LanguageContainerDTO;
 
 namespace Tvinci.Core.DAL
@@ -4945,11 +4948,34 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet UpdateMediaAsset(int groupId, long id, long defaultLanguageId, System.Xml.XmlDocument metasToAdd, System.Xml.XmlDocument tagsToAdd, System.Xml.XmlDocument metasToUpdate,
-                                                System.Xml.XmlDocument tagsToUpdate, string coGuid, string entryId, int? deviceRuleId, int? geoBlockRuleId, bool? isActive, DateTime? startDate,
-                                                DateTime? endDate, DateTime? catalogStartDate, DateTime? finalEndDate, long userId, int inheritancePolicy,
-                                                System.Xml.XmlDocument relatedEntitiesToAdd, System.Xml.XmlDocument relatedEntitiesToUpdate, bool isMinimalOutput)
+        public static DataSet UpdateMediaAsset(
+            int groupId,
+            long id,
+            long defaultLanguageId,
+            XmlDocument metasToAdd,
+            XmlDocument tagsToAdd,
+            XmlDocument metasToUpdate,
+            (XmlDocument tagsXmlDocToUpdateItem, DataTable tagsXmlDocToUpdateDataTable) tagsToUpdatePair,
+            string coGuid,
+            string entryId,
+            int? deviceRuleId,
+            int? geoBlockRuleId,
+            bool? isActive,
+            DateTime? startDate,
+            DateTime? endDate,
+            DateTime? catalogStartDate,
+            DateTime? finalEndDate,
+            long userId,
+            int inheritancePolicy,
+            XmlDocument relatedEntitiesToAdd,
+            XmlDocument relatedEntitiesToUpdate,
+            bool isMinimalOutput)
         {
+            if (PhoenixFeatureFlagInstance.Get().IsImprovedUpdateMediaAssetStoredProcedureShouldBeUsed())
+            {
+                tagsToUpdatePair.tagsXmlDocToUpdateItem = null;
+            }
+
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMediaAsset");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
@@ -4961,8 +4987,9 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@TagsToAddXml", tagsToAdd != null ? tagsToAdd.InnerXml : string.Empty);
             sp.AddParameter("@MetasToUpdateExist", metasToUpdate != null && !string.IsNullOrEmpty(metasToUpdate.InnerXml) ? 1 : 0);
             sp.AddParameter("@MetasToUpdateXml", metasToUpdate != null ? metasToUpdate.InnerXml : string.Empty);
-            sp.AddParameter("@TagsToUpdateExist", tagsToUpdate != null && !string.IsNullOrEmpty(tagsToUpdate.InnerXml) ? 1 : 0);
-            sp.AddParameter("@TagsToUpdateXml", tagsToUpdate != null ? tagsToUpdate.InnerXml : string.Empty);
+            sp.AddParameter("@TagsToUpdateExist", (tagsToUpdatePair.tagsXmlDocToUpdateItem != null && !string.IsNullOrEmpty(tagsToUpdatePair.tagsXmlDocToUpdateItem.InnerXml) || tagsToUpdatePair.tagsXmlDocToUpdateDataTable != null) ? 1 : 0);
+            sp.AddParameter("@TagsToUpdateXml", tagsToUpdatePair.tagsXmlDocToUpdateItem != null ? tagsToUpdatePair.tagsXmlDocToUpdateItem.InnerXml : null);
+            sp.AddDataTableParameter("@TagsToUpdateTable", tagsToUpdatePair.tagsXmlDocToUpdateDataTable);
             sp.AddParameter("@CoGuid", coGuid);
             sp.AddParameter("@EntryId", entryId);
             sp.AddParameter("@DeviceRuleId", deviceRuleId);

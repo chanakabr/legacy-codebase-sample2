@@ -840,7 +840,7 @@ namespace WebAPI.Clients
             return ret;
         }
 
-        internal KalturaInboxMessageListResponse GetInboxMessageList(int groupId, string userID, int pageSize, int pageIndex, List<KalturaInboxMessageType> typeIn, long createdAtGreaterThanOrEqual, long createdAtLessThanOrEqual)
+        internal KalturaInboxMessageListResponse GetInboxMessageList(int groupId, long domainId, string userID, int pageSize, int pageIndex, List<KalturaInboxMessageType> typeIn, long createdAtGreaterThanOrEqual, long createdAtLessThanOrEqual)
         {
             InboxMessageResponse response = null;
             List<KalturaInboxMessage> result = null;
@@ -864,7 +864,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Notification.Module.GetInboxMessages(groupId, userId, pageSize, pageIndex, convertedtypeIn, createdAtGreaterThanOrEqual, createdAtLessThanOrEqual);
+                    response = Core.Notification.Module.GetInboxMessages(groupId, domainId, userId, pageSize, pageIndex, convertedtypeIn, createdAtGreaterThanOrEqual, createdAtLessThanOrEqual);
                 }
             }
             catch (Exception ex)
@@ -893,7 +893,7 @@ namespace WebAPI.Clients
         }
 
         [Obsolete]
-        internal KalturaInboxMessageResponse GetInboxMessages(int groupId, string userID, int pageSize, int pageIndex, List<KalturaInboxMessageType> typeIn, long createdAtGreaterThanOrEqual, long createdAtLessThanOrEqual)
+        internal KalturaInboxMessageResponse GetInboxMessages(int groupId, long domainId, string userID, int pageSize, int pageIndex, List<KalturaInboxMessageType> typeIn, long createdAtGreaterThanOrEqual, long createdAtLessThanOrEqual)
         {
             InboxMessageResponse response = null;
             List<KalturaInboxMessage> result = null;
@@ -917,7 +917,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Notification.Module.GetInboxMessages(groupId, userId, pageSize, pageIndex, convertedtypeIn, createdAtGreaterThanOrEqual, createdAtLessThanOrEqual);
+                    response = Core.Notification.Module.GetInboxMessages(groupId, domainId, userId, pageSize, pageIndex, convertedtypeIn, createdAtGreaterThanOrEqual, createdAtLessThanOrEqual);
                 }
             }
             catch (Exception ex)
@@ -945,7 +945,7 @@ namespace WebAPI.Clients
             return ret;
         }
 
-        internal bool UpdateInboxMessage(int groupId, string userID, string messageId, KalturaInboxMessageStatus status)
+        internal bool UpdateInboxMessage(int groupId, long domainId, string userID, string messageId, KalturaInboxMessageStatus status)
         {
             Status response = null;
 
@@ -960,7 +960,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Notification.Module.UpdateInboxMessage(groupId, userId, messageId, NotificationMapping.ConvertInboxMessageStatus(status));
+                    response = Core.Notification.Module.UpdateInboxMessage(groupId, domainId, userId, messageId, NotificationMapping.ConvertInboxMessageStatus(status));
                 }
             }
             catch (Exception ex)
@@ -978,7 +978,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaInboxMessage GetInboxMessage(int groupId, string userID, string id)
+        internal KalturaInboxMessage GetInboxMessage(int groupId, long domainId, string userID, string id)
         {
             InboxMessageResponse response = null;
             KalturaInboxMessage result = null;
@@ -995,7 +995,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Notification.Module.GetInboxMessage(groupId, userId, id);
+                    response = Core.Notification.Module.GetInboxMessage(groupId, domainId, userId, id);
                 }
             }
             catch (Exception ex)

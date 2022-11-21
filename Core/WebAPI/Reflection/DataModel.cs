@@ -795,6 +795,8 @@ namespace WebAPI.Reflection
                     {
                         case "Value":
                             return "value";
+                        case "Values":
+                            return "values";
                     }
                     break;
                     
@@ -2041,6 +2043,8 @@ namespace WebAPI.Reflection
                 case "KalturaCollection":
                     switch(property.Name)
                     {
+                        case "AssetUserRuleId":
+                            return "assetUserRuleId";
                         case "Channels":
                             return "channels";
                         case "ChannelsIds":
@@ -6517,6 +6521,8 @@ namespace WebAPI.Reflection
                     {
                         case "AdsPolicy":
                             return "adsPolicy";
+                        case "AssetUserRuleId":
+                            return "assetUserRuleId";
                         case "CouponsGroup":
                             return "couponsGroup";
                         case "CouponsGroupId":

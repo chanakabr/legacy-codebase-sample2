@@ -26,5 +26,6 @@ namespace ApiObjects.Pricing.Dto
         public DateTime? UpdateDate { get; set; }
         
         public long? VirtualAssetId { get; set; }
+        public long? AssetUserRuleId { get; set; }
     }
 }

@@ -3686,7 +3686,7 @@ namespace WebAPI.Clients
             KalturaMediaFileListResponse result = new KalturaMediaFileListResponse() { TotalCount = 0 };
 
             Func<GenericListResponse<AssetFile>> getMediaFilesFunc = () =>
-               FileManager.GetMediaFiles(groupId, id, assetId);
+               FileManager.Instance.GetMediaFiles(groupId, id, assetId);
 
             KalturaGenericListResponse<KalturaMediaFile> response =
                 ClientUtils.GetResponseListFromWS<KalturaMediaFile, AssetFile>(getMediaFilesFunc);

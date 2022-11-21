@@ -686,12 +686,12 @@ namespace Core.Notification
             return response;
         }
 
-        public static Status UpdateInboxMessage(int nGroupID, int userId, string messageId, eMessageState status)
+        public static Status UpdateInboxMessage(int nGroupID, long domainId, int userId, string messageId, eMessageState status)
         {
             Status response = null;
             try
             {
-                response = MessageInboxManger.Instance.UpdateInboxMessageStatus(nGroupID, userId, messageId, status);
+                response = MessageInboxManger.Instance.UpdateInboxMessageStatus(nGroupID, domainId, userId, messageId, status);
             }
             catch (Exception ex)
             {
@@ -701,12 +701,12 @@ namespace Core.Notification
             return response;
         }
 
-        public static InboxMessageResponse GetInboxMessage(int nGroupID, int userId, string messageId)
+        public static InboxMessageResponse GetInboxMessage(int nGroupID, long domainId, int userId, string messageId)
         {
             InboxMessageResponse response = null;
             try
             {
-                response = MessageInboxManger.Instance.GetInboxMessageCache(nGroupID, userId, messageId);
+                response = MessageInboxManger.Instance.GetInboxMessageCache(nGroupID, domainId, userId, messageId);
             }
             catch (Exception ex)
             {
@@ -716,7 +716,7 @@ namespace Core.Notification
             return response;
         }
 
-        public static InboxMessageResponse GetInboxMessages(int nGroupID, int userId, int pageSize, int pageIndex, List<eMessageCategory> messageCategorys, long CreatedAtGreaterThanOrEqual, long CreatedAtLessThanOrEqual)
+        public static InboxMessageResponse GetInboxMessages(int nGroupID, long domainId, int userId, int pageSize, int pageIndex, List<eMessageCategory> messageCategorys, long CreatedAtGreaterThanOrEqual, long CreatedAtLessThanOrEqual)
         {
             InboxMessageResponse response = null;
             try
@@ -730,7 +730,7 @@ namespace Core.Notification
                     CreatedAtLessThanOrEqual = CreatedAtLessThanOrEqual
                 };
 
-                response = MessageInboxManger.Instance.GetUserInboxCachedMessages(nGroupID, userId);
+                response = MessageInboxManger.Instance.GetUserInboxCachedMessages(nGroupID, domainId, userId);
                 response = _filter.ApplyOnInboxMessageResponse(response);
             }
             catch (Exception ex)

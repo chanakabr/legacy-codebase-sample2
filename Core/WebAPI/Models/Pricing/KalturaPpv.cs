@@ -203,7 +203,16 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "virtualAssetId", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
         public long? VirtualAssetId { get; set; }
-        
+
+        /// <summary>
+        /// Asset user rule identifier 
+        /// </summary>
+        [DataMember(Name = "assetUserRuleId")]
+        [JsonProperty("assetUserRuleId")]
+        [XmlElement(ElementName = "assetUserRuleId")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.INSERT, IsNullable = true)]
+        public long? AssetUserRuleId { get; set; }
+
         internal List<int> GetFileTypesIds()
         {
             if (FileTypesIds != null && FileTypesIds == "")

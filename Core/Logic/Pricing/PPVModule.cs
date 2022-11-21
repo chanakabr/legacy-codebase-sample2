@@ -30,6 +30,7 @@ namespace Core.Pricing
         public DateTime? CreateDate;
         public DateTime? UpdateDate;
         public long? VirtualAssetId { get; set; }
+        public long? AssetUserRuleId { get; set; }
         #endregion
 
         public override string ToString()
@@ -81,12 +82,14 @@ namespace Core.Pricing
             string sDiscountModuleCode, string sCouponGroupCode, LanguageContainer[] sDescriptions, Int32 nGroupID,
             string sPPVCode, bool bSubscriptionOnly, string sObjectVirtualName, string sCountryCd, string sLANGUAGE_CODE, 
             string sDEVICE_NAME, List<int> fileTypes, bool bFirstDeviceLimitation, string productCode, int dlmID = 0, AdsPolicy? adsPolicy = null, 
-            string adsParam = null, DateTime? createDate = null, DateTime? updateDate = null, bool? isActive = null, long? virtualAssetId = null)
+            string adsParam = null, DateTime? createDate = null, DateTime? updateDate = null, bool? isActive = null, long? virtualAssetId = null, long? assetUserRuleId = null)
         {
             m_bSubscriptionOnly = bSubscriptionOnly;
             m_sObjectVirtualName = sObjectVirtualName;
             m_relatedFileTypes = fileTypes;
             VirtualAssetId = virtualAssetId;
+            AssetUserRuleId = assetUserRuleId;
+
             if (createDate.HasValue)
             {
                 CreateDate = createDate.Value;

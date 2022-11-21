@@ -118,11 +118,6 @@ namespace ApiLogic.Api.Validators
                 return new Status(eResponseStatus.MetaNotFound);
             }
 
-            if (meta.Type == MetaType.Tag)
-            {
-                return new Status(eResponseStatus.Error, "Meta with multiple values is not allowed.");
-            }
-
             return Status.Ok;
         }
     }

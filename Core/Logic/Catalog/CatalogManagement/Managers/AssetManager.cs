@@ -29,6 +29,7 @@ using ApiObjects.SearchPriorityGroups;
 using FeatureFlag;
 using Tvinci.Core.DAL;
 using TVinciShared;
+using ApiObjects.Rules;
 using Core.GroupManagers;
 
 namespace Core.Catalog.CatalogManagement
@@ -37,7 +38,6 @@ namespace Core.Catalog.CatalogManagement
     {
         #region Constants and Read-only
 
-        private static readonly Lazy<AssetManager> Lazy = new Lazy<AssetManager>(() => new AssetManager(), LazyThreadSafetyMode.PublicationOnly);
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private const string IS_NEW_TAG_COLUMN_NAME = "tag_id";
@@ -112,12 +112,12 @@ namespace Core.Catalog.CatalogManagement
             { CREATE_DATE_TIME_META_SYSTEM_NAME, MetaType.DateTime.ToString() }
         };
 
+        #endregion
+        
         private static readonly Lazy<MediaAssetService> MediaAssetServiceLazy = new Lazy<MediaAssetService>(() => MediaAssetService.Instance, LazyThreadSafetyMode.PublicationOnly);
         private static readonly Lazy<AssetManager> AssetManagerLazy = new Lazy<AssetManager>(() => new AssetManager(), LazyThreadSafetyMode.PublicationOnly);
 
         public static AssetManager Instance => AssetManagerLazy.Value;
-
-        #endregion
 
         #region Internal Methods
 
@@ -217,6 +217,11 @@ namespace Core.Catalog.CatalogManagement
                             },
                             m_sValue = virtualAssetInfo.Id.ToString()
                         });
+
+                        if (virtualAssetInfo.AssetUserRuleId.HasValue)
+                        {
+                            HandleAssetUserRuleForVirtualAsset(groupId, virtualAssetInfo.AssetUserRuleId.Value, catalogGroupCache, ref virtualAsset); //BEO-12840
+                        }
                     }
                     else
                     {
@@ -257,6 +262,63 @@ namespace Core.Catalog.CatalogManagement
             log.Debug($"end to AddVirtualAsset. groupId {groupId} AssetId {virtualAssetInfoResponse.AssetId} Status {virtualAssetInfoResponse.Status}");
 
             return virtualAssetInfoResponse;
+        }
+
+        public void HandleAssetUserRuleForVirtualAsset(int groupId, long assetUserRuleId, CatalogGroupCache catalogGroupCache, ref MediaAsset virtualAsset)
+        {
+            try
+            {
+                var assetUserRuleResponse = Api.Managers.AssetUserRuleManager.GetAssetUserRuleByRuleId(groupId, assetUserRuleId);
+                if (assetUserRuleResponse.HasObject())
+                {
+                    var condition = assetUserRuleResponse.Object.Conditions.FirstOrDefault(x => x is AssetShopCondition);
+                    if (condition != null)
+                    {
+                        var shopMetaResponse = ShopMarkerService.Instance.GetShopMarkerTopic(groupId);
+
+                        if (shopMetaResponse.IsOkStatusCode())
+                        {
+                            var topic = shopMetaResponse.Object;
+
+                            if (!catalogGroupCache.AssetStructsMapById[virtualAsset.MediaType.m_nTypeID].MetaIds.Contains(topic.Id))
+                            {
+                                return;
+                            }
+
+                            TagMeta tm = new TagMeta()
+                            {
+                                m_sName = topic.SystemName,
+                                m_sType = topic.Type.ToString()
+                            };
+
+                            if (topic.Type == MetaType.Tag)
+                            {
+                                Tags tag = new Tags()
+                                {
+                                    m_oTagMeta = tm,
+                                    m_lValues = ((AssetShopCondition)condition).Values
+                                };
+
+                                virtualAsset.Tags.Add(tag);
+                            }
+                            else
+                            {
+                                string filter = ((AssetShopCondition)condition).Values[0];
+
+                                virtualAsset.Metas.Add(new Metas()
+                                {
+                                    m_oTagMeta = tm,
+                                    m_sValue = filter
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed to HandleAssetUserRuleForVirtualAsset - ", ex);
+            }
         }
 
         private static void DuplicateAsset(int groupId, long originalAssetId, out MediaAsset newAsset)
@@ -438,9 +500,21 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static Status ValidateMediaAssetForInsert(int groupId, CatalogGroupCache catalogGroupCache, ref AssetStruct assetStruct, MediaAsset asset, ref XmlDocument metasXmlDoc,
-                                                          ref XmlDocument tagsXmlDoc, ref DateTime? assetCatalogStartDate, ref DateTime? assetFinalEndDate, ref XmlDocument relatedEntitiesXmlDoc,
-                                                          bool isFromIngest, long userId, out DateTime startDate, out DateTime endDate)
+        private static Status ValidateMediaAssetForInsert(
+            int groupId,
+            CatalogGroupCache catalogGroupCache,
+            ref AssetStruct assetStruct,
+            MediaAsset asset,
+            ref XmlDocument metasXmlDoc,
+            ref XmlDocument tagsXmlDoc,
+            ref (XmlDocument tagsXmlDocToAddItem, DataTable tagsXmlDocToAddDataTable) tagsToAdd,
+            ref DateTime? assetCatalogStartDate,
+            ref DateTime? assetFinalEndDate,
+            ref XmlDocument relatedEntitiesXmlDoc,
+            bool isFromIngest,
+            long userId,
+            out DateTime startDate,
+            out DateTime endDate)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -459,8 +533,7 @@ namespace Core.Catalog.CatalogManagement
                 SetInheritedValue(groupId, catalogGroupCache, assetStruct, asset);
             }
 
-            result = ValidateMediaAssetMetasAndTagsNamesAndTypes(groupId, catalogGroupCache, asset.Metas, asset.Tags, assetStructMetaIds, ref metasXmlDoc, ref tagsXmlDoc,
-                                                                 ref assetCatalogStartDate, ref assetFinalEndDate, isFromIngest, userId);
+            result = ValidateMediaAssetMetasAndTagsNamesAndTypes(groupId, catalogGroupCache, asset.Metas, asset.Tags, assetStructMetaIds, ref metasXmlDoc, ref tagsToAdd, ref assetCatalogStartDate, ref assetFinalEndDate, isFromIngest, userId);
             if (result.Code != (int)eResponseStatus.OK)
             {
                 return result;
@@ -490,10 +563,25 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static Status ValidateMediaAssetForUpdate(int groupId, CatalogGroupCache catalogGroupCache, ref AssetStruct assetStruct, MediaAsset asset, HashSet<string> currentAssetMetasAndTags,
-                                                            ref XmlDocument metasXmlDocToAdd, ref XmlDocument tagsXmlDocToAdd, ref XmlDocument metasXmlDocToUpdate, ref XmlDocument tagsXmlDocToUpdate,
-                                                            ref DateTime? assetCatalogStartDate, ref DateTime? assetFinalEndDate, ref XmlDocument relatedEntitiesXmlDocToAdd,
-                                                            ref XmlDocument relatedEntitiesXmlDocToUpdate, MediaAsset currentAsset, long userId, out DateTime startDate, out DateTime endDate, bool isFromIngest = false)
+        private static Status ValidateMediaAssetForUpdate(
+            int groupId,
+            CatalogGroupCache catalogGroupCache,
+            ref AssetStruct assetStruct,
+            MediaAsset asset,
+            HashSet<string> currentAssetMetasAndTags,
+            ref XmlDocument metasXmlDocToAdd,
+            ref (XmlDocument tagsXmlDocToUpdateItem, DataTable tagsXmlDocToUpdateDataTable) tagsToAddPair,
+            ref XmlDocument metasXmlDocToUpdate,
+            ref (XmlDocument tagsXmlDocToUpdateItem, DataTable tagsXmlDocToUpdateDataTable) tagsToUpdatePair,
+            ref DateTime? assetCatalogStartDate,
+            ref DateTime? assetFinalEndDate,
+            ref XmlDocument relatedEntitiesXmlDocToAdd,
+            ref XmlDocument relatedEntitiesXmlDocToUpdate,
+            MediaAsset currentAsset,
+            long userId,
+            out DateTime startDate,
+            out DateTime endDate,
+            bool isFromIngest = false)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             HashSet<long> assetStructMetaIds = new HashSet<long>(assetStruct.MetaIds);
@@ -511,8 +599,7 @@ namespace Core.Catalog.CatalogManagement
             List<Tags> tagsToAdd = asset.Tags != null && currentAssetMetasAndTags != null ? asset.Tags.Where(x => !currentAssetMetasAndTags.Contains(x.m_oTagMeta.m_sName)).ToList() : new List<Tags>();
             List<RelatedEntities> relatedEntitiesToAdd = asset.RelatedEntities != null && currentAssetMetasAndTags != null ? asset.RelatedEntities.Where(x => !currentAssetMetasAndTags.Contains(x.TagMeta.m_sName)).ToList() : new List<RelatedEntities>();
 
-            result = ValidateMediaAssetMetasAndTagsNamesAndTypes(groupId, catalogGroupCache, metasToAdd, tagsToAdd, assetStructMetaIds, ref metasXmlDocToAdd, ref tagsXmlDocToAdd,
-                                                                    ref assetCatalogStartDate, ref assetFinalEndDate, isFromIngest, userId);
+            result = ValidateMediaAssetMetasAndTagsNamesAndTypes(groupId, catalogGroupCache, metasToAdd, tagsToAdd, assetStructMetaIds, ref metasXmlDocToAdd, ref tagsToAddPair, ref assetCatalogStartDate, ref assetFinalEndDate, isFromIngest, userId);
             if (result.Code != (int)eResponseStatus.OK)
             {
                 return result;
@@ -528,8 +615,7 @@ namespace Core.Catalog.CatalogManagement
             List<Tags> tagsToUpdate = asset.Tags != null && currentAssetMetasAndTags != null ? asset.Tags.Where(x => currentAssetMetasAndTags.Contains(x.m_oTagMeta.m_sName)).ToList() : new List<Tags>();
             List<RelatedEntities> relatedEntitiesToUpdate = asset.RelatedEntities != null && currentAssetMetasAndTags != null ? asset.RelatedEntities.Where(x => currentAssetMetasAndTags.Contains(x.TagMeta.m_sName)).ToList() : new List<RelatedEntities>();
 
-            result = ValidateMediaAssetMetasAndTagsNamesAndTypes(groupId, catalogGroupCache, metasToUpdate, tagsToUpdate, assetStructMetaIds, ref metasXmlDocToUpdate, ref tagsXmlDocToUpdate,
-                                                                    ref assetCatalogStartDate, ref assetFinalEndDate, isFromIngest, userId);
+            result = ValidateMediaAssetMetasAndTagsNamesAndTypes(groupId, catalogGroupCache, metasToUpdate, tagsToUpdate, assetStructMetaIds, ref metasXmlDocToUpdate, ref tagsToUpdatePair, ref assetCatalogStartDate, ref assetFinalEndDate, isFromIngest, userId);
             if (result.Code != (int)eResponseStatus.OK)
             {
                 return result;
@@ -568,9 +654,18 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static Status ValidateMediaAssetMetasAndTagsNamesAndTypes(int groupId, CatalogGroupCache catalogGroupCache, List<Metas> metas, List<Tags> tags, HashSet<long> assetStructMetaIds,
-                                                                          ref XmlDocument metasXmlDoc, ref XmlDocument tagsXmlDoc, ref DateTime? assetCatalogStartDate,
-                                                                          ref DateTime? assetFinalEndDate, bool isFromIngest, long userId)
+        private static Status ValidateMediaAssetMetasAndTagsNamesAndTypes(
+            int groupId,
+            CatalogGroupCache catalogGroupCache,
+            List<Metas> metas,
+            List<Tags> tags,
+            HashSet<long> assetStructMetaIds,
+            ref XmlDocument metasXmlDoc,
+            ref (XmlDocument tagsXmlDocItem, DataTable tagsXmlDocDataTable) tagsPair,
+            ref DateTime? assetCatalogStartDate,
+            ref DateTime? assetFinalEndDate,
+            bool isFromIngest,
+            long userId)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             HashSet<string> tempHashSet = new HashSet<string>();
@@ -632,9 +727,10 @@ namespace Core.Catalog.CatalogManagement
 
             if (tags != null && tags.Count > 0)
             {
-                tagsXmlDoc = new XmlDocument();
+                var tagsXmlDoc = new XmlDocument();
                 XmlNode rootNode = tagsXmlDoc.CreateElement("root");
                 tagsXmlDoc.AppendChild(rootNode);
+                var tagsDataTable = GenerateTagsDataTable();
                 foreach (Tags tag in tags)
                 {
                     var tagName = tag.m_oTagMeta.m_sName.Trim();
@@ -681,8 +777,13 @@ namespace Core.Catalog.CatalogManagement
                     {
                         index++;
                         AddTopicLanguageValueToXml(tagsXmlDoc, rootNode, topic.Id, catalogGroupCache.GetDefaultLanguage().ID, tagValue, index);
+                        // TODO: For some reason we skip languageId in stored procedure and assign const value equal to 2. Be aware.
+                        AddTopicLanguageValueToDataTable(tagsDataTable, topic.Id, tagValue, index);
                     }
                 }
+
+                tagsPair.tagsXmlDocItem = tagsXmlDoc;
+                tagsPair.tagsXmlDocDataTable = tagsDataTable;
 
                 //Get missing tags
                 DataTable missingTags = CatalogDAL.GetMissingTags(groupId, tagsXmlDoc);
@@ -854,6 +955,7 @@ namespace Core.Catalog.CatalogManagement
 
                 // validate asset
                 XmlDocument metasXmlDoc = null, tagsXmlDoc = null, relatedEntitiesXmlDoc = null;
+                var tagsToAdd = (tagsXmlDocToAddItem: (XmlDocument)null, tagsXmlDocToAddDataTable: (DataTable)null);
                 DateTime? assetCatalogStartDate = null, assetFinalEndDate = null;
 
                 if (!assetToAdd.InheritancePolicy.HasValue)
@@ -861,7 +963,7 @@ namespace Core.Catalog.CatalogManagement
                     assetToAdd.InheritancePolicy = AssetInheritancePolicy.Enable;
                 }
 
-                Status validateAssetTopicsResult = ValidateMediaAssetForInsert(groupId, catalogGroupCache, ref assetStruct, assetToAdd, ref metasXmlDoc, ref tagsXmlDoc,
+                Status validateAssetTopicsResult = ValidateMediaAssetForInsert(groupId, catalogGroupCache, ref assetStruct, assetToAdd, ref metasXmlDoc, ref tagsXmlDoc, ref tagsToAdd,
                                                                                 ref assetCatalogStartDate, ref assetFinalEndDate, ref relatedEntitiesXmlDoc, isFromIngest,
                                                                                 userId, out var startDate, out var endDate);
 
@@ -882,7 +984,7 @@ namespace Core.Catalog.CatalogManagement
                 ExtractBasicTopicLanguageAndValuesFromMediaAsset(assetToAdd, catalogGroupCache, ref metasXmlDoc, DESCRIPTION_META_SYSTEM_NAME);
 
                 DateTime catalogStartDate = assetToAdd.CatalogStartDate ?? startDate;
-                DataSet ds = CatalogDAL.InsertMediaAsset(groupId, catalogGroupCache.GetDefaultLanguage().ID, metasXmlDoc, tagsXmlDoc, assetToAdd.CoGuid,
+                DataSet ds = CatalogDAL.InsertMediaAsset(groupId, catalogGroupCache.GetDefaultLanguage().ID, metasXmlDoc, tagsToAdd.tagsXmlDocToAddItem, assetToAdd.CoGuid,
                                                         assetToAdd.EntryId, assetToAdd.DeviceRuleId, assetToAdd.GeoBlockRuleId, assetToAdd.IsActive,
                                                         startDate, endDate, catalogStartDate, assetToAdd.FinalEndDate, assetStruct.Id, userId, (int)assetToAdd.InheritancePolicy,
                                                         relatedEntitiesXmlDoc, isFromIngest);
@@ -1086,6 +1188,27 @@ namespace Core.Catalog.CatalogManagement
             return true;
         }
 
+        private static DataTable GenerateTagsDataTable()
+        {
+            var tagsDataTable = new DataTable();
+            tagsDataTable.Columns.Add("topic_id", typeof(long));
+            tagsDataTable.Columns.Add("value", typeof(string));
+            tagsDataTable.Columns.Add("order_num", typeof(int));
+            return tagsDataTable;
+        }
+
+        private static void AddTopicLanguageValueToDataTable(DataTable tagsDataTable, long topicId, string tagValue, int index)
+        {
+            if (tagValue != null)
+            {
+                var row = tagsDataTable.NewRow();
+                row[0] = topicId;
+                row[1] = tagValue;
+                row[2] = index;
+                tagsDataTable.Rows.Add(row);
+            }
+        }
+
         private static void AddTopicLanguageValueToXml(XmlDocument metasXmlDoc, XmlNode rootNode, long topicId, int languageId, string value, int order = 0)
         {
             if (value != null)
@@ -1230,7 +1353,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 if (!isForMigration && !isFromChannel)
                 {
-                    status = AssetUserRuleManager.CheckAssetUserRuleList(groupId, userId, currentAsset.Id);
+                    status = AssetUserRuleManager.CheckAssetUserRuleList(groupId, userId, currentAsset);
                     if (status == null || status.Code == (int)eResponseStatus.ActionIsNotAllowed)
                     {
                         result.SetStatus(eResponseStatus.ActionIsNotAllowed, ACTION_IS_NOT_ALLOWED);
@@ -1246,7 +1369,9 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // validate asset
-                XmlDocument metasXmlDocToAdd = null, tagsXmlDocToAdd = null, metasXmlDocToUpdate = null, tagsXmlDocToUpdate = null;
+                XmlDocument metasXmlDocToAdd = null, metasXmlDocToUpdate = null;
+                var tagsToUpdate = (tagsXmlDocToUpdateItem: (XmlDocument)null, tagsXmlDocToUpdateDataTable: (DataTable)null);
+                var tagsToAdd = (tagsXmlDocToAddItem: (XmlDocument)null, tagsXmlDocToAddDataTable: (DataTable)null);
                 XmlDocument relatedEntitiesXmlDocToAdd = null, relatedEntitiesXmlDocToUpdate = null;
 
                 AssetStruct assetStruct = null;
@@ -1269,9 +1394,24 @@ namespace Core.Catalog.CatalogManagement
                     MediaIngestProtectProcessor.Instance.ProcessIngestProtect(currentAsset, assetToUpdate, catalogGroupCache);
                 }
 
-                Status validateAssetTopicsResult = ValidateMediaAssetForUpdate(groupId, catalogGroupCache, ref assetStruct, assetToUpdate, currentAssetMetasAndTags, ref metasXmlDocToAdd,
-                                                        ref tagsXmlDocToAdd, ref metasXmlDocToUpdate, ref tagsXmlDocToUpdate, ref assetCatalogStartDate,
-                                                        ref assetFinalEndDate, ref relatedEntitiesXmlDocToAdd, ref relatedEntitiesXmlDocToUpdate, currentAsset, userId, out var startDate, out var endDate, isFromIngest);
+                Status validateAssetTopicsResult = ValidateMediaAssetForUpdate(groupId,
+                    catalogGroupCache,
+                    ref assetStruct,
+                    assetToUpdate,
+                    currentAssetMetasAndTags,
+                    ref metasXmlDocToAdd,
+                    ref tagsToAdd,
+                    ref metasXmlDocToUpdate,
+                    ref tagsToUpdate,
+                    ref assetCatalogStartDate,
+                    ref assetFinalEndDate,
+                    ref relatedEntitiesXmlDocToAdd,
+                    ref relatedEntitiesXmlDocToUpdate,
+                    currentAsset,
+                    userId,
+                    out var startDate,
+                    out var endDate,
+                    isFromIngest);
                 if (validateAssetTopicsResult.Code != (int)eResponseStatus.OK)
                 {
                     result.SetStatus(validateAssetTopicsResult);
@@ -1306,9 +1446,28 @@ namespace Core.Catalog.CatalogManagement
                 AssetInheritancePolicy inheritancePolicy = assetToUpdate.InheritancePolicy ?? (currentAsset.InheritancePolicy ?? AssetInheritancePolicy.Enable);
 
                 // TODO - Lior. Need to extract all values from tags that are part of the mediaObj properties (Basic metas)
-                DataSet ds = CatalogDAL.UpdateMediaAsset(groupId, assetToUpdate.Id, catalogGroupCache.GetDefaultLanguage().ID, metasXmlDocToAdd, tagsXmlDocToAdd, metasXmlDocToUpdate, tagsXmlDocToUpdate,
-                                                        assetToUpdate.CoGuid, assetToUpdate.EntryId, assetToUpdate.DeviceRuleId, assetToUpdate.GeoBlockRuleId, assetToUpdate.IsActive, startDate,
-                                                        endDate, catalogStartDate, assetToUpdate.FinalEndDate, userId, (int)inheritancePolicy, relatedEntitiesXmlDocToAdd, relatedEntitiesXmlDocToUpdate, isFromIngest);
+
+                DataSet ds = CatalogDAL.UpdateMediaAsset(groupId,
+                    assetToUpdate.Id,
+                    catalogGroupCache.GetDefaultLanguage().ID,
+                    metasXmlDocToAdd,
+                    tagsToAdd.tagsXmlDocToAddItem,
+                    metasXmlDocToUpdate,
+                    tagsToUpdate,
+                    assetToUpdate.CoGuid,
+                    assetToUpdate.EntryId,
+                    assetToUpdate.DeviceRuleId,
+                    assetToUpdate.GeoBlockRuleId,
+                    assetToUpdate.IsActive,
+                    startDate,
+                    endDate,
+                    catalogStartDate,
+                    assetToUpdate.FinalEndDate,
+                    userId,
+                    (int) inheritancePolicy,
+                    relatedEntitiesXmlDocToAdd,
+                    relatedEntitiesXmlDocToUpdate,
+                    isFromIngest);
 
                 Dictionary<string, DataTable> tables = null;
                 status = BuildTableDicAfterUpdateMediaAsset(ds, assetToUpdate.Id, out tables, isFromIngest);
@@ -1451,8 +1610,28 @@ namespace Core.Catalog.CatalogManagement
                 if (inheritancePolicy == AssetInheritancePolicy.Disable)
                 {
                     //update inheritancePolicy
-                    ds = CatalogDAL.UpdateMediaAsset(groupId, asset.Id, catalogGroupCache.GetDefaultLanguage().ID, null, null, null, null, null, null, null, null, null, null,
-                                                       null, null, null, userId, (int)inheritancePolicy, null, null, isMinimalOutput);
+                    var tagsToUpdate = (tagsXmlDocToAddItem: (XmlDocument)null, tagsXmlDocToAddDataTable: (DataTable)null);
+                    ds = CatalogDAL.UpdateMediaAsset(groupId,
+                        asset.Id,
+                        catalogGroupCache.GetDefaultLanguage().ID,
+                        null,
+                        null,
+                        null,
+                        tagsToUpdate,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        userId,
+                        (int) inheritancePolicy,
+                        null,
+                        null,
+                        isMinimalOutput);
                 }
             }
 
@@ -2048,7 +2227,7 @@ namespace Core.Catalog.CatalogManagement
 
             if (!isFromChannel)
             {
-                var status = AssetUserRuleManager.CheckAssetUserRuleList(groupId, userId, mediaId);
+                var status = AssetUserRuleManager.CheckAssetUserRuleList(groupId, userId, currentAsset);
                 if (status == null || status.Code == (int)eResponseStatus.ActionIsNotAllowed)
                 {
                     result.Set((int)eResponseStatus.ActionIsNotAllowed, ACTION_IS_NOT_ALLOWED);

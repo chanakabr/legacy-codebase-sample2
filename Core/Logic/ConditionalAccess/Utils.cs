@@ -1871,12 +1871,7 @@ namespace Core.ConditionalAccess
                 IsActiveNow = true
             };
 
-            var contextData = new ApiObjects.Base.ContextData(groupId)
-            {
-                DomainId = domainId
-            };
-
-            var campaigns = ApiLogic.Users.Managers.CampaignManager.Instance.SearchCampaigns(contextData, campaignFilter);
+            var campaigns = ApiLogic.Users.Managers.CampaignManager.Instance.SearchCampaigns(new ContextData(groupId) { DomainId = domainId }, campaignFilter);
 
             if (campaigns.HasObjects())
             {
@@ -1894,11 +1889,11 @@ namespace Core.ConditionalAccess
 
                 if (validCampaigns?.Count > 0)
                 {
-                    var domainResponse = Domains.Module.GetDomainInfo(contextData.GroupId, (int)contextData.DomainId);
+                    var domainResponse = Domains.Module.GetDomainInfo(groupId, domainId);
                     long userId = domainResponse.Domain.m_masterGUIDs.FirstOrDefault();
 
                     //get user map
-                    var userCampaigns = NotificationDal.GetCampaignInboxMessageMapCB(contextData.GroupId, userId);
+                    var userCampaigns = NotificationDal.GetCampaignInboxMessageMapCB(groupId, userId);
 
                     var batchCampaignScope = new BatchCampaignConditionScope();
 
@@ -1948,8 +1943,8 @@ namespace Core.ConditionalAccess
                             {
                                 if (!batchCampaignScope.FilterBySegments)
                                 {
-                                    List<string> allUserIdsInDomain = Domains.Module.GetDomainUserList(contextData.GroupId, (int)contextData.DomainId);
-                                    batchCampaignScope.SegmentIds = GetDomainSegments(contextData.GroupId, contextData.DomainId.Value, allUserIdsInDomain);
+                                    List<string> allUserIdsInDomain = Domains.Module.GetDomainUserList(groupId, domainId);
+                                    batchCampaignScope.SegmentIds = GetDomainSegments(groupId, domainId, allUserIdsInDomain);
                                     batchCampaignScope.FilterBySegments = true;
                                 }  
                             }
@@ -1957,7 +1952,7 @@ namespace Core.ConditionalAccess
                             if (promotedCampaign.EvaluateConditions(batchCampaignScope))
                             {
                                 campaignAssignedToUser = true;
-                                Task.Run(() => Notification.MessageInboxManger.AddCampaignMessage(promotedCampaign, contextData.GroupId, userId));
+                                Task.Run(() => Notification.MessageInboxManger.AddCampaignMessage(promotedCampaign, groupId, userId));
                             }
                         }
 

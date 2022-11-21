@@ -18,6 +18,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using ApiObjects.Base;
 using TVinciShared;
 
 namespace Core.Pricing
@@ -33,13 +34,13 @@ namespace Core.Pricing
 
         public static IPriceManager Instance => _lazy.Value;
 
-        public GenericResponse<AssetFilePpv> AddAssetFilePPV(int groupId, AssetFilePpv assetFilePpv)
+        public GenericResponse<AssetFilePpv> AddAssetFilePPV(ContextData contextData, AssetFilePpv assetFilePpv)
         {
             GenericResponse<AssetFilePpv> response = new GenericResponse<AssetFilePpv>();
             try
             {
                 // Validate mediaFileId && ppvModuleId
-                Status status = ValidateAssetFilePPV(groupId, assetFilePpv.AssetFileId, assetFilePpv.PpvModuleId);
+                Status status = ValidateAssetFilePPV(contextData, assetFilePpv.AssetFileId, assetFilePpv.PpvModuleId);
                 if (status != null && status.Code != (int)eResponseStatus.OK)
                 {
                     response.SetStatus(status.Code, status.Message);
@@ -47,20 +48,23 @@ namespace Core.Pricing
                 }
 
                 // validate ppvModuleId && mediaFileId not already exist
-                bool isExist = IsAssetFilePpvExist(groupId, assetFilePpv.AssetFileId, assetFilePpv.PpvModuleId);
+                bool isExist = IsAssetFilePpvExist(contextData.GroupId, assetFilePpv.AssetFileId, assetFilePpv.PpvModuleId);
                 if (isExist)
                 {
-                    log.ErrorFormat("Error. mediaFileId {0} && ppvModuleId {1} already exist for groupId: {2}", assetFilePpv.AssetFileId, assetFilePpv.PpvModuleId, groupId);
+                    log.ErrorFormat("Error. mediaFileId {0} && ppvModuleId {1} already exist for groupId: {2}",
+                        assetFilePpv.AssetFileId, assetFilePpv.PpvModuleId, contextData.GroupId);
                     response.SetStatus(eResponseStatus.Error, "AssetFilePpv already exist");
                     return response;
                 }
 
                 DataTable dt = PricingDAL.AddAssetFilePPV(
-                    groupId, assetFilePpv.AssetFileId, assetFilePpv.PpvModuleId, assetFilePpv.StartDate, assetFilePpv.EndDate);
+                    contextData.GroupId, assetFilePpv.AssetFileId, assetFilePpv.PpvModuleId, assetFilePpv.StartDate,
+                    assetFilePpv.EndDate);
 
                 if (dt == null || dt.Rows.Count == 0)
                 {
-                    log.ErrorFormat("Error while AddAssetFilePPV. groupId: {0}, mediaFileId: {1}, ppvModuleId: {2}", groupId, assetFilePpv.AssetFileId, assetFilePpv.PpvModuleId);
+                    log.ErrorFormat("Error while AddAssetFilePPV. groupId: {0}, mediaFileId: {1}, ppvModuleId: {2}",
+                        contextData.GroupId, assetFilePpv.AssetFileId, assetFilePpv.PpvModuleId);
                     return response;
                 }
 
@@ -77,19 +81,20 @@ namespace Core.Pricing
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed AddAssetFilePPV. groupId: {0}, mediaFileId: {1}, ppvModuleId: {2}. ex :{3}", groupId,assetFilePpv.AssetFileId, assetFilePpv.PpvModuleId, ex);
+                log.ErrorFormat("Failed AddAssetFilePPV. groupId: {0}, mediaFileId: {1}, ppvModuleId: {2}. ex :{3}",
+                    contextData.GroupId, assetFilePpv.AssetFileId, assetFilePpv.PpvModuleId, ex);
             }
 
             return response;
         }
 
-        public GenericResponse<AssetFilePpv> UpdateAssetFilePPV(int groupId, AssetFilePpv request)
+        public GenericResponse<AssetFilePpv> UpdateAssetFilePPV(ContextData contextData, AssetFilePpv request)
         {
             GenericResponse<AssetFilePpv> response = new GenericResponse<AssetFilePpv>();
             try
             {
                 // Validate mediaFileId && ppvModuleId
-                Status status = ValidateAssetFilePPV(groupId, request.AssetFileId, request.PpvModuleId);
+                Status status = ValidateAssetFilePPV(contextData, request.AssetFileId, request.PpvModuleId);
                 if (status != null && status.Code != (int)eResponseStatus.OK)
                 {
                     response.SetStatus(status.Code, status.Message);
@@ -97,22 +102,27 @@ namespace Core.Pricing
                 }
 
                 // validate ppvModuleId && mediaFileId not already exist
-                bool isExist = IsAssetFilePpvExist(groupId, request.AssetFileId, request.PpvModuleId);
+                bool isExist = IsAssetFilePpvExist(contextData.GroupId, request.AssetFileId, request.PpvModuleId);
                 if (!isExist)
                 {
-                    log.ErrorFormat("Error. mediaFileId {0} && ppvModuleId {1} already exist for groupId: {2}", request.AssetFileId, request.PpvModuleId, groupId);
+                    log.ErrorFormat("Error. mediaFileId {0} && ppvModuleId {1} already exist for groupId: {2}",
+                        request.AssetFileId, request.PpvModuleId, contextData.GroupId);
                     response.SetStatus(eResponseStatus.AssetFilePPVNotExist, ASSET_FILE_PPV_NOT_EXIST);
                     return response;
                 }
 
-                var nullableStartDate = new DAL.NullableObj<DateTime?>(request.StartDate, request.IsNullablePropertyExists("StartDate"));
-                var nullableEndDate = new DAL.NullableObj<DateTime?>(request.EndDate, request.IsNullablePropertyExists("EndDate"));
+                var nullableStartDate =
+                    new DAL.NullableObj<DateTime?>(request.StartDate, request.IsNullablePropertyExists("StartDate"));
+                var nullableEndDate =
+                    new DAL.NullableObj<DateTime?>(request.EndDate, request.IsNullablePropertyExists("EndDate"));
 
-                DataTable dt = PricingDAL.UpdateAssetFilePPV(groupId, request.AssetFileId, request.PpvModuleId, nullableStartDate, nullableEndDate);
+                DataTable dt = PricingDAL.UpdateAssetFilePPV(contextData.GroupId, request.AssetFileId, request.PpvModuleId,
+                    nullableStartDate, nullableEndDate);
 
                 if (dt == null || dt.Rows.Count == 0)
                 {
-                    log.ErrorFormat("Error while UpdateAssetFilePPV. groupId: {0}, mediaFileId: {1}, ppvModuleId: {2}", groupId, request.AssetFileId, request.PpvModuleId);
+                    log.ErrorFormat("Error while UpdateAssetFilePPV. groupId: {0}, mediaFileId: {1}, ppvModuleId: {2}",
+                        contextData.GroupId, request.AssetFileId, request.PpvModuleId);
                     return response;
                 }
 
@@ -122,25 +132,26 @@ namespace Core.Pricing
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed UpdateAssetFilePPV. groupId: {0}, mediaFileId: {1}, ppvModuleId: {2}. ex :{3}", groupId, request.AssetFileId, request.PpvModuleId, ex);
+                log.ErrorFormat("Failed UpdateAssetFilePPV. groupId: {0}, mediaFileId: {1}, ppvModuleId: {2}. ex :{3}",
+                    contextData.GroupId, request.AssetFileId, request.PpvModuleId, ex);
             }
 
             return response;
         }
 
-        public Status DeleteAssetFilePPV(int groupId, long mediaFileId, long ppvModuleId)
+        public Status DeleteAssetFilePPV(ContextData contextData, long mediaFileId, long ppvModuleId)
         {
             Status status = new Status();
             try
             {
                 // Validate mediaFileId && ppvModuleId
-                status = ValidateAssetFilePPV(groupId, mediaFileId, ppvModuleId);
+                status = ValidateAssetFilePPV(contextData, mediaFileId, ppvModuleId);
                 if (status != null && status.Code != (int)eResponseStatus.OK)
                 {
                     return status;
                 }
 
-                int res = PricingDAL.DeleteAssetFilePPV(groupId, mediaFileId, ppvModuleId);
+                int res = PricingDAL.DeleteAssetFilePPV(contextData.GroupId, mediaFileId, ppvModuleId);
                 if (res == 0)
                 {
                     return new Status((int)eResponseStatus.Error, "failed to DeleteAssetFilePPV");
@@ -156,13 +167,14 @@ namespace Core.Pricing
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed DeleteAssetFilePPV. groupId: {0}, mediaFileId: {1}, ppvModuleId: {2}. ex :{3}", groupId, mediaFileId, ppvModuleId, ex);
+                log.ErrorFormat("Failed DeleteAssetFilePPV. groupId: {0}, mediaFileId: {1}, ppvModuleId: {2}. ex :{3}",
+                    contextData.GroupId, mediaFileId, ppvModuleId, ex);
             }
 
             return status;
         }
 
-        public GenericListResponse<AssetFilePpv> GetAssetFilePPVList(int groupId, long assetId, long assetFileId)
+        public GenericListResponse<AssetFilePpv> GetAssetFilePPVList(ContextData contextData, long assetId, long assetFileId)
         {
             GenericListResponse<AssetFilePpv> response = new GenericListResponse<AssetFilePpv>();
             response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -175,18 +187,20 @@ namespace Core.Pricing
                 if (assetId > 0)
                 {
                     // check if assetId exist
-                    GenericResponse<Asset> assetResponse = AssetManager.Instance.GetAsset(groupId, assetId, eAssetTypes.MEDIA, true);
-                    if (assetResponse != null && assetResponse.Status != null && assetResponse.Status.Code != (int)eResponseStatus.OK)
+                    GenericResponse<Asset> assetResponse =
+                        AssetManager.Instance.GetAsset(contextData.GroupId, assetId, eAssetTypes.MEDIA, true);
+                    if (assetResponse != null && assetResponse.Status != null &&
+                        assetResponse.Status.Code != (int)eResponseStatus.OK)
                     {
                         response.SetStatus(assetResponse.Status);
                         return response;
                     }
 
-                    assetFiles = FileManager.GetAssetFilesByAssetId(groupId, assetId);
+                    assetFiles = FileManager.GetAssetFilesByAssetId(contextData.GroupId, assetId);
                     // Get Asset Files
                     if (assetFiles == null)
                     {
-                        log.ErrorFormat("Error while getting assetFiles. groupId: {0}, assetId {1}", groupId, assetId);
+                        log.ErrorFormat("Error while getting assetFiles. groupId: {0}, assetId {1}", contextData.GroupId, assetId);
                         response.SetStatus(eResponseStatus.Error, eResponseStatus.Error.ToString());
                         return response;
                     }
@@ -194,12 +208,13 @@ namespace Core.Pricing
                 else if (assetFileId > 0)
                 {
                     // check assetFileId  exist
-                    assetFiles = FileManager.GetAssetFilesById(groupId, assetFileId);
+                    assetFiles = FileManager.GetAssetFilesById(contextData.GroupId, assetFileId);
 
                     // Get Asset Files
                     if (assetFiles == null)
                     {
-                        log.ErrorFormat("Error while getting assetFiles. groupId: {0}, assetFileId {1}", groupId, assetFileId);
+                        log.ErrorFormat("Error while getting assetFiles. groupId: {0}, assetFileId {1}", contextData.GroupId,
+                            assetFileId);
                         response.SetStatus(eResponseStatus.Error, eResponseStatus.Error.ToString());
                         return response;
                     }
@@ -210,7 +225,7 @@ namespace Core.Pricing
                     fileIds = assetFiles.Select(x => (int)x.Id).ToList();
                     if (fileIds.Count > 0)
                     {
-                        assetFilePPVList = GetAssetFilePPVByFileIds(groupId, fileIds);
+                        assetFilePPVList = GetAssetFilePPVByFileIds(contextData.GroupId, fileIds);
                         response.Objects.AddRange(assetFilePPVList);
                         response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
@@ -219,9 +234,15 @@ namespace Core.Pricing
             catch (Exception ex)
             {
                 log.ErrorFormat("Failed GetAssetFilePPVList with groupId: {0}. assetId: {1}, assetFileId: {2}. ex: {3}",
-                    groupId, assetId, assetFileId, ex);
+                    contextData.GroupId, assetId, assetFileId, ex);
             }
 
+            // Validate mediaFileId && ppvModuleId, *move?
+            if (response.HasObjects())
+            {
+                response.Objects = response.Objects.Where(x =>
+                    ValidateAssetFilePPV(contextData, x.AssetFileId, x.PpvModuleId).IsOkStatusCode()).ToList();
+            }
             return response;
         }
 
@@ -259,15 +280,15 @@ namespace Core.Pricing
                 string allPpvsKey = LayeredCacheKeys.GetAllPpvsKey(groupId);
 
                 if (!LayeredCache.Instance.Get<List<PPVModule>>(allPpvsKey,
-                                                                ref allPpvs,
-                                                                GetAllPpvs,
-                                                                new Dictionary<string, object>()
-                                                                {
-                                                                    { "groupId", groupId }
-                                                                },
-                                                                groupId,
-                                                                LayeredCacheConfigNames.PPV_MODULES_CACHE_CONFIG_NAME,
-                                                                new List<string>() { LayeredCacheKeys.GetPricingSettingsInvalidationKey(groupId) }))
+                        ref allPpvs,
+                        GetAllPpvs,
+                        new Dictionary<string, object>()
+                        {
+                            { "groupId", groupId }
+                        },
+                        groupId,
+                        LayeredCacheConfigNames.PPV_MODULES_CACHE_CONFIG_NAME,
+                        new List<string>() { LayeredCacheKeys.GetPricingSettingsInvalidationKey(groupId) }))
                 {
                     return response;
                 }
@@ -278,14 +299,15 @@ namespace Core.Pricing
 
                     if (allPpvs.Count > skip)
                     {
-                        response.Objects = (allPpvs.Count) > (skip + pageSize) ? allPpvs.Skip(skip).Take(pageSize).ToList() : allPpvs.Skip(skip).ToList();
+                        response.Objects = (allPpvs.Count) > (skip + pageSize)
+                            ? allPpvs.Skip(skip).Take(pageSize).ToList()
+                            : allPpvs.Skip(skip).ToList();
                     }
                 }
                 else
                 {
                     response.Objects = allPpvs;
                 }
-
             }
             catch (Exception ex)
             {
@@ -293,7 +315,6 @@ namespace Core.Pricing
             }
 
             return response;
-
         }
 
         private static Tuple<List<PPVModule>, bool> GetAllPpvs(Dictionary<string, object> funcParams)
@@ -312,19 +333,25 @@ namespace Core.Pricing
                         {
                             DataTable dtPPVModuleData = PricingDAL.Get_PPVModuleData(groupId.Value, null);
 
-                            if (dtPPVModuleData != null && dtPPVModuleData.Rows != null && dtPPVModuleData.Rows.Count > 0)
+                            if (dtPPVModuleData != null && dtPPVModuleData.Rows != null &&
+                                dtPPVModuleData.Rows.Count > 0)
                             {
                                 for (int i = 0; i < dtPPVModuleData.Rows.Count; i++)
                                 {
                                     DataRow ppvModuleDataRow = dtPPVModuleData.Rows[i];
                                     int nPPVModuleID = ODBCWrapper.Utils.GetIntSafeVal(ppvModuleDataRow["ID"]);
                                     string sPriceCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["PRICE_CODE"]);
-                                    string sUsageModuleCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["USAGE_MODULE_CODE"]);
-                                    string sDiscountModuleCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["DISCOUNT_MODULE_CODE"]);
-                                    string sCouponGroupCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["COUPON_GROUP_CODE"]);
+                                    string sUsageModuleCode =
+                                        ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["USAGE_MODULE_CODE"]);
+                                    string sDiscountModuleCode =
+                                        ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["DISCOUNT_MODULE_CODE"]);
+                                    string sCouponGroupCode =
+                                        ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["COUPON_GROUP_CODE"]);
                                     string sName = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["NAME"]);
-                                    bool bSubOnly = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(ppvModuleDataRow["SUBSCRIPTION_ONLY"]));
-                                    bool bIsFirstDeviceLimitation = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(ppvModuleDataRow["FIRSTDEVICELIMITATION"]));
+                                    bool bSubOnly = Convert.ToBoolean(
+                                        ODBCWrapper.Utils.GetIntSafeVal(ppvModuleDataRow["SUBSCRIPTION_ONLY"]));
+                                    bool bIsFirstDeviceLimitation = Convert.ToBoolean(
+                                        ODBCWrapper.Utils.GetIntSafeVal(ppvModuleDataRow["FIRSTDEVICELIMITATION"]));
                                     string productCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["Product_Code"]);
                                     string adsParam = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["ADS_PARAM"]);
 
@@ -336,12 +363,13 @@ namespace Core.Pricing
                                     }
 
                                     PPVModule t = new PPVModule();
-                                    t.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode, null, groupId.Value, nPPVModuleID.ToString(),
-                                        bSubOnly, sName, string.Empty, string.Empty, string.Empty, null, bIsFirstDeviceLimitation, productCode, 0, adsPolicy, adsParam);
+                                    t.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode,
+                                        null, groupId.Value, nPPVModuleID.ToString(),
+                                        bSubOnly, sName, string.Empty, string.Empty, string.Empty, null,
+                                        bIsFirstDeviceLimitation, productCode, 0, adsPolicy, adsParam);
 
                                     allPpvs.Add(t);
                                 }
-
                             }
                         }
                     }
@@ -368,21 +396,23 @@ namespace Core.Pricing
             return assetFilePPV;
         }
 
-        private static Status ValidateAssetFilePPV(int groupId, long mediaFileId, long ppvModuleId)
+        private static Status ValidateAssetFilePPV(ContextData contextData, long mediaFileId, long ppvModuleId)
         {
             // validate ppvModuleId Exists               
-            bool isExist = IsPPVModuleExist(groupId, ppvModuleId);
+            var ppvById = PpvManager.Instance.GetPpvById(contextData, ppvModuleId);
+            bool isExist = ppvById != null && ppvById.HasObject();
+            
             if (!isExist)
             {
-                log.ErrorFormat("Error. Unknown PPVModule: {0} for groupId: {1}", ppvModuleId, groupId);
+                log.Error($"Error. Unknown PPVModule: {ppvModuleId} for groupId: {contextData.GroupId}");
                 return new Status((int)eResponseStatus.UnKnownPPVModule, "The ppv module is unknown");
             }
 
             // validate mediaFileId Exists
-            isExist = IsMediaFileIdExist(groupId, mediaFileId);
+            isExist = IsMediaFileIdExist(contextData.GroupId, mediaFileId);
             if (!isExist)
             {
-                log.ErrorFormat("Error. Unknown mediaFileId: {0} for groupId: {1}", mediaFileId, groupId);
+                log.ErrorFormat("Error. Unknown mediaFileId: {0} for groupId: {1}", mediaFileId, contextData.GroupId);
                 return new Status((int)eResponseStatus.MediaFileDoesNotExist, "Media file does not exist");
             }
 
@@ -427,7 +457,8 @@ namespace Core.Pricing
             return true;
         }
 
-        public static Price GetPagoFinalPrice(int groupId, long userId, ref PriceReason priceReason, ProgramAssetGroupOffer pago,
+        public static Price GetPagoFinalPrice(int groupId, long userId, ref PriceReason priceReason,
+            ProgramAssetGroupOffer pago,
             string country, string ip, string currency = null)
         {
             // get user status and validity if needed
@@ -438,16 +469,19 @@ namespace Core.Pricing
 
             Price price = null;
 
-            price = HandlePagoPrice(ref priceReason, groupId, ref currency, ref country, pago.PriceDetailsId, ip, userId);
+            price = HandlePagoPrice(ref priceReason, groupId, ref currency, ref country, pago.PriceDetailsId, ip,
+                userId);
             if (priceReason != PriceReason.ForPurchase)
             {
                 return price;
             }
 
             DomainEntitlements domainEntitlements = null;
-            if (Core.ConditionalAccess.Utils.TryGetDomainEntitlementsFromCache(groupId, domainId, null, ref domainEntitlements))
+            if (Core.ConditionalAccess.Utils.TryGetDomainEntitlementsFromCache(groupId, domainId, null,
+                    ref domainEntitlements))
             {
-                if (domainEntitlements.PagoEntitlements != null && domainEntitlements.PagoEntitlements.ContainsKey(pago.Id))
+                if (domainEntitlements.PagoEntitlements != null &&
+                    domainEntitlements.PagoEntitlements.ContainsKey(pago.Id))
                 {
                     bool isPending = domainEntitlements.PagoEntitlements[pago.Id].IsPending;
                     priceReason = isPending ? PriceReason.PendingEntitlement : PriceReason.PagoPurchased;
@@ -459,7 +493,8 @@ namespace Core.Pricing
             return price;
         }
 
-        private static Price HandlePagoPrice(ref PriceReason priceReason, int groupId, ref string currency, ref string country, long? priceDetailsId,
+        private static Price HandlePagoPrice(ref PriceReason priceReason, int groupId, ref string currency,
+            ref string country, long? priceDetailsId,
             string ip = null, long? userId = null)
         {
             Price price = new Price();
@@ -467,7 +502,8 @@ namespace Core.Pricing
 
             if (priceDetailsId.HasValue)
             {
-                GenericResponse<PriceDetails> priceDetailsResponse = PriceDetailsManager.Instance.GetPriceDetailsById(groupId, priceDetailsId.Value);
+                GenericResponse<PriceDetails> priceDetailsResponse =
+                    PriceDetailsManager.Instance.GetPriceDetailsById(groupId, priceDetailsId.Value);
                 if (!priceDetailsResponse.HasObject())
                 {
                     log.Warn($"Warning: at HandlePriceAndDiscount: PriceDetails {priceDetailsId} does not exist");
@@ -486,21 +522,25 @@ namespace Core.Pricing
 
                     isValidCurrencyCode = true;
                 }
-                
-                price = ObjectCopier.Clone(priceDetailsResponse.Object.Prices[0]);                
+
+                price = ObjectCopier.Clone(priceDetailsResponse.Object.Prices[0]);
 
                 // Get price code according to country and currency (if exists on the request)
-                if (!string.IsNullOrEmpty(ip) && (isValidCurrencyCode || GeneralPartnerConfigManager.Instance.GetGroupDefaultCurrency(groupId, ref currency)))
+                if (!string.IsNullOrEmpty(ip) && (isValidCurrencyCode ||
+                                                  GeneralPartnerConfigManager.Instance.GetGroupDefaultCurrency(groupId,
+                                                      ref currency)))
                 {
                     country = APILogic.Utils.GetIP2CountryCode(groupId, ip);
-                    PriceCode priceCodeWithCurrency = Pricing.Module.GetPriceCodeDataByCountyAndCurrency(groupId, (int)priceDetailsResponse.Object.Id, country, currency);
+                    PriceCode priceCodeWithCurrency =
+                        Pricing.Module.GetPriceCodeDataByCountyAndCurrency(groupId, (int)priceDetailsResponse.Object.Id,
+                            country, currency);
                     if (priceCodeWithCurrency == null)
                     {
                         priceReason = PriceReason.CurrencyNotDefinedOnPriceCode;
                         return price;
                     }
 
-                    priceCode = ObjectCopier.Clone(priceCodeWithCurrency);                   
+                    priceCode = ObjectCopier.Clone(priceCodeWithCurrency);
                 }
 
                 if (priceCode != null)
@@ -512,7 +552,7 @@ namespace Core.Pricing
             priceReason = PriceReason.ForPurchase;
             return price;
         }
-        
+
         /// <summary>
         /// Calculate lowest price according to external Discount Module and BusinessModuleRules
         /// </summary>
@@ -525,9 +565,11 @@ namespace Core.Pricing
         /// <param name="businessModuleId"></param>
         /// <param name="countryCode"></param>
         /// <returns></returns>
-        public static Price GetLowestPrice(int groupId, Price currentPrice, int domainId, Price discountPrice, eTransactionType transactionType,
-                                            string currencyCode, long businessModuleId, string countryCode, ref string couponCode, CouponsGroup couponsGroup,
-                                            List<SubscriptionCouponGroup> subscriptionCouponGroups, List<string> allUserIdsInDomain, long mediaId = 0)
+        public static Price GetLowestPrice(int groupId, Price currentPrice, int domainId, Price discountPrice,
+            eTransactionType transactionType,
+            string currencyCode, long businessModuleId, string countryCode, ref string couponCode,
+            CouponsGroup couponsGroup,
+            List<SubscriptionCouponGroup> subscriptionCouponGroups, List<string> allUserIdsInDomain, long mediaId = 0)
         {
             Price lowestPrice = discountPrice ?? currentPrice;
 
@@ -539,7 +581,8 @@ namespace Core.Pricing
                 }
 
                 // get all segments in domain
-                List<long> segmentIds = ConditionalAccess.Utils.GetDomainSegments(groupId, domainId, allUserIdsInDomain);
+                List<long> segmentIds =
+                    ConditionalAccess.Utils.GetDomainSegments(groupId, domainId, allUserIdsInDomain);
 
                 // calc lowest price
                 var filter = new BusinessModuleRuleConditionScope()
@@ -553,18 +596,26 @@ namespace Core.Pricing
                     MediaId = mediaId
                 };
 
-                var businessModuleRules = BusinessModuleRuleManager.GetBusinessModuleRules(groupId, filter, RuleActionType.ApplyDiscountModuleRule);
+                var businessModuleRules =
+                    BusinessModuleRuleManager.GetBusinessModuleRules(groupId, filter,
+                        RuleActionType.ApplyDiscountModuleRule);
                 if (businessModuleRules.HasObjects())
                 {
-                    log.DebugFormat("Utils.GetLowestPrice - businessModuleRules count: {0}", businessModuleRules.Objects.Count);
+                    log.DebugFormat("Utils.GetLowestPrice - businessModuleRules count: {0}",
+                        businessModuleRules.Objects.Count);
                     foreach (var businessModuleRule in businessModuleRules.Objects)
                     {
                         if (businessModuleRule.Actions != null && businessModuleRule.Actions.Count == 1)
                         {
-                            var discountModule = Pricing.Module.Instance.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)(businessModuleRule.Actions[0] as ApplyDiscountModuleRuleAction).DiscountModuleId, countryCode, currencyCode);
+                            var discountModule = Pricing.Module.Instance.GetDiscountCodeDataByCountryAndCurrency(
+                                groupId,
+                                (int)(businessModuleRule.Actions[0] as ApplyDiscountModuleRuleAction).DiscountModuleId,
+                                countryCode, currencyCode);
                             if (discountModule != null)
                             {
-                                var tempPrice = ConditionalAccess.Utils.Instance.GetPriceAfterDiscount(currentPrice, discountModule, 1);
+                                var tempPrice =
+                                    ConditionalAccess.Utils.Instance.GetPriceAfterDiscount(currentPrice, discountModule,
+                                        1);
                                 if (tempPrice != null && tempPrice.m_dPrice < lowestPrice.m_dPrice)
                                 {
                                     lowestPrice = tempPrice;
@@ -575,9 +626,13 @@ namespace Core.Pricing
                 }
             }
 
-            if (lowestPrice.IsFree() || transactionType == eTransactionType.PPV || string.IsNullOrEmpty(couponCode)) { return lowestPrice; }
+            if (lowestPrice.IsFree() || transactionType == eTransactionType.PPV || string.IsNullOrEmpty(couponCode))
+            {
+                return lowestPrice;
+            }
 
-            lowestPrice = ConditionalAccess.Utils.Instance.GetLowestPriceByCouponCode(groupId, ref couponCode, subscriptionCouponGroups, lowestPrice, domainId, 
+            lowestPrice = ConditionalAccess.Utils.Instance.GetLowestPriceByCouponCode(groupId, ref couponCode,
+                subscriptionCouponGroups, lowestPrice, domainId,
                 couponsGroup, countryCode);
             return lowestPrice;
         }

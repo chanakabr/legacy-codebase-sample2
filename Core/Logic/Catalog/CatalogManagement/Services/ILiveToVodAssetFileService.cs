@@ -6,8 +6,8 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
 {
     public interface ILiveToVodAssetFileService
     {
-        IEnumerable<AssetFile> AddAssetFiles(long partnerId, long assetId, IEnumerable<AssetFile> filesToAdd, long updaterId);
-        IEnumerable<AssetFile> UpdateAssetFiles(long partnerId, IEnumerable<AssetFile> assetFiles, MediaAsset asset, long updaterId);
+        IEnumerable<AssetFile> AddAssetFiles(long partnerId, long liveToVodAssetId, long liveAssetId, long updaterId);
+        IEnumerable<AssetFile> UpdateAssetFiles(long partnerId, long liveAssetId, MediaAsset asset, long updaterId);
         void AssignPpvOnAssetUpdated(
             long partnerId,
             long assetId,

@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
- 
-    <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
-        <TargetFramework>netcoreapp3.1</TargetFramework>
-    </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
-        <TargetFrameworks>netcoreapp3.1;net48</TargetFrameworks>
-    </PropertyGroup>
-    
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+    <TargetFrameworks>netcoreapp3.1;net48</TargetFrameworks>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="morelinq" Version="3.3.2" />
     <PackageReference Include="ott.client.segmentation.grpc" Version="1.0.0" />

@@ -30,6 +30,8 @@ namespace FeatureFlag
         public bool IsUnifiedRenewUseKronos() => _featureFlag.Enabled("is-unified-renew-use-kronos", GetUser((int?) _featureFlagContext.GetPartnerId()));
         public bool IsRenewalReminderUseKronos() => _featureFlag.Enabled("is-renew-reminder-use-kronos", GetUser((int?) _featureFlagContext.GetPartnerId()));
         public bool IsRenewSubscriptionEndsUseKronos() => _featureFlag.Enabled("is-renew-subscription-ends-use-kronos", GetUser((int?) _featureFlagContext.GetPartnerId()));
+        public bool IsImprovedUpdateMediaAssetStoredProcedureShouldBeUsed() => _featureFlag.Enabled("is-improved-update-media-asset-stored-procedure-should-be-used",
+            GetUser((int?) _featureFlagContext.GetPartnerId()));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private KalturaFeatureToggleUser GetUser(int? groupId)

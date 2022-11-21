@@ -11,5 +11,6 @@
         bool IsUnifiedRenewUseKronos();
         bool IsRenewalReminderUseKronos();
         bool IsRenewSubscriptionEndsUseKronos();
+        bool IsImprovedUpdateMediaAssetStoredProcedureShouldBeUsed();
     }
 }

@@ -493,7 +493,7 @@ namespace Core.Api.Managers
         }
 
         public static List<AssetUserRule> GetMediaAssetUserRulesToUser(int groupId, long userId, long mediaId, 
-            GenericListResponse<AssetUserRule> userToAssetUserRules = null)
+            GenericListResponse<AssetUserRule> userToAssetUserRules = null, MediaAsset asset = null)
         {
             List<AssetUserRule> rules = new List<AssetUserRule>();
 
@@ -511,7 +511,8 @@ namespace Core.Api.Managers
                                                                new Dictionary<string, object>()
                                                                {
                                                                    { "groupId", groupId },
-                                                                   { "mediaId", mediaId }                                                                   
+                                                                   { "mediaId", mediaId },
+                                                                   { "asset", asset }
                                                                },
                                                                groupId,
                                                                LayeredCacheConfigNames.MEDIA_ASSET_USER_RULES_LAYERED_CACHE_CONFIG_NAME,
@@ -548,7 +549,7 @@ namespace Core.Api.Managers
             return rules;
         }
 
-        public static Status CheckAssetUserRuleList(int groupId, long userId, long mediaId)
+        public static Status CheckAssetUserRuleList(int groupId, long userId, MediaAsset asset)
         {
             Status status = new Status();
             // check if the user have allow(filter) rule
@@ -556,16 +557,25 @@ namespace Core.Api.Managers
             if (assetUserRulesToUser != null && assetUserRulesToUser.HasObjects())
             {
                 // check if asset allowed to user
-                List<AssetUserRule> mediaAssetUserRulesToUser = AssetUserRuleManager.GetMediaAssetUserRulesToUser(groupId, userId, mediaId, assetUserRulesToUser);
+                List<AssetUserRule> mediaAssetUserRulesToUser = AssetUserRuleManager.GetMediaAssetUserRulesToUser(groupId, userId, asset.Id, 
+                    assetUserRulesToUser, asset);
                 if (mediaAssetUserRulesToUser != null && mediaAssetUserRulesToUser.Count == 0)
                 {
                     // return error user not allowed to  update asset
-                    log.DebugFormat("User {0} not allowed for Asset {1}", userId, mediaId);
+                    log.DebugFormat("User {0} not allowed for Asset {1}", userId, asset.Id);
                     status.Set((int)eResponseStatus.ActionIsNotAllowed, eResponseStatus.ActionIsNotAllowed.ToString());
                 }
             }
 
             return status;
+        }
+
+        private static bool IsAssetIndexed(int groupId, long assetId)
+        {
+            string filter = $"(and media_id='{assetId}')";
+            var esResult = api.SearchAssets(groupId, filter, 0, 0, false, 0, false, string.Empty, string.Empty, string.Empty, 0, 0, true, true);
+
+            return esResult.Length > 0;
         }
 
         public static long GetAssetUserRule(int groupId, long userId, bool isApplayOnChannel = false)
@@ -748,12 +758,13 @@ namespace Core.Api.Managers
 
             try
             {
-                if (funcParams != null && funcParams.Count == 2)
+                if (funcParams != null && funcParams.Count == 3)
                 {
-                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mediaId"))
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mediaId") && funcParams.ContainsKey("asset"))
                     {
                         int? groupId = funcParams["groupId"] as int?;
                         long? mediaId = funcParams["mediaId"] as long?;
+                        MediaAsset asset = funcParams["asset"] as MediaAsset;
 
                         var assetUserRuleList = GetAssetUserRuleList(groupId.Value, null);
 
@@ -776,13 +787,25 @@ namespace Core.Api.Managers
                                 {
                                     if (rule?.Conditions?.Any() == true)
                                     {
-                                        var ksql = AssetConditionKsqlFactory.Instance.GetKsql(groupId.Value, rule.Conditions[0]);
-                                        filter = $"(and media_id='{mediaId.Value}' {ksql})";
-                                        medias = api.SearchAssets(groupId.Value, filter, 0, 0, false, 0, false, string.Empty, string.Empty, string.Empty, 0, 0, true, true);
+                                        var condition = rule.Conditions[0];
 
-                                        if (medias != null && medias.Length > 0) // there is a match 
+                                        if (condition.Type == RuleConditionType.AssetShop && asset != null)
                                         {
-                                            ruleIds.Add(rule.Id);
+                                            if (IsAssetPartOfShopRule(groupId.Value, (AssetShopCondition)condition, asset))
+                                            {
+                                                ruleIds.Add(rule.Id);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            var ksql = AssetConditionKsqlFactory.Instance.GetKsql(groupId.Value, condition);
+                                            filter = $"(and media_id='{mediaId.Value}' {ksql})";
+                                            medias = api.SearchAssets(groupId.Value, filter, 0, 0, false, 0, false, string.Empty, string.Empty, string.Empty, 0, 0, true, true);
+
+                                            if (medias != null && medias.Length > 0) // there is a match 
+                                            {
+                                                ruleIds.Add(rule.Id);
+                                            }
                                         }
                                     }
                                 });
@@ -799,6 +822,54 @@ namespace Core.Api.Managers
                 log.Error(string.Format("GetMediaAssetUserRules faild params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
             return new Tuple<List<long>, bool>(ruleIds.Distinct().ToList(), result);
+        }
+
+        private static bool IsAssetPartOfShopRule(int groupId, AssetShopCondition condition, MediaAsset asset)
+        {
+            bool isAssetPartOfShopRule = false;
+
+            try
+            {
+                var shopMetaResponse = ShopMarkerService.Instance.GetShopMarkerTopic(groupId);
+                if (shopMetaResponse.IsOkStatusCode())
+                {
+                    var values = condition.Values;
+
+                    if (values.Count > 0)
+                    {
+                        List<string> assetValues = new List<string>();
+
+                        if (shopMetaResponse.Object.Type == MetaType.Tag)
+                        {
+                            var tagValues = asset.Tags.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower() == shopMetaResponse.Object.SystemName.ToLower());
+
+                            if (tagValues != null && tagValues.m_lValues?.Count > 0)
+                            {
+                                assetValues.AddRange(tagValues.m_lValues);
+                            }
+                        }
+                        else
+                        {
+                            var assetMeta = asset.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower() == shopMetaResponse.Object.SystemName.ToLower());
+
+                            if (assetMeta != null)
+                            {
+                                assetValues.Add(assetMeta.m_sValue);
+                            }
+                        }
+
+                        var intersect = assetValues.Intersect(values, StringComparer.OrdinalIgnoreCase).ToList();
+
+                        isAssetPartOfShopRule = intersect?.Count > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return isAssetPartOfShopRule;
         }
 
         #endregion

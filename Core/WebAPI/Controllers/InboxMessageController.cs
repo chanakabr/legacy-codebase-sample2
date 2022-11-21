@@ -39,8 +39,9 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
+                var domainId = HouseholdUtils.GetHouseholdIDByKS();
                 // call client                
-                response = ClientsManager.NotificationClient().GetInboxMessage(groupId, userId, id);
+                response = ClientsManager.NotificationClient().GetInboxMessage(groupId, domainId, userId, id);
             }
             catch (ClientException ex)
             {
@@ -66,6 +67,7 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
+                var domainId = HouseholdUtils.GetHouseholdIDByKS();
 
                 if (pager == null)
                     pager = new KalturaFilterPager();
@@ -84,7 +86,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client                
-                response = ClientsManager.NotificationClient().GetInboxMessageList(groupId, userId, pager.PageSize.Value, pager.GetRealPageIndex(), filter.getTypeIn(), filter.CreatedAtGreaterThanOrEqual.Value, filter.CreatedAtLessThanOrEqual.Value);
+                response = ClientsManager.NotificationClient().GetInboxMessageList(groupId, domainId, userId, pager.PageSize.Value, pager.GetRealPageIndex(), filter.getTypeIn(), filter.CreatedAtGreaterThanOrEqual.Value, filter.CreatedAtLessThanOrEqual.Value);
             }
             catch (ClientException ex)
             {
@@ -117,9 +119,10 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
+                var domainId = HouseholdUtils.GetHouseholdIDByKS();
 
                 // call client                
-                response = ClientsManager.NotificationClient().UpdateInboxMessage(groupId, userId, id, status);
+                response = ClientsManager.NotificationClient().UpdateInboxMessage(groupId, domainId, userId, id, status);
             }
             catch (ClientException ex)
             {

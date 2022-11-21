@@ -68,7 +68,8 @@ namespace Core.ConditionalAccess
             ResponseStatus userValidStatus = ResponseStatus.OK;
             userValidStatus = Utils.ValidateUser(groupId, siteguid, ref domainId, true);
 
-            var renewDetailsResponse = GetRenewDetails(cas, logString, userValidStatus, domainId, siteguid, purchaseId, groupId, billingGuid, ref shouldUpdateTaskStatus, out Subscription subscription, userIp);
+            var renewDetailsResponse = GetRenewDetails(cas, logString, userValidStatus, domainId, siteguid, purchaseId, groupId, billingGuid, nextEndDate,
+                                                        ref shouldUpdateTaskStatus, out Subscription subscription, userIp);
             if (renewDetailsResponse.Object == null)
             {
                 if (renewDetailsResponse.Status.Code == (int)eResponseStatus.OK) { return true; }
@@ -2209,7 +2210,9 @@ namespace Core.ConditionalAccess
             return paymentgatewayId > 0 && processEndDate.HasValue;
         }
 
-        private static GenericResponse<RenewDetails> GetRenewDetails(BaseConditionalAccess cas, string logString, ResponseStatus userValidStatus, long domainId, string userId, long purchaseId, int groupId, string billingGuid, ref bool shouldUpdateTaskStatus, out Subscription subscription, string userIp)
+        private static GenericResponse<RenewDetails> GetRenewDetails(BaseConditionalAccess cas, string logString, ResponseStatus userValidStatus, 
+            long domainId, string userId, long purchaseId, int groupId, string billingGuid, long nextEndDate,
+            ref bool shouldUpdateTaskStatus, out Subscription subscription, string userIp)
         {
             subscription = null;
             var response = new GenericResponse<RenewDetails>();
@@ -2315,6 +2318,20 @@ namespace Core.ConditionalAccess
 
                     if (isDummy)
                     {
+                        // get end date
+                        var endDateUnix = renewDetails.EndDate.Value.ToUtcUnixTimestampSeconds();
+
+                        // BEO-12961 validate renewal did not already happened
+                        if (Math.Abs(endDateUnix - nextEndDate) > 60)
+                        {
+                            // subscription purchase wasn't found
+                            log.ErrorFormat("Canceling isDummy renew task because subscription purchase:{0} last_end_date:{1} is not the same as the next_end_date:{2}. data:{3}",
+                                             purchaseId, endDateUnix, nextEndDate, logString);
+
+                            response.SetStatus(eResponseStatus.OK);
+                            return response;
+                        }
+
                         if (HandleDummySubsciptionRenewal(cas, groupId, renewDetails, billingGuid, logString, userIp, theRequest))
                         {
                             response.SetStatus(eResponseStatus.OK);

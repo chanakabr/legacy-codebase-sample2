@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ApiLogic.Catalog.CatalogManagement.Models;
 using ApiLogic.Catalog.CatalogManagement.Services;
 using ApiLogic.Pricing.Handlers;
+using ApiObjects.Base;
 using ApiObjects.Response;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
@@ -69,7 +70,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
 
             _mediaFileTypeManagerMock.Setup(x => x.DoFreeItemIndexUpdateIfNeeded(1, 1, null, null, null, null));
             _priceManagerMock.Setup(x => x.AddAssetFilePPV(
-                    1,
+                    It.IsAny<ContextData>(),
                     It.Is<AssetFilePpv>(x =>
                         x.AssetFileId == 1 && x.PpvModuleId == 1 && !x.StartDate.HasValue && !x.EndDate.HasValue)))
                 .Returns(new GenericResponse<AssetFilePpv>(Status.Ok, new AssetFilePpv()));
@@ -92,7 +93,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                 new AssetFile { Id = 1, TypeId = 2 }
             };
 
-            _priceManagerMock.Setup(x => x.GetAssetFilePPVList(1, 1, 0))
+            _priceManagerMock.Setup(x => x.GetAssetFilePPVList(It.IsAny<ContextData>(), 1, 0))
                 .Returns(new GenericListResponse<AssetFilePpv>(Status.Ok, new List<AssetFilePpv>()));
 
             var service =
@@ -113,12 +114,12 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                 new AssetFile { Id = 1, TypeId = 2 }
             };
 
-            _priceManagerMock.Setup(x => x.GetAssetFilePPVList(1, 1, 0))
+            _priceManagerMock.Setup(x => x.GetAssetFilePPVList(It.IsAny<ContextData>(), 1, 0))
                 .Returns(new GenericListResponse<AssetFilePpv>(Status.Ok, new List<AssetFilePpv>
                 {
                     new AssetFilePpv { AssetFileId = 1, PpvModuleId = 2 }
                 }));
-            _priceManagerMock.Setup(x => x.DeleteAssetFilePPV(1, 1, 2))
+            _priceManagerMock.Setup(x => x.DeleteAssetFilePPV(It.IsAny<ContextData>(), 1, 2))
                 .Returns(Status.Ok);
 
             var service =
@@ -139,10 +140,10 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                 new AssetFile { Id = 1, TypeId = 1 }
             };
 
-            _priceManagerMock.Setup(x => x.GetAssetFilePPVList(1, 1, 0))
+            _priceManagerMock.Setup(x => x.GetAssetFilePPVList(It.IsAny<ContextData>(), 1, 0))
                 .Returns(new GenericListResponse<AssetFilePpv>(Status.Ok, new List<AssetFilePpv>()));
             _priceManagerMock.Setup(x => x.AddAssetFilePPV(
-                    1,
+                    It.IsAny<ContextData>(),
                     It.Is<AssetFilePpv>(x =>
                         x.AssetFileId == 1 && x.PpvModuleId == 1 && !x.StartDate.HasValue && !x.EndDate.HasValue)))
                 .Returns(new GenericResponse<AssetFilePpv>(Status.Ok, new AssetFilePpv()));
@@ -168,16 +169,16 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                 new AssetFile { Id = 1, TypeId = 1 }
             };
 
-            _priceManagerMock.Setup(x => x.GetAssetFilePPVList(1, 1, 0))
+            _priceManagerMock.Setup(x => x.GetAssetFilePPVList(It.IsAny<ContextData>(),1, 0))
                 .Returns(new GenericListResponse<AssetFilePpv>(Status.Ok, new List<AssetFilePpv>
                 {
                     new AssetFilePpv { AssetFileId = 1, PpvModuleId = 1 },
                     new AssetFilePpv { AssetFileId = 1, PpvModuleId = 2 }
                 }));
-            _priceManagerMock.Setup(x => x.DeleteAssetFilePPV(1, 1, 2))
+            _priceManagerMock.Setup(x => x.DeleteAssetFilePPV(It.IsAny<ContextData>(), 1, 2))
                 .Returns(Status.Ok);
             _priceManagerMock.Setup(x => x.UpdateAssetFilePPV(
-                    1,
+                    It.IsAny<ContextData>(),
                     It.Is<AssetFilePpv>(x =>
                         x.AssetFileId == 1 && x.PpvModuleId == 1 && x.StartDate == ppvStartDate &&
                         x.EndDate == ppvEndDate)))

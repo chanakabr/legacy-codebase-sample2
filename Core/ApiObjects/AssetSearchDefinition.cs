@@ -13,5 +13,7 @@ namespace ApiObjects
         public bool NoSegmentsFilter { get; set; }
 
         public long AssetStructId { get; set; }
+
+        public bool FilterEmpty { get; set; }
     }
 }

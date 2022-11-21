@@ -226,5 +226,14 @@ namespace WebAPI.Models.Pricing
         [SchemeProperty(IsNullable = true)]
         public string FileTypesIds { get; set; }
 
+        /// <summary>
+        /// Asset user rule identifier 
+        /// </summary>
+        [DataMember(Name = "assetUserRuleId")]
+        [JsonProperty("assetUserRuleId")]
+        [XmlElement(ElementName = "assetUserRuleId")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.INSERT, IsNullable = true)]
+        public long? AssetUserRuleId { get; set; }
+
     }
 }

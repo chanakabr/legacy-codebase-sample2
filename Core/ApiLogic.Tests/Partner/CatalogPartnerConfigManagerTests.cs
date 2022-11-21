@@ -223,20 +223,20 @@ namespace ApiLogic.Tests.Partner
 
             yield return new TestCaseData(eResponseStatus.NonExistingDeviceFamilyIds, catalogPartnerConfig4, deviceFamilyIds4, treeListMap4, 101).SetName("UpdateError_MissingDeviceFamilies");
 
-            var catalogPartnerConfig5 = fixture.Create<CatalogPartnerConfig>();
-            catalogPartnerConfig5.ShopMarkerMetaId = 102;
-            var deviceFamilyIds5 = catalogPartnerConfig5.CategoryManagement.DeviceFamilyToCategoryTree.Keys.ToList();
-            var tree5 = fixture.Create<List<CategoryVersion>>();
-            var treeListMap5 = new Dictionary<long, List<CategoryVersion>> { { catalogPartnerConfig5.CategoryManagement.DefaultCategoryTree.Value, tree5 } };
-            foreach (var pair in catalogPartnerConfig5.CategoryManagement.DeviceFamilyToCategoryTree)
-            {
-                if (!treeListMap5.ContainsKey(pair.Value))
-                {
-                    treeListMap5.Add(pair.Value, tree5);
-                }
-            }
-
-            yield return new TestCaseData(eResponseStatus.Error, catalogPartnerConfig5, deviceFamilyIds5, treeListMap5, catalogPartnerConfig5.ShopMarkerMetaId).SetName("UpdateError_MetaWithMultiValue");
+            // var catalogPartnerConfig5 = fixture.Create<CatalogPartnerConfig>();
+            // catalogPartnerConfig5.ShopMarkerMetaId = 102;
+            // var deviceFamilyIds5 = catalogPartnerConfig5.CategoryManagement.DeviceFamilyToCategoryTree.Keys.ToList();
+            // var tree5 = fixture.Create<List<CategoryVersion>>();
+            // var treeListMap5 = new Dictionary<long, List<CategoryVersion>> { { catalogPartnerConfig5.CategoryManagement.DefaultCategoryTree.Value, tree5 } };
+            // foreach (var pair in catalogPartnerConfig5.CategoryManagement.DeviceFamilyToCategoryTree)
+            // {
+            //     if (!treeListMap5.ContainsKey(pair.Value))
+            //     {
+            //         treeListMap5.Add(pair.Value, tree5);
+            //     }
+            // }
+            //
+            // yield return new TestCaseData(eResponseStatus.Error, catalogPartnerConfig5, deviceFamilyIds5, treeListMap5, catalogPartnerConfig5.ShopMarkerMetaId).SetName("UpdateError_MetaWithMultiValue");
 
             var catalogPartnerConfig6 = fixture.Create<CatalogPartnerConfig>();
             catalogPartnerConfig6.ShopMarkerMetaId = 103;

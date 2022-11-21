@@ -823,11 +823,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaAssetShopCondition, AssetShopCondition>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Values, opt => opt.ResolveUsing(src => ConvertStringValueArrayToList(src.Values)))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value));
 
             cfg.CreateMap<AssetShopCondition, KalturaAssetShopCondition>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Values, opt => opt.ResolveUsing(src => ConvertListToStringValueArray(src.Values)))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value));
 
             cfg.CreateMap<KalturaConcurrencyLimitationType, ConcurrencyRestrictionPolicy>()
@@ -3721,5 +3723,39 @@ namespace WebAPI.ObjectsConvertor.Mapping
         }
 
         #endregion
+
+        private static KalturaStringValueArray ConvertListToStringValueArray(List<string> list)
+        {
+            if (list == null)
+            {
+                return null;
+            }
+
+            KalturaStringValueArray stringValueArray = new KalturaStringValueArray();
+
+            foreach (var stringValue in list)
+            {
+                stringValueArray.Objects.Add(new KalturaStringValue() { value = stringValue });
+            }
+
+            return stringValueArray;
+        }
+
+        private static List<string> ConvertStringValueArrayToList(KalturaStringValueArray values)
+        {
+            if (values == null || values.Objects == null)
+            {
+                return null;
+            }
+
+            List<string> stringList = new List<string>();
+
+            foreach (var stringValue in values.Objects)
+            {
+                stringList.Add(stringValue.value);
+            }
+
+            return stringList;
+        }
     }
 }

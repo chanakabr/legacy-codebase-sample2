@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ApiObjects.Base;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -1038,12 +1039,12 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaAssetFilePpvListResponse GetAssetFilePPVList(int groupId, long? assetIdEqual, long? assetFileIdEqual)
+        internal KalturaAssetFilePpvListResponse GetAssetFilePPVList(ContextData contextData, long? assetIdEqual, long? assetFileIdEqual)
         {
             KalturaAssetFilePpvListResponse result = new KalturaAssetFilePpvListResponse() { TotalCount = 0 };
 
             Func<GenericListResponse<AssetFilePpv>> getAssetFilePPVListFunc = () =>
-               PriceManager.Instance.GetAssetFilePPVList(groupId, assetIdEqual.Value, assetFileIdEqual.Value);
+               PriceManager.Instance.GetAssetFilePPVList(contextData, assetIdEqual.Value, assetFileIdEqual.Value);
 
             KalturaGenericListResponse<KalturaAssetFilePpv> response =
                 ClientUtils.GetResponseListFromWS<KalturaAssetFilePpv, AssetFilePpv>(getAssetFilePPVListFunc);
@@ -1054,17 +1055,17 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaAssetFilePpv AddAssetFilePpv(int groupId, KalturaAssetFilePpv kAssetFilePpv)
+        internal KalturaAssetFilePpv AddAssetFilePpv(ContextData contextData, KalturaAssetFilePpv kAssetFilePpv)
         {
             // fire request                 
             Func<AssetFilePpv, GenericResponse<AssetFilePpv>> addAssetFilePpvFunc =
-                assetFilePpv => PriceManager.Instance.AddAssetFilePPV(groupId, assetFilePpv);
+                assetFilePpv => PriceManager.Instance.AddAssetFilePPV(contextData, assetFilePpv);
 
             return ClientUtils.GetResponseFromWS(kAssetFilePpv, addAssetFilePpvFunc);
 
         }
 
-        internal bool DeleteAssetFilePpv(int groupId, long assetFileId, long ppvModuleId)
+        internal bool DeleteAssetFilePpv(ContextData contextData, long assetFileId, long ppvModuleId)
         {
             Status response = null;
 
@@ -1073,7 +1074,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = PriceManager.Instance.DeleteAssetFilePPV(groupId, assetFileId, ppvModuleId);
+                    response = PriceManager.Instance.DeleteAssetFilePPV(contextData, assetFileId, ppvModuleId);
                 }
             }
             catch (Exception ex)
@@ -1097,10 +1098,10 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaAssetFilePpv UpdateAssetFilePpv(int groupId, KalturaAssetFilePpv kAssetFilePpv)
+        internal KalturaAssetFilePpv UpdateAssetFilePpv(ContextData contextData, KalturaAssetFilePpv kAssetFilePpv)
         {
             var request = AutoMapper.Mapper.Map<AssetFilePpv>(kAssetFilePpv);
-            Func<GenericResponse<AssetFilePpv>> updateAssetFilePpvFunc = () => PriceManager.Instance.UpdateAssetFilePPV(groupId, request);
+            Func<GenericResponse<AssetFilePpv>> updateAssetFilePpvFunc = () => PriceManager.Instance.UpdateAssetFilePPV(contextData, request);
             return ClientUtils.GetResponseFromWS<KalturaAssetFilePpv, AssetFilePpv>(updateAssetFilePpvFunc);
         }
     }

@@ -2,6 +2,7 @@
 using System.Linq;
 using ApiLogic.Catalog.CatalogManagement.Models;
 using ApiObjects;
+using ApiObjects.Base;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using Core.Pricing;
@@ -16,27 +17,20 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
         private readonly IPriceManager _priceManager;
         private readonly ILogger<LiveToVodAssetFileService> _logger;
 
-        public LiveToVodAssetFileService(
-            IMediaFileTypeManager fileManager,
-            IPriceManager priceManager,
-            ILogger<LiveToVodAssetFileService> logger)
+        public LiveToVodAssetFileService(IMediaFileTypeManager fileManager, IPriceManager priceManager, ILogger<LiveToVodAssetFileService> logger)
         {
             _fileManager = fileManager;
             _priceManager = priceManager;
             _logger = logger;
         }
 
-        public IEnumerable<AssetFile> AddAssetFiles(
-            long partnerId,
-            long assetId,
-            IEnumerable<AssetFile> filesToAdd,
-            long updaterId)
+        public IEnumerable<AssetFile> AddAssetFiles(long partnerId, long liveToVodAssetId, long liveAssetId, long updaterId)
         {
             var result = new List<AssetFile>();
-            var assetFilesToHandle = GetAssetFilesToHandle(partnerId, filesToAdd);
+            var assetFilesToHandle = GetAssetFilesToHandle(partnerId, liveAssetId);
             foreach (var assetFileToAdd in assetFilesToHandle)
             {
-                var addedAssetFile = AddAssetFile(partnerId, assetId, assetFileToAdd, updaterId);
+                var addedAssetFile = AddAssetFile(partnerId, liveToVodAssetId, assetFileToAdd, updaterId);
                 if (addedAssetFile != null)
                 {
                     result.Add(addedAssetFile);
@@ -46,24 +40,20 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
             return result;
         }
 
-        public IEnumerable<AssetFile> UpdateAssetFiles(
-            long partnerId,
-            IEnumerable<AssetFile> filesToHandle,
-            MediaAsset asset,
-            long updaterId)
+        public IEnumerable<AssetFile> UpdateAssetFiles(long partnerId, long liveAssetId, MediaAsset liveToVodAsset, long updaterId)
         {
             // only one media file per media file type ID is allowed.
-            var assetFilesByTypeIdToHandle = asset.Files?.ToDictionary(x => x.TypeId.Value)
+            var assetFilesByTypeIdToHandle = liveToVodAsset.Files?.ToDictionary(x => x.TypeId.Value)
                 ?? new Dictionary<int, AssetFile>();
             var result = new List<AssetFile>();
-            var assetFilesToHandle = GetAssetFilesToHandle(partnerId, filesToHandle);
+            var assetFilesToHandle = GetAssetFilesToHandle(partnerId, liveAssetId);
             foreach (var fileToHandle in assetFilesToHandle)
             {
                 var processedAssetFile = assetFilesByTypeIdToHandle.TryGetValue(
                     fileToHandle.TypeId.Value,
                     out var currentAssetFile)
-                    ? UpdateAssetFile(partnerId, asset.Id, fileToHandle, currentAssetFile, updaterId)
-                    : AddAssetFile(partnerId, asset.Id, fileToHandle, updaterId);
+                    ? UpdateAssetFile(partnerId, liveToVodAsset.Id, fileToHandle, currentAssetFile.Id, updaterId)
+                    : AddAssetFile(partnerId, liveToVodAsset.Id, fileToHandle, updaterId);
 
                 if (processedAssetFile != null)
                 {
@@ -127,8 +117,16 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
             }
         }
 
-        private IEnumerable<AssetFile> GetAssetFilesToHandle(long partnerId, IEnumerable<AssetFile> sourceFiles)
+        private IEnumerable<AssetFile> GetAssetFilesToHandle(long partnerId, long liveAssetId)
         {
+            var liveAssetFilesResponse = _fileManager.GetMediaFiles((int)partnerId, default, liveAssetId);
+            if (!liveAssetFilesResponse.IsOkStatusCode())
+            {
+                _logger.LogError("Failed to retrieve media files for {liveAssetId} asset (partnerId {partnerId}). Add/update asset files operation will be skipped", liveAssetId, partnerId);
+
+                return Enumerable.Empty<AssetFile>();
+            }
+
             var mediaFileTypesResponse = _fileManager.GetMediaFileTypes((int)partnerId);
             if (!mediaFileTypesResponse.IsOkStatusCode())
             {
@@ -139,7 +137,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
 
             var mediaFileTypes = mediaFileTypesResponse.Objects.ToDictionary(x => x.Id);
 
-            return sourceFiles.Where(
+            return liveAssetFilesResponse.Objects.Where(
                 x => mediaFileTypes.TryGetValue(x.TypeId.Value, out var type) && type.StreamerType != StreamerType.multicast);
         }
 
@@ -161,16 +159,12 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
             return null;
         }
 
-        private AssetFile UpdateAssetFile(long partnerId, long assetId, AssetFile fileToUpdate, AssetFile currentFile, long updaterId)
+        private AssetFile UpdateAssetFile(long partnerId, long liveToVodAssetId, AssetFile fileToUpdate, long currentAssetFileId, long updaterId)
         {
             var assetFileToUpdate = fileToUpdate.DeepClone();
-            assetFileToUpdate.AssetId = assetId;
-            var updateFileResponse = _fileManager.UpdateMediaFile(
-                (int)partnerId,
-                assetFileToUpdate,
-                updaterId,
-                true,
-                currentFile);
+            assetFileToUpdate.AssetId = liveToVodAssetId;
+            assetFileToUpdate.Id = currentAssetFileId;
+            var updateFileResponse = _fileManager.UpdateMediaFile((int)partnerId, assetFileToUpdate, updaterId);
             if (updateFileResponse.IsOkStatusCode())
             {
                 return updateFileResponse.Object;
@@ -178,7 +172,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
             
             _logger.LogError("failed to update media file. groupId:[{PartnerId}]. assetId:[{AssetId}]. fileId:[{FileId}]",
                 partnerId,
-                assetId,
+                liveToVodAssetId,
                 fileToUpdate.Id);
             
             return null;
@@ -214,11 +208,11 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
                     StartDate = ppvModule.StartDate,
                     EndDate = ppvModule.EndDate
                 };
-
+                var contextData = new ContextData((int)partnerId);
                 var previousPpv = currentPpv.FirstOrDefault(x => ppvModule.PpvModuleId == x.PpvModuleId);
                 var ppvResult = previousPpv != null
-                    ? _priceManager.UpdateAssetFilePPV((int)partnerId, newPpv)
-                    : _priceManager.AddAssetFilePPV((int)partnerId, newPpv);
+                    ? _priceManager.UpdateAssetFilePPV(contextData, newPpv)
+                    : _priceManager.AddAssetFilePPV(contextData, newPpv);
                 if (!ppvResult.IsOkStatusCode())
                 {
                     _logger.LogError("failed to add or update PPV from media file. groupId:[{PartnerId}]. ppvModuleId:[{EpgId}]. fileId:[{FileId}]. status:[{Status}].",
@@ -241,9 +235,10 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
 
         private void RemovePpvFromFile(long partnerId, AssetFile assetFile, IEnumerable<AssetFilePpv> ppvList)
         {
+            var contextData = new ContextData((int)partnerId);
             foreach (var ppvToRemove in ppvList)
             {
-                var deleteStatus = _priceManager.DeleteAssetFilePPV((int)partnerId, assetFile.Id, ppvToRemove.PpvModuleId);
+                var deleteStatus = _priceManager.DeleteAssetFilePPV(contextData, assetFile.Id, ppvToRemove.PpvModuleId);
                 if (!deleteStatus.IsOkStatusCode())
                 {
                     _logger.LogWarning("failed to remove PPV from media file. groupId:[{PartnerId}]. ppvModuleId:[{EpgId}]. fileId:[{FileId}]. status:[{Status}].",
@@ -257,7 +252,8 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
 
         private ILookup<long, AssetFilePpv> GetPpvModules(long partnerId, long assetId)
         {
-            var existingPpvModulesResponse = _priceManager.GetAssetFilePPVList((int)partnerId, assetId, 0);
+            var contextData = new ContextData((int)partnerId);
+            var existingPpvModulesResponse = _priceManager.GetAssetFilePPVList(contextData, assetId, 0);
 
             return existingPpvModulesResponse.IsOkStatusCode()
                 ? existingPpvModulesResponse.Objects.ToLookup(x => x.AssetFileId)

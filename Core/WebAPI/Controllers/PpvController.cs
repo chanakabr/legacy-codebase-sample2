@@ -55,10 +55,10 @@ namespace WebAPI.Controllers
                 pager = new KalturaFilterPager();
             
             var coreFilter = AutoMapper.Mapper.Map<PpvFilter>(filter);
-            int groupId = KS.GetFromRequest().GroupId;
+            var contextData = KS.GetContextData();
 
             Func<GenericListResponse<PPVModule>> getListFunc = () =>
-                PpvManager.Instance.GetPPVModules(groupId, filter?.GetIdIn(), false, filter.CouponGroupIdEqual,
+                PpvManager.Instance.GetPPVModules(contextData, filter?.GetIdIn(), false, filter.CouponGroupIdEqual,
                     filter.AlsoInactive.HasValue ? filter.AlsoInactive.Value : false, coreFilter.OrderBy,
                     pager.GetRealPageIndex(), pager.PageSize.Value, false);
             KalturaGenericListResponse<KalturaPpv> response =
@@ -79,6 +79,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.PriceDetailsDoesNotExist)]
         [Throws(eResponseStatus.UsageModuleDoesNotExist)]
         [Throws(eResponseStatus.DiscountCodeNotExist)]
+        [Throws(eResponseStatus.AssetUserRuleDoesNotExists)]
         public static KalturaPpv Add(KalturaPpv ppv)
         {
             KalturaPpv result = null;
@@ -91,8 +92,9 @@ namespace WebAPI.Controllers
             
             if (result != null)
             {
+                contextData.UserId = null;
                 Func<GenericResponse<PPVModule>> getFunc = () =>
-                    PpvManager.Instance.GetPpvById(contextData.GroupId, long.Parse(result.Id));
+                    PpvManager.Instance.GetPpvById(contextData, long.Parse(result.Id));
                  result = ClientUtils.GetResponseFromWS<KalturaPpv, PPVModule>(getFunc);
             }
             
@@ -146,8 +148,9 @@ namespace WebAPI.Controllers
             
             if (result != null)
             {
+                contextData.UserId = null;
                 Func<GenericResponse<PPVModule>> getFunc = () =>
-                    PpvManager.Instance.GetPpvById(contextData.GroupId, long.Parse(result.Id), true);
+                    PpvManager.Instance.GetPpvById(contextData, long.Parse(result.Id), true);
                 result = ClientUtils.GetResponseFromWS<KalturaPpv, PPVModule>(getFunc);
             }
 

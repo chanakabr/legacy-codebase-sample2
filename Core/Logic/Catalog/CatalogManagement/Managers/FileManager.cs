@@ -22,6 +22,7 @@ namespace Core.Catalog.CatalogManagement
         Status DeleteMediaFile(int groupId, long userId, long id);
         GenericResponse<AssetFile> UpdateMediaFile(int groupId, AssetFile assetFileToUpdate, long userId, bool isFromIngest = false, AssetFile currentAssetFile = null);
         void DoFreeItemIndexUpdateIfNeeded(int groupId, int assetId, DateTime? previousStartDate, DateTime? startDate, DateTime? previousEndDate, DateTime? endDate);
+        GenericListResponse<AssetFile> GetMediaFiles(int groupId, long id, long assetId);
     }
     public class FileManager : IMediaFileTypeManager
     {
@@ -887,7 +888,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static GenericListResponse<AssetFile> GetMediaFiles(int groupId, long id, long assetId)
+        public GenericListResponse<AssetFile> GetMediaFiles(int groupId, long id, long assetId)
         {
             GenericListResponse<AssetFile> response = new GenericListResponse<AssetFile>();
             try

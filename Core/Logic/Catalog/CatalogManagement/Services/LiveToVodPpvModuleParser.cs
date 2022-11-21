@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using ApiLogic.Catalog.CatalogManagement.Models;
 using ApiLogic.Pricing.Handlers;
+using ApiObjects.Base;
 using Core.Pricing;
 using Microsoft.Extensions.Logging;
 using Phoenix.Generated.Api.Events.Crud.ProgramAsset;
@@ -50,7 +51,8 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
                 return Enumerable.Empty<PpvModuleInfo>();
             }
 
-            var ppvListResponse = _ppvManager.GetPPVModules((int)asset.PartnerId);
+            ContextData contextData = new ContextData((int)asset.PartnerId);
+            var ppvListResponse = _ppvManager.GetPPVModules(contextData);
             if (!ppvListResponse.IsOkStatusCode())
             {
                 return Enumerable.Empty<PpvModuleInfo>();
