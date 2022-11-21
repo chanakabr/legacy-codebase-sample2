@@ -18,29 +18,26 @@ namespace FeatureFlag
             _featureFlagContext = featureFlagContext;
             _featureFlag = featureFlag;
         }
-
-        public bool IsEpgNotificationEnabled(int groupId) => _featureFlag.Enabled("epg.notification", GetUser(groupId));
-        public bool IsMediaMarksNewModel(int groupId) => _featureFlag.Enabled("mediamarks-play-location-in-user-object", GetUser(groupId)); // BEO-11088
         
+        public bool IsMediaMarksNewModel(int groupId) => _featureFlag.Enabled("mediamarks-play-location-in-user-object", GetUser(groupId)); // BEO-11088
         //public bool IsUdidDynamicListAsExcelEnabled(int groupId) => _featureFlag.Enabled("dynamicList.format", GetUser(groupId));
-
-        public bool IsStrictUnlockDisabled() => _featureFlag.Enabled("distributedlock.strict-unlock-disabled", GetUser((int?) _featureFlagContext.GetPartnerId()));
-        public bool IsEfficientSerializationUsed() =>_featureFlag.Enabled("is-efficient-serialization-used", GetUser((int?) _featureFlagContext.GetPartnerId()));
-        public bool IsRenewUseKronos() => _featureFlag.Enabled("is-renew-use-kronos", GetUser((int?) _featureFlagContext.GetPartnerId()));
-        public bool IsUnifiedRenewUseKronos() => _featureFlag.Enabled("is-unified-renew-use-kronos", GetUser((int?) _featureFlagContext.GetPartnerId()));
-        public bool IsRenewalReminderUseKronos() => _featureFlag.Enabled("is-renew-reminder-use-kronos", GetUser((int?) _featureFlagContext.GetPartnerId()));
-        public bool IsRenewSubscriptionEndsUseKronos() => _featureFlag.Enabled("is-renew-subscription-ends-use-kronos", GetUser((int?) _featureFlagContext.GetPartnerId()));
-        public bool IsImprovedUpdateMediaAssetStoredProcedureShouldBeUsed() => _featureFlag.Enabled("is-improved-update-media-asset-stored-procedure-should-be-used",
-            GetUser((int?) _featureFlagContext.GetPartnerId()));
+        public bool IsStrictUnlockDisabled() => _featureFlag.Enabled("distributedlock.strict-unlock-disabled", GetUser());
+        public bool IsEfficientSerializationUsed() =>_featureFlag.Enabled("is-efficient-serialization-used", GetUser());
+        public bool IsRenewUseKronos() => _featureFlag.Enabled("is-renew-use-kronos", GetUser(null));
+        public bool IsUnifiedRenewUseKronos() => _featureFlag.Enabled("is-unified-renew-use-kronos", GetUser());
+        public bool IsRenewalReminderUseKronos() => _featureFlag.Enabled("is-renew-reminder-use-kronos", GetUser());
+        public bool IsRenewSubscriptionEndsUseKronos() => _featureFlag.Enabled("is-renew-subscription-ends-use-kronos", GetUser());
+        public bool IsCloudfrontInvalidationEnabled() => _featureFlag.Enabled("cloudfront-invalidation", GetUser()); //BEO-12440
+        public bool IsImprovedUpdateMediaAssetStoredProcedureShouldBeUsed() => _featureFlag.Enabled("is-improved-update-media-asset-stored-procedure-should-be-used", GetUser());
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private KalturaFeatureToggleUser GetUser(int? groupId)
+        private KalturaFeatureToggleUser GetUser(long? groupId = null)
         {
-            var resolvedGroupId = (int?) (groupId ?? _featureFlagContext.GetPartnerId());
+            var resolvedGroupId = groupId ?? _featureFlagContext.GetPartnerId();
             var userId = _featureFlagContext.GetUserId();
             return KalturaFeatureFlagUserBuilder.Get()
                 .WithUserId(userId)
-                .WithGroupId(resolvedGroupId)
+                .WithGroupId((int?)resolvedGroupId)
                 .Build();
         }
     }

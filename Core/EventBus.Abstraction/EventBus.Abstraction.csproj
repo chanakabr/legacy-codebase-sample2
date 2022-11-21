@@ -14,8 +14,13 @@
   </PropertyGroup>
   
   <ItemGroup>
+    <PackageReference Include="Ott.Lib.FeatureToggle" Version="1.1.1" />
     <PackageReference Include="OTT.Lib.Kafka" Version="1.5.1" />
     <PackageReference Include="Phx.Lib.Log" Version="1.2.4" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\FeatureFlag\FeatureFlag.csproj" />
   </ItemGroup>
 
 </Project>

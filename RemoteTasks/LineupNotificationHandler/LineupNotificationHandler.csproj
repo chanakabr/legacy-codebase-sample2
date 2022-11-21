@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Core\CloudfrontInvalidatorGrpcClientWrapper\CloudfrontInvalidatorGrpcClientWrapper.csproj" />
       <ProjectReference Include="..\..\Core\IotGrpcClientWrapper\IotGrpcClientWrapper.csproj" />
       <ProjectReference Include="..\..\Core\WebAPI\WebAPI.csproj" />
       <ProjectReference Include="..\NotificationHandlers.Common\NotificationHandlers.Common.csproj" />

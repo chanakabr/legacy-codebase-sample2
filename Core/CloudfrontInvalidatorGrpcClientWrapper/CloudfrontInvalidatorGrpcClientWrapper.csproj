@@ -2,8 +2,7 @@
   
   <PropertyGroup>
     <Version>5.2.0.3673</Version>
-    <AssemblyTitle>2019-04-09 20:15:47 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-0-147-gb99fddbc-dirty</AssemblyTitle>
-    <LangVersion>8.0</LangVersion>
+    <AssemblyTitle>2021-02-01 Published by:Vladimir Statkevich </AssemblyTitle>
   </PropertyGroup>
   
   <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
@@ -15,17 +14,15 @@
   </PropertyGroup>
     
   <ItemGroup>
-    <PackageReference Include="Grpc.Core" Version="2.32.0" />
-    <PackageReference Include="Polly" Version="7.2.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Phx.Lib.Log" Version="1.2.4" />
+    <PackageReference Include="ott.client.cloudfront-invalidator.grpc" Version="0.0.1" />
     <PackageReference Include="Phx.Lib.Appconfig" Version="1.5.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <!--<ProjectReference Include="..\..\..\libs\phx-lib-rest\Phx.Lib.REST\Phx.Lib.REST.csproj" />-->
+    <ProjectReference Include="..\ApiObjects\ApiObjects.csproj" />
+    <ProjectReference Include="..\GrpcClientCommon\GrpcClientCommon.csproj" />
   </ItemGroup>
   
+
+
 </Project>

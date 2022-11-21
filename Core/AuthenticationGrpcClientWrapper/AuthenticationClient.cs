@@ -31,9 +31,7 @@ namespace AuthenticationGrpcClientWrapper
                 {
                     if (_Instance == null)
                     {
-                        var address = ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.Address.Value;
-                        var certFilePath = ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.CertFilePath.Value;
-                        _Instance = new AuthenticationClient(address, certFilePath);
+                        _Instance = new AuthenticationClient();
                     }
                 }
             }
@@ -41,10 +39,9 @@ namespace AuthenticationGrpcClientWrapper
             return _Instance;
         }
 
-        private AuthenticationClient(string address, string certFilePath)
+        private AuthenticationClient()
         {
-            var retryCount = ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.RetryCount.Value;
-            _Client = new Authentication.AuthenticationClient(GrpcCommon.CreateChannel(address, certFilePath, retryCount));
+            _Client = new Authentication.AuthenticationClient(GrpcCommon.CreateChannel(ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication));
         }
 
         public UserLoginHistory GetUserLoginHistory(int partnerId, int userId)

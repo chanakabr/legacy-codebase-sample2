@@ -12,15 +12,9 @@ namespace AssetSelectionGrpcClientWrapper
         public static IAssetSelectionClient Get() => LazyInstance.Value;
         
         private static readonly Lazy<IAssetSelectionClient> LazyInstance = new Lazy<IAssetSelectionClient>(Create, LazyThreadSafetyMode.PublicationOnly);
-        private static IAssetSelectionClient Create()
-        {
-            var grpcServiceConfig = ApplicationConfiguration.Current.MicroservicesClientConfiguration.AssetSelection;
-            var address = grpcServiceConfig.Address.Value;
-            var certFilePath = grpcServiceConfig.CertFilePath.Value;
-            var retryCount = grpcServiceConfig.RetryCount.Value;
-
-            return new AssetSelectionClient(
-                new AssetSelection.AssetSelectionClient(GrpcCommon.CreateChannel(address, certFilePath, retryCount)));
-        }
+        private static IAssetSelectionClient Create() =>
+            new AssetSelectionClient(
+                new AssetSelection.AssetSelectionClient(GrpcCommon.CreateChannel(ApplicationConfiguration.Current
+                    .MicroservicesClientConfiguration.AssetSelection)));
     }
 }

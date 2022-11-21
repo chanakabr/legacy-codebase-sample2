@@ -21,12 +21,7 @@ namespace OffersGrpcClientWrapper
 
         private OffersClient()
         {
-            var address = ApplicationConfiguration.Current.MicroservicesClientConfiguration.Offers.Address.Value;
-            var certFilePath = ApplicationConfiguration.Current.MicroservicesClientConfiguration.Offers
-                .CertFilePath.Value;
-            var retryCount = ApplicationConfiguration.Current.MicroservicesClientConfiguration.Offers.RetryCount
-                .Value;
-            _client = new Offers.OffersClient(GrpcCommon.CreateChannel(address, certFilePath, retryCount));
+            _client = new Offers.OffersClient(GrpcCommon.CreateChannel(ApplicationConfiguration.Current.MicroservicesClientConfiguration.Offers));
         }
 
         public List<(long AssetId, RepeatedField<ProductOffer> Products)> GetAssetProductOffers(int groupId, IEnumerable<SlimAsset> assetIds)

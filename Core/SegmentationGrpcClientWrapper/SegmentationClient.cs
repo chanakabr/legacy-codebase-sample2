@@ -20,10 +20,7 @@ namespace SegmentationGrpcClientWrapper
 
         private SegmentationClient()
         {
-            var address = ApplicationConfiguration.Current.MicroservicesClientConfiguration.Segmentation.Address.Value;
-            var certFilePath = ApplicationConfiguration.Current.MicroservicesClientConfiguration.Segmentation.CertFilePath.Value;
-            var retryCount = ApplicationConfiguration.Current.MicroservicesClientConfiguration.Segmentation.RetryCount.Value;
-            _client = new Segmentation.SegmentationClient(GrpcCommon.CreateChannel(address, certFilePath, retryCount));
+            _client = new Segmentation.SegmentationClient(GrpcCommon.CreateChannel(ApplicationConfiguration.Current.MicroservicesClientConfiguration.Segmentation));
         }
 
         public IEnumerable<long> ListHouseholdSegmentIds(ListHouseholdSegmentRequest request)

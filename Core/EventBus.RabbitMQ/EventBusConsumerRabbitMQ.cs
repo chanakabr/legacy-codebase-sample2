@@ -305,6 +305,11 @@ namespace EventBus.RabbitMQ
 
                 consumer.Model.BasicAck(eventArgs.DeliveryTag, multiple: false);
             }
+            catch (RetryableErrorException retryableErrorException)
+            {
+                _Logger.Error($"Error during invocation of ProcessEvent([{eventName}]).", retryableErrorException);
+                consumer.Model.BasicNack(eventArgs.DeliveryTag, multiple: false, requeue: true); // requeue true !
+            }
             catch (Exception e)
             {
                 _Logger.Error($"Error during invocation of ProcessEvent([{eventName}]).", e);

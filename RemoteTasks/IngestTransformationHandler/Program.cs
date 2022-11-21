@@ -72,10 +72,7 @@ namespace IngestHandler
                     s.AddKafkaContextProvider<EventBusKafkaContextProvider>();
                     s.AddScoped<IEventBusPublisher, KafkaPublisher>();
                     s.AddScoped<IEpgIngestMessaging>(provider => new EpgIngestMessaging(provider.GetService<IEventBusPublisher>(), new KLogger(nameof(EpgIngestMessaging))));
-
-                    s.AddFeatureToggle(new ConfigurationBuilder().AddEnvironmentVariables().Build());
-                    s.AddScoped<IFeatureFlagContext, FeatureFlagIngestContext>();
-                    s.AddScoped<IPhoenixFeatureFlag, PhoenixFeatureFlag>();
+                    s.AddPhoenixFeatureFlag();
                 })
                 .ConfigureEventBusConsumer(c => { c.DedicatedPartnerIdsResolver = EpgIngestPartnerResolver.GetRelevantPartnerIds; })
                 .ConfigureLogging(configureLogging =>

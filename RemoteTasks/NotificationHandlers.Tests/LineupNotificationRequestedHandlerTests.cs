@@ -2,33 +2,36 @@
 using System.Linq;
 using System.Threading.Tasks;
 using ApiLogic.Api.Managers;
-using ApiLogic.Notification;
+using ApiObjects.Cloudfront;
 using ApiObjects.EventBus;
 using ApiObjects.Notification;
-using ApiObjects.Response;
 using Core.Catalog.CatalogManagement;
 using Core.Notification;
+using EventBus.RabbitMQ;
 using IotGrpcClientWrapper;
 using LineupNotificationHandler;
-using LineupNotificationHandler.Configuration;
+using Microsoft.Extensions.Logging;
 using Moq;
-using NotificationHandlers.Common;
 using NUnit.Framework;
+using phoenix;
 
 namespace NotificationHandlers.Tests
 {
     public class LineupNotificationRequestedHandlerTests
     {
-        private const int GROUP_ID_DISABLED_REGIONALIZATION = 1;
-        private const int GROUP_ID_ENABLED_REGIONALIZATION = 1;
+        private const int GROUP_ID = 1;
         private static readonly List<long> Regions = new List<long> { 1, 2 };
         private static readonly List<long> ChildRegions = new List<long> { 3, 4 };
-
         private static readonly NotificationPartnerSettings IotEnabledSettings = new NotificationPartnerSettings
         {
             IsIotEnabled = true,
             LineupNotification = new LineupNotificationSettings { Enabled = true }
         };
+        private static readonly string[] CloudfrontInvalidationPaths = {
+            $"/api_v3/service/epg/action/get/partnerid/{GROUP_ID}/*",
+            $"/api_v3/service/lineup/action/get/partnerid/{GROUP_ID}/*"
+        };
+        private const string IOT_MESSAGE = @"{""header"":{""event_type"":2,""event_date"":";
 
         private MockRepository _mockRepository;
 
@@ -50,11 +53,12 @@ namespace NotificationHandlers.Tests
             var @event = new LineupNotificationRequestedEvent { RegionIds = new List<long>() };
 
             var handler = new LineupNotificationRequestedHandler(
-                _mockRepository.Create<ILineupNotificationConfiguration>().Object,
                 _mockRepository.Create<INotificationCache>().Object,
                 _mockRepository.Create<ICatalogManager>().Object,
                 _mockRepository.Create<IRegionManager>().Object,
-                new Mock<IIotClient>().Object);
+                _mockRepository.Create<IIotClient>().Object,
+                _mockRepository.Create<ICloudfrontInvalidator>().Object,
+                Logger);
 
             await handler.Handle(@event);
         }
@@ -64,16 +68,17 @@ namespace NotificationHandlers.Tests
         {
             var @event = new LineupNotificationRequestedEvent
             {
-                GroupId = GROUP_ID_DISABLED_REGIONALIZATION,
+                GroupId = GROUP_ID,
                 RegionIds = new List<long> { Regions.First() }
             };
 
             var handler = new LineupNotificationRequestedHandler(
-                _mockRepository.Create<ILineupNotificationConfiguration>().Object,
-                GetNotificationCacheMock(GROUP_ID_DISABLED_REGIONALIZATION, IotEnabledSettings).Object,
-                GetCatalogManagerMock(GROUP_ID_DISABLED_REGIONALIZATION, false).Object,
+                _mockRepository.Create<INotificationCache>().Object,
+                CatalogManager(GROUP_ID, false),
                 _mockRepository.Create<IRegionManager>().Object,
-                new Mock<IIotClient>().Object);
+                _mockRepository.Create<IIotClient>().Object,
+                _mockRepository.Create<ICloudfrontInvalidator>().Object,
+                Logger);
 
             await handler.Handle(@event);
         }
@@ -83,16 +88,17 @@ namespace NotificationHandlers.Tests
         {
             var @event = new LineupNotificationRequestedEvent
             {
-                GroupId = GROUP_ID_ENABLED_REGIONALIZATION,
+                GroupId = GROUP_ID,
                 RegionIds = new List<long> { Regions.First(), 3 }
             };
 
             var handler = new LineupNotificationRequestedHandler(
-                _mockRepository.Create<ILineupNotificationConfiguration>().Object,
-                GetNotificationCacheMock(GROUP_ID_ENABLED_REGIONALIZATION, IotEnabledSettings).Object,
-                GetCatalogManagerMock(GROUP_ID_ENABLED_REGIONALIZATION, true).Object,
-                GetRegionManagerMock(GROUP_ID_ENABLED_REGIONALIZATION, Regions).Object,
-                new Mock<IIotClient>().Object);
+                _mockRepository.Create<INotificationCache>().Object,
+                CatalogManager(GROUP_ID, true),
+                RegionManagerMock(GROUP_ID, Regions).Object,
+                _mockRepository.Create<IIotClient>().Object,
+                _mockRepository.Create<ICloudfrontInvalidator>().Object,
+                Logger);
 
             await handler.Handle(@event);
         }
@@ -102,16 +108,17 @@ namespace NotificationHandlers.Tests
         {
             var @event = new LineupNotificationRequestedEvent
             {
-                GroupId = GROUP_ID_ENABLED_REGIONALIZATION,
+                GroupId = GROUP_ID,
                 RegionIds = new List<long> { Regions.First() }
             };
 
             var handler = new LineupNotificationRequestedHandler(
-                _mockRepository.Create<ILineupNotificationConfiguration>().Object,
-                GetNotificationCacheMock(GROUP_ID_ENABLED_REGIONALIZATION, settings).Object,
-                GetCatalogManagerMock(GROUP_ID_ENABLED_REGIONALIZATION, true).Object,
-                GetRegionManagerMock(GROUP_ID_ENABLED_REGIONALIZATION, Regions).Object,
-                new Mock<IIotClient>().Object);
+                _mockRepository.NotificationCache(GROUP_ID, settings),
+                CatalogManager(GROUP_ID, true),
+                RegionManagerMock(GROUP_ID, Regions).Object,
+                _mockRepository.Create<IIotClient>().Object,
+                _mockRepository.Create<ICloudfrontInvalidator>().Object,
+                Logger);
 
             await handler.Handle(@event);
         }
@@ -121,20 +128,21 @@ namespace NotificationHandlers.Tests
         {
             var @event = new LineupNotificationRequestedEvent
             {
-                GroupId = GROUP_ID_ENABLED_REGIONALIZATION,
+                GroupId = GROUP_ID,
                 RegionIds = new List<long> { Regions.First(), Regions.First() }
             };
 
-            var regionManager = GetRegionManagerMock(GROUP_ID_ENABLED_REGIONALIZATION, Regions);
-            regionManager.Setup(x => x.GetChildRegionIds(GROUP_ID_ENABLED_REGIONALIZATION, Regions.First()))
+            var regionManager = RegionManagerMock(GROUP_ID, Regions);
+            regionManager.Setup(x => x.GetChildRegionIds(GROUP_ID, Regions.First()))
                 .Returns(new List<long>());
 
             var handler = new LineupNotificationRequestedHandler(
-                GetConfigurationMock().Object,
-                GetNotificationCacheMock(GROUP_ID_ENABLED_REGIONALIZATION, IotEnabledSettings).Object,
-                GetCatalogManagerMock(GROUP_ID_ENABLED_REGIONALIZATION, true).Object,
+                _mockRepository.NotificationCache(GROUP_ID, IotEnabledSettings),
+                CatalogManager(GROUP_ID, true),
                 regionManager.Object,
-                new Mock<IIotClient>().Object);
+                _mockRepository.IotClient(GROUP_ID, IOT_MESSAGE, EventNotificationType.LineupUpdated, Regions.First()),
+                _mockRepository.CloudfrontInvalidator(GROUP_ID, CloudfrontInvalidationPaths),
+                Logger);
 
             await handler.Handle(@event);
         }
@@ -144,24 +152,45 @@ namespace NotificationHandlers.Tests
         {
             var @event = new LineupNotificationRequestedEvent
             {
-                GroupId = GROUP_ID_ENABLED_REGIONALIZATION,
+                GroupId = GROUP_ID,
                 RegionIds = new List<long> { Regions.Last() }
             };
 
-            var regionManager = GetRegionManagerMock(GROUP_ID_ENABLED_REGIONALIZATION, Regions);
-            regionManager.Setup(x => x.GetChildRegionIds(GROUP_ID_ENABLED_REGIONALIZATION, Regions.Last()))
+            var regionManager = RegionManagerMock(GROUP_ID, Regions);
+            regionManager.Setup(x => x.GetChildRegionIds(GROUP_ID, Regions.Last()))
                 .Returns(ChildRegions);
 
-            var regionsToNotify = new List<long> { Regions.Last() }.Union(ChildRegions).ToList();
+            var regionsToNotify = ChildRegions.Prepend(Regions.Last()).ToArray();
 
             var handler = new LineupNotificationRequestedHandler(
-                GetConfigurationMock().Object,
-                GetNotificationCacheMock(GROUP_ID_ENABLED_REGIONALIZATION, IotEnabledSettings).Object,
-                GetCatalogManagerMock(GROUP_ID_ENABLED_REGIONALIZATION, true).Object,
+                _mockRepository.NotificationCache(GROUP_ID, IotEnabledSettings),
+                CatalogManager(GROUP_ID, true),
                 regionManager.Object,
-                new Mock<IIotClient>().Object);
+                _mockRepository.IotClient(GROUP_ID, IOT_MESSAGE, EventNotificationType.LineupUpdated, regionsToNotify),
+                _mockRepository.CloudfrontInvalidator(GROUP_ID, CloudfrontInvalidationPaths),
+                Logger);
 
             await handler.Handle(@event);
+        }
+        
+        [Test]
+        public void Handle_InvalidateCloudfrontFailure_ShouldThrowRetryException()
+        {
+            var @event = new LineupNotificationRequestedEvent
+            {
+                GroupId = GROUP_ID,
+                RegionIds = new List<long> { Regions.First(), Regions.First() }
+            };
+            
+            var handler = new LineupNotificationRequestedHandler(
+                _mockRepository.NotificationCache(GROUP_ID, IotEnabledSettings),
+                CatalogManager(GROUP_ID, true),
+                RegionManagerMock(GROUP_ID, new List<long>{Regions.First()}).Object,
+                _mockRepository.Create<IIotClient>().Object,
+                _mockRepository.CloudfrontInvalidator(GROUP_ID, CloudfrontInvalidationPaths, returnSuccess: false),
+                Logger);
+
+            Assert.ThrowsAsync<RetryableErrorException>(() => handler.Handle(@event));
         }
 
         private static IEnumerable<TestCaseData> LineupNotificationDisabledSettings()
@@ -176,44 +205,22 @@ namespace NotificationHandlers.Tests
             });
         }
 
-        private Mock<INotificationCache> GetNotificationCacheMock(int groupId, NotificationPartnerSettings settings)
-        {
-            var mock = _mockRepository.Create<INotificationCache>();
-
-            mock.Setup(x => x.GetPartnerNotificationSettings(groupId))
-                .Returns(new NotificationPartnerSettingsResponse
-                {
-                    Status = Status.Ok,
-                    settings = settings
-                });
-
-            return mock;
-        }
-
-        private Mock<ICatalogManager> GetCatalogManagerMock(int groupId, bool isRegionalizationEnabled)
+        private ICatalogManager CatalogManager(int groupId, bool isRegionalizationEnabled)
         {
             var mock = _mockRepository.Create<ICatalogManager>();
             mock.Setup(x => x.IsRegionalizationEnabled(groupId)).Returns(isRegionalizationEnabled);
-
-            return mock;
+            return mock.Object;
         }
 
-        private Mock<IRegionManager> GetRegionManagerMock(int groupId, List<long> regionIds)
+        private Mock<IRegionManager> RegionManagerMock(int groupId, List<long> regionIds)
         {
             var mock = _mockRepository.Create<IRegionManager>();
             mock.Setup(x => x.GetRegionIds(groupId))
                 .Returns(regionIds.Select(x => (int)x).ToList());
-
             return mock;
         }
 
-        private static Mock<ILineupNotificationConfiguration> GetConfigurationMock()
-        {
-            var mock = new Mock<ILineupNotificationConfiguration>();
-            mock
-                .Setup(x => x.CloudFrontInvalidationTtlInMs).Returns(0);
-
-            return mock;
-        }
+        private static ILogger<LineupNotificationRequestedHandler> Logger =>
+            Mock.Of<ILogger<LineupNotificationRequestedHandler>>();
     }
 }

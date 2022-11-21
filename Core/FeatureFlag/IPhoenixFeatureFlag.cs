@@ -2,7 +2,6 @@
 {
     public interface IPhoenixFeatureFlag
     {
-        bool IsEpgNotificationEnabled(int groupId);
         bool IsMediaMarksNewModel(int groupId);
         //bool IsUdidDynamicListAsExcelEnabled(int groupId);
         bool IsStrictUnlockDisabled();
@@ -11,6 +10,7 @@
         bool IsUnifiedRenewUseKronos();
         bool IsRenewalReminderUseKronos();
         bool IsRenewSubscriptionEndsUseKronos();
+        bool IsCloudfrontInvalidationEnabled();
         bool IsImprovedUpdateMediaAssetStoredProcedureShouldBeUsed();
     }
 }

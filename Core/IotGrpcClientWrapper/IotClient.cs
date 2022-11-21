@@ -35,11 +35,7 @@ namespace IotGrpcClientWrapper
 
         private IotClient()
         {
-            var address = ApplicationConfiguration.Current.MicroservicesClientConfiguration.Iot.Address.Value;
-            var certFilePath =
-                ApplicationConfiguration.Current.MicroservicesClientConfiguration.Iot.CertFilePath.Value;
-            var retryCount = ApplicationConfiguration.Current.MicroservicesClientConfiguration.Iot.RetryCount.Value;
-            _client = new Iot.IotClient(GrpcCommon.CreateChannel(address, certFilePath, retryCount));
+            _client = new Iot.IotClient(GrpcCommon.CreateChannel(ApplicationConfiguration.Current.MicroservicesClientConfiguration.Iot));
         }
 
         public void RegisterDevice(int groupId, long domainId, string udid)

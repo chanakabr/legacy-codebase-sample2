@@ -24,4 +24,9 @@ namespace ApiObjects.EventBus
             To = to;
         }
     }
+
+    public static class Range
+    {
+        public static Range<T> Create<T>(T from, T to) => new Range<T>(from, to);
+    }
 }

@@ -15,7 +15,7 @@ namespace NotificationHandlers.Common
 
         private static readonly Histogram EventHandleDuration =
             Metrics.CreateHistogram("handler_event_duration_seconds", "Duration of events handling",
-                new HistogramConfiguration {Buckets = Range(0,60,5).ToArray()});
+                new HistogramConfiguration {Buckets = new double[]{10, 20, 40, 60, 90, 120, 150, 180, 240, 300, 420}});
 
         public static void Start()
         {
@@ -34,13 +34,6 @@ namespace NotificationHandlers.Common
         public static void EventFiltered() => Events.WithLabels("filtered").Inc();
         public static void EventSucceed() => Events.WithLabels("succeed").Inc();
         public static void EventFailed() => Events.WithLabels("failed").Inc();
-
-        public static RequestMetric Iot { get; } = new RequestMetric("iot", "publish_message");
-
-        private static IEnumerable<double> Range(double min, double max, double step)
-        {
-            for (var i = min; i <= max; i += step) yield return i;
-        }
     }
 
     public class RequestMetric

@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Core\Core.Tests\Core.Tests.csproj" />
     <ProjectReference Include="..\..\Core\IotGrpcClientWrapper\IotGrpcClientWrapper.csproj" />
     <ProjectReference Include="..\EpgNotificationHandler\EpgNotificationHandler.csproj" />
     <ProjectReference Include="..\LineupNotificationHandler\LineupNotificationHandler.csproj" />

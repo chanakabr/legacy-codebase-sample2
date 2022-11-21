@@ -30,7 +30,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj" />
-    <ProjectReference Include="..\..\Core\EpgCacheGrpcClientWrapper\EpgCacheGrpcClientWrapper.csproj" />
+    <ProjectReference Include="..\..\Core\CloudfrontInvalidatorGrpcClientWrapper\CloudfrontInvalidatorGrpcClientWrapper.csproj" />
     <ProjectReference Include="..\..\Core\EventBus.Abstraction\EventBus.Abstraction.csproj" />
     <ProjectReference Include="..\..\Core\EventBus.RabbitMQ\EventBus.RabbitMQ.csproj" />
     <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />

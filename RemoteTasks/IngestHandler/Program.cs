@@ -159,9 +159,7 @@ namespace EPGTransformationHandler
                     p.GetService<IKafkaContextProvider>(),
                     new KLogger(nameof(ProgramAssetCrudMessageService))));
                 s.AddScoped<IIngestFinalizer, IngestFinalizer>();
-                s.AddFeatureToggle(new ConfigurationBuilder().AddEnvironmentVariables().Build());
-                s.AddScoped<IFeatureFlagContext, FeatureFlagIngestContext>();
-                s.AddScoped<IPhoenixFeatureFlag, PhoenixFeatureFlag>();
+                s.AddPhoenixFeatureFlag();
             });
         }
     }
