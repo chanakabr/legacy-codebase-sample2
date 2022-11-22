@@ -153,7 +153,7 @@ namespace IngestHandler
                     _logger.LogError(ex, $"Trying to set fatal status on BulkUploadId:[{resValue.BulkUploadId}]  LinearChannelId:[{resValue.LinearChannelId}].");
 
                     // this message states "during transformation handler" and we wont change for now because e2e automation verifies the text of the error message.
-                    _bulkUpload.AddError(eResponseStatus.Error, $"An unexpected error occurred during transformation handler, {ex.Message}");
+                    _bulkUpload.AddError(eResponseStatus.Error, $"An unexpected error occurred during ingest handler, {ex.Message}");
 
                     await ProduceUpdateBulkUpload(_bulkUpload.GroupId, _bulkUpload.Id, shouldSetAsFatal:true, errors: _bulkUpload.Errors);
                     TrySendIngestCompleted(BulkUploadJobStatus.Fatal);
