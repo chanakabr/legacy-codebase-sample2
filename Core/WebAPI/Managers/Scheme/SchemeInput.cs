@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
-using System.Web;
-using KalturaRequestContext;
-using TVinciShared;
 using WebAPI.Exceptions;
 
 namespace WebAPI.Managers.Scheme
@@ -46,6 +46,8 @@ namespace WebAPI.Managers.Scheme
         /// </summary>
         public object Default { get; set; }
 
+        public bool UniqueItems { get; set; }
+
         public SchemeInputAttribute()
         {
             MaxLength = -1;
@@ -65,10 +67,6 @@ namespace WebAPI.Managers.Scheme
 
         internal void Validate(string name, object value)
         {
-            RequestType requiresPermission = RequestType.READ;
-            if (HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] != null)
-                requiresPermission = (RequestType)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE];
-
             ValidateDynamicType(name, value);
             ValidateDynamicMinInt(name, value);
             ValidateDynamicMaxInt(name, value);
@@ -83,6 +81,7 @@ namespace WebAPI.Managers.Scheme
             ValidatePattern(Pattern, name, value);
             ValidateMinItems(name, value);
             ValidateMaxItems(name, value);
+            ValidateUniqueItems(name, value);
         }
 
         private void ValidateDynamicType(string name, object value)
@@ -269,7 +268,7 @@ namespace WebAPI.Managers.Scheme
         {
             if (MinItems >= 0)
             {
-                var items = GetItemsCount(value);
+                var items = GetEnumerableCount(GetEnumerable(value));
                 if (items < MinItems)
                     throw new BadRequestException(BadRequestException.ARGUMENT_MIN_ITEMS_CROSSED, name, MinItems);
             }
@@ -279,32 +278,41 @@ namespace WebAPI.Managers.Scheme
         {
             if (MaxItems >= 0)
             {
-                var items = GetItemsCount(value);
+                var items = GetEnumerableCount(GetEnumerable(value));
                 if (items > MaxItems)
                     throw new BadRequestException(BadRequestException.ARGUMENT_MAX_ITEMS_CROSSED, name, MaxItems);
             }
         }
 
-        private int GetItemsCount(object value)
+        private IEnumerable<object> GetEnumerable(object value)
         {
-            int items = 0;
             if (value.GetType().IsArray)
             {
-                var array = value as object[];
-                if (array != null)
-                {
-                    items = array.Length;
-                }
+                return (value as IEnumerable).Cast<object>();
             }
-            else
+
+            return (value as Newtonsoft.Json.Linq.JArray);
+        }
+
+        private int GetEnumerableCount(IEnumerable<object> array)
+        {
+            if (array != null)
             {
-                var jarray = (value as Newtonsoft.Json.Linq.JArray);
-                if (jarray != null)
+                return array.Count();
+            }
+            return 0;
+        }
+
+        private void ValidateUniqueItems(string name, object value)
+        {
+            if (UniqueItems)
+            {
+                var array = GetEnumerable(value);
+                if (GetEnumerableCount(array) != GetEnumerableCount(array.Distinct()))
                 {
-                    items = jarray.Count;
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, name);
                 }
             }
-            return items;
         }
 
         protected bool isA(RequestType a, RequestType b)
