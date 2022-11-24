@@ -89,6 +89,11 @@ namespace ApiObjects
                 }
             }
 
+            if (this.IsActiveNow)
+            {
+                campaignsDB = FilterByState(campaignsDB);
+            }
+
             return campaignsDB;
         }
 
@@ -104,9 +109,19 @@ namespace ApiObjects
                 campaigns = campaigns.FindAll(x => x.Name.Contains(this.NameContains));
             }
 
+            if (!this.IsActiveNow)
+            {
+                return FilterByState(campaigns).ToList();
+            }
+
+            return campaigns;
+        }
+
+        private IEnumerable<T> FilterByState<T>(IEnumerable<T> campaigns) where T : CampaignDB, new()
+        {
             if (this.StateEqual.HasValue)
             {
-                var filteredCampaignsByStateEqual = ApplyState(campaigns, this.StateEqual.Value).ToList();
+                var filteredCampaignsByStateEqual = ApplyState(campaigns, this.StateEqual.Value);
                 return filteredCampaignsByStateEqual;
             }
 

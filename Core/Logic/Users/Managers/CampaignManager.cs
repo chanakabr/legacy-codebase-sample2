@@ -703,7 +703,8 @@ namespace ApiLogic.Users.Managers
 
             if (campaignsDB?.Count() > 0)
             {
-                list = campaignsDB.Select(x => Get(contextData, x.Id, true))
+                bool lazySetState = !filter.IsActiveNow; // BEO-13101 when searching campaigns which are active now we dont want to run lazy update for their state
+                list = campaignsDB.Select(x => Get(contextData, x.Id, lazySetState))
                     .Where(campaignResponse => campaignResponse.HasObject() && campaignResponse.Object.CampaignType == campaignType)
                     .Select(camp => (T)camp.Object).ToList();
 
