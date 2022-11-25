@@ -62,6 +62,7 @@ using WebAPI.Models.ConditionalAccess.FilterActions.Assets;
 using WebAPI.Models.ConditionalAccess.FilterActions.Files;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
+using WebAPI.Models.Catalog.GroupRepresentatives;
 using WebAPI.Models.LiveToVod;
 using WebAPI.Models.Api;
 using WebAPI.Models.Catalog.SearchPriorityGroup;
@@ -4992,6 +4993,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaListGroupsRepresentativesFilter":
+                    switch(property.Name)
+                    {
+                        case "KSql":
+                            return "kSql";
+                    }
+                    break;
+                    
                 case "KalturaListResponse":
                     switch(property.Name)
                     {
@@ -8732,6 +8741,22 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaTopRsp":
+                    switch(property.Name)
+                    {
+                        case "OrderBy":
+                            return "orderBy";
+                    }
+                    break;
+                    
+                case "KalturaTopSubscriptionEntitledRsp":
+                    switch(property.Name)
+                    {
+                        case "OrderBy":
+                            return "orderBy";
+                    }
+                    break;
+                    
                 case "KalturaTransaction":
                     switch(property.Name)
                     {
@@ -9486,6 +9511,9 @@ namespace WebAPI.Reflection
                         case "getplaybackmanifest":
                             RolesManager.ValidateActionPermitted("asset", "getPlaybackManifest", WebAPI.Managers.eKSValidation.All);
                             return AssetController.GetPlaybackManifest((string) methodParams[0], (KalturaAssetType) methodParams[1], (KalturaPlaybackContextOptions) methodParams[2], (string) methodParams[3]);
+                            
+                        case "grouprepresentativelist":
+                            return AssetController.GroupRepresentativeList((KalturaAssetGroupBy) methodParams[0], (Nullable<KalturaUnmatchedItemsPolicy>) methodParams[1], (KalturaBaseAssetOrder) methodParams[2], (KalturaListGroupsRepresentativesFilter) methodParams[3], (KalturaRepresentativeSelectionPolicy) methodParams[4], (KalturaFilterPager) methodParams[5]);
                             
                         case "list":
                             if(isOldVersion)
@@ -14771,6 +14799,48 @@ namespace WebAPI.Reflection
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "grouprepresentativelist":
+                            ret.Add("groupBy", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAssetGroupBy),
+                            });
+                            ret.Add("unmatchedItemsPolicy", new MethodParam(){
+                                NewName = newParamName,
+                                IsNullable = true,
+                                Type = typeof(KalturaUnmatchedItemsPolicy),
+                                IsEnum = true,
+                            });
+                            ret.Add("orderBy", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaBaseAssetOrder),
+                            });
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaListGroupsRepresentativesFilter),
+                            });
+                            ret.Add("selectionPolicy", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaRepresentativeSelectionPolicy),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
                             });
                             return ret;
                             

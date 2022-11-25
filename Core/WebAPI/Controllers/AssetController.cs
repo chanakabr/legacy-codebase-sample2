@@ -6,9 +6,11 @@ using System.Linq;
 using System.Text;
 using ApiLogic.Api.Managers.Rule;
 using ApiObjects;
+using ApiObjects.SearchObjects.GroupRepresentatives;
 using ApiObjects.User;
 using AssetSelectionGrpcClientWrapper;
 using TVinciShared;
+using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
@@ -16,11 +18,13 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.Catalog.GroupRepresentatives;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.Models.Upload;
 using WebAPI.ModelsValidators;
 using WebAPI.ObjectsConvertor.Extensions;
+using WebAPI.ObjectsConvertor.GroupRepresentatives;
 using WebAPI.ObjectsConvertor.Ordering;
 using WebAPI.Utils;
 using SearchAssetsFilter = WebAPI.InternalModels.SearchAssetsFilter;
@@ -202,7 +206,70 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        
+        /// <summary>
+        /// Returns assets deduplicated by asset metadata (or supported asset's property).
+        /// </summary>
+        /// <param name="filter">Filtering the assets request</param>
+        /// <param name="groupBy">A metadata (or supported asset's property) to group by the assets</param>
+        /// <param name="unmatchedItemsPolicy">Defines the policy to handle assets that don't have groupBy property</param>
+        /// <param name="orderBy">A metadata or supported asset's property to sort by</param>
+        /// <param name="selectionPolicy">A policy that implements a well defined parametric process to select an asset out of group</param>
+        /// <param name="pager">Paging the request</param>
+        [Action("groupRepresentativeList")]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public static KalturaAssetListResponse GroupRepresentativeList(
+            KalturaAssetGroupBy groupBy,
+            KalturaUnmatchedItemsPolicy? unmatchedItemsPolicy,
+            KalturaBaseAssetOrder orderBy = null,
+            KalturaListGroupsRepresentativesFilter filter = null,
+            KalturaRepresentativeSelectionPolicy selectionPolicy = null,
+            KalturaFilterPager pager = null)
+        {
+            var contextData = KS.GetContextData();
+            pager = pager ?? new KalturaFilterPager();
+            var orderingParameters = orderBy != null
+                ? new List<KalturaBaseAssetOrder> { orderBy }
+                : null;
+            var userId = contextData.UserId ?? default;
+            var partnerId = contextData.GroupId;
+            var group = GroupsManager.Instance.GetGroup(partnerId);
+            var isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(
+                partnerId,
+                userId.ToString(),
+                true);
+            var ksqlFilter = FilterAsset.Instance.UpdateKsql(filter?.KSql, contextData.GroupId, contextData.SessionCharacteristicKey);
+            var request = new GroupRepresentativesRequest
+            {
+                DomainId = contextData.DomainId ?? default,
+                UserId = contextData.UserId ?? default,
+                Udid = contextData.Udid,
+                PartnerId = partnerId,
+                PageIndex = pager.GetRealPageIndex(),
+                PageSize = pager.PageSize.Value,
+                LanguageId = Utils.Utils.GetLanguageId(partnerId, contextData.Language),
+                Filter = ksqlFilter,
+                UnmatchedItemsPolicy = GroupRepresentativesSelectionMapper.Instance.MapToUnmatchedItemsPolicy(unmatchedItemsPolicy),
+                SelectionPolicy = GroupRepresentativesSelectionMapper.Instance.MapToRepresentativeSelectionPolicy(selectionPolicy),
+                OrderingParameters = KalturaOrderMapper.Instance.MapParameters(orderingParameters, OrderBy.CREATE_DATE),
+                GroupByValue = groupBy.GetValue(),
+                IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
+                UseStartDate = group.UseStartDate,
+                GetOnlyActiveAssets = group.GetOnlyActiveAssets,
+                UserIp = Utils.Utils.GetClientIP()
+            };
+
+            var response = ClientsManager.CatalogClient().GroupRepresentativeList(request);
+            if (response?.Objects?.Count > 0)
+            {
+                _mediaFileFilter.FilterAssetFiles(response.Objects, contextData.GroupId, contextData.SessionCharacteristicKey);
+
+                var clientTag = OldStandardAttribute.getCurrentClientTag();
+                response.Objects.ForEach(asset => asset.Metas = ModifyAlias(contextData.GroupId, clientTag, asset));
+            }
+
+            return response;
+        }
+
         /// <summary>
         /// Returns recent selected assets
         /// </summary>

@@ -53,6 +53,7 @@ using WebAPI.Models.ConditionalAccess.FilterActions.Assets;
 using WebAPI.Models.ConditionalAccess.FilterActions.Files;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
+using WebAPI.Models.Catalog.GroupRepresentatives;
 using WebAPI.Models.LiveToVod;
 using WebAPI.Models.Api;
 using WebAPI.Models.Catalog.SearchPriorityGroup;
@@ -1551,6 +1552,9 @@ namespace WebAPI.Reflection
                 case "KalturaListFollowDataTvSeriesResponse":
                     return new KalturaListFollowDataTvSeriesResponse(parameters, true);
                     
+                case "KalturaListGroupsRepresentativesFilter":
+                    return new KalturaListGroupsRepresentativesFilter(parameters, true);
+                    
                 case "KalturaListResponse":
                     return new KalturaListResponse(parameters, true);
                     
@@ -2160,6 +2164,9 @@ namespace WebAPI.Reflection
                 case "KalturaReportListResponse":
                     return new KalturaReportListResponse(parameters, true);
                     
+                case "KalturaRepresentativeSelectionPolicy":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
                 case "KalturaRequestConfiguration":
                     return new KalturaRequestConfiguration(parameters, true);
                     
@@ -2507,6 +2514,12 @@ namespace WebAPI.Reflection
                     
                 case "KalturaTopicResponse":
                     return new KalturaTopicResponse(parameters, true);
+                    
+                case "KalturaTopRsp":
+                    return new KalturaTopRsp(parameters, true);
+                    
+                case "KalturaTopSubscriptionEntitledRsp":
+                    return new KalturaTopSubscriptionEntitledRsp(parameters, true);
                     
                 case "KalturaTrailEntitlementDiscountDetails":
                     return new KalturaTrailEntitlementDiscountDetails(parameters, true);
@@ -43103,6 +43116,69 @@ namespace WebAPI.EventNotifications
     {
         public KalturaHttpNotification(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+        }
+    }
+}
+
+namespace WebAPI.Models.Catalog.GroupRepresentatives
+{
+    public partial class KalturaListGroupsRepresentativesFilter
+    {
+        public KalturaListGroupsRepresentativesFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("kSql") && parameters["kSql"] != null)
+                {
+                    KSql = (String) Convert.ChangeType(parameters["kSql"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaRepresentativeSelectionPolicy
+    {
+        public KalturaRepresentativeSelectionPolicy(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaTopRsp
+    {
+        public KalturaTopRsp(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
+                {
+                    if (parameters["orderBy"] is JObject)
+                    {
+                        OrderBy = (KalturaBaseAssetOrder) Deserializer.deserialize(typeof(KalturaBaseAssetOrder), ((JObject) parameters["orderBy"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["orderBy"] is IDictionary)
+                    {
+                        OrderBy = (KalturaBaseAssetOrder) Deserializer.deserialize(typeof(KalturaBaseAssetOrder), (Dictionary<string, object>) parameters["orderBy"]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaTopSubscriptionEntitledRsp
+    {
+        public KalturaTopSubscriptionEntitledRsp(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
+                {
+                    if (parameters["orderBy"] is JObject)
+                    {
+                        OrderBy = (KalturaBaseAssetOrder) Deserializer.deserialize(typeof(KalturaBaseAssetOrder), ((JObject) parameters["orderBy"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["orderBy"] is IDictionary)
+                    {
+                        OrderBy = (KalturaBaseAssetOrder) Deserializer.deserialize(typeof(KalturaBaseAssetOrder), (Dictionary<string, object>) parameters["orderBy"]);
+                    }
+                }
+            }
         }
     }
 }

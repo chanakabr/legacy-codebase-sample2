@@ -2068,8 +2068,7 @@ namespace Core.Catalog
             // WARNING has side effect - updates queryParser.Aggregations
             var requestBody = esQueryBuilder.BuildSearchQueryString(
                 unifiedSearchDefinitions.shouldIgnoreDeviceRuleID,
-                unifiedSearchDefinitions.shouldAddIsActiveTerm,
-                unifiedSearchDefinitions.isGroupingOptionInclude);
+                unifiedSearchDefinitions.shouldAddIsActiveTerm);
 
             if (!string.IsNullOrEmpty(requestBody))
             {
@@ -2099,7 +2098,10 @@ namespace Core.Catalog
 
                         if (esQueryBuilder.Aggregations != null)
                         {
-                            esAggregationResult = ESAggregationsResult.FullParse(queryResultString, esQueryBuilder.Aggregations);
+                            esAggregationResult = ESAggregationsResult.FullParse(
+                                queryResultString,
+                                esQueryBuilder.Aggregations,
+                                unifiedSearchDefinitions.extraReturnFields?.ToList());
                             topHitsMapping = MapTopHits(esAggregationResult, unifiedSearchDefinitions);
                         }
 
@@ -2122,6 +2124,7 @@ namespace Core.Catalog
                                 extendedUnifiedSearchResults.Add(new ExtendedUnifiedSearchResult(result, doc));
                             }
 
+                            var orderByFields = _sortingAdapter.ResolveOrdering(unifiedSearchDefinitions);
                             if (!_sortingService.IsSortingCompleted(unifiedSearchDefinitions))
                             {
                                 IReadOnlyCollection<long> reorderedAssetIds = null;
@@ -2184,21 +2187,29 @@ namespace Core.Catalog
                                             }
                                         }
                                     }
-                                }
 
-                                var orderByFields = _sortingAdapter.ResolveOrdering(unifiedSearchDefinitions);
-                                if (esAggregationResult != null
-                                    && _esSortingService.IsBucketsReorderingRequired(orderByFields, unifiedSearchDefinitions.distinctGroup))
-                                {
-                                    var assetIds = searchResultsList.Select(item => long.Parse(item.AssetId)).ToList();
-                                    ReorderBuckets(
-                                        esAggregationResult,
-                                        unifiedSearchDefinitions.pageIndex,
-                                        unifiedSearchDefinitions.pageSize,
-                                        unifiedSearchDefinitions.distinctGroup,
-                                        idToDocument,
-                                        assetIds);
+                                    // When ORDER_BY=STATS + GROUP_BY need to reorder buckets
+                                    if (esAggregationResult != null && _esSortingService.IsBucketsReorderingRequired(orderByFields, unifiedSearchDefinitions.distinctGroup))
+                                    {
+                                        ReorderBuckets(
+                                            esAggregationResult,
+                                            unifiedSearchDefinitions.distinctGroup,
+                                            unifiedSearchDefinitions.GroupByOption,
+                                            idToDocument,
+                                            reorderedAssetIds);
+                                    }
                                 }
+                            }
+                            else if (esAggregationResult != null && _esSortingService.IsBucketsReorderingRequired(orderByFields, unifiedSearchDefinitions.distinctGroup))
+                            {
+                                // When ORDER_BY=NAME/META + GROUP_BY need to reorder buckets
+                                var assetIds = searchResultsList.Select(item => long.Parse(item.AssetId)).ToList();
+                                ReorderBuckets(
+                                    esAggregationResult,
+                                    unifiedSearchDefinitions.distinctGroup,
+                                    unifiedSearchDefinitions.GroupByOption,
+                                    idToDocument,
+                                    assetIds);
                             }
                         }
 
@@ -2209,7 +2220,8 @@ namespace Core.Catalog
                                 ConvertAggregationsResponse(
                                     esAggregationResult,
                                     unifiedSearchDefinitions.groupBy.Select(g => g.Key).ToList(),
-                                    topHitsMapping)
+                                    topHitsMapping,
+                                    unifiedSearchDefinitions)
                             }; // TODO if we add one element always, why it's an array?
                         }
 
@@ -2251,7 +2263,7 @@ namespace Core.Catalog
             }
 
             queryBuilder.SetGroupByValuesForUnifiedSearch();
-            var requestBody = queryBuilder.BuildSearchQueryString(search.shouldIgnoreDeviceRuleID, search.shouldAddIsActiveTerm, search.isGroupingOptionInclude); // WARNING has side effect - updates queryBuilder.Aggregations, used later
+            var requestBody = queryBuilder.BuildSearchQueryString(search.shouldIgnoreDeviceRuleID, search.shouldAddIsActiveTerm); // WARNING has side effect - updates queryBuilder.Aggregations, used later
             var url = GetUrl(search, _partnerId);
 
             // send request
@@ -2263,7 +2275,7 @@ namespace Core.Catalog
             // handle response
             var elasticAggregation = groupBySearch.HandleQueryResponse(search, pageSize, fromIndex, queryBuilder, responseBody);
             var topHitsMapping = MapTopHits(elasticAggregation, search);
-            var aggregationsResult = ConvertAggregationsResponse(elasticAggregation, new List<string> { search.groupBy.Single().Key }, topHitsMapping);
+            var aggregationsResult = ConvertAggregationsResponse(elasticAggregation, new List<string> { search.groupBy.Single().Key }, topHitsMapping, search);
 
             return aggregationsResult;
         }
@@ -2442,8 +2454,11 @@ namespace Core.Catalog
         }
 
         private static void ReorderBuckets(
-            ESAggregationsResult aggregationResult, int pageIndex, int pageSize,
-            GroupByDefinition distinctGroup, Dictionary<string, ElasticSearchApi.ESAssetDocument> idToDocument, List<long> orderedIds)
+            ESAggregationsResult aggregationResult,
+            GroupByDefinition distinctGroup,
+            GroupingOption groupingOption,
+            Dictionary<string, ElasticSearchApi.ESAssetDocument> idToDocument,
+            IReadOnlyCollection<long> orderedIds)
         {
             var bucketMapping = new Dictionary<string, ESAggregationBucket>();
             var orderedBuckets = new List<ESAggregationBucket>();
@@ -2473,35 +2488,17 @@ namespace Core.Catalog
                         {
                             alreadyContainedBuckets.Add(bucket);
                             orderedBuckets.Add(bucket);
-
-                            if (!bucket.Aggregations.ContainsKey(ESTopHitsAggregation.DEFAULT_NAME))
-                            {
-                                // Fake the top hit to be the first asset after sorting
-                                bucket.Aggregations[ESTopHitsAggregation.DEFAULT_NAME] = new ESAggregationResult()
-                                {
-                                    hits = new ESHits()
-                                    {
-                                        hits = new List<ElasticSearchApi.ESAssetDocument>()
-                                        {
-                                            doc
-                                        },
-                                        total = bucket.doc_count
-                                    }
-                                };
-                            }
-                            else
-                            {
-                                var hits = bucket.Aggregations[ESTopHitsAggregation.DEFAULT_NAME].hits;
-
-                                // bother doing this only if document isn't contained already
-                                if (!hits.hits.Contains(doc))
-                                {
-                                    hits.hits.Clear();
-                                    hits.hits.Add(doc);
-                                }
-                            }
+                            ReplaceBucketTopHits(bucket, doc);
                         }
                     }
+                }
+                else if (groupingOption == GroupingOption.Group
+                    && bucketMapping.TryGetValue(ESUnifiedQueryBuilder.MissedHitBucketKey.ToString(), out var missedKeyBucket)
+                    && !alreadyContainedBuckets.Contains(missedKeyBucket))
+                {
+                    alreadyContainedBuckets.Add(missedKeyBucket);
+                    orderedBuckets.Add(missedKeyBucket);
+                    ReplaceBucketTopHits(missedKeyBucket, doc);
                 }
             }
 
@@ -2516,11 +2513,35 @@ namespace Core.Catalog
                 }
             }
 
-            bool illegalRequest = false;
-            var pagedBuckets = orderedBuckets.Page(pageSize, pageIndex, out illegalRequest);
-
             // replace the original list with the ordered list
-            aggregationResult.Aggregations[distinctGroup.Key].buckets = pagedBuckets.ToList();
+            aggregationResult.Aggregations[distinctGroup.Key].buckets = orderedBuckets.ToList();
+        }
+
+        private static void ReplaceBucketTopHits(ESAggregationBucket bucket, ElasticSearchApi.ESAssetDocument doc)
+        {
+            if (!bucket.Aggregations.ContainsKey(ESTopHitsAggregation.DEFAULT_NAME))
+            {
+                // Fake the top hit to be the first asset after sorting
+                bucket.Aggregations[ESTopHitsAggregation.DEFAULT_NAME] = new ESAggregationResult
+                {
+                    hits = new ESHits
+                    {
+                        hits = new List<ElasticSearchApi.ESAssetDocument> { doc },
+                        total = bucket.doc_count
+                    }
+                };
+            }
+            else
+            {
+                var hits = bucket.Aggregations[ESTopHitsAggregation.DEFAULT_NAME].hits;
+
+                // bother doing this only if document isn't contained already
+                if (!hits.hits.Contains(doc))
+                {
+                    hits.hits.Clear();
+                    hits.hits.Add(doc);
+                }
+            }
         }
 
         private List<long> SortAssetsByStartDate(List<ElasticSearchApi.ESAssetDocument> assets, ApiObjects.SearchObjects.OrderDir orderDirection, Dictionary<int, string> associationTags,
@@ -3452,7 +3473,7 @@ namespace Core.Catalog
                 queryParser.SubscriptionsQuery = boolQuery;
             }
 
-            string requestBody = queryParser.BuildSearchQueryString(definitions.shouldIgnoreDeviceRuleID, definitions.shouldAddIsActiveTerm, definitions.isGroupingOptionInclude);
+            string requestBody = queryParser.BuildSearchQueryString(definitions.shouldIgnoreDeviceRuleID, definitions.shouldAddIsActiveTerm);
 
             if (!string.IsNullOrEmpty(requestBody))
             {
@@ -7257,7 +7278,8 @@ namespace Core.Catalog
         private static AggregationsResult ConvertAggregationsResponse(
             ESAggregationsResult aggregationsResult,
             List<string> groupBys,
-            Dictionary<ElasticSearchApi.ESAssetDocument, UnifiedSearchResult> topHitsMapping)
+            Dictionary<ElasticSearchApi.ESAssetDocument, UnifiedSearchResult> topHitsMapping,
+            UnifiedSearchDefinitions definitions)
         {
             string currentGroupBy = groupBys[0];
 
@@ -7318,22 +7340,9 @@ namespace Core.Catalog
 
                         foreach (var doc in topHitsAggregation.hits.hits)
                         {
-                            UnifiedSearchResult unifiedSearchResult = null;
-
-                            if (topHitsMapping != null && topHitsMapping.ContainsKey(doc))
-                            {
-                                unifiedSearchResult = topHitsMapping[doc];
-                            }
-                            else
-                            {
-                                unifiedSearchResult = new UnifiedSearchResult()
-                                {
-                                    AssetId = doc.asset_id.ToString(),
-                                    AssetType = ESUtils.ParseAssetType(doc.type),
-                                    m_dUpdateDate = doc.update_date
-                                };
-                            }
-
+                            var unifiedSearchResult = topHitsMapping != null && topHitsMapping.ContainsKey(doc)
+                                ? topHitsMapping[doc]
+                                : CreateUnifiedSearchResultFromESDocument(definitions, doc);
                             bucketResult.topHits.Add(unifiedSearchResult);
                         }
                     }

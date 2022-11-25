@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using ApiLogic.Catalog.CatalogManagement.Models;
+using ApiLogic.Catalog.CatalogManagement.Services.GroupRepresentatives;
 using ApiLogic.IndexManager.Helpers;
+using ApiObjects.Response;
 using ApiObjects.SearchObjects;
+using ApiObjects.SearchObjects.GroupRepresentatives;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
@@ -17,16 +20,18 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
     public class AssetOrderingService : IAssetOrderingService
     {
         private static readonly Lazy<IAssetOrderingService> LazyInstance = new Lazy<IAssetOrderingService>(
-            () => new AssetOrderingService(CatalogManager.Instance),
+            () => new AssetOrderingService(CatalogManager.Instance, GroupRepresentativesExtendedRequestMapper.Instance),
             LazyThreadSafetyMode.PublicationOnly);
 
         public static IAssetOrderingService Instance => LazyInstance.Value;
 
         private readonly ICatalogManager _catalogManager;
+        private readonly IGroupRepresentativesExtendedRequestMapper _requestMapper;
 
-        public AssetOrderingService(ICatalogManager catalogManager)
+        public AssetOrderingService(ICatalogManager catalogManager, IGroupRepresentativesExtendedRequestMapper requestMapper)
         {
             _catalogManager = catalogManager ?? throw new ArgumentNullException(nameof(catalogManager));
+            _requestMapper = requestMapper ?? throw new ArgumentNullException(nameof(requestMapper));
         }
 
         public ChannelEsOrderingResult MapToChannelEsOrderByFields(
@@ -68,6 +73,42 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
             }
 
             return MapToEsOrderByFields(request.OrderObj, request.OrderingParameters, input);
+        }
+
+        public GenericResponse<IEsOrderByField> MapToEsOrderByField(GroupRepresentativesRequest request, CatalogClientData clientData)
+        {
+            BooleanPhraseNode filterTree = null;
+            var filterQueryParseStatus = BooleanPhraseNode.ParseSearchExpression(request.Filter, ref filterTree);
+            if (!filterQueryParseStatus.IsOkStatusCode())
+            {
+                return new GenericResponse<IEsOrderByField>(filterQueryParseStatus);
+            }
+
+            var definitions = BuildUnifiedSearchDefinitions(request, clientData, filterTree);
+            var input = new AssetListEsOrderingCommonInput
+            {
+                GroupId = definitions.groupId,
+                ShouldSearchEpg = definitions.shouldSearchEpg,
+                ShouldSearchMedia = definitions.shouldSearchRecordings,
+                ShouldSearchRecordings = definitions.shouldSearchRecordings,
+                AssociationTags = definitions.associationTags,
+                ParentMediaTypes = definitions.parentMediaTypes,
+                Language = definitions.langauge
+            };
+
+            var esOrderByFieldResult = MapToEsOrderByFields(request.OrderingParameters, input);
+
+            return new GenericResponse<IEsOrderByField>(Status.Ok, esOrderByFieldResult.EsOrderByFields.Single());
+        }
+
+        private UnifiedSearchDefinitions BuildUnifiedSearchDefinitions(
+            GroupRepresentativesRequest request,
+            CatalogClientData clientData,
+            BooleanPhraseNode filterTree)
+        {
+            var unifiedSearchRequest = _requestMapper.BuildRequest(request, clientData, filterTree);
+
+            return CatalogLogic.BuildUnifiedSearchObject(unifiedSearchRequest);
         }
 
         public AssetListEsOrderingResult MapToEsOrderByFields(

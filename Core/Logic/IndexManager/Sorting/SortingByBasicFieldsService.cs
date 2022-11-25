@@ -60,7 +60,11 @@ namespace ApiLogic.IndexManager.Sorting
             switch (field)
             {
                 case EsOrderByMetaField orderByMetaField:
-                    return SortByMeta(esAssetDocuments, orderByMetaField);
+                    return SortByMeta(
+                        esAssetDocuments,
+                        d => d.DocAdapter.GetMetaValue(orderByMetaField),
+                        d => d.AssetId,
+                        orderByMetaField);
                 case EsOrderByField orderByField:
                     return Sort(esAssetDocuments, orderByField);
                 default:
@@ -68,9 +72,10 @@ namespace ApiLogic.IndexManager.Sorting
             }
         }
 
-        private static IEnumerable<(long id, string sortValue)> Sort<T>(
-            IEnumerable<ExtendedUnifiedSearchResult> esAssetDocuments,
-            Func<ExtendedUnifiedSearchResult, T> valueSelector,
+        private static IEnumerable<(long id, string sortValue)> Sort<T, TSource>(
+            IEnumerable<TSource> esAssetDocuments,
+            Func<TSource, T> valueSelector,
+            Func<TSource, long> idSelector,
             IComparer<T> comparer,
             OrderDir orderDir)
         {
@@ -79,18 +84,72 @@ namespace ApiLogic.IndexManager.Sorting
                 : esAssetDocuments.OrderByDescending(valueSelector, comparer);
 
             return orderedItems
-                .ThenByDescending(x => x.AssetId)
-                .Select(x => ((long id, string value))(x.AssetId, valueSelector(x)?.ToString()))
+                .ThenByDescending(idSelector)
+                .Select(x => ((long id, string value))(idSelector(x), valueSelector(x)?.ToString()))
                 .ToArray();
         }
 
-        private static T ExtractFromExtraFields<T>(
-            ExtendedUnifiedSearchResult document,
-            EsOrderByMetaField orderByField,
-            Func<string, T> parseValue)
+        public IEnumerable<(long id, string sortValue)> GetSortedAssets(
+            IEnumerable<ExtendedSearchResult> searchResults,
+            IEsOrderByField esOrderByField,
+            string extraReturnField)
         {
-            var metaValue = document.DocAdapter.GetMetaValue(orderByField);
-            return !string.IsNullOrEmpty(metaValue) ? parseValue(metaValue) : default;
+            if (esOrderByField is EsOrderByMetaField esOrderByMetaField)
+            {
+                return SortByMeta(
+                    searchResults,
+                    d => d.ExtraFields?.FirstOrDefault(f => f.key == extraReturnField)?.value,
+                    x => long.Parse(x.AssetId),
+                    esOrderByMetaField);
+            }
+
+            var orderByField = esOrderByField as EsOrderByField;
+            if (orderByField?.OrderByField == OrderBy.CREATE_DATE || orderByField?.OrderByField == OrderBy.START_DATE)
+            {
+                return Sort(
+                    searchResults,
+                    d => ExtractValue(d, DateTimeConverter, extraReturnField),
+                    d => long.Parse(d.AssetId),
+                    null,
+                    esOrderByField.OrderByDirection);
+            }
+
+            if (orderByField?.OrderByField == OrderBy.NAME)
+            {
+                var comparer = _comparerService.GetComparer(orderByField.Language.Code);
+
+                return Sort(
+                    searchResults,
+                    d => ExtractValue(d, x => x, extraReturnField),
+                    d => long.Parse(d.AssetId),
+                    comparer,
+                    esOrderByField.OrderByDirection);
+            }
+
+            if (orderByField?.OrderByField == OrderBy.NONE || orderByField?.OrderByField == OrderBy.RELATED)
+            {
+                return Sort(
+                    searchResults,
+                    d => d.Score,
+                    d => long.Parse(d.AssetId),
+                    null,
+                    esOrderByField.OrderByDirection);
+            }
+
+            return Sort(
+                searchResults,
+                document => ExtractValue(document, x => x, extraReturnField),
+                d => long.Parse(d.AssetId),
+                null,
+                esOrderByField.OrderByDirection);
+        }
+
+        private static T ExtractValue<T>(ExtendedSearchResult document, Func<string, T> parseValue, string field)
+        {
+            var value = document.ExtraFields?.FirstOrDefault(f => f.key == field)?.value;
+            return !string.IsNullOrEmpty(value)
+                ? parseValue(value)
+                : default;
         }
 
         private IEnumerable<(long id, string sortValue)> Sort(
@@ -99,7 +158,7 @@ namespace ApiLogic.IndexManager.Sorting
         {
             IEnumerable<(long id, string sortValue)> SortInternal<T>(
                 Func<ExtendedUnifiedSearchResult, T> valueSelector, IComparer<T> valueComparer = null)
-                => Sort(documents, valueSelector, valueComparer, esOrderByField.OrderByDirection);
+                => Sort(documents, valueSelector, d => d.AssetId, valueComparer, esOrderByField.OrderByDirection);
 
             // TODO: Please, be aware that the pretty the same switch clause is placed in SortingService class. If you change smth there, you might need changes in SortingService class as well.
             switch (esOrderByField.OrderByField)
@@ -127,14 +186,22 @@ namespace ApiLogic.IndexManager.Sorting
             }
         }
 
-        private IEnumerable<(long id, string sortValue)> SortByMeta(
-            IEnumerable<ExtendedUnifiedSearchResult> documents,
+        private IEnumerable<(long id, string sortValue)> SortByMeta<TSource>(
+            IEnumerable<TSource> documents,
+            Func<TSource, string> valueSelector,
+            Func<TSource, long> idSelector,
             EsOrderByMetaField esOrderByMetaField)
         {
             IEnumerable<(long id, string sortValue)> SortInternal<T>(Func<string, T> parseValue, IComparer<T> valueComparer = null) =>
                 Sort(
                     documents,
-                    document => ExtractFromExtraFields(document, esOrderByMetaField, parseValue), valueComparer,
+                    document =>
+                    {
+                        var value = valueSelector(document);
+                        return !string.IsNullOrEmpty(value) ? parseValue(value) : default;
+                    },
+                    idSelector,
+                    valueComparer,
                     esOrderByMetaField.OrderByDirection);
 
             if (esOrderByMetaField.MetaType == typeof(int))
@@ -145,11 +212,6 @@ namespace ApiLogic.IndexManager.Sorting
             if (esOrderByMetaField.MetaType == typeof(double))
             {
                 return SortInternal(double.Parse);
-            }
-
-            if (esOrderByMetaField.MetaType == typeof(DateTime))
-            {
-                return SortInternal(DateTimeConverter);
             }
 
             if (esOrderByMetaField.MetaType == typeof(string))

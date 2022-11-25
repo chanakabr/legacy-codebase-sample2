@@ -28,7 +28,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
             { "group_id", "name", "cache_date", "update_date" };
         protected static readonly List<string> EXTRA_FIELDS_WITH_LANGUAGE_PREFIX = new List<string>() { "name", "description" };
         protected internal const string TOP_HITS_DEFAULT_NAME = "top_hits_assets";
-        protected const int TERMS_AGGREGATION_MISSING_VALUE = 999;
+        public const int TERMS_AGGREGATION_MISSING_VALUE = 999;
         protected const string LOWERCASE_POSTFIX = "lowercase";
         public bool MinimizeQuery { get; set; }
 
@@ -116,10 +116,15 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     {
                         object missing = null;
 
-                        if (this.SearchDefinitions.isGroupingOptionInclude)
+                        switch (SearchDefinitions.GroupByOption)
                         {
-                            missing = TERMS_AGGREGATION_MISSING_VALUE;
-                            this.SearchDefinitions.topHitsCount = ApplicationConfiguration.Current._elasticSearchConfiguration.MaxInnerResultWindow.Value; //allow missed bucket max results
+                            case GroupingOption.Include:
+                                missing = TERMS_AGGREGATION_MISSING_VALUE;
+                                this.SearchDefinitions.topHitsCount = ApplicationConfiguration.Current._elasticSearchConfiguration.MaxInnerResultWindow.Value; //allow missed bucket max results; //allow missed bucket max results
+                                break;
+                            case GroupingOption.Group:
+                                missing = TERMS_AGGREGATION_MISSING_VALUE;
+                                break;
                         }
 
                         var termsAggregation = new TermsAggregation(groupBy.Key)

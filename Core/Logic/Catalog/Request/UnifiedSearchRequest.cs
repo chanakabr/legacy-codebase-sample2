@@ -105,7 +105,12 @@ namespace Core.Catalog.Request
 
         [DataMember]
         public bool isGroupingOptionInclude;
-        
+
+        /// <summary>
+        /// Defines grouping option.
+        /// </summary>
+        public GroupingOption? GroupByOption { get; set; }
+
         /// <summary>
         /// Key Value Pair. Key - Score. Value - Corresponding Priority Group.
         /// </summary>

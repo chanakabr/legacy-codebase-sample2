@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using ApiObjects;
 using ApiObjects.BulkUpload;
@@ -1314,7 +1314,7 @@ namespace Core.Catalog
                             bucketResult.subs.Add(sub);
                         }
                     }
-                    AddTopHitsToBucketResult(topHitsMapping, bucket, bucketResult);
+                    AddTopHitsToBucketResult(topHitsMapping, bucket, bucketResult, definitions);
                     result.results.Add(bucketResult);
                 }
             }
@@ -1347,7 +1347,7 @@ namespace Core.Catalog
             {
                 // extract the grouping value from the fields / extra fields
                 var doc = unifiedSearchResultToHit[searchResult];
-                var distinctGroupField = doc.Fields.Value<string>(distinctGroup.Value);
+                var distinctGroupField = doc.Fields.Value<object>(new Field(distinctGroup.Value))?.ToString();
 
                 if (distinctGroupField != null)
                 {
@@ -1361,15 +1361,32 @@ namespace Core.Catalog
                         if (!alreadyContainedBuckets.Contains(bucket))
                         {
                             alreadyContainedBuckets.Add(bucket);
-                            var bucketResult = new AggregationResult()
+                            var bucketResult = new AggregationResult
                             {
                                 value = bucket.Key,
                                 count = Convert.ToInt32(bucket.DocCount),
+                                topHits = new List<UnifiedSearchResult> { searchResult }
                             };
-                            AddTopHitsToBucketResult(topHitsMapping, bucket, bucketResult);
+
                             orderedBuckets.Add(bucketResult);
                         }
                     }
+                }
+                else if (definitions.GroupByOption == GroupingOption.Group
+                    && bucketMapping.TryGetValue(
+                        UnifiedSearchNestBuilder.TERMS_AGGREGATION_MISSING_VALUE.ToString(),
+                        out var missedKeyBucket)
+                    && !alreadyContainedBuckets.Contains(missedKeyBucket))
+                {
+                    alreadyContainedBuckets.Add(missedKeyBucket);
+                    var bucket = new AggregationResult
+                    {
+                        value = missedKeyBucket.Key,
+                        count = Convert.ToInt32(missedKeyBucket.DocCount),
+                        topHits = new List<UnifiedSearchResult> { searchResult }
+                    };
+
+                    orderedBuckets.Add(bucket);
                 }
             }
 
@@ -1385,7 +1402,7 @@ namespace Core.Catalog
                         value = bucket.Key,
                         count = Convert.ToInt32(bucket.DocCount),
                     };
-                    AddTopHitsToBucketResult(topHitsMapping, bucket, bucketResult);
+                    AddTopHitsToBucketResult(topHitsMapping, bucket, bucketResult, definitions);
                     orderedBuckets.Add(bucketResult);
                 }
             }
@@ -1396,7 +1413,11 @@ namespace Core.Catalog
             result.results = pagedBuckets.ToList();
         }
 
-        private void AddTopHitsToBucketResult(Dictionary<string, Dictionary<string, UnifiedSearchResult>> topHitsMapping, KeyedBucket<string> bucket, AggregationResult bucketResult)
+        private void AddTopHitsToBucketResult(
+            Dictionary<string, Dictionary<string, UnifiedSearchResult>> topHitsMapping,
+            KeyedBucket<string> bucket,
+            AggregationResult bucketResult,
+            UnifiedSearchDefinitions definitions)
         {
             var topHits = bucket.TopHits(UnifiedSearchNestBuilder.TOP_HITS_DEFAULT_NAME);
 
@@ -1406,23 +1427,11 @@ namespace Core.Catalog
 
                 foreach (var hit in hits)
                 {
-                    UnifiedSearchResult unifiedSearchResult = null;
-
-                    if (topHitsMapping != null && topHitsMapping.ContainsKey(hit.Index) && topHitsMapping[hit.Index].ContainsKey(hit.Id))
-                    {
-                        unifiedSearchResult = topHitsMapping[hit.Index][hit.Id];
-                    }
-                    else
-                    {
-                        eAssetTypes assetType = eAssetTypes.UNKNOWN;
-                        string assetId = GetAssetIdAndType(hit, ref assetType);
-                        unifiedSearchResult = new UnifiedSearchResult()
-                        {
-                            AssetId = assetId,
-                            AssetType = assetType,
-                            m_dUpdateDate = hit.Source.UpdateDate
-                        };
-                    }
+                    var unifiedSearchResult =
+                        topHitsMapping != null && topHitsMapping.ContainsKey(hit.Index) &&
+                        topHitsMapping[hit.Index].ContainsKey(hit.Id)
+                            ? topHitsMapping[hit.Index][hit.Id]
+                            : CreateUnifiedSearchResultFromESDocument(definitions, hit);
 
                     bucketResult.topHits.Add(unifiedSearchResult);
                 }

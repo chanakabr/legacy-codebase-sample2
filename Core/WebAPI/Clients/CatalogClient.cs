@@ -1,4 +1,4 @@
-﻿using ApiLogic.Catalog;
+using ApiLogic.Catalog;
 using ApiLogic.Catalog.CatalogManagement.Managers;
 using ApiLogic.Catalog.CatalogManagement.Services;
 using ApiLogic.IndexManager.QueryBuilders;
@@ -26,10 +26,13 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
+using ApiLogic.Catalog.CatalogManagement.Services.GroupRepresentatives;
+using ApiObjects.SearchObjects.GroupRepresentatives;
 using TVinciShared;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.InternalModels;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Api;
@@ -42,6 +45,7 @@ using WebAPI.Models.Upload;
 using WebAPI.Models.Users;
 using WebAPI.ObjectsConvertor;
 using WebAPI.ObjectsConvertor.Extensions;
+using WebAPI.ObjectsConvertor.GroupRepresentatives;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.ObjectsConvertor.Ordering;
 using WebAPI.Utils;
@@ -490,14 +494,6 @@ namespace WebAPI.Clients
                         }
                     }
 
-                    if (isPersonalListSearch && assetsBaseDataList.Count > 0)
-                    {
-                        //BEO-9985 - Limit buckets by pagination size limit when using group by
-                        assetsBaseDataList =
-                            assetsBaseDataList
-                            .Skip(request.m_nPageIndex * request.m_nPageSize)?.Take(request.m_nPageSize).ToList();
-                    }
-
                     result = GetAssetsForOPCAccount(groupId, request.domainId, assetsBaseDataList, isAllowedToViewInactiveAssets, responseProfile, priorityGroupsMapping);
 
                     var aggregationResults = searchResponse.aggregationResults[0].results;
@@ -510,6 +506,10 @@ namespace WebAPI.Clients
                     result.Objects = CatalogUtils.GetAssets(searchResponse.aggregationResults[0].results, request, managementData, responseProfile);
                 }
 
+                result.Objects = result.Objects
+                    .Skip(request.m_nPageIndex * request.m_nPageSize)
+                    .Take(request.m_nPageSize)
+                    .ToList();
                 result.TotalCount = searchResponse.aggregationResults[0].totalItems;
             }
             else
@@ -682,7 +682,6 @@ namespace WebAPI.Clients
             var userId = int.Parse(searchAssetFilter.SiteGuid);
             var filter = searchAssetFilter.Filter;
             var pageIndex = searchAssetFilter.PageIndex;
-            var isGroupingOptionInclude = searchAssetFilter.GroupByType == GroupingOption.Include;
             var orderingParameters = KalturaOrderMapper.Instance.MapParameters(searchAssetFilter.OrderingParameters);
 
             // get group configuration
@@ -717,7 +716,7 @@ namespace WebAPI.Clients
                     Signature,
                     SignString,
                     ref request,
-                    isGroupingOptionInclude,
+                    searchAssetFilter.GroupByType,
                     searchAssetFilter.ShouldApplyPriorityGroups);
 
                 if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
@@ -823,7 +822,7 @@ namespace WebAPI.Clients
                 domainId = searchAssetsFilter.DomainId,
                 isAllowedToViewInactiveAssets = searchAssetsFilter.IsAllowedToViewInactiveAssets,
                 shouldIgnoreEndDate = searchAssetsFilter.IgnoreEndDate && !searchAssetsFilter.UseFinal,
-                isGroupingOptionInclude = searchAssetsFilter.GroupByType == GroupingOption.Include,
+                GroupByOption = searchAssetsFilter.GroupByType,
                 orderingParameters = KalturaOrderMapper.Instance.MapParameters(searchAssetsFilter.OrderingParameters),
                 specificAssets = searchAssetsFilter.SpecificAssets,
             };
@@ -917,7 +916,7 @@ namespace WebAPI.Clients
                     groupByOrder = aggregationOrder
                 },
                 isAllowedToViewInactiveAssets = searchAssetFilter.IsAllowedToViewInactiveAssets,
-                isGroupingOptionInclude = searchAssetFilter.GroupByType == GroupingOption.Include,
+                GroupByOption = searchAssetFilter.GroupByType,
                 orderingParameters = KalturaOrderMapper.Instance.MapParameters(searchAssetFilter.OrderingParameters),
                 specificAssets = searchAssetFilter.SpecificAssets,
             };
@@ -4269,5 +4268,34 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        internal KalturaAssetListResponse GroupRepresentativeList(GroupRepresentativesRequest request)
+        {
+            var contextData = KS.GetContextData();
+            var userId = contextData.UserId ?? default;
+            var partnerId = contextData.GroupId;
+            var isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(
+                partnerId,
+                userId.ToString(),
+                true);
+            var response = GroupRepresentativesService.Instance.GetGroupRepresentativeList(request, ClientData);
+            if (!response.IsOkStatusCode())
+            {
+                throw new ClientException(response.Status);
+            }
+
+            return GetAssetFromUnifiedSearchResponse(
+                partnerId,
+                response.Object.SearchResponse,
+                response.Object.OriginalRequest,
+                isAllowedToViewInactiveAssets);
+        }
+
+        private CatalogClientData ClientData => new CatalogClientData
+        {
+            Signature = Signature,
+            SignString = SignString,
+            ServerTime = getServerTime()
+        };
     }
 }

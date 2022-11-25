@@ -31,6 +31,7 @@ namespace Core.Catalog
     public interface IIndexManagerFactory
     {
         IIndexManager GetIndexManager(int partnerId);
+        bool IsV2Version(int partnerId);
     }
     
     public class IndexManagerFactory : IIndexManagerFactory
@@ -58,15 +59,17 @@ namespace Core.Catalog
             var isMigrationEventsEnabled = !_esTestingVersion.HasValue && CanaryDeploymentFactory.Instance
                 .GetElasticsearchCanaryDeploymentManager()
                 .IsMigrationEventsEnabled(partnerId);
-
-            var elasticsearchActiveVersion = _esTestingVersion ?? CanaryDeploymentFactory.Instance
-                .GetElasticsearchCanaryDeploymentManager().GetActiveElasticsearchActiveVersion(partnerId);
-            
+            var elasticsearchActiveVersion = GetElasticsearchVersion(partnerId);
             var keyName = $"{elasticsearchActiveVersion}{partnerId}{isMigrationEventsEnabled}";
 
             return _indexManagerInstance.GetOrAdd(keyName,
                 s => CreateIndexManager(partnerId, isMigrationEventsEnabled, elasticsearchActiveVersion));
         }
+
+        public bool IsV2Version(int partnerId) => GetElasticsearchVersion(partnerId) == ElasticsearchVersion.ES_2_3;
+
+        private static ElasticsearchVersion GetElasticsearchVersion(int partnerId) => _esTestingVersion
+            ?? CanaryDeploymentFactory.Instance.GetElasticsearchCanaryDeploymentManager().GetActiveElasticsearchActiveVersion(partnerId);
 
         private static ElasticsearchVersion? TryGetEsTestingVersion()
         {

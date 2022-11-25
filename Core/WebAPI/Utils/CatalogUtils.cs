@@ -633,7 +633,7 @@ namespace WebAPI.Utils
             string signature,
             string signString,
             ref UnifiedSearchRequest request,
-            bool isGroupingOptionInclude,
+            GroupingOption groupByOption,
             bool shouldApplyPriorityGroups)
         {
             UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
@@ -660,7 +660,7 @@ namespace WebAPI.Utils
                 assetTypes = assetTypes,
                 m_sSiteGuid = userId.ToString(),
                 domainId = domainId,
-                isGroupingOptionInclude = isGroupingOptionInclude
+                GroupByOption = groupByOption
             };
             if (shouldApplyPriorityGroups)
             {

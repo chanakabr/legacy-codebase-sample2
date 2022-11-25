@@ -10,6 +10,8 @@ namespace ApiLogic.Api.Managers.Rule
 {
     public class KsqlBuilder
     {
+        private const string _entitledAssetsOnly = "entitled_assets='entitled'";
+
         public static string And(params string[] ksql)
         {
             return And((IEnumerable<string>) ksql);
@@ -50,5 +52,7 @@ namespace ApiLogic.Api.Managers.Rule
                     throw new ArgumentOutOfRangeException(nameof(assetType), assetType, null);
             }
         }
+
+        public static string EntitledAssetsOnly => _entitledAssetsOnly;
     }
 }

@@ -107,7 +107,7 @@ namespace ApiLogic.Tests.IndexManager
                 {
                     {
                         "create_date",
-                        $"{assetDateTime}"
+                        $"{assetDateTime:s}"
                     },
                     {
                         "metas.meta",
@@ -115,7 +115,7 @@ namespace ApiLogic.Tests.IndexManager
                     },
                     {
                         "metas.padded_meta_date",
-                        $"{assetDateTime}"
+                        $"{assetDateTime:s}"
                     },
                     {
                         "metas.meta_int",

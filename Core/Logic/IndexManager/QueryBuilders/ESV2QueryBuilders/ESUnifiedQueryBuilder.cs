@@ -20,6 +20,8 @@ using Core.GroupManagers;
 using ElasticSearch.Common;
 using ApiObjects;
 using ElasticSearch.Utils;
+using LinqToTwitter;
+using Media = ApiObjects.SearchObjects.Media;
 
 namespace ApiLogic.IndexManager.QueryBuilders
 {
@@ -150,10 +152,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
         /// Builds the request body for Elasticsearch search action
         /// </summary>
         /// <returns></returns>
-        public virtual string BuildSearchQueryString(
-            bool bIgnoreDeviceRuleID = false,
-            bool bAddActive = true,
-            bool addMissingToGroupByAgg = false)
+        public virtual string BuildSearchQueryString(bool bIgnoreDeviceRuleID = false, bool bAddActive = true)
         {
             this.ReturnFields = DEFAULT_RETURN_FIELDS.ToList();
             SearchDefinitions.extraReturnFields.UnionWith(EsSortingService.BuildExtraReturnFields(OrderByFields));
@@ -363,10 +362,16 @@ namespace ApiLogic.IndexManager.QueryBuilders
                             Order = aggregationsOrder,
                             OrderDirection = aggregationsOrderDirection
                         };
-                        if (addMissingToGroupByAgg)
+
+                        switch (SearchDefinitions.GroupByOption)
                         {
-                            currentAggregation.Missing = MissedHitBucketKey;
-                            this.SearchDefinitions.topHitsCount = 10000; //allow missed bucket max results
+                            case GroupingOption.Include:
+                                currentAggregation.Missing = MissedHitBucketKey;
+                                this.SearchDefinitions.topHitsCount = 10000; //allow missed bucket max results
+                                break;
+                            case GroupingOption.Group:
+                                currentAggregation.Missing = MissedHitBucketKey;
+                                break;
                         }
 
                         // Get top hit as well if necessary

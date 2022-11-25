@@ -1465,7 +1465,7 @@ namespace Core.Catalog
             if (!LayeredCache.Instance.Get<UnifiedSearchResponse>(cacheKey, ref cachedResult, GetUnifiedSearchResults,
                 new Dictionary<string, object>()
                     {{"groupId", groupId}, {"unifiedSearchDefinitions", unifiedSearchDefinitions}},
-                groupId, LayeredCacheConfigNames.UNIFIED_SEARCH_WITH_PERSONAL_DATA, null))
+                groupId, LayeredCacheConfigNames.UNIFIED_SEARCH_WITH_PERSONAL_DATA, null, true))
             {
                 log.ErrorFormat("Failed getting unified search results from LayeredCache, key: {0}", cacheKey);
             }
@@ -7131,7 +7131,7 @@ namespace Core.Catalog
             definitions = new UnifiedSearchDefinitions();
             definitions.shouldSearchEpg = false;
             definitions.shouldSearchMedia = true; // related media search MEDIA ONLY
-            definitions.isGroupingOptionInclude = request.isGroupingOptionInclude;
+            definitions.GroupByOption = request.isGroupingOptionInclude ? GroupingOption.Include : GroupingOption.Omit;
 
             Filter filter = new Filter();
             CatalogGroupCache catalogGroupCache = null;
@@ -8724,8 +8724,9 @@ namespace Core.Catalog
 
             Utils.BuildSearchGroupBy(request.searchGroupBy, group, definitions, request.m_nGroupID);
 
-            definitions.isGroupingOptionInclude =
-                request.searchGroupBy != null && request.searchGroupBy.isGroupingOptionInclude;
+            definitions.GroupByOption = request.searchGroupBy?.isGroupingOptionInclude == true
+                ? GroupingOption.Include
+                : GroupingOption.Omit;
 
             #endregion
 

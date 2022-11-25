@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using ApiLogic.Catalog.CatalogManagement.Models;
 using ApiLogic.Catalog.CatalogManagement.Services;
+using ApiLogic.Catalog.CatalogManagement.Services.GroupRepresentatives;
 using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.SearchObjects;
@@ -46,7 +47,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                 EsOrderByFields = new[] { new EsOrderByField(OrderBy.RELATED, OrderDir.DESC) }
             };
 
-            var service = new AssetOrderingService(_mockRepository.Create<ICatalogManager>().Object);
+            var service = new AssetOrderingService(
+                _mockRepository.Create<ICatalogManager>().Object,
+                _mockRepository.Create<IGroupRepresentativesExtendedRequestMapper>().Object);
             var input = new AssetListEsOrderingCommonInput();
 
             var result = service.MapToEsOrderByFields(request, input);
@@ -64,7 +67,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
             AssetListEsOrderingResult expectedResult)
         {
             var request = new MediaRelatedRequest { OrderObj = order };
-            var service = new AssetOrderingService(_mockRepository.Create<ICatalogManager>().Object);
+            var service = new AssetOrderingService(
+                _mockRepository.Create<ICatalogManager>().Object,
+                _mockRepository.Create<IGroupRepresentativesExtendedRequestMapper>().Object);
             var input = new AssetListEsOrderingCommonInput();
 
             var result = service.MapToEsOrderByFields(request, input);
@@ -86,7 +91,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                 OrderingParameters = orderings,
                 OrderObj = new OrderObj { m_eOrderBy = OrderBy.START_DATE, m_eOrderDir = OrderDir.DESC }
             };
-            var service = new AssetOrderingService(_mockRepository.Create<ICatalogManager>().Object);
+            var service = new AssetOrderingService(
+                _mockRepository.Create<ICatalogManager>().Object,
+                _mockRepository.Create<IGroupRepresentativesExtendedRequestMapper>().Object);
             var input = new AssetListEsOrderingCommonInput();
 
             var result = service.MapToEsOrderByFields(request, input);
@@ -141,7 +148,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                         && y.GroupId == input.GroupId)))
                 .Returns(new BooleanLeafFieldDefinitions { ValueType = metaType });
 
-            var service = new AssetOrderingService(catalogManagerMock.Object);
+            var service = new AssetOrderingService(
+                catalogManagerMock.Object,
+                _mockRepository.Create<IGroupRepresentativesExtendedRequestMapper>().Object);
             var result = service.MapToEsOrderByFields(request, input);
 
             result.Should().NotBeNull();
@@ -170,7 +179,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                 AssociationTags = new Dictionary<int, string> { { 1, "1" } }
             };
 
-            var service = new AssetOrderingService(_mockRepository.Create<ICatalogManager>().Object);
+            var service = new AssetOrderingService(
+                _mockRepository.Create<ICatalogManager>().Object,
+                _mockRepository.Create<IGroupRepresentativesExtendedRequestMapper>().Object);
             var result = service.MapToEsOrderByFields(request, input);
 
             result.Should().NotBeNull();
@@ -186,7 +197,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
             AssetListEsOrderingResult expectedResult)
         {
             var input = new AssetListEsOrderingCommonInput();
-            var service = new AssetOrderingService(_mockRepository.Create<ICatalogManager>().Object);
+            var service = new AssetOrderingService(
+                _mockRepository.Create<ICatalogManager>().Object,
+                _mockRepository.Create<IGroupRepresentativesExtendedRequestMapper>().Object);
 
             var result = service.MapToEsOrderByFields(order, null, input);
 
@@ -204,7 +217,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
             AssetListEsOrderingResult expectedResult)
         {
             var order = new OrderObj { m_eOrderBy = OrderBy.START_DATE, m_eOrderDir = OrderDir.DESC };
-            var service = new AssetOrderingService(_mockRepository.Create<ICatalogManager>().Object);
+            var service = new AssetOrderingService(
+                _mockRepository.Create<ICatalogManager>().Object,
+                _mockRepository.Create<IGroupRepresentativesExtendedRequestMapper>().Object);
             var input = new AssetListEsOrderingCommonInput();
 
             var result = service.MapToEsOrderByFields(order, orderings, input);
@@ -225,7 +240,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
             };
 
             var input = new AssetListEsOrderingCommonInput();
-            var service = new AssetOrderingService(_mockRepository.Create<ICatalogManager>().Object);
+            var service = new AssetOrderingService(
+                _mockRepository.Create<ICatalogManager>().Object,
+                _mockRepository.Create<IGroupRepresentativesExtendedRequestMapper>().Object);
             var result = service.MapToChannelEsOrderByFields(request, channel, input);
             result.Should().NotBeNull();
             result.EsOrderByFields.Should().BeEquivalentTo(expectedResult.EsOrderByFields);
@@ -261,7 +278,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
             };
 
             var input = new AssetListEsOrderingCommonInput();
-            var service = new AssetOrderingService(_mockRepository.Create<ICatalogManager>().Object);
+            var service = new AssetOrderingService(
+                _mockRepository.Create<ICatalogManager>().Object,
+                _mockRepository.Create<IGroupRepresentativesExtendedRequestMapper>().Object);
             var result = service.MapToChannelEsOrderByFields(request, channel, input);
             result.Should().NotBeNull();
             result.EsOrderByFields.Should().BeEquivalentTo(expectedResult.EsOrderByFields);
@@ -293,7 +312,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
             };
 
             var input = new AssetListEsOrderingCommonInput();
-            var service = new AssetOrderingService(_mockRepository.Create<ICatalogManager>().Object);
+            var service = new AssetOrderingService(
+                _mockRepository.Create<ICatalogManager>().Object,
+                _mockRepository.Create<IGroupRepresentativesExtendedRequestMapper>().Object);
             var result = service.MapToChannelEsOrderByFields(request, channel, input);
             result.Should().NotBeNull();
             result.EsOrderByFields.Should().BeEquivalentTo(expectedResult.EsOrderByFields);
@@ -321,7 +342,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
             };
 
             var input = new AssetListEsOrderingCommonInput();
-            var service = new AssetOrderingService(_mockRepository.Create<ICatalogManager>().Object);
+            var service = new AssetOrderingService(
+                _mockRepository.Create<ICatalogManager>().Object,
+                _mockRepository.Create<IGroupRepresentativesExtendedRequestMapper>().Object);
             var result = service.MapToChannelEsOrderByFields(request, channel, input);
             result.Should().NotBeNull();
             result.EsOrderByFields.Should().BeEquivalentTo(expectedResult.EsOrderByFields);
@@ -343,7 +366,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
             var request = new InternalChannelRequest();
 
             var input = new AssetListEsOrderingCommonInput();
-            var service = new AssetOrderingService(_mockRepository.Create<ICatalogManager>().Object);
+            var service = new AssetOrderingService(
+                _mockRepository.Create<ICatalogManager>().Object,
+                _mockRepository.Create<IGroupRepresentativesExtendedRequestMapper>().Object);
             var result = service.MapToChannelEsOrderByFields(request, channel, input);
             result.Should().NotBeNull();
             result.EsOrderByFields.Should().BeEquivalentTo(expectedResult.EsOrderByFields);
@@ -384,7 +409,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
             };
 
             var input = new AssetListEsOrderingCommonInput();
-            var service = new AssetOrderingService(_mockRepository.Create<ICatalogManager>().Object);
+            var service = new AssetOrderingService(
+                _mockRepository.Create<ICatalogManager>().Object,
+                _mockRepository.Create<IGroupRepresentativesExtendedRequestMapper>().Object);
             var result = service.MapToChannelEsOrderByFields(request, channel, input);
             result.Should().NotBeNull();
             result.EsOrderByFields.Should().BeEquivalentTo(expectedResult.EsOrderByFields);
@@ -418,7 +445,9 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                 AssociationTags = new Dictionary<int, string> { { 1, "1" } }
             };
 
-            var service = new AssetOrderingService(_mockRepository.Create<ICatalogManager>().Object);
+            var service = new AssetOrderingService(
+                _mockRepository.Create<ICatalogManager>().Object,
+                _mockRepository.Create<IGroupRepresentativesExtendedRequestMapper>().Object);
             var result = service.MapToEsOrderByFields(request, input);
 
             result.Should().NotBeNull();

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using ApiLogic.IndexManager.Models;
 using ApiObjects.SearchObjects;
+using Core.Catalog.Response;
 using ElasticSearch.Common;
 
 namespace ApiLogic.IndexManager.Sorting
@@ -22,5 +23,8 @@ namespace ApiLogic.IndexManager.Sorting
         IEnumerable<(long id, string sortValue)> ListOrderedIdsWithSortValues(
             IEnumerable<ExtendedUnifiedSearchResult> extendedUnifiedSearchResults,
             IEsOrderByField field);
+
+        IEnumerable<(long id, string sortValue)> GetSortedAssets(
+            IEnumerable<ExtendedSearchResult> searchResults, IEsOrderByField orderByField, string extraReturnField);
     }
 }

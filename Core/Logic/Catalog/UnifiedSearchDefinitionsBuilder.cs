@@ -295,7 +295,10 @@ namespace Core.Catalog
                     }
                 }
 
-                definitions.isGroupingOptionInclude = request.searchGroupBy != null && (request.searchGroupBy.isGroupingOptionInclude || request.isGroupingOptionInclude);
+                definitions.GroupByOption = request.GroupByOption
+                    ?? (request.searchGroupBy?.isGroupingOptionInclude == true || request.isGroupingOptionInclude
+                        ? GroupingOption.Include
+                        : GroupingOption.Omit);
                 #endregion
 
                 #region Get Recordings

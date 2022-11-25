@@ -450,7 +450,7 @@ namespace ApiObjects.SearchObjects
 
         [JsonProperty()]
         [DataMember]
-        public bool isGroupingOptionInclude;
+        public GroupingOption GroupByOption;
 
         [JsonProperty()]
         [DataMember]
@@ -522,6 +522,7 @@ namespace ApiObjects.SearchObjects
             boostScoreValues = new List<BoostScoreValueDefinition>();
 
             PriorityGroupsMappings = new Dictionary<double, IEsPriorityGroup>();
+            GroupByOption = GroupingOption.Omit;
             numericEpgMetas = new HashSet<string>();
         }
 
@@ -548,6 +549,7 @@ namespace ApiObjects.SearchObjects
     public enum GroupingOption
     {
         Omit = 1,
-        Include = 2
+        Include = 2,
+        Group = 3
     }
 }

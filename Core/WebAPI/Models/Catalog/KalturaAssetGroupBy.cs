@@ -49,7 +49,8 @@ namespace WebAPI.Models.Catalog
         media_type_id,
         suppressed,
         crid,
-        linear_media_id
+        linear_media_id,
+        name
     }
 
     /// <summary>

@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using ApiLogic.Catalog.CatalogManagement.Models;
+using ApiObjects.Response;
 using ApiObjects.SearchObjects;
+using ApiObjects.SearchObjects.GroupRepresentatives;
 using Core.Catalog.Request;
 using GroupsCacheManager;
 
@@ -25,5 +27,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
         AssetListEsOrderingResult MapToEsOrderByFields(
             MediaRelatedRequest request,
             AssetListEsOrderingCommonInput input);
+
+        GenericResponse<IEsOrderByField> MapToEsOrderByField(GroupRepresentativesRequest request, CatalogClientData clientData);
     }
 }

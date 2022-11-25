@@ -73,7 +73,7 @@ namespace Core.Catalog.Request
                     shouldUseFinalEndDate = false,
                     shouldUseSearchEndDate = false,
                     epgDaysOffest = 365,
-                    isGroupingOptionInclude = request.isGroupingOptionInclude
+                    GroupByOption = request.isGroupingOptionInclude ? GroupingOption.Include : GroupingOption.Omit
                 };
 
                 int totalItems = 0;

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using ApiObjects.SearchObjects;
-using ElasticSearch.NEST;
 using Elasticsearch.Net;
 using ElasticSearch.Utils;
 using Nest;
@@ -52,16 +50,32 @@ namespace ElasticSearch.Searcher
                 switch (Field)
                 {
                     case EsOrderByField esOrderByField:
-                        return GetEsOrderByFieldValueV7(esOrderByField);
+                        return new Field(GetEsOrderByFieldValueV7(esOrderByField));
                     case EsOrderByMetaField esOrderByMetaField:
-                        return GetEsOrderByMetaFieldValueV7(esOrderByMetaField);
+                        return new Field(GetEsOrderByMetaFieldValueV7(esOrderByMetaField, false));
                     default:
                         return null;
                 }
             }
         }
 
-        private static Field GetEsOrderByMetaFieldValueV7(EsOrderByMetaField field)
+        public string EsV7ExtraReturnField
+        {
+            get
+            {
+                switch (Field)
+                {
+                    case EsOrderByField esOrderByField:
+                        return GetExtraReturnFieldValueV7(esOrderByField);
+                    case EsOrderByMetaField esOrderByMetaField:
+                        return GetEsOrderByMetaFieldValueV7(esOrderByMetaField, true);
+                    default:
+                        return null;
+                }
+            }
+        }
+
+        private static string GetEsOrderByMetaFieldValueV7(EsOrderByMetaField field, bool isExtraReturnField)
         {
             var paddedPrefix = field.IsPadded
                 ? "padded_"
@@ -69,13 +83,16 @@ namespace ElasticSearch.Searcher
             var sortSuffix = SpecialSortingServiceV7.Instance.IsSpecialSortingMeta(field.Language?.Code, field.MetaType)
                 ? ".sort"
                 : string.Empty;
-
-            return new Field($"metas.{field.Language.Code}.{paddedPrefix}{field.MetaName.ToLower()}{sortSuffix}");
+            return isExtraReturnField
+                ? $"metas.{paddedPrefix}{field.MetaName.ToLower()}{sortSuffix}"
+                : $"metas.{field.Language.Code}.{paddedPrefix}{field.MetaName.ToLower()}{sortSuffix}";
         }
-        
+
         private static string GetEsOrderByMetaFieldValue(EsOrderByMetaField field)
         {
-            var paddedPrefix = field.IsPadded ? "padded_" : string.Empty;
+            var paddedPrefix = field.IsPadded
+                ? "padded_"
+                : string.Empty;
             var languageSuffix = field.Language != null && !field.Language.IsDefault
                 ? $"_{field.Language.Code}"
                 : string.Empty;
@@ -86,29 +103,47 @@ namespace ElasticSearch.Searcher
             return $"metas.{paddedPrefix}{field.MetaName.ToLower()}{languageSuffix}{sortSuffix}";
         }
 
-        private static Field GetEsOrderByFieldValueV7(EsOrderByField field)
+        private static string GetEsOrderByFieldValueV7(EsOrderByField field)
         {
             switch (field.OrderByField)
             {
                 case OrderBy.NAME:
-                    var sortSuffix = SpecialSortingServiceV7.Instance.IsSpecialSortingField(field.Language?.Code)
-                        ? ".sort"
-                        : string.Empty;
-                    var fieldName = $"name.{field.Language.Code}{sortSuffix}";
-
-                    return new Field(fieldName);
+                    return GetNameFieldValueV7(field, false);
                 case OrderBy.ID:
-                {
-                    Expression<Func<NestBaseAsset, string>> expression = f => f.DocumentId;
-
-                    return new Field(expression);
-                }
+                    return "document_id";
                 case OrderBy.RELATED:
                 case OrderBy.NONE:
-                    return new Field(SortSpecialField.Score.GetStringValue());
+                    return SortSpecialField.Score.GetStringValue();
                 default:
-                    return new Field(Enum.GetName(typeof(OrderBy), field.OrderByField)?.ToLower());
+                    return Enum.GetName(typeof(OrderBy), field.OrderByField)?.ToLower();
             }
+        }
+
+        private static string GetExtraReturnFieldValueV7(EsOrderByField field)
+        {
+            switch (field.OrderByField)
+            {
+                case OrderBy.NAME:
+                    return GetNameFieldValueV7(field, true);
+                case OrderBy.ID:
+                    return "document_id";
+                case OrderBy.RELATED:
+                case OrderBy.NONE:
+                    return SortSpecialField.Score.GetStringValue();
+                default:
+                    return Enum.GetName(typeof(OrderBy), field.OrderByField)?.ToLower();
+            }
+        }
+
+        private static string GetNameFieldValueV7(EsOrderByField field, bool isExtraReturnField)
+        {
+            var sortSuffix = SpecialSortingServiceV7.Instance.IsSpecialSortingField(field.Language?.Code)
+                ? ".sort"
+                : string.Empty;
+
+            return isExtraReturnField
+                ? $"name{sortSuffix}"
+                : $"name.{field.Language.Code}{sortSuffix}";
         }
 
         private static string GetEsOrderByFieldValue(EsOrderByField field)
