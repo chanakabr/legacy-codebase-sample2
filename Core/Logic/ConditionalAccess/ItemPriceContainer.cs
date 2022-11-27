@@ -63,26 +63,37 @@ namespace Core.ConditionalAccess
     {
         public Price m_oPrice { get; set; }
         public PriceReason m_PriceReason { get; set; }
+        public Price OriginalPrice;
+        public PromotionInfo PromotionInfo;
 
         public PricesContainer() { }
 
-        public void Initialize(Price price, PriceReason priceReason)
+        public void Initialize(Price price, PriceReason priceReason, Price originalPrice, RecurringCampaignDetails campaignDetails)
         {
             m_oPrice = price;
             m_PriceReason = priceReason;
+            OriginalPrice = originalPrice;
+
+            if (campaignDetails != null)
+            {
+                PromotionInfo = new PromotionInfo()
+                {
+                    CampaignId = campaignDetails.Id
+                };
+            }
         }
     }
 
     public class CollectionsPricesContainer : PricesContainer
     {
         public string m_sCollectionCode;
-        
+
         public CollectionsPricesContainer()
         { }
 
-        public void Initialize(string collectionCode, Price price, PriceReason priceReason)
+        public void Initialize(string collectionCode, Price price, PriceReason priceReason, Price originalPrice, RecurringCampaignDetails campaignDetails)
         {
-            base.Initialize(price, priceReason);
+            base.Initialize(price, priceReason, originalPrice, campaignDetails);
             m_sCollectionCode = collectionCode;
         }
     }
@@ -95,7 +106,7 @@ namespace Core.ConditionalAccess
 
         public void Initialize(long pagoId, Price price, PriceReason priceReason)
         {
-            base.Initialize(price, priceReason);
+            base.Initialize(price, priceReason, null, null);
             PagoId = pagoId;
         }
     }

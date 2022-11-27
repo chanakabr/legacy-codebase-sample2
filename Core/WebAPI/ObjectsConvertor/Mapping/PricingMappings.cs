@@ -867,6 +867,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<PricesContainer, KalturaProductPrice>()
                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oPrice))
                .ForMember(dest => dest.PurchaseStatus, opt => opt.MapFrom(src => ConvertPriceReasonToPurchaseStatus(src.m_PriceReason)))
+               .ForMember(dest => dest.FullPrice, opt => opt.MapFrom(src => src.OriginalPrice))
+               .ForMember(dest => dest.PromotionInfo, opt => opt.MapFrom(src => src.PromotionInfo))
                ;
 
             cfg.CreateMap<PagoPricesContainer, KalturaProgramAssetGroupOfferPrice>()
@@ -1438,6 +1440,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         ProductId = collectionPrice.m_sCollectionCode,
                         ProductType = KalturaTransactionType.collection,
                         PurchaseStatus = ConvertPriceReasonToPurchaseStatus(collectionPrice.m_PriceReason),
+                        FullPrice = AutoMapper.Mapper.Map<KalturaPrice>(collectionPrice.OriginalPrice),
+                        PromotionInfo = AutoMapper.Mapper.Map<KalturaPromotionInfo>(collectionPrice.PromotionInfo)
                     });
                 }
             }

@@ -946,17 +946,15 @@ namespace Core.ConditionalAccess
                 }
 
                 // validate price
-                PriceReason priceReason = PriceReason.UnKnown;
-                Price priceResponse = null;
                 Collection collection = null;
                 var siteguid = contextData.UserId.ToString();
-                priceResponse = Utils.GetCollectionFinalPrice(contextData.GroupId, productId.ToString(), siteguid, coupon, ref priceReason,
+                var fullPrice = Utils.GetCollectionFinalPrice(contextData.GroupId, productId.ToString(), siteguid, coupon,
                                                               ref collection, country, string.Empty, contextData.Udid, string.Empty, contextData.UserIp, currency);
 
-                if (priceReason == PriceReason.ForPurchase)
+                if (fullPrice.PriceReason == PriceReason.ForPurchase)
                 {
                     // item is for purchase
-                    if ((priceResponse != null && priceResponse.m_dPrice == price && priceResponse.m_oCurrency.m_sCurrencyCD3 == currency) ||
+                    if ((fullPrice.FinalPrice != null && fullPrice.FinalPrice.m_dPrice == price && fullPrice.FinalPrice.m_oCurrency.m_sCurrencyCD3 == currency) ||
                         (paymentGateway != null && paymentGateway.ExternalVerification))
                     {
                         // price validated, create the Custom Data
@@ -1067,7 +1065,7 @@ namespace Core.ConditionalAccess
                 else
                 {
                     // not for purchase
-                    response.Status = Utils.SetResponseStatus(priceReason);
+                    response.Status = Utils.SetResponseStatus(fullPrice.PriceReason);
                     log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                 }
             }

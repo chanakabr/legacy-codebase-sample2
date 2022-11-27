@@ -5853,7 +5853,9 @@ namespace Core.ConditionalAccess
                             case eBundleType.COLLECTION:
                                 {
                                     Collection theCol = null;
-                                    price = Utils.GetCollectionFinalPrice(m_nGroupID, sBundleCode, sSiteGUID, sCouponCode, ref theReason, ref theCol, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, sUserIP, sCurrency);
+                                    var fullPrice = Utils.GetCollectionFinalPrice(m_nGroupID, sBundleCode, sSiteGUID, sCouponCode, ref theCol, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, sUserIP, sCurrency);
+                                    price = fullPrice.FinalPrice;
+                                    theReason = fullPrice.PriceReason;
                                     theBundle = theCol;
                                     break;
                                 }
@@ -6368,7 +6370,9 @@ namespace Core.ConditionalAccess
                             case eBundleType.COLLECTION:
                                 {
                                     Collection theCol = null;
-                                    p = Utils.GetCollectionFinalPrice(m_nGroupID, sBundleCode, sSiteGUID, sCouponCode, ref theReason, ref theCol, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, sUserIP, sCurrency);
+                                    var fullPrice = Utils.GetCollectionFinalPrice(m_nGroupID, sBundleCode, sSiteGUID, sCouponCode, ref theCol, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, sUserIP, sCurrency);
+                                    p = fullPrice.FinalPrice;
+                                    theReason = fullPrice.PriceReason;
                                     theBundle = theCol;
                                     break;
                                 }
@@ -6753,15 +6757,12 @@ namespace Core.ConditionalAccess
                     for (int i = 0; i < sCollections.Length; i++)
                     {
                         string sColCode = sCollections[i];
-                        PriceReason theReason = PriceReason.UnKnown;
                         Collection collection = null;
-                        Price price = null;
-
-                        price = Utils.GetCollectionFinalPrice(m_nGroupID, sColCode, sUserGUID, sCouponCode, ref theReason, ref collection, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty,
+                        var fullPrice = Utils.GetCollectionFinalPrice(m_nGroupID, sColCode, sUserGUID, sCouponCode, ref collection, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty,
                             clientIp, currencyCode, blockEntitlement);
 
                         CollectionsPricesContainer cont = new CollectionsPricesContainer();
-                        cont.Initialize(sColCode, price, theReason);
+                        cont.Initialize(sColCode, fullPrice.FinalPrice, fullPrice.PriceReason, fullPrice.OriginalPrice, fullPrice.CampaignDetails);
                         response.CollectionsPrices[i] = cont;
                     }
 
@@ -12481,17 +12482,15 @@ namespace Core.ConditionalAccess
                 }
 
                 // validate price
-                PriceReason priceReason = PriceReason.UnKnown;
-                Price priceResponse = null;
                 Collection collection = null;
-                priceResponse = Utils.GetCollectionFinalPrice(m_nGroupID, productId.ToString(), siteguid, string.Empty, ref priceReason,
+                var fullPrice = Utils.GetCollectionFinalPrice(m_nGroupID, productId.ToString(), siteguid, string.Empty,
                                                               ref collection, country, string.Empty, deviceName, string.Empty, userIp);
 
-                if (priceReason == PriceReason.ForPurchase)
+                if (fullPrice.PriceReason == PriceReason.ForPurchase)
                 {
                     // item is for purchase
                     // price validated, create the Custom Data
-                    string customData = GetCustomDataForCollection(collection, productId.ToString(), siteguid, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3,
+                    string customData = GetCustomDataForCollection(collection, productId.ToString(), siteguid, fullPrice.FinalPrice.m_dPrice, fullPrice.FinalPrice.m_oCurrency.m_sCurrencyCD3,
                                                                    string.Empty, userIp, country, string.Empty, deviceName, string.Empty);
 
                     // create new GUID for billing_transaction
@@ -12503,7 +12502,7 @@ namespace Core.ConditionalAccess
                         collection.ExternalProductCodes.FirstOrDefault(x => x.Key.ToString() == paymentGwName).Value :
                         collection.m_ProductCode;
 
-                    response = VerifyPurchase(siteguid, householdId, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, userIp, customData,
+                    response = VerifyPurchase(siteguid, householdId, fullPrice.FinalPrice.m_dPrice, fullPrice.FinalPrice.m_oCurrency.m_sCurrencyCD3, userIp, customData,
                                               productId, productCode, eTransactionType.Collection, billingGuid, paymentGwName, 0, purchaseToken, adapterData);
                     if (response != null && response.Status != null)
                     {
@@ -12520,7 +12519,7 @@ namespace Core.ConditionalAccess
                             response.CreatedAt = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlementDate);
 
                             // grant entitlement
-                            bool handleBillingPassed = HandleCollectionBillingSuccess(ref response, siteguid, householdId, collection, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty, userIp,
+                            bool handleBillingPassed = HandleCollectionBillingSuccess(ref response, siteguid, householdId, collection, fullPrice.FinalPrice.m_dPrice, fullPrice.FinalPrice.m_oCurrency.m_sCurrencyCD3, string.Empty, userIp,
                                                                                   country, deviceName, long.Parse(response.TransactionID), customData, productId,
                                                                                   billingGuid.ToString(), false, entitlementDate, ref purchaseID);
 
@@ -12569,7 +12568,7 @@ namespace Core.ConditionalAccess
                 else
                 {
                     // not for purchase
-                    response.Status = Utils.SetResponseStatus(priceReason);
+                    response.Status = Utils.SetResponseStatus(fullPrice.PriceReason);
                     log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                 }
             }

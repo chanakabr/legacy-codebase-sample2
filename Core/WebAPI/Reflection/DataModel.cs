@@ -14584,6 +14584,7 @@ namespace WebAPI.Reflection
                                     MinInteger = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("with", new MethodParam(){
@@ -14638,6 +14639,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("assetReferenceType", new MethodParam(){
@@ -14658,6 +14660,7 @@ namespace WebAPI.Reflection
                                     MinInteger = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("with", new MethodParam(){
@@ -14697,6 +14700,7 @@ namespace WebAPI.Reflection
                                     MinFloat = -12,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("free_param", new MethodParam(){
@@ -14947,6 +14951,7 @@ namespace WebAPI.Reflection
                                     MinInteger = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("pager", new MethodParam(){
@@ -14997,6 +15002,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("assetReferenceType", new MethodParam(){
@@ -15014,6 +15020,7 @@ namespace WebAPI.Reflection
                                     MinLength = -1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -15044,6 +15051,7 @@ namespace WebAPI.Reflection
                                     MinLength = -1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("with", new MethodParam(){
@@ -15116,6 +15124,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("asset", new MethodParam(){
@@ -15154,6 +15163,7 @@ namespace WebAPI.Reflection
                                     MinInteger = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("assetId", new MethodParam(){
@@ -15175,6 +15185,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("contextType", new MethodParam(){
@@ -15288,6 +15299,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -15467,6 +15479,7 @@ namespace WebAPI.Reflection
                                     MinLong = 0,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -15499,6 +15512,7 @@ namespace WebAPI.Reflection
                                     MinLong = 0,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("assetStruct", new MethodParam(){
@@ -15533,6 +15547,7 @@ namespace WebAPI.Reflection
                                     MinLong = 0,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("metaId", new MethodParam(){
@@ -15545,6 +15560,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("assetStructMeta", new MethodParam(){
@@ -15579,6 +15595,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -15594,6 +15611,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -15609,6 +15627,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -15634,6 +15653,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("assetUserRule", new MethodParam(){
@@ -15814,6 +15834,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -15856,6 +15877,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("objectToUpdate", new MethodParam(){
@@ -15903,6 +15925,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -15935,6 +15958,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("objectToUpdate", new MethodParam(){
@@ -16031,6 +16055,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -16074,6 +16099,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("objectToUpdate", new MethodParam(){
@@ -16265,6 +16291,7 @@ namespace WebAPI.Reflection
                                     MinInteger = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -16280,6 +16307,7 @@ namespace WebAPI.Reflection
                                     MinInteger = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -16377,6 +16405,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("collection", new MethodParam(){
@@ -16684,6 +16713,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -16828,6 +16858,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -16858,6 +16889,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("objectToUpdate", new MethodParam(){
@@ -16985,6 +17017,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -17015,6 +17048,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("objectToUpdate", new MethodParam(){
@@ -17287,6 +17321,7 @@ namespace WebAPI.Reflection
                                     MinInteger = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             paramName = "productType";
@@ -17333,6 +17368,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -17358,6 +17394,7 @@ namespace WebAPI.Reflection
                                     MinInteger = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             paramName = "productType";
@@ -17404,6 +17441,7 @@ namespace WebAPI.Reflection
                                     MinInteger = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             paramName = "productType";
@@ -17595,6 +17633,7 @@ namespace WebAPI.Reflection
                                     MinLength = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("objectToUpdate", new MethodParam(){
@@ -17663,6 +17702,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("task", new MethodParam(){
@@ -17870,6 +17910,7 @@ namespace WebAPI.Reflection
                                     MinInteger = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -18027,6 +18068,7 @@ namespace WebAPI.Reflection
                                     MinLength = -1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -18052,6 +18094,7 @@ namespace WebAPI.Reflection
                                     MinLength = -1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -18213,6 +18256,7 @@ namespace WebAPI.Reflection
                                     MinLength = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -18322,6 +18366,7 @@ namespace WebAPI.Reflection
                                     MinLength = -1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -18594,6 +18639,7 @@ namespace WebAPI.Reflection
                                     MinInteger = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -18616,6 +18662,7 @@ namespace WebAPI.Reflection
                                     MinInteger = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -18635,6 +18682,7 @@ namespace WebAPI.Reflection
                                     MinInteger = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -18704,6 +18752,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -18811,6 +18860,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -18834,6 +18884,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("content", new MethodParam(){
@@ -18868,6 +18919,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -18893,6 +18945,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("imageType", new MethodParam(){
@@ -19081,6 +19134,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -19349,6 +19403,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -19374,6 +19429,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("mediaFile", new MethodParam(){
@@ -19503,6 +19559,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -19538,6 +19595,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("meta", new MethodParam(){
@@ -20145,6 +20203,7 @@ namespace WebAPI.Reflection
                                     MinLength = -1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -20180,6 +20239,7 @@ namespace WebAPI.Reflection
                                     MinLength = -1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -20231,6 +20291,7 @@ namespace WebAPI.Reflection
                                     MinLength = -1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -20335,6 +20396,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -20417,6 +20479,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -20448,6 +20511,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("parentalRule", new MethodParam(){
@@ -20572,6 +20636,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -20597,6 +20662,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("objectToUpdate", new MethodParam(){
@@ -20637,6 +20703,7 @@ namespace WebAPI.Reflection
                                     MinInteger = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("payment_method_id", new MethodParam(){
@@ -20649,6 +20716,7 @@ namespace WebAPI.Reflection
                                     MinInteger = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -20667,6 +20735,7 @@ namespace WebAPI.Reflection
                                     MinInteger = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("payment_method_id", new MethodParam(){
@@ -20679,6 +20748,7 @@ namespace WebAPI.Reflection
                                     MinInteger = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -20701,6 +20771,7 @@ namespace WebAPI.Reflection
                                     MinInteger = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("payment_method_id", new MethodParam(){
@@ -20713,6 +20784,7 @@ namespace WebAPI.Reflection
                                     MinInteger = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -21062,6 +21134,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("permission", new MethodParam(){
@@ -21179,6 +21252,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -21463,6 +21537,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("previewModule", new MethodParam(){
@@ -21517,6 +21592,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -21542,6 +21618,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("priceDetails", new MethodParam(){
@@ -21576,6 +21653,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -21665,6 +21743,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("programAssetGroupOffer", new MethodParam(){
@@ -22319,6 +22398,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -22338,6 +22418,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -22364,6 +22445,7 @@ namespace WebAPI.Reflection
                                     MinInteger = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -22389,6 +22471,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -22411,6 +22494,7 @@ namespace WebAPI.Reflection
                                     MinLength = -1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -22434,6 +22518,7 @@ namespace WebAPI.Reflection
                                     MinLength = -1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -22473,6 +22558,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -22495,6 +22581,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -22520,6 +22607,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("objectToUpdate", new MethodParam(){
@@ -22966,6 +23054,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("subscription", new MethodParam(){
@@ -23011,6 +23100,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -23026,6 +23116,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -23051,6 +23142,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("subscriptionSet", new MethodParam(){
@@ -23179,6 +23271,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -23253,6 +23346,7 @@ namespace WebAPI.Reflection
                                     MinInteger = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -23468,6 +23562,7 @@ namespace WebAPI.Reflection
                                     MinFloat = 0,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("currency", new MethodParam(){
@@ -23484,6 +23579,7 @@ namespace WebAPI.Reflection
                                     MinInteger = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("product_type", new MethodParam(){
@@ -23522,6 +23618,7 @@ namespace WebAPI.Reflection
                                     MinInteger = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("adapterData", new MethodParam(){
@@ -23588,6 +23685,7 @@ namespace WebAPI.Reflection
                                     MinInteger = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             paramName = "transactionType";
@@ -24069,6 +24167,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("role", new MethodParam(){
@@ -24143,6 +24242,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             return ret;
@@ -24175,6 +24275,7 @@ namespace WebAPI.Reflection
                                     MinLong = 1,
                                     MinItems = -1,
                                     MaxItems = -1,
+                                    UniqueItems = false,
                                 },
                             });
                             ret.Add("userSessionProfile", new MethodParam(){

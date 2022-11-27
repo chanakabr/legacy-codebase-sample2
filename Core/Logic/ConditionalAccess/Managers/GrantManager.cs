@@ -438,28 +438,26 @@ namespace Core.ConditionalAccess
                 string country = string.IsNullOrEmpty(ip) ? string.Empty : Utils.GetIP2CountryName(groupId, ip);
 
                 // validate price
-                PriceReason priceReason = PriceReason.UnKnown;
-                Price priceResponse = null;
                 Collection collection = null;
-                priceResponse = Utils.GetCollectionFinalPrice(groupId, productId.ToString(), userId, string.Empty, ref priceReason,
+                var fullPrice = Utils.GetCollectionFinalPrice(groupId, productId.ToString(), userId, string.Empty,
                                                               ref collection, country, string.Empty, udid, string.Empty, ip);
 
-                if (priceReason == PriceReason.UnKnown)
+                if (fullPrice.PriceReason == PriceReason.UnKnown)
                 {
                     status.Set((int)eResponseStatus.InvalidOffer, "This collection is invalid");
                     log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
                     return status;
                 }
 
-                if (priceReason != PriceReason.ForPurchase)
+                if (fullPrice.PriceReason != PriceReason.ForPurchase)
                 {
                     // not for purchase
-                    status = Utils.SetResponseStatus(priceReason);
+                    status = Utils.SetResponseStatus(fullPrice.PriceReason);
                     log.ErrorFormat("Error: {0}, data: {1}", !string.IsNullOrEmpty(status.Message) ? status.Message : string.Empty, logString);
                     return status;
                 }
 
-                if (priceResponse == null)
+                if (fullPrice.FinalPrice == null)
                 {
                     status.Set((int)eResponseStatus.Error, BaseConditionalAccess.GET_PRICE_ERROR);
                     log.ErrorFormat("Error: {0}, data: {1}", !string.IsNullOrEmpty(status.Message) ? status.Message : string.Empty, logString);
@@ -468,11 +466,11 @@ namespace Core.ConditionalAccess
                 }
 
                 // price validated, create the Custom Data
-                string customData = cas.GetCustomDataForCollection(collection, productId.ToString(), userId, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty,
-                                                               ip, country, string.Empty, udid, string.Empty);
+                string customData = cas.GetCustomDataForCollection(collection, productId.ToString(), userId, fullPrice.FinalPrice.m_dPrice, 
+                    fullPrice.FinalPrice.m_oCurrency.m_sCurrencyCD3, string.Empty, ip, country, string.Empty, udid, string.Empty);
 
                 // purchase
-                BillingResponse billingResponse = HandleTransactionPurchase(saveHistory, cas, userId, priceResponse, ip, customData);
+                BillingResponse billingResponse = HandleTransactionPurchase(saveHistory, cas, userId, fullPrice.FinalPrice, ip, customData);
 
                 if (billingResponse == null || billingResponse.m_oStatus != BillingResponseStatus.Success)
                 {
@@ -492,7 +490,7 @@ namespace Core.ConditionalAccess
                 // grant entitlement
                 long lBillingTransactionID = 0;
                 long purchaseID = 0;
-                var result = cas.HandleCollectionBillingSuccess(ref response, userId, householdId, collection, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty, ip,
+                var result = cas.HandleCollectionBillingSuccess(ref response, userId, householdId, collection, fullPrice.FinalPrice.m_dPrice, fullPrice.FinalPrice.m_oCurrency.m_sCurrencyCD3, string.Empty, ip,
                                                                           country, udid, lBillingTransactionID, customData, productId,
                                                                           billingGuid, false, entitlementDate, ref purchaseID);
                 if (result)

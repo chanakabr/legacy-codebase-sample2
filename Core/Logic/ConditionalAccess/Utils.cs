@@ -2150,14 +2150,20 @@ namespace Core.ConditionalAccess
         }
 
 
-        internal static Price GetCollectionFinalPrice(Int32 groupId, string sColCode, string sSiteGUID, string couponCode, ref PriceReason theReason, ref Collection collection,
+        internal static FullPrice GetCollectionFinalPrice(Int32 groupId, string sColCode, string sSiteGUID, string couponCode, ref Collection collection,
             string countryCode, string sLANGUAGE_CODE, string sDEVICE_NAME, string connStr, string ip, string currencyCode = null, BlockEntitlementType blockEntitlement = BlockEntitlementType.NONE)
         {
+            var fullPrice = new FullPrice()
+            {
+                PriceReason = PriceReason.UnKnown,
+                CouponCode = couponCode,
+                CouponRemainder = 0,
+            };
+
             collection = Pricing.Module.Instance.GetCollectionData(groupId, sColCode, countryCode, sLANGUAGE_CODE, sDEVICE_NAME, false);
             if (collection == null)
             {
-                theReason = PriceReason.UnKnown;
-                return null;
+                return fullPrice;
             }
 
             // get user status and validity if needed
@@ -2165,16 +2171,19 @@ namespace Core.ConditionalAccess
             DomainSuspentionStatus userSuspendStatus = DomainSuspentionStatus.Suspended;
             bool isUserValidRes = IsUserValid(sSiteGUID, groupId, ref domainID, ref userSuspendStatus);
 
+            PriceReason priceReason = fullPrice.PriceReason;
             DiscountModule externalDiscount;
             PriceCode priceCode = collection.m_oCollectionPriceCode;
-            Price price = HandlePriceCodeAndExternalDiscount(ref theReason, groupId, ref currencyCode, ref countryCode, collection.m_oExtDisountModule,
+            fullPrice.OriginalPrice = HandlePriceCodeAndExternalDiscount(ref priceReason, groupId, ref currencyCode, ref countryCode, collection.m_oExtDisountModule,
                 out externalDiscount, ref priceCode, blockEntitlement == BlockEntitlementType.BLOCK_PPV, ip, sSiteGUID);
+            fullPrice.FinalPrice = CopyPrice(fullPrice.OriginalPrice);
             collection.m_oCollectionPriceCode = priceCode;
-            if (theReason != PriceReason.ForPurchase)
+            fullPrice.PriceReason = priceReason;
+            if (fullPrice.PriceReason != PriceReason.ForPurchase)
             {
-                return price;
+                return fullPrice;
             }
-
+            
             DomainEntitlements domainEntitlements = null;
             if (TryGetDomainEntitlementsFromCache(groupId, domainID, null, ref domainEntitlements))
             {
@@ -2182,24 +2191,39 @@ namespace Core.ConditionalAccess
                     && domainEntitlements.DomainBundleEntitlements.EntitledCollections.ContainsKey(sColCode))
                 {
                     bool isPending = domainEntitlements.DomainBundleEntitlements.EntitledCollections[sColCode].isPending;
-                    theReason = isPending ? PriceReason.PendingEntitlement : PriceReason.CollectionPurchased;
-                    price.m_dPrice = 0.0;
-                    return price;
+                    fullPrice.PriceReason = isPending ? PriceReason.PendingEntitlement : PriceReason.CollectionPurchased;
+                    fullPrice.FinalPrice.m_dPrice = 0.0;
+                    return fullPrice;
                 }
             }
 
+            Price finalPrice = fullPrice.FinalPrice;
             Price discountPrice = null;
             if (externalDiscount != null)
             {
-                discountPrice = Instance.GetPriceAfterDiscount(price, externalDiscount, 0);
+                discountPrice = Instance.GetPriceAfterDiscount(finalPrice, externalDiscount, 0);
             }
 
+            var collectionId = long.Parse(sColCode);
+            if (domainID > 0)
+            {
+                Price lowestPrice = CopyPrice(discountPrice) ?? CopyPrice(fullPrice.FinalPrice);
+                fullPrice.CampaignDetails = GetValidCampaign(groupId, domainID, fullPrice.OriginalPrice, ref lowestPrice, eTransactionType.Collection, currencyCode,
+                    collectionId, countryCode, couponCode, 0, null);
+
+                if (fullPrice.CampaignDetails != null)
+                {
+                    fullPrice.FinalPrice = lowestPrice;
+                    fullPrice.CouponCode = couponCode;
+                    return fullPrice;
+                }
+            }
+            
             List<int> lUsersIds = Utils.GetAllUsersDomainBySiteGUID(sSiteGUID, groupId, ref domainID);
-
-            price = PriceManager.GetLowestPrice(groupId, price, domainID, discountPrice, eTransactionType.Collection, currencyCode, long.Parse(sColCode), countryCode,
+            fullPrice.FinalPrice = PriceManager.GetLowestPrice(groupId, fullPrice.FinalPrice, domainID, discountPrice, eTransactionType.Collection, currencyCode, collectionId, countryCode,
                                    ref couponCode, collection.m_oCouponsGroup, collection.CouponsGroups, lUsersIds.ConvertAll(x => x.ToString()));
-
-            return price;
+            fullPrice.CouponCode = couponCode;
+            return fullPrice;
         }
 
         internal static Price GetPrePaidFinalPrice(Int32 groupId, string prePaidCode, ref PriceReason theReason, ref PrePaidModule thePrePaid, string countryCode,
@@ -2249,23 +2273,6 @@ namespace Core.ConditionalAccess
             }
             return sb.ToString();
         }
-
-        //public static Int32 GetMediaIDFeomFileID(Int32 nMediaFileID, Int32 nGroupID)
-        //{
-        //    Int32[] nMediaFilesIDs = { nMediaFileID };
-        //    MeidaMaper[] mapper = null;
-        //    string nMediaFilesIDsForCache = ConvertArrayIntToStr(nMediaFilesIDs);
-
-        //    mapper = GetMediaMapper(nGroupID, nMediaFilesIDs);
-
-        //    if (mapper == null || mapper.Length == 0)
-        //        return 0;
-
-        //    if (mapper[0].m_nMediaFileID == nMediaFileID)
-        //        return mapper[0].m_nMediaID;
-
-        //    return 0;
-        //}
 
         public static Int32 GetMediaIDFromFileID(Int32 nMediaFileID, Int32 nGroupID)
         {
