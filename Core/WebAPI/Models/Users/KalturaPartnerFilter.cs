@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using System.Text;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
@@ -10,7 +9,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Users
 {
-    public partial class KalturaPartnerFilter : KalturaFilter<KalturaDiscountFilterOrderBy>
+    public partial class KalturaPartnerFilter : KalturaFilter<KalturaPartnerFilterOrderBy>
     {
         /// <summary>
         /// Comma separated discount codes
@@ -44,15 +43,11 @@ namespace WebAPI.Models.Users
 
             return list;
         }
-        public override KalturaDiscountFilterOrderBy GetDefaultOrderByValue()
-        {
-            return KalturaDiscountFilterOrderBy.CODE_ASC;
-        }
-    }
 
-    public enum KalturaDiscountFilterOrderBy
-    {
-        CODE_ASC
+        public override KalturaPartnerFilterOrderBy GetDefaultOrderByValue()
+        {
+            return KalturaPartnerFilterOrderBy.CODE_ASC;
+        }
     }
 }
 
