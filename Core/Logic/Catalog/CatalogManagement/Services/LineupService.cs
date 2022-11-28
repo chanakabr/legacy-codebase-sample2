@@ -89,9 +89,11 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
                 return new GenericListResponse<LineupChannelAsset>(searchResult.status, null);
             }
 
-            var pagedLinearChannels = regionResponse.Object.linearChannels
+            var allLinearChannels = regionResponse.Object.linearChannels
                 .OrderBy(x => x.Value)
                 .Where(x => searchResult.searchResults.Any(_ => long.Parse(_.AssetId) == x.Key))
+                .ToArray();
+            var pagedLinearChannels = allLinearChannels
                 .Skip(pageIndex * pageSize)
                 .Take(pageSize)
                 .ToArray();
@@ -108,7 +110,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
                 .Select(x => new LineupChannelAsset(linearChannels[x.Key], x.Value))
                 .ToList();
 
-            var result = new GenericListResponse<LineupChannelAsset>(Status.Ok, pagedLineupChannelAssets, searchResult.m_nTotalItems);
+            var result = new GenericListResponse<LineupChannelAsset>(Status.Ok, pagedLineupChannelAssets, allLinearChannels.Length);
 
             return result;
         }

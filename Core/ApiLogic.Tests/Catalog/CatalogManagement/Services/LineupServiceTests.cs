@@ -118,7 +118,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                 .Returns(new List<AssetStruct> { new AssetStruct { Id = 1001 }, new AssetStruct { Id = 1002 } });
             _searchProviderMock
                 .Setup(x => x.SearchAssets(10, searchContext, "(and (or asset_type='1001' asset_type='1002') (or media_id:'106,102,107,101,108,104,103,105'))"))
-                .Returns(new UnifiedSearchResponse { status = Status.Ok, searchResults = FakeSearchResultsByRegion(), m_nTotalItems = 8 });
+                .Returns(new UnifiedSearchResponse { status = Status.Ok, searchResults = FakeSearchResultsByRegion() });
             _assetManagerMock
                 .Setup(x => x.GetAssets(
                     10,
