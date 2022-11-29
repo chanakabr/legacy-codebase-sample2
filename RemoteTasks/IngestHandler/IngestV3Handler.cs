@@ -217,6 +217,7 @@ namespace IngestHandler
                 return;
             }
 
+            SetProgramsWithMissedEpgIds(_crudOperations);
             SetCrudOperationToBulkUpload();
             SetResultsWithObjectId(_crudOperations);
             AddEpgCBObjects(_crudOperations);
@@ -618,6 +619,25 @@ namespace IngestHandler
         {
             var argsStr = args?.Any() == true ? $"-{string.Join("-", args)}" : "";
             return new KMonitor(_kmonEvt, _partnerIdStr, $"ingest-profiler-{name}-{_partnerIdStr}-{_bulkUploadId}-{_linearChannelId}{argsStr}");
+        }
+
+        private void SetProgramsWithMissedEpgIds(CRUDOperations<EpgProgramBulkUploadObject> crudOperations)
+        {
+            _logger.LogDebug($"CalculateSimulatedFinalStateAfterIngest > adding EpgIds to new programs");
+            if (crudOperations.ItemsToAdd.Any())
+            {
+                var missedIdsItems = crudOperations.ItemsToAdd.Where(x => x.EpgId == 0).ToArray();
+                if (missedIdsItems.Length == 0)
+                {
+                    return;
+                }
+
+                var newIds = _epgBL.GetNewEpgIds(missedIdsItems.Length).ToArray();
+                for (int i = 0; i < missedIdsItems.Length; i++)
+                {
+                    missedIdsItems[i].EpgId = newIds[i];
+                }
+            }
         }
     }
 }
