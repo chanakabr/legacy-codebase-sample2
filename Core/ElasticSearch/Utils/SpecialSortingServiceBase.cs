@@ -1,5 +1,6 @@
-using System;
 using System.Collections.Concurrent;
+using ApiObjects.SearchObjects;
+using ElasticSearch.Searcher;
 
 namespace ElasticSearch.Utils
 {
@@ -11,7 +12,21 @@ namespace ElasticSearch.Utils
 
         protected abstract string GetLanguageKey(string languageCode);
 
-        public bool IsSpecialSortingField(string languageCode)
+        public bool IsSpecialSortingField(EsOrderByField field)
+        {
+            var isSpecialSorting = field.OrderByField == OrderBy.NAME
+                                   && IsSpecialSorting(field.Language?.Code);
+
+            return isSpecialSorting;
+        }
+
+        public bool IsSpecialSortingMeta(EsOrderByMetaField metaField)
+        {
+            return metaField.MetaType == typeof(string)
+                   && IsSpecialSorting(metaField.Language?.Code);
+        }
+
+        private bool IsSpecialSorting(string languageCode)
         {
             if (string.IsNullOrEmpty(languageCode))
             {
@@ -26,11 +41,6 @@ namespace ElasticSearch.Utils
             }
 
             return isSpecialSorting;
-        }
-
-        public bool IsSpecialSortingMeta(string languageCode, Type metaType)
-        {
-            return metaType == typeof(string) && IsSpecialSortingField(languageCode);
         }
     }
 }

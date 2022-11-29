@@ -80,7 +80,7 @@ namespace ElasticSearch.Searcher
             var paddedPrefix = field.IsPadded
                 ? "padded_"
                 : string.Empty;
-            var sortSuffix = SpecialSortingServiceV7.Instance.IsSpecialSortingMeta(field.Language?.Code, field.MetaType)
+            var sortSuffix = SpecialSortingServiceV7.Instance.IsSpecialSortingMeta(field)
                 ? ".sort"
                 : string.Empty;
             return isExtraReturnField
@@ -96,7 +96,7 @@ namespace ElasticSearch.Searcher
             var languageSuffix = field.Language != null && !field.Language.IsDefault
                 ? $"_{field.Language.Code}"
                 : string.Empty;
-            var sortSuffix = SpecialSortingServiceV2.Instance.IsSpecialSortingMeta(field.Language?.Code, field.MetaType)
+            var sortSuffix = SpecialSortingServiceV2.Instance.IsSpecialSortingMeta(field)
                 ? ".sort"
                 : string.Empty;
 
@@ -137,7 +137,7 @@ namespace ElasticSearch.Searcher
 
         private static string GetNameFieldValueV7(EsOrderByField field, bool isExtraReturnField)
         {
-            var sortSuffix = SpecialSortingServiceV7.Instance.IsSpecialSortingField(field.Language?.Code)
+            var sortSuffix = SpecialSortingServiceV7.Instance.IsSpecialSortingField(field)
                 ? ".sort"
                 : string.Empty;
 
@@ -157,7 +157,7 @@ namespace ElasticSearch.Searcher
                     formattedValue = $"{formattedValue}_{field.Language.Code}";
                 }
 
-                if (SpecialSortingServiceV2.Instance.IsSpecialSortingField(field.Language?.Code))
+                if (SpecialSortingServiceV2.Instance.IsSpecialSortingField(field))
                 {
                     formattedValue = $"{formattedValue}.sort";
                 }

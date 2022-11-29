@@ -31,6 +31,7 @@ namespace ApiLogic.Tests.IndexManager.Sorting
         [TestCase("csp", "m", "n", "ñ")]
         [TestCase("eng", "bee", "cat", "dog")]
         [TestCase("hun", "ddd", "dzz", "dzs")]
+        [TestCase("cze", "cza", "čar", "chy")]
         [TestCase("abc", "a", "b", "c")]
         public void GetComparer_ValidLanguageCode_ReturnsExpectedResult(string languageCode, string str0, string str1, string str2)
         {

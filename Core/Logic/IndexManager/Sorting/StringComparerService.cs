@@ -13,7 +13,8 @@ namespace ApiLogic.IndexManager.Sorting
             { "frn", "fra" },
             { "mnd", "chi" },
             { "hnd", "hin" },
-            { "csp", "spa" }
+            { "csp", "spa" },
+            { "cze", "ces" }
         };
 
         private static readonly ConcurrentDictionary<string, IComparer<string>> Comparers = new ConcurrentDictionary<string, IComparer<string>>();
