@@ -2053,7 +2053,7 @@ namespace Core.Api
 
                     response.Object = segmentationType;
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    _segmentationTypeMessageService?.PublishCreateEventAsync(groupId, segmentationType).GetAwaiter().GetResult();
+                    _segmentationTypeMessageService?.PublishCreateEventAsync(groupId, segmentationType);
                 }
             }
             catch (Exception ex)
@@ -2118,7 +2118,7 @@ namespace Core.Api
 
                     response.Object = segmentationType;
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    _segmentationTypeMessageService?.PublishUpdateEventAsync(groupId, segmentationType).GetAwaiter().GetResult();
+                    _segmentationTypeMessageService?.PublishUpdateEventAsync(groupId, segmentationType);
                 }
             }
             catch (Exception ex)
@@ -2200,7 +2200,7 @@ namespace Core.Api
                 else
                 {
                     result.Set(eResponseStatus.OK);
-                    _segmentationTypeMessageService?.PublishDeleteEventAsync(groupId, id).GetAwaiter().GetResult();
+                    _segmentationTypeMessageService?.PublishDeleteEventAsync(groupId, id);
                 }
 
             }
@@ -2368,7 +2368,7 @@ namespace Core.Api
                     {
                         response.Object = userSegment;
                         response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
-                            _userSegmentMessageService?.PublishCreateEventAsync(groupId, userSegment).GetAwaiter().GetResult();
+                            _userSegmentMessageService?.PublishCreateEventAsync(groupId, userSegment);
                     }
                 }
             }
@@ -2422,7 +2422,7 @@ namespace Core.Api
                 else
                 {
                     result = new Status();
-                    _userSegmentMessageService?.PublishDeleteEventAsync(groupId, segmentationType).GetAwaiter().GetResult();
+                    _userSegmentMessageService?.PublishDeleteEventAsync(groupId, segmentationType);
                 }
             }
             catch (Exception ex)
