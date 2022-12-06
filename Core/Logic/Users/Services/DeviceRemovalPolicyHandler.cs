@@ -136,7 +136,7 @@ namespace ApiLogic.Users.Services
         }
 
 
-        public long? GetUdidLastActivity(int groupId, string UDID, int userId)
+        public long? GetUdidLastActivity(int groupId, string UDID)
         {
             if (CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationDeviceLoginHistory))
             {

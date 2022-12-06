@@ -8,8 +8,8 @@ using System.Text;
 using Phx.Lib.Log;
 using System.Reflection;
 using ApiLogic.Repositories;
+using ApiLogic.Users.Services;
 using CachingProvider.LayeredCache;
-using ApiObjects;
 
 namespace Core.Users
 {
@@ -298,6 +298,7 @@ namespace Core.Users
                     var deviceReferenceData = ApiLogic.Users.Managers.DeviceReferenceDataManager.Instance.GetByManufacturerId(m_groupID, ManufacturerId.Value);
                     Manufacturer = deviceReferenceData?.Name;
                 }
+                LastActivityTime = DeviceRemovalPolicyHandler.Instance.GetUdidLastActivity(m_groupID, m_deviceUDID);
 
                 PopulateDeviceStreamTypeAndProfile();
 
