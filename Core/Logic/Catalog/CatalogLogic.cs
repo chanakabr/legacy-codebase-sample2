@@ -8597,101 +8597,105 @@ namespace Core.Catalog
                 request.m_sSiteGuid != "0")
             {
                 var userSegmentIds = UserSegmentLogic.ListAll(groupId, request.m_sSiteGuid);
-                List<SegmentationType> segmentationTypes =
-                    SegmentationTypeLogic.GetSegmentationTypesBySegmentIds(groupId, userSegmentIds);
 
-                definitions.boostScoreValues = new List<BoostScoreValueDefinition>();
-
-                foreach (var segmentationType in segmentationTypes)
+                if (userSegmentIds?.Count > 0)
                 {
-                    if (segmentationType.Conditions != null)
-                    {
-                        foreach (var condition in segmentationType.Conditions)
-                        {
-                            if (condition is ContentScoreCondition castedCondition)
-                            {
-                                if (!string.IsNullOrEmpty(castedCondition.Field) && castedCondition.Values != null &&
-                                    castedCondition.Values.Count > 0)
-                                {
-                                    var fields = GetUnifiedSearchKey(castedCondition.Field.ToLower(), group, groupId);
+                    List<SegmentationType> segmentationTypes =
+                        SegmentationTypeLogic.GetSegmentationTypesBySegmentIds(groupId, userSegmentIds);
 
-                                    if (fields.Any() && fields.FirstOrDefault().FieldType != eFieldType.Default)
+                    definitions.boostScoreValues = new List<BoostScoreValueDefinition>();
+
+                    foreach (var segmentationType in segmentationTypes)
+                    {
+                        if (segmentationType.Conditions != null)
+                        {
+                            foreach (var condition in segmentationType.Conditions)
+                            {
+                                if (condition is ContentScoreCondition castedCondition)
+                                {
+                                    if (!string.IsNullOrEmpty(castedCondition.Field) && castedCondition.Values != null &&
+                                        castedCondition.Values.Count > 0)
                                     {
-                                        foreach (var field in fields)
+                                        var fields = GetUnifiedSearchKey(castedCondition.Field.ToLower(), group, groupId);
+
+                                        if (fields.Any() && fields.FirstOrDefault().FieldType != eFieldType.Default)
                                         {
-                                            foreach (var value in castedCondition.Values)
+                                            foreach (var field in fields)
                                             {
-                                                definitions.boostScoreValues.Add(new BoostScoreValueDefinition()
+                                                foreach (var value in castedCondition.Values)
                                                 {
-                                                    Key = field.Field,
-                                                    Value = value,
-                                                    Type = field.FieldType
-                                                });
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    if (segmentationType.Actions != null)
-                    {
-                        foreach (var action in segmentationType.Actions)
-                        {
-                            if (action is SegmentAssetOrderAction castedAction)
-                            {
-                                if (!string.IsNullOrEmpty(castedAction.Name) && castedAction.Values != null &&
-                                    castedAction.Values.Count > 0)
-                                {
-                                    var fields = GetUnifiedSearchKey(castedAction.Name.ToLower(), group, groupId);
-
-                                    if (fields.Any())
-                                    {
-                                        foreach (var field in fields)
-                                        {
-                                            foreach (var value in castedAction.Values)
-                                            {
-                                                definitions.boostScoreValues.Add(
-                                                    new BoostScoreValueDefinition()
+                                                    definitions.boostScoreValues.Add(new BoostScoreValueDefinition()
                                                     {
                                                         Key = field.Field,
                                                         Value = value,
                                                         Type = field.FieldType
                                                     });
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
                         }
-                    }
 
-                    if ((segmentationType.Value != null) && (segmentationType.Value is SegmentValues) &&
-                        (segmentationType.Value.Source != null) &&
-                        (segmentationType.Value.Source is ContentSource))
-                    {
-                        var castedValue = segmentationType.Value as SegmentValues;
-                        var castedSource = segmentationType.Value.Source as ContentSource;
-
-                        if (!string.IsNullOrEmpty(castedSource.Field))
+                        if (segmentationType.Actions != null)
                         {
-                            foreach (var value in castedValue.Values)
+                            foreach (var action in segmentationType.Actions)
                             {
-                                if (userSegmentIds.Contains(value.Id))
+                                if (action is SegmentAssetOrderAction castedAction)
                                 {
-                                    var fields = GetUnifiedSearchKey(castedSource.Field.ToLower(), group, groupId);
-
-                                    if (fields.Any() && fields.FirstOrDefault().FieldType != eFieldType.Default)
+                                    if (!string.IsNullOrEmpty(castedAction.Name) && castedAction.Values != null &&
+                                        castedAction.Values.Count > 0)
                                     {
-                                        foreach (var field in fields)
+                                        var fields = GetUnifiedSearchKey(castedAction.Name.ToLower(), group, groupId);
+
+                                        if (fields.Any())
                                         {
-                                            definitions.boostScoreValues.Add(new BoostScoreValueDefinition()
+                                            foreach (var field in fields)
                                             {
-                                                Key = field.Field,
-                                                Value = value.Value,
-                                                Type = field.FieldType
-                                            });
+                                                foreach (var value in castedAction.Values)
+                                                {
+                                                    definitions.boostScoreValues.Add(
+                                                        new BoostScoreValueDefinition()
+                                                        {
+                                                            Key = field.Field,
+                                                            Value = value,
+                                                            Type = field.FieldType
+                                                        });
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if ((segmentationType.Value != null) && (segmentationType.Value is SegmentValues) &&
+                            (segmentationType.Value.Source != null) &&
+                            (segmentationType.Value.Source is ContentSource))
+                        {
+                            var castedValue = segmentationType.Value as SegmentValues;
+                            var castedSource = segmentationType.Value.Source as ContentSource;
+
+                            if (!string.IsNullOrEmpty(castedSource.Field))
+                            {
+                                foreach (var value in castedValue.Values)
+                                {
+                                    if (userSegmentIds.Contains(value.Id))
+                                    {
+                                        var fields = GetUnifiedSearchKey(castedSource.Field.ToLower(), group, groupId);
+
+                                        if (fields.Any() && fields.FirstOrDefault().FieldType != eFieldType.Default)
+                                        {
+                                            foreach (var field in fields)
+                                            {
+                                                definitions.boostScoreValues.Add(new BoostScoreValueDefinition()
+                                                {
+                                                    Key = field.Field,
+                                                    Value = value.Value,
+                                                    Type = field.FieldType
+                                                });
+                                            }
                                         }
                                     }
                                 }
