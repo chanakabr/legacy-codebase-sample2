@@ -30,7 +30,7 @@ namespace Core.Catalog
 
             var newEpgV3IndexName = $"{NamingHelper.GetEpgIndexAlias(_partnerId)}_v3";
             log.Info($"EPG v3 creating new index with name:{newEpgV3IndexName}");
-            AddEmptyIndex(newEpgV3IndexName);
+            AddEmptyIndex(newEpgV3IndexName, REFRESH_INTERVAL_FOR_EMPTY_EPG_V3_INDEX);
             log.Info($"EPG v3 adding mapping to new index with name:{newEpgV3IndexName}");
             AddEpgMappings(newEpgV3IndexName, EpgFeatureVersion.V3);
 
@@ -67,7 +67,7 @@ namespace Core.Catalog
             var mediaIndex = NamingHelper.GetMediaIndexAlias(_partnerId);
 
             // insert a dummy transaction child typ to allow unified search to use "commited only" query addition
-            var dummyTransactionChildMapping = "{\"_parent\":{\"type\":\"" + NamingHelper.EPG_V3_TRANSACTION_DOCUMENT_TYPE_NAME + "\"}}";
+            var dummyTransactionChildMapping = "{\"_parent\":{\"type\":\"" + NamingHelper.EPG_V3_TRANSACTION_DOCUMENT_TYPE_NAME + "\", \"fielddata\" : { \"loading\" : \"eager_global_ordinals\" }}}";
             var mappingResult = _elasticSearchApi.InsertMapping(mediaIndex, NamingHelper.EPG_V3_DUMMY_TRANSACTION_CHILD_DOCUMENT_TYPE_NAME, dummyTransactionChildMapping);
             if (!mappingResult) { throw new Exception("Could not create media index mapping of type dummy transaction child doc"); }
             // insert transaction type as dummy to allow unified search to use "commited only" query addition
@@ -122,7 +122,7 @@ namespace Core.Catalog
             {
                 var epgDate = dateIndexNamePair.Key;
                 var epgV2IndexName = dateIndexNamePair.Value;
-                AddEmptyIndex(epgV2IndexName);
+                AddEmptyIndex(epgV2IndexName, REFRESH_INTERVAL_FOR_EMPTY_EPG_V2_INDEX);
                 AddEpgMappings(epgV2IndexName, EpgFeatureVersion.V2);
                 log.Info($"created epg v2 index:[{epgV2IndexName}]");
 

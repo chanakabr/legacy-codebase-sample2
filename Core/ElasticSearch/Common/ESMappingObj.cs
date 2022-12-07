@@ -49,10 +49,11 @@ namespace ElasticSearch.Common
             {
                 sb.Append("\"_ttl\": {\"enabled\": true },");
             }
-            
+
             if (!string.IsNullOrEmpty(parentDocumentType))
             {
-                sb.Append("\"_parent\": {\"type\": \""+parentDocumentType+"\" },");
+                sb.AppendFormat("\"_parent\": {{\"type\": \"{0}\",", parentDocumentType);
+                sb.Append("\"fielddata\" : { \"loading\" : \"eager_global_ordinals\" } },");
             }
 
             if (m_oRouting != null)
