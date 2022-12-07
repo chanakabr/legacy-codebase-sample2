@@ -95,7 +95,7 @@ namespace IngestHandler
                     _logger.LogError($"error while trying to update bulk upload object, {updatedBulkUploadResponse.Status}");
                 }
                 
-                await _ingestFinalizer.FinalizeEpgV3Ingest((int)partnerId, updatedBulkUploadResponse.Object);
+                await _ingestFinalizer.FinalizeEpgV3Ingest((int)partnerId, crudOps, updatedBulkUploadResponse.Object);
             }
             catch (Exception e)
             {

@@ -15,6 +15,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using ApiLogic.Catalog.CatalogManagement.Helpers;
+using ApiLogic.Catalog.CatalogManagement.Models;
 using ApiLogic.Catalog.CatalogManagement.Services;
 using Core.Api;
 using ElasticSearch.Utilities;
@@ -457,6 +458,7 @@ namespace Core.Catalog.CatalogManagement
                 return null;
             }
 
+            var groupEpgPicturesSizes = ImageManager.GetGroupEpgPicturesSizes(groupId);
             var languages = GetLanguagesObj(new List<string>() { "*" }, catalogGroupCache);
             var docIds = GetEpgCBKeys(groupId, epgId, languages);
             var epgCbList = EpgDal.GetEpgCBList(docIds);
@@ -472,7 +474,9 @@ namespace Core.Catalog.CatalogManagement
             }
 
             SendActionEvent(groupId, epgId, eAction.Delete);
-            _messageService.PublishDeleteEventAsync(groupId, epgId, userId).GetAwaiter().GetResult();
+
+            var epgAsset = new EpgAsset(epgCbList, catalogGroupCache.GetDefaultLanguage().Code, groupEpgPicturesSizes, groupId);
+            _messageService.PublishDeleteEventAsync(groupId, epgAsset, userId).GetAwaiter().GetResult();
 
             // Delete Index
             var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);

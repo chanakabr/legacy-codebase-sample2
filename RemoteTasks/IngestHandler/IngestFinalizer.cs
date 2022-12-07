@@ -40,13 +40,13 @@ namespace IngestHandler
             _crudMessageService = crudMessageService;
         }
 
-        public async Task FinalizeEpgV3Ingest(int partnerId, BulkUpload bulkUpload)
+        public async Task FinalizeEpgV3Ingest(int partnerId, CRUDOperations<EpgProgramBulkUploadObject> crudOps, BulkUpload bulkUpload)
         {
             _partnerIdStr = partnerId.ToString();
             _bulkUploadId = bulkUpload.Id.ToString();
             if (BulkUpload.IsProcessCompletedByStatus(bulkUpload.Status))
             {
-                await FinalizeEpgCommon(bulkUpload, bulkUpload.Status);
+                await FinalizeEpgCommon(bulkUpload, crudOps, bulkUpload.Status);
             }
         }
         
@@ -84,7 +84,7 @@ namespace IngestHandler
                         throw new Exception("Could not set index refresh interval");
                     }
 
-                    await FinalizeEpgCommon(bulkUpload, newBulkUploadStatus);
+                    await FinalizeEpgCommon(bulkUpload, serviceEvent.CrudOperations, newBulkUploadStatus);
                 }
 
                 SendIngestPartCompletedEvent(bulkUpload, relevantResults);
@@ -114,14 +114,14 @@ namespace IngestHandler
         /// <summary>
         /// This part of finalization is common for v2 and v3 and is called by both
         /// </summary>
-        private async Task FinalizeEpgCommon(BulkUpload bulkUpload, BulkUploadJobStatus newBulkUploadStatus)
+        private async Task FinalizeEpgCommon(BulkUpload bulkUpload, CRUDOperations<EpgProgramBulkUploadObject> crudOps, BulkUploadJobStatus newBulkUploadStatus)
         {
             using var km = CreateKMonitor("FinalizeEpgCommon-Total");
             var bulkUploadJobData = bulkUpload.JobData as BulkUploadIngestJobData;
             Logger.Debug($"BulkUploadId: [{bulkUpload.Id}] : Final part of bulk is marked, status is: [{newBulkUploadStatus}], finalizing bulk object");
             InvalidateEpgAssets(bulkUpload);
             var bulkUploadResultsDictionaries = bulkUpload.ConstructResultsDictionary();
-            var operations = CalculateOperations(bulkUpload, bulkUploadResultsDictionaries);
+            var operations = CalculateOperations(crudOps, bulkUploadResultsDictionaries);
             UpdateRecordings(bulkUpload, operations);
             await PublishProgramAssetMessages(bulkUpload.GroupId, operations, bulkUpload.UpdaterId);
 
@@ -199,38 +199,40 @@ namespace IngestHandler
         // Logically hard part, which could have errors, should be tested
         // Logical trick: DeletedObjects - it's all EPGs, which should be removed from Elastic. Even just updated EPGs are added to DeletedObjects
         // Probably this calculation should be in BulkUploadTransformationHandler
-        private Operations CalculateOperations(BulkUpload bulkUpload, BulkUploadResultsDictionary result)
+        private Operations CalculateOperations(CRUDOperations<EpgProgramBulkUploadObject> crudOps, BulkUploadResultsDictionary result)
         {
             // _bulkUpload.AddedObjects don't have EpgIds, because they were added in BulkUploadTransformationHandler, before inserting to DB
             // so we take EpgIds by EpgExternalIds
-            var addedEpgIds = bulkUpload.AddedObjects.Where(_ => !_.IsAutoFill).Select(o => result[o.ChannelId][o.EpgExternalId].ObjectId.Value).ToArray();
+            var addedEpgIds = crudOps.ItemsToAdd.Where(_ => !_.IsAutoFill).Select(o => result[o.ChannelId][o.EpgExternalId].ObjectId.Value).ToArray();
 
             // Formulas:
             // AddedObjects = really-added
             // really-updated = AffectedObjects ∪ UpdatedObjects
             // DeletedObjects = really-deleted ∪ really-updated
-            var deletedObjects = bulkUpload.DeletedObjects.Where(_ => !_.IsAutoFill).Select(_ => (long)_.ObjectId);
-            var updatedObjects = bulkUpload.UpdatedObjects.Where(_ => !_.IsAutoFill).Select(_ => (long)_.ObjectId);
-            var affectedObjects = bulkUpload.AffectedObjects.Where(_ => !_.IsAutoFill).Select(_ => (long)_.ObjectId);
+            var deletedObjects = crudOps.ItemsToDelete.Where(_ => !_.IsAutoFill);
+            var updatedObjects = crudOps.ItemsToUpdate.Where(_ => !_.IsAutoFill).Select(_ => (long)_.EpgId);
+            var affectedObjects = crudOps.AffectedItems.Where(_ => !_.IsAutoFill).Select(_ => (long)_.EpgId);
 
             var reallyUpdated = affectedObjects.Union(updatedObjects).ToArray();
-            var reallyDeleted = deletedObjects.Except(reallyUpdated).ToArray();
+            var reallyDeleted = deletedObjects
+                .Where(x => reallyUpdated.All(u => (long)x.EpgId != u))
+                .ToArray();
 
             Logger.Info($"reallyUpdated: {string.Join(",", reallyUpdated)}");
-            Logger.Info($"reallyDeleted: {string.Join(",", reallyDeleted)}");
+            Logger.Info($"reallyDeleted: {string.Join(",", reallyDeleted.Select(x => (long)x.EpgId))}");
 
             return new Operations
             {
                 AddedEpgIds = addedEpgIds,
                 UpdatedEpgIds = reallyUpdated,
-                DeletedEpgIds = reallyDeleted
+                DeletedEpgs = reallyDeleted
             };
         }
 
         private void UpdateRecordings(BulkUpload bulkUpload, Operations operations)
         {
             using var km = CreateKMonitor("UpdateRecordings");
-            UpdateRecordings(bulkUpload, operations.DeletedEpgIds, eAction.Delete);
+            UpdateRecordings(bulkUpload, operations.DeletedEpgs.Select(x => (long)x.EpgId).ToArray(), eAction.Delete);
             UpdateRecordings(bulkUpload, operations.AddedEpgIds, eAction.On);
             UpdateRecordings(bulkUpload, operations.UpdatedEpgIds, eAction.Update);
         }
@@ -255,7 +257,7 @@ namespace IngestHandler
         {
             public long[] AddedEpgIds;
             public long[] UpdatedEpgIds;
-            public long[] DeletedEpgIds;
+            public EpgProgramBulkUploadObject[] DeletedEpgs;
         }
 
         private void TrySendIngestCompleted(BulkUpload bulkUpload, BulkUploadJobStatus newStatus)
@@ -301,7 +303,7 @@ namespace IngestHandler
             using var km = CreateKMonitor("PublishProgramAssetMessages");
             var createdEventsTask = _crudMessageService.PublishCreateEventsAsync(groupId, operations.AddedEpgIds, updaterId);
             var updatedEventsTask = _crudMessageService.PublishUpdateEventsAsync(groupId, operations.UpdatedEpgIds, updaterId);
-            var deletedEventsTask = _crudMessageService.PublishDeleteEventsAsync(groupId, operations.DeletedEpgIds, updaterId);
+            var deletedEventsTask = _crudMessageService.PublishDeleteEventsAsync(groupId, operations.DeletedEpgs, updaterId);
 
             return Task.WhenAll(createdEventsTask, updatedEventsTask, deletedEventsTask);
         }
