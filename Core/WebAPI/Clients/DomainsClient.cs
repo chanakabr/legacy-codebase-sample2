@@ -1336,7 +1336,7 @@ namespace WebAPI.Clients
                     List<KalturaDevice> familyDevices = family.Devices;
                     foreach (KalturaDevice device in familyDevices)
                     {
-                        device.LastActivityTime = GetLastActivityTime(groupId, device.Udid, userId);
+                        device.LastActivityTime = GetLastActivityTime(groupId, device.Udid);
                         KalturaHouseholdDevice householdDevice = (KalturaHouseholdDevice)device;
                         householdDevice.DeviceFamilyId = family.Id;
 
@@ -1380,9 +1380,9 @@ namespace WebAPI.Clients
             return response;
         }
 
-        private long? GetLastActivityTime(int groupId, string udid, int userId)
+        private long? GetLastActivityTime(int groupId, string udid)
         {
-            return DeviceRemovalPolicyHandler.Instance.GetUdidLastActivity(groupId, udid, userId);
+            return DeviceRemovalPolicyHandler.Instance.GetUdidLastActivity(groupId, udid);
         }
 
         internal bool DeleteDevice(int groupId, string udid, out long domainId)

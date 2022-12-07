@@ -2648,7 +2648,7 @@ namespace Core.Users
                         {
                             foreach (var device in devices)
                             {
-                                device.LastActivityTime = DeviceRemovalPolicyHandler.Instance.GetUdidLastActivity(this.m_nGroupID, device.m_deviceUDID, 0);
+                                device.LastActivityTime = DeviceRemovalPolicyHandler.Instance.GetUdidLastActivity(this.m_nGroupID, device.m_deviceUDID);
 
                             }
                         }
