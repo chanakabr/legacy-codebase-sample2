@@ -24,7 +24,6 @@ namespace ApiLogic.Notification.Managers
                 PartnerId = groupId,
                 Message = message
             };
-
             return _announcementProducer.ProduceAsync(AnnouncementMessage.GetTopic(), announcementMessage.GetPartitioningKey(), announcementMessage);
         }
     }
