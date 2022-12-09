@@ -23,6 +23,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Web;
+using ApiLogic.Api.Managers;
 using TVinciShared;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
@@ -168,8 +169,18 @@ namespace WebAPI.Managers
 
             // SessionCharacteristicKey is initialized only in Auth MS
             string sessionCharacteristicKey = null;
-            var payload = new KS.KSData(udid, createDate, regionId, userSegments, userRoles, sessionCharacteristicKey, domainId);
-            return payload;
+
+            var isBypassCacheEligible = RolesManager.IsPartner(groupId, userRoles);
+
+            return new KS.KSData(
+                udid,
+                createDate,
+                regionId,
+                userSegments,
+                userRoles,
+                sessionCharacteristicKey,
+                domainId,
+                isBypassCacheEligible);
         }
 
         private static KalturaLoginSession GenerateSessionByApiToken(ApiToken token, Group group)

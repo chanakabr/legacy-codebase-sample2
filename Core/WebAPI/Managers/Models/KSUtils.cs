@@ -16,6 +16,9 @@ namespace WebAPI.Managers.Models
         public const string PAYLOAD_SESSION_CHARACTERISTIC_KEY = "sck";
         public const string PAYLOAD_SIGNATURE = "sig";
         public const string PAYLOAD_DOMAINID = "hh";
+        public const string PAYLOAD_IS_BYPASS_CACHE_ELIGIBLE = "bce";
+
+        private const string ONE = "1";
 
         public static string PrepareKSPayload(KS.KSData pl)
         {
@@ -51,8 +54,12 @@ namespace WebAPI.Managers.Models
                 ksDataList.Add(new KeyValuePair<string, string>(PAYLOAD_SIGNATURE, pl.Signature));
             }
 
-            var payload = KS.preparePayloadData(ksDataList);
-            return payload;
+            if (pl.IsBypassCacheEligible)
+            {
+                ksDataList.Add(new KeyValuePair<string, string>(PAYLOAD_IS_BYPASS_CACHE_ELIGIBLE, ONE));
+            }
+
+            return KS.preparePayloadData(ksDataList);
         }
 
         public static KS.KSData ExtractKSPayload(KS ks)
@@ -108,8 +115,18 @@ namespace WebAPI.Managers.Models
                 signature = pl[PAYLOAD_SIGNATURE];
             }
 
-            return new KS.KSData(udid, createDate, regionId, userSegments, userRoles, sessionCharacteristicKey,
-                domainId, signature);
+            var isBypassCacheEligible = pl.ContainsKey(PAYLOAD_IS_BYPASS_CACHE_ELIGIBLE);
+
+            return new KS.KSData(
+                udid,
+                createDate,
+                regionId,
+                userSegments,
+                userRoles,
+                sessionCharacteristicKey,
+                domainId,
+                isBypassCacheEligible,
+                signature);
         }
 
         internal static KS.KSData ExtractKSPayload()

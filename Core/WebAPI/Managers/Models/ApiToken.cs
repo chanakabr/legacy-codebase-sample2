@@ -49,6 +49,9 @@ namespace WebAPI.Managers.Models
         
         [JsonProperty("DomainId")]
         public int DomainId { get; set; }
+
+        [JsonProperty("IsBypassCacheEligible")]
+        public bool IsBypassCacheEligible { get; set; }
         
         [JsonIgnore]
         public KS KsObject { get; set; }
@@ -120,6 +123,7 @@ namespace WebAPI.Managers.Models
             UserSegments = token.UserSegments;
             UserRoles = token.UserRoles;
             SessionCharacteristicKey = token.SessionCharacteristicKey;
+            IsBypassCacheEligible = token.IsBypassCacheEligible;
 
             // set refresh token expiration
             if (groupConfig.IsRefreshTokenExtendable)
@@ -182,6 +186,7 @@ namespace WebAPI.Managers.Models
             UserRoles = payload.UserRoles;
             SessionCharacteristicKey = payload.SessionCharacteristicKey;
             DomainId = payload.DomainId;
+            IsBypassCacheEligible = payload.IsBypassCacheEligible;
         }
     }
 }
