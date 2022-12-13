@@ -8,7 +8,7 @@ namespace WebAPI.Models.Segmentation
     /// <summary>
     /// Defines a condition which is essentially a combination of several monetization-based actions, each has their own score multiplier
     /// </summary>
-    [SchemeClass(Required = new[] { "days", "type", "operator", "currencyCode" }, AnyOf = new[] { "minValue", "maxValue" })]
+    [SchemeClass(Required = new[] { "days", "type", "operator" }, AnyOf = new[] { "minValue", "maxValue" })]
     public partial class KalturaMonetizationCondition : KalturaBaseSegmentCondition
     {
         /// <summary>
