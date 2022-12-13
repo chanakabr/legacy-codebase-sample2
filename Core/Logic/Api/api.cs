@@ -8301,7 +8301,6 @@ namespace Core.Api
                 DateTime eta = DateTime.UtcNow.AddMinutes(taskFrequency);
                 if (taskFrequency != 0)
                 {
-                    queue.storeForRecovery = true;
                     data = new ExportTaskData(groupId, taskId, version, eta);
                 }
                 else

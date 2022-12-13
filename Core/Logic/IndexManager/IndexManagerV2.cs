@@ -99,7 +99,8 @@ namespace Core.Catalog
         public const string EPG_GREEN_SUFFIX = "green";
         public const string EPG_BLUE_SUFFIX = "blue";
 
-        private const string REFRESH_INTERVAL_FOR_EMPTY_INDEX = "10s";
+        private const string REFRESH_INTERVAL_FOR_EMPTY_EPG_V2_INDEX = "10s";
+        private const string REFRESH_INTERVAL_FOR_EMPTY_EPG_V3_INDEX = "1s";
         private const string INDEX_REFRESH_INTERVAL = "10s";
 
         protected const string VERSION = "2";
@@ -855,9 +856,9 @@ namespace Core.Catalog
             try
             {
                 var numOfShards = ApplicationConfiguration.Current.EPGIngestV2Configuration.NumOfShardsForCompactedIndex.Value;
-                EnsureEpgIndexExist(futureIndexName, EpgFeatureVersion.V2, numOfShards);
+                EnsureEpgV2IndexExist(futureIndexName, numOfShards);
                 SetNoRefresh(futureIndexName);
-                EnsureEpgIndexExist(pastIndexName, EpgFeatureVersion.V2, numOfShards);
+                EnsureEpgV2IndexExist(pastIndexName, numOfShards);
                 SetNoRefresh(pastIndexName);
 
                 var epgV2Indices = _elasticSearchApi.ListIndicesByAlias(globalEpgAlias)?.Select(i => i.Name)?.ToList();
@@ -980,14 +981,14 @@ namespace Core.Catalog
 
         public string SetupEpgV2Index(string indexNmae)
         {
-            EnsureEpgIndexExist(indexNmae, EpgFeatureVersion.V2);
+            EnsureEpgV2IndexExist(indexNmae);
             SetNoRefresh(indexNmae);
 
             return indexNmae;
         }
 
 
-        private void EnsureEpgIndexExist(string dailyEpgIndexName, EpgFeatureVersion epgVersion, int? numOfShards = null)
+        private void EnsureEpgV2IndexExist(string dailyEpgIndexName, int? numOfShards = null)
         {
             // TODO it's possible to create new index with mappings and alias in one request,
             // https://www.elastic.co/guide/en/elasticsearch/reference/2.3/indices-create-index.html#mappings
@@ -997,8 +998,8 @@ namespace Core.Catalog
             // EPGs could be added to the index without mapping (e.g. from asset.add)
             try
             {
-                AddEmptyIndex(dailyEpgIndexName, numOfShards);
-                AddEpgMappings(dailyEpgIndexName, epgVersion);
+                AddEmptyIndex(dailyEpgIndexName, REFRESH_INTERVAL_FOR_EMPTY_EPG_V2_INDEX, numOfShards);
+                AddEpgMappings(dailyEpgIndexName, EpgFeatureVersion.V2);
                 AddEpgAlias(dailyEpgIndexName);
             }
             catch (Exception e)
@@ -1008,14 +1009,14 @@ namespace Core.Catalog
             }
         }
 
-        private void AddEmptyIndex(string indexName, int? numOfShards = 0)
+        private void AddEmptyIndex(string indexName, string refreshInterval, int? numOfShards = 0)
         {
             IndexManagerCommonHelpers.GetRetryPolicy<Exception>().Execute(() =>
             {
                 var isIndexExist = _elasticSearchApi.IndexExists(indexName);
                 if (isIndexExist) return;
                 log.Info($"creating new index [{indexName}]");
-                this.CreateEmptyEpgIndex(indexName, true, true, REFRESH_INTERVAL_FOR_EMPTY_INDEX, numOfShards: numOfShards);
+                this.CreateEmptyEpgIndex(indexName, true, true, refreshInterval, numOfShards: numOfShards);
             });
         }
 

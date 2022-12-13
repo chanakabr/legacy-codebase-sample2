@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ApiLogic.Api.Managers;
 using ApiObjects;
+using ApiObjects.BulkUpload;
 using Confluent.Kafka;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using OTT.Lib.Kafka;
 using Phoenix.Generated.Api.Events.Crud.ProgramAsset;
 using SchemaRegistryEvents.Catalog;
+using TVinciShared;
 
 namespace ApiLogic.Catalog.CatalogManagement.Services
 {
@@ -56,23 +58,35 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
         public Task PublishUpdateEventsAsync(long groupId, IReadOnlyCollection<long> epgIds, long updaterId)
             => PublishKafkaCreateOrUpdateEventsAsync(groupId, CrudOperationType.UPDATE_OPERATION, epgIds, updaterId);
 
-        public Task PublishDeleteEventAsync(long groupId, long epgId, long updaterId)
-            => PublishDeleteEventsAsync(groupId, new[] { epgId }, updaterId);
+        public Task PublishDeleteEventAsync(long groupId, EpgAsset deletedEpg, long updaterId)
+        {
+            var programAssetEvent = new ProgramAsset
+            {
+                Id = deletedEpg.Id,
+                StartDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(deletedEpg.StartDate.Value),
+                PartnerId = groupId,
+                Operation = CrudOperationType.DELETE_OPERATION,
+                UpdaterId = updaterId
+            };
 
-        public Task PublishDeleteEventsAsync(long groupId, IReadOnlyCollection<long> epgIds, long updaterId)
+            return _programAssetProducer.ProduceAsync(ProgramAsset.GetTopic(), programAssetEvent.GetPartitioningKey(), programAssetEvent);
+        }
+
+        public Task PublishDeleteEventsAsync(long groupId, IEnumerable<EpgProgramBulkUploadObject> deletedEpgs, long updaterId)
         {
             if (_programAssetProducer == null)
             {
-                _logger.LogError($"{nameof(ProgramAsset)} message with parameters {nameof(groupId)}={groupId}, {nameof(epgIds)}=[{string.Join(",", epgIds)}], operation={CrudOperationType.DELETE_OPERATION} can not be published : {nameof(_programAssetProducer)} is null.");
+                _logger.LogError($"{nameof(ProgramAsset)} message with parameters {nameof(groupId)}={groupId}, epgIds=[{string.Join(",", deletedEpgs.Select(x => x.EpgId))}], operation={CrudOperationType.DELETE_OPERATION} can not be published : {nameof(_programAssetProducer)} is null.");
                 return Task.CompletedTask;
             }
 
             var publishTasks = new List<Task>();
-            foreach (var epgId in epgIds)
+            foreach (var deletedEpg in deletedEpgs)
             {
                 var programAssetEvent = new ProgramAsset
                 {
-                    Id = epgId,
+                    Id = (long)deletedEpg.EpgId,
+                    StartDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(deletedEpg.StartDate),
                     PartnerId = groupId,
                     Operation = CrudOperationType.DELETE_OPERATION,
                     UpdaterId = updaterId

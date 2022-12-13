@@ -15,7 +15,6 @@ namespace QueueWrapper
         private const int RETRY_LIMIT = 5;
         private const int RECOVERY_TTL_MONTH = 2;
         private IQueueImpl m_QueueImpl;
-        public bool storeForRecovery = false;
 
         public BaseQueue()
         { }
@@ -40,16 +39,6 @@ namespace QueueWrapper
                     else
                     {
                         log.DebugFormat("Successfully inserted message: {0}, routingKey: {1}", sMessage, routingKey);
-                    }
-                }
-
-                if (bIsEnqueueSucceeded && storeForRecovery)
-                {
-                    var celeryData = record as ApiObjects.BaseCeleryData;
-
-                    if (celeryData != null && celeryData.ETA.HasValue)
-                    {
-                        InsertQueueMessage(celeryData.GroupId, celeryData.RecoveryMessageId, sMessage, routingKey, celeryData.ETA.Value, this.GetType().ToString());
                     }
                 }
             }
@@ -79,42 +68,6 @@ namespace QueueWrapper
             }
 
             return bIsEnqueueSucceeded;
-        }
-
-        protected void InsertQueueMessage(int groupId, string messageId, string messageData, string routingKey, DateTime excutionDate, string type)
-        {
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.SCHEDULED_TASKS);
-            int limitRetries = RETRY_LIMIT;
-            Random r = new Random();
-
-            while (limitRetries >= 0)
-            {
-                string docKey = GetGroupQueueMessageDocKey(groupId, messageId);
-
-                MessageQueue mq = new MessageQueue()
-                {
-                    ExecutionDate = DateTimeToUnixTimestamp(excutionDate),
-                    Id = docKey,
-                    MessageData = messageData,
-                    RoutingKey = routingKey,
-                    Type = type
-                };
-
-                var res = cbManager.Set(docKey, mq, (uint)(excutionDate.AddMonths(RECOVERY_TTL_MONTH) - DateTime.UtcNow).TotalSeconds);
-
-                if (!res)
-                {
-                    Thread.Sleep(r.Next(50));
-                    limitRetries--;
-                }
-                else
-                    break;
-            }
-        }
-
-        private string GetGroupQueueMessageDocKey(int groupId, string id)
-        {
-            return string.Format("MessageRecovery_Group_{0}_Id_{1}", groupId, id);
         }
 
         private long DateTimeToUnixTimestamp(DateTime dateTime)

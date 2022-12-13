@@ -46,12 +46,22 @@ namespace WebAPI.Managers.Models
             public string SessionCharacteristicKey { get; }
             public int DomainId { get; set; }
             public string Signature { get; set; }
+            public bool IsBypassCacheEligible { get; set; }
 
             public static KSData Empty { get; } = new KSData();
             
             private KSData(){}
 
-            public KSData(string udid, int createDate, int regionId, List<long> userSegments, List<long> userRoles, string sessionCharacteristicKey, int domainId, string signature = "")
+            public KSData(
+                string udid,
+                int createDate,
+                int regionId,
+                List<long> userSegments,
+                List<long> userRoles,
+                string sessionCharacteristicKey,
+                int domainId,
+                bool isBypassCacheEligible,
+                string signature = "")
             {
                 UDID = udid;
                 CreateDate = createDate;
@@ -61,6 +71,7 @@ namespace WebAPI.Managers.Models
                 UserRoles = userRoles;
                 SessionCharacteristicKey = sessionCharacteristicKey;
                 Signature = signature;
+                IsBypassCacheEligible = isBypassCacheEligible;
             }
 
             public KSData(KSData payload, int createDate)
@@ -72,6 +83,7 @@ namespace WebAPI.Managers.Models
                 UserSegments = payload.UserSegments;
                 UserRoles = payload.UserRoles;
                 SessionCharacteristicKey = payload.SessionCharacteristicKey;
+                IsBypassCacheEligible = payload.IsBypassCacheEligible;
             }
 
             public KSData(ApiToken token, int createDate, string udid)
@@ -83,6 +95,7 @@ namespace WebAPI.Managers.Models
                 UserSegments = token.UserSegments;
                 UserRoles = token.UserRoles;
                 SessionCharacteristicKey = token.SessionCharacteristicKey;
+                IsBypassCacheEligible = token.IsBypassCacheEligible;
             }
         }
 
@@ -158,7 +171,7 @@ namespace WebAPI.Managers.Models
             Array.Copy(randWithFields, 0, input, signature.Length, randWithFields.Length);
 
             byte[] encryptedFields = EncryptionUtils.AesEncrypt(secret, input, BLOCK_SIZE);
-            string prefix = string.Format("v2|{0}|", groupID);
+            var prefix = $"v2|{groupID}|";
 
             byte[] output = new byte[encryptedFields.Length + prefix.Length];
             Array.Copy(Encoding.ASCII.GetBytes(prefix), 0, output, 0, prefix.Length);
