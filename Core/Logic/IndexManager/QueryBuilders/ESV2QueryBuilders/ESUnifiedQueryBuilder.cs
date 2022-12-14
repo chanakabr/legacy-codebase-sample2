@@ -629,34 +629,17 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     // only if it has more than one value
                     if (item.Value != null && item.Value.Count > 0)
                     {
-                        ESTerms idsTerm = new ESTerms(true)
-                        {
-                            Key = "_id"
-                        };
-                        
-
-                        idsTerm.Value.AddRange(item.Value);
-
+                        var idsTerm = GetIdsTerm(item, false);
                         switch (item.Key)
                         {
-                            case ApiObjects.eAssetTypes.UNKNOWN:
+                            case eAssetTypes.EPG:
+                                epgFilter.AddChild(idsTerm);
                                 break;
-                            case ApiObjects.eAssetTypes.EPG:
-                                {
-                                    epgFilter.AddChild(idsTerm);
-                                    break;
-                                }
-                            case ApiObjects.eAssetTypes.NPVR:
-                                {
-                                    recordingFilter.AddChild(idsTerm);
-                                    break;
-                                }
-                            case ApiObjects.eAssetTypes.MEDIA:
-                                {
-                                    mediaFilter.AddChild(idsTerm);
-                                    break;
-                                }
-                            default:
+                            case eAssetTypes.NPVR:
+                                recordingFilter.AddChild(idsTerm);
+                                break;
+                            case eAssetTypes.MEDIA:
+                                mediaFilter.AddChild(idsTerm);
                                 break;
                         }
                     }
@@ -669,34 +652,17 @@ namespace ApiLogic.IndexManager.QueryBuilders
             {
                 foreach (var item in this.SearchDefinitions.excludedAssets)
                 {
-                    ESTerms idsTerm = new ESTerms(true)
-                    {
-                        Key = "_id",
-                        isNot = true
-                    };
-
-                    idsTerm.Value.AddRange(item.Value);
-
+                    var idsTerm = GetIdsTerm(item, true);
                     switch (item.Key)
                     {
-                        case ApiObjects.eAssetTypes.UNKNOWN:
+                        case eAssetTypes.EPG:
+                            epgFilter.AddChild(idsTerm);
                             break;
-                        case ApiObjects.eAssetTypes.EPG:
-                            {
-                                epgFilter.AddChild(idsTerm);
-                                break;
-                            }
-                        case ApiObjects.eAssetTypes.NPVR:
-                            {
-                                recordingFilter.AddChild(idsTerm);
-                                break;
-                            }
-                        case ApiObjects.eAssetTypes.MEDIA:
-                            {
-                                mediaFilter.AddChild(idsTerm);
-                                break;
-                            }
-                        default:
+                        case eAssetTypes.NPVR:
+                            recordingFilter.AddChild(idsTerm);
+                            break;
+                        case eAssetTypes.MEDIA:
+                            mediaFilter.AddChild(idsTerm);
                             break;
                     }
                 }
@@ -1323,7 +1289,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
             filteredQueryBuilder.AppendFormat(" \"from\": {0}, ", 0);
 
             // Return fields - id and update date only
-            filteredQueryBuilder.Append("\"fields\": [\"_id\", \"update_date\"], ");
+            filteredQueryBuilder.Append("\"fields\": [\"media_id\", \"epg_id\", \"recording_id\", \"update_date\"], ");
 
             // Queried filter
             filteredQueryBuilder.Append(" \"query\": { \"filtered\": {");
@@ -1364,17 +1330,17 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
             ESTerms mediaIdsTerm = new ESTerms(true)
             {
-                Key = "_id"
+                Key = "media_id"
             };
 
             ESTerms epgIdsTerm = new ESTerms(true)
             {
-                Key = "_id"
+                Key = "epg_id"
             };
 
             ESTerms recordingIdsTerm = new ESTerms(true)
             {
-                Key = "_id"
+                Key = "recording_id"
             };
 
             // Add Ids to relevant Terms part
@@ -2275,30 +2241,16 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 {
                     FilterCompositeType idsFilter = new FilterCompositeType(CutWith.AND);
 
-                    ESTerms idsTerm = new ESTerms(true)
-                    {
-                        Key = "_id"
-                    };
-
-                    idsTerm.Value.AddRange(item.Value);
-
+                    var idsTerm = GetIdsTerm(item, false);
                     idsFilter.AddChild(idsTerm);
 
                     switch (item.Key)
                     {
-                        case ApiObjects.eAssetTypes.EPG:
-                            {
-                                idsFilter.AddChild(epgPrefixTerm);
-                                break;
-                            }
-                        case ApiObjects.eAssetTypes.MEDIA:
-                            {
-                                idsFilter.AddChild(mediaPrefixTerm);
-                                break;
-                            }
-                        case ApiObjects.eAssetTypes.UNKNOWN:
-                        case ApiObjects.eAssetTypes.NPVR:
-                        default:
+                        case eAssetTypes.EPG:
+                            idsFilter.AddChild(epgPrefixTerm);
+                            break;
+                        case eAssetTypes.MEDIA:
+                            idsFilter.AddChild(mediaPrefixTerm);
                             break;
                     }
 
@@ -2324,30 +2276,16 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 {
                     FilterCompositeType idsFilter = new FilterCompositeType(CutWith.AND);
 
-                    ESTerms idsTerm = new ESTerms(true)
-                    {
-                        Key = "_id"
-                    };
-
-                    idsTerm.Value.AddRange(item.Value);
-
+                    var idsTerm = GetIdsTerm(item, false);
                     idsFilter.AddChild(idsTerm);
 
                     switch (item.Key)
                     {
-                        case ApiObjects.eAssetTypes.EPG:
-                            {
-                                idsFilter.AddChild(epgPrefixTerm);
-                                break;
-                            }
-                        case ApiObjects.eAssetTypes.MEDIA:
-                            {
-                                idsFilter.AddChild(mediaPrefixTerm);
-                                break;
-                            }
-                        case ApiObjects.eAssetTypes.UNKNOWN:
-                        case ApiObjects.eAssetTypes.NPVR:
-                        default:
+                        case eAssetTypes.EPG:
+                            idsFilter.AddChild(epgPrefixTerm);
+                            break;
+                        case eAssetTypes.MEDIA:
+                            idsFilter.AddChild(mediaPrefixTerm);
                             break;
                     }
 
@@ -2795,6 +2733,34 @@ namespace ApiLogic.IndexManager.QueryBuilders
             }
 
             groupBy.Value = value;
+        }
+
+        private ESTerms GetIdsTerm(KeyValuePair<eAssetTypes, List<string>> item, bool isNot)
+        {
+            string termKey;
+            switch (item.Key)
+            {
+                case eAssetTypes.EPG:
+                    termKey = "epg_id";
+                    break;
+                case eAssetTypes.NPVR:
+                    termKey = "recording_id";
+                    break;
+                case eAssetTypes.MEDIA:
+                    termKey = "media_id";
+                    break;
+                default:
+                    return null;
+            }
+
+            var idsTerm = new ESTerms(true)
+            {
+                Key = termKey,
+                isNot = isNot
+            };
+            idsTerm.Value.AddRange(item.Value);
+
+            return idsTerm;
         }
     }
 }
