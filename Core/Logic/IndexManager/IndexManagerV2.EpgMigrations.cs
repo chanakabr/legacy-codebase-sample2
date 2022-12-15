@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TVinciShared;
 using ESUtils = ElasticSearch.Common.Utils;
 
 namespace Core.Catalog
@@ -277,7 +278,7 @@ namespace Core.Catalog
             var query = new FilteredQuery
             {
                 ZeroSize = true,
-                Query = new ESMatchAllQuery()
+                Query = new ESRange(false, "start_date", eRangeComp.GT, DateTime.UtcNow.AddDays(-60).ToESDateFormat())
             };
 
             query.Aggregations.Add(maxStartDateAgg);

@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TVinciShared;
 using ESUtils = ElasticSearch.Common.Utils;
 
 namespace Core.Catalog
@@ -242,12 +243,12 @@ ctx._source.remove('transaction');
             var searchResult = _elasticClient.Search<NestEpg>(s => s
                 .Index(epgAlias)
                 .Query(q =>
-                    q.MatchAll()
+                    q.DateRange(_ => _.Field(f => f.StartDate).GreaterThan(DateTime.UtcNow.AddDays(-60)))
                 )
                 .Aggregations(a =>
                     a
-                    .Max(MAX_START_AGG_KEY, m => m.Field(field => field.StartDate))
-                    .Min(MIN_START_AGG_KEY, m => m.Field(field => field.StartDate))
+                        .Max(MAX_START_AGG_KEY, m => m.Field(field => field.StartDate))
+                        .Min(MIN_START_AGG_KEY, m => m.Field(field => field.StartDate))
                 )
             );
 
