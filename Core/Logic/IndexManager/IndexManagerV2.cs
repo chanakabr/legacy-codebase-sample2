@@ -3392,30 +3392,9 @@ namespace Core.Catalog
                         {
                             foreach (var item in jsonObj.SelectToken("hits.hits"))
                             {
-                                string typeString = ((tempToken = item.SelectToken("_type")) == null ? string.Empty : (string)tempToken);
-                                eAssetTypes assetType = ESUtils.ParseAssetType(typeString);
-
-                                string assetIdField = string.Empty;
-
-                                switch (assetType)
-                                {
-                                    case eAssetTypes.MEDIA:
-                                        {
-                                            assetIdField = "fields.media_id";
-                                            break;
-                                        }
-                                    case eAssetTypes.EPG:
-                                        {
-                                            assetIdField = "fields.epg_id";
-                                            break;
-                                        }
-                                    default:
-                                        {
-                                            break;
-                                        }
-                                }
-
-                                string id = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken);
+                                var id = (string)item.SelectToken("fields.media_id")
+                                         ?? (string)item.SelectToken("fields.epg_id")
+                                         ?? string.Empty;
                                 DateTime update_date = ESUtils.ExtractDateFromToken(item, "fields.update_date");
 
                                 // Find the asset in the list with this ID, set its update date
