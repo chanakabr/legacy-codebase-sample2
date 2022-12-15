@@ -2467,14 +2467,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaCouponFilter":
-                    switch(property.Name)
-                    {
-                        case "CouponCodesIn":
-                            return "couponCodesIn";
-                    }
-                    break;
-                    
                 case "KalturaCouponListResponse":
                     switch(property.Name)
                     {

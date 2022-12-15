@@ -787,9 +787,6 @@ namespace WebAPI.Reflection
                 case "KalturaCouponEntitlementDiscountDetails":
                     return new KalturaCouponEntitlementDiscountDetails(parameters, true);
                     
-                case "KalturaCouponFilter":
-                    return new KalturaCouponFilter(parameters, true);
-                    
                 case "KalturaCouponGenerationOptions":
                     return new KalturaCouponGenerationOptions(parameters, true);
                     
@@ -28684,19 +28681,6 @@ namespace WebAPI.Models.Pricing
                 {
                     CouponCodeSchemaProperty.Validate("couponCode", parameters["couponCode"]);
                     CouponCode = (String) Convert.ChangeType(parameters["couponCode"], typeof(String));
-                }
-            }
-        }
-    }
-    public partial class KalturaCouponFilter
-    {
-        public KalturaCouponFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("couponCodesIn") && parameters["couponCodesIn"] != null)
-                {
-                    CouponCodesIn = (String) Convert.ChangeType(parameters["couponCodesIn"], typeof(String));
                 }
             }
         }
