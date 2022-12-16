@@ -1,4 +1,4 @@
-﻿namespace WebAPI.Models.Notifications
+﻿namespace WebAPI.Models.Notification
 {
     public enum KalturaTopicNotificationMessageStatus
     {

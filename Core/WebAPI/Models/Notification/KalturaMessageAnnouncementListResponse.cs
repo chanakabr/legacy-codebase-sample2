@@ -1,13 +1,9 @@
-﻿using ApiObjects.Notification;
-using AutoMapper;
-using Phx.Lib.Log;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Models.General;
-using WebAPI.Models.Notifications;
 
 namespace WebAPI.Models.Notification
 {

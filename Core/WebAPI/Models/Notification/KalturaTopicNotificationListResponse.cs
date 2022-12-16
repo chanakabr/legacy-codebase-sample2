@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
 using WebAPI.Models.General;
-using WebAPI.Models.Notifications;
 
-namespace WebAPI.Models.Notifications
+namespace WebAPI.Models.Notification
 {
     public partial class KalturaTopicNotificationListResponse : KalturaListResponse
     {

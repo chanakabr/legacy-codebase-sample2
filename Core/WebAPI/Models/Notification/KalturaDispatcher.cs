@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Models.General;
 
-namespace WebAPI.Models.Notifications
+namespace WebAPI.Models.Notification
 {
     [Serializable]
     public partial class KalturaDispatcher : KalturaOTTObject

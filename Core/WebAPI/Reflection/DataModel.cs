@@ -38,7 +38,6 @@ using WebAPI.Models.General;
 using WebAPI.Models.API;
 using WebAPI.Models.IngestStatus;
 using WebAPI.Models.MultiRequest;
-using WebAPI.Models.Notifications;
 using WebAPI.Models.Notification;
 using WebAPI.App_Start;
 using WebAPI.Models.Catalog;

@@ -6,7 +6,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
-using WebAPI.Models.Notifications;
+using WebAPI.Models.Notification;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers

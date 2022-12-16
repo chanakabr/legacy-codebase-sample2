@@ -2,7 +2,7 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 
-namespace WebAPI.Models.Notifications
+namespace WebAPI.Models.Notification
 {
     public partial class KalturaSubscriptionTrigger : KalturaTrigger
     {

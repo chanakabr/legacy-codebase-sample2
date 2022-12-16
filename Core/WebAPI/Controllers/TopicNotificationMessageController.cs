@@ -7,7 +7,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
-using WebAPI.Models.Notifications;
+using WebAPI.Models.Notification;
 using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 

@@ -6,8 +6,8 @@ using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using AutoMapper;
 using Core.Notification;
-using Phx.Lib.Log;
 using Newtonsoft.Json;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,11 +20,10 @@ using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Models.Notification;
-using WebAPI.Models.Notifications;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
-using WebAPI.ObjectsConvertor.Extensions;
-using KalturaTopicNotificationListResponse = WebAPI.Models.Notifications.KalturaTopicNotificationListResponse;
+using KalturaTopicNotificationListResponse = WebAPI.Models.Notification.KalturaTopicNotificationListResponse;
 
 namespace WebAPI.Clients
 {

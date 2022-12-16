@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
 
-namespace WebAPI.Models.Notifications
+namespace WebAPI.Models.Notification
 {
     [Serializable]
     public partial class KalturaSeriesReminder : KalturaReminder

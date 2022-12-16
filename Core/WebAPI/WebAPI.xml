@@ -34,7 +34,7 @@
             <param name="funcInWS"></param>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.AnnouncementController.Add(WebAPI.Models.Notifications.KalturaAnnouncement)">
+        <member name="M:WebAPI.Controllers.AnnouncementController.Add(WebAPI.Models.Notification.KalturaAnnouncement)">
             <summary>
             Add a new future scheduled system announcement push notification
             </summary>
@@ -45,7 +45,7 @@
             <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004
             AnnouncementInvalidTimezone = 8008, FeatureDisabled = 8009</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.AnnouncementController.AddOldStandard(WebAPI.Models.Notifications.KalturaAnnouncement)">
+        <member name="M:WebAPI.Controllers.AnnouncementController.AddOldStandard(WebAPI.Models.Notification.KalturaAnnouncement)">
             <summary>
             Add a new future scheduled system announcement push notification
             </summary>
@@ -56,7 +56,7 @@
             <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004
             AnnouncementInvalidTimezone = 8008, FeatureDisabled = 8009</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.AnnouncementController.Update(System.Int32,WebAPI.Models.Notifications.KalturaAnnouncement)">
+        <member name="M:WebAPI.Controllers.AnnouncementController.Update(System.Int32,WebAPI.Models.Notification.KalturaAnnouncement)">
             <summary>
             Update an existing future system announcement push notification. Announcement can only be updated only before sending
             </summary>
@@ -68,7 +68,7 @@
             <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004, AnnouncementNotFound = 8006,
             AnnouncementUpdateNotAllowed = 8007, AnnouncementInvalidTimezone = 8008, FeatureDisabled = 8009</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.AnnouncementController.UpdateOldStandard(WebAPI.Models.Notifications.KalturaAnnouncement)">
+        <member name="M:WebAPI.Controllers.AnnouncementController.UpdateOldStandard(WebAPI.Models.Notification.KalturaAnnouncement)">
             <summary>
             Update an existing future system announcement push notification. Announcement can only be updated only before sending
             </summary>
@@ -3895,7 +3895,7 @@
             <returns>The registry settings that apply for the partner</returns>
             
         </member>
-        <member name="M:WebAPI.Controllers.ReminderController.Add(WebAPI.Models.Notifications.KalturaReminder)">
+        <member name="M:WebAPI.Controllers.ReminderController.Add(WebAPI.Models.Notification.KalturaReminder)">
             <summary>
             Add a new future reminder
             </summary>
@@ -3903,7 +3903,7 @@
             <returns></returns>
             <remarks>Possible status codes: InvalidAssetId = 4024, FeatureDisabled = 8009, FailCreateAnnouncement = 8011, UserAlreadySetReminder = 8023, PassedAsset = 8024</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.ReminderController.Delete(System.Int64,WebAPI.Models.Notifications.KalturaReminderType)">
+        <member name="M:WebAPI.Controllers.ReminderController.Delete(System.Int64,WebAPI.Models.Notification.KalturaReminderType)">
             <summary>
             Delete a reminder. Reminder cannot be delete while being sent.
             </summary>
@@ -3912,7 +3912,7 @@
             <returns></returns>
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.ReminderController.DeleteWithToken(System.Int64,WebAPI.Models.Notifications.KalturaReminderType,System.String,System.Int32)">
+        <member name="M:WebAPI.Controllers.ReminderController.DeleteWithToken(System.Int64,WebAPI.Models.Notification.KalturaReminderType,System.String,System.Int32)">
             <summary>
             Delete a reminder. Reminder cannot be delete while being sent.
             </summary>
@@ -4483,13 +4483,13 @@
              No = 2: Do send a notification message when a new episode is available on the catalog
             </param>        
         </member>
-        <member name="M:WebAPI.Controllers.TopicNotificationController.Add(WebAPI.Models.Notifications.KalturaTopicNotification)">
+        <member name="M:WebAPI.Controllers.TopicNotificationController.Add(WebAPI.Models.Notification.KalturaTopicNotification)">
             <summary>
             Add a new topic notification 
             </summary>
             <param name="topicNotification">The topic notification to add</param>
         </member>
-        <member name="M:WebAPI.Controllers.TopicNotificationController.Update(System.Int32,WebAPI.Models.Notifications.KalturaTopicNotification)">
+        <member name="M:WebAPI.Controllers.TopicNotificationController.Update(System.Int32,WebAPI.Models.Notification.KalturaTopicNotification)">
             <summary>
             Update an existing topic notification
             </summary>
@@ -4502,7 +4502,7 @@
             </summary>
             <param name="id">ID of topic notification to delete</param>
         </member>
-        <member name="M:WebAPI.Controllers.TopicNotificationController.List(WebAPI.Models.Notifications.KalturaTopicNotificationFilter)">
+        <member name="M:WebAPI.Controllers.TopicNotificationController.List(WebAPI.Models.Notification.KalturaTopicNotificationFilter)">
             <summary>
             Lists all topic notifications in the system.
             </summary>
@@ -4520,13 +4520,13 @@
             </summary>
             <param name="topicNotificationId">ID of topic notification to unsubscribe from.</param>
         </member>
-        <member name="M:WebAPI.Controllers.TopicNotificationMessageController.Add(WebAPI.Models.Notifications.KalturaTopicNotificationMessage)">
+        <member name="M:WebAPI.Controllers.TopicNotificationMessageController.Add(WebAPI.Models.Notification.KalturaTopicNotificationMessage)">
             <summary>
             Add a new topic notification message
             </summary>
             <param name="topicNotificationMessage">The topic notification message to add</param>
         </member>
-        <member name="M:WebAPI.Controllers.TopicNotificationMessageController.Update(System.Int32,WebAPI.Models.Notifications.KalturaTopicNotificationMessage)">
+        <member name="M:WebAPI.Controllers.TopicNotificationMessageController.Update(System.Int32,WebAPI.Models.Notification.KalturaTopicNotificationMessage)">
             <summary>
             Update an existing topic notification message
             </summary>
@@ -4539,7 +4539,7 @@
             </summary>
             <param name="id">ID of topic notification message to delete</param>
         </member>
-        <member name="M:WebAPI.Controllers.TopicNotificationMessageController.List(WebAPI.Models.Notifications.KalturaTopicNotificationMessageFilter,WebAPI.Models.General.KalturaFilterPager)">
+        <member name="M:WebAPI.Controllers.TopicNotificationMessageController.List(WebAPI.Models.Notification.KalturaTopicNotificationMessageFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
             Lists all topic notifications in the system.
             </summary>
@@ -12103,217 +12103,217 @@
             The aggregation type on which the condition is based on
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.Name">
+        <member name="P:WebAPI.Models.Notification.KalturaAnnouncement.Name">
             <summary>
             Announcement name
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.Message">
+        <member name="P:WebAPI.Models.Notification.KalturaAnnouncement.Message">
             <summary>
             Announcement message
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.Enabled">
+        <member name="P:WebAPI.Models.Notification.KalturaAnnouncement.Enabled">
             <summary>
             Announcement enabled
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.StartTime">
+        <member name="P:WebAPI.Models.Notification.KalturaAnnouncement.StartTime">
             <summary>
             Announcement start time
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.Timezone">
+        <member name="P:WebAPI.Models.Notification.KalturaAnnouncement.Timezone">
             <summary>
             Announcement time zone
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.Status">
+        <member name="P:WebAPI.Models.Notification.KalturaAnnouncement.Status">
             <summary>
             Announcement status: NotSent=0/Sending=1/Sent=2/Aborted=3
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.Recipients">
+        <member name="P:WebAPI.Models.Notification.KalturaAnnouncement.Recipients">
             <summary>
             Announcement recipients: All=0/LoggedIn=1/Guests=2/Other=3
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.Id">
+        <member name="P:WebAPI.Models.Notification.KalturaAnnouncement.Id">
             <summary>
             Announcement id
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.ImageUrl">
+        <member name="P:WebAPI.Models.Notification.KalturaAnnouncement.ImageUrl">
             <summary>
             Announcement image URL, relevant for system announcements
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.IncludeMail">
+        <member name="P:WebAPI.Models.Notification.KalturaAnnouncement.IncludeMail">
             <summary>
             Include Mail
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.MailTemplate">
+        <member name="P:WebAPI.Models.Notification.KalturaAnnouncement.MailTemplate">
             <summary>
             Mail Template
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.MailSubject">
+        <member name="P:WebAPI.Models.Notification.KalturaAnnouncement.MailSubject">
             <summary>
             Mail Subject
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.IncludeSms">
+        <member name="P:WebAPI.Models.Notification.KalturaAnnouncement.IncludeSms">
             <summary>
             Include SMS
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Notifications.KalturaAnnouncementRecipientsType">
+        <member name="T:WebAPI.Models.Notification.KalturaAnnouncementRecipientsType">
             <summary>
             Announcement recipients: All=0/LoggedIn=1/Guests=2/Other=3
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Notifications.KalturaAnnouncementStatus">
+        <member name="T:WebAPI.Models.Notification.KalturaAnnouncementStatus">
             <summary>
             Announcement status: NotSent=0/Sending=1/Sent=2/Aborted=3
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaAssetReminder.AssetId">
+        <member name="P:WebAPI.Models.Notification.KalturaAssetReminder.AssetId">
             <summary>
             Asset id
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaMailDispatcher.BodyTemplate">
+        <member name="P:WebAPI.Models.Notification.KalturaMailDispatcher.BodyTemplate">
             <summary>
             Mail body template
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaMailDispatcher.SubjectTemplate">
+        <member name="P:WebAPI.Models.Notification.KalturaMailDispatcher.SubjectTemplate">
             <summary>
             Mail subjsct template
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaReminder.Name">
+        <member name="P:WebAPI.Models.Notification.KalturaReminder.Name">
             <summary>
             Reminder name
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaReminder.Id">
+        <member name="P:WebAPI.Models.Notification.KalturaReminder.Id">
             <summary>
             Reminder id
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaReminder.Type">
+        <member name="P:WebAPI.Models.Notification.KalturaReminder.Type">
             <summary>
             Reminder type
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaSeriesReminder.SeriesId">
+        <member name="P:WebAPI.Models.Notification.KalturaSeriesReminder.SeriesId">
             <summary>
             Series identifier
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaSeriesReminder.SeasonNumber">
+        <member name="P:WebAPI.Models.Notification.KalturaSeriesReminder.SeasonNumber">
             <summary>
             Season number
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaSeriesReminder.EpgChannelId">
+        <member name="P:WebAPI.Models.Notification.KalturaSeriesReminder.EpgChannelId">
             <summary>
             EPG channel identifier 
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaSubscriptionSubscribeReference.SubscriptionId">
+        <member name="P:WebAPI.Models.Notification.KalturaSubscriptionSubscribeReference.SubscriptionId">
             <summary>
             Subscription ID
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaTopicNotification.Id">
+        <member name="P:WebAPI.Models.Notification.KalturaTopicNotification.Id">
             <summary>
             Topic notification ID
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaTopicNotification.Name">
+        <member name="P:WebAPI.Models.Notification.KalturaTopicNotification.Name">
             <summary>
             Topic notification name
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaTopicNotification.Description">
+        <member name="P:WebAPI.Models.Notification.KalturaTopicNotification.Description">
             <summary>
             Topic notification description
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaTopicNotification.SubscribeReference">
+        <member name="P:WebAPI.Models.Notification.KalturaTopicNotification.SubscribeReference">
             <summary>
             Announcement enabled
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaTopicNotificationListResponse.Objects">
+        <member name="P:WebAPI.Models.Notification.KalturaTopicNotificationListResponse.Objects">
             <summary>
             Topic notifications
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaTopicNotificationFilter.SubscribeReference">
+        <member name="P:WebAPI.Models.Notification.KalturaTopicNotificationFilter.SubscribeReference">
             <summary>
             Subscribe rreference
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaTopicNotificationMessage.Id">
+        <member name="P:WebAPI.Models.Notification.KalturaTopicNotificationMessage.Id">
             <summary>
             Topic notification message ID
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaTopicNotificationMessage.Message">
+        <member name="P:WebAPI.Models.Notification.KalturaTopicNotificationMessage.Message">
             <summary>
             Topic notification message
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaTopicNotificationMessage.ImageUrl">
+        <member name="P:WebAPI.Models.Notification.KalturaTopicNotificationMessage.ImageUrl">
             <summary>
             Topic notification message image URL
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaTopicNotificationMessage.TopicNotificationId">
+        <member name="P:WebAPI.Models.Notification.KalturaTopicNotificationMessage.TopicNotificationId">
             <summary>
             Topic notification ID
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaTopicNotificationMessage.Trigger">
+        <member name="P:WebAPI.Models.Notification.KalturaTopicNotificationMessage.Trigger">
             <summary>
             Topic notification message trigger
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaTopicNotificationMessage.Dispatchers">
+        <member name="P:WebAPI.Models.Notification.KalturaTopicNotificationMessage.Dispatchers">
             <summary>
             Topic notification message dispatchers
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaTopicNotificationMessage.Status">
+        <member name="P:WebAPI.Models.Notification.KalturaTopicNotificationMessage.Status">
             <summary>
             Message status
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaTopicNotificationMessageListResponse.Objects">
+        <member name="P:WebAPI.Models.Notification.KalturaTopicNotificationMessageListResponse.Objects">
             <summary>
             Topic notification messages
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaTopicNotificationMessageFilter.TopicNotificationIdEqual">
+        <member name="P:WebAPI.Models.Notification.KalturaTopicNotificationMessageFilter.TopicNotificationIdEqual">
             <summary>
             Topic notification ID
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaDateTrigger.Date">
+        <member name="P:WebAPI.Models.Notification.KalturaDateTrigger.Date">
             <summary>
             Trigger date
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaSubscriptionTrigger.Type">
+        <member name="P:WebAPI.Models.Notification.KalturaSubscriptionTrigger.Type">
             <summary>
             Subscription trigger type
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaSubscriptionTrigger.Offset">
+        <member name="P:WebAPI.Models.Notification.KalturaSubscriptionTrigger.Offset">
             <summary>
             Subscription trigger offset
             </summary>

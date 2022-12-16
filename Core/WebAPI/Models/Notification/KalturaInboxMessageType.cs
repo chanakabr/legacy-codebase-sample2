@@ -1,5 +1,4 @@
-﻿
-namespace WebAPI.Models.Notification
+﻿namespace WebAPI.Models.Notification
 {
     public enum KalturaInboxMessageType
     {

@@ -1,10 +1,10 @@
+using Newtonsoft.Json;
 using System;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
 using WebAPI.Managers.Scheme;
 
-namespace WebAPI.Models.Notifications
+namespace WebAPI.Models.Notification
 {
     [Serializable]
     public partial class KalturaSubscriptionSubscribeReference : KalturaSubscribeReference

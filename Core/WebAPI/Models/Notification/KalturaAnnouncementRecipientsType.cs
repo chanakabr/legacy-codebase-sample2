@@ -1,5 +1,5 @@
 ﻿
-namespace WebAPI.Models.Notifications
+namespace WebAPI.Models.Notification
 {
     /// <summary>
     /// Announcement recipients: All=0/LoggedIn=1/Guests=2/Other=3

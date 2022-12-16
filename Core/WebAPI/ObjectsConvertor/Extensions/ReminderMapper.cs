@@ -1,5 +1,4 @@
-﻿using Nest;
-using WebAPI.Models.Notifications;
+﻿using WebAPI.Models.Notification;
 
 namespace WebAPI.ObjectsConvertor.Extensions
 {

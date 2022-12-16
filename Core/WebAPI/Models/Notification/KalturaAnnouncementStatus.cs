@@ -1,5 +1,5 @@
 ﻿
-namespace WebAPI.Models.Notifications
+namespace WebAPI.Models.Notification
 {
     /// <summary>
     /// Announcement status: NotSent=0/Sending=1/Sent=2/Aborted=3

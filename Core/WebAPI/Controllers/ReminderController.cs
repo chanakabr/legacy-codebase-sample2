@@ -9,7 +9,6 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Notification;
-using WebAPI.Models.Notifications;
 using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 
