@@ -532,6 +532,7 @@ namespace IngestHandler
                 epgPicture.ImageTypeId = imageTypeId;
                 epgPicture.ProgramName = epgItem.Name;
                 epgPicture.ChannelId = epgItem.ChannelID;
+                epgPicture.SourceUrl = imgUrl;
                 epgItem.pictures.Add(epgPicture);
             }
         }
