@@ -220,9 +220,8 @@ namespace IngestTransformationHandler
 
             var parametersList = _bulkUpload
                 .Results
-                .Where(x => x.Object is EpgProgramBulkUploadObject)
                 .Cast<BulkUploadProgramAssetResult>()
-                .GroupBy(x => ((EpgProgramBulkUploadObject)x.Object).LinearMediaId)
+                .GroupBy(x => (x.LiveAssetId, x.StartDate.Date))
                 .Select(results => new EpgIngestPartCompletedParameters
                 {
                     BulkUploadId = _bulkUpload.Id,
