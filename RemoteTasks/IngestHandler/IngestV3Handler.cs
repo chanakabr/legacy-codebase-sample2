@@ -1,48 +1,37 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using ApiLogic;
 using ApiLogic.Api.Managers;
 using ApiLogic.Catalog.CatalogManagement.Helpers;
 using ApiLogic.Catalog.CatalogManagement.Models;
+using ApiLogic.EPG;
 using ApiLogic.IndexManager.Helpers;
-using ApiLogic.Notification.Managers;
 using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
 using ApiObjects.Epg;
-using ApiObjects.EventBus;
 using ApiObjects.Response;
 using Core.Catalog;
-using Core.Catalog.CatalogManagement;
 using Core.Catalog.CatalogManagement.Services;
 using Core.GroupManagers;
 using CouchbaseManager;
 using EpgBL;
-using EventBus.Abstraction;
 using FeatureFlag;
 using IngestHandler.Common;
 using Ingesthandler.common.Generated.Api.Events.ChannelIngestStaged;
+using Ingesthandler.common.Generated.Api.Events.UpdateBulkUpload;
 using IngestHandler.Common.Infrastructure;
-using IngestHandler.Common.Locking;
 using IngestHandler.Common.Managers;
 using IngestHandler.Common.Repositories;
 using IngestHandler.Domain.IngestProtection;
 using Microsoft.Extensions.Logging;
-using Ott.Lib.FeatureToggle;
 using OTT.Lib.Kafka;
 using OTT.Lib.Kafka.Extensions;
 using Phx.Lib.Log;
-using Synchronizer;
 using Tvinci.Core.DAL;
 using TVinciShared;
-using Ingesthandler.common.Generated.Api.Events.UpdateBulkUpload;
-using Newtonsoft.Json;
-using ApiLogic.EPG;
 
 namespace IngestHandler
 {
@@ -139,8 +128,17 @@ namespace IngestHandler
                 var linearChannelId = msg.LinearChannelId.Value;
 
                 _logger.LogInformation($"Starting IngestHandler v3, bulkUploadId:[{bulkUploadId}], channelId:[{linearChannelId}], partner:[{partnerId}]");
-                await IngestChannelPrograms(partnerId, bulkUploadId, linearChannelId);
-                _logger.LogInformation($"Completed IngestHandler v3, bulkUploadId:[{bulkUploadId}], channelId:[{linearChannelId}], partner:[{partnerId}]");
+
+                var isInProgress = await _bulkUploadRepository.IsLinearChannelOfBulkUploadInProgress(partnerId, bulkUploadId, linearChannelId);
+                if (isInProgress)
+                {
+                    _logger.LogWarning($"Interrupted IngestHandler v3. This bulkUpload has already been taken on process. Repeated process has been skipped, bulkUploadId:[{bulkUploadId}], channelId:[{linearChannelId}], partner:[{partnerId}]");
+                }
+                else
+                {
+                    await IngestChannelPrograms(partnerId, bulkUploadId, linearChannelId);
+                    _logger.LogInformation($"Completed IngestHandler v3, bulkUploadId:[{bulkUploadId}], channelId:[{linearChannelId}], partner:[{partnerId}]");
+                }
             }
             catch (Exception ex)
             {

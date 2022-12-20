@@ -4,7 +4,9 @@ FROM ${BUILD_IMAGE} as builder
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine
 
 # install common tools
-RUN apk add curl less libgdiplus --no-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing/ --allow-untrusted
+RUN apk add tiff --no-cache --repository https://dl-3.alpinelinux.org/alpine/edge/main --force-overwrite --allow-untrusted
+RUN apk add libgdiplus --no-cache --repository https://dl-3.alpinelinux.org/alpine/edge/community/ --force-overwrite --allow-untrusted
+RUN apk add curl less --no-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing/ --force-overwrite --allow-untrusted
 
 # install glibc for grpc to work on alpine
 ENV GLIBC_REPO=https://github.com/sgerrand/alpine-pkg-glibc
