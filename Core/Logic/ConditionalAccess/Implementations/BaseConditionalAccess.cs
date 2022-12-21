@@ -11600,7 +11600,7 @@ namespace Core.ConditionalAccess
 
                 bool shouldExcludeFreeContent = api.GetShouldExcludeFreeContentFromConcurrency(this.m_nGroupID);
 
-                if (!isFree || shouldExcludeFreeContent)
+                if (!isFree || !shouldExcludeFreeContent)
                 {
                     // validate Concurrency for domain
                     validationResponse = Domains.Module.ValidateLimitationModule(this.m_nGroupID, 0, Users.ValidationType.Concurrency, response.Data);
