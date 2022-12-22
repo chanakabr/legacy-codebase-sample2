@@ -145,7 +145,7 @@ namespace ApiObjects.SearchObjects
                             }
                             else
                             {
-                                return null;
+                                return new Status((int)eResponseStatus.SyntaxError, string.Format("Unexpected token: {0}", token));
                             }
 
                             stack.Push(booleanPhrase);

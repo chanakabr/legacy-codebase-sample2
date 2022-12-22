@@ -291,7 +291,7 @@ namespace Core.Catalog.CatalogManagement
                         BooleanPhraseNode node = null;
                         var parseStatus = BooleanPhraseNode.ParseSearchExpression(channel.filterQuery, ref node);
 
-                        if (parseStatus.Code != 0)
+                        if (parseStatus == null || parseStatus.Code != 0)
                         {
                             log.WarnFormat("KSQL channel {0} has invalid KSQL expression: {1}", channel.m_nChannelID, channel.filterQuery);
                         }
