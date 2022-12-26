@@ -68,7 +68,7 @@ namespace Core.Catalog
             var mediaIndex = NamingHelper.GetMediaIndexAlias(_partnerId);
 
             // insert a dummy transaction child typ to allow unified search to use "commited only" query addition
-            var dummyTransactionChildMapping = "{\"_parent\":{\"type\":\"" + NamingHelper.EPG_V3_TRANSACTION_DOCUMENT_TYPE_NAME + "\", \"fielddata\" : { \"loading\" : \"eager_global_ordinals\" }}}";
+            var dummyTransactionChildMapping = "{\"_parent\":{\"type\":\"" + NamingHelper.EPG_V3_TRANSACTION_DOCUMENT_TYPE_NAME + "\"}}";
             var mappingResult = _elasticSearchApi.InsertMapping(mediaIndex, NamingHelper.EPG_V3_DUMMY_TRANSACTION_CHILD_DOCUMENT_TYPE_NAME, dummyTransactionChildMapping);
             if (!mappingResult) { throw new Exception("Could not create media index mapping of type dummy transaction child doc"); }
             // insert transaction type as dummy to allow unified search to use "commited only" query addition
