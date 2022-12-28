@@ -207,5 +207,31 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "defaultQuota", IsNullable = true)]
         [SchemeProperty(MinInteger = -1)]
         public int? DefaultQuota { get; set; }
+        
+        /// <summary>
+        ///  Define whatever the partner enables the Personal Padding and Immediate / Stop recording services to the partner. Default value should be FALSE
+        /// </summary>
+        [DataMember(Name = "personalizedRecording")]
+        [JsonProperty("personalizedRecording")]
+        [XmlElement(ElementName = "personalizedRecording", IsNullable = true)]
+        public bool? PersonalizedRecording { get; set; }
+        
+        /// <summary>
+        ///  Define the max allowed number of parallel recordings. Default NULL unlimited
+        /// </summary>
+        [DataMember(Name = "maxRecordingConcurrency")]
+        [JsonProperty("maxRecordingConcurrency")]
+        [XmlElement(ElementName = "maxRecordingConcurrency", IsNullable = true)]
+        [SchemeProperty(DynamicMinInt = 0, DynamicMaxInt = 9999, IsNullable = true)]
+        public int? MaxRecordingConcurrency { get; set; }
+        
+        /// <summary>
+        ///  Define the max grace margin time for overlapping recording. Default NULL 0 margin
+        /// </summary>
+        [DataMember(Name = "maxConcurrencyMargin")]
+        [JsonProperty("maxConcurrencyMargin")]
+        [XmlElement(ElementName = "maxConcurrencyMargin", IsNullable = true)]
+        [SchemeProperty(DynamicMinInt = 0, DynamicMaxInt = 9999, IsNullable = true)]
+        public int? MaxConcurrencyMargin { get; set; }
     }
 }

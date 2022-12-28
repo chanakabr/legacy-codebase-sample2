@@ -8595,6 +8595,10 @@ namespace WebAPI.Reflection
                             return "cleanupNoticePeriod";
                         case "DefaultQuota":
                             return "defaultQuota";
+                        case "MaxConcurrencyMargin":
+                            return "maxConcurrencyMargin";
+                        case "MaxRecordingConcurrency":
+                            return "maxRecordingConcurrency";
                         case "NonEntitledChannelPlaybackEnabled":
                             return "nonEntitledChannelPlaybackEnabled";
                         case "NonExistingChannelPlaybackEnabled":
@@ -8603,6 +8607,8 @@ namespace WebAPI.Reflection
                             return "paddingAfterProgramEnds";
                         case "PaddingBeforeProgramStarts":
                             return "paddingBeforeProgramStarts";
+                        case "PersonalizedRecording":
+                            return "personalizedRecording";
                         case "PrivateCopyEnabled":
                             return "privateCopyEnabled";
                         case "ProtectionEnabled":
