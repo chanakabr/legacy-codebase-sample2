@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: phoenix-segmentation-migrator-{{ .Values.partner }}-conf
+  namespace: default
+data:
+  appsettings.json: |
+    {
+      "PartnerId": {{ .Values.partner }},
+      "SegmentationTypePageSize": {{ .Values.segmentation_type_page_size }},
+      "UserSegmentPageSize": {{ .Values.user_segment_page_size }},
+      "CouchbaseUserName": {{ .Values.couchbase_username }},
+    }

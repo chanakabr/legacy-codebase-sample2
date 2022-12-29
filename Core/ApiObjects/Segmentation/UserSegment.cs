@@ -253,6 +253,29 @@ namespace ApiObjects.Segmentation
             }
         }
 
+        public static List<UserSegments> ListAll(int partnerId, int pageIndex, int pageSize, out int totalCount)
+        {
+            totalCount = 0;
+            var result = new List<UserSegments>();
+
+            long totalNumOfResults = 0;
+            CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+
+            result = couchbaseManager.View<UserSegments>(new ViewManager("migration", "user_segments", pageSize)
+            {
+                skip = pageIndex * pageSize,
+                limit = pageSize,
+                staleState = ViewStaleState.False,
+                allowPartialQuery = true,
+                key = partnerId
+            }, ref totalNumOfResults);
+
+
+            totalCount = (int)totalNumOfResults;
+
+            return result;
+        }
+
         public static bool MultiInsert(int groupId, Dictionary<string, List<long>> usersSegments)
         {
             bool result = true;

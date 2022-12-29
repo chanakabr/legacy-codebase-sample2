@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.cluster_name }}-phoenix-segmentation-migrator-{{ .Values.partner }}
+  namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: default
+    server: {{ .Values.destination_cluster }}
+  project: {{ .Values.cluster_name }}
+#   syncPolicy:
+#     automated:
+#       prune: false
+#       selfHeal: false
+  source:
+    path: SetupJobs/Segmentation.Migrator/deploy/migrator
+    repoURL: https://github.com/kaltura/ott-backend
+    targetRevision: {{ .Values.branch }}
+    helm:
+      valueFiles:
+        - ../{{ .Values.cluster_name }}.yaml
+      parameters:
+        - name: image
+          value: "{{ .Values.image }}"
+        - name: partner
+          value: "{{ .Values.partner }}"
+        - name: segmentation_type_page_size
+          value: "{{ .Values.segmentation_type_page_size }}"
+   

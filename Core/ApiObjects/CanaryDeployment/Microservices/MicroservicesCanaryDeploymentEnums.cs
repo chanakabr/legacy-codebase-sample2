@@ -99,7 +99,10 @@ namespace ApiObjects.CanaryDeployment.Microservices
         DevicePinCode = 3,
         SessionRevocation = 4,
         UserLoginHistory = 5,
-        DeviceLoginHistory = 6
+        DeviceLoginHistory = 6,
+        SegmentationType = 7,
+        HouseholdSegment = 8,
+        UserSegment = 9,
     }
     
     public enum CanaryDeploymentDataOwnershipEnum

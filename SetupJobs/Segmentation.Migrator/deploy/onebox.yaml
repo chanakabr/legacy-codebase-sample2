@@ -1,0 +1,12 @@
+account: "870777418594"
+region: us-west-2
+cluster_name: onebox
+destination_cluster: https://kubernetes.default.svc
+branch: BEO-12643-migration
+
+# TCM Config for all components
+tcm_from_local: "false"
+tcm_url: http://ktcm
+tcm_app: OTT_API_SV
+tcm_section: main
+tcm_host: Linux

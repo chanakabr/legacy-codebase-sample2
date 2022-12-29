@@ -8,5 +8,7 @@ namespace ApiLogic.Modules.Services
         Task PublishCreateEventAsync(int groupId, SegmentationType segType);
         Task PublishUpdateEventAsync(int groupId, SegmentationType segType);
         Task PublishDeleteEventAsync(long groupId, long segTypeId);
+        Task PublishMigrationCreateEventAsync(long groupId, SegmentationType segType);
+
     }
 }

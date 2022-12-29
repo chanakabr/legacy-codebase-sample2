@@ -5,6 +5,8 @@ using Microsoft.Extensions.Logging;
 using OTT.Lib.Kafka;
 using SchemaRegistryEvents.Catalog;
 using Phoenix.Generated.Api.Events.Crud.HouseholdSegment;
+using ApiObjects.CanaryDeployment.Microservices;
+using CanaryDeploymentManager;
 
 namespace ApiLogic.Modules.Services
 {
@@ -26,15 +28,40 @@ namespace ApiLogic.Modules.Services
 
         private Task PublishKafkaEvent(long groupId, long operation, ApiObjects.Segmentation.HouseholdSegment householdSegment)
         {
-            var householdSegmentEvent = new HouseholdSegment
+            HouseholdSegment householdSegmentEvent = ConvertBolToEvent(groupId, operation, householdSegment);
+
+            return Task.Run(() =>
+            {
+                _householdSegmentProducer.ProduceAsync(HouseholdSegment.GetTopic(), householdSegmentEvent.GetPartitioningKey(), householdSegmentEvent);
+
+                if (CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().IsEnabledMigrationEvent((int)groupId, CanaryDeploymentMigrationEvent.HouseholdSegment))
+                {
+                    PublishMigrationEventAsync(householdSegmentEvent);
+                }
+            });
+        }
+
+        private static HouseholdSegment ConvertBolToEvent(long groupId, long operation, ApiObjects.Segmentation.HouseholdSegment householdSegment)
+        {
+            return new HouseholdSegment
             {
                 PartnerId = groupId,
                 Operation = operation,
                 SegmentId = householdSegment.SegmentId,
                 HouseholdId = householdSegment.HouseholdId.ToString()
             };
+        }
 
-            return _householdSegmentProducer.ProduceAsync(HouseholdSegment.GetTopic(), householdSegmentEvent.GetPartitioningKey(), householdSegmentEvent);
+        public Task PublishMigrationCreateEventAsync(long groupId, ApiObjects.Segmentation.HouseholdSegment householdSegment)
+        {
+            var householdSegmentEvent = ConvertBolToEvent(groupId, CrudOperationType.CREATE_OPERATION, householdSegment);
+
+            return PublishMigrationEventAsync(householdSegmentEvent);
+        }
+
+        private Task PublishMigrationEventAsync(HouseholdSegment householdSegmentEvent)
+        {
+            return _householdSegmentProducer.ProduceAsync($"{HouseholdSegment.GetTopic()}.migration", householdSegmentEvent.GetPartitioningKey(), householdSegmentEvent);
         }
     }
 }

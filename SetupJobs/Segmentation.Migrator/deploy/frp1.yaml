@@ -1,0 +1,12 @@
+account: "681016013154"
+region: eu-central-1
+cluster_name: frp1
+destination_cluster: https://353D5A97F73E1FC7C5C49D111A2BE49F.sk1.eu-central-1.eks.amazonaws.com
+branch: master
+
+# TCM Config for all components
+tcm_from_local: "false"
+tcm_url: http://ktcm
+tcm_app: OTT_API_Modeled_Linux
+tcm_section: main
+tcm_host: MS

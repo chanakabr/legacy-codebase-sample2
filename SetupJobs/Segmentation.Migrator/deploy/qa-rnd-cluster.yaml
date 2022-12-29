@@ -1,0 +1,12 @@
+account: "870777418594"
+region: us-west-2
+cluster_name: qa-rnd-cluster
+destination_cluster: https://0153C3C52823C34A51B6CEF9D6BCE876.gr7.us-west-2.eks.amazonaws.com
+branch: dev
+
+# TCM Config for all components
+tcm_from_local: "false"
+tcm_url: http://ktcm
+tcm_app: OTT_API_VEON
+tcm_section: main
+tcm_host: PROD_v5_2_2

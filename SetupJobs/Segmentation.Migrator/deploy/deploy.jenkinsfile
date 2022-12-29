@@ -1,0 +1,207 @@
+library identifier: 'ott-lib-jenkins@master', retriever: modernSCM([$class: 'GitSCMSource', credentialsId: 'github-ott-ci-cd', remote: 'https://github.com/kaltura/ott-lib-jenkins'])
+GREEN="\u001B[32m"
+RED="\u001B[31m"
+ANSI_END="\u001B[0m"
+BLUE="\u001B[34m"
+CYAN="\u001B[36m"
+YELLOW="\u001B[33m"
+
+properties([
+    parameters([
+        choice(name: 'target_env', choices: ['onebox','frs1', 'sgs1', 'frt1', 'vrs1', 'ohs1', 'prt1', 'ort2', 'sgt2', 'orp2'], defaultValue: "onebox"),
+        string(name: 'onebox_host'),
+        string(name: 'partner'),
+        string(name: 'segmentation_type_page_size', defaultValue: "50"),
+        string(name: 'user_segment_page_size', defaultValue: "1000"),
+        string(name: 'couchbase_username', defaultValue: "Administrator"),
+        string(name: 'tag', defaultValue: "build"),
+    ])
+])
+
+lock(resource: "Queue_${env.JOB_NAME}_${target_env}_${partner}", inversePrecedence: false) {
+    node('Linux'){
+
+        AWS_REGION="us-west-2"
+        ECR_URL ='870777418594.dkr.ecr.us-west-2.amazonaws.com'
+        PIPECLI_VERSION="1.0.3"
+        PIPECLI="docker run 870777418594.dkr.ecr.us-west-2.amazonaws.com/pipecli:${PIPECLI_VERSION} python pipecli.py"
+        HELM="docker run -i --rm -v \$(pwd)/SetupJobs/Segmentation.Migrator/deploy:/deploy -w /deploy 870777418594.dkr.ecr.us-west-2.amazonaws.com/helm3-aws:latest"
+        sh "region=\$(wget -qO- http://169.254.169.254/latest/meta-data/placement/availability-zone | sed 's/.\$//');login=\$(aws ecr get-login --no-include-email --region \$region); \$login "
+        sh "\$(aws ecr get-login --no-include-email --region ${AWS_REGION})"
+        sh "docker pull 870777418594.dkr.ecr.us-west-2.amazonaws.com/pipecli:${PIPECLI_VERSION}"
+
+        branch = "$BRANCH_NAME"
+        repo = "ott-service-phoenix-segmentation-migrator"
+        image = "${branch.toLowerCase()}/${repo}:${tag}"
+        app_name = "phoenix-segmentation-migrator"
+        component_name = "phoenix-segmentation-migrator"
+        component_name_und = sh (script: "echo ${component_name} | sed -r 's/-/_/g'",returnStdout: true).trim()
+
+        deleteDir()
+        checkout scm
+        currentBuild.displayName = "#${BUILD_NUMBER} - ${target_env} - ${tag} - ${partner}"
+
+        src_region = "us-west-2"
+        region =  "us-west-2"
+        if (target_env != 'onebox') { region = cd.getEnvRegion("${target_env}") }
+        ansiColor('xterm') {
+            try {
+                stage ("Check and Copy ECR")
+                {
+                    checkDestRepoImage()
+                }
+
+                stage("Deploy ${repo}:${tag} to K8s cluster")
+                {
+                    deployComponent(component_name,component_name_und)
+                }
+            }
+            catch (err) {
+                currentBuild.result = "FAILURE"
+                println(err)
+                echo "${RED}-------------------------------- Deployment failed for ${repo} Version ${tag} --------------------------------${ANSI_END}"
+            }
+        }
+    }
+}
+
+def checkDestRepoImage () {
+    if (target_env == 'onebox'){
+        echo "${GREEN}-------------------------------- Env set to ONEBOX no need to copy ECR !! --------------------------------${ANSI_END}"
+        return
+    }
+    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: "${target_env}", secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+        def exists = sh(script: "set +x; aws ecr describe-repositories --region=${region} --repository-names ${branch.toLowerCase()}/${repo} --output=json > /dev/null 2>&1", returnStatus: true)
+        if (exists == 0){ // Repo exists
+            if (sh(script: "set +x; aws ecr describe-images --repository-name ${branch.toLowerCase()}/${repo} --region ${region} --image-ids imageTag=${tag} > /dev/null 2>&1", returnStatus: true) != 0){
+                checkSourceRepoImage()
+                cd.copyECR(target_env, "${branch.toLowerCase()}/${repo}", tag, true)
+            } else {
+                echo "${GREEN}-------------------------------- Found ${image} Destination ECR !! --------------------------------${ANSI_END}"
+            }
+        } else {
+            checkSourceRepoImage()
+            cd.copyECR(target_env, "${branch.toLowerCase()}/${repo}", tag, true)
+        }
+    }
+}
+
+def checkSourceRepoImage () {
+    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: "qa-rnd", secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+        def exists = sh(script: "set +x; aws ecr describe-repositories --region=${src_region} --repository-names ${branch.toLowerCase()}/${repo} --output=json > /dev/null 2>&1", returnStatus: true)
+        if (exists == 0){ // Repo exists
+            if (sh(script: "set +x; aws ecr describe-images --repository-name ${branch.toLowerCase()}/${repo} --region ${src_region} --image-ids imageTag=${tag} > /dev/null 2>&1", returnStatus: true) != 0){
+                echo "${RED}-------------------------------- Version ${tag} for ${repo}  Not found In Source ECR !! --------------------------------${ANSI_END}"
+                currentBuild.result = "FAILURE"
+                sh "exit 1"
+            } else {
+                echo "${GREEN}-------------------------------- Found ${image} in Source ECR !! --------------------------------${ANSI_END}"
+            }
+        } else {
+            echo "${RED}-------------------------------- ${repo} Not found In Source ECR !! --------------------------------${ANSI_END}"
+            currentBuild.result = "FAILURE"
+            sh "exit 1"
+        }
+    }
+}
+
+
+def deployComponent(component_name,component_name_und){
+    argo_server = "argo.rnd.ott.kaltura.com"
+    insecure = ""
+    grpc_web = "--grpc-web"
+    if(target_env == 'onebox') {
+        withCredentials([string(credentialsId: "${target_env}_token", variable: 'argo_token')]){
+            argo_server = onebox_host
+            insecure = "--insecure"
+            grpc_web = ""
+            sh """
+                set +x
+                echo ${BLUE}-------------------------------- Starting Deployment Of ${component_name}-${partner} on ${target_env}... --------------------------------${ANSI_END}
+
+                ${HELM} template argo/ -f ${target_env}.yaml\
+                --set image=${image}\
+                --set partner=${partner}\
+                --set branch=${branch}\
+                --set segmentation_type_page_size=${segmentation_type_page_size}\
+                --set user_segment_page_size=${user_segment_page_size}\
+                --set couchbase_username=${couchbase_username}\
+                 > deploy.yaml
+
+                argocd app create --file deploy.yaml --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web} --upsert
+                sleep 10
+                echo ${CYAN}-------------------------------- Waiting For ${component_name}-${partner} To Start... --------------------------------${ANSI_END}
+
+                argocd app sync ${target_env}-${component_name}-${partner} --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web} > /dev/null
+
+                echo ${BLUE}-------------------------------- logs start --------------------------------${ANSI_END}
+                result=\$(argocd app logs ${target_env}-${component_name}-${partner} --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web})
+                while [[ "\$result" == *"ContainerCreating"* ]]; do
+                    echo "Waiting for app to start..."
+                    sleep 2
+                    result=\$(argocd app logs ${target_env}-${component_name}-${partner} --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web})
+                done
+                argocd app logs ${target_env}-${component_name}-${partner} --server ${argo_server} --auth-token ${argo_token} --follow ${insecure} ${grpc_web}
+                echo ${GREEN}--------------------------------  logs end --------------------------------${ANSI_END}
+
+                echo ${YELLOW}-------------------------------- Deleting ${component_name} on ${target_env}... --------------------------------${ANSI_END}
+                argocd app delete ${target_env}-${component_name}-${partner} --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web} > /dev/null
+                echo ${YELLOW}-------------------------------- ${component_name}-${partner} was Deleted Successfully --------------------------------${ANSI_END}
+            """
+        }
+    }
+    else {
+        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: "${target_env}", secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+            withCredentials([string(credentialsId: "${target_env}_token", variable: 'argo_token')]) {
+                argo_server = "argo.rnd.ott.kaltura.com"
+                insecure = ""
+                grpc_web = "--grpc-web"
+                argo_component_name = "${target_env}-${component_name}-${partner}"
+                sh """
+                    set -x
+                    aws eks update-kubeconfig --name ${target_env} --region ${region}
+
+                    pod_name=\$(kubectl get pods -l app=phoenix-segmentation-migrator-${partner} -o json | jq '.items[0].metadata.name' | tr -d '\"')
+                    echo \$pod_name
+                    if [ -z \$pod_name ]
+                    then
+                        echo ${BLUE}-------------------------------- Deleting --in case it has not been done previously-- ${argo_component_name} on ${target_env}... --------------------------------${ANSI_END}
+                        argocd app delete ${argo_component_name} --server ${argo_server} --auth-token ${argo_token} --grpc-web > /dev/null
+                    fi
+
+                    echo ${BLUE}-------------------------------- Starting Deployment Of ${component_name}-${partner} on ${target_env}... --------------------------------${ANSI_END}
+
+                    ${HELM} template argo/ -f ${target_env}.yaml\
+                    --set image=${image}\
+                    --set partner=${partner}\
+                    --set branch=${branch}\
+                    --set segmentation_type_page_size=${segmentation_type_page_size}\
+                    --set user_segment_page_size=${user_segment_page_size}\
+                     > deploy.yaml
+
+                    argocd app create --file deploy.yaml --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web} --upsert
+                    sleep 10
+                    echo ${CYAN}-------------------------------- Waiting For ${component_name}-${partner} To Start... --------------------------------${ANSI_END}
+
+                    argocd app sync ${argo_component_name} --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web} > /dev/null
+
+                    echo ${BLUE}-------------------------------- logs start --------------------------------${ANSI_END}
+
+                    pod_name=\$(kubectl get pods -l app=phoenix-segmentation-migrator-${partner} -o json | jq '.items[0].metadata.name' | tr -d '\"')
+                    pod_status=\$(kubectl get pods -l app=phoenix-segmentation-migrator-${partner} -o json | jq '.items[0].status.phase' | tr -d '\"')
+                    while [ \$pod_status == "Pending" ]; do
+                        echo "Waiting for \$pod_name to start..."
+                        pod_status=\$(kubectl get pods -l app=phoenix-segmentation-migrator-${partner} -o json | jq '.items[0].status.phase' | tr -d '\"')
+                        sleep 2
+                    done
+                    kubectl logs -f \$pod_name
+                    echo ${GREEN}--------------------------------  logs end --------------------------------${ANSI_END}
+
+                    echo ${YELLOW}-------------------------------- Deleting ${component_name} on ${target_env}... --------------------------------${ANSI_END}
+                    argocd app delete ${argo_component_name} --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web} > /dev/null
+                    echo ${YELLOW}-------------------------------- ${component_name}-${partner} was Deleted Successfully --------------------------------${ANSI_END}
+                """
+            }
+        }
+    }
+}

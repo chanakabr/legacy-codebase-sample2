@@ -8,5 +8,7 @@ namespace ApiLogic.Modules.Services
     {
         Task PublishCreateEventAsync(long groupId, UserSegment userSegment);
         Task PublishDeleteEventAsync(long groupId, UserSegment userSegment);
+        Task PublishMigrationCreateEventAsync(long groupId, UserSegment householdSegment);
+
     }
 }

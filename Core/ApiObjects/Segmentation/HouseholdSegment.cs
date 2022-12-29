@@ -184,6 +184,28 @@ namespace ApiObjects.Segmentation
             return result;
         }
 
+        public static List<HouseholdSegments> ListAll (int partnerId, int pageIndex, int pageSize, out int totalCount)
+        {
+            totalCount = 0;
+            List<HouseholdSegments> result = new List<HouseholdSegments>();
+
+            long totalNumOfResults = 0;
+            CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+
+            result = couchbaseManager.View<HouseholdSegments>(new ViewManager("migration", "household_segments", pageSize)
+            {
+                skip = pageIndex * pageSize,
+                limit = pageSize,
+                staleState = ViewStaleState.False,
+                key = partnerId
+            }, ref totalNumOfResults);
+
+
+            totalCount = (int)totalNumOfResults;
+
+            return result;
+        }
+
         private static string GetHouseholdSegmentsKey(long householdId)
         {
             return string.Format("household_segments_{0}", householdId);

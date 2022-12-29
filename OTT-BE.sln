@@ -89,16 +89,18 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StaticticsBL", "Core\Static
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Solution Items", ".Solution Items", "{BB5EE93A-9128-4339-8040-5EA834D2BDD1}"
 	ProjectSection(SolutionItems) = preProject
-		AsyncHandler.Dockerfile = AsyncHandler.Dockerfile
-		jenkins\ci.index.compaction.tool.jenkinsfile = jenkins\ci.index.compaction.tool.jenkinsfile
-		jenkins\ci.linux.jenkinsfile = jenkins\ci.linux.jenkinsfile
-		jenkins\ci.nuget.push.jenkinsfile = jenkins\ci.nuget.push.jenkinsfile
-		IngestHandlers.Dockerfile = IngestHandlers.Dockerfile
-		OPC_Migration.Dockerfile = OPC_Migration.Dockerfile
-		Phoenix.Dockerfile = Phoenix.Dockerfile
-		PhoenixApiGrpc.Dockerfile = PhoenixApiGrpc.Dockerfile
-		Tvpapi.Dockerfile = Tvpapi.Dockerfile
-		WSIngest.Dockerfile = WSIngest.Dockerfile
+		Docker\Base.Build.Dockerfile = Docker\Base.Build.Dockerfile
+		Docker\Base.Runtime.Dockerfile = Docker\Base.Runtime.Dockerfile
+		Docker\Epg.V3.Migrator.Dockerfile = Docker\Epg.V3.Migrator.Dockerfile
+		Docker\Epg.V3.Rollback.Dockerfile = Docker\Epg.V3.Rollback.Dockerfile
+		Docker\IngestHandlers.Dockerfile = Docker\IngestHandlers.Dockerfile
+		Docker\OPCMigrator.Dockerfile = Docker\OPCMigrator.Dockerfile
+		Docker\Phoenix.Api.Grpc.Dockerfile = Docker\Phoenix.Api.Grpc.Dockerfile
+		Docker\Phoenix.Api.Rest.Dockerfile = Docker\Phoenix.Api.Rest.Dockerfile
+		Docker\Phoenix.Async.Handler.Dockerfile = Docker\Phoenix.Async.Handler.Dockerfile
+		Docker\Phoenix.SetupJob.Dockerfile = Docker\Phoenix.SetupJob.Dockerfile
+		Docker\Tvpapi.Dockerfile = Docker\Tvpapi.Dockerfile
+		Docker\WSIngest.Dockerfile = Docker\WSIngest.Dockerfile
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EventBus", "EventBus", "{B73AD4B5-1AC8-4F26-BF58-CD82247DC9C4}"
@@ -407,9 +409,37 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IotGrpcClientWrapper", "Cor
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TaskHandlers", "TaskHandlers", "{4A0F42D5-10D2-4919-9A79-406230618612}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SegmentationGrpcClientWrapper", "Core\SegmentationGrpcClientWrapper\SegmentationGrpcClientWrapper.csproj", "{A44B6D49-8F97-4FB1-BFA7-D19367486218}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SegmentationGrpcClientWrapper", "Core\SegmentationGrpcClientWrapper\SegmentationGrpcClientWrapper.csproj", "{A44B6D49-8F97-4FB1-BFA7-D19367486218}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudfrontInvalidatorGrpcClientWrapper", "Core\CloudfrontInvalidatorGrpcClientWrapper\CloudfrontInvalidatorGrpcClientWrapper.csproj", "{C2422949-7282-48CB-83BA-527D1C324D0B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudfrontInvalidatorGrpcClientWrapper", "Core\CloudfrontInvalidatorGrpcClientWrapper\CloudfrontInvalidatorGrpcClientWrapper.csproj", "{C2422949-7282-48CB-83BA-527D1C324D0B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dockers", "Dockers", "{AA13E229-CD16-4E0F-85D4-412802C265EC}"
+	ProjectSection(SolutionItems) = preProject
+		Docker\Base.Build.Dockerfile = Docker\Base.Build.Dockerfile
+		Docker\Base.Runtime.Dockerfile = Docker\Base.Runtime.Dockerfile
+		Docker\Epg.V3.Migrator.Dockerfile = Docker\Epg.V3.Migrator.Dockerfile
+		Docker\Epg.V3.Rollback.Dockerfile = Docker\Epg.V3.Rollback.Dockerfile
+		Docker\IngestHandlers.Dockerfile = Docker\IngestHandlers.Dockerfile
+		Docker\OPCMigrator.Dockerfile = Docker\OPCMigrator.Dockerfile
+		Docker\Phoenix.Api.Grpc.Dockerfile = Docker\Phoenix.Api.Grpc.Dockerfile
+		Docker\Phoenix.Api.Rest.Dockerfile = Docker\Phoenix.Api.Rest.Dockerfile
+		Docker\Phoenix.Async.Handler.Dockerfile = Docker\Phoenix.Async.Handler.Dockerfile
+		Docker\Phoenix.SetupJob.Dockerfile = Docker\Phoenix.SetupJob.Dockerfile
+		Docker\Tvpapi.Dockerfile = Docker\Tvpapi.Dockerfile
+		Docker\WSIngest.Dockerfile = Docker\WSIngest.Dockerfile
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Jenkins", "Jenkins", "{F481A1A8-8994-438F-B9A2-5C71A24336C0}"
+	ProjectSection(SolutionItems) = preProject
+		jenkins\ci.async.handler.jenkinsfile = jenkins\ci.async.handler.jenkinsfile
+		jenkins\ci.linux.jenkinsfile = jenkins\ci.linux.jenkinsfile
+		jenkins\ci.nuget.push.jenkinsfile = jenkins\ci.nuget.push.jenkinsfile
+		jenkins\ci.phoenix.grpc.jenkinsfile = jenkins\ci.phoenix.grpc.jenkinsfile
+		jenkins\ci.phoenix.setup.job.jenkinsfile = jenkins\ci.phoenix.setup.job.jenkinsfile
+		jenkins\ci.segmentation.migration.reader.jenkinsfile = jenkins\ci.segmentation.migration.reader.jenkinsfile
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Segmentation.Migrator", "SetupJobs\Segmentation.Migrator\Segmentation.Migrator.csproj", "{3F7AF2E7-3508-4CD6-B688-2C1713505A64}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -3905,6 +3935,26 @@ Global
 		{C2422949-7282-48CB-83BA-527D1C324D0B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C2422949-7282-48CB-83BA-527D1C324D0B}.Release|x86.ActiveCfg = Release|Any CPU
 		{C2422949-7282-48CB-83BA-527D1C324D0B}.Release|x86.Build.0 = Release|Any CPU
+		{3F7AF2E7-3508-4CD6-B688-2C1713505A64}.Basic|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F7AF2E7-3508-4CD6-B688-2C1713505A64}.Basic|Any CPU.Build.0 = Debug|Any CPU
+		{3F7AF2E7-3508-4CD6-B688-2C1713505A64}.Basic|x86.ActiveCfg = Debug|Any CPU
+		{3F7AF2E7-3508-4CD6-B688-2C1713505A64}.Basic|x86.Build.0 = Debug|Any CPU
+		{3F7AF2E7-3508-4CD6-B688-2C1713505A64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F7AF2E7-3508-4CD6-B688-2C1713505A64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F7AF2E7-3508-4CD6-B688-2C1713505A64}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3F7AF2E7-3508-4CD6-B688-2C1713505A64}.Debug|x86.Build.0 = Debug|Any CPU
+		{3F7AF2E7-3508-4CD6-B688-2C1713505A64}.Local|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F7AF2E7-3508-4CD6-B688-2C1713505A64}.Local|Any CPU.Build.0 = Debug|Any CPU
+		{3F7AF2E7-3508-4CD6-B688-2C1713505A64}.Local|x86.ActiveCfg = Debug|Any CPU
+		{3F7AF2E7-3508-4CD6-B688-2C1713505A64}.Local|x86.Build.0 = Debug|Any CPU
+		{3F7AF2E7-3508-4CD6-B688-2C1713505A64}.LocalRelease|Any CPU.ActiveCfg = Release|Any CPU
+		{3F7AF2E7-3508-4CD6-B688-2C1713505A64}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
+		{3F7AF2E7-3508-4CD6-B688-2C1713505A64}.LocalRelease|x86.ActiveCfg = Release|Any CPU
+		{3F7AF2E7-3508-4CD6-B688-2C1713505A64}.LocalRelease|x86.Build.0 = Release|Any CPU
+		{3F7AF2E7-3508-4CD6-B688-2C1713505A64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F7AF2E7-3508-4CD6-B688-2C1713505A64}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F7AF2E7-3508-4CD6-B688-2C1713505A64}.Release|x86.ActiveCfg = Release|Any CPU
+		{3F7AF2E7-3508-4CD6-B688-2C1713505A64}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -4088,12 +4138,15 @@ Global
 		{E4288B13-E24B-4D5A-904D-40E41496A1A1} = {360B9CF7-84C1-4D18-84DE-E364158F5FE1}
 		{48428238-D6DE-4798-ADA8-25F921A253EB} = {360B9CF7-84C1-4D18-84DE-E364158F5FE1}
 		{8B2E9346-FFB7-4857-9259-B88EFFC0B4D7} = {360B9CF7-84C1-4D18-84DE-E364158F5FE1}
-								{A44B6D49-8F97-4FB1-BFA7-D19367486218} = {6469A277-48FE-400B-84BC-1378FA799512}
-		{C2422949-7282-48CB-83BA-527D1C324D0B} = {6469A277-48FE-400B-84BC-1378FA799512}
 		{DC04EB69-7F7C-4475-8318-A01C676168DD} = {6469A277-48FE-400B-84BC-1378FA799512}
+		{A44B6D49-8F97-4FB1-BFA7-D19367486218} = {6469A277-48FE-400B-84BC-1378FA799512}
+		{C2422949-7282-48CB-83BA-527D1C324D0B} = {6469A277-48FE-400B-84BC-1378FA799512}
+		{AA13E229-CD16-4E0F-85D4-412802C265EC} = {BB5EE93A-9128-4339-8040-5EA834D2BDD1}
+		{F481A1A8-8994-438F-B9A2-5C71A24336C0} = {BB5EE93A-9128-4339-8040-5EA834D2BDD1}
+		{3F7AF2E7-3508-4CD6-B688-2C1713505A64} = {360B9CF7-84C1-4D18-84DE-E364158F5FE1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
+		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 	EndGlobalSection
 EndGlobal

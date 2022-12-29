@@ -1,0 +1,13 @@
+account: "122637030685"
+region: us-west-2
+cluster_name: ort2
+destination_cluster: https://7C4E3C73316E789F6BA947A25E1B7309.gr7.us-west-2.eks.amazonaws.com
+branch: dev
+
+# TCM Config for all components
+tcm_from_local: "false"
+tcm_url: http://ktcm
+tcm_app: OTT_API_Modeled_CB6
+tcm_app_standby: OTT_API_Modeled_CB6
+tcm_section: main
+tcm_host: MS #PROD_v5_3_7
