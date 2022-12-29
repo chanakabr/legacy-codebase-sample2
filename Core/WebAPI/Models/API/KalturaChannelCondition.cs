@@ -18,8 +18,6 @@ namespace WebAPI.Models.API
         [SchemeProperty(DynamicMinInt = 1, MinLength = 1, Pattern = SchemePropertyAttribute.NOT_EMPTY_PATTERN)]
         public string IdIn { get; set; }
 
-        public override void Validate(HashSet<KalturaRuleConditionType> types = null) { }
-
         protected override void Init()
         {
             base.Init();

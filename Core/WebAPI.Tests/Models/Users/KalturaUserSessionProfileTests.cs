@@ -1,13 +1,10 @@
-﻿using FluentAssertions;
-using NUnit.Framework;
-using System;
+﻿using NUnit.Framework;
 using System.Collections.Generic;
-using System.Text;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.API;
-using WebAPI.Models.General;
 using WebAPI.Models.Users.UserSessionProfile;
+using WebAPI.ModelsValidators;
 
 namespace WebAPI.Tests.Models.Users
 {

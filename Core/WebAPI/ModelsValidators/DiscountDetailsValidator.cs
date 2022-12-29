@@ -48,8 +48,9 @@ namespace WebAPI.ModelsValidators
                 model.ValidateMultiCurrencyDiscount();
             }
         }
-        public static void ValidateMultiCurrencyDiscount(this KalturaDiscountDetails model)
-        {
+
+       public static void ValidateMultiCurrencyDiscount(this KalturaDiscountDetails model)
+       {
             foreach (KalturaDiscount discount in model.MultiCurrencyDiscount)
             {
                 discount.Validate();

@@ -26,6 +26,7 @@ using WebAPI.Models.Catalog.SearchPriorityGroup;
 using WebAPI.Models.General;
 using WebAPI.Models.Upload;
 using WebAPI.ModelsFactory;
+using WebAPI.ModelsValidators;
 using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
 using OrderDir = ApiObjects.SearchObjects.OrderDir;

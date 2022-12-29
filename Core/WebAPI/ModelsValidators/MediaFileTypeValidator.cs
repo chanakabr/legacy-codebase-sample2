@@ -5,7 +5,7 @@ using WebAPI.Models.Catalog;
 
 namespace WebAPI.ModelsValidators
 {
-    public static class MediaFileType
+    public static class MediaFileTypeValidator
     {
         public static void validateForInsert(this KalturaMediaFileType model)
         {

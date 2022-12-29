@@ -69,8 +69,6 @@
     <Compile Remove="Controllers\HouseholdSegmentController .cs" />
     <Compile Remove="Managers\Models\EventNotification.cs" />
     <Compile Remove="Models\ConditionalAccess\AdapterPlaybackContextOptions.cs" />
-    <Compile Remove="Models\General\KalturaString.cs" />
-    <Compile Remove="Models\Social\FacebookInterestData.cs" />
-    <Compile Remove="Models\Social\FacebookLocation.cs" />
+    
   </ItemGroup>
 </Project>

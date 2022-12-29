@@ -5,10 +5,6 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Partner
 {
-    public enum KalturaPartnerConfigurationOrderBy
-    {
-        NONE
-    }
 
     /// <summary>
     /// Partner configuration filter 
@@ -22,7 +18,7 @@ namespace WebAPI.Models.Partner
         [JsonProperty("partnerConfigurationTypeEqual")]
         [XmlElement(ElementName = "partnerConfigurationTypeEqual")]
         public KalturaPartnerConfigurationType PartnerConfigurationTypeEqual { get; set; }
-        
+
         public override KalturaPartnerConfigurationOrderBy GetDefaultOrderByValue()
         {
             return KalturaPartnerConfigurationOrderBy.NONE;

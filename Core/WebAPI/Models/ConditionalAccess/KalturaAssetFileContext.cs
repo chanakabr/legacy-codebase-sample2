@@ -44,10 +44,4 @@ namespace WebAPI.Models.ConditionalAccess
         [SchemeProperty(ReadOnly = true)]
         public bool IsLivePlayBack { get; set; }
     }
-
-    public enum KalturaContextType
-    {
-        none = 0,
-        recording = 1
-    }
 }

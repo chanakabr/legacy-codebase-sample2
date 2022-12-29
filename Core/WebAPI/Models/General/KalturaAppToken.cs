@@ -117,36 +117,5 @@ namespace WebAPI.Models.General
         [XmlElement(ElementName = "updateDate")]
         [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
-        
-        public KalturaAppToken(AppToken appToken)
-        {
-            Id = appToken.AppTokenId;
-            Expiry = appToken.Expiry;
-            PartnerId = appToken.PartnerId;
-            SessionDuration = appToken.SessionDuration;
-            HashType = appToken.HashType;
-            SessionPrivileges = appToken.SessionPrivileges;
-            SessionType = appToken.SessionType;
-            Status = appToken.Status;
-            Token = appToken.Token;
-            SessionUserId = appToken.SessionUserId;
-            CreateDate = appToken.CreateDate;
-            UpdateDate = appToken.UpdateDate;
-        }
-
-        internal int getSessionDuration()
-        {
-            return SessionDuration.HasValue ? (int)SessionDuration : 0;
-        }
-
-        internal int getPartnerId()
-        {
-            return PartnerId.HasValue ? (int)PartnerId : 0;
-        }
-
-        internal int getExpiry()
-        {
-            return Expiry.HasValue ? (int)Expiry : 0;
-        }
     }
 }

@@ -8,10 +8,6 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public enum KalturaAssetStructMetaOrderBy
-    {
-        NONE
-    }
 
     /// <summary>
     /// Filtering Asset Struct Metas
@@ -36,18 +32,10 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "metaIdEqual", IsNullable = true)]
         [SchemeProperty(MinLong = 1, IsNullable = true)]
         public long? MetaIdEqual { get; set; }
-        
+
         public override KalturaAssetStructMetaOrderBy GetDefaultOrderByValue()
         {
             return KalturaAssetStructMetaOrderBy.NONE;
         }
-
-        internal void Validate()
-        {
-            if (!AssetStructIdEqual.HasValue && !MetaIdEqual.HasValue)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "AssetStructIdEqual", "MetaIdEqual");
-            }
-        }        
     }
 }

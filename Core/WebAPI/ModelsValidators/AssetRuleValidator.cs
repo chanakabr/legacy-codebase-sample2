@@ -6,7 +6,6 @@ using WebAPI.Models.API;
 using WebAPI.Models.ConditionalAccess;
 using System.Linq;
 
-
 namespace WebAPI.ModelsValidators
 {
     using ConditionsMap = ILookup<KalturaRuleConditionType, KalturaCondition>;

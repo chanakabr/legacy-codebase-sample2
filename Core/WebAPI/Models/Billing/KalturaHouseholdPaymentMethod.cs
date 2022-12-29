@@ -81,7 +81,6 @@ namespace WebAPI.Models.Billing
         [Obsolete]
         public bool? AllowMultiInstance { get; set; }
 
-
         /// <summary>
         /// Selected payment method 
         /// </summary>
@@ -90,22 +89,5 @@ namespace WebAPI.Models.Billing
         [XmlElement(ElementName = "selected")]
         [Obsolete]
         public bool? Selected { get; set; }
-    }
-
-    /// <summary>
-    /// List of household payment methods.
-    /// </summary>
-    [DataContract(Name = "KalturaHouseholdPaymentMethodListResponse", Namespace = "")]
-    [XmlRoot("KalturaHouseholdPaymentMethodListResponse")]
-    public partial class KalturaHouseholdPaymentMethodListResponse : KalturaListResponse
-    {
-        /// <summary>
-        /// Follow data list
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty("objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]
-        public List<KalturaHouseholdPaymentMethod> Objects { get; set; }
     }
 }

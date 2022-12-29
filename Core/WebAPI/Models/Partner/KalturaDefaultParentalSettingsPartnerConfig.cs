@@ -1,18 +1,7 @@
-﻿using ApiLogic.Api.Managers;
-using ApiObjects;
-using ApiObjects.Response;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.ClientManagers.Client;
-using WebAPI.Clients;
-using WebAPI.Exceptions;
-using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
-using WebAPI.Models.General;
 
 namespace WebAPI.Models.Partner
 {
@@ -62,18 +51,5 @@ namespace WebAPI.Models.Partner
         [XmlElement(ElementName = "defaultPurchaseSettings")]
         [SchemeProperty(IsNullable = true)]
         public long? DefaultPurchaseSettings { get; set; }
-
-
-        internal override bool Update(int groupId)
-        {
-            Func<DefaultParentalSettingsPartnerConfig, Status> partnerConfigFunc =
-                (DefaultParentalSettingsPartnerConfig parentalPartnerConfig) => DefaultParentalSettingsPartnerConfigManager.Instance.UpsertParentalDefaultConfig(groupId, Utils.Utils.GetUserIdFromKs(), parentalPartnerConfig);
-
-            ClientUtils.GetResponseStatusFromWS(partnerConfigFunc, this);
-
-            return true;
-        }
-
-        protected override KalturaPartnerConfigurationType ConfigurationType { get { return KalturaPartnerConfigurationType.DefaultParentalSettings; } }
     }
 }

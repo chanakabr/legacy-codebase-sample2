@@ -7,6 +7,7 @@ using System.Xml.Serialization;
 using WebAPI.Exceptions;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
+using WebAPI.ModelsValidators;
 
 namespace WebAPI.Models.API
 {

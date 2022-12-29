@@ -1,0 +1,30 @@
+﻿namespace WebAPI.Models.API
+{
+    public enum KalturaRuleConditionType
+    {
+        ASSET,
+        COUNTRY,
+        CONCURRENCY,
+        IP_RANGE,
+        BUSINESS_MODULE,
+        SEGMENTS,
+        DATE,
+        OR,
+        HEADER,
+        USER_SUBSCRIPTION,
+        ASSET_SUBSCRIPTION,
+        USER_ROLE,
+        DEVICE_BRAND,
+        DEVICE_FAMILY,
+        DEVICE_MANUFACTURER,
+        DEVICE_MODEL,
+        DEVICE_UDID_DYNAMIC_LIST,
+        DYNAMIC_KEYS,
+        USER_SESSION_PROFILE,
+        DEVICE_DYNAMIC_DATA,
+        IP_V6_RANGE,
+        ASSET_SHOP,
+        CHANNEL,
+        FILE_TYPE
+    }
+}

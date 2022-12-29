@@ -5,6 +5,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Domains;
+using WebAPI.ModelsValidators;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers

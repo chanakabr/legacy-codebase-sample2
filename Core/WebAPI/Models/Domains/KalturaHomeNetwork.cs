@@ -9,22 +9,6 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Domains
 {
     /// <summary>
-    /// Home networks
-    /// </summary>
-    [Serializable]
-    public partial class KalturaHomeNetworkListResponse : KalturaListResponse
-    {
-        /// <summary>
-        /// Home networks
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty(PropertyName = "objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaHomeNetwork> Objects { get; set; }
-    }
-
-    /// <summary>
     /// Home network details
     /// </summary>
     public partial class KalturaHomeNetwork : KalturaOTTObject
@@ -63,10 +47,5 @@ namespace WebAPI.Models.Domains
         [XmlElement(ElementName = "isActive")]
         [OldStandardProperty("is_active")]
         public bool? IsActive { get; set; }
-
-        internal bool getIsActive()
-        {
-            return IsActive.HasValue ? (bool)IsActive : true;
-        }
     }
 }

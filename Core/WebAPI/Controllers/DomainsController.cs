@@ -6,6 +6,7 @@ using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Domains;
@@ -36,7 +37,7 @@ namespace WebAPI.Controllers
             int groupId;
             if (!int.TryParse(group_id, out groupId))
             {
-                throw new BadRequestException((int)WebAPI.Models.General.StatusCode.BadRequest, "group_id must be an integer");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "group_id must be an integer");
             }
 
             if (domain_id == 0)

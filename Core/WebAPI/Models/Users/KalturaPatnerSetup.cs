@@ -38,21 +38,5 @@ namespace WebAPI.Models.Users
         [JsonProperty(PropertyName = "basePartnerConfiguration")]
         [XmlElement("basePartnerConfiguration")]
         public KalturaBasePartnerConfiguration BasePartnerConfiguration { get; set; }
-
-        public void ValidateForAdd()
-        {
-            if (string.IsNullOrEmpty(this.AdminUsername))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "AdminUsername");
-            }
-            if (string.IsNullOrEmpty(this.AdminPassword))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "AdminPassword");
-            }
-            if (this.BasePartnerConfiguration == null)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaBasePartnerConfiguration");
-            }
-        }
     }
 }

@@ -1,8 +1,6 @@
-using System.Collections.Generic;
+using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
-using WebAPI.Exceptions;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
@@ -29,14 +27,6 @@ namespace WebAPI.Models.API
         {
             base.Init();
             Type = KalturaRuleConditionType.ASSET_SHOP;
-        }
-
-        public override void Validate(HashSet<KalturaRuleConditionType> types = null)
-        {
-            if (Values == null || Values.Objects == null || Values.Objects.Count == 0)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "values");
-            }
         }
     }
 }

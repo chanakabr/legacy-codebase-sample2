@@ -11,60 +11,6 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Device family details
     /// </summary>
-    public partial class KalturaDeviceFamilyBase : KalturaOTTObject
-    {
-        /// <summary>
-        /// Device family identifier
-        /// </summary>
-        [DataMember(Name = "id")]
-        [JsonProperty("id")]
-        [XmlElement(ElementName = "id")]
-        [SchemeProperty(IsNullable = true)]
-        public long? Id { get; set; }
-
-        /// <summary>
-        /// Device family name
-        /// </summary>
-        [DataMember(Name = "name")]
-        [JsonProperty("name")]
-        [XmlElement(ElementName = "name")]
-        public string Name { get; set; }
-
-        /// <summary>
-        /// Max number of devices allowed for this family
-        /// </summary>
-        [DataMember(Name = "deviceLimit")]
-        [JsonProperty("deviceLimit")]
-        [XmlElement(ElementName = "deviceLimit")]
-        [OldStandardProperty("device_limit")]
-        [Obsolete]
-        public int? DeviceLimit { get; set; }
-
-        /// <summary>
-        /// Max number of streams allowed for this family
-        /// </summary>
-        [DataMember(Name = "concurrentLimit")]
-        [JsonProperty("concurrentLimit")]
-        [XmlElement(ElementName = "concurrentLimit")]
-        [OldStandardProperty("concurrent_limit")]
-        [Obsolete]
-        public int? ConcurrentLimit { get; set; }
-
-        /// <summary>
-        /// Type of device family.
-        /// <see cref="KalturaDeviceFamilyType.Custom"/> if this device family belongs only to this group,
-        /// <see cref="KalturaDeviceFamilyType.System"/> otherwise.
-        /// </summary>
-        [DataMember(Name = "type")]
-        [JsonProperty("type")]
-        [XmlElement("type")]
-        [SchemeProperty(ReadOnly = true)]
-        public KalturaDeviceFamilyType Type { get; set; }
-    }
-
-    /// <summary>
-    /// Device family details
-    /// </summary>
     public partial class KalturaDeviceFamily : KalturaDeviceFamilyBase
     {
         /// <summary>
@@ -76,58 +22,5 @@ namespace WebAPI.Models.Domains
         [XmlArrayItem("item")]
         [Obsolete]
         public List<KalturaDevice> Devices { get; set; }
-    }
-
-    /// <summary>
-    /// Device family limitations details
-    /// </summary>
-    public partial class KalturaHouseholdDeviceFamilyLimitations : KalturaDeviceFamilyBase
-    {   
-        /// <summary>
-        /// Allowed device change frequency code
-        /// </summary>
-        [DataMember(Name = "frequency")]
-        [JsonProperty("frequency")]
-        [XmlElement(ElementName = "frequency")]
-        [SchemeProperty(IsNullable = true)]
-        public int? Frequency { get; set; }
-
-        /// <summary>
-        /// Max number of devices allowed for this family
-        /// </summary>
-        [DataMember(Name = "deviceLimit")]
-        [JsonProperty("deviceLimit")]
-        [XmlElement(ElementName = "deviceLimit")]
-        [SchemeProperty(IsNullable = true)]
-        [OldStandardProperty("device_limit")]
-        public int? DeviceLimit { get; set; }
-
-        /// <summary>
-        /// Max number of streams allowed for this family
-        /// </summary>
-        [DataMember(Name = "concurrentLimit")]
-        [JsonProperty("concurrentLimit")]
-        [XmlElement(ElementName = "concurrentLimit")]
-        [SchemeProperty(IsNullable = true)]
-        [OldStandardProperty("concurrent_limit")]
-        public int? ConcurrentLimit { get; set; }
-
-        /// <summary>
-        /// Is the Max number of devices allowed for this family is default value or not
-        /// </summary>
-        [DataMember(Name = "isDefaultDeviceLimit")]
-        [JsonProperty("isDefaultDeviceLimit")]
-        [XmlElement(ElementName = "isDefaultDeviceLimit")]
-        [SchemeProperty(ReadOnly = true, IsNullable = true)]
-        public bool? IsDefaultDeviceLimit { get; set; }
-
-        /// <summary>
-        /// Is the Max number of streams allowed for this family is default value or not
-        /// </summary>
-        [DataMember(Name = "isDefaultConcurrentLimit")]
-        [JsonProperty("isDefaultConcurrentLimit")]
-        [XmlElement(ElementName = "isDefaultConcurrentLimit")]
-        [SchemeProperty(ReadOnly = true, IsNullable = true)]
-        public bool? IsDefaultConcurrentLimit { get; set; }
     }
 }

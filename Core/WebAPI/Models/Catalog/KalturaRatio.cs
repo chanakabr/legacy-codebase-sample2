@@ -55,40 +55,5 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "precisionPrecentage")]
         [SchemeProperty(MinInteger = 0, MaxInteger = 100)]
         public int PrecisionPrecentage { get; set; }
-
-        internal void Validate()
-        {
-            if (Height <= 0)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, "ratio.height", 1);
-            }
-
-            if (Width <= 0)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, "ratio.width", 1);
-            }
-
-            if (PrecisionPrecentage < 0)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, "ratio.precisionPrecentage", 0);
-            }
-
-            if (PrecisionPrecentage > 100)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_MAX_VALUE_CROSSED, "ratio.precisionPrecentage", 100);
-            }
-        }
-    }
-
-    public partial class KalturaRatioListResponse : KalturaListResponse
-    {
-        /// <summary>
-        /// A list of ratios
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty("objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]
-        public List<KalturaRatio> Ratios { get; set; }
     }
 }

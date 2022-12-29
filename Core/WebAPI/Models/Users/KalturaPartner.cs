@@ -1,8 +1,6 @@
 using Newtonsoft.Json;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -43,25 +41,5 @@ namespace WebAPI.Models.Users
         [JsonProperty(PropertyName = "updateDate")]
         [XmlElement(ElementName = "updateDate")]
         public long UpdateDate { get; set; }
-
-        internal void ValidateForAdd()
-        {
-            if (string.IsNullOrEmpty(this.Name))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
-            }
-        }
-    }
-
-    public partial class KalturaPartnerListResponse : KalturaListResponse
-    {
-        /// <summary>
-        /// A list of Partners
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty("objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaPartner> Partners { get; set; }
     }
 }

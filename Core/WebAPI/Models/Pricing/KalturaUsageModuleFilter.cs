@@ -17,15 +17,10 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "idEqual")]
         [SchemeProperty(DynamicMinInt = 1)]
         public int? IdEqual { get; set; }
-        
+
         public override KalturaUsageModuleFilterOrderBy GetDefaultOrderByValue()
         {
             return KalturaUsageModuleFilterOrderBy.NONE;
         }
-    }
-    
-    public enum KalturaUsageModuleFilterOrderBy
-    {
-        NONE = 0   
     }
 }

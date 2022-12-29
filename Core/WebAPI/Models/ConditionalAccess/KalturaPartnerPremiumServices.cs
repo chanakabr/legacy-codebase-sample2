@@ -1,8 +1,8 @@
+﻿using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
+using System.Linq;
 using WebAPI.Exceptions;
 using WebAPI.Models.General;
 

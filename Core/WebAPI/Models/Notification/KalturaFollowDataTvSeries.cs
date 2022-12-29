@@ -20,30 +20,4 @@ namespace WebAPI.Models.Notification
         [OldStandardProperty("asset_id")]
         public int AssetId { get; set; }
     }
-
-    public partial class KalturaFollowTvSeries : KalturaFollowDataBase
-    {
-        /// <summary>
-        /// Asset Id
-        /// </summary>
-        [DataMember(Name = "assetId")]
-        [JsonProperty(PropertyName = "assetId")]
-        [XmlElement(ElementName = "assetId")]
-        [SchemeProperty(MinInteger = 1)]
-        public int AssetId { get; set; }
-    }
-
-    public enum KalturaFollowTvSeriesOrderBy
-    {
-        START_DATE_DESC,
-        START_DATE_ASC
-    }
-
-    public partial class KalturaFollowTvSeriesFilter : KalturaFilter<KalturaFollowTvSeriesOrderBy>
-    {
-        public override KalturaFollowTvSeriesOrderBy GetDefaultOrderByValue()
-        {
-            return KalturaFollowTvSeriesOrderBy.START_DATE_DESC;
-        }
-    }
 }

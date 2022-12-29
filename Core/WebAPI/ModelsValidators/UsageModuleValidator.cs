@@ -15,13 +15,13 @@ namespace WebAPI.ModelsValidators
 
             if (!model.ViewLifeCycle.HasValue)
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "viewLifeCycle");
-            
+
             switch (model)
             {
                 case KalturaPricePlan c: c.ValidateForAdd(); break;
             }
         }
-        
+
         private static void ValidateForAdd(this KalturaPricePlan model)
         {
             if (!model.PriceDetailsId.HasValue)

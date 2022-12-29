@@ -3,12 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Exceptions;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-
     /// <summary>
     /// Filtering Assets requests
     /// </summary>
@@ -44,45 +42,6 @@ namespace WebAPI.Models.Catalog
         public override KalturaBookmarkOrderBy GetDefaultOrderByValue()
         {
             return KalturaBookmarkOrderBy.POSITION_ASC;
-        }
-
-        internal void Validate()
-        {
-            if (AssetIn != null && AssetIn.Count > 0)
-            {
-                return;
-            }
-
-            if (string.IsNullOrEmpty(AssetIdIn))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaBookmarkFilter.assetIdIn");
-            }
-
-            if (!AssetTypeEqual.HasValue)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaBookmarkFilter.assetTypeEqual");
-            }
-        }
-
-        internal List<KalturaSlimAsset> getAssetIn()
-        {
-            if (AssetIn != null && AssetIn.Count > 0)
-                return AssetIn;
-
-            if (string.IsNullOrEmpty(AssetIdIn))
-                return null;
-
-            List<KalturaSlimAsset> values = new List<KalturaSlimAsset>();
-            string[] stringValues = AssetIdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string value in stringValues)
-            {
-                KalturaSlimAsset asset = new KalturaSlimAsset();
-                asset.Id = value;
-                asset.Type = AssetTypeEqual.Value;
-                values.Add(asset);
-            }
-
-            return values;
         }
     }
 }

@@ -3,6 +3,7 @@ using NUnit.Framework;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Partner;
+using WebAPI.ModelsValidators;
 
 namespace WebAPI.Tests.Models.Partner
 {

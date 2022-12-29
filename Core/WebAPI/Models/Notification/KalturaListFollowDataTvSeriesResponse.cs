@@ -24,22 +24,4 @@ namespace WebAPI.Models.Notification
         [XmlArrayItem(ElementName = "item")]
         public List<KalturaFollowDataTvSeries> FollowDataList { get; set; }
     }
-    
-    /// <summary>
-    /// List of message follow data.
-    /// </summary>
-    [DataContract(Name = "KalturaFollowTvSeriesListResponse", Namespace = "")]
-    [XmlRoot("KalturaFollowTvSeriesListResponse")]
-    public partial class KalturaFollowTvSeriesListResponse : KalturaListResponse
-    {
-        /// <summary>
-        /// Follow data list
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty("objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]
-        public List<KalturaFollowTvSeries> FollowDataList { get; set; }
-    }
-    
 }

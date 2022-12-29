@@ -2406,6 +2406,9 @@ namespace WebAPI.Reflection
                 case "KalturaStreamingDeviceListResponse":
                     return new KalturaStreamingDeviceListResponse(parameters, true);
                     
+                case "KalturaString":
+                    return new KalturaString(parameters, true);
+                    
                 case "KalturaStringValue":
                     return new KalturaStringValue(parameters, true);
                     
@@ -9454,6 +9457,19 @@ namespace WebAPI.Models.General
             }
         }
     }
+    public partial class KalturaString
+    {
+        public KalturaString(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("value") && parameters["value"] != null)
+                {
+                    value = (String) Convert.ChangeType(parameters["value"], typeof(String));
+                }
+            }
+        }
+    }
     public partial class KalturaStringValue
     {
         public KalturaStringValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
@@ -9543,6 +9559,15 @@ namespace WebAPI.Models.API
     {
         public KalturaAssetCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (fromRequest)
+            {
+                if (parameters == null || parameters.Count == 0)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ksql");
+
+               if (!parameters.ContainsKey("ksql") || string.IsNullOrWhiteSpace(parameters["ksql"]?.ToString()))
+                   throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ksql");
+
+            }
             if (parameters != null)
             {
                 if (parameters.ContainsKey("ksql") && parameters["ksql"] != null)
@@ -10868,12 +10893,39 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaConcurrencyCondition
     {
+        private static RuntimeSchemePropertyAttribute LimitSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConcurrencyCondition")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         public KalturaConcurrencyCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (fromRequest)
+            {
+                if (parameters == null || parameters.Count == 0)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ksql");
+
+               if (!parameters.ContainsKey("ksql") || string.IsNullOrWhiteSpace(parameters["ksql"]?.ToString()))
+                   throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ksql");
+
+            }
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("limit") && parameters["limit"] != null)
                 {
+                    LimitSchemaProperty.Validate("limit", parameters["limit"]);
                     Limit = (Int32) Convert.ChangeType(parameters["limit"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("concurrencyLimitationType") && parameters["concurrencyLimitationType"] != null)
@@ -11802,7 +11854,6 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute ObjectIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEventNotificationFilter")
         {
-            MinLong = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -11811,6 +11862,7 @@ namespace WebAPI.Models.API
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
+            MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
             UniqueItems = false,
@@ -11913,7 +11965,6 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaExportTask")
         {
-            MinLong = 1,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
@@ -11922,6 +11973,7 @@ namespace WebAPI.Models.API
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
+            MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
             UniqueItems = false,
@@ -12989,7 +13041,6 @@ namespace WebAPI.Models.API
         };
         private static RuntimeSchemePropertyAttribute ParentIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMeta")
         {
-            MinLong = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -12998,6 +13049,7 @@ namespace WebAPI.Models.API
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
+            MinLong = 1,
             MinItems = -1,
             MaxItems = -1,
             UniqueItems = false,
@@ -13197,7 +13249,6 @@ namespace WebAPI.Models.API
         };
         private static RuntimeSchemePropertyAttribute AssetStructIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMetaFilter")
         {
-            MinLong = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -13206,6 +13257,7 @@ namespace WebAPI.Models.API
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
+            MinLong = 0,
             MinItems = -1,
             MaxItems = -1,
             UniqueItems = false,

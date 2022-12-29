@@ -41,32 +41,9 @@ namespace WebAPI.Models.Social
         [XmlElement(ElementName = "createDateGreaterThan")]
         public long CreateDateGreaterThan { get; set; }
 
-
-        internal void validate()
-        {
-            if (AssetIdEqual == 0)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaSocialCommentFilter.assetIdEqual");
-            }
-            if (AssetTypeEqual == KalturaAssetType.recording)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "KalturaSocialCommentFilter.assetTypeEqual");
-            }
-            if (AssetTypeEqual == KalturaAssetType.epg && SocialPlatformEqual != KalturaSocialPlatform.IN_APP)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSocialCommentFilter.assetTypeEqual, KalturaSocialCommentFilter.socialPlatformEqual");
-            }
-        }
-
         public override KalturaSocialCommentOrderBy GetDefaultOrderByValue()
         {
             return KalturaSocialCommentOrderBy.CREATE_DATE_DESC;
         }
-    }
-
-    public enum KalturaSocialCommentOrderBy
-    {
-        CREATE_DATE_ASC,
-        CREATE_DATE_DESC,
     }
 }

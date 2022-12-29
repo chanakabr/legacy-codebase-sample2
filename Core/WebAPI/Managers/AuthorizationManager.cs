@@ -39,6 +39,8 @@ using WebAPI.Controllers;
 using AppToken = WebAPI.Managers.Models.AppToken;
 using Status = ApiObjects.Response.Status;
 using StatusCode = Grpc.Core.StatusCode;
+using WebAPI.ObjectsConvertor.Extensions;
+using WebAPI.ModelsFactory;
 
 namespace WebAPI.Managers
 {
@@ -405,7 +407,7 @@ namespace WebAPI.Managers
                 var newTokenExpiry = (int)GetAppTokenExpiry(utcNow, appToken.Expiry, group.AppTokenMaxExpirySeconds, group.AutoRefreshAppToken, !IsEndUser(groupId, userRoles));
                 appToken.Expiry = newTokenExpiry;
                 SaveAppToken(utcNow, appTokenCbKey, appToken);
-                SendAppTokenCanaryMigrationEvent(eMigrationOperation.Update, new KalturaAppToken(appToken), groupId);
+                SendAppTokenCanaryMigrationEvent(eMigrationOperation.Update, AppTokenFactory.Create(appToken), groupId);
                 log.Info($"StartSessionWithAppToken: AppToken id = {id} for userId = {userIdForRoles} expiry updated from {currentTokenExpiry} to {newTokenExpiry}");
             }
 
@@ -525,7 +527,7 @@ namespace WebAPI.Managers
             DeviceRemovalPolicyHandler.Instance.SaveDomainDeviceUsageDate(udid, groupId);
 
             // 15. build the response from the ks:
-            response = new KalturaSessionInfo(ks);
+            response = SessionInfoFactory.Create(ks);
 
             return response;
         }
@@ -669,8 +671,7 @@ namespace WebAPI.Managers
                 throw new NotFoundException(NotFoundException.OBJECT_ID_NOT_FOUND, "Application-token", id);
             }
 
-            response = new KalturaAppToken(cbAppToken);
-
+            response = AppTokenFactory.Create(cbAppToken);
             return response;
         }
 

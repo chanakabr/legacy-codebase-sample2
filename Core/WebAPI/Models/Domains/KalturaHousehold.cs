@@ -228,10 +228,5 @@ namespace WebAPI.Models.Domains
         [XmlElement(ElementName = "updateDate")]
         [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
-
-        internal long getId()
-        {
-            return Id.HasValue ? (long)Id : 0;
-        }
     }
 }

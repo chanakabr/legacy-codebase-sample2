@@ -27,6 +27,7 @@ using WebAPI.ModelsFactory;
 using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
 using KeyValuePair = ApiObjects.KeyValuePair;
+using WebAPI.ModelsValidators;
 using ApiObjects.BulkUpload;
 using WebAPI.Models.Domains;
 

@@ -33,7 +33,7 @@ namespace WebAPI.Utils
         private const string EPG_CACHE_KEY_PREFIX = "epg";
         private const string RECORDING_CACHE_KEY_PREFIX = "recording";
         private const string CACHE_KEY_FORMAT = "{0}_lng{1}";
-        private const string OPC_MERGE_VERSION = "5.0.0.0";
+        internal const string OPC_MERGE_VERSION = "5.0.0.0";
         private static readonly Version opcMergeVersion = new Version(OPC_MERGE_VERSION);
 
         // TODO remove shouldSupportFailOverCaching and cacheKey because not used

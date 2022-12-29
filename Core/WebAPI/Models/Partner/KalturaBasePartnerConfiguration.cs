@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
@@ -8,8 +7,6 @@ namespace WebAPI.Models.Partner
 {
     public partial class KalturaBasePartnerConfiguration : KalturaPartnerConfiguration
     {
-        protected override KalturaPartnerConfigurationType ConfigurationType { get { return KalturaPartnerConfigurationType.Base; } }
-
         /// <summary>
         /// KSExpirationSeconds
         /// </summary>
@@ -79,8 +76,7 @@ namespace WebAPI.Models.Partner
         [JsonProperty("apptokenUserValidationDisabled")]
         [XmlElement(ElementName = "apptokenUserValidationDisabled")]
         public bool ApptokenUserValidationDisabled { get; set; }
-
-
+        
         /// <summary>
         /// epgFeatureVersion
         /// defines the epg feature version from version 1 to version 3
@@ -89,18 +85,13 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "epgFeatureVersion")]
         [JsonProperty("epgFeatureVersion")]
         [XmlElement(ElementName = "epgFeatureVersion")]
-        [SchemeProperty(MinInteger = 1, MaxInteger = 3, Default = 2,IsNullable = true)]
+        [SchemeProperty(MinInteger = 1, MaxInteger = 3, Default = 2, IsNullable = true)]
         public int? EpgFeatureVersion { get; set; }
 
         protected override void Init()
         {
             base.Init();
-            EpgFeatureVersion = 1;
-        }
-
-        internal override bool Update(int groupId)
-        {
-            throw new NotImplementedException();
+            EpgFeatureVersion = 2;
         }
     }
 }

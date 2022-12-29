@@ -1,8 +1,6 @@
 ﻿using Newtonsoft.Json;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.ClientManagers.Client;
 using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Partner
@@ -80,7 +78,7 @@ namespace WebAPI.Models.Partner
         [JsonProperty("downgradePriorityFamilyIds")]
         [XmlElement(ElementName = "downgradePriorityFamilyIds")]
         public string DowngradePriorityFamilyIds { get; set; }
-        
+
         /// <summary>
         /// Mail settings
         /// </summary>
@@ -167,7 +165,7 @@ namespace WebAPI.Models.Partner
         [XmlElement(ElementName = "allowDeviceMobility")]
         [SchemeProperty(IsNullable = true)]
         public bool? AllowDeviceMobility { get; set; }
-        
+
         /// <summary>
         /// Enable multi LCNs per linear channel
         /// </summary>
@@ -176,45 +174,5 @@ namespace WebAPI.Models.Partner
         [XmlElement(ElementName = "enableMultiLcns")]
         [SchemeProperty(IsNullable = true)]
         public bool? EnableMultiLcns { get; set; }
-
-        internal List<int> GetSecondaryLanguagesIds()
-        {
-            return Utils.Utils.ParseCommaSeparatedValues<List<int>, int>(SecondaryLanguages, "KalturaGeneralPartnerConfig.secondaryLanguages", false, false);
-        }
-
-        internal List<int> GetSecondaryCurrenciesIds()
-        {
-            return Utils.Utils.ParseCommaSeparatedValues<List<int>, int>(SecondaryCurrencies, "KalturaGeneralPartnerConfig.secondaryCurrencies", false, false);
-        }
-        internal List<int> GetDowngradePriorityFamilyIds()
-        {
-            return Utils.Utils.ParseCommaSeparatedValues<List<int>, int>(DowngradePriorityFamilyIds, "KalturaRollingDeviceRemovalData.DowngradePriorityFamilyIds", false, false);
-        }
-
-        internal override bool Update(int groupId)
-        {
-            return ClientsManager.ApiClient().UpdateGeneralPartnerConfiguration(groupId, this);
-        }
-
-        protected override KalturaPartnerConfigurationType ConfigurationType { get { return KalturaPartnerConfigurationType.General; } }
-    }
-
-    public enum KalturaDeleteMediaPolicy { Disable = 0, Delete = 1 }
-
-    public enum KalturaDowngradePolicy { LIFO = 0, FIFO = 1, ACTIVE_DATE = 2 }
-
-    public enum KalturaRollingDevicePolicy
-    {
-        NONE = 0,
-        LIFO = 1,
-        FIFO = 2,
-        ACTIVE_DEVICE_ASCENDING = 3
-    }
-
-    public enum KalturaSuspensionProfileInheritanceType
-    {
-        ALWAYS = 1,
-        NEVER = 2,
-        DEFAULT = 3
     }
 }

@@ -6,10 +6,6 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Domains
 {
-    public enum KalturaHouseholdOrderBy
-    {
-        CREATE_DATE_DESC
-    }
 
     /// <summary>
     /// Household details
@@ -27,14 +23,6 @@ namespace WebAPI.Models.Domains
         public override KalturaHouseholdOrderBy GetDefaultOrderByValue()
         {
             return KalturaHouseholdOrderBy.CREATE_DATE_DESC;
-        }
-
-        internal void Validate()
-        {
-            if (string.IsNullOrEmpty(this.ExternalIdEqual))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalIdEqual");
-            }
         }
     }
 }

@@ -1,13 +1,6 @@
-﻿using ApiObjects.BulkUpload;
-using Phx.Lib.Appconfig;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
+﻿using Newtonsoft.Json;
 using System.Runtime.Serialization;
-using System.Text.RegularExpressions;
 using System.Xml.Serialization;
-using WebAPI.App_Start;
-using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -128,77 +121,5 @@ namespace WebAPI.Models.Catalog
         [SchemeProperty(IsNullable = true)]
         [XmlArrayItem("item")]
         public SerializableDictionary<string, KalturaStringValue> DynamicData { get; set; }
-
-        public bool Validate()
-        {
-            // validate metaIds
-            if (!string.IsNullOrEmpty(MetaIds))
-            {
-                string[] stringValues = MetaIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string stringValue in stringValues)
-                {
-                    long value;
-                    if (!long.TryParse(stringValue, out value) || value < 1)
-                    {
-                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetStruct.metaIds");
-                    }
-                }
-            }
-
-            // validate features
-            if (!string.IsNullOrEmpty(this.Features))
-            {
-                HashSet<string> featuresHashSet = GetFeaturesAsHashSet();
-                if (featuresHashSet != null && featuresHashSet.Count > 0)
-                {
-                    string allowedPattern = ApplicationConfiguration.Current.MetaFeaturesPattern.Value;
-                    Regex regex = new Regex(allowedPattern);
-                    foreach (string feature in featuresHashSet)
-                    {
-                        if (regex.IsMatch(feature))
-                        {
-                            throw new BadRequestException(BadRequestException.INVALID_VALUE_FOR_FEATURE, feature);
-                        }
-                    }
-                }
-            }
-
-            if (DynamicData!= null)
-            {
-                foreach (var data in DynamicData)
-                {
-                    if (data.Value.value == null)
-                    {
-                        DynamicData.Remove(data.Key);
-                    }
-                }
-            }
-            
-            return true;
-        }
-
-        internal HashSet<string> GetFeaturesAsHashSet()
-        {
-            if (this.Features == null)
-            {
-                return null;
-            }
-
-            HashSet<string> result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            string[] splitedFeatures = this.Features.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string feature in splitedFeatures)
-            {
-                if (result.Contains(feature))
-                {
-                    throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "KalturaAssetStruct.features");
-                }
-                else
-                {
-                    result.Add(feature);
-                }
-            }
-
-            return result;
-        }
     }
 }

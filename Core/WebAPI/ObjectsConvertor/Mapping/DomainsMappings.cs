@@ -13,6 +13,7 @@ using System.Linq;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.ObjectsConvertor.Extensions;
+using WebAPI.ModelsValidators;
 
 namespace WebAPI.Mapping.ObjectsConvertor
 {

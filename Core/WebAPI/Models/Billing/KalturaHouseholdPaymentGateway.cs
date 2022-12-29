@@ -51,43 +51,4 @@ namespace WebAPI.Models.Billing
         [SchemeProperty(ReadOnly = true, IsNullable = true)]
         public KalturaSuspendSettings SuspendSettings { get; set; }
     }
-
-    /// <summary>
-    /// List of household payment gateways.
-    /// </summary>
-    [DataContract(Name = "KalturaHouseholdPaymentGatewayListResponse", Namespace = "")]
-    [XmlRoot("KalturaHouseholdPaymentGatewayListResponse")]
-    public partial class KalturaHouseholdPaymentGatewayListResponse : KalturaListResponse
-    {
-        /// <summary>
-        /// Follow data list
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty("objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]
-        public List<KalturaHouseholdPaymentGateway> Objects { get; set; }
-    }
-
-    /// <summary>
-    /// Suspend Settings
-    /// </summary>
-    public partial class KalturaSuspendSettings : KalturaOTTObject
-    {
-        /// <summary>
-        /// revoke entitlements
-        /// </summary>
-        [DataMember(Name = "revokeEntitlements")]
-        [JsonProperty("revokeEntitlements")]
-        [XmlElement(ElementName = "revokeEntitlements")]
-        public bool RevokeEntitlements { get; set; }
-
-        /// <summary>
-        /// stop renew
-        /// </summary>
-        [DataMember(Name = "stopRenew")]
-        [JsonProperty("stopRenew")]
-        [XmlElement(ElementName = "stopRenew")]
-        public bool StopRenew { get; set; }
-    }
 }

@@ -11,16 +11,4 @@ namespace WebAPI.Models.Domains
         users_base_info,
         users_full_info
     }
-
-    /// <summary>
-    /// Holder object for Household With enum
-    /// </summary>
-    [Obsolete]
-    public partial class KalturaHouseholdWithHolder : KalturaOTTObject
-    {
-        [DataMember(Name = "type")]
-        [JsonProperty("type")]
-        [XmlElement("type")]
-        public KalturaHouseholdWith type { get; set; }
-    }
 }

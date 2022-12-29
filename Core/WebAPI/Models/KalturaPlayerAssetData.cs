@@ -55,25 +55,5 @@ namespace WebAPI.Models.Catalog
         [XmlArrayItem(ElementName = "currentBitrate")]
         [OldStandardProperty("current_bitrate")]
         public int? currentBitRate { get; set; }
-
-        internal int getLocation()
-        {
-            return location.HasValue ? (int)location : 0;
-        }
-
-        internal int getAverageBitRate()
-        {
-            return averageBitRate.HasValue ? (int)averageBitRate : 0;
-        }
-
-        internal int getCurrentBitRate()
-        {
-            return currentBitRate.HasValue ? (int)currentBitRate : 0;
-        }
-
-        internal int getTotalBitRate()
-        {
-            return totalBitRate.HasValue ? (int)totalBitRate : 0;
-        }
     }
 }

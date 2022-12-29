@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Exceptions;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
@@ -24,22 +23,9 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "idEqual")]
         public long IdEqual { get; set; }
 
-        internal virtual void Validate()
-        {
-            if (AssetIdEqual > 0 && IdEqual > 0)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaMediaFileFilter.idEqual", "KalturaMediaFileFilter.assetIdEqual");
-            }
-        }
-
         public override KalturaMediaFileOrderBy GetDefaultOrderByValue()
         {
             return KalturaMediaFileOrderBy.NONE;
         }
-    }
-
-    public enum KalturaMediaFileOrderBy
-    {
-        NONE
     }
 }

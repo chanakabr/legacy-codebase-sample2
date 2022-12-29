@@ -12,6 +12,7 @@ using WebAPI.Models.Users;
 using TVinciShared;
 using DAL.DTO;
 using WebAPI.ObjectsConvertor.Extensions;
+using WebAPI.ModelsValidators;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -22,7 +23,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // map KalturaBillingPartnerConfig to PartnerConfiguration
             cfg.CreateMap<KalturaBillingPartnerConfig, PartnerConfiguration>()
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
-                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertPartnerConfigurationType(src.getType())));
+                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertPartnerConfigurationType(src.GetConfigurationType())));
 
             // map DeviceConcurrencyPriority to KalturaConcurrencyPartnerConfig
             cfg.CreateMap<DeviceConcurrencyPriority, KalturaConcurrencyPartnerConfig>()
@@ -363,12 +364,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.UploadExportDatalake, opt => opt.MapFrom(src => src.UploadExportDatalake))
                .ForMember(dest => dest.ShopMarkerMetaId, opt => opt.MapFrom(src => src.ShopMarkerMetaId));
 
-            cfg.CreateMap<KalturaCategoryManagement, CategoryManagement>()
+            cfg.CreateMap<KalturaCategoryManagement, ApiObjects.CategoryManagement>()
                 .ForMember(dest => dest.DefaultCategoryTree, opt => opt.MapFrom(src => src.DefaultCategoryTreeId))
                 .ForMember(dest => dest.DeviceFamilyToCategoryTree, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.DeviceFamilyToCategoryTree, true)))
                 .AfterMap((src, dest) => dest.DeviceFamilyToCategoryTree = src.DeviceFamilyToCategoryTree != null ? dest.DeviceFamilyToCategoryTree : null);
 
-            cfg.CreateMap<CategoryManagement, KalturaCategoryManagement>()
+            cfg.CreateMap<ApiObjects.CategoryManagement, KalturaCategoryManagement>()
                 .ForMember(dest => dest.DefaultCategoryTreeId, opt => opt.MapFrom(src => src.DefaultCategoryTree))
                 .ForMember(dest => dest.DeviceFamilyToCategoryTree, opt => opt.MapFrom(src => src.DeviceFamilyToCategoryTree != null ? src.DeviceFamilyToCategoryTree.ToDictionary(k => k.Key, v => v.Value) : null));
 

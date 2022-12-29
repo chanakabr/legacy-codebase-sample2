@@ -1,6 +1,5 @@
 using System;
 using WebAPI.Exceptions;
-using WebAPI.Models.API;
 using WebAPI.Models.ConditionalAccess;
 
 namespace WebAPI.ModelsValidators

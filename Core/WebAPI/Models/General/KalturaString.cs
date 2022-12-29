@@ -8,7 +8,7 @@ using System.Xml.Serialization;
 
 namespace WebAPI.Models.General
 {    
-    public class KalturaString : KalturaOTTObject
+    public partial class KalturaString : KalturaOTTObject
     {
         [DataMember(Name = "value")]
         [JsonProperty("value")]

@@ -2,7 +2,6 @@
 using System;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.ClientManagers.Client;
 using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Partner
@@ -37,20 +36,5 @@ namespace WebAPI.Models.Partner
         [JsonProperty("type")]
         [XmlElement(ElementName = "type")]
         public KalturaPartnerConfigurationType Type { get; set; }
-
-        internal KalturaPartnerConfigurationType getType()
-        {
-            if (PartnerConfigurationType != null)
-                return PartnerConfigurationType.type;
-
-            return Type;
-        }
-
-        internal override bool Update(int groupId)
-        {
-            return ClientsManager.BillingClient().SetPartnerConfiguration(groupId, this);
-        }
-
-        protected override KalturaPartnerConfigurationType ConfigurationType { get { return this.getType(); } }
     }
 }

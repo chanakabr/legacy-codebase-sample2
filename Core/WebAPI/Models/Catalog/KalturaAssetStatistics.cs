@@ -65,21 +65,4 @@ namespace WebAPI.Models.Catalog
 
         // TODO LIOR / SUNNY - add ForeverViews/totalviews in v2 of coding GEN-1088
     }
-
-    /// <summary>
-    /// List of assets statistics
-    /// </summary>
-    [DataContract(Name = "KalturaAssetStatisticsListResponse", Namespace = "")]
-    [XmlRoot("KalturaAssetStatisticsListResponse")]
-    public partial class KalturaAssetStatisticsListResponse : KalturaListResponse
-    {
-        /// <summary>
-        /// Assets
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty("objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]
-        public List<KalturaAssetStatistics> AssetsStatistics { get; set; }
-    }
 }

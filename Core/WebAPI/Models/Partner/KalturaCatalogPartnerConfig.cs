@@ -1,13 +1,7 @@
-﻿using ApiLogic.Api.Managers;
-using ApiObjects;
-using ApiObjects.Response;
-using Newtonsoft.Json;
-using System;
+﻿using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Clients;
 using WebAPI.Managers.Scheme;
-using WebAPI.ModelsValidators;
 
 namespace WebAPI.Models.Partner
 {
@@ -16,8 +10,6 @@ namespace WebAPI.Models.Partner
     /// </summary>
     public partial class KalturaCatalogPartnerConfig : KalturaPartnerConfiguration
     {
-        protected override KalturaPartnerConfigurationType ConfigurationType { get { return KalturaPartnerConfigurationType.Catalog; } }
-
         /// <summary>
         /// Single multilingual mode
         /// </summary>
@@ -35,7 +27,7 @@ namespace WebAPI.Models.Partner
         [XmlElement(ElementName = "categoryManagement", IsNullable = true)]
         [SchemeProperty(IsNullable = true)]
         public KalturaCategoryManagement CategoryManagement { get; set; }
-        
+
         /// <summary>
         /// EPG Multilingual Fallback Support
         /// </summary>
@@ -53,7 +45,6 @@ namespace WebAPI.Models.Partner
         [XmlElement(ElementName = "uploadExportDatalake")]
         [SchemeProperty(IsNullable = true)]
         public bool? UploadExportDatalake { get; set; }
-
         /// <summary>
         /// Shop Marker's identifier
         /// </summary>
@@ -62,23 +53,5 @@ namespace WebAPI.Models.Partner
         [XmlElement(ElementName = "shopMarkerMetaId")]
         [SchemeProperty(IsNullable = true)]
         public long? ShopMarkerMetaId { get; set; }
-
-        internal override bool Update(int groupId)
-        {
-            Func<CatalogPartnerConfig, Status> partnerConfigFunc =
-                (CatalogPartnerConfig catalogPartnerConfig) => CatalogPartnerConfigManager.Instance.UpdateCatalogConfig(groupId, catalogPartnerConfig);
-
-            ClientUtils.GetResponseStatusFromWS(partnerConfigFunc, this);
-
-            return true;
-        }
-
-        public override void ValidateForUpdate()
-        {
-            if (this.CategoryManagement != null)
-            {
-                this.CategoryManagement.ValidateForUpdate();
-            }
-        }
     }
 }

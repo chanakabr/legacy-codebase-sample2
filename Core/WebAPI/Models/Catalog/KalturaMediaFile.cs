@@ -6,23 +6,10 @@ using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.ConditionalAccess;
+using WebAPI.Utils;
 
 namespace WebAPI.Models.Catalog
 {
-    /// <summary>
-    /// Asset file details
-    /// </summary>
-    [Serializable]
-    public partial class KalturaAssetFile : KalturaOTTObject
-    {
-        /// <summary>
-        /// URL of the media file to be played
-        /// </summary>
-        [DataMember(Name = "url")]
-        [JsonProperty(PropertyName = "url")]
-        [XmlElement(ElementName = "url")]
-        public string Url { get; set; }
-    }
 
     /// <summary>
     /// Media file details
@@ -30,8 +17,6 @@ namespace WebAPI.Models.Catalog
     [Serializable]
     public partial class KalturaMediaFile : KalturaAssetFile
     {
-        private const string OPC_MERGE_VERSION = "5.0.0.0";
-
         #region Data Members
 
         /// <summary>
@@ -117,7 +102,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "billingType")]
         [XmlElement(ElementName = "billingType")]
         [JsonIgnore]
-        [Deprecated(OPC_MERGE_VERSION)]
+        [Deprecated(CatalogUtils.OPC_MERGE_VERSION)]
         public string BillingType { get; set; }
 
         /// <summary>
@@ -127,7 +112,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "quality")]
         [XmlElement(ElementName = "quality")]
         [JsonIgnore]
-        [Deprecated(OPC_MERGE_VERSION)]
+        [Deprecated(CatalogUtils.OPC_MERGE_VERSION)]
         public string Quality { get; set; }
 
         /// <summary>
@@ -182,7 +167,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "productCode")]
         [XmlElement(ElementName = "productCode")]
         [JsonIgnore]
-        [Deprecated(OPC_MERGE_VERSION)]
+        [Deprecated(CatalogUtils.OPC_MERGE_VERSION)]
         public string ProductCode { get; set; }
 
         /// <summary>
@@ -323,56 +308,5 @@ namespace WebAPI.Models.Catalog
         public string Labels { get; set; }
 
         #endregion
-    }
-
-    public partial class KalturaBusinessModuleDetails : KalturaOTTObject
-    {
-        /// <summary>
-        /// BusinessModuleId
-        /// </summary>
-        [DataMember(Name = "businessModuleId")]
-        [JsonProperty(PropertyName = "businessModuleId")]
-        [XmlElement(ElementName = "businessModuleId")]
-        public int? BusinessModuleId { get; set; }
-
-        /// <summary>
-        /// BusinessModuleType
-        /// </summary>
-        [DataMember(Name = "businessModuleType")]
-        [JsonProperty(PropertyName = "businessModuleType")]
-        [XmlElement(ElementName = "businessModuleType")]
-        public KalturaTransactionType? BusinessModuleType { get; set; }
-    }
-
-    /// <summary>
-    /// Media-file list
-    /// </summary>
-    [DataContract(Name = "Collections", Namespace = "")]
-    [XmlRoot("Collections")]
-    public partial class KalturaMediaFileListResponse : KalturaListResponse
-    {
-        /// <summary>
-        /// A list of media-file types
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty("objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaMediaFile> Files { get; set; }
-    }
-
-    /// <summary>
-    /// Media file in discovery context
-    /// </summary>
-    [Serializable]
-    public partial class KalturaDiscoveryMediaFile : KalturaMediaFile
-    {
-        /// <summary>
-        /// show, if file could be played 
-        /// </summary>
-        [DataMember(Name = "isPlaybackable")]
-        [JsonProperty("isPlaybackable")]
-        [XmlArray(ElementName = "isPlaybackable")]
-        public bool IsPlaybackable { get; set; }
     }
 }

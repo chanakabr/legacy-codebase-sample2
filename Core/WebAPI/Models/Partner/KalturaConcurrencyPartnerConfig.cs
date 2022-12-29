@@ -1,10 +1,6 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.ClientManagers.Client;
-using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Partner
@@ -35,7 +31,7 @@ namespace WebAPI.Models.Partner
         /// </summary>
         [DataMember(Name = "concurrencyThresholdInSeconds")]
         [JsonProperty("concurrencyThresholdInSeconds")]
-        [XmlElement(ElementName = "concurrencyThresholdInSeconds")] 
+        [XmlElement(ElementName = "concurrencyThresholdInSeconds")]
         [SchemeProperty(MinLong = 30, MaxLong = 1200)]
         public long? ConcurrencyThresholdInSeconds { get; set; }
 
@@ -54,49 +50,5 @@ namespace WebAPI.Models.Partner
         [JsonProperty("excludeFreeContentFromConcurrency")]
         [XmlElement(ElementName = "excludeFreeContentFromConcurrency")]
         public bool? ExcludeFreeContentFromConcurrency { get; set; }
-
-        internal HashSet<int> GetDeviceFamilyIds()
-        {
-            HashSet<int> values = null;
-
-            if (DeviceFamilyIds == null)
-            {
-                return values;
-            }
-
-            values = new HashSet<int>();
-
-            string[] stringValues = DeviceFamilyIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string stringValue in stringValues)
-            {
-                int value;
-                if (int.TryParse(stringValue, out value) && value != 0)
-                {
-                    if (!values.Add(value))
-                    {
-                        throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "deviceFamilyIds");
-                    }
-                }
-                else
-                {
-                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "deviceFamilyIds");
-                }
-            }
-
-            return values;
-        }
-
-        internal override bool Update(int groupId)
-        {
-            return ClientsManager.ApiClient().UpdateConcurrencyPartner(groupId, this);
-        }
-
-        protected override KalturaPartnerConfigurationType ConfigurationType { get { return KalturaPartnerConfigurationType.Concurrency; } }
-    }
-    
-    public enum KalturaEvictionPolicyType
-    {
-        FIFO,
-        LIFO
     }
 }

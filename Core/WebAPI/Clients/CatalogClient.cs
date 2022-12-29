@@ -57,6 +57,7 @@ using MetaType = ApiObjects.MetaType;
 using OrderDir = ApiObjects.SearchObjects.OrderDir;
 using Ratio = Core.Catalog.Ratio;
 using SearchAssetsFilter = WebAPI.InternalModels.SearchAssetsFilter;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.Clients
 {
