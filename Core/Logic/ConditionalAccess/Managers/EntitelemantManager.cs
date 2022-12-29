@@ -2186,7 +2186,7 @@ namespace Core.ConditionalAccess
                 Price priceBeforeCouponDiscount = subOriginalPrice;
                 var promotionEvaluator = new PromotionEvaluator(Pricing.Module.Instance, Utils.Instance, groupId, domainId, 
                     countryCode, subOriginalPrice.m_oCurrency.m_sCurrencyCD3, couponCode, priceBeforeCouponDiscount);
-                Price priceResult = promotionEvaluator.Evaluate(campaigns.Objects[0].Promotion);
+                Price priceResult = promotionEvaluator.Evaluate(campaigns.Objects[0].Promotion, campaigns.Objects[0].Id);
 
                 cedd.Amount = subOriginalPrice.m_dPrice - priceResult.m_dPrice;
             }

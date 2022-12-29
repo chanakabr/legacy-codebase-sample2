@@ -26,5 +26,15 @@ namespace WebAPI.Models.API
         [JsonProperty("numberOfRecurring")]
         [XmlElement(ElementName = "numberOfRecurring")]
         public int? NumberOfRecurring { get; set; }
+
+        /// <summary>
+        /// The number of times a household can use the discount module in this campaign.
+        /// If omitted than no limitation is enforced on the number of usages.
+        /// </summary>
+        [DataMember(Name = "maxDiscountUsages")]
+        [JsonProperty("maxDiscountUsages")]
+        [XmlElement(ElementName = "maxDiscountUsages")]
+        [SchemeProperty(MinInteger = 1, MaxInteger = 100)]
+        public int? MaxDiscountUsages { get; set; }
     }
 }

@@ -1,17 +1,16 @@
 ﻿using ApiLogic.Users.Managers;
 using ApiObjects;
 using ApiObjects.Base;
-using Core.Users;
 using EventBus.Abstraction;
-using Phx.Lib.Log;
 using Newtonsoft.Json;
+using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using TVinciShared;
 using domain = Core.Domains.Module;
+using messageInboxManger = Core.Notification.MessageInboxManger;
 
 namespace CampaignHandler
 {
@@ -28,7 +27,20 @@ namespace CampaignHandler
         {
             try
             {
-                _Logger.Debug($"Debug event: {JsonConvert.SerializeObject(serviceEvent)}");
+                _Logger.Debug($"Starting CampaignTriggerHandler event:[{JsonConvert.SerializeObject(serviceEvent)}].");
+
+                var domain =
+                    Core.ConditionalAccess.Utils.GetDomainInfo((int)serviceEvent.DomainId, serviceEvent.GroupId);
+                if (domain == null)
+                {
+                    _Logger.Debug($"Couldn't find domain: {(int)serviceEvent.DomainId}, " +
+                                  $"requestId: [{serviceEvent.RequestId}], Service: [{(ApiService)serviceEvent.ApiService}]");
+                    return Task.CompletedTask;
+                }
+
+                var master = domain.m_masterGUIDs.FirstOrDefault();
+                var contextData = new ContextData(serviceEvent.GroupId)
+                    { DomainId = serviceEvent.DomainId, UserId = master };
 
                 var filter = new TriggerCampaignFilter()
                 {
@@ -37,49 +49,35 @@ namespace CampaignHandler
                     StateEqual = CampaignState.ACTIVE,
                     IsActiveNow = true
                 };
-
-                var domain = Core.ConditionalAccess.Utils.GetDomainInfo((int)serviceEvent.DomainId, serviceEvent.GroupId);
-
-                if (domain == null)
-                {
-                    _Logger.Debug($"Couldn't find domain: {(int)serviceEvent.DomainId}, " +
-                        $"requestId: [{serviceEvent.RequestId}], Service: [{filter.Service}]");
-                    return Task.CompletedTask;
-                }
-
-                var master = domain.m_masterGUIDs.FirstOrDefault();
-                var contextData = new ContextData(serviceEvent.GroupId) { DomainId = serviceEvent.DomainId, UserId = master };
-
                 var triggerCampaigns = CampaignManager.Instance.ListTriggerCampaigns(contextData, filter);
-
                 if (!triggerCampaigns.HasObjects())
                 {
                     _Logger.Debug($"Couldn't find any CampaignTriggerEvent for ContextData: {contextData}, " +
-                        $"requestId: [{serviceEvent.RequestId}], Service: [{filter.Service}]");
+                                  $"requestId: [{serviceEvent.RequestId}], Service: [{filter.Service}]");
                     return Task.CompletedTask;
                 }
 
-                _Logger.Debug($"Starting CampaignTriggerHandler requestId:[{serviceEvent.RequestId}], Service: [{filter.Service}]");
+                var existingCampaigns = DAL.CampaignUsageRepository.Instance.GetCampaignInboxMessageMapCB(serviceEvent.GroupId, master);
 
-                var existingCampaigns = DAL.NotificationDal.GetCampaignInboxMessageMapCB(serviceEvent.GroupId, master);
-
-                foreach (var _triggerCampaign in triggerCampaigns.Objects)
+                foreach (var triggerCampaign in triggerCampaigns.Objects)
                 {
                     //BEO-8610 handle anti fraud
-                    var deviceTriggerCampaignsUses = DAL.NotificationDal.GetDeviceTriggerCampainsUses(serviceEvent.GroupId, serviceEvent.EventObject.Udid);
-                    var isExists = deviceTriggerCampaignsUses?.Uses?.ContainsKey(_triggerCampaign.Id);
+                    var deviceTriggerCampaignsUses =
+                        DAL.CampaignUsageRepository.Instance.GetDeviceTriggerCampainsUses(serviceEvent.GroupId,
+                            serviceEvent.EventObject.Udid);
+                    var isExists = deviceTriggerCampaignsUses?.Uses?.ContainsKey(triggerCampaign.Id);
                     if (isExists.HasValue && isExists.Value)
                     {
                         continue;
                     }
 
-                    isExists = existingCampaigns?.Campaigns?.ContainsKey(_triggerCampaign.Id);
+                    isExists = existingCampaigns?.Campaigns?.ContainsKey(triggerCampaign.Id);
                     if (isExists.HasValue && isExists.Value)
                     {
-                        if (!existingCampaigns.Campaigns[_triggerCampaign.Id].Devices.Contains(serviceEvent.EventObject.Udid))
+                        if (!existingCampaigns.Campaigns[triggerCampaign.Id].Devices
+                                .Contains(serviceEvent.EventObject.Udid))
                         {
-                            var campaignDetails = existingCampaigns.Campaigns[_triggerCampaign.Id];
-
+                            var campaignDetails = existingCampaigns.Campaigns[triggerCampaign.Id];
                             if (campaignDetails.Devices == null)
                             {
                                 campaignDetails.Devices = new List<string>();
@@ -87,9 +85,11 @@ namespace CampaignHandler
 
                             campaignDetails.Devices.Add(serviceEvent.EventObject.Udid);
 
-                            if (!DAL.NotificationDal.SaveToCampaignInboxMessageMapCB(_triggerCampaign.Id, contextData.GroupId, master, campaignDetails))
+                            if (!DAL.CampaignUsageRepository.Instance.SaveToCampaignInboxMessageMapCb(triggerCampaign.Id,
+                                    contextData.GroupId, master, campaignDetails))
                             {
-                                _Logger.Error($"Failed SaveToCampaignInboxMessageMapCB with campaign: {_triggerCampaign.Id}, " +
+                                _Logger.Error(
+                                    $"Failed SaveToCampaignInboxMessageMapCB with campaign: {triggerCampaign.Id}, " +
                                     $"hh: {serviceEvent.DomainId}, group: {contextData.GroupId}");
                             }
                         }
@@ -106,11 +106,12 @@ namespace CampaignHandler
                         };
 
                         var scope = serviceEvent.EventObject.CreateTriggerCampaignConditionScope(contextData);
-                        if (_triggerCampaign.EvaluateConditions(scope))
+                        if (triggerCampaign.EvaluateConditions(scope))
                         {
                             _contextData.Udid = serviceEvent.EventObject?.Udid;
-                            Core.Notification.MessageInboxManger.AddCampaignMessage(_triggerCampaign, serviceEvent.GroupId, user, _contextData.Udid);
-                            CampaignManager.Instance.NotifyTriggerCampaignEvent(_triggerCampaign, _contextData);
+                            messageInboxManger.Instance.AddCampaignMessageToUser(triggerCampaign, serviceEvent.GroupId,
+                                user, _contextData.Udid);
+                            CampaignManager.Instance.NotifyTriggerCampaignEvent(triggerCampaign, _contextData);
                         }
                     });
                 }
@@ -119,7 +120,8 @@ namespace CampaignHandler
             }
             catch (Exception ex)
             {
-                _Logger.Error($"An Exception occurred in CampaignTriggerHandler requestId:[{serviceEvent.RequestId}]", ex);
+                _Logger.Error($"An Exception occurred in CampaignTriggerHandler requestId:[{serviceEvent.RequestId}]",
+                    ex);
                 return Task.FromException(ex);
             }
         }

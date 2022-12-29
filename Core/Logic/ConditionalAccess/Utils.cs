@@ -1864,135 +1864,128 @@ namespace Core.ConditionalAccess
         {
             RecurringCampaignDetails recurringCampaignDetails = null;
 
+            // get all active campaigns with promotion
             var campaignFilter = new CampaignSearchFilter()
             {
                 HasPromotion = true,
                 StateEqual = CampaignState.ACTIVE,
                 IsActiveNow = true
             };
+            var campaigns = ApiLogic.Users.Managers.CampaignManager.Instance.SearchCampaigns(new ContextData(groupId) {DomainId = domainId }, campaignFilter);
+            if (!campaigns.HasObjects()) { return recurringCampaignDetails; }
 
-            var campaigns = ApiLogic.Users.Managers.CampaignManager.Instance.SearchCampaigns(new ContextData(groupId) { DomainId = domainId }, campaignFilter);
-
-            if (campaigns.HasObjects())
+            // evaluate all campaigns which are compatible with current price details / purchase details
+            var campaignPromotionScope = new BusinessModuleRuleConditionScope()
             {
-                var campaignPromotionScope = new BusinessModuleRuleConditionScope()
+                BusinessModuleId = productId,
+                BusinessModuleType = productType,
+                FilterByDate = true,
+                GroupId = groupId,
+                MediaId = mediaId,
+                FileTypeIds = fileTypeIds
+            };
+            var validCampaigns = campaigns.Objects.Where(x => x.Promotion.EvaluateConditions(campaignPromotionScope)).ToList();
+            if (validCampaigns == null || validCampaigns.Count == 0) { return recurringCampaignDetails; }
+
+            //get user campaigns map
+            var domainResponse = Domains.Module.GetDomainInfo(groupId, domainId);
+            long userId = domainResponse.Domain.m_masterGUIDs.FirstOrDefault();
+            var userCampaigns = CampaignUsageRepository.Instance.GetCampaignInboxMessageMapCB(groupId, userId);
+
+            var batchCampaignScope = new BatchCampaignConditionScope();
+
+            ApiObjects.Campaign lowestCampaign = null;
+            var promotionEvaluator = new PromotionEvaluator(Pricing.Module.Instance, Instance, groupId, domainId,
+                countryCode, currencyCode, couponCode, originalPrice);
+
+            foreach (var promotedCampaign in validCampaigns)
+            {
+                string triggerUdid = null;
+                var campaignAssignedToUser = userCampaigns.Campaigns.ContainsKey(promotedCampaign.Id);
+                if (campaignAssignedToUser)
                 {
-                    BusinessModuleId = productId,
-                    BusinessModuleType = productType,
-                    FilterByDate = true,
-                    GroupId = groupId,
-                    MediaId = mediaId,
-                    FileTypeIds = fileTypeIds
-                };
-
-                var validCampaigns = campaigns.Objects.Where(x => x.Promotion.EvaluateConditions(campaignPromotionScope)).ToList();
-
-                if (validCampaigns?.Count > 0)
-                {
-                    var domainResponse = Domains.Module.GetDomainInfo(groupId, domainId);
-                    long userId = domainResponse.Domain.m_masterGUIDs.FirstOrDefault();
-
-                    //get user map
-                    var userCampaigns = NotificationDal.GetCampaignInboxMessageMapCB(groupId, userId);
-
-                    var batchCampaignScope = new BatchCampaignConditionScope();
-
-                    ApiObjects.Campaign lowestCampaign = null;
-                    var promotionEvaluator = new PromotionEvaluator(Pricing.Module.Instance, Instance, groupId, domainId,
-                        countryCode, currencyCode, couponCode, originalPrice);
-
-                    foreach (var promotedCampaign in validCampaigns)
+                    // handle anti fraud for Subscription only
+                    if (productType == eTransactionType.Subscription && userCampaigns.Campaigns[promotedCampaign.Id].SubscriptionUses.ContainsKey(productId)) //Don't allow campaign usage
                     {
-                        var campaignAssignedToUser = userCampaigns != null && userCampaigns.Campaigns != null && userCampaigns.Campaigns.ContainsKey(promotedCampaign.Id);
+                        continue;
+                    }
 
-                        string triggerUdid = null;
-                        if (campaignAssignedToUser)
+                    if (promotedCampaign.CampaignType == eCampaignType.Trigger && userCampaigns.Campaigns[promotedCampaign.Id].Devices.Count > 0)
+                    {
+                        foreach (var udid in userCampaigns.Campaigns[promotedCampaign.Id].Devices)
                         {
-                            // handle anti fraud for Subscription only
-                            if (productType == eTransactionType.Subscription && userCampaigns.Campaigns[promotedCampaign.Id].SubscriptionUses.ContainsKey(productId)) //Don't allow campaign usage
+                            if (IsDeviceInDomain(domainResponse.Domain, udid))
                             {
-                                continue;
-                            }
-
-                            if (promotedCampaign.CampaignType == eCampaignType.Trigger && userCampaigns.Campaigns[promotedCampaign.Id].Devices.Count > 0)
-                            {
-                                foreach (var udid in userCampaigns.Campaigns[promotedCampaign.Id].Devices)
+                                var deviceTriggerCampainsUses = CampaignUsageRepository.Instance.GetDeviceTriggerCampainsUses(groupId, udid);
+                                if (deviceTriggerCampainsUses == null || !deviceTriggerCampainsUses.Uses.ContainsKey(promotedCampaign.Id))
                                 {
-                                    if (IsDeviceInDomain(domainResponse.Domain, udid))
-                                    {
-                                        var deviceTriggerCampainsUses = NotificationDal.GetDeviceTriggerCampainsUses(groupId, udid);
-                                        if (deviceTriggerCampainsUses == null || !deviceTriggerCampainsUses.Uses.ContainsKey(promotedCampaign.Id))
-                                        {
-                                            triggerUdid = udid;
-                                            break;
-                                        }
-                                    }
-                                }
-
-                                if (string.IsNullOrEmpty(triggerUdid)) //Don't allow campaign usage
-                                {
-                                    continue;
+                                    triggerUdid = udid;
+                                    break;
                                 }
                             }
                         }
 
-                        // save batch campaign to user in lazy
-                        if (!campaignAssignedToUser && promotedCampaign.CampaignType == eCampaignType.Batch)
-                        {
-                            if (promotedCampaign.GetConditions()?.Count > 0)
-                            {
-                                if (!batchCampaignScope.FilterBySegments)
-                                {
-                                    List<string> allUserIdsInDomain = Domains.Module.GetDomainUserList(groupId, domainId);
-                                    batchCampaignScope.SegmentIds = GetDomainSegments(groupId, domainId, allUserIdsInDomain);
-                                    batchCampaignScope.FilterBySegments = true;
-                                }  
-                            }
+                        //Don't allow campaign usage
+                        if (string.IsNullOrEmpty(triggerUdid)) { continue; }
+                    }
+                }
 
-                            if (promotedCampaign.EvaluateConditions(batchCampaignScope))
-                            {
-                                campaignAssignedToUser = true;
-                                Task.Run(() => Notification.MessageInboxManger.AddCampaignMessage(promotedCampaign, groupId, userId));
-                            }
+                // save batch campaign to user in lazy
+                if (!campaignAssignedToUser && promotedCampaign.CampaignType == eCampaignType.Batch)
+                {
+                    if (promotedCampaign.GetConditions()?.Count > 0)
+                    {
+                        if (!batchCampaignScope.FilterBySegments)
+                        {
+                            List<string> allUserIdsInDomain = Domains.Module.GetDomainUserList(groupId, domainId);
+                            batchCampaignScope.SegmentIds = GetDomainSegments(groupId, domainId, allUserIdsInDomain);
+                            batchCampaignScope.FilterBySegments = true;
+                        }
+                    }
+
+                    if (promotedCampaign.EvaluateConditions(batchCampaignScope))
+                    {
+                        campaignAssignedToUser = true;
+                        Task.Run(() => Notification.MessageInboxManger.Instance.AddCampaignMessageToUser(promotedCampaign, groupId, userId));
+                    }
+                }
+
+                if (campaignAssignedToUser)
+                {
+                    var tempPrice = promotionEvaluator.Evaluate(promotedCampaign.Promotion, promotedCampaign.Id);
+                    if (tempPrice == null) { continue; }
+
+                    bool isLowest = false;
+                    if (tempPrice.m_dPrice < lowestPrice.m_dPrice)
+                    {
+                        lowestPrice = tempPrice;
+                        isLowest = true;
+                    }
+                    else if (tempPrice.m_dPrice == lowestPrice.m_dPrice)
+                    {
+                        int numberOfRecurring = lowestCampaign == null ? -1 : lowestCampaign.Promotion.GetNumberOfRecurring();
+                        int newNumberOfRecurring = promotedCampaign.Promotion.GetNumberOfRecurring();
+
+                        isLowest = lowestCampaign == null || (newNumberOfRecurring > numberOfRecurring) ||
+                            (newNumberOfRecurring == numberOfRecurring && promotedCampaign.EndDate > lowestCampaign.EndDate);
+                    }
+
+                    if (isLowest)
+                    {
+                        lowestCampaign = promotedCampaign;
+                        var numberOfRecurring = lowestCampaign.Promotion.GetNumberOfRecurring();
+                        if (numberOfRecurring < 0)
+                        {
+                            numberOfRecurring = 0;
                         }
 
-                        if (campaignAssignedToUser)
+                        recurringCampaignDetails = new RecurringCampaignDetails
                         {
-                            var tempPrice = promotionEvaluator.Evaluate(promotedCampaign.Promotion);
-                            if (tempPrice == null) { continue; }
-
-                            bool isLowest = false;
-                            if (tempPrice.m_dPrice < lowestPrice.m_dPrice)
-                            {
-                                lowestPrice = tempPrice;
-                                isLowest = true;
-                            }
-                            else if (tempPrice.m_dPrice == lowestPrice.m_dPrice)
-                            {
-                                int numberOfRecurring = lowestCampaign == null ? -1 : lowestCampaign.Promotion.GetNumberOfRecurring();
-                                int newNumberOfRecurring = promotedCampaign.Promotion.GetNumberOfRecurring();
-
-                                isLowest = lowestCampaign == null || (newNumberOfRecurring > numberOfRecurring) ||
-                                    (newNumberOfRecurring == numberOfRecurring && promotedCampaign.EndDate > lowestCampaign.EndDate);
-                            }
-
-                            if (isLowest)
-                            {
-                                lowestCampaign = promotedCampaign;
-                                var numberOfRecurring = lowestCampaign.Promotion.GetNumberOfRecurring();
-                                if (numberOfRecurring < 0)
-                                {
-                                    numberOfRecurring = 0;
-                                }
-
-                                recurringCampaignDetails = new RecurringCampaignDetails
-                                {
-                                    Id = lowestCampaign.Id,
-                                    LeftRecurring = numberOfRecurring,
-                                    Udid = triggerUdid
-                                };
-                            }
-                        }
+                            Id = lowestCampaign.Id,
+                            LeftRecurring = numberOfRecurring,
+                            Udid = triggerUdid,
+                            CampaignEndDate = lowestCampaign.EndDate
+                        };
                     }
                 }
             }

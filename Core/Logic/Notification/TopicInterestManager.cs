@@ -1559,7 +1559,7 @@ namespace APILogic.Notification
                             UserId = userId
                         };
 
-                        if (!NotificationDal.SetUserInboxMessage(partnerId, inboxMessage, NotificationSettings.Instance.GetInboxMessageTTLDays(partnerId)))
+                        if (!NotificationDal.Instance.SetUserInboxMessage(partnerId, inboxMessage, NotificationSettings.Instance.GetInboxMessageTTLDays(partnerId)))
                         {
                             log.ErrorFormat("Error while setting user interest inbox message. GID: {0}, InboxMessage: {1}",
                                 partnerId,

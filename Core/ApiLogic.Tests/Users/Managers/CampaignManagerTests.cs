@@ -8,6 +8,7 @@ using AutoFixture;
 using AutoFixture.Kernel;
 using CachingProvider.LayeredCache;
 using Core.Catalog.CatalogManagement;
+using Core.Notification;
 using Core.Pricing;
 using DAL;
 using EventBus.Abstraction;
@@ -69,6 +70,7 @@ namespace ApiLogic.Tests.Users.Managers
             var groupsCache = Mock.Of<GroupsCacheManager.IGroupsCache>();
             var conditionValidator = Mock.Of<IConditionValidator>();
             var promotionValidator = Mock.Of<IPromotionValidator>();
+            var messageInboxManger = Mock.Of<IMessageInboxManger>();
 
             CampaignManager manager = new CampaignManager(layeredCacheMock.Object,
                                                           campaignRepositoryMock.Object,
@@ -77,7 +79,8 @@ namespace ApiLogic.Tests.Users.Managers
                                                           catalogManager,
                                                           groupsCache,
                                                           conditionValidator,
-                                                          promotionValidator);
+                                                          promotionValidator,
+                                                          messageInboxManger);
 
             var response = manager.SetState(contextData, id, newState);
 

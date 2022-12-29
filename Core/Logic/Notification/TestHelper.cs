@@ -29,7 +29,7 @@ namespace Core.Notification
 
         public static bool SetUserInboxMessage(int groupId, InboxMessage message)
         {
-            return NotificationDal.SetUserInboxMessage(groupId, message,90);
+            return NotificationDal.Instance.SetUserInboxMessage(groupId, message,90);
         }
 
         public static bool SetSystemAnnouncementMessage(int groupId, InboxMessage message)

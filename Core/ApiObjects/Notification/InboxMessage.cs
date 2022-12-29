@@ -51,6 +51,9 @@ namespace ApiObjects.Notification
 
     public class DeviceTriggerCampaignsUses
     {
+        /// <summary>
+        /// campaignId to usage date
+        /// </summary>
         public Dictionary<long, long> Uses { get; set; }
         public string Udid { get; set; }
 

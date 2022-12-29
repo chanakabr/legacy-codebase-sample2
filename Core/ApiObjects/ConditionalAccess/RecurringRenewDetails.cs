@@ -26,6 +26,6 @@ namespace ApiObjects.ConditionalAccess
         public int LeftRecurring { get; set; }
         public bool IsUseRemainder { get; set; }
         public string Udid { get; set; }
-
+        public long CampaignEndDate { get; set; }
     }
 }

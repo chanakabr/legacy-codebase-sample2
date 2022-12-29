@@ -6985,6 +6985,8 @@ namespace WebAPI.Reflection
                     {
                         case "DiscountModuleId":
                             return "discountModuleId";
+                        case "MaxDiscountUsages":
+                            return "maxDiscountUsages";
                         case "NumberOfRecurring":
                             return "numberOfRecurring";
                     }

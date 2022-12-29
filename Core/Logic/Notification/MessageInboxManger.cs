@@ -16,52 +16,73 @@ using ApiLogic.Users.Managers;
 using ApiLogic.Modules;
 using CachingProvider.LayeredCache;
 using System.Threading;
-using ApiLogic.Segmentation;
+using Nest;
 using Phx.Lib.Appconfig;
+using Status = ApiObjects.Response.Status;
 
 namespace Core.Notification
 {
-    public class MessageInboxManger
+    public interface IMessageInboxManger
+    {
+        void AddCampaignInboxMessage(Campaign campaign, int groupId);
+        void RemoveCampaignInboxMessage(long campaignId, int groupId);
+    }
+
+    public class MessageInboxManger : IMessageInboxManger
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string MESSAGE_IDENTIFIER_REQUIRED = "Message identifier is required";
         private const string USER_INBOX_MESSAGE_NOT_EXIST = "User inbox message not exist";
 
         private static readonly Lazy<MessageInboxManger> lazy = new Lazy<MessageInboxManger>(() =>
-           new MessageInboxManger(
-               new UserInboxMessageStatusRepository(SetMongoConnectionString()),
-               LayeredCache.Instance, NotificationSettings.Instance, AnnouncementManager.Instance, NotificationDal.Instance),
-           LazyThreadSafetyMode.PublicationOnly);
+                new MessageInboxManger(new UserInboxMessageStatusRepository(SetMongoConnectionString()),
+                LayeredCache.Instance, 
+                NotificationSettings.Instance, 
+                AnnouncementManager.Instance,
+                NotificationDal.Instance,
+                CampaignUsageRepository.Instance),
+            LazyThreadSafetyMode.PublicationOnly);
 
         private readonly IUserInboxMessageStatusRepository _inboxMessageStatusRepository;
         private readonly ILayeredCache _layeredCache;
         private readonly INotificationSettings _notificationSettings;
         private readonly IAnnouncementManager _announcementManager;
         private readonly INotificationDal _notificationRepository;
+        private readonly ICampaignUsageRepository _campaignUsageRepository;
 
-        public static MessageInboxManger Instance { get { return lazy.Value; } }
+        public static MessageInboxManger Instance
+        {
+            get { return lazy.Value; }
+        }
 
-        public MessageInboxManger(IUserInboxMessageStatusRepository inboxMessageStatusRepository, ILayeredCache layeredCache, 
-            INotificationSettings notificationSettings, IAnnouncementManager announcementManager, INotificationDal notificationRepository)
+        public MessageInboxManger(IUserInboxMessageStatusRepository inboxMessageStatusRepository,
+                                  ILayeredCache layeredCache,
+                                  INotificationSettings notificationSettings, 
+                                  IAnnouncementManager announcementManager,
+                                  INotificationDal notificationRepository,
+                                  ICampaignUsageRepository campaignUsageRepository)
         {
             _inboxMessageStatusRepository = inboxMessageStatusRepository;
             _layeredCache = layeredCache;
             _notificationSettings = notificationSettings;
             _announcementManager = announcementManager;
             _notificationRepository = notificationRepository;
+            _campaignUsageRepository = campaignUsageRepository;
         }
 
         private static string SetMongoConnectionString()
         {
             // sample of mongoDB connection string -->   mongodb://username:password@hostName:port/?replicaSet=myRepl
-            var connectionString = $"mongodb://{ApplicationConfiguration.Current.MongoDBConfiguration.Username.Value}:" +
-               $"{ApplicationConfiguration.Current.MongoDBConfiguration.Password.Value}@" +
-               $"{ApplicationConfiguration.Current.MongoDBConfiguration.HostName.Value}:" +
-               $"{ApplicationConfiguration.Current.MongoDBConfiguration.Port.Value}";
+            var connectionString =
+                $"mongodb://{ApplicationConfiguration.Current.MongoDBConfiguration.Username.Value}:" +
+                $"{ApplicationConfiguration.Current.MongoDBConfiguration.Password.Value}@" +
+                $"{ApplicationConfiguration.Current.MongoDBConfiguration.HostName.Value}:" +
+                $"{ApplicationConfiguration.Current.MongoDBConfiguration.Port.Value}";
 
             if (!string.IsNullOrEmpty(ApplicationConfiguration.Current.MongoDBConfiguration.replicaSetName.Value))
             {
-                return $"{connectionString}?replicaSet={ApplicationConfiguration.Current.MongoDBConfiguration.replicaSetName.Value}";
+                return
+                    $"{connectionString}?replicaSet={ApplicationConfiguration.Current.MongoDBConfiguration.replicaSetName.Value}";
             }
 
             return connectionString;
@@ -74,7 +95,8 @@ namespace Core.Notification
             if (string.IsNullOrEmpty(messageId))
             {
                 log.Error("No user inbox message identifier");
-                response.Status = new Status() { Code = (int)eResponseStatus.MessageIdentifierRequired, Message = MESSAGE_IDENTIFIER_REQUIRED };
+                response.Status = new Status()
+                    { Code = (int)eResponseStatus.MessageIdentifierRequired, Message = MESSAGE_IDENTIFIER_REQUIRED };
                 return response;
             }
 
@@ -92,7 +114,7 @@ namespace Core.Notification
         public Status UpdateInboxMessageStatus(int groupId, long domainId, int userId, string messageId, eMessageState status)
         {
             var _status = new Status();
-            
+
             // validate partner inbox configuration is enabled
             if (!_notificationSettings.IsPartnerInboxEnabled(groupId))
             {
@@ -108,7 +130,8 @@ namespace Core.Notification
             if (string.IsNullOrEmpty(messageId))
             {
                 log.Error("No user inbox message identifier.");
-                return new Status() { Code = (int)eResponseStatus.MessageIdentifierRequired, Message = MESSAGE_IDENTIFIER_REQUIRED };
+                return new Status()
+                    { Code = (int)eResponseStatus.MessageIdentifierRequired, Message = MESSAGE_IDENTIFIER_REQUIRED };
             }
 
             // get user inbox messages
@@ -121,8 +144,10 @@ namespace Core.Notification
                 var message = messages.InboxMessages.FirstOrDefault(x => x.Id.Equals(messageId));
                 if (message != null)
                 {
-                    _inboxMessageStatusRepository.UpsertStatus(groupId, userId, messageId, status, message.ExpirationDate);
-                    _layeredCache.SetInvalidationKey(LayeredCacheKeys.GetUserMessagesStatusInvalidationKey(groupId, userId));
+                    _inboxMessageStatusRepository.UpsertStatus(groupId, userId, messageId, status,
+                        message.ExpirationDate);
+                    _layeredCache.SetInvalidationKey(
+                        LayeredCacheKeys.GetUserMessagesStatusInvalidationKey(groupId, userId));
                     _status.Set(eResponseStatus.OK);
                 }
                 else
@@ -154,22 +179,25 @@ namespace Core.Notification
             var _userId = contextData.UserId.HasValue ? (int)contextData.UserId.Value : 0;
             var key = LayeredCacheKeys.GetUserMessagesStatusKey(contextData.GroupId, _userId);
             var cacheResult = _layeredCache.Get(key,
-                                                ref result,
-                                                GetMessageStatusesDb,
-                                                new Dictionary<string, object>() {
-                                                    { "groupId", contextData.GroupId },
-                                                    { "userId", _userId }
-                                                },
-                                                contextData.GroupId,
-                                                LayeredCacheConfigNames.GET_USER_MESSAGES_STATUS,
-                                                new List<string>() {
-                                                    LayeredCacheKeys.GetUserMessagesStatusInvalidationKey(contextData.GroupId ,_userId)
-                                                });
+                ref result,
+                GetMessageStatusesDb,
+                new Dictionary<string, object>()
+                {
+                    { "groupId", contextData.GroupId },
+                    { "userId", _userId }
+                },
+                contextData.GroupId,
+                LayeredCacheConfigNames.GET_USER_MESSAGES_STATUS,
+                new List<string>()
+                {
+                    LayeredCacheKeys.GetUserMessagesStatusInvalidationKey(contextData.GroupId, _userId)
+                });
 
             return result ?? new Dictionary<string, UserInboxMessageStatus>();
         }
 
-        private Tuple<Dictionary<string, UserInboxMessageStatus>, bool> GetMessageStatusesDb(Dictionary<string, object> arg)
+        private Tuple<Dictionary<string, UserInboxMessageStatus>, bool> GetMessageStatusesDb(
+            Dictionary<string, object> arg)
         {
             var groupId = (int)arg["groupId"];
             var userId = (int)arg["userId"];
@@ -178,114 +206,117 @@ namespace Core.Notification
             return new Tuple<Dictionary<string, UserInboxMessageStatus>, bool>(messages, messages != null);
         }
 
-        private static CampaignInboxMessageMap HandleCampaignsToUser(int groupId, long domainId, int userId)
+        private CampaignInboxMessageMap HandleCampaignsToUser(int groupId, long domainId, int userId)
         {
-            //get all valid batch campaigns(by dates and status = active).
             var utcNow = DateUtils.GetUtcUnixTimestampNow();
 
+            // clean existing campaign map to user (all archive + expired)
+            var archiveFilter = new CampaignSearchFilter() { StateEqual = CampaignState.ARCHIVE };
+            var archiveCampaignsResponse = CampaignManager.Instance.SearchCampaigns(new ContextData(groupId) { UserId = userId }, archiveFilter);
+            var archiveCampaigns = archiveCampaignsResponse.HasObjects() ? archiveCampaignsResponse.Objects.Select(x => x.Id) : new List<long>();
+            _campaignUsageRepository.CleanCampaignInboxMessageMap(groupId, userId, archiveCampaigns, utcNow);
+
+            //get all valid batch campaigns (by dates and status = active).
             var batchFilter = new BatchCampaignFilter()
             {
                 StateEqual = CampaignState.ACTIVE,
                 IsActiveNow = true
             };
-
             var batchCampaignsResponse = CampaignManager.Instance.ListBatchCampaigns(new ContextData(groupId) { UserId = userId }, batchFilter);
             List<BatchCampaign> batchCampaigns = batchCampaignsResponse.HasObjects() ? batchCampaignsResponse.Objects : null;
-            NotificationDal.RemoveOldCampaignsFromInboxMessageMapCB(groupId, userId, utcNow);
-
+            
             //get all existing user’s batch campaigns(all existing user’s campaign messages).
-            var userCampaignsMap = NotificationDal.GetCampaignInboxMessageMapCB(groupId, userId);
-            var userBatchCampaignsMap = userCampaignsMap != null ?
-                userCampaignsMap.Campaigns?.Where(x => x.Value?.Type == eCampaignType.Batch).ToDictionary(x => x.Key, x => x.Value)
-                : new Dictionary<long, CampaignMessageDetails>();
+            var userCampaignsMap = _campaignUsageRepository.GetCampaignInboxMessageMapCB(groupId, userId);
 
             // add new batch campaigns to user
-            if (batchCampaigns != null)
+            if (batchCampaigns != null && batchCampaigns.Any())
             {
-                //remove shared campaigns from all campaigns list(In order to "reduce the cost" of finding the campaigns that are suitable for the user).
-                var missingBatchCampaigns = batchCampaigns.Where(x => !userBatchCampaignsMap.ContainsKey(x.Id)).ToList();
-
-                if (missingBatchCampaigns.Count > 0)
+                BatchCampaignConditionScope scope = null;
+                foreach (var batchCampaign in batchCampaigns)
                 {
-                    var userSegments = UserSegmentLogic.List(groupId, userId.ToString(), out int totalCount);
-                    var scope = new BatchCampaignConditionScope()
+                    if (userCampaignsMap.Campaigns.ContainsKey(batchCampaign.Id)) { continue; }
+                    if (scope == null)
                     {
-                        FilterBySegments = true,
-                        SegmentIds = ConditionalAccess.Utils.GetDomainSegments(groupId, domainId, new List<string> { userId.ToString()})
-                };
-
-                    //filter relevant campaigns by populationConditions.
-                    foreach (var campaign in missingBatchCampaigns)
-                    {
-                        var isValid = campaign.EvaluateConditions(scope);
-                        if (isValid)
+                        scope = new BatchCampaignConditionScope()
                         {
-                            //add all relevant campaigns to user’s inbox message with TTL by the end date of the campaign.
-                            AddCampaignMessage(campaign, groupId, userId);
-                        }
+                            FilterBySegments = true,
+                            SegmentIds = ConditionalAccess.Utils.GetDomainSegments(groupId, domainId, new List<string> { userId.ToString()})
+                        };
+                    }
+
+                    if (batchCampaign.EvaluateConditions(scope))
+                    {
+                        Instance.AddCampaignMessageToUser(batchCampaign, groupId, userId);
                     }
                 }
             }
 
-            var filter = new BatchCampaignFilter()
-            {
-                StateEqual = CampaignState.ARCHIVE
-            };
-
-            GenericListResponse<Campaign> archiveCampaignsResponse = CampaignManager.Instance.SearchCampaigns(new ContextData(groupId) { UserId = userId }, filter);
-            if (archiveCampaignsResponse.HasObjects())
-            {
-                NotificationDal.RemoveArchiveCampaignFromInboxMessage(groupId, userId, archiveCampaignsResponse.Objects);
-            }
-
-            //get all existing user’s batch campaigns(all existing user’s campaign messages).
-            return NotificationDal.GetCampaignInboxMessageMapCB(groupId, userId);
+            return _campaignUsageRepository.GetCampaignInboxMessageMapCB(groupId, userId);
         }
 
-        public static void AddCampaignMessage(Campaign campaign, int groupId, long userId, string udid = null, long? productId = null, eTransactionType? productType = null)
+        public void RemoveCampaignInboxMessage(long campaignId, int groupId)
         {
-            var ttl = DateUtils.UtcUnixTimestampSecondsToDateTime(campaign.EndDate) - DateTime.UtcNow;
-            var current = DateUtils.GetUtcUnixTimestampNow();
+            _notificationRepository.DeleteCampaignInboxMessage(groupId, campaignId);
+        }
 
-            //Add to user Inbox
+        public void AddCampaignInboxMessage(Campaign campaign, int groupId)
+        {
+            var current = DateUtils.GetUtcUnixTimestampNow();
+            var expirationDate = DateUtils.UtcUnixTimestampSecondsToDateTime(campaign.EndDate);
+            
+            // Add single campaign InboxMessage
             var inboxMessage = new InboxMessage
             {
                 Id = Guid.NewGuid().ToString(),
                 Message = campaign.Message,
-                UserId = userId,
                 CreatedAtSec = current,
                 UpdatedAtSec = current,
+                ExpirationDate = expirationDate,
                 State = eMessageState.Unread,
                 Category = eMessageCategory.Campaign,
-                CampaignId = campaign.Id
+                CampaignId = campaign.Id,
+                UserId = 0 //for all users
             };
 
-            //Todo - Matan, When the campaign is shared, remove personal message
-            if (!DAL.NotificationDal.SetUserInboxMessage(groupId, inboxMessage, ttl.TotalDays))
+            var ttl = (expirationDate - DateTime.UtcNow).TotalDays;
+            if (!_notificationRepository.SetCampaignInboxMessage(groupId, inboxMessage, ttl))
             {
-                log.Error($"Failed to add campaign message (campaign: {campaign.Id}) to User: {userId} Inbox");
+                log.Error($"Failed to add campaign {campaign.Id} inbox message");
             }
-            else
+        }
+
+        public void AddCampaignMessageToUser(Campaign campaign, int groupId, long userId, string udid = null, long? productId = null, eTransactionType? productType = null)
+        {
+            var inboxMessage = _notificationRepository.GetCampaignInboxMessage(groupId, campaign.Id);
+            if (inboxMessage == default)
             {
-                log.Debug($"Campaign message (campaign: {campaign.Id}) sent successfully to User: {userId} Inbox");
-                var campaignMessageDetails = new CampaignMessageDetails() 
-                { 
-                    MessageId = inboxMessage.Id, 
-                    ExpiredAt = campaign.EndDate,
-                    Type = campaign.CampaignType
-                };
+                log.Debug($"Campaign {campaign.Id} inbox message does not exist");
+                return;
+            }
 
-                if (!string.IsNullOrEmpty(udid))
-                {
-                    campaignMessageDetails.Devices.Add(udid);
-                }
+            var campaignMessageDetails = new CampaignMessageDetails()
+            {
+                MessageId = inboxMessage.Id,
+                ExpiredAt = campaign.EndDate,
+                Type = campaign.CampaignType
+            };
 
-                if (productId.HasValue && productType.HasValue && productType.Value == eTransactionType.Subscription)
-                {
-                    campaignMessageDetails.SubscriptionUses.Add(productId.Value, current);
-                }
+            if (!string.IsNullOrEmpty(udid))
+            {
+                campaignMessageDetails.Devices.Add(udid);
+            }
 
-                DAL.NotificationDal.SaveToCampaignInboxMessageMapCB(campaign.Id, groupId, userId, campaignMessageDetails);//update mapping
+            if (productId.HasValue && productType.HasValue && productType.Value == eTransactionType.Subscription)
+            {
+                //update user's mapping
+                var current = DateUtils.GetUtcUnixTimestampNow();
+                campaignMessageDetails.SubscriptionUses.Add(productId.Value, current);
+            }
+
+            // update mapping
+            if (!_campaignUsageRepository.SaveToCampaignInboxMessageMapCb(campaign.Id, groupId, userId, campaignMessageDetails))
+            {
+                log.Error($"Failed to add Campaign [{campaign.Id}] MessageDetails to User [{userId}] Inbox");
             }
         }
 
@@ -314,20 +345,24 @@ namespace Core.Notification
             }
 
             //Calc message status
-            foreach (var potentialMessage in potentialMessages)
+            if (potentialMessages != null)
             {
-                UserInboxMessageStatus _status = null;
-                var getStatus = statuses != null && statuses.TryGetValue(potentialMessage.Id, out _status);
-                if (!getStatus || _status.Status != eMessageState.Trashed.ToString())//Not exists or notnot deletd
+                foreach (var potentialMessage in potentialMessages)
                 {
-                    if (!getStatus)
-                        potentialMessage.State = eMessageState.Unread;//init
-                    else
+                    UserInboxMessageStatus status = null;
+                    var getStatus = statuses != null && statuses.TryGetValue(potentialMessage.Id, out status);
+                    if (!getStatus || status.Status != eMessageState.Trashed.ToString())
                     {
-                        if (Enum.TryParse<eMessageState>(_status.Status, out var _parsedState))
-                            potentialMessage.State = _parsedState;
+                        if (!getStatus)
+                            potentialMessage.State = eMessageState.Unread; //init
+                        else
+                        {
+                            if (Enum.TryParse<eMessageState>(status.Status, out var parsedState))
+                                potentialMessage.State = parsedState;
+                        }
+
+                        messages.Add(potentialMessage);
                     }
-                    messages.Add(potentialMessage);
                 }
             }
 
@@ -337,53 +372,65 @@ namespace Core.Notification
         private List<InboxMessage> GetAllUserPotentialMessages(int groupId, long domainId, int userId)
         {
             //Get system announcements
-            var _systemAnnouncements = _announcementManager.Get_AllMessageAnnouncements(groupId, 0, 0,null, false);
-
-            //Get active campaigns
-            var _campaigns = HandleCampaignsToUser(groupId, domainId, userId);
+            var systemAnnouncements = _announcementManager.Get_AllMessageAnnouncements(groupId, 0, 0, null, false);
 
             //Get user followed series
-            var _usersFollowedSeries = _announcementManager.GetUserFollowedSeries(groupId, userId);
+            var usersFollowedSeries = _announcementManager.GetUserFollowedSeries(groupId, userId);
 
             var potentialMessages = new List<InboxMessage>();
             int ttlDays = _notificationSettings.GetInboxMessageTTLDays(groupId);
 
             //System Announcement
-            foreach (var sa in _systemAnnouncements?.messageAnnouncements)
-            {
-                var _startTime = DateUtils.UtcUnixTimestampSecondsToDateTime(sa.StartTime);
-                var _date = new List<DateTime> { _startTime, DateTime.UtcNow }.Max(d => d);
-                potentialMessages.Add(new InboxMessage
+            if (systemAnnouncements?.messageAnnouncements != null)
+                foreach (var sa in systemAnnouncements.messageAnnouncements)
                 {
-                    Category = eMessageCategory.SystemAnnouncement,
-                    Id = sa.MessageAnnouncementId.ToString(),
-                    ImageUrl = sa.ImageUrl,
-                    Message = sa.Message,
-                    UserId = userId,
-                    CreatedAtSec = sa.StartTime,
-                    ExpirationDate = _date.AddDays(ttlDays)//Acceptable?
-                });
-            }
+                    var startTime = DateUtils.UtcUnixTimestampSecondsToDateTime(sa.StartTime);
+                    var date = new List<DateTime> { startTime, DateTime.UtcNow }.Max(d => d);
+                    potentialMessages.Add(new InboxMessage
+                    {
+                        Category = eMessageCategory.SystemAnnouncement,
+                        Id = sa.MessageAnnouncementId.ToString(),
+                        ImageUrl = sa.ImageUrl,
+                        Message = sa.Message,
+                        UserId = userId,
+                        CreatedAtSec = sa.StartTime,
+                        ExpirationDate = date.AddDays(ttlDays)
+                    });
+                }
 
-            //Campaigns
-            foreach (var cm in _campaigns?.Campaigns)
+            //Get active campaigns
+            var campaigns = HandleCampaignsToUser(groupId, domainId, userId);
+
+            if (campaigns?.Campaigns != null)
             {
-                //TODO - After making the campaign message shared, add to cache
-                var _inboxMessage = _notificationRepository.GetUserInboxMessage(groupId, userId, cm.Value.MessageId);
-                if (_inboxMessage != null)
+                foreach (var campaign in campaigns.Campaigns)
                 {
-                    _inboxMessage.ExpirationDate = DateUtils.UtcUnixTimestampSecondsToDateTime(cm.Value.ExpiredAt);
-                    _inboxMessage.Id = cm.Value.MessageId; //TODO - Matan, other Id?
-                    potentialMessages.Add(_inboxMessage);
+                    // message for each campaign - new behavior of getting Campaigns messages
+                    var campaignInboxMessage = _notificationRepository.GetCampaignInboxMessage(groupId, campaign.Key);
+                    if (campaignInboxMessage == null)
+                    {
+                        // message for each user - old behavior of getting Campaigns messages
+                        campaignInboxMessage = _notificationRepository.GetUserInboxMessage(groupId, userId, campaign.Value.MessageId);
+                    }
+
+                    if (campaignInboxMessage != null)
+                    {
+                        campaignInboxMessage.UserId = userId;
+                        potentialMessages.Add(campaignInboxMessage);
+                    }
                 }
             }
 
             //users Followed Series
-            potentialMessages.AddRange(_usersFollowedSeries);
+            potentialMessages.AddRange(usersFollowedSeries);
 
             //Mark all as unread    
             potentialMessages = potentialMessages?
-                .Select(message => { message.State = eMessageState.Unread; return message; }).ToList();
+                .Select(message =>
+                {
+                    message.State = eMessageState.Unread;
+                    return message;
+                }).ToList();
             return potentialMessages;
         }
     }

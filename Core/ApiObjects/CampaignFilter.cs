@@ -79,14 +79,7 @@ namespace ApiObjects
 
             if (this.HasPromotion.HasValue)
             {
-                if (this.HasPromotion.Value)
-                {
-                    campaignsDB = campaignsDB.Where(x => x.HasPromotion);
-                }
-                else
-                {
-                    campaignsDB = campaignsDB.Where(x => !x.HasPromotion);
-                }
+                campaignsDB = campaignsDB.Where(x => x.HasPromotion == this.HasPromotion.Value);
             }
 
             if (this.IsActiveNow)

@@ -1401,7 +1401,7 @@ namespace Core.Notification
                 UserId = userEngagement.UserId
             };
 
-            if (!NotificationDal.SetUserInboxMessage(partnerId, inboxMessage, NotificationSettings.Instance.GetInboxMessageTTLDays(partnerId)))
+            if (!NotificationDal.Instance.SetUserInboxMessage(partnerId, inboxMessage, NotificationSettings.Instance.GetInboxMessageTTLDays(partnerId)))
                 log.ErrorFormat("Error while setting churn inbox message. GID: {0}, InboxMessage: {1}", partnerId, JsonConvert.SerializeObject(inboxMessage));
             else
                 log.DebugFormat("Engagement inbox message was successfully sent. partner ID: {0}, user ID: {1}", partnerId, userEngagement.UserId);

@@ -1034,6 +1034,11 @@ namespace Core.ConditionalAccess
                                     {
                                         log.DebugFormat("Error while enqueue purchase record: {0}, data: {1}", response.Status.Message, logString);
                                     }
+
+                                    if (fullPrice.CampaignDetails != null)
+                                    {
+                                        Task.Run(() => HandelCampaignMessageDetailsAfterPurchase(contextData, fullPrice.CampaignDetails, eTransactionType.Collection, productId));
+                                    }
                                 }
                                 else
                                 {
@@ -1427,7 +1432,10 @@ namespace Core.ConditionalAccess
                                         cas.UpdateDLM(householdId, subscription.m_nDomainLimitationModule);
                                     }
 
-                                    Task.Run(() => HandelCampaignMessageDetails(contextData, householdId, fullPrice.CampaignDetails, eTransactionType.Subscription, productId));
+                                    if (fullPrice.CampaignDetails != null)
+                                    {
+                                        Task.Run(() => HandelCampaignMessageDetailsAfterPurchase(contextData, fullPrice.CampaignDetails, eTransactionType.Subscription, productId));
+                                    }
                                     
                                     long endDateUnix = endDate.HasValue ? DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate.Value) : 0;
 
@@ -1592,56 +1600,46 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        private static void HandelCampaignMessageDetails(ContextData contextData, long householdId, RecurringCampaignDetails recurringCampaignDetails, eTransactionType productType, int productId)
+        private static void HandelCampaignMessageDetailsAfterPurchase(ContextData contextData, RecurringCampaignDetails recurringCampaignDetails, eTransactionType productType, int productId)
         {
-            if (recurringCampaignDetails != null && recurringCampaignDetails.Id > 0)
+            if (recurringCampaignDetails == null || recurringCampaignDetails.Id <= 0) { return; }
+
+            //Update campaign message details
+            var domainResponse = Domains.Module.GetDomainInfo(contextData.GroupId, (int)contextData.DomainId);
+            long _userId = domainResponse.Domain.m_masterGUIDs.FirstOrDefault();
+
+            var userCampaigns = CampaignUsageRepository.Instance.GetCampaignInboxMessageMapCB(contextData.GroupId, _userId);
+
+            if (userCampaigns.Campaigns.ContainsKey(recurringCampaignDetails.Id))
             {
-                //Update campaign message details
-                var domainResponse = Domains.Module.GetDomainInfo(contextData.GroupId, (int)contextData.DomainId);
-                long _userId = domainResponse.Domain.m_masterGUIDs.FirstOrDefault();
-
-                var userCampaigns = NotificationDal.GetCampaignInboxMessageMapCB(contextData.GroupId, _userId);
-
-                if (userCampaigns.Campaigns.ContainsKey(recurringCampaignDetails.Id))
+                long now = DateUtils.GetUtcUnixTimestampNow();
+                
+                // handle anti fraud for Subscription only
+                if (productType == eTransactionType.Subscription)
                 {
-                    long now = DateUtils.GetUtcUnixTimestampNow();
                     var campaignDetails = userCampaigns.Campaigns[recurringCampaignDetails.Id];
-                    // handle anti fraud for Subscription only
-                    if (productType == eTransactionType.Subscription)
-                    {
-                        campaignDetails.SubscriptionUses.Add(productId, now);
-                    }
-                    NotificationDal.SaveToCampaignInboxMessageMapCB(recurringCampaignDetails.Id, contextData.GroupId, _userId, campaignDetails);
-
-                    if (!string.IsNullOrEmpty(recurringCampaignDetails.Udid))
-                    {
-                        //ANTI FRAUD BEO-8610
-                        DAL.NotificationDal.SaveToDeviceTriggerCampaignsUses(contextData.GroupId, recurringCampaignDetails.Udid, recurringCampaignDetails.Id, now);
-                    }
+                    campaignDetails.SubscriptionUses.Add(productId, now);
+                    CampaignUsageRepository.Instance.SaveToCampaignInboxMessageMapCb(recurringCampaignDetails.Id, contextData.GroupId, _userId, campaignDetails);
                 }
-                else
+                
+                if (!string.IsNullOrEmpty(recurringCampaignDetails.Udid))
                 {
-                    try
-                    {
-                        CampaignIdInFilter campaignFilter = new CampaignIdInFilter()
-                        {
-                            IdIn = new List<long>() { recurringCampaignDetails.Id }
-                        };
-
-                        var campaigns = ApiLogic.Users.Managers.CampaignManager.Instance.ListCampaingsByIds(contextData, campaignFilter);
-
-                        if (campaigns.HasObjects())
-                        {
-                            var campaign = campaigns.Objects[0];
-                            Notification.MessageInboxManger.AddCampaignMessage(campaign, contextData.GroupId, _userId, null, productId, productType);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        log.Error($"Failed AddCampaignMessage with campaign: {recurringCampaignDetails.Id}, hh: {householdId}, group: {contextData.GroupId}", ex);
-                    }
+                    //ANTI FRAUD BEO-8610
+                    CampaignUsageRepository.Instance.SaveToDeviceTriggerCampaignsUses(contextData.GroupId, recurringCampaignDetails.Udid, recurringCampaignDetails.Id, now);
                 }
             }
+            else
+            {
+                var campaignResponse = ApiLogic.Users.Managers.CampaignManager.Instance.Get(contextData, recurringCampaignDetails.Id);
+                if (campaignResponse.HasObject())
+                {
+                    Notification.MessageInboxManger.Instance.AddCampaignMessageToUser(campaignResponse.Object, contextData.GroupId, _userId, null, productId, productType);
+                }
+            }
+
+            // set campaign to HouseholdUsages
+            var expiration = DateUtils.UtcUnixTimestampSecondsToDateTime(recurringCampaignDetails.CampaignEndDate);
+            CampaignUsageRepository.Instance.SetCampaignHouseholdUsage(contextData.GroupId, contextData.DomainId.Value, recurringCampaignDetails.Id, expiration);
         }
 
         public static void SendRenewalReminder(BaseConditionalAccess cas, int groupId, DateTime endDate, long endDateUnix,
@@ -2113,7 +2111,7 @@ namespace Core.ConditionalAccess
 
                                     if (fullPrice.CampaignDetails != null)
                                     {
-                                        Task.Run(() => HandelCampaignMessageDetails(contextData, contextData.DomainId.Value, fullPrice.CampaignDetails, eTransactionType.PPV, productId));
+                                        Task.Run(() => HandelCampaignMessageDetailsAfterPurchase(contextData, fullPrice.CampaignDetails, eTransactionType.PPV, productId));
                                     }
                                 }
                                 else

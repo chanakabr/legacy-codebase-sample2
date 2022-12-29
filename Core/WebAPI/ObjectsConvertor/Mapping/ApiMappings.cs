@@ -1745,12 +1745,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaPromotion, Promotion>()
                 .IncludeBase<KalturaBasePromotion, BasePromotion>()
                 .ForMember(dest => dest.DiscountModuleId, opt => opt.MapFrom(src => src.DiscountModuleId))
-                .ForMember(dest => dest.NumberOfRecurring, opt => opt.MapFrom(src => src.NumberOfRecurring));
+                .ForMember(dest => dest.NumberOfRecurring, opt => opt.MapFrom(src => src.NumberOfRecurring))
+                .ForMember(dest => dest.MaxDiscountUsages, opt => opt.MapFrom(src => src.MaxDiscountUsages));
 
             cfg.CreateMap<Promotion, KalturaPromotion>()
                 .IncludeBase<BasePromotion, KalturaBasePromotion>()
                 .ForMember(dest => dest.DiscountModuleId, opt => opt.MapFrom(src => src.DiscountModuleId))
-                .ForMember(dest => dest.NumberOfRecurring, opt => opt.MapFrom(src => src.NumberOfRecurring));
+                .ForMember(dest => dest.NumberOfRecurring, opt => opt.MapFrom(src => src.NumberOfRecurring))
+                .ForMember(dest => dest.MaxDiscountUsages, opt => opt.MapFrom(src => src.MaxDiscountUsages));
 
             cfg.CreateMap<KalturaCouponPromotion, CouponPromotion>()
                .IncludeBase<KalturaBasePromotion, BasePromotion>()

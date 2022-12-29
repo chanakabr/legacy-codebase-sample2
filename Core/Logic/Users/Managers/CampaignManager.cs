@@ -7,6 +7,7 @@ using ApiObjects.Response;
 using ApiObjects.Rules;
 using CachingProvider.LayeredCache;
 using Core.Catalog.CatalogManagement;
+using Core.Notification;
 using DAL;
 using EventBus.Abstraction;
 using GroupsCacheManager;
@@ -36,7 +37,8 @@ namespace ApiLogic.Users.Managers
                                 CatalogManager.Instance,
                                 GroupsCache.Instance(),
                                 ConditionValidator.Instance,
-                                PromotionValidator.Instance),
+                                PromotionValidator.Instance,
+                                MessageInboxManger.Instance),
             LazyThreadSafetyMode.PublicationOnly);
 
         private readonly ILayeredCache _layeredCache;
@@ -47,6 +49,7 @@ namespace ApiLogic.Users.Managers
         private readonly IGroupsCache _groupsCache;
         private readonly IConditionValidator _conditionValidator;
         private readonly IPromotionValidator _promotionValidator;
+        private readonly IMessageInboxManger _messageInboxManger;
 
         public static CampaignManager Instance { get { return lazy.Value; } }
 
@@ -57,7 +60,8 @@ namespace ApiLogic.Users.Managers
                                ICatalogManager catalogManager,
                                IGroupsCache groupsCache,
                                IConditionValidator conditionValidator,
-                               IPromotionValidator promotionValidator)
+                               IPromotionValidator promotionValidator,
+                               IMessageInboxManger messageInboxManger)
         {
             _layeredCache = layeredCache;
             _repository = repository;
@@ -67,6 +71,7 @@ namespace ApiLogic.Users.Managers
             _groupsCache = groupsCache;
             _conditionValidator = conditionValidator;
             _promotionValidator = promotionValidator;
+            _messageInboxManger = messageInboxManger;
         }
 
         public Status Delete(ContextData contextData, long id)
@@ -152,6 +157,7 @@ namespace ApiLogic.Users.Managers
                         {
                             SetInvalidationKeys(contextData, _campaign);
                             log.Debug($"success to set campaign:[${id}] state to archive.");
+                            SendCampaignStateChanged(contextData.GroupId, _campaign);
                         }
                         else
                         {
@@ -504,6 +510,7 @@ namespace ApiLogic.Users.Managers
             {
                 SetInvalidationKeys(contextData, campaign.Object);
                 response.Set(eResponseStatus.OK);
+                SendCampaignStateChanged(contextData.GroupId, campaign.Object);
             }
             else
             {
@@ -754,6 +761,24 @@ namespace ApiLogic.Users.Managers
             return new Tuple<Campaign, bool>(campaign, campaign != null);
         }
 
-
+        private void SendCampaignStateChanged(int groupId, Campaign campaign)
+        {
+            // TODO - should be by event, "One day..."
+            Task.Run(() =>
+            {
+                switch (campaign.State)
+                {
+                    case CampaignState.ACTIVE:
+                        _messageInboxManger.AddCampaignInboxMessage(campaign, groupId);
+                        break;
+                    case CampaignState.ARCHIVE:
+                        _messageInboxManger.RemoveCampaignInboxMessage(campaign.Id, groupId);
+                        break;
+                    default:
+                        throw new NotImplementedException(
+                            $"SendCampaignStateChanged not Implemented for state: {campaign.State}");
+                }
+            }).ConfigureAwait(false);
+        }
     }
 }
