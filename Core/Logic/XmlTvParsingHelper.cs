@@ -40,7 +40,10 @@ namespace ApiLogic
                 {
                     response.AddError(tagParsingStatus, $"Error parsing meta:[{tag.TagType}] for programExternalID:[{prog.external_id}], lang:[{langCode}], defaultLang:[{defaultLangCode}]");
                 }
-                tagsToSet[tag.TagType] = tagValue;
+                else if (tagValue.Count > 0)
+                {
+                    tagsToSet[tag.TagType] = tagValue;
+                }
             }
 
             return tagsToSet;
@@ -58,7 +61,7 @@ namespace ApiLogic
 
             foreach (var meta in prog.metas)
             {
-                var mataValue = GetMetaByLanguage(meta.MetaValues,
+                var metaValue = GetMetaByLanguage(meta.MetaValues,
                     mv => mv.lang,
                     mv => mv.Value,
                     langCode,
@@ -69,7 +72,10 @@ namespace ApiLogic
                 {
                     response.AddError(metaParsingStatus, $"Error parsing meta:[{meta.MetaType}] for programExternalID:[{prog.external_id}], lang:[{langCode}], defaultLang:[{defaultLangCode}]");
                 }
-                metasToSet[meta.MetaType] = mataValue;
+                else if (metaValue.Count > 0)
+                {
+                    metasToSet[meta.MetaType] = metaValue;
+                }
             }
 
             return metasToSet;
@@ -117,10 +123,10 @@ namespace ApiLogic
             bool isMultilingualFallback)
         {
             parsingStatus = eResponseStatus.OK;
-            var valuesByLang = metaValues.Where(t => langRetriever(t).Equals(language, StringComparison.OrdinalIgnoreCase));
+            var valuesByLang = metaValues.Where(t => langRetriever(t).Equals(language, StringComparison.OrdinalIgnoreCase) && valueRetriever(t) != null);
             if (valuesByLang.IsEmpty() && isMultilingualFallback)
             {
-                valuesByLang = metaValues.Where(t => langRetriever(t).Equals(defaultLanguage, StringComparison.OrdinalIgnoreCase));
+                valuesByLang = metaValues.Where(t => langRetriever(t).Equals(defaultLanguage, StringComparison.OrdinalIgnoreCase) && valueRetriever(t) != null);
             }
 
             return valuesByLang.Select(valueRetriever).ToList();

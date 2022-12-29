@@ -628,7 +628,7 @@ namespace EpgIngest
                         }
 
                         // get all relevant language 
-                        List<MetaValues> metaValues = meta.MetaValues.Where(x => x.lang.ToLower() == language).ToList();
+                        List<MetaValues> metaValues = meta.MetaValues.Where(x => x.lang.ToLower() == language && x.Value != null).ToList();
 
                         foreach (MetaValues value in metaValues)
                         {
@@ -684,7 +684,7 @@ namespace EpgIngest
                             rgx = new Regex(tagMapping.RegexExpression);
                         }
 
-                        List<TagValues> tagValues = tag.TagValues.Where(x => x.lang.ToLower() == language).ToList();
+                        List<TagValues> tagValues = tag.TagValues.Where(x => x.lang.ToLower() == language && x.Value != null).ToList();
                         foreach (TagValues value in tagValues)
                         {
                             if (checkReg)
