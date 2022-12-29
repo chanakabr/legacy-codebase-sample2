@@ -113,6 +113,10 @@ namespace ElasticSearch.Common
                         var phoneticFilter = jsonFilter.Value.ToObject<PhoneticFilter>();
                         result.Add(jsonFilter.Key, phoneticFilter);
                         break;
+                    case "elision":
+                        var elisionFilter = jsonFilter.Value.ToObject<ElisionFilter>();
+                        result.Add(jsonFilter.Key, elisionFilter);
+                        break;
                 }
             }
 

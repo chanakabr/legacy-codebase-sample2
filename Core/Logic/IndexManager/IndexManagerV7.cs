@@ -4981,6 +4981,9 @@ namespace Core.Catalog
                     case "phonetic":
                         SetPhoneticTokenFiltersDescriptor(filter.Key, filter.Value as PhoneticFilter, filtersDesctiptor);
                         break;
+                    case "elision":
+                        SetElisionTokenFiltersDescriptor(filter.Key, filter.Value as ElisionFilter, filtersDesctiptor);
+                        break;
                 }
             }
 
@@ -5017,6 +5020,13 @@ namespace Core.Catalog
                 .Encoder(encoder)
                 .Replace(filter.replace)
                 .LanguageSet(languageSet));
+        }
+
+        private void SetElisionTokenFiltersDescriptor(string name, ElisionFilter filter, TokenFiltersDescriptor descriptor)
+        {
+            descriptor.Elision(name, f => f
+                .ArticlesCase(filter.articles_case)
+                .Articles(filter.articles));
         }
 
         private AnalyzersDescriptor GetAnalyzersDesctiptor(Dictionary<string, Analyzer> analyzers)

@@ -1,7 +1,5 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace ElasticSearch.Searcher.Settings
 {
@@ -41,6 +39,16 @@ namespace ElasticSearch.Searcher.Settings
         
         [JsonProperty]
         public string[] languageset;
+    }
+
+    [JsonObject]
+    public class ElisionFilter : Filter
+    {
+        [JsonProperty]
+        public bool articles_case;
+
+        [JsonProperty]
+        public string[] articles;
     }
 
     [JsonObject()]
