@@ -26,6 +26,8 @@ namespace IngestHandler.Common.Repositories
         Task<IEnumerable<BulkUploadProgramAssetResult>> GetBulkUploadResults(long partnerId, long bulkUploadId);
         Task<CRUDOperations<EpgProgramBulkUploadObject>> GetCrudOperations(long partnerId, long bulkUploadId);
         Task<IEnumerable<Status>> GetErrors(long partnerId, long bulkUploadId);
+
+        Task<bool> IsLinearChannelOfBulkUploadInProgress(int partnerId, long bulkUploadId, long linearChannelId);
     }
 
     public class BulkUploadRepository : IBulkUploadRepository
@@ -105,6 +107,22 @@ namespace IngestHandler.Common.Repositories
             var errorDoc = await res.ToListAsync();
             var errors = errorDoc.Select(e => e.Error);
             return errors;
+        }
+
+        public async Task<bool> IsLinearChannelOfBulkUploadInProgress(int partnerId, long bulkUploadId, long linearChannelId)
+        {
+            var mongoDbClient = await _mongoDbClientFactory.NewMongoDbClientAsync(partnerId);
+            var idempotencyDoc = new BulkUploadIdempotencyDocument(bulkUploadId, linearChannelId);
+            var upsertResult = await mongoDbClient.UpdateOneAsync<BulkUploadIdempotencyDocument>(
+                EpgMongoDB.INGEST_BULK_UPLOAD_IDEMPOTENT_COLLECTION,
+                f => f.Eq(o => o.Id, idempotencyDoc.Id),
+                u => u
+                    .Set(x => x.Id, idempotencyDoc.Id)
+                    .Set(x => x.BulkUploadId, idempotencyDoc.BulkUploadId)
+                    .Set(x => x.LinearChannelId, idempotencyDoc.LinearChannelId),
+                new MongoDbUpdateOptions { IsUpsert = true });
+
+            return upsertResult.MatchedCount != 0;
         }
     }
 }

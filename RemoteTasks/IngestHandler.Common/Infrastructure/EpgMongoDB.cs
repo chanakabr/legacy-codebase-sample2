@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using ApiObjects.BulkUpload;
-using Core.Catalog;
-using Core.Catalog.CatalogManagement;
 using DAL;
 using IngestHandler.Common.Repositories.Models;
 using MongoDB.Driver;
 using OTT.Lib.MongoDB;
-using Phx.Lib.Log;
 
 namespace IngestHandler.Common.Infrastructure
 {
@@ -19,6 +15,7 @@ namespace IngestHandler.Common.Infrastructure
         public const string INGEST_BULK_UPLOAD_RESULTS_COLLECTION = "ingest_bulk_upload_results";
         public const string INGEST_BULK_UPLOAD_CRUD_COLLECTION = "ingest_bulk_upload_crud";
         public const string INGEST_BULK_UPLOAD_ERRORS_COLLECTION = "ingest_bulk_upload_errors";
+        public const string INGEST_BULK_UPLOAD_IDEMPOTENT_COLLECTION = "ingest_bulk_upload_idempotent";
         public const string DB_NAME = "epg";
 
         public static readonly MongoDbConfiguration Configuration = new MongoDbConfiguration
@@ -76,6 +73,19 @@ namespace IngestHandler.Common.Infrastructure
                         {
                             await builder.CreateIndexAsync(o => o.Ascending(f => f.BulkUploadId),
                                 new MongoDbCreateIndexOptions<BulkUploadErrorDocument>{Unique = false});
+                        }
+                    }
+                },
+                {
+                    INGEST_BULK_UPLOAD_IDEMPOTENT_COLLECTION, new MongoDbConfiguration.CollectionProperties
+                    {
+                        DisableLogicalDelete = true,
+                        AutoTtlIndexSeconds = INGEST_COLLECTION_TTL_SEC,
+                        IndexBuilder = async builder =>
+                        {
+                            await builder.CreateIndexAsync(
+                                o => o.Ascending(f => f.BulkUploadId),
+                                new MongoDbCreateIndexOptions<BulkUploadIdempotencyDocument> { Unique = true });
                         }
                     }
                 }

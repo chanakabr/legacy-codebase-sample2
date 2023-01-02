@@ -46,6 +46,7 @@ namespace IngestHandler
             _bulkUploadId = bulkUpload.Id.ToString();
             if (BulkUpload.IsProcessCompletedByStatus(bulkUpload.Status))
             {
+                SendIngestV3PartCompletedEvent(bulkUpload);
                 await FinalizeEpgCommon(bulkUpload, crudOps, bulkUpload.Status);
             }
         }
@@ -87,7 +88,7 @@ namespace IngestHandler
                     await FinalizeEpgCommon(bulkUpload, serviceEvent.CrudOperations, newBulkUploadStatus);
                 }
 
-                SendIngestPartCompletedEvent(bulkUpload, relevantResults);
+                SendIngestV2PartCompletedEvent(bulkUpload, relevantResults);
 
                 Logger.Info($"BulkUploadId: [{bulkUpload.Id}] targetIndexName:[{serviceEvent.TargetIndexName}]] > Ingest Validation for part of the bulk is completed, status:[{newBulkUploadStatus}]");
             }
@@ -280,7 +281,7 @@ namespace IngestHandler
             _epgIngestMessaging.EpgIngestCompleted(parameters);
         }
 
-        private void SendIngestPartCompletedEvent(BulkUpload bulkUpload, BulkUploadResultsDictionary relevantResults)
+        private void SendIngestV2PartCompletedEvent(BulkUpload bulkUpload, BulkUploadResultsDictionary relevantResults)
         {
             var programIngestResults = relevantResults.Values
                 .SelectMany(x => x.Values)
@@ -296,6 +297,26 @@ namespace IngestHandler
             };
 
             _epgIngestMessaging.EpgIngestPartCompleted(parameters);
+        }
+
+        private void SendIngestV3PartCompletedEvent(BulkUpload bulkUpload)
+        {
+            var programIngestResults = bulkUpload.Results
+                .Cast<BulkUploadProgramAssetResult>()
+                .GroupBy(x => (x.LiveAssetId, x.StartDate.Date))
+                .Select(x => new EpgIngestPartCompletedParameters
+                {
+                    BulkUploadId = bulkUpload.Id,
+                    GroupId = bulkUpload.GroupId,
+                    HasMoreEpgToIngest = true,
+                    UserId = bulkUpload.UpdaterId,
+                    Results = x
+                })
+                .ToList();
+
+            if (programIngestResults.Any()) { programIngestResults.Last().HasMoreEpgToIngest = false; }
+
+            _epgIngestMessaging.EpgIngestPartCompleted(programIngestResults);
         }
 
         private Task PublishProgramAssetMessages(long groupId, Operations operations, long updaterId)
