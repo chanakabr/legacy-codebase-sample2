@@ -1966,7 +1966,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     {
                         string rangeValue = value;
 
-                        if (this.SearchDefinitions.numericEpgMetas.Contains(leaf.field) && this.SearchDefinitions.shouldSearchEpg)
+                        if (this.SearchDefinitions.numericEpgMetas.Contains(leaf.field) && (this.SearchDefinitions.shouldSearchEpg || this.SearchDefinitions.shouldSearchRecordings))
                         {
                             leafField = GetElasticsearchFieldName(leaf.isLanguageSpecific, this.SearchDefinitions.langauge, $"padded_{leaf.field}", leaf.fieldType);
                             rangeValue = Media.PadValue(rangeValue);
@@ -2499,7 +2499,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 case ApiObjects.ComparisonOperator.LessThan:
                     {
                         string rangeValue = value;
-                        if (this.SearchDefinitions.numericEpgMetas.Contains(leafField) && this.SearchDefinitions.shouldSearchEpg)
+                        if (this.SearchDefinitions.numericEpgMetas.Contains(leafField) && (this.SearchDefinitions.shouldSearchEpg || this.SearchDefinitions.shouldSearchRecordings))
                         {
                             leaf.field = GetElasticsearchFieldName(leaf.isLanguageSpecific, this.SearchDefinitions.langauge, 
                                 $"padded_{leafField}", leaf.fieldType);

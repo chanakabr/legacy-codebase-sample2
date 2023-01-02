@@ -948,7 +948,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
             Type valueType = leaf.valueType;
             string rangeValue = Convert.ToString(value);
             
-            if (this.SearchDefinitions.numericEpgMetas.Contains(leaf.field) && this.SearchDefinitions.shouldSearchEpg)
+            if (this.SearchDefinitions.numericEpgMetas.Contains(leaf.field) && (this.SearchDefinitions.shouldSearchEpg || this.SearchDefinitions.shouldSearchRecordings))
             {
                 field = $"padded_{field}";
                 rangeValue = Media.PadValue(rangeValue);
