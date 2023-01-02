@@ -214,6 +214,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "personalizedRecording")]
         [JsonProperty("personalizedRecording")]
         [XmlElement(ElementName = "personalizedRecording", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public bool? PersonalizedRecording { get; set; }
         
         /// <summary>
@@ -222,7 +223,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "maxRecordingConcurrency")]
         [JsonProperty("maxRecordingConcurrency")]
         [XmlElement(ElementName = "maxRecordingConcurrency", IsNullable = true)]
-        [SchemeProperty(DynamicMinInt = 0, DynamicMaxInt = 9999, IsNullable = true)]
+        [SchemeProperty(MinInteger = 0, MaxInteger = 9999, IsNullable = true)]
         public int? MaxRecordingConcurrency { get; set; }
         
         /// <summary>
@@ -231,7 +232,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "maxConcurrencyMargin")]
         [JsonProperty("maxConcurrencyMargin")]
         [XmlElement(ElementName = "maxConcurrencyMargin", IsNullable = true)]
-        [SchemeProperty(DynamicMinInt = 0, DynamicMaxInt = 9999, IsNullable = true)]
+        [SchemeProperty(MinInteger = 0, MaxInteger = 9999, IsNullable = true)]
         public int? MaxConcurrencyMargin { get; set; }
     }
 }
