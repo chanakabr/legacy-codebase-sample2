@@ -297,11 +297,6 @@ namespace WebAPI.ModelsValidators
 
         private static void ValidateCondition(KalturaAssetShopCondition model, HashSet<KalturaRuleConditionType> types = null)
         {
-            if (string.IsNullOrWhiteSpace(model.Value))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "value");
-            }
-
             if (model.Values == null || model.Values.Objects == null || model.Values.Objects.Count == 0)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "values");
