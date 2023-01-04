@@ -185,7 +185,7 @@ namespace ApiLogic.Modules.Services
 
             MonetizationCondition[] monetizationConditions = source.Conditions.OfType<ApiObjects.Segmentation.MonetizationCondition>().Select(condition => new MonetizationCondition()
             {
-                BusinessModules = condition.BusinessModuleIds.Cast<long>().ToArray(),
+                BusinessModules = condition.BusinessModuleIds.Select(i => (long)i).ToArray(),
                 CurrencyCode = condition.CurrencyCode,
                 Days = condition.Days,
                 MaxValue = condition.MaxValue,
