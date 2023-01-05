@@ -31,7 +31,7 @@ node('Linux') {
     // }
 	
 	stage('Build and Publish') {
-		dockerRet = dockerBuildAndPublishToEcr("ott-service-phoenix-segmentation-migrator","./Docker/Segmentation.Migrator.Dockerfile")
+		dockerRet = dockerBuildAndPublishToEcr("ott-tool-phoenix-segmentation-migrator","./Docker/Segmentation.Migrator.Dockerfile")
 	}
 
 	additionalMsg = "${dockerRet}"

@@ -31,7 +31,7 @@ lock(resource: "Queue_${env.JOB_NAME}_${target_env}_${partner}", inversePreceden
         sh "docker pull 870777418594.dkr.ecr.us-west-2.amazonaws.com/pipecli:${PIPECLI_VERSION}"
 
         branch = "$BRANCH_NAME"
-        repo = "ott-service-phoenix-segmentation-migrator"
+        repo = "ott-tool-phoenix-segmentation-migrator"
         image = "${branch.toLowerCase()}/${repo}:${tag}"
         app_name = "phoenix-segmentation-migrator"
         component_name = "phoenix-segmentation-migrator"
