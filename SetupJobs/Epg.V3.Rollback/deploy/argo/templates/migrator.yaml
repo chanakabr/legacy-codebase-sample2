@@ -30,4 +30,8 @@ spec:
           value: "{{ .Values.batch_size }}"
         - name: original_epg_version
           value: "{{ .Values.original_epg_version }}"
+        - name: preserve_data_from_v3
+          value: "{{ .Values.preserve_data_from_v3 }}"
+        - name: rollback_from_backup_epg_v2
+          value: "{{ .Values.rollback_from_backup_epg_v2 }}"
    

@@ -251,8 +251,12 @@ namespace ElasticSearch.Common
 
             jsonBody["dest"] = new JObject();
             jsonBody["dest"]["index"] = destination;
-            jsonBody["script"] = new JObject();
-            jsonBody["script"]["file"] = scriptFileName;
+            if (!string.IsNullOrEmpty(scriptFileName))
+            {
+                jsonBody["script"] = new JObject();
+                jsonBody["script"]["file"] = scriptFileName;
+            }
+
             return jsonBody;
         }
 

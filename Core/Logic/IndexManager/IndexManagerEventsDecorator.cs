@@ -402,6 +402,16 @@ namespace ApiLogic.Catalog.IndexManager
             Execute<object>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, batchSize);
         }
 
+        public void RollbackEpgV3ToV2WithoutReindexing(bool rollbackFromBackup, int batchSize)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RollbackEpgV3ToV1WithoutReindexing(bool rollbackFromBackup, int batchSize)
+        {
+            throw new NotImplementedException();
+        }
+
         public void ApplyEpgCrudOperationWithTransaction(string transactionId, List<EpgCB> programsToIndex, List<EpgCB> programsToDelete)
         {
             Execute<object>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, transactionId, programsToIndex, programsToDelete);

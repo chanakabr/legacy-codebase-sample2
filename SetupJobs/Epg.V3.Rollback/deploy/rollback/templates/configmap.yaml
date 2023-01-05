@@ -8,5 +8,7 @@ data:
     {
       "PartnerId": {{ .Values.partner }},
       "BatchSize": 20000,
-      "OriginalEpgVersion": {{ .Values.original_epg_version }}
+      "OriginalEpgVersion": {{ .Values.original_epg_version }},
+      "PreserveDataFromV3": {{ .Values.preserve_data_from_v3 }},
+      "RollbackFromBackup": {{ .Values.rollback_from_backup_epg_v2 }}
     }

@@ -13,6 +13,8 @@ properties([
         string(name: 'partner'),
         string(name: 'batch_size', defaultValue: "2000"),
         choice(name: 'original_epg_version', choices: ['1','2']),
+        choice(name: 'preserve_data_from_v3', choices: ['true', 'false'], defaultValue: 'true'),
+        choice(name: 'rollback_from_backup_epg_v2', choices: ['false', 'true'], defaultValue: 'false'),
         string(name: 'tag', defaultValue: "build"),
     ])
 ])
@@ -124,6 +126,8 @@ def deployComponent(component_name,component_name_und){
                 --set branch=${branch}\
                 --set batch_size=${batch_size}\
                 --set original_epg_version=${original_epg_version}\
+                --set preserve_data_from_v3=${preserve_data_from_v3}\
+                --set rollback_from_backup_epg_v2=${rollback_from_backup_epg_v2}\
                  > deploy.yaml
 
                 argocd app create --file deploy.yaml --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web} --upsert
@@ -175,6 +179,8 @@ def deployComponent(component_name,component_name_und){
                     --set branch=${branch}\
                     --set batch_size=${batch_size}\
                     --set original_epg_version=${original_epg_version}\
+                    --set preserve_data_from_v3=${preserve_data_from_v3}\
+                    --set rollback_from_backup_epg_v2=${rollback_from_backup_epg_v2}\
                      > deploy.yaml
 
                     argocd app create --file deploy.yaml --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web} --upsert

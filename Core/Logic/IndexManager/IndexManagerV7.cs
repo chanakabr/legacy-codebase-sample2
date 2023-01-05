@@ -301,6 +301,16 @@ namespace Core.Catalog
             return indexNmae;
         }
 
+        public void RollbackEpgV3ToV2WithoutReindexing(bool rollbackFromBackup, int batchSize)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RollbackEpgV3ToV1WithoutReindexing(bool rollbackFromBackup, int batchSize)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool ForceRefreshEpgIndex(string indexName)
         {
             var response = _elasticClient.Indices.Refresh(new RefreshRequest(indexName));

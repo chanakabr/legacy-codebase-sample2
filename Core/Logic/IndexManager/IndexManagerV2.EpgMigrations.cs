@@ -4,15 +4,14 @@ using ApiObjects;
 using ApiObjects.Epg;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
-using Core.Api;
-using Core.Catalog;
 using ElasticSearch.Searcher;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Text;
+using Core.Catalog.Searchers;
 using TVinciShared;
 using ESUtils = ElasticSearch.Common.Utils;
 
@@ -121,14 +120,46 @@ namespace Core.Catalog
             log.Info($"epg v2 indices to create:[{JsonConvert.SerializeObject(datesToEpgV2IndexNamesMap)}]");
             foreach (var dateIndexNamePair in datesToEpgV2IndexNamesMap)
             {
-                var epgDate = dateIndexNamePair.Key;
                 var epgV2IndexName = dateIndexNamePair.Value;
+
+                #region Backing up indices and create new one for reindexing
+
+                if (_elasticSearchApi.IndexExists(epgV2IndexName))
+                {
+                    var backupEpgV2IndexName = $"backup_{epgV2IndexName}";
+                    AddEmptyIndex(backupEpgV2IndexName, REFRESH_INTERVAL_FOR_EMPTY_EPG_V2_INDEX);
+                    AddEpgMappings(backupEpgV2IndexName, EpgFeatureVersion.V2);
+
+                    var isBackupReindexSuccess = _elasticSearchApi.Reindex(epgV2IndexName, backupEpgV2IndexName, batchSize: batchSize);
+                    if (isBackupReindexSuccess)
+                    {
+                        var originalEpgV2IndexDeleteResult = _elasticSearchApi.DeleteIndices(new List<string>
+                        {
+                            epgV2IndexName
+                        });
+                        if (!originalEpgV2IndexDeleteResult)
+                        {
+                            log.Warn($"Can not delete original index for EPGv2 ({epgV2IndexName})");
+                        }
+                    }
+                    else
+                    {
+                        log.Warn($"There was a problem while backing up {epgV2IndexName} to {backupEpgV2IndexName}.");
+                    }
+                }
+                else
+                {
+                    log.Warn($"There is nothing to backup, original EPGv2 index {epgV2IndexName} does not exist.");
+                }
+
+                #endregion
+
+                var epgDate = dateIndexNamePair.Key;
                 AddEmptyIndex(epgV2IndexName, REFRESH_INTERVAL_FOR_EMPTY_EPG_V2_INDEX);
                 AddEpgMappings(epgV2IndexName, EpgFeatureVersion.V2);
                 log.Info($"created epg v2 index:[{epgV2IndexName}]");
 
                 // required to avoid an issue with re-indexing docs with negative ttl value
-
                 var reindexV3ToV2Filter = new FilteredQuery(true);
 
                 // all programs that have their start date in the 
@@ -143,10 +174,11 @@ namespace Core.Catalog
                 filterCompositeType.AddChild(maximumRange);
                 filterCompositeType.AddChild(ttlGtZero);
 
-                reindexV3ToV2Filter.Filter = new QueryFilter() { FilterSettings = filterCompositeType };
+                var generalFilter = new QueryFilter() { FilterSettings = filterCompositeType };
+                Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, generalFilter, _elasticSearchApi);
+
+                reindexV3ToV2Filter.Filter = generalFilter;
                 reindexV3ToV2Filter.ReturnFields.Clear();
-
-
 
                 log.Info($"starting reindex from:{epgAlias} to:{epgV2IndexName}");
                 var filterQuery = $"{{ {reindexV3ToV2Filter.Filter} }}";
@@ -165,6 +197,28 @@ namespace Core.Catalog
             log.Info("setting alias to the new epg v2 indices");
             datesToEpgV2IndexNamesMap.Values.ToList().ForEach(idxName => _elasticSearchApi.AddAlias(idxName, epgAlias));
 
+            #region Backup EPGv3 index
+
+            log.Info($"Backing up EPGv3 indices");
+            var backupEpgV3Index = $"backup_{NamingHelper.GetEpgIndexAlias(_partnerId)}_v3_{DateTime.UtcNow.ToString("yyyyMMddHHmmss")}";
+            AddEmptyIndex(backupEpgV3Index, REFRESH_INTERVAL_FOR_EMPTY_EPG_V3_INDEX);
+            AddEpgMappings(backupEpgV3Index, EpgFeatureVersion.V3);
+
+            var backupReindexResult = _elasticSearchApi.Reindex($"{NamingHelper.GetEpgIndexAlias(_partnerId)}_v3", backupEpgV3Index, batchSize: batchSize);
+            if (!backupReindexResult)
+            {
+                log.Warn($"There was a problem while backing up EPGv3 index ({NamingHelper.GetEpgIndexAlias(_partnerId)}_v3) to ({backupEpgV3Index}).");
+            }
+
+            log.Info($"Removing EPGv3 indices.");
+            var deleteIndicesResult= _elasticSearchApi.DeleteIndices(new List<string> {$"{NamingHelper.GetEpgIndexAlias(_partnerId)}_v3"});
+            if (!deleteIndicesResult)
+            {
+                log.Error($"Can not remove EPGv3 indices ({NamingHelper.GetEpgIndexAlias(_partnerId)}_v3) for partner - {_partnerId}!");
+                return;
+            }
+
+            #endregion
 
             log.Info("turning off epg v3 feature");
             var epgV3confFeauterDisabled = new EpgV3PartnerConfiguration { IsEpgV3Enabled = false };
@@ -196,11 +250,16 @@ namespace Core.Catalog
             var ttlGtZero = new ESRange(true, "_ttl", eRangeComp.GT, "0");
             var filterCompositeType = new FilterCompositeType(CutWith.AND);
             filterCompositeType.AddChild(ttlGtZero);
-            ttlFilter.Filter = new QueryFilter() { FilterSettings = filterCompositeType };
-            ttlFilter.ReturnFields.Clear();
+            var generalFilter = new QueryFilter() { FilterSettings = filterCompositeType };
+            Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, generalFilter, _elasticSearchApi);
 
             log.Info($"starting reindex from:{epgAlias} to:{epgV1IndexName}");
+
+            ttlFilter.Filter = generalFilter;
+            ttlFilter.ReturnFields.Clear();
+
             var filterQuery = $"{{ {ttlFilter.Filter} }}";
+
             var isReindexSuccess = _elasticSearchApi.Reindex(epgAlias, epgV1IndexName, filterQuery, EPG_V3_ROLLBACK_REINDEX_SCRIPT_NAME, batchSize);
             log.Info($"reindex result: [{isReindexSuccess}]");
             if (!isReindexSuccess)
@@ -210,6 +269,28 @@ namespace Core.Catalog
 
             log.Info($"publishing epg v1 index:{epgV1IndexName}");
             PublishEpgIndex(epgV1IndexName, isRecording: false, shouldSwitchIndexAlias: true, shouldDeleteOldIndices: false);
+
+            #region Backup EPGv3 index
+
+            log.Info($"Backing up EPGv3 indices");
+            var backupEpgV3Index = $"backup_{NamingHelper.GetEpgIndexAlias(_partnerId)}_v3_{DateTime.UtcNow.ToString("yyyyMMddHHmmss")}";
+            AddEmptyIndex(backupEpgV3Index, REFRESH_INTERVAL_FOR_EMPTY_EPG_V3_INDEX);
+            AddEpgMappings(backupEpgV3Index, EpgFeatureVersion.V3);
+            var backupReindexResult = _elasticSearchApi.Reindex($"{NamingHelper.GetEpgIndexAlias(_partnerId)}_v3", backupEpgV3Index, batchSize: batchSize);
+            if (!backupReindexResult)
+            {
+                log.Warn($"There was a problem while backing up EPGv3 index ({NamingHelper.GetEpgIndexAlias(_partnerId)}_v3) to ({backupEpgV3Index}).");
+            }
+
+            log.Info($"Removing EPGv3 indices.");
+            var deleteIndicesResult= _elasticSearchApi.DeleteIndices(new List<string> {$"{NamingHelper.GetEpgIndexAlias(_partnerId)}_v3"});
+            if (!deleteIndicesResult)
+            {
+                log.Error($"Can not remove EPGv3 indices ({NamingHelper.GetEpgIndexAlias(_partnerId)}_v3) for partner - {_partnerId}!");
+                return;
+            }
+
+            #endregion
 
             log.Info("turning off epg v3 feature");
             var epgV3confFeauterDisabled = new EpgV3PartnerConfiguration { IsEpgV3Enabled = false };
@@ -225,6 +306,185 @@ namespace Core.Catalog
             var channelIds = new HashSet<int>();
             if (!isOpc()) { channelIds = GetGroupManager().channelIDs; }
             AddChannelsPercolatorsToIndex(channelIds, null);
+        }
+
+        public void RollbackEpgV3ToV1WithoutReindexing(bool rollbackFromBackup, int batchSize)
+        {
+            // Predicate to extract only indices for EPGv1.
+            bool OriginalIndicesPredicate(ESIndex i) => !i.Name.Contains("epg_v2") && !i.Name.Contains("epg_v3");
+            RollbackEpgV3WithoutReindexingGeneric(OriginalIndicesPredicate, ExtractLatestEpgV1Index, rollbackFromBackup, batchSize);
+        }
+
+        public void RollbackEpgV3ToV2WithoutReindexing(bool rollbackFromBackup, int batchSize)
+        {
+            // Predicate to extract only indices for EPGv2.
+            bool OriginalIndicesPredicate(ESIndex i) => i.Name.Contains("epg_v2");
+            RollbackEpgV3WithoutReindexingGeneric(OriginalIndicesPredicate, indices => indices.Select(x => x.Name).ToArray(), rollbackFromBackup, batchSize);
+        }
+
+        private void RollbackEpgV3WithoutReindexingGeneric(Func<ESIndex, bool> originalIndicesPredicate, Func<ESIndex[], string[]> extractEpgIndices, bool rollbackFromBackup, int batchSize)
+        {
+            var epgAlias = NamingHelper.GetEpgIndexAlias(_partnerId);
+
+            log.Info($"Retrieving original EPGv1/EPGv2 indices for partner {_partnerId}.");
+            var partnerEpgIndices = _elasticSearchApi.ListIndices($"{(rollbackFromBackup ? "*": "")}{_partnerId}_epg_*");
+            // This code is there just to avoid messing up with EPGv1 and EPGv2 indices for the same customer and acquiring the correct original indices.
+            var originalIndicesPredicateExtended = rollbackFromBackup ?
+                index => originalIndicesPredicate(index) && index.Name.Contains("backup") :
+                originalIndicesPredicate;
+            var partnerEpgOriginalIndicesForRollback = partnerEpgIndices.Where(originalIndicesPredicateExtended).ToArray();
+
+            if (!partnerEpgOriginalIndicesForRollback.Any())
+            {
+                log.Error($"There are no indices to rollback for customer {_partnerId}!");
+                return;
+            }
+
+            log.Info($"Retrieving current EPGv3/EPGv2 indices by alias ({epgAlias}) for partner {_partnerId}.");
+            var partnerCurrentEpgV3OrEpgV2Indices = _elasticSearchApi.ListIndicesByAlias(epgAlias);
+            if (!partnerCurrentEpgV3OrEpgV2Indices.Any())
+            {
+                log.Error($"There are no indices to rollback for customer {_partnerId}!");
+                return;
+            }
+
+            // Extract the latest original EPGv1/EPGv2 index (if there are more than one).
+            var originalEpgIndices = extractEpgIndices(partnerEpgOriginalIndicesForRollback);
+            if (!originalEpgIndices.Any())
+            {
+                log.Error($"Can not find original EPGv1/EPGv2 index for partner {_partnerId}!");
+                return;
+            }
+
+            if (rollbackFromBackup)
+            {
+                #region Restore from backup indices
+
+                var createdIndices = new List<string>();
+                foreach (var partnerEpgOriginalIndexForRollback in partnerEpgOriginalIndicesForRollback)
+                {
+                    // cut backup_ prefix
+                    var currentEpgIndexName = partnerEpgOriginalIndexForRollback.Name.Substring(7, partnerEpgOriginalIndexForRollback.Name.Length - 7);
+                    if (_elasticSearchApi.IndexExists(currentEpgIndexName))
+                    {
+                        var originalEpgV2IndexDeleteResult = _elasticSearchApi.DeleteIndices(new List<string>
+                        {
+                            currentEpgIndexName
+                        });
+                        if (!originalEpgV2IndexDeleteResult)
+                        {
+                            log.Warn($"Can not delete original index for EPGv2 ({currentEpgIndexName})");
+                        }
+                    }
+
+                    AddEmptyIndex(currentEpgIndexName, REFRESH_INTERVAL_FOR_EMPTY_EPG_V2_INDEX);
+                    AddEpgMappings(currentEpgIndexName, EpgFeatureVersion.V2);
+
+                    var isBackupReindexSuccess = _elasticSearchApi.Reindex(partnerEpgOriginalIndexForRollback.Name, currentEpgIndexName, batchSize: batchSize);
+                    if (!isBackupReindexSuccess)
+                    {
+                        log.Warn($"There was a problem while backing up {partnerEpgOriginalIndexForRollback.Name} to {currentEpgIndexName}.");
+                        continue;
+                    }
+
+                    createdIndices.Add(currentEpgIndexName);
+                }
+
+                #endregion
+
+                // in case backup indices count are less than current indices, we should remove the rest
+                var partnerCurrentIndicesToDelete = partnerCurrentEpgV3OrEpgV2Indices.Select(x => x.Name).Except(createdIndices).ToArray();
+                if (partnerCurrentIndicesToDelete.Any())
+                {
+                    _elasticSearchApi.DeleteIndices(partnerCurrentIndicesToDelete.Select(x => x).ToList());
+                }
+
+                // original indices to backup should be reassigned once we realize them now
+                originalEpgIndices = createdIndices.ToArray();
+            }
+
+            var currentEpgIndicesNames = string.Join(",", partnerCurrentEpgV3OrEpgV2Indices.Select(x => x.Name).ToArray());
+            // in case we're rolling back, removing all current indices will clean the alias already
+            if (!rollbackFromBackup)
+            {
+                log.Info($"Clear current alias from indices ({currentEpgIndicesNames}).");
+                foreach (var partnerEpgV3Index in partnerCurrentEpgV3OrEpgV2Indices)
+                {
+                    var result = _elasticSearchApi.RemoveAlias(partnerEpgV3Index.Name, epgAlias);
+                    if (!result)
+                    {
+                        log.Warn($"Error while deleting index ({partnerEpgV3Index.Name}) from alias ({epgAlias})!");
+                    }
+                }
+            }
+
+            var originalEpgIndicesNames = string.Join(",", originalEpgIndices);
+            log.Info($"Adding original EPGv1/EPGv2 index/indices ({originalEpgIndicesNames}) to alias ({epgAlias}).");
+            foreach (var originalEpgIndex in originalEpgIndices)
+            {
+                var aliasAddResult = _elasticSearchApi.AddAlias(originalEpgIndex, epgAlias);
+                if (!aliasAddResult)
+                {
+                    log.Error($"Can not set alias ({epgAlias}) based on original EPGv1 index ({originalEpgIndicesNames}) for partner - {_partnerId}!");
+                    return;
+                }
+            }
+
+            // we've already deleted indexes in case of rolling back to backup
+            if (!rollbackFromBackup)
+            {
+                #region Backup EPGv3 index
+
+                log.Info($"Backing up EPGv3 indices ({currentEpgIndicesNames})");
+                var backupEpgV3Index = $"backup_{NamingHelper.GetEpgIndexAlias(_partnerId)}_v3_{DateTime.UtcNow.ToString("yyyyMMddHHmmss")}";
+                AddEmptyIndex(backupEpgV3Index, REFRESH_INTERVAL_FOR_EMPTY_EPG_V3_INDEX);
+                AddEpgMappings(backupEpgV3Index, EpgFeatureVersion.V3);
+                var epgV3Index = partnerCurrentEpgV3OrEpgV2Indices.FirstOrDefault(x => x.Name.Contains("v3"));
+                var backupReindexResult = _elasticSearchApi.Reindex(epgV3Index.Name, backupEpgV3Index, batchSize: batchSize);
+                if (!backupReindexResult)
+                {
+                    log.Warn($"There was a problem while backing up EPGv3 index ({epgV3Index.Name}) to ({backupEpgV3Index}).");
+                }
+
+                log.Info($"Removing EPGv3 indices ({currentEpgIndicesNames})");
+                var deleteIndicesResult= _elasticSearchApi.DeleteIndices(partnerCurrentEpgV3OrEpgV2Indices.Select(x => x.Name).ToList());
+                if (!deleteIndicesResult)
+                {
+                    log.Error($"Can not remove EPGv3 indices ({currentEpgIndicesNames}) for partner - {_partnerId}!");
+                    return;
+                }
+
+                #endregion
+            }
+
+            log.Info("turning off epg v3 feature");
+            var epgV3confFeauterDisabled = new EpgV3PartnerConfiguration { IsEpgV3Enabled = false };
+            EpgPartnerConfigurationManager.Instance.SetEpgV3Configuration(_partnerId, epgV3confFeauterDisabled);
+
+            log.Info("invalidate epg partner configuration cache");
+            var epgV2InvalidationKey = LayeredCacheKeys.GetEpgV2PartnerConfigurationInvalidationKey(_partnerId);
+            var epgV3InvalidationKey = LayeredCacheKeys.GetEpgV3PartnerConfigurationInvalidationKey(_partnerId);
+            _layeredCache.SetInvalidationKey(epgV2InvalidationKey);
+            _layeredCache.SetInvalidationKey(epgV3InvalidationKey);
+
+            log.Info("rebuilding percolators");
+            var channelIds = new HashSet<int>();
+            if (!isOpc()) { channelIds = GetGroupManager().channelIDs; }
+            AddChannelsPercolatorsToIndex(channelIds, null);
+        }
+
+        private static string[] ExtractLatestEpgV1Index(ESIndex[] partnerEpgV1Indices)
+        {
+            var epgV1Index = partnerEpgV1Indices.Length == 1
+                ? partnerEpgV1Indices.First().Name
+                : partnerEpgV1Indices.OrderByDescending(i =>
+                    {
+                        DateTime.TryParseExact(i.Name.Split('_').Last(), "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date);
+                        return date;
+                    })
+                    .First()
+                    .Name;
+            return string.IsNullOrEmpty(epgV1Index) ? new string[] { } : new[] {epgV1Index};
         }
 
         private List<int> GetAllEpgChannelIds(string indexName)
