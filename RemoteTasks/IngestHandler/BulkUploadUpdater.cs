@@ -75,10 +75,11 @@ namespace IngestHandler
 
                 
                 // This is here to optimize the writes to CB. because we have multiple consumers per channel running concurrently
-                // its probable that many update requests will come in while most of the data was already written to monog
+                // its probable that many update requests will come in while most of the data was already written to mongo
                 // this will cause multiple writes of the same object to CB.
-                var areEqual = await CompareBinary(bulkUploadFromDb, bulkUploadUpdateCandidate);
-                if (areEqual)
+                // Also because of race condition it's possible to trigger ingest finalization multiple times.
+                // Ingest finalization triggers program CRUD events publish. The check for object equality allows to publish CRUD events only once.
+                if (AreObjectsEqual(bulkUploadFromDb, bulkUploadUpdateCandidate))
                 {
                     _logger.LogInformation($"Update candidate is identical to object from db, bulkUploadId:[{bulkUploadId}], skipping write to CB");
                     return new HandleResult();
@@ -105,19 +106,27 @@ namespace IngestHandler
             return new HandleResult();
         }
 
-        private async Task<bool> CompareBinary(object obj1, object obj2)
+        private bool AreObjectsEqual(object obj1, object obj2)
         {
-            var bf = new BinaryFormatter();
-            using (var ms1 = new MemoryStream())
-            using (var ms2 = new MemoryStream())
+            if (ReferenceEquals(obj1, obj2))
             {
-                bf.Serialize(ms1, obj1);
-                bf.Serialize(ms2, obj2);
-                ms1.Seek(0, SeekOrigin.Begin);
-                ms2.Seek(0, SeekOrigin.Begin);
-                var areEqual = await _streamCompare.AreEqualAsync(ms1, ms2, true);
-                return areEqual;
+                return true;
             }
+
+            if (obj1 == null || obj2 == null)
+            {
+                return false;
+            }
+
+            if (obj1.GetType() != obj2.GetType())
+            {
+                return false;
+            }
+
+            var objJson = JsonConvert.SerializeObject(obj1);
+            var anotherJson = JsonConvert.SerializeObject(obj2);
+
+            return objJson == anotherJson;
         }
     }
 }
