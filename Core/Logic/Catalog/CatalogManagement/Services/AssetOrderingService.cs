@@ -281,7 +281,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
 
             var meta = _catalogManager.GetMetaByName(model);
             var type = meta?.ValueType;
-            var isMetaPadded = input.ShouldSearchEpg
+            var isMetaPadded = (input.ShouldSearchEpg || input.ShouldSearchRecordings)
                 && (type == typeof(int) || type == typeof(double) || type == typeof(long) || type == typeof(float));
 
             return (isMetaPadded, type);

@@ -108,6 +108,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
         [TestCaseSource(nameof(OrderByMetaData))]
         public void MapToEsOrderByFields_MediaRelatedRequest_ReturnsMeta(
             bool shouldSearchEpg,
+            bool shouldSearchRecordings,
             Type metaType,
             bool isMetaPadded,
             LanguageObj language)
@@ -133,7 +134,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
             {
                 ShouldSearchMedia = true,
                 ShouldSearchEpg = shouldSearchEpg,
-                ShouldSearchRecordings = true,
+                ShouldSearchRecordings = shouldSearchRecordings,
                 GroupId = 10,
                 Language = language
             };
@@ -562,12 +563,22 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
 
             foreach (var (type, _) in typeToShouldPad)
             {
-                yield return new TestCaseData(false, type, false, null);
+                yield return new TestCaseData(false, false, type, false, null);
             }
 
             foreach (var (type, shouldPad) in typeToShouldPad)
             {
-                yield return new TestCaseData(true, type, shouldPad, new LanguageObj { Code = "eng" });
+                yield return new TestCaseData(true, false, type, shouldPad, new LanguageObj { Code = "eng" });
+            }
+            
+            foreach (var (type, shouldPad) in typeToShouldPad)
+            {
+                yield return new TestCaseData(false, true, type, shouldPad, new LanguageObj { Code = "eng" });
+            }
+            
+            foreach (var (type, shouldPad) in typeToShouldPad)
+            {
+                yield return new TestCaseData(true, true, type, shouldPad, new LanguageObj { Code = "eng" });
             }
         }
 
