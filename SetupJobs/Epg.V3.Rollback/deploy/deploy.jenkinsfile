@@ -15,7 +15,7 @@ properties([
         choice(name: 'original_epg_version', choices: ['1','2']),
         choice(name: 'preserve_data_from_v3', choices: ['true', 'false'], defaultValue: 'true'),
         choice(name: 'rollback_from_backup_epg_v2', choices: ['false', 'true'], defaultValue: 'false'),
-        string(name: 'tag', defaultValue: "build"),
+        string(name: 'tag', defaultValue: ""),
     ])
 ])
 
@@ -31,6 +31,13 @@ lock(resource: "Queue_${env.JOB_NAME}_${target_env}_${partner}", inversePreceden
         sh "\$(aws ecr get-login --no-include-email --region ${AWS_REGION})"
         sh "docker pull 870777418594.dkr.ecr.us-west-2.amazonaws.com/pipecli:${PIPECLI_VERSION}"
 
+        deleteDir()
+        checkout scm
+        if (tag == null || tag.isEmpty())
+        {
+            tag = sh(returnStdout: true, script: 'git rev-parse HEAD')
+        }
+
         branch = "$BRANCH_NAME"
         repo = "ott-service-phoenix-epg-v3-rollback"
         image = "${branch.toLowerCase()}/${repo}:${tag}"
@@ -38,8 +45,6 @@ lock(resource: "Queue_${env.JOB_NAME}_${target_env}_${partner}", inversePreceden
         component_name = "epg-v3-rollback"
         component_name_und = sh (script: "echo ${component_name} | sed -r 's/-/_/g'",returnStdout: true).trim()
 
-        deleteDir()
-        checkout scm
         currentBuild.displayName = "#${BUILD_NUMBER} - ${target_env} - ${tag} - ${partner}"
 
         src_region = "us-west-2"
