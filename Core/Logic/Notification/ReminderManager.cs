@@ -634,13 +634,13 @@ namespace Core.Notification
             Dictionary<string, string> aliases = Core.ConditionalAccess.Utils.Instance.GetEpgFieldTypeEntitys(groupId, epgProgram.m_oProgram);
             if (aliases == null || aliases.Count == 0)
             {
-                log.Error($"failed to alias mappings for groupId = {groupId}, programId = {epgProgram.AssetId}");
+                log.Warn($"Failed to alias mappings for groupId = {groupId}, programId = {epgProgram.AssetId}");
                 return false;
             }
 
             if (!aliases.ContainsKey(ConditionalAccess.Utils.SERIES_ID))
             {
-                log.Error($"Program: {epgProgram.AssetId} without {ConditionalAccess.Utils.SERIES_ID} for groupId = {groupId}");
+                log.Warn($"ProgramId = {epgProgram.AssetId} without {ConditionalAccess.Utils.SERIES_ID} for groupId = {groupId}");
                 return false;
             }
             
