@@ -305,8 +305,7 @@ namespace Core.Notification
             {
                 log.ErrorFormat("Error while adding reminder. GID: {0}, reminderId: {1}, ex: {2}", dbReminder.GroupId, dbReminder.ID, ex);
             }
-            response.Reminders = new List<DbReminder>();
-            response.Reminders.Add(dbReminder);
+            response.Reminders = new List<DbReminder> { dbReminder };
             return response;
         }
 
@@ -635,12 +634,18 @@ namespace Core.Notification
             Dictionary<string, string> aliases = Core.ConditionalAccess.Utils.Instance.GetEpgFieldTypeEntitys(groupId, epgProgram.m_oProgram);
             if (aliases == null || aliases.Count == 0)
             {
-                log.ErrorFormat("failed to alias mappings for groupId = {0}, programId = {1} ", groupId, epgProgram.AssetId);
+                log.Error($"failed to alias mappings for groupId = {groupId}, programId = {epgProgram.AssetId}");
                 return false;
             }
 
-            string seriesId = aliases[Core.ConditionalAccess.Utils.SERIES_ID];
-            long seasonNumber = aliases.ContainsKey(Core.ConditionalAccess.Utils.SEASON_NUMBER) ? long.Parse(aliases[Core.ConditionalAccess.Utils.SEASON_NUMBER]) : 0;
+            if (!aliases.ContainsKey(ConditionalAccess.Utils.SERIES_ID))
+            {
+                log.Error($"Program: {epgProgram.AssetId} without {ConditionalAccess.Utils.SERIES_ID} for groupId = {groupId}");
+                return false;
+            }
+            
+            string seriesId = aliases[ConditionalAccess.Utils.SERIES_ID];
+            long seasonNumber = aliases.ContainsKey(ConditionalAccess.Utils.SEASON_NUMBER) ? long.Parse(aliases[ConditionalAccess.Utils.SEASON_NUMBER]) : 0;
 
             DbSeriesReminder seriesSeasonReminder = NotificationDal.GetSeriesReminder(groupId, seriesId, seasonNumber, int.Parse(epgProgram.m_oProgram.EPG_CHANNEL_ID));
             if (seriesSeasonReminder != null && userSeriesReminders.FirstOrDefault(usr => usr.AnnouncementId == seriesSeasonReminder.ID) != null)
@@ -1669,7 +1674,7 @@ namespace Core.Notification
                             continue;
                         }
 
-                        string seriesId = epgFieldMappings[ConditionalAccess.Utils.SERIES_ID];
+                        string seriesId = epgFieldMappings.ContainsKey(ConditionalAccess.Utils.SERIES_ID) ? epgFieldMappings[ConditionalAccess.Utils.SERIES_ID] : string.Empty;
                         int seasonNum = epgFieldMappings.ContainsKey(ConditionalAccess.Utils.SEASON_NUMBER) ? int.Parse(epgFieldMappings[ConditionalAccess.Utils.SEASON_NUMBER]) : 0;
                         if (NotificationDal.IsReminderRequired(partnerId, seriesId, seasonNum, epgChannelId))
                         {
