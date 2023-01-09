@@ -556,7 +556,8 @@ namespace ApiLogic.Api.Managers
             }
             catch (Exception ex)
             {
-                Log.Error(string.Format("GetAllAssetRulesDB failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+                Log.Error($"{nameof(GetAllRegionsDB)} failed, parameters : {string.Join(";", funcParams.Keys)}", ex);
+                regionsCache = null;
             }
 
             return new Tuple<RegionsCache, bool>(regionsCache, regionsCache != null);
