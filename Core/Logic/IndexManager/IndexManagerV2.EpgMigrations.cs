@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Core.Catalog.Searchers;
+using Phx.Lib.Appconfig;
 using TVinciShared;
 using ESUtils = ElasticSearch.Common.Utils;
 
@@ -93,7 +94,8 @@ namespace Core.Catalog
             }
 
             var ttlFilter = new FilteredQuery(true);
-            var ttlGtZero = new ESRange(true, "_ttl", eRangeComp.GT, "0");
+            var ttlValue = ApplicationConfiguration.Current.ElasticSearchHttpClientConfiguration.TimeOutInMiliSeconds;
+            var ttlGtZero = new ESRange(true, "_ttl", eRangeComp.GT, $"{ttlValue}");
             var filterCompositeType = new FilterCompositeType(CutWith.AND);
             filterCompositeType.AddChild(ttlGtZero);
             ttlFilter.Filter = new QueryFilter() { FilterSettings = filterCompositeType };
