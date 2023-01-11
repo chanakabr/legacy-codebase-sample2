@@ -35,7 +35,7 @@ lock(resource: "Queue_${env.JOB_NAME}_${target_env}_${partner}", inversePreceden
         checkout scm
         if (tag == null || tag.isEmpty())
         {
-            tag = sh(returnStdout: true, script: 'git rev-parse HEAD')
+            tag = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
         }
 
         branch = "$BRANCH_NAME"
