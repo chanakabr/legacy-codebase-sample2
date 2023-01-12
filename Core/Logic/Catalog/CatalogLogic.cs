@@ -58,6 +58,7 @@ using ApiLogic.Catalog.NextEpisode;
 using ApiLogic.IndexManager.QueryBuilders.SearchPriority;
 using ApiLogic.IndexManager.Sorting;
 using ApiLogic.Segmentation;
+using ApiObjects.NextEpisode;
 using ChannelsSchema;
 using ElasticSearch.Searcher;
 using ElasticSearch.Utils;
@@ -9610,7 +9611,7 @@ namespace Core.Catalog
             return false;
         }
 
-        private static List<WatchHistory> GetRawUserWatchHistory(int groupId, string siteGuid, List<int> assetTypes,
+        public static List<WatchHistory> GetRawUserWatchHistory(int groupId, string siteGuid, List<int> assetTypes,
             List<string> assetIds, List<int> excludedAssetTypes, eWatchStatus filterStatus, int numOfDays)
         {
             List<WatchHistory> unFilteredresult = new List<WatchHistory>();
@@ -9741,22 +9742,6 @@ namespace Core.Catalog
             {
                 yield return kv.Value.LastMark;
             }
-        }
-
-        public static GenericResponse<UserWatchHistory> GetNextEpisodeForOpc(int groupId, string siteGuid, long assetId)
-        {
-            Func<List<WatchHistory>> func = () => GetRawUserWatchHistory(
-                groupId, siteGuid, new List<int>(), new List<string>(), new List<int>(), eWatchStatus.All, 0);
-
-            return NextEpisodeService.GetNextEpisodeForOpc(groupId, siteGuid, assetId, func);
-        }
-
-        public static GenericResponse<UserWatchHistory> GetNextEpisodeForTvm(int groupId, string siteGuid, long assetId)
-        {
-            Func<List<WatchHistory>> func = () => GetRawUserWatchHistory(
-                groupId, siteGuid, new List<int>(), new List<string>(), new List<int>(), eWatchStatus.All, 0);
-
-            return NextEpisodeService.GetNextEpisodeForTvm(groupId, siteGuid, assetId, func);
         }
 
         public static void WriteNewWatcherMediaActionLog(int nWatcherID, string sSessionID, int nBillingTypeID,

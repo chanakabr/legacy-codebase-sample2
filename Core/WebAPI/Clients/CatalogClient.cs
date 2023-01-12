@@ -1089,22 +1089,6 @@ namespace WebAPI.Clients
             return finalResults;
         }
 
-        public KalturaAssetHistory GetNextEpisode(int groupId, string siteGuid, long assetId)
-        {
-            GenericResponse<UserWatchHistory> getNextEpisodeFunc()
-            {
-                if (GroupSettingsManager.Instance.IsTvm(groupId))
-                {
-                    return CatalogLogic.GetNextEpisodeForTvm(groupId, siteGuid, assetId);
-                }
-
-                return CatalogLogic.GetNextEpisodeForOpc(groupId, siteGuid, assetId);
-            }
-
-            KalturaAssetHistory result = ClientUtils.GetResponseFromWS<KalturaAssetHistory, UserWatchHistory>(getNextEpisodeFunc);
-            return result;
-        }
-
         [Obsolete]
         public KalturaWatchHistoryAssetWrapper WatchHistory(int groupId, string siteGuid, string udid, string language, int pageIndex, int? pageSize, KalturaWatchStatus watchStatus, int days, List<int> assetTypes, List<string> assetIds, List<KalturaCatalogWith> withList)
         {

@@ -7824,6 +7824,22 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaSeriesIdArguments":
+                    switch(property.Name)
+                    {
+                        case "AssetTypeIdIn":
+                            return "assetTypeIdIn";
+                        case "EpisodeNumberMetaName":
+                            return "episodeNumberMetaName";
+                        case "SeasonNumberMetaName":
+                            return "seasonNumberMetaName";
+                        case "SeriesId":
+                            return "seriesId";
+                        case "SeriesIdMetaName":
+                            return "seriesIdMetaName";
+                    }
+                    break;
+                    
                 case "KalturaSeriesRecording":
                     switch(property.Name)
                     {
@@ -9611,8 +9627,18 @@ namespace WebAPI.Reflection
                             return AssetHistoryController.CleanOldStandard((KalturaAssetsFilter) methodParams[0]);
                             
                         case "getnextepisode":
+                            var oneOfIndices = new[] { 0, 1 };
+                            var oneOfParametersCount = oneOfIndices.Count(x => methodParams[x] != null);
+                            if (oneOfParametersCount == 0)
+                            {
+                                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "assetId, seriesIdArguments");
+                            }
+                            if (oneOfParametersCount > 1)
+                            {
+                                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "assetId", "seriesIdArguments");
+                            }
                             RolesManager.ValidateActionPermitted("assetHistory", "getNextEpisode", WebAPI.Managers.eKSValidation.All);
-                            return AssetHistoryController.GetNextEpisode((long) methodParams[0]);
+                            return AssetHistoryController.GetNextEpisode((Nullable<long>) methodParams[0], (KalturaSeriesIdArguments) methodParams[1], (Nullable<KalturaNotWatchedReturnStrategy>) methodParams[2], (Nullable<KalturaWatchedAllReturnStrategy>) methodParams[3]);
                             
                         case "list":
                             if(isOldVersion)
@@ -15290,7 +15316,10 @@ namespace WebAPI.Reflection
                         case "getnextepisode":
                             ret.Add("assetId", new MethodParam(){
                                 NewName = newParamName,
-                                Type = typeof(long),
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int64),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("assetId", "assetHistory", "getNextEpisode") {
                                     RequiresPermission = false,
                                     MaxLength = -1,
@@ -15300,6 +15329,29 @@ namespace WebAPI.Reflection
                                     MaxItems = -1,
                                     UniqueItems = false,
                                 },
+                            });
+                            ret.Add("seriesIdArguments", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSeriesIdArguments),
+                            });
+                            ret.Add("notWatchedReturnStrategy", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(KalturaNotWatchedReturnStrategy),
+                                IsEnum = true,
+                            });
+                            ret.Add("watchedAllReturnStrategy", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(KalturaWatchedAllReturnStrategy),
+                                IsEnum = true,
                             });
                             return ret;
                             
