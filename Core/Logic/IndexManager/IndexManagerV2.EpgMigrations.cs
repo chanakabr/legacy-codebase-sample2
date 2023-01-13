@@ -94,7 +94,7 @@ namespace Core.Catalog
             }
 
             var ttlFilter = new FilteredQuery(true);
-            var ttlValue = ApplicationConfiguration.Current.ElasticSearchHttpClientConfiguration.TimeOutInMiliSeconds.Value;
+            var ttlValue = DateTime.UtcNow.ToUtcUnixTimestampMilliseconds() + ApplicationConfiguration.Current.ElasticSearchHttpClientConfiguration.TimeOutInMiliSeconds.Value;
             var ttlGtZero = new ESRange(true, "_ttl", eRangeComp.GT, $"{ttlValue}");
             var filterCompositeType = new FilterCompositeType(CutWith.AND);
             filterCompositeType.AddChild(ttlGtZero);

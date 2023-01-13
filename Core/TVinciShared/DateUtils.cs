@@ -344,6 +344,11 @@ namespace TVinciShared
             return (long)(dateTime - GetTruncDateTimeUtc()).TotalSeconds;
         }
 
+        public static long ToUtcUnixTimestampMilliseconds(this DateTime dateTime)
+        {
+            return (long)(dateTime - GetTruncDateTimeUtc()).TotalMilliseconds;
+        }
+
         // Seconds to DateTime
         public static DateTime UtcUnixTimestampSecondsToDateTime(long unixTimeStamp)
         {

@@ -7,6 +7,6 @@ data:
   appsettings.json: |
     {
       "PartnerId": {{ .Values.partner }},
-      "BatchSize": 20000,
+      "BatchSize": {{ .Values.batch_size }},
       "OriginalEpgVersion": 1
     }

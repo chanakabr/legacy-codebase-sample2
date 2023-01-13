@@ -190,6 +190,8 @@ namespace ElasticSearch.Common
                 JObject jsonBody = BuildReindexRequestBody(source, destination, filterQuery, scriptFileName, batchSize);
                 string body = jsonBody.ToString();
                 int status = 0;
+                log.Info(url);
+                log.Info(body);
                 string postResult = SendPostHttpReq(url, ref status, string.Empty, string.Empty, body, true);
                 log.Debug($"Reindex > result:[{postResult}]");
                 if (!string.IsNullOrEmpty(postResult))
