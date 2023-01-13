@@ -2,13 +2,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ApiObjects.Base;
+using ApiObjects.TimeShiftedTv;
+using AutoMapper;
+using Core.Recordings;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
+using WebAPI.Clients;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
+using WebAPI.ModelsValidators;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -25,7 +31,7 @@ namespace WebAPI.Controllers
         [Action("get")]
         [ApiAuthorize]
         [Throws(eResponseStatus.RecordingNotFound)]
-        static public KalturaRecording Get(long id)
+        public static KalturaRecording Get(long id)
         {
             KalturaRecording response = null;
 
@@ -116,8 +122,9 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AlreadyRecordedAsSeriesOrSeason)]
         [Throws(eResponseStatus.InvalidAssetId)]
         [Throws(eResponseStatus.InvalidParameters)]
+        [Throws(eResponseStatus.CanOnlyAddRecordingBeforeRecordingStart)]
         [Throws(StatusCode.ArgumentCannotBeEmpty)]
-        static public KalturaRecording Add(KalturaRecording recording)
+        public static KalturaRecording Add(KalturaRecording recording)
         {
             KalturaRecording response = null;
 
@@ -140,8 +147,21 @@ namespace WebAPI.Controllers
                 else
                     // regular recording implementation
                 {
-                    response = ClientsManager.ConditionalAccessClient()
-                        .Record(groupId, userId.ToString(), recording.AssetId);
+                    recording.ValidateForAdd(groupId);
+                    switch (recording)
+                    {
+                        case KalturaPaddedRecording rec:
+                            response = ClientsManager.ConditionalAccessClient()
+                                .Record(groupId, userId.ToString(), rec.AssetId, rec.PaddingBefore, rec.PaddingAfter,
+                                    true);
+                            break; 
+                        case KalturaRecording rec:
+                            response = ClientsManager.ConditionalAccessClient()
+                                .Record(groupId, userId.ToString(), rec.AssetId, 0, 0);
+                            break;
+                        default:
+                            throw new NotImplementedException($"Add for {recording.objectType} is not implemented");
+                    }
                 }
             }
             catch (ClientException ex)
@@ -165,7 +185,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.UserWithNoDomain)]
-        static public KalturaRecordingListResponse List(KalturaRecordingFilter filter = null, KalturaFilterPager pager = null)
+        public static KalturaRecordingListResponse List(KalturaRecordingFilter filter = null,
+            KalturaFilterPager pager = null)
         {
             KalturaRecordingListResponse response = null;
 
@@ -178,7 +199,7 @@ namespace WebAPI.Controllers
 
                 if (filter == null)
                 {
-                    filter = new KalturaRecordingFilter() {StatusIn = string.Empty};
+                    filter = new KalturaRecordingFilter() { StatusIn = string.Empty };
                 }
 
                 var contextData = KS.GetContextData();
@@ -208,7 +229,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.RecordingNotFound)]
         [Throws(eResponseStatus.RecordingStatusNotValid)]
-        static public KalturaRecording Cancel(long id)
+        [Throws(eResponseStatus.CanOnlyUpdatePaddingBeforeRecordingBeforeRecordingStart)]
+        public static KalturaRecording Cancel(long id)
         {
             KalturaRecording response = null;
 
@@ -216,8 +238,19 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
-                // call client                
-                response = ClientsManager.ConditionalAccessClient().CancelRecord(groupId, userId, id);
+                // call client
+                var timeShiftedSettings = Core.ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
+                if (timeShiftedSettings.PersonalizedRecordingEnable == true)
+                {
+                    Func<GenericResponse<Recording>> cancelHouseholdRecordingFunc = () =>
+                        PaddedRecordingsManager.Instance.CancelHouseholdRecordings(groupId, id, userId);
+
+                    response = ClientUtils.GetResponseFromWS<KalturaRecording, Recording>(cancelHouseholdRecordingFunc);
+                }
+                else
+                {
+                    response = ClientsManager.ConditionalAccessClient().CancelRecord(groupId, userId, id);    
+                }
             }
             catch (ClientException ex)
             {
@@ -240,6 +273,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.RecordingNotFound)]
         [Throws(eResponseStatus.RecordingStatusNotValid)]
+        [Throws(eResponseStatus.CanOnlyDeleteRecordingAfterRecordingEnd)]
         static public KalturaRecording Delete(long id)
         {
             KalturaRecording response = null;
@@ -248,8 +282,20 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
-                // call client                
-                response = ClientsManager.ConditionalAccessClient().DeleteRecord(groupId, userId, id);
+                // call client     
+                var timeShiftedSettings = Core.ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
+                if (timeShiftedSettings.PersonalizedRecordingEnable == true)
+                {
+                    Func<GenericResponse<Recording>> cancelHouseholdRecordingFunc = () =>
+                        PaddedRecordingsManager.Instance.DeleteHouseholdRecordings(groupId, id, userId);
+
+                    response = ClientUtils.GetResponseFromWS<KalturaRecording, Recording>(cancelHouseholdRecordingFunc);
+                }
+                else
+                {
+                    response = ClientsManager.ConditionalAccessClient().DeleteRecord(groupId, userId, id);
+                }           
+               
             }
             catch (ClientException ex)
             {
@@ -369,6 +415,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.RecordingFailed)]
         [Throws(eResponseStatus.AccountProtectRecordNotEnabled)]
         [Throws(eResponseStatus.InvalidParameters)]
+        [Throws(eResponseStatus.CanOnlyUpdatePaddingAfterRecordingBeforeRecordingEnd)]
+        [Throws(eResponseStatus.CanOnlyUpdatePaddingBeforeRecordingBeforeRecordingStart)]
         public static KalturaRecording Update(long id, KalturaRecording recording)
         {
             KalturaRecording response = null;
@@ -377,15 +425,135 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
-                
-                // call client                
-                response = ClientsManager.ConditionalAccessClient().UpdateRecording(groupId, userId, id, recording);
+
+                recording.ValidateForUpdate(groupId);
+
+                // call client
+                switch (recording)
+                {
+                    case KalturaPaddedRecording rec:
+                        response = ClientsManager.ConditionalAccessClient()
+                            .UpdateRecording(groupId, userId, id, rec);
+                        break; //TODO - Separate logic to 2 different flows?
+                     case KalturaImmediateRecording rec:
+                            response = ClientsManager.ConditionalAccessClient()
+                                .UpdateRecording(groupId, userId, id, rec);
+                                         break;
+                    case KalturaRecording rec:
+                        response = ClientsManager.ConditionalAccessClient().UpdateRecording(groupId, userId, id, rec);
+                        break;
+                    default: throw new NotImplementedException($"Update for {recording.objectType} is not implemented");
+                }
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
 
+            return response;
+        }
+
+        /// <summary>
+        /// Stop ongoing household recording
+        /// </summary>
+        /// <param name="assetId">asset identifier</param>
+        /// <param name="epgChannelId">epg channel identifier</param>
+        /// <param name="householdRecordingId">household recording identifier</param>
+        /// <returns></returns>
+        [Action("stop")]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.RecordingNotFound)]
+        [Throws(eResponseStatus.RecordingStatusNotValid)]
+        [Throws(eResponseStatus.RecordingFailed)]
+        [Throws(eResponseStatus.InvalidParameters)]
+        [Throws(eResponseStatus.NotAllowed)]
+        public static KalturaRecording Stop(long assetId, long epgChannelId, long householdRecordingId)
+        {
+            KalturaRecording response = null;
+
+            try
+            {
+                var groupId = KS.GetFromRequest().GroupId;
+                var userId = Utils.Utils.GetUserIdFromKs();
+                var domainId = HouseholdUtils.GetHouseholdIDByKS();
+                var ctx = new ContextData(groupId) { UserId = userId, DomainId = domainId };
+
+                var timeShiftedSettings = Core.ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
+                if (timeShiftedSettings.PersonalizedRecordingEnable == true)
+                {
+                    Func<GenericResponse<Recording>> stopRecordingFunc = () =>
+                        PaddedRecordingsManager.Instance.StopRecord(ctx, assetId, epgChannelId, householdRecordingId);
+
+                    response = ClientUtils.GetResponseFromWS<KalturaImmediateRecording, Recording>(stopRecordingFunc);
+                }
+                else
+                {
+                    throw new ClientException((int)eResponseStatus.NotAllowed, "Stop action is not allowed");
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        
+        /// <summary>
+        /// Immediate Record
+        /// </summary>
+        /// <param name="assetId">asset identifier</param>
+        /// <param name="epgChannelId">epg channel identifier</param>
+        /// <param name="endPadding">end padding offset</param>
+        /// <returns></returns>
+        [Action("immediateRecord")]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.RecordingNotFound)]
+        [Throws(eResponseStatus.RecordingStatusNotValid)]
+        [Throws(eResponseStatus.RecordingFailed)]
+        [Throws(eResponseStatus.InvalidParameters)]
+        [Throws(eResponseStatus.NotAllowed)]
+        public static KalturaImmediateRecording ImmediateRecord(long assetId, long epgChannelId, int? endPadding)
+        {
+            KalturaImmediateRecording response = null;
+
+            try
+            {
+                var groupId = KS.GetFromRequest().GroupId;
+                var domainId = HouseholdUtils.GetHouseholdIDByKS();
+                var userId = Utils.Utils.GetUserIdFromKs();
+
+                var timeShiftedSettings = Core.ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
+                if (timeShiftedSettings.PersonalizedRecordingEnable == true)
+                {
+                    Func<GenericResponse<Recording>> immediateRecordingFunc = () =>
+                        PaddedRecordingsManager.Instance.ImmediateRecord(groupId, userId, domainId, epgChannelId, assetId, endPadding);
+
+                    response = ClientUtils.GetResponseFromWS<KalturaImmediateRecording, Recording>(immediateRecordingFunc);
+                }
+                else
+                {
+                    throw new ClientException((int)eResponseStatus.NotAllowed, "PersonalizedRecording isn't Enabled");
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+             
             return response;
         }
     }

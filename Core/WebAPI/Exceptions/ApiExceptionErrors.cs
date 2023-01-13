@@ -164,6 +164,11 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType INVALID_CAMPAIGN_STATE = new ClientExceptionType(eResponseStatus.InvalidCampaignState, "Invalid Campaign State", "Campaign is already in given state");
         public static ClientExceptionType CAMPAIGN_STATE_UPDATE_NOT_ALLOWED = new ClientExceptionType(eResponseStatus.CampaignStateUpdateNotAllowed, "Campaign State Update Not Allowed", "Can update campaign state only from INACTIVE to ACTIVE or from ACTIVE to ARCHIVE");
         public static ClientExceptionType INVALID_CAMPAIGN_ENDDATE = new ClientExceptionType(eResponseStatus.InvalidCampaignEndDate, "Invalid Campaign EndDate", "Can update campaign state only if its EndDate is in the future");
+        public static ClientExceptionType CAN_ONLY_UPDATE_PADDING_AFTER_RECORDING_BEFORE_RECORDING_END = new ClientExceptionType(eResponseStatus.CanOnlyUpdatePaddingAfterRecordingBeforeRecordingEnd, "Can Only Update Padding After Recording Before Recording End", "Can Only Update Padding After Recording Before Recording End");
+        public static ClientExceptionType CAN_ONLY_UPDATE_PADDING_BEFORE_RECORDING_BEFORE_RECORDING_START = new ClientExceptionType(eResponseStatus.CanOnlyUpdatePaddingBeforeRecordingBeforeRecordingStart, "Can Only Update Padding Before Recording Before Recording Start", "Can Only Update Padding Before Recording Before Recording Start");
+        public static ClientExceptionType CAN_ONLY_ADD_RECORDING_BEFORE_RECORDING_START = new ClientExceptionType(eResponseStatus.CanOnlyAddRecordingBeforeRecordingStart, "Can Only Add Recording Before Recording Start", "Can Only Add Recording Before Recording Start");
+        public static ClientExceptionType CAN_ONLY_CANCEL_RECORDING_BEFORE_RECORDING_START = new ClientExceptionType(eResponseStatus.CanOnlyCancelRecordingBeforeRecordingEnd, "Can Only Cancel Recording Before Recording End", "Can Only Cancel Recording Before Recording End");
+        public static ClientExceptionType CAN_ONLY_DELETE_RECORDING_AFTER_RECORDING_END = new ClientExceptionType(eResponseStatus.CanOnlyDeleteRecordingAfterRecordingEnd, "Can Only Delete Recording After Recording end", "Can Only Delete Recording After Recording end");
 
         #endregion
 

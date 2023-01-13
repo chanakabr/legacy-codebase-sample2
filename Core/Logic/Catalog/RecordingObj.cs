@@ -11,5 +11,6 @@ namespace Core.Catalog
         public long RecordingId { get; set; }
         public ApiObjects.RecordingType? RecordingType { get; set; }
         public ProgramObj Program { get; set; }
+        public bool IsMulti { get; set; }
     }
 }

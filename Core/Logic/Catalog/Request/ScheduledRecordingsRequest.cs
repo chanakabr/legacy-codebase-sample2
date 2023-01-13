@@ -72,8 +72,6 @@ namespace Core.Catalog.Request
 
                 bool isSingle = scheduledRecordingAssetType == ApiObjects.ScheduledRecordingAssetType.SINGLE;
                 SeriesRecording[] series = null;
-                string wsUserName, wsPassword;
-                GetWsCredentials(out wsUserName, out wsPassword);
 
                 // should we get the followed series
                 if (!isSingle)
@@ -100,12 +98,15 @@ namespace Core.Catalog.Request
                     }
                 }
 
-                RecordingResponse domainRecordings = GetCurrentRecordings(wsUserName, wsPassword);
+                RecordingResponse domainRecordings = GetCurrentRecordings();
                 if (domainRecordings != null && domainRecordings.Status != null && domainRecordings.Status.Code == (int)eResponseStatus.OK)
                 {
                     List<long> epgIdsToOrderAndPage = new List<long>();
                     List<string> excludedCrids = new List<string>();
-                    Dictionary<long, string> epgIdToSingleRecordingIdMap = new Dictionary<long, string>();
+
+                    // Tuple item1 - recordingId, item2 - is recording is multi
+                    Dictionary<long, Tuple<string, bool>> epgIdToSingleRecordingIdMap = new Dictionary<long, Tuple<string, bool>>();
+
                     if (domainRecordings.TotalItems > 0)
                     {
                         if (channelIds != null && channelIds.Count > 0)
@@ -135,7 +136,19 @@ namespace Core.Catalog.Request
                             }
 
                             epgIdsToOrderAndPage = domainRecordings.Recordings.Select(x => x.EpgId).ToList();
-                            epgIdToSingleRecordingIdMap = domainRecordings.Recordings.ToDictionary(x => x.EpgId, x => x.Id.ToString());
+
+                            foreach (var recording in domainRecordings.Recordings)
+                            {
+                                if (!epgIdToSingleRecordingIdMap.ContainsKey(recording.EpgId))
+                                {
+                                    epgIdToSingleRecordingIdMap.Add(recording.EpgId, new Tuple<string, bool>(recording.Id.ToString(), false));
+                                }
+                                else
+                                {
+                                    // multi recording for the same program
+                                    epgIdToSingleRecordingIdMap[recording.EpgId] = new Tuple<string, bool>(recording.Id.ToString(), true);
+                                }
+                            }
                         }
                     }
 
@@ -174,7 +187,7 @@ namespace Core.Catalog.Request
         }
 
         private static void HandleScheduledRecordingsSearchResults(UnifiedSearchResponse response,
-            SeriesRecording[] series, Dictionary<long, string> epgIdToSingleRecordingIdMap,
+            SeriesRecording[] series, Dictionary<long, Tuple<string, bool>> epgIdToSingleRecordingIdMap,
                                                                     string seriesIdMetaOrTag,
                                                                     string seasonNumberMetaOrTag)
         {
@@ -191,7 +204,8 @@ namespace Core.Catalog.Request
                         if (epgIdToSingleRecordingIdMap.ContainsKey(epgId))
                         {
                             scheduledRecording.RecordingType = RecordingType.Single;
-                            scheduledRecording.AssetId = epgIdToSingleRecordingIdMap[epgId];
+                            scheduledRecording.AssetId = epgIdToSingleRecordingIdMap[epgId].Item1; // recordingId
+                            scheduledRecording.IsMulti = epgIdToSingleRecordingIdMap[epgId].Item2; // is multi recording
                         }
                         else
                         {
@@ -219,7 +233,7 @@ namespace Core.Catalog.Request
         }
 
 
-        private RecordingResponse GetCurrentRecordings(string wsUserName, string wsPassword)
+        private RecordingResponse GetCurrentRecordings()
         {
             RecordingResponse result = new RecordingResponse();
             try

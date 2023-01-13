@@ -1,0 +1,12 @@
+{
+  "$id": "http://ott.schema.registry/tasks/scheduled/retryRecording ",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RetryRecording",
+  "type": "object",
+  "description": "retry record scheduled task definition.",
+  "allOf": [
+    {
+      "$ref": "ott-schema-registry/tasks/scheduled/retryRecording"
+    }
+  ]
+}

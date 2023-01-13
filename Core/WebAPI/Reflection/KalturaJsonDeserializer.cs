@@ -1377,6 +1377,9 @@ namespace WebAPI.Reflection
                 case "KalturaImageTypeListResponse":
                     return new KalturaImageTypeListResponse(parameters, true);
                     
+                case "KalturaImmediateRecording":
+                    return new KalturaImmediateRecording(parameters, true);
+                    
                 case "KalturaInboxMessage":
                     return new KalturaInboxMessage(parameters, true);
                     
@@ -1724,6 +1727,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaOTTUserType":
                     return new KalturaOTTUserType(parameters, true);
+                    
+                case "KalturaPaddedRecording":
+                    return new KalturaPaddedRecording(parameters, true);
                     
                 case "KalturaParentalRule":
                     return new KalturaParentalRule(parameters, true);
@@ -5314,6 +5320,74 @@ namespace WebAPI.Models.ConditionalAccess
             }
         }
     }
+    public partial class KalturaImmediateRecording
+    {
+        private static RuntimeSchemePropertyAttribute EndPaddingSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImmediateRecording")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute AbsoluteStartTimeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImmediateRecording")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute AbsoluteEndTimeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImmediateRecording")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        public KalturaImmediateRecording(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("endPadding") && parameters["endPadding"] != null)
+                {
+                    EndPaddingSchemaProperty.Validate("endPadding", parameters["endPadding"]);
+                    EndPadding = (Int32) Convert.ChangeType(parameters["endPadding"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("absoluteStart") && parameters["absoluteStart"] != null)
+                {
+                    AbsoluteStartTimeSchemaProperty.Validate("absoluteStart", parameters["absoluteStart"]);
+                    AbsoluteStartTime = (Int64) Convert.ChangeType(parameters["absoluteStart"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("absoluteEnd") && parameters["absoluteEnd"] != null)
+                {
+                    AbsoluteEndTimeSchemaProperty.Validate("absoluteEnd", parameters["absoluteEnd"]);
+                    AbsoluteEndTime = (Int64) Convert.ChangeType(parameters["absoluteEnd"], typeof(Int64));
+                }
+            }
+        }
+    }
     public partial class KalturaLicensedUrl
     {
         public KalturaLicensedUrl(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
@@ -5420,6 +5494,57 @@ namespace WebAPI.Models.ConditionalAccess
                 if (parameters.ContainsKey("quotaInMinutes") && parameters["quotaInMinutes"] != null)
                 {
                     QuotaInMinutes = (Int64) Convert.ChangeType(parameters["quotaInMinutes"], typeof(Int64));
+                }
+            }
+        }
+    }
+    public partial class KalturaPaddedRecording
+    {
+        private static RuntimeSchemePropertyAttribute PaddingBeforeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPaddedRecording")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            DynamicMinInt = 0,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute PaddingAfterSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPaddedRecording")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            DynamicMinInt = 0,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        public KalturaPaddedRecording(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("startPadding") && parameters["startPadding"] != null)
+                {
+                    PaddingBeforeSchemaProperty.Validate("startPadding", parameters["startPadding"]);
+                    PaddingBefore = (Int32) Convert.ChangeType(parameters["startPadding"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("endPadding") && parameters["endPadding"] != null)
+                {
+                    PaddingAfterSchemaProperty.Validate("endPadding", parameters["endPadding"]);
+                    PaddingAfter = (Int32) Convert.ChangeType(parameters["endPadding"], typeof(Int32));
                 }
             }
         }
@@ -6563,6 +6688,14 @@ namespace WebAPI.Models.ConditionalAccess
                     {
                         SeriesRecordingOption = (KalturaSeriesRecordingOption) Deserializer.deserialize(typeof(KalturaSeriesRecordingOption), (Dictionary<string, object>) parameters["seriesRecordingOption"]);
                     }
+                }
+                if (parameters.ContainsKey("householdSpecificSeriesStartTimeOffset") && parameters["householdSpecificSeriesStartTimeOffset"] != null)
+                {
+                    HouseholdSpecificSeriesStartTimeOffset = (Int32) Convert.ChangeType(parameters["householdSpecificSeriesStartTimeOffset"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("householdSpecificSeriesEndTimeOffset") && parameters["householdSpecificSeriesEndTimeOffset"] != null)
+                {
+                    HouseholdSpecificSeriesEndTimeOffset = (Int32) Convert.ChangeType(parameters["householdSpecificSeriesEndTimeOffset"], typeof(Int32));
                 }
             }
         }
@@ -26978,6 +27111,10 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("viewableUntilDate") && parameters["viewableUntilDate"] != null)
                 {
                     ViewableUntilDate = (Int64) Convert.ChangeType(parameters["viewableUntilDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("multiRecord") && parameters["multiRecord"] != null)
+                {
+                    MultiRecord = (Boolean) Convert.ChangeType(parameters["multiRecord"], typeof(Boolean));
                 }
             }
         }

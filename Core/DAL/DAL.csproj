@@ -16,7 +16,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
-    <PackageReference Include="OTT.Lib.MongoDB" Version="2.0.1" />
+    <PackageReference Include="OTT.Lib.MongoDB" Version="2.0.2.66-2.0.2" />
     <PackageReference Include="Phx.Lib.Log" Version="1.2.4" />
     <PackageReference Include="Polly" Version="7.2.2" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />

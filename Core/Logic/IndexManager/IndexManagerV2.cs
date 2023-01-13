@@ -2397,6 +2397,7 @@ namespace Core.Catalog
                             result.AssetId = definitions.recordingIdToSearchableRecordingMapping[assetId].DomainRecordingId.ToString();
                             (result as RecordingSearchResult).EpgId = definitions.recordingIdToSearchableRecordingMapping[assetId].EpgId.ToString();
                             (result as RecordingSearchResult).RecordingType = definitions.recordingIdToSearchableRecordingMapping[assetId].RecordingType;
+                            (result as RecordingSearchResult).IsMulti = definitions.recordingIdToSearchableRecordingMapping[assetId].IsMulti;
                         }
 
                         if (doc.extraReturnFields.ContainsKey("epg_id") && (string.IsNullOrEmpty((result as RecordingSearchResult).EpgId) || (result as RecordingSearchResult).EpgId == "0"))

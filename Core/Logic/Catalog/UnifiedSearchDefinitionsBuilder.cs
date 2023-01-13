@@ -599,15 +599,17 @@ namespace Core.Catalog
 
             foreach (ApiObjects.TimeShiftedTv.SearchableRecording recording in domainSearchableRecordings)
             {
-                if (!definitions.recordingIdToSearchableRecordingMapping.ContainsKey(recording.RecordingId.ToString())
+                string key = recording.RecordingId.ToString();
+
+                if (!definitions.recordingIdToSearchableRecordingMapping.ContainsKey(key)
                     && (specificRecordingIds.Count == 0 || specificRecordingIds.Contains(recording.RecordingId)))
                 {
-                    definitions.recordingIdToSearchableRecordingMapping.Add(recording.RecordingId.ToString(), recording);
-                    result.Add(recording.RecordingId.ToString());
+                    definitions.recordingIdToSearchableRecordingMapping.Add(key, recording);
+                    result.Add(key);
                 }
             }
 
-            if (definitions.recordingIdToSearchableRecordingMapping != null && definitions.recordingIdToSearchableRecordingMapping.Count > 0)
+            if (definitions.recordingIdToSearchableRecordingMapping?.Count > 0)
             {
                 definitions.domainRecordingIdToRecordingIdMapping = definitions.recordingIdToSearchableRecordingMapping.ToDictionary(x => x.Value.DomainRecordingId, x => x.Key);
             }

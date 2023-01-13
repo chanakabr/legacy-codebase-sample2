@@ -74,5 +74,13 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "viewableUntilDate")]
         [XmlElement(ElementName = "viewableUntilDate")]
         public long ViewableUntilDate { get; set; }
+
+        /// <summary>
+        /// When TRUE indicates that there are multiple KalturaImmediateRecording instances for the event.
+        /// </summary>
+        [DataMember(Name = "multiRecord")]
+        [JsonProperty(PropertyName = "multiRecord")]
+        [XmlElement(ElementName = "multiRecord")]
+        public bool MultiRecord { get; set; }
     }
 }

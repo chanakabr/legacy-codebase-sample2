@@ -28,6 +28,9 @@ namespace ApiObjects.TimeShiftedTv
 
         public SeriesRecordingOption SeriesRecordingOption { get; set; }
 
+        public int? HouseholdSpecificSeriesStartTimeOffset { get; set; }
+        public int? HouseholdSpecificSeriesEndTimeOffset { get; set; }
+
         public DomainSeriesRecording()         
         {
         }

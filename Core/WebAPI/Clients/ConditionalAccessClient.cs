@@ -23,9 +23,10 @@ using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
 using TVinciShared;
 using ApiObjects.Base;
+using ApiObjects.Recordings;
 using WebAPI.Models.General;
 using WebAPI.Models.Billing;
-using ApiLogic;
+using Core.Recordings;
 
 namespace WebAPI.Clients
 {
@@ -1277,20 +1278,18 @@ namespace WebAPI.Clients
             return recording;
         }
 
-        internal KalturaRecording Record(int groupId, string userID, long epgID)
+        internal KalturaRecording Record(int groupId, string userID, long epgID, int? startPadding, int? endPadding, bool isPaddedRecording = false)
         {
             KalturaRecording recording = null;
             Recording response = null;
 
             // get group ID
-
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = Core.ConditionalAccess.Module.Record(groupId, userID, epgID, RecordingType.Single);
+                    response = Core.ConditionalAccess.Module.Record(groupId, userID, epgID, RecordingType.Single, startPadding, endPadding, isPaddedRecording);
                 }
             }
             catch (Exception ex)
@@ -1310,10 +1309,16 @@ namespace WebAPI.Clients
                 // internal web service exception
                 throw new ClientException(response.Status);
             }
-
-            // convert response
-            recording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaRecording>(response);
-
+            TimeShiftedTvPartnerSettings accountSettings = Core.ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
+            if (accountSettings.PersonalizedRecordingEnable == true)
+            {
+                recording = Mapper.Map<KalturaPaddedRecording>(response);
+            }
+            else
+            {
+                recording = Mapper.Map<KalturaRecording>(response);
+            }
+            
             return recording;
         }
 
@@ -1438,7 +1443,26 @@ namespace WebAPI.Clients
             if (response.Recordings != null && response.Recordings.Count > 0)
             {
                 result.TotalCount = response.TotalItems;
-                result.Objects = Mapper.Map<List<KalturaRecording>>(response.Recordings);
+                var accountSettings = Core.ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
+                if (accountSettings?.PersonalizedRecordingEnable == true)
+                {
+                    result.Objects = new List<KalturaRecording>();
+                    foreach (var recording in response.Recordings)
+                    {
+                        if (recording.AbsoluteStartTime.HasValue)
+                        {
+                            result.Objects.Add((Mapper.Map<KalturaImmediateRecording>(recording)));
+                        }
+                        else
+                        {
+                            result.Objects.Add((Mapper.Map<KalturaPaddedRecording>(recording)));
+                        }
+                    }
+                }
+                else
+                {
+                    result.Objects = Mapper.Map<List<KalturaRecording>>(response.Recordings);
+                }
             }
 
             return result;
@@ -1605,15 +1629,14 @@ namespace WebAPI.Clients
 
             return response.Objects;
         }
-    
+
         internal KalturaRecording ProtectRecord(int groupId, string userID, long recordingID)
         {
             KalturaRecording recording = null;
             Recording response = null;
 
             // get group ID
-
-
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -2548,10 +2571,21 @@ namespace WebAPI.Clients
                 // internal web service exception
                 throw new ClientException(response.Status);
             }
-
-            // convert response
-            recording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaRecording>(response);
-
+            
+            switch (recording)
+            {
+                case KalturaPaddedRecording rec:
+                    recording = Mapper.Map<KalturaPaddedRecording>(response);
+                    break; //TODO - Separate logic to 2 different flows?
+                case KalturaImmediateRecording rec:
+                    recording = Mapper.Map<KalturaImmediateRecording>(response);
+                    break;
+                case KalturaRecording rec:
+                    recording = Mapper.Map<KalturaRecording>(response);
+                    break;
+                default: throw new NotImplementedException($"Update for {recording.objectType} is not implemented");
+            }
+            
             return recording;
         }
 

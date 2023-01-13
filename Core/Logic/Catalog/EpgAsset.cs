@@ -412,6 +412,7 @@ namespace Core.Catalog
         public string RecordingId { get; set; }
         public RecordingType? RecordingType { get; set; }
         public long ViewableUntilDate { get; set; }
+        public bool IsMulti { get; set; }
         public RecordingAsset()
             : base()
         {

@@ -49,6 +49,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using FeatureFlag;
 using ApiLogic.Segmentation;
+using ApiObjects.Recordings;
 using TVinciShared;
 using Tvinic.GoogleAPI;
 using SlimAsset = ApiObjects.Rules.SlimAsset;
@@ -5294,6 +5295,9 @@ namespace Core.ConditionalAccess
                             int privateCopy = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_private_copy", 0);
                             int quotaModuleId = ODBCWrapper.Utils.GetIntSafeVal(dr, "quota_module_id", 0);
                             int defaultQuota = ODBCWrapper.Utils.GetIntSafeVal(dr, "quota_in_seconds", 0);
+                            int personalizedRecordingEnable = ODBCWrapper.Utils.GetIntSafeVal(dr, "personalized_recording_enable", 0);
+                            int maxRecordingConcurrency = ODBCWrapper.Utils.GetIntSafeVal(dr, "max_recording_concurrency", 0);
+                            int maxConcurrencyMargin = ODBCWrapper.Utils.GetIntSafeVal(dr, "max_concurrency_margin", 0);
                             
                             if (defaultQuota == 0 && quotaModuleId != 0)
                             {
@@ -5310,14 +5314,13 @@ namespace Core.ConditionalAccess
                                             trickPlayBuffer, recordingScheduleWindowBuffer, paddingAfterProgramEnds, paddingBeforeProgramStarts,
                                             protection == 1, protectionPeriod, protectionQuotaPercentage, recordingLifetimePeriod, cleanupNoticePeriod, enableSeriesRecording == 1,
                                             recordingPlaybackNonEntitledChannel == 1, recordingPlaybackNonExistingChannel == 1, quotaOveragePolicy, protectionPolicy,
-                                            recoveryGracePeriod, privateCopy == 1, defaultQuota);
+                                            recoveryGracePeriod, privateCopy == 1, defaultQuota, personalizedRecordingEnable == 1, maxRecordingConcurrency, maxConcurrencyMargin);
                             }
                         }
                         else
                         {
-                            tstvAccountSettings = new TimeShiftedTvPartnerSettings(false, false, false, false, false, 7, 1, 0, 0, 0, false, 90, 25, 182, 7, true, false, false, 0, 0, 0, false, 0);
+                            tstvAccountSettings = new TimeShiftedTvPartnerSettings(false, false, false, false, false, 7, 1, 0, 0, 0, false, 90, 25, 182, 7, true, false, false, 0, 0, 0, false, 0, false, 0, 0);
                         }
-                       
                     }
                 }
             }
@@ -5624,6 +5627,7 @@ namespace Core.ConditionalAccess
 
         internal static void SetRecordingStatus(Dictionary<long, Recording> dic, int groupId)
         {
+            TimeShiftedTvPartnerSettings accountSettings = GetTimeShiftedTvPartnerSettings(groupId);
             int recordingLifetime = -1;
             foreach (var recording in dic.Values)
             {
@@ -5632,13 +5636,20 @@ namespace Core.ConditionalAccess
                     || recording.RecordingStatus == TstvRecordingStatus.Recording
                     || recording.RecordingStatus == TstvRecordingStatus.Scheduled)
                 {
-                    recording.RecordingStatus = SetRecordingStatus(recording.EpgStartDate, recording.EpgEndDate);
+                    DateTime startDate = recording.EpgStartDate;
+                    DateTime endDate = recording.EpgEndDate;
+                    if (accountSettings.PersonalizedRecordingEnable == true)
+                    {
+                        startDate = recording.AbsoluteStartTime ?? recording.EpgStartDate.AddMinutes(-1 * (recording.StartPadding ?? 0));
+                        endDate =   recording.AbsoluteEndTime ?? recording.EpgEndDate.AddMinutes(recording.EndPadding ?? 0);
+                    }
+                    
+                    recording.RecordingStatus = SetRecordingStatus(startDate, endDate);
 
                     if (recording.RecordingStatus == TstvRecordingStatus.Recorded && (!recording.ViewableUntilDate.HasValue || recording.ViewableUntilDate.Value == 0))
                     {
                         if (recordingLifetime == -1)
                         {
-                            TimeShiftedTvPartnerSettings accountSettings = GetTimeShiftedTvPartnerSettings(groupId);
                             recordingLifetime = accountSettings.RecordingLifetimePeriod.HasValue ? accountSettings.RecordingLifetimePeriod.Value : 0;
                         }
 
@@ -5760,7 +5771,7 @@ namespace Core.ConditionalAccess
             return result;
         }
 
-        internal static DomainRecordingStatus? ConvertToDomainRecordingStatus(TstvRecordingStatus recordingStatus)
+        public static DomainRecordingStatus? ConvertToDomainRecordingStatus(TstvRecordingStatus recordingStatus)
         {
             DomainRecordingStatus? result = null;
             switch (recordingStatus)
@@ -5881,18 +5892,24 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        internal static Recording CheckDomainExistingRecordingsByEpgs(int groupId, long domainID, EPGChannelProgrammeObject epg)
+        internal static Recording CheckDomainExistingRecordingsByEpgs(int groupId, long domainID, EPGChannelProgrammeObject epg, 
+            int? paddingBefore = null, int? paddingAfter = null, long? absoluteStart = null, long? absoluteEnd = null)
         {
             Recording recording = new Recording() { EpgId = epg.EPG_ID };
             try
             {
-                TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(groupId);
-                DateTime epgStartDate;
-                DateTime epgEndDate;
-                long epgChannelId;
-                if (DateTime.TryParseExact(epg.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgStartDate)
-                    && DateTime.TryParseExact(epg.END_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgEndDate)
-                    && long.TryParse(epg.EPG_CHANNEL_ID, out epgChannelId))
+                var accountSettings = GetTimeShiftedTvPartnerSettings(groupId);
+
+                if (accountSettings == null)
+                {
+                    log.ErrorFormat("Failed getting account padding, epgId: {0}, groupID: {1}", groupId, recording.EpgId);
+                    recording.Status.Set((int)eResponseStatus.Error, "Failed getting account padding settings");
+                    return recording;
+                }
+
+                if (epg.ParseDate(epg.START_DATE, out DateTime epgStartDate) 
+                    && epg.ParseDate(epg.END_DATE, out DateTime epgEndDate) 
+                    && long.TryParse(epg.EPG_CHANNEL_ID, out long epgChannelId))
                 {
                     recording = new Recording()
                     {
@@ -5905,16 +5922,23 @@ namespace Core.ConditionalAccess
                         Crid = epg.CRID
                     };
 
-                    if (accountSettings != null && accountSettings.PaddingBeforeProgramStarts.HasValue && accountSettings.PaddingAfterProgramEnds.HasValue)
+                    if (accountSettings.PersonalizedRecordingEnable == true)
+                    {
+                        if(absoluteStart.HasValue)
+                        {
+                            recording.AbsoluteStartTime = DateUtils.UtcUnixTimestampSecondsToDateTime(absoluteStart.Value);
+                            recording.AbsoluteEndTime = DateUtils.UtcUnixTimestampSecondsToDateTime(absoluteEnd.Value);
+                        }
+                        else
+                        {
+                            recording.StartPadding = paddingBefore ?? (accountSettings.PaddingBeforeProgramStarts.HasValue ? (int)accountSettings.PaddingBeforeProgramStarts : 0);
+                            recording.EndPadding = paddingAfter ?? (accountSettings.PaddingAfterProgramEnds.HasValue ? (int)accountSettings.PaddingAfterProgramEnds : 0);   
+                        }
+                    }
+                    else if (accountSettings.PaddingBeforeProgramStarts.HasValue && accountSettings.PaddingAfterProgramEnds.HasValue)
                     {
                         recording.EpgStartDate = recording.EpgStartDate.AddSeconds((-1) * accountSettings.PaddingBeforeProgramStarts.Value);
                         recording.EpgEndDate = recording.EpgEndDate.AddSeconds(accountSettings.PaddingAfterProgramEnds.Value);
-                    }
-                    else
-                    {
-                        log.ErrorFormat("Failed getting account padding, epgId: {0}, groupID: {1}", groupId, recording.EpgId);
-                        recording.Status.Set((int)eResponseStatus.Error, "Failed getting account padding settings");
-                        return recording;
                     }
                 }
                 else
@@ -5922,26 +5946,50 @@ namespace Core.ConditionalAccess
                     log.ErrorFormat("Failed parsing EPG start / end date / epgChannelId, epgID: {0}, domainID: {1}, startDate: {2}, endDate: {3}, epgChannelId: {4}", epg.EPG_ID, domainID, epg.START_DATE, epg.END_DATE, epg.EPG_CHANNEL_ID);
                 }
 
-                Dictionary<long, Recording> domainIdToDomainRecordingMap = Utils.GetDomainRecordingIdToRecordingMapByEpgIds(groupId, domainID, new List<long>() { epg.EPG_ID });
-                if (domainIdToDomainRecordingMap != null)
+                if (accountSettings.PersonalizedRecordingEnable == true)
                 {
-                    foreach (KeyValuePair<long, Recording> pair in domainIdToDomainRecordingMap)
+                    string recordingKey;
+                    if (recording.AbsoluteStartTime.HasValue)
                     {
-                        Recording domainRecoridng = pair.Value;
-                        // add domain recording if it doesn't already exist in dictionary and wasn't canceled or deleted
-                        if (domainRecoridng != null && domainRecoridng.Status != null && domainRecoridng.Status.Code == (int)eResponseStatus.OK
-                            && domainRecoridng.RecordingStatus != TstvRecordingStatus.Canceled && domainRecoridng.RecordingStatus != TstvRecordingStatus.Deleted)
+                        recordingKey =
+                            PaddedRecordingsManager.GetImmediateRecordingKey(epg.EPG_ID, absoluteStart,
+                                absoluteEnd);
+                    }
+                    else
+                    {
+                        recordingKey = PaddedRecordingsManager.GetRecordingKey(epg.EPG_ID, recording.StartPadding ?? 0, recording.EndPadding ?? 0);
+                    }
+                    
+                    Recording householdRecording = PaddedRecordingsManager.Instance.GetHouseholdRecording(groupId, domainID, epg.EPG_ID, recordingKey);
+                    
+                    if (householdRecording != null && householdRecording.Status != null && householdRecording.Status.Code == (int)eResponseStatus.OK
+                         && householdRecording.RecordingStatus != TstvRecordingStatus.Canceled && householdRecording.RecordingStatus != TstvRecordingStatus.Deleted)
+                    {
+                        recording = new Recording(householdRecording);
+                    }
+                }
+                else
+                {
+                    Dictionary<long, Recording> domainIdToDomainRecordingMap = Utils.GetDomainRecordingIdToRecordingMapByEpgIds(groupId, domainID, new List<long>() { epg.EPG_ID });
+                    if (domainIdToDomainRecordingMap != null)
+                    {
+                        foreach (KeyValuePair<long, Recording> pair in domainIdToDomainRecordingMap)
                         {
-                            domainRecoridng.Id = pair.Key;
-                            recording = new Recording(domainRecoridng);
+                            Recording domainRecoridng = pair.Value;
+                            // add domain recording if it doesn't already exist in dictionary and wasn't canceled or deleted
+                            if (domainRecoridng != null && domainRecoridng.Status != null && domainRecoridng.Status.Code == (int)eResponseStatus.OK
+                                && domainRecoridng.RecordingStatus != TstvRecordingStatus.Canceled && domainRecoridng.RecordingStatus != TstvRecordingStatus.Deleted)
+                            {
+                                domainRecoridng.Id = pair.Key;
+                                recording = new Recording(domainRecoridng);
+                            }
                         }
                     }
                 }
             }
-
             catch (Exception ex)
             {
-                log.Error(string.Format("Exception at CheckDomainExistingRecording. domainID {0}", domainID), ex);
+                log.Error($"Exception at CheckDomainExistingRecording. domainID {domainID}", ex);
             }
 
             return recording;
@@ -6070,12 +6118,11 @@ namespace Core.ConditionalAccess
             {
                 Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId } };
 
-                if (LayeredCache.Instance.Get(LayeredCacheKeys.GetDomainRecordingsKey(domainId), ref domainRecordingIdToRecordingMap, GetDomainRecordingsFromDB, funcParams, groupId,
+                if (LayeredCache.Instance.Get(LayeredCacheKeys.GetDomainRecordingsKey(domainId), ref domainRecordingIdToRecordingMap, GetDomainRecordings, funcParams, groupId,
                                         LayeredCacheConfigNames.GET_DOMAIN_RECORDINGS_LAYERED_CACHE_CONFIG_NAME, new List<string> { LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(groupId, domainId) }, true)
                     && domainRecordingIdToRecordingMap != null && domainRecordingIdToRecordingMap.Count > 0)
                 {
                     SetRecordingStatus(domainRecordingIdToRecordingMap, groupId);
-
                     Dictionary<long, Recording> recordingsToCopy = new Dictionary<long, Recording>();
                     if (shouldFilterViewableRecordingsOnly)
                     {
@@ -6159,6 +6206,62 @@ namespace Core.ConditionalAccess
             return domainExternalRecordingIdToRecordingMap;
         }
 
+        private static Tuple<Dictionary<long, Recording>, bool> GetDomainRecordings(
+            Dictionary<string, object> arg)
+        {
+            Dictionary<long, Recording> domainRecordingIdToRecordingMap = null;
+            int groupID = int.Parse(arg["groupId"].ToString());
+            long domainID = long.Parse(arg["domainId"].ToString());
+            var domainRecordingStatuses = new List<DomainRecordingStatus>()
+            {
+                DomainRecordingStatus.OK,
+                DomainRecordingStatus.Canceled,
+                DomainRecordingStatus.SeriesCancel,
+                DomainRecordingStatus.Failed
+            };
+            TimeShiftedTvPartnerSettings accountSettings = GetTimeShiftedTvPartnerSettings(groupID);
+            if (accountSettings.PersonalizedRecordingEnable == true)
+            {
+                domainRecordingIdToRecordingMap = PaddedRecordingsManager.Instance.GetHouseholdRecordingsByRecordingStatuses(groupID, domainID,
+                    domainRecordingStatuses);
+            }
+            else
+            {
+                domainRecordingIdToRecordingMap = GetDomainRecordingsFromSql(groupID, domainID,
+                    domainRecordingStatuses);
+            }
+            
+            return new Tuple<Dictionary<long, Recording>, bool>(domainRecordingIdToRecordingMap, true);
+        }
+        
+        private static Dictionary<long, Recording> GetDomainRecordingsFromSql(int groupId, long domainId, List<DomainRecordingStatus> domainRecordingStatuses)
+        {
+            Dictionary<long, Recording> DomainRecordingIdToRecordingMap = null;
+            
+            DataTable dt = RecordingsDAL.GetDomainRecordingsByRecordingStatuses(groupId, domainId, domainRecordingStatuses.Select(x => (int)x).ToList());
+            if (dt != null && dt.Rows != null)
+            {
+                DomainRecordingIdToRecordingMap = new Dictionary<long, Recording>();
+
+                foreach (DataRow dr in dt.Rows)
+                {
+                    long domainRecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+                    if (domainRecordingID > 0)
+                    {
+                        Recording domainRecording = BuildDomainRecordingFromDataRow(dr);
+                        // add domain recording if its valid and doesn't already exist in dictionary
+                        if (domainRecording != null && domainRecording.Status != null && domainRecording.Status.Code == (int)eResponseStatus.OK
+                            && !DomainRecordingIdToRecordingMap.ContainsKey(domainRecordingID))
+                        {
+                            DomainRecordingIdToRecordingMap.Add(domainRecordingID, domainRecording);
+                        }
+                    }
+                }
+            }
+
+            return DomainRecordingIdToRecordingMap;
+        }
+        
         private static Tuple<Dictionary<long, Recording>, bool> GetDomainRecordingsFromDB(Dictionary<string, object> arg)
         {
             Dictionary<long, Recording> DomainRecordingIdToRecordingMap = null;
@@ -6411,7 +6514,7 @@ namespace Core.ConditionalAccess
                     // if internal recording status was 0 now recordingStatus is OK and we need to set recording status according to RecordingsManager
                     if (recordingStatus.Value == TstvRecordingStatus.OK)
                     {
-                        recordingStatus = RecordingsManager.GetTstvRecordingStatus(epgStartDate, epgEndDate,
+                        recordingStatus = RecordingsUtils.GetTstvRecordingStatus(epgStartDate, epgEndDate,
                             TstvRecordingStatus.Scheduled);
                     }
                 }

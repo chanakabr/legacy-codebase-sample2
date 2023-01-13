@@ -126,6 +126,11 @@ namespace ApiObjects
           
         }
 
+        public bool ParseDate(string parseDate, out DateTime date)
+        {
+            bool parse = DateTime.TryParseExact(parseDate, DATE_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out date);
+            return parse;
+        }
 
         public class EPGChannelProgrammeObjectStartDateComparer : IComparer<EPGChannelProgrammeObject>
         {

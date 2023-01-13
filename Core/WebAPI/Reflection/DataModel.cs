@@ -4392,6 +4392,18 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaImmediateRecording":
+                    switch(property.Name)
+                    {
+                        case "AbsoluteEndTime":
+                            return "absoluteEnd";
+                        case "AbsoluteStartTime":
+                            return "absoluteStart";
+                        case "EndPadding":
+                            return "endPadding";
+                    }
+                    break;
+                    
                 case "KalturaInboxMessage":
                     switch(property.Name)
                     {
@@ -5884,6 +5896,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaPaddedRecording":
+                    switch(property.Name)
+                    {
+                        case "PaddingAfter":
+                            return "endPadding";
+                        case "PaddingBefore":
+                            return "startPadding";
+                    }
+                    break;
+                    
                 case "KalturaParentalRule":
                     switch(property.Name)
                     {
@@ -7193,6 +7215,8 @@ namespace WebAPI.Reflection
                 case "KalturaRecordingAsset":
                     switch(property.Name)
                     {
+                        case "MultiRecord":
+                            return "multiRecord";
                         case "RecordingId":
                             return "recordingId";
                         case "RecordingType":
@@ -7851,6 +7875,10 @@ namespace WebAPI.Reflection
                             return "epgId";
                         case "ExcludedSeasons":
                             return "excludedSeasons";
+                        case "HouseholdSpecificSeriesEndTimeOffset":
+                            return "householdSpecificSeriesEndTimeOffset";
+                        case "HouseholdSpecificSeriesStartTimeOffset":
+                            return "householdSpecificSeriesStartTimeOffset";
                         case "Id":
                             return "id";
                         case "SeasonNumber":
@@ -12727,6 +12755,10 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("recording", "get", WebAPI.Managers.eKSValidation.All);
                             return RecordingController.Get((long) methodParams[0]);
                             
+                        case "immediaterecord":
+                            RolesManager.ValidateActionPermitted("recording", "immediateRecord", WebAPI.Managers.eKSValidation.All);
+                            return RecordingController.ImmediateRecord((long) methodParams[0], (long) methodParams[1], (Nullable<int>) methodParams[2]);
+                            
                         case "list":
                             RolesManager.ValidateActionPermitted("recording", "list", WebAPI.Managers.eKSValidation.All);
                             return RecordingController.List((KalturaRecordingFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
@@ -12734,6 +12766,10 @@ namespace WebAPI.Reflection
                         case "protect":
                             RolesManager.ValidateActionPermitted("recording", "protect", WebAPI.Managers.eKSValidation.All);
                             return RecordingController.Protect((long) methodParams[0]);
+                            
+                        case "stop":
+                            RolesManager.ValidateActionPermitted("recording", "stop", WebAPI.Managers.eKSValidation.All);
+                            return RecordingController.Stop((long) methodParams[0], (long) methodParams[1], (long) methodParams[2]);
                             
                         case "update":
                             RolesManager.ValidateActionPermitted("recording", "update", WebAPI.Managers.eKSValidation.All);
@@ -22038,6 +22074,22 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
+                        case "immediaterecord":
+                            ret.Add("assetId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("epgChannelId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("endPadding", new MethodParam(){
+                                NewName = newParamName,
+                                IsNullable = true,
+                                Type = typeof(Int32),
+                            });
+                            return ret;
+                            
                         case "list":
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,
@@ -22057,6 +22109,21 @@ namespace WebAPI.Reflection
                             
                         case "protect":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "stop":
+                            ret.Add("assetId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("epgChannelId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("householdRecordingId", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
                             });
