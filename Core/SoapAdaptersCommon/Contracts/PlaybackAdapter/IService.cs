@@ -1,5 +1,6 @@
-﻿using AdapaterCommon.Models;
-using System.ServiceModel;
+﻿using System.ServiceModel;
+using SoapAdaptersCommon.Contracts.PlaybackAdapter.Models;
+using AdapterStatus = AdapaterCommon.Models.AdapterStatus;
 
 namespace PlaybackAdapter
 {
@@ -8,12 +9,18 @@ namespace PlaybackAdapter
     {
         [OperationContract]
         AdapterStatus SetConfiguration(long adapterId, string settings, int partnerId, long timeStamp, string signature);
+        
+        [OperationContract]
+        PlaybackImplementationsResponse GetConfiguration(int adapterId);
 
         [OperationContract]
         PlaybackAdapterResponse GetPlaybackContext(AdapterPlaybackContextOptions adapterPlaybackContextOptions, RequestPlaybackContextOptions requestPlaybackContextOptions);
 
         [OperationContract]
         PlaybackAdapterResponse GetPlaybackManifest(AdapterPlaybackContextOptions contextOptions, RequestPlaybackContextOptions requestPlaybackContextOptions);
+
+        [OperationContract]
+        ConcurrencyCheckResponse ConcurrencyCheck(ConcurrencyCheckRequest request);
 
     }
 }

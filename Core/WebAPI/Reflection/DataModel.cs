@@ -6471,6 +6471,8 @@ namespace WebAPI.Reflection
                 case "KalturaPlaybackProfile":
                     switch(property.Name)
                     {
+                        case "AdapterGrpcAddress":
+                            return "adapterGrpcAddress";
                         case "AdapterUrl":
                             return "adapterUrl";
                         case "Id":

@@ -1,0 +1,220 @@
+syntax = "proto3";
+
+option csharp_namespace = "SoapAdaptersCommon.GrpcAdapters";
+option go_package = "github.com/kaltura/ott-client-playback-adapter-grpc-go";
+
+service PlaybackAdapterGRPC {
+	rpc SetConfiguration(PlaybackAdapterSetConfigurationRequest) returns (PlaybackAdapterSetConfigurationResponse);
+	rpc GetConfiguration(PlaybackAdapterGetConfigurationRequest) returns (PlaybackAdapterGetConfigurationResponse);
+
+	rpc GetPlaybackContext(PlaybackAdapterRequest) returns (PlaybackAdapterResponse);
+	rpc GetPlaybackManifest(PlaybackAdapterRequest) returns (PlaybackAdapterResponse);
+
+	rpc ConcurrencyCheck(PlaybackAdapterConcurrencyCheckRequest) returns (PlaybackAdapterConcurrencyCheckResponse);
+}
+
+message PlaybackAdapterSetConfigurationRequest{
+	int32 PartnerId=1;
+	int32 AdapterId=2;
+	string settings=3;
+	int64 timeStamp=4;
+	string signature = 5;
+}
+
+message PlaybackAdapterSetConfigurationResponse{
+	AdapterStatus AdapterStatus=1;
+}
+
+message PlaybackAdapterGetConfigurationRequest{
+	int32 AdapterId=1;
+}
+
+message PlaybackAdapterGetConfigurationResponse{
+	AdapterStatus AdapterStatus=1;
+	repeated PlaybackMethods ImplementedMethods=2;
+}
+
+message PlaybackAdapterRequest{
+	AdapterPlaybackContextOptions adapterPlaybackContextOptions = 1; 
+	RequestPlaybackContextOptions requestPlaybackContextOptions = 2;
+}
+
+message PlaybackAdapterConcurrencyCheckRequest{
+	repeated PlayingDevice PlayingDevices = 1;
+	repeated int64 DeviceFamiliesIds = 2;
+	map<string, string> UserDynamicData = 3;
+	map<string, string> AdapterData = 4;
+}
+
+message PlaybackAdapterConcurrencyCheckResponse{
+	bool AllowedToPlay = 1;
+	string CancelDeviceUdid = 2;
+}
+
+message PlayingDevice{
+	string Udid = 1;
+	int64 DeviceFamilyId = 2;
+}
+
+enum PlaybackMethods {
+	GetPlaybackContext = 0;
+	GetPlaybackManifest = 1;
+	Concurrency = 2;
+}
+
+enum AdapterAssetType {
+	media = 0;
+	recording = 1;
+	epg = 2;
+}
+enum AdapterPlaybackContextType {
+	TRAILER = 0;
+	CATCHUP = 1;
+	START_OVER = 2;
+	PLAYBACK = 3;
+	DOWNLOAD = 4;
+}
+enum AdapterUrlType {
+	PLAYMANIFEST = 0;
+	DIRECT = 1;
+}
+message KeyValue {
+	string Key = 1;
+	string Value = 2;
+}
+message RequestPlaybackContextOptions {
+	repeated KeyValue AdapterData = 1;
+	string AssetFileIds = 2;
+	string AssetId = 3;
+	AdapterAssetType AssetType = 4;
+	AdapterPlaybackContextType Context = 5;
+	string MediaProtocol = 6;
+	string StreamerType = 7;
+	AdapterUrlType UrlType = 8;
+}
+
+message AccessControlMessage {
+	string Code = 1;
+	string Message = 2;
+}
+message AdapterPlaybackContext {
+	repeated RuleAction Actions = 1;
+	repeated AccessControlMessage Messages = 2;
+	repeated CaptionPlaybackPluginData PlaybackCaptions = 3;
+	repeated PlaybackPluginData Plugins = 4;
+	repeated AssetFile Sources = 5;
+}
+message AdapterStatus {
+	int32 Code = 1;
+	string Message = 2;
+}
+message AssetFile {
+	string AltUrl = 1;
+	string Url = 2;
+	string AdditionalData = 3;
+	string AltExternalId = 4;
+	string AltStreamingCode = 5;
+	int64 AlternativeCdnAdapaterProfileId = 6;
+	int32 AssetId = 7;
+	int64 CatalogEndDate = 8;
+	int64 CdnAdapaterProfileId = 9;
+	int64 Duration = 10;
+	int64 EndDate = 11;
+	string ExternalId = 12;
+	string ExternalStoreId = 13;
+	int64 FileSize = 14;
+	int32 Id = 15;
+	bool IsDefaultLanguage = 16;
+	string Labels = 17;
+	string Language = 18;
+	int32 OrderNum = 19;
+	string OutputProtecationLevel = 20;
+	int64 StartDate = 21;
+	bool Status = 22;
+	string Type = 23;
+	int32 TypeId = 24;
+	int32 BusinessModuleId = 25;
+	TransactionType BusinessModuleType = 26;
+	repeated PluginData Drm = 27;
+	string Format = 28;
+	bool IsTokenized = 29;
+	string Protocols = 30;
+}
+message BumperPlaybackPluginData {
+	string StreamerType = 1;
+	string URL = 2;
+}
+message CaptionPlaybackPluginData {
+	string Format = 1;
+	string Label = 2;
+	string Language = 3;
+	string URL = 4;
+}
+message CustomDrmPlaybackPluginData {
+	repeated KeyValue DynamicData = 1;
+	string LicenseURL = 2;
+	DrmSchemeName Scheme = 3;
+	string Data = 4;
+}
+message DrmPlaybackPluginData {
+	repeated KeyValue DynamicData = 1;
+	string LicenseURL = 2;
+	DrmSchemeName Scheme = 3;
+}
+enum DrmSchemeName {
+	PLAYREADY_CENC = 0;
+	WIDEVINE_CENC = 1;
+	FAIRPLAY = 2;
+	WIDEVINE = 3;
+	PLAYREADY = 4;
+	CUSTOM_DRM = 5;
+}
+message FairPlayPlaybackPluginData {
+	repeated KeyValue DynamicData = 1;
+	string LicenseURL = 2;
+	DrmSchemeName Scheme = 3;
+	string Certificate = 4;
+}
+
+message PlaybackAdapterResponse {
+	AdapterPlaybackContext PlaybackContext = 1;
+	AdapterStatus Status = 2;
+}
+message PlaybackPluginData {
+}
+
+message PluginData {
+}
+
+message RuleAction {
+	string Description = 1;
+	RuleActionType Type = 2;
+}
+enum RuleActionType {
+	BLOCK = 0;
+	START_DATE_OFFSET = 1;
+	END_DATE_OFFSET = 2;
+	USER_BLOCK = 3;
+	ALLOW_PLAYBACK = 4;
+	BLOCK_PLAYBACK = 5;
+	APPLY_DISCOUNT_MODULE = 6;
+	APPLY_PLAYBACK_ADAPTER = 7;
+}
+enum TransactionType {
+	PPV = 0;
+	Subscription = 1;
+	Collection = 2;
+	PAGO = 3;
+}
+
+message AdapterPlaybackContextOptions {
+	repeated KeyValue AdapterData = 1;
+	int64 AdapterId = 2;
+	string IP = 3;
+	int32 PartnerId = 4;
+	AdapterPlaybackContext PlaybackContext = 5;
+	string Signature = 6;
+	int64 TimeStamp = 7;
+	string Udid = 8;
+	string UserId = 9;
+}

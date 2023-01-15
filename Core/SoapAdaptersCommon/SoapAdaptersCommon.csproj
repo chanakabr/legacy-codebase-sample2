@@ -14,10 +14,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="GrpcAdapters\Proto\ssoadapter.proto" />
+    <None Remove="GrpcAdapters/playbackAdapter/*" />
+    <None Remove="GrpcAdapters/ssoAdapter/*" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="7.0.1" />
+    <PackageReference Include="protobuf-net.Core" Version="3.1.4" />
     <PackageReference Include="System.ServiceModel.Http" Version="4.8.1" />
     <PackageReference Include="System.ServiceModel.NetTcp" Version="4.8.1" />
     <PackageReference Include="System.ServiceModel.Primitives" Version="4.8.1" />
@@ -29,7 +32,7 @@
     <PackageReference Include="Grpc.AspNetCore" Version="2.28.0" />
     <PackageReference Include="Grpc.Net.Client" Version="2.28.0" />
     <PackageReference Include="Google.Protobuf" Version="3.17.0" />
-    <!--    Remove tools because we should generate proto files using custom ott-protoc "with null strings fix" -->
+<!--    Remove tools because we should generate proto files using custom ott-protoc "with null strings fix" -->
 <!--    https://kaltura.atlassian.net/browse/GEN-1535-->
 <!--    https://kaltura.atlassian.net/browse/GEN-1388-->
 <!--    <PackageReference Include="Grpc.Tools" Version="2.28.1" />-->

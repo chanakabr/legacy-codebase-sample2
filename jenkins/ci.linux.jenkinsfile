@@ -18,6 +18,7 @@ stage('Unified-CI'){
                 node('Linux'){   
                     try{                        
                         stage('Checkout'){
+                            deleteDir()
                             git branch: "${BRANCH_NAME}", credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend'
                             script {
                                 committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim() 
@@ -48,6 +49,14 @@ stage('Unified-CI'){
                                 "epg-v3-rollback" : { buildDockerAndPushToEcr("ott-service-phoenix-epg-v3-rollback","./Docker/Epg.V3.Rollback.Dockerfile") }
                                 
                             )
+                        }
+                        stage("Build and Publish Adapters Clients") {
+                            ws("${WORKSPACE}/Core/SoapAdaptersCommon/GrpcAdapters/ssoAdapter") {
+                                buildAndPublishInterserviceClients("sso-adapter")
+                            }
+                            ws("${WORKSPACE}/Core/SoapAdaptersCommon/GrpcAdapters/playbackAdapter") {
+                                buildAndPublishInterserviceClients("playback-adapter")
+                            }
                         }
                         stage("Trigger Sonar Scan"){
                             if (BRANCH_NAME == "master") {

@@ -2,16 +2,11 @@
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading;
-using Microsoft.AspNetCore.Builder;
-using SoapAdaptersCommon.GrpcAdapters.Implementation;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using SoapAdaptersCommon.Middleware;
 using System.Reflection;
 
 namespace SoapAdaptersCommon.GrpcAdapters

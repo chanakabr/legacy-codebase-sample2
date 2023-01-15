@@ -69,5 +69,15 @@ namespace Grpc.controllers
         {
             return Task.FromResult(new BoolValue {Value = _householdService.IsValidDeviceFamily(request)});
         }
+        
+        public override Task<GetUserDataResponse> GetUserData(
+            GetUserDataRequest request,
+            ServerCallContext context)
+        {
+            var response = _householdService.GetUserData(request);
+            var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
+            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return Task.FromResult(response);
+        }
     }
 }
