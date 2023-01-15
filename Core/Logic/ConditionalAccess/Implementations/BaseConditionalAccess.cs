@@ -8411,7 +8411,7 @@ namespace Core.ConditionalAccess
 
         protected internal virtual string GetCustomDataForCollection(Collection theCol, string sCollectionCode,
     string sSiteGUID, double dPrice, string sCurrency, string sCouponCode, string sUserIP,
-    string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEndDate)
+    string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEndDate, long campaignId = 0)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("<customdata type=\"col\">");
@@ -8465,6 +8465,10 @@ namespace Core.ConditionalAccess
             sb.Append("<cu>");
             sb.Append(sCurrency);
             sb.Append("</cu>");
+            if (campaignId > 0)
+            {
+                sb.Append($"<campaign>{campaignId}</campaign>");
+            }
             sb.Append("</customdata>");
             return sb.ToString();
 

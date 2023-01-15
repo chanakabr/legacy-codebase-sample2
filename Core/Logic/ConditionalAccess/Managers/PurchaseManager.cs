@@ -959,7 +959,7 @@ namespace Core.ConditionalAccess
                     {
                         // price validated, create the Custom Data
                         string customData = cas.GetCustomDataForCollection(collection, productId.ToString(), siteguid, price, currency, coupon,
-                                                                       contextData.UserIp, country, string.Empty, contextData.Udid, string.Empty);
+                                                                       contextData.UserIp, country, string.Empty, contextData.Udid, string.Empty, fullPrice.CampaignDetails?.Id ?? 0);
 
                         // create new GUID for billing_transaction
                         string billingGuid = Guid.NewGuid().ToString();
