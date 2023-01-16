@@ -427,6 +427,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dockers", "Dockers", "{AA13
 		Docker\Phoenix.SetupJob.Dockerfile = Docker\Phoenix.SetupJob.Dockerfile
 		Docker\Tvpapi.Dockerfile = Docker\Tvpapi.Dockerfile
 		Docker\WSIngest.Dockerfile = Docker\WSIngest.Dockerfile
+		Docker\Segmentation.Migrator.Dockerfile = Docker\Segmentation.Migrator.Dockerfile
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Jenkins", "Jenkins", "{F481A1A8-8994-438F-B9A2-5C71A24336C0}"

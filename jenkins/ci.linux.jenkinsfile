@@ -24,8 +24,9 @@ stage('Unified-CI'){
                             }
                         }
                         stage('Build Base Images'){
-                            sh(label:'Bulid Base OTT-BE image', script: 'docker build -t ott-be-base-build:latest -f ./Docker/Base.Build.Dockerfile .')               
-                            sh(label:'Bulid Base OTT-BE image', script: 'docker build -t ott-be-base-runtime:latest -f ./Docker/Base.Runtime.Dockerfile .')           
+                            def GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+                            sh(label:'Bulid Base OTT-BE image', script: "docker build -t ott-be-base-build:${GIT_COMMIT} -f ./Docker/Base.Build.Dockerfile .")
+                            sh(label:'Bulid Base OTT-BE image', script: "docker build -t ott-be-base-runtime:${GIT_COMMIT} -f ./Docker/Base.Runtime.Dockerfile .")
                         }
                         stage('Test')
                         {
@@ -193,13 +194,14 @@ def runTestInDocker(testProjects){
     def BLUE="\u001B[34m"
     def CYAN="\u001B[36m"
     def testFailed=false
+    def GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
     for(project in testProjects) { 
         if (testFailed) {
             sh "exit 1"
         } 
         echo "${GREEN}------------------------------------------- Starting Tests: ${project} -------------------------------------------${ANSI_END}"
         sh('docker images')
-        withTestbed(['DOTNET_CLI_HOME=/tmp/DOTNET_CLI_HOME'], "ott-be-base-build:latest", project) {
+        withTestbed(['DOTNET_CLI_HOME=/tmp/DOTNET_CLI_HOME'], "ott-be-base-build:${GIT_COMMIT}", project) {
             def testStatus = sh ( script: "dotnet test /src/${project} --logger \"junit;LogFilePath=${WORKSPACE}/test-results/${project}/test-results.xml\"", returnStatus: true)
             if(testStatus != 0) {
                 echo "${RED}------------------------------------------- Test: ${project} FAILED!!! -------------------------------------------${ANSI_END}"
@@ -218,7 +220,7 @@ def buildDockerAndPushToEcr(componentName, dockerfile){
     component = componentName
     def REPOSITORY_NAME="${BRANCH_NAME.toLowerCase()}/${componentName}"
     def ECR_REPOSITORY="${ECR_URL}/${REPOSITORY_NAME}"
-    def GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim() 
+    def GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
     def FULL_VERSION = sh(script: './Core/get-version-tag.sh', returnStdout: true).trim()
     sh(
         label: "Docker build ${REPOSITORY_NAME}", 
@@ -228,6 +230,8 @@ def buildDockerAndPushToEcr(componentName, dockerfile){
         "-t ${ECR_REPOSITORY}:${GIT_COMMIT} "+
         "-t ${ECR_REPOSITORY}:${FULL_VERSION} "+
         "--build-arg BRANCH=${BRANCH_NAME} "+
+        "--build-arg BUILD_IMAGE=ott-be-base-build:${GIT_COMMIT} "+
+        "--build-arg RUN_IMAGE=ott-be-base-runtime:${GIT_COMMIT} "+
         "--label 'version=${FULL_VERSION}' "+
         "--label 'commit=${GIT_COMMIT}' "+
         "--label 'build=${env.BUILD_NUMBER}' ."

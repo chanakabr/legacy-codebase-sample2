@@ -1,5 +1,5 @@
-ARG BUILD_IMAGE=ott-be-base-build:latest
-ARG RUN_IMAGE=ott-be-base-runtime:latest
+ARG BUILD_IMAGE
+ARG RUN_IMAGE
 FROM ${BUILD_IMAGE} as builder
 
 WORKDIR /src/phoenix
