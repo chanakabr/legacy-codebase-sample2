@@ -26,7 +26,7 @@ stage('Unified-CI'){
                         stage('Build Base Images'){
                             def GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
                             sh(label:'Bulid Base OTT-BE image', script: "docker build -t ott-be-base-build:${GIT_COMMIT} -f ./Docker/Base.Build.Dockerfile .")
-                            sh(label:'Bulid Base OTT-BE image', script: "docker build -t ott-be-base-runtime:${GIT_COMMIT} -f ./Docker/Base.Runtime.Dockerfile .")
+                            sh(label:'Bulid Base OTT-BE image', script: "docker build -t ott-be-base-runtime:${GIT_COMMIT} --build-arg BUILD_IMAGE=ott-be-base-build:${GIT_COMMIT} -f ./Docker/Base.Runtime.Dockerfile .")
                         }
                         stage('Test')
                         {

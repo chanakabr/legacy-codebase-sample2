@@ -1,4 +1,4 @@
-ARG BUILD_IMAGE=ott-be-base-build
+ARG BUILD_IMAGE
 FROM ${BUILD_IMAGE} as builder
 
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine
