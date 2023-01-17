@@ -169,7 +169,8 @@ namespace Core.Catalog
                 var maxEndDate = epgDate.Date.AddDays(1);
                 var minimumRange = new ESRange(false, "start_date", eRangeComp.GTE, minStartDate.ToString(ESUtils.ES_DATE_FORMAT));
                 var maximumRange = new ESRange(false, "start_date", eRangeComp.LT, maxEndDate.ToString(ESUtils.ES_DATE_FORMAT));
-                var ttlGtZero = new ESRange(true, "_ttl", eRangeComp.GT, "0");
+                var ttlValue = DateTime.UtcNow.ToUtcUnixTimestampMilliseconds() + ApplicationConfiguration.Current.ElasticSearchHttpClientConfiguration.TimeOutInMiliSeconds.Value;
+                var ttlGtZero = new ESRange(true, "_ttl", eRangeComp.GT, $"{ttlValue}");
 
                 var filterCompositeType = new FilterCompositeType(CutWith.AND);
                 filterCompositeType.AddChild(minimumRange);
@@ -243,13 +244,13 @@ namespace Core.Catalog
             var epgAlias = NamingHelper.GetEpgIndexAlias(_partnerId);
             log.Info($"getting epg date range:{epgAlias}");
 
-
             var epgV1IndexName = SetupEpgIndex(DateTime.UtcNow, isRecording: false);
             log.Info($"created new epg v1 index:{epgV1IndexName}");
 
             // required to avoid an issue with re-indexing docs with negative ttl value
             var ttlFilter = new FilteredQuery(true);
-            var ttlGtZero = new ESRange(true, "_ttl", eRangeComp.GT, "0");
+            var ttlValue = DateTime.UtcNow.ToUtcUnixTimestampMilliseconds() + ApplicationConfiguration.Current.ElasticSearchHttpClientConfiguration.TimeOutInMiliSeconds.Value;
+            var ttlGtZero = new ESRange(true, "_ttl", eRangeComp.GT, $"{ttlValue}");
             var filterCompositeType = new FilterCompositeType(CutWith.AND);
             filterCompositeType.AddChild(ttlGtZero);
             var generalFilter = new QueryFilter() { FilterSettings = filterCompositeType };
