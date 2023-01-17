@@ -465,7 +465,7 @@ namespace WebAPI.Clients
 
         public KalturaAssetListResponse GetAssetFromUnifiedSearchResponse(int groupId, UnifiedSearchResponse searchResponse, BaseRequest request, bool isAllowedToViewInactiveAssets,
                                                                             bool managementData = false, KalturaBaseResponseProfile responseProfile = null, bool isPersonalListSearch = false,
-                                                                            IReadOnlyDictionary<double, SearchPriorityGroup> priorityGroupsMapping = null)
+                                                                            IReadOnlyDictionary<double, SearchPriorityGroup> priorityGroupsMapping = null, bool shouldUsePagination = true)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
             bool doesGroupUsesTemplates = Utils.Utils.DoesGroupUsesTemplates(groupId);
@@ -507,10 +507,14 @@ namespace WebAPI.Clients
                     result.Objects = CatalogUtils.GetAssets(searchResponse.aggregationResults[0].results, request, managementData, responseProfile);
                 }
 
-                result.Objects = result.Objects
-                    .Skip(request.m_nPageIndex * request.m_nPageSize)
-                    .Take(request.m_nPageSize)
-                    .ToList();
+                if (shouldUsePagination)
+                {
+                    result.Objects = result.Objects
+                        .Skip(request.m_nPageIndex * request.m_nPageSize)
+                        .Take(request.m_nPageSize)
+                        .ToList();
+                }
+
                 result.TotalCount = searchResponse.aggregationResults[0].totalItems;
             }
             else
@@ -2750,8 +2754,10 @@ namespace WebAPI.Clients
                 request.PriorityGroupsMappings = _searchPriorityGroupManager.ListSearchPriorityGroupMappings(groupId);
             }
 
+            var shouldUsePagination = true;
             if (groupByValues != null && groupByValues.Count > 0)
             {
+                shouldUsePagination = false;
                 request.searchGroupBy = new SearchAggregationGroupBy()
                 {
                     groupBy = groupByValues,
@@ -2781,7 +2787,8 @@ namespace WebAPI.Clients
                 isAllowedToViewInactiveAssets,
                 false,
                 responseProfile,
-                priorityGroupsMapping: request.PriorityGroupsMappings);
+                priorityGroupsMapping: request.PriorityGroupsMappings,
+                shouldUsePagination: shouldUsePagination);
         }
 
         internal KalturaAssetListResponse GetChannelAssetsExcludeWatched(
