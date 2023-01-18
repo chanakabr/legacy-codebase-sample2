@@ -1,38 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Linq;
 using System.Threading.Tasks;
-using Google.Protobuf.Collections;
 using Grpc.Core;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 
 namespace SoapAdaptersCommon.GrpcAdapters.Implementation
 {
     public class SSOAdapterGRPCImplementation : SSOAdapterGRPC.SSOAdapterGRPCBase
     {
-        private readonly ILogger<SSOAdapterGRPCImplementation> _logger;
         private readonly SSOAdapter.IService _SSOService;
-        private readonly IMemoryCache _MemoryCache;
 
-        public SSOAdapterGRPCImplementation(ILogger<SSOAdapterGRPCImplementation> logger, SSOAdapter.IService ssoService, IMemoryCache memoryCache)
+        public SSOAdapterGRPCImplementation(SSOAdapter.IService ssoService)
         {
-            _logger = logger;
             _SSOService = ssoService;
-            _MemoryCache = memoryCache;
         }
 
         public override Task<GetConfigurationResponse> GetConfiguration(GetConfigurationRequest request, ServerCallContext context)
         {
             var result = _SSOService.GetConfiguration(request.AdapterId);
-            var response = new GetConfigurationResponse();
-            response.AdapterStatusCode = (AdapterStatusCode)result.Status;
-
+            
             var implementedMethods = result.ImplementedMethods.Select(m => (SSOMethods)m).ToList();
             var extendedImplementedMethods = result.ImplementedMethodsExtend.Select(m => (SSOMethods)m).ToList();
             var allMethods = implementedMethods.Concat(extendedImplementedMethods).Distinct();
+            
+            var response = new GetConfigurationResponse();
+            response.AdapterStatusCode = (AdapterStatusCode)result.Status;
             response.ImplementedMethods.AddRange(allMethods);
             response.SendWelcomeEmail = result.SendWelcomeEmail;
             return Task.FromResult(response);
@@ -83,7 +73,7 @@ namespace SoapAdaptersCommon.GrpcAdapters.Implementation
 
             if (request.AdapterData != null)
             {
-                postSignInModel.AdapterData = request.AdapterData.Select(kv => new AdapaterCommon.Models.KeyValue() { Key = kv.Key, Value = kv.Value }).ToList();
+                postSignInModel.AdapterData = request.AdapterData.Select(kv => new AdapaterCommon.Models.KeyValue { Key = kv.Key, Value = kv.Value }).ToList();
             }
 
             var result = _SSOService.PostSignOut(request.AdapterId, postSignInModel, request.Signature);
@@ -155,7 +145,7 @@ namespace SoapAdaptersCommon.GrpcAdapters.Implementation
             {
                 DeviceUdid = request.DeviceUdid,
                 UserId = request.UserId,
-                HouseholdId = request.UserId,
+                HouseholdId = request.HouseholdId,
             };
 
             if (request.AdapterData != null)
@@ -212,7 +202,7 @@ namespace SoapAdaptersCommon.GrpcAdapters.Implementation
         {
             if (user == null) { return null; }
             UserType userType = null;
-            if (user?.UserType != null)
+            if (user.UserType != null)
             {
                 userType = new UserType
                 {
@@ -224,7 +214,7 @@ namespace SoapAdaptersCommon.GrpcAdapters.Implementation
             var userResponse = new User
             {
                 Address = user.Address,
-                City = user.Address,
+                City = user.City,
                 CountryId = user.CountryId.HasValue ? new NullableInt32 { Value = user.CountryId.Value } : null,
                 Email = user.Email,
                 ExternalId = user.ExternalId,
@@ -255,7 +245,7 @@ namespace SoapAdaptersCommon.GrpcAdapters.Implementation
         {
             if (user == null) { return null; }
             SSOAdapter.Models.UserType userType = null;
-            if (user?.UserType != null)
+            if (user.UserType != null)
             {
                 userType = new SSOAdapter.Models.UserType
                 {
@@ -267,7 +257,7 @@ namespace SoapAdaptersCommon.GrpcAdapters.Implementation
             var userResponse = new SSOAdapter.Models.User
             {
                 Address = user.Address,
-                City = user.Address,
+                City = user.City,
                 CountryId = user.CountryId?.Value,
                 DynamicData = user.DynamicData,
                 Email = user.Email,
