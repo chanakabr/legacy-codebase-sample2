@@ -33,7 +33,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="ott.ext.sdk.kronos.grpc" Version="1.15.3" />
     <PackageReference Include="OTT.Lib.Metrics" Version="1.2.0" />
-    <PackageReference Include="Phx.Lib.Appconfig" Version="1.5.3" />
+    <PackageReference Include="Phx.Lib.Appconfig" Version="1.5.4" />
     <PackageReference Include="Phx.Lib.Couchbase" Version="1.2.0" />
   </ItemGroup>
 
