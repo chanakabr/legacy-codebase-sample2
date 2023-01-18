@@ -3740,8 +3740,11 @@ namespace Core.ConditionalAccess
                             var promotionEvaluator = new PromotionEvaluator(Pricing.Module.Instance, Utils.Instance, m_nGroupID, (int)renewDetails.DomainId, 
                                 renewDetails.CountryCode, oCurrency.m_sCurrencyCD3, renewDetails.RecurringData.CouponCode, priceBeforeCouponDiscount);
                             Price priceResult = promotionEvaluator.Evaluate(campaigns.Objects[0].Promotion, campaigns.Objects[0].Id);
-                            renewDetails.Price = priceResult.m_dPrice;
-                            use = true;
+                            if (priceResult != null)
+                            {
+                                renewDetails.Price = priceResult.m_dPrice;
+                                use = true;
+                            }
                         }
                     }
                     else if (campaignDetails.Remainder > 0 && !campaignDetails.IsUseRemainder)

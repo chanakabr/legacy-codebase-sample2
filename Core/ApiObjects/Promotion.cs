@@ -10,5 +10,10 @@
         {
             return NumberOfRecurring ?? -1;
         }
+
+        public override bool ShouldSaveHouseholdUsages()
+        {
+            return MaxDiscountUsages.HasValue && MaxDiscountUsages.Value > 0;
+        }
     }
 }

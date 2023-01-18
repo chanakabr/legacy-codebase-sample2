@@ -27,5 +27,6 @@ namespace ApiObjects.ConditionalAccess
         public bool IsUseRemainder { get; set; }
         public string Udid { get; set; }
         public long CampaignEndDate { get; set; }
+        public bool ShouldSaveHouseholdUsages { get; set; }
     }
 }

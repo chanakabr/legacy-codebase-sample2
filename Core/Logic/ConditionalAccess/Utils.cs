@@ -1949,7 +1949,12 @@ namespace Core.ConditionalAccess
                         if (promotedCampaign.EvaluateConditions(batchCampaignScope))
                         {
                             campaignAssignedToUser = true;
-                            Task.Run(() => Notification.MessageInboxManger.Instance.AddCampaignMessageToUser(promotedCampaign, groupId, userId));
+                            var contextData = new LogContextData();
+                            Task.Run(() =>
+                            {
+                                contextData.Load();
+                                Notification.MessageInboxManger.Instance.AddCampaignMessageToUser(promotedCampaign, groupId, userId);
+                            });
                         }
                     }
 
@@ -1987,7 +1992,8 @@ namespace Core.ConditionalAccess
                                 Id = lowestCampaign.Id,
                                 LeftRecurring = numberOfRecurring,
                                 Udid = triggerUdid,
-                                CampaignEndDate = lowestCampaign.EndDate
+                                CampaignEndDate = lowestCampaign.EndDate,
+                                ShouldSaveHouseholdUsages = lowestCampaign.Promotion.ShouldSaveHouseholdUsages()
                             };
                         }
                     }

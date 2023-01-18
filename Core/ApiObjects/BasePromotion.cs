@@ -31,5 +31,10 @@ namespace ApiObjects
         {
             return -1;
         }
+
+        public virtual bool ShouldSaveHouseholdUsages()
+        {
+            return false;
+        }
     }
 }
