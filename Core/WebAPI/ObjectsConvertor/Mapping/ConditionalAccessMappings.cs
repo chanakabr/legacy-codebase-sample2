@@ -657,8 +657,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertKalturaRecordingType(src.Type)))
                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.CreateDate)))
                .ForMember(dest => dest.SeriesRecordingOption, opt => opt.ResolveUsing(src => src.SeriesRecordingOption))
-               .ForMember(dest => dest.HouseholdSpecificSeriesStartTimeOffset, opt => opt.ResolveUsing(src => src.HouseholdSpecificSeriesStartTimeOffset))
-               .ForMember(dest => dest.HouseholdSpecificSeriesEndTimeOffset, opt => opt.ResolveUsing(src => src.HouseholdSpecificSeriesEndTimeOffset))
                ;
 
             // SeriesRecording to KalturaSeriesRecording
@@ -673,8 +671,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)))
                .ForMember(dest => dest.ExcludedSeasons, opt => opt.MapFrom(src => src.ExcludedSeasons))
                .ForMember(dest => dest.SeriesRecordingOption, opt => opt.ResolveUsing(src => src.SeriesRecordingOption))
-               .ForMember(dest => dest.HouseholdSpecificSeriesStartTimeOffset, opt => opt.ResolveUsing(src => src.HouseholdSpecificSeriesStartTimeOffset))
-               .ForMember(dest => dest.HouseholdSpecificSeriesEndTimeOffset, opt => opt.ResolveUsing(src => src.HouseholdSpecificSeriesEndTimeOffset))
                ;
 
             cfg.CreateMap<ExternalSeriesRecording, KalturaExternalSeriesRecording>()

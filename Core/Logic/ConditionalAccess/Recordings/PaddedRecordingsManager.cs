@@ -1219,6 +1219,9 @@ namespace Core.Recordings
             bool startTimeUpdated = program.StartDate != startDate;
             bool endTimeUpdated = program.EndDate != endDate;
 
+
+            var _programOldStart = program.StartDate;
+            var _programOldEnd = program.EndDate;
             program.StartDate = startDate;
             program.EndDate = endDate;
 
@@ -1227,13 +1230,10 @@ namespace Core.Recordings
 
             bool shouldUpdateDomainsQuota = false;
 
-            int oldProgramRecordingLength = (int)(program.EndDate - program.StartDate).TotalSeconds;
+            int oldProgramRecordingLength = (int)(_programOldEnd - _programOldStart).TotalSeconds;
             int newProgramRecordingLength = (int)(endDate - startDate).TotalSeconds;
-
-            if (oldProgramRecordingLength != newProgramRecordingLength)
-            {
-                shouldUpdateDomainsQuota = true;
-            }
+            
+            shouldUpdateDomainsQuota = oldProgramRecordingLength != newProgramRecordingLength;
 
             var recordings = _repository.GetRecordingsByEpgId(partnerId, programId);
 
@@ -1241,7 +1241,7 @@ namespace Core.Recordings
             var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
             RecordResult adapterResponse = null;
             string externalChannelId = null;
-
+            
             foreach (var recording in recordings)
             {
                 Status recordingStatus = new Status();
@@ -1251,7 +1251,7 @@ namespace Core.Recordings
                     externalChannelId = CatalogDAL.GetEPGChannelCDVRId(partnerId, recording.EpgChannelId);
                 }
 
-                if (recording.AbsoluteStartTime.HasValue)
+                if (recording.AbsoluteStartTime.HasValue) //is immediate
                 {
                     if (recording.AbsoluteStartTime.Value > endDate || recording.AbsoluteEndTime.Value < startDate)
                     {
@@ -1267,26 +1267,26 @@ namespace Core.Recordings
                         {
                             status = new Status((int)eResponseStatus.OK);
 
-                            HandleFailedRecording(partnerId, recording);
+                            HandleFailedRecording(partnerId, recording); //delete and clear cache
                         }
                     }
 
                     continue;
                 }
 
-                int oldRecordingLength =
-                    oldProgramRecordingLength + recording.PaddingBeforeMins + recording.PaddingAfterMins;
+                var oldRecordingLengthSeconds = (int)Math.Ceiling(
+                    oldProgramRecordingLength + TimeSpan.FromMinutes(recording.PaddingBeforeMins + recording.PaddingAfterMins).TotalSeconds);
 
                 bool shouldRetry = true;
                 bool shouldMarkAsFailed = true;
 
-                var recordingStartDate = startDate.AddMinutes(recording.PaddingBeforeMins);
+                var recordingStartDate = startDate.AddMinutes(-1 * recording.PaddingBeforeMins);
                 var recordingEndDate = endDate.AddMinutes(recording.PaddingAfterMins);
 
                 try
                 {
                     long startTimeSeconds = DateUtils.DateTimeToUtcUnixTimestampSeconds(recordingStartDate);
-                    long durationSeconds = (long)(recordingStartDate - recordingEndDate).TotalSeconds;
+                    long durationSeconds = (long)(recordingEndDate - recordingStartDate).TotalSeconds;
 
                     adapterResponse = adapterController.UpdateRecordingSchedule(partnerId, programId.ToString(),
                         externalChannelId, recording.ExternalId,
@@ -1300,7 +1300,7 @@ namespace Core.Recordings
                 catch (Exception ex)
                 {
                     recordingStatus = new Status((int)eResponseStatus.Error,
-                        "Adapter controller excpetion: " + ex.Message);
+                        "Adapter controller exception: " + ex.Message);
                 }
 
                 try
@@ -1327,7 +1327,7 @@ namespace Core.Recordings
                         shouldRetry = true;
                     }
 
-                    // If we have a resposne AND we didn't set the status to be invalid
+                    // If we have a response AND we didn't set the status to be invalid
                     if (adapterResponse != null &&
                         (recordingStatus == null || recordingStatus.Code == (int)eResponseStatus.OK))
                     {
@@ -1382,7 +1382,7 @@ namespace Core.Recordings
                 {
                     try
                     {
-                        SendEvictRecording(partnerId, recording.Id, oldRecordingLength,
+                        SendEvictRecording(partnerId, recording.Id, oldRecordingLengthSeconds,
                              DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow));
                     }
                     catch (Exception e)
@@ -1409,11 +1409,9 @@ namespace Core.Recordings
                 recording.ViewableUntilEpoch =
                     TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate);
                 recording.UpdateDate = DateTime.UtcNow;
-
-                return _repository.UpdateRecording(groupId, recording);
             }
 
-            return false;
+            return _repository.UpdateRecording(groupId, recording);
         }
 
         private HouseholdRecording UpdateHouseholdRecording(int partnerId, long hhRecordingId, long householdId,
@@ -1940,6 +1938,15 @@ namespace Core.Recordings
                     maxDegreeOfParallelism = 5;
                 }
 
+                var domainRecordingIds = householdRecordings.Select(r => r.Id).ToList();
+                var updatedHouseholdRecordings = _repository.UpdateHouseholdRecordingsStatus(partnerId, domainRecordingIds,
+                    DomainRecordingStatus.Failed.ToString());
+                
+                if(!householdRecordings.Count.Equals(updatedHouseholdRecordings.Count))
+                {
+                    log.Warn($"Failed to update HH recording with status Failure for some households, RecordingId:{recording.Id}");
+                }
+                
                 ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
 
                 LogContextData contextData = new LogContextData();
@@ -2463,7 +2470,6 @@ namespace Core.Recordings
         public bool ScheduleRecordingEvictions()
         {
             List<long> partnersIds = GetAllPartnerIds();
-
             long expiredTimeWindow = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddHours(1));
             foreach (long partnerId in partnersIds)
             {
@@ -2525,7 +2531,7 @@ namespace Core.Recordings
                         domainRecordingStatus = DomainRecordingStatus.DeletedBySystem;
                     }
 
-                    int recordingDuration = QuotaManager.GetRecordingDurationSeconds(partnerId, recording);
+                    int recordingDurationSeconds = QuotaManager.GetRecordingDurationSeconds(partnerId, recording);
                     int skip = 0;
                     long utcNowEpoch = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
                     List<HouseholdRecording> modifiedHhRecordings = _repository.UpdateHhRecordingsIdAndProtectDate(
@@ -2547,7 +2553,7 @@ namespace Core.Recordings
                         LogContextData contextData = new LogContextData();
                         Parallel.For(0, modifiedHhRecordings.Count, options, i =>
                         {
-                            if (recordingDuration > 0)
+                            if (recordingDurationSeconds > 0)
                             {
                                 LayeredCache.Instance.SetInvalidationKey(
                                     LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(partnerId,
@@ -2577,7 +2583,7 @@ namespace Core.Recordings
                     //     }
                     // }
 
-                    var isUpdate = oldRecordingDuration > 0 && oldRecordingDuration != recordingDuration;
+                    var isUpdate = oldRecordingDuration > 0 && oldRecordingDuration != recordingDurationSeconds;
 
                     if (!isUpdate)
                     {

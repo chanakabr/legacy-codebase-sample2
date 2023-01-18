@@ -13,7 +13,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "startPadding")]
         [JsonProperty("startPadding")]
         [XmlElement(ElementName = "startPadding", IsNullable = true)]
-        [SchemeProperty(DynamicMinInt = 0)]
+        [SchemeProperty(MinInteger = 0, IsNullable = true)]
         public int? PaddingBefore { get; set; }
         
         /// <summary>
@@ -22,7 +22,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "endPadding")]
         [JsonProperty("endPadding")]
         [XmlElement(ElementName = "endPadding", IsNullable = true)]
-        [SchemeProperty(DynamicMinInt = 0)]
+        [SchemeProperty(MinInteger = 0, IsNullable = true)]
         public int? PaddingAfter { get; set; }
     }
 }

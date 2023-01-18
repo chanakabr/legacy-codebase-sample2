@@ -5342,7 +5342,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = true,
+            IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
@@ -5506,11 +5506,11 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 0,
             MinItems = -1,
             MaxItems = -1,
             UniqueItems = false,
@@ -5521,11 +5521,11 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
-            DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 0,
             MinItems = -1,
             MaxItems = -1,
             UniqueItems = false,
@@ -6688,14 +6688,6 @@ namespace WebAPI.Models.ConditionalAccess
                     {
                         SeriesRecordingOption = (KalturaSeriesRecordingOption) Deserializer.deserialize(typeof(KalturaSeriesRecordingOption), (Dictionary<string, object>) parameters["seriesRecordingOption"]);
                     }
-                }
-                if (parameters.ContainsKey("householdSpecificSeriesStartTimeOffset") && parameters["householdSpecificSeriesStartTimeOffset"] != null)
-                {
-                    HouseholdSpecificSeriesStartTimeOffset = (Int32) Convert.ChangeType(parameters["householdSpecificSeriesStartTimeOffset"], typeof(Int32));
-                }
-                if (parameters.ContainsKey("householdSpecificSeriesEndTimeOffset") && parameters["householdSpecificSeriesEndTimeOffset"] != null)
-                {
-                    HouseholdSpecificSeriesEndTimeOffset = (Int32) Convert.ChangeType(parameters["householdSpecificSeriesEndTimeOffset"], typeof(Int32));
                 }
             }
         }

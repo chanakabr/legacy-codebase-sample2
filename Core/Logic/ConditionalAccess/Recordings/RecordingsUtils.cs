@@ -332,11 +332,19 @@ namespace Core.Recordings
                 recording.ProtectedUntilDate = householdRecording.ProtectedUntilEpoch;
             }
 
-            RecordingInternalStatus recordingInternalStatus = (RecordingInternalStatus)Enum.Parse(typeof(RecordingInternalStatus), timeBasedRecording.Status);
+            TstvRecordingStatus? recordingStatus;
+            if (Enum.IsDefined(typeof(RecordingInternalStatus), timeBasedRecording.Status))
+            {
+                RecordingInternalStatus recordingInternalStatus = (RecordingInternalStatus)Enum.Parse(typeof(RecordingInternalStatus), timeBasedRecording.Status);
 
-            TstvRecordingStatus? recordingStatus = ConditionalAccess.Utils.ConvertToTstvRecordingStatus(recordingInternalStatus,
-                recording.AbsoluteStartTime ?? program.StartDate.AddMinutes(-1 * timeBasedRecording.PaddingBeforeMins),
-                recording.AbsoluteEndTime ?? program.EndDate.AddMinutes(timeBasedRecording.PaddingAfterMins), timeBasedRecording.CreateDate);
+                recordingStatus = ConditionalAccess.Utils.ConvertToTstvRecordingStatus(recordingInternalStatus,
+                    recording.AbsoluteStartTime ?? program.StartDate.AddMinutes(-1 * timeBasedRecording.PaddingBeforeMins),
+                    recording.AbsoluteEndTime ?? program.EndDate.AddMinutes(timeBasedRecording.PaddingAfterMins), timeBasedRecording.CreateDate);
+            }
+            else
+            {
+                recordingStatus = (TstvRecordingStatus)Enum.Parse(typeof(TstvRecordingStatus), timeBasedRecording.Status);  //fix "Scheduled" value TODO: change the enum received 
+            }
 
             if (recordingStatus.HasValue)
             {

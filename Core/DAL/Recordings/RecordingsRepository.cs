@@ -28,7 +28,7 @@ namespace DAL.Recordings
         bool UpdateRecordingStatus(int partnerId, long id, string recordingState);
         List<TimeBasedRecording> GetAndUpdateExpiredRecordings(int partnerId, long expiredTimeWindow);
         bool DeleteRecording(int partnerId, string recordingKey);
-        
+
         Program GetProgramByEpg(int partnerId, long epgId);
         long AddProgram(int partnerId, Program program);
         bool DeleteProgram(int partnerId, long id);
@@ -50,7 +50,10 @@ namespace DAL.Recordings
             List<string> recordingStatuses);
 
         List<long> GetHhRecordingsFailuresByKey(int partnerId, string key);
-        List<HouseholdRecording> UpdateHouseholdRecordingsStatus(int partnerId, List<long> domainRecordingIds, string recordingState);
+
+        List<HouseholdRecording> UpdateHouseholdRecordingsStatus(int partnerId, List<long> domainRecordingIds,
+            string recordingState);
+
         bool UpdateHouseholdRecordingsFailure(int partnerId, List<long> domainRecordingIds, bool scheduledSaved);
 
         List<HouseholdRecording> ListHouseholdRecordingsByRecordingKey(int partnerId, string recordingKey,
@@ -58,11 +61,12 @@ namespace DAL.Recordings
 
         List<HouseholdRecording> GetTop2HouseholdRecordingsByKey(int partnerId, string key, string status = "");
         List<HouseholdRecording> GetHouseholdProtectedRecordings(int partnerId, long householdId, long time);
-        
+
         bool DeleteHouseholdRecording(int partnerId, string recordingKey, long householdId);
 
         List<HouseholdRecording> UpdateHhRecordingsStatusByRecordingKey(int partnerId, string recordingKey,
-            string recordingState); 
+            string recordingState);
+
         List<HouseholdRecording> GetHhRecordingsMinProtectedEpoch(int partnerId, string recordingKey,
             long utcNowEpoch);
 
@@ -94,9 +98,9 @@ namespace DAL.Recordings
                 ClientFactoryBuilder.Instance.GetClientFactory(
                     RecordingsDbProperties.RECORDINGS_DATABASE,
                     RecordingsDbProperties.CollectionProperties),
-            ClientFactoryBuilder.Instance.GetAdminClientFactory(
-                RecordingsDbProperties.RECORDINGS_DATABASE,
-                RecordingsDbProperties.CollectionProperties)),
+                ClientFactoryBuilder.Instance.GetAdminClientFactory(
+                    RecordingsDbProperties.RECORDINGS_DATABASE,
+                    RecordingsDbProperties.CollectionProperties)),
             LazyThreadSafetyMode.PublicationOnly);
 
         public static IRecordingsRepository Instance => LazyInstance.Value;
@@ -173,13 +177,13 @@ namespace DAL.Recordings
                 f.And(Builders<TimeBasedRecording>.Filter.Eq(p => p.EpgId, epgId),
                     Builders<TimeBasedRecording>.Filter.Eq(p => p.Status, status))).ToList();
         }
-        
+
         public List<TimeBasedRecording> GetAndUpdateExpiredRecordings(int partnerId, long expiredTimeWindow)
         {
             var factory = _recordingsService.NewMongoDbClient(partnerId, log);
-            var results =  factory.Find<TimeBasedRecording>(RecordingsDbProperties.RECORDINGS_COLLECTION, f =>
+            var results = factory.Find<TimeBasedRecording>(RecordingsDbProperties.RECORDINGS_COLLECTION, f =>
                 f.And(Builders<TimeBasedRecording>.Filter.Lte(p => p.ViewableUntilEpoch, expiredTimeWindow),
-                    Builders<TimeBasedRecording>.Filter.Eq(p => p.LifeTimeExpiryHandled, false))).ToList(); 
+                    Builders<TimeBasedRecording>.Filter.Eq(p => p.LifeTimeExpiryHandled, false))).ToList();
             factory.UpdateMany<TimeBasedRecording>(
                 RecordingsDbProperties.RECORDINGS_COLLECTION,
                 f => f.And(Builders<TimeBasedRecording>.Filter.Lte(p => p.ViewableUntilEpoch, expiredTimeWindow),
@@ -269,7 +273,7 @@ namespace DAL.Recordings
                 return false;
             }
         }
-        
+
         public bool DeleteRecording(int partnerId, string recordingKey)
         {
             var factory = _recordingsService.NewMongoDbClient(partnerId, log);
@@ -301,12 +305,12 @@ namespace DAL.Recordings
             var option = new MongoDbFindOptions<HouseholdRecording>()
             {
                 Limit = 2,
-                Sort = s=> s.Ascending(v=> v.Id)
+                Sort = s => s.Ascending(v => v.Id)
             };
             if (string.IsNullOrEmpty(status))
             {
                 return factory.Find<HouseholdRecording>(RecordingsDbProperties.HOUSEHOLD_RECORDINGS_COLLECTION, f =>
-                    f.Eq(r=> r.RecordingKey, key), option).ToList();
+                    f.Eq(r => r.RecordingKey, key), option).ToList();
             }
 
             return factory.Find<HouseholdRecording>(RecordingsDbProperties.HOUSEHOLD_RECORDINGS_COLLECTION, f =>
@@ -376,7 +380,8 @@ namespace DAL.Recordings
                     Builders<HouseholdRecording>.Filter.Gt(z => z.ProtectedUntilEpoch, time))).ToList();
         }
 
-        public List<HouseholdRecording> UpdateHouseholdRecordingsStatus(int partnerId, List<long> domainRecordingIds, string recordingState)
+        public List<HouseholdRecording> UpdateHouseholdRecordingsStatus(int partnerId, List<long> domainRecordingIds,
+            string recordingState)
         {
             var factory = _recordingsService.NewMongoDbClient(partnerId, log);
             var updateResult = factory.UpdateMany<HouseholdRecording>(
@@ -384,8 +389,7 @@ namespace DAL.Recordings
                 f => f.In(x => x.Id, domainRecordingIds),
                 u => u.Set(c => c.Status, recordingState).Set(c => c.UpdateDate, DateTime.UtcNow));
             return factory.Find<HouseholdRecording>(RecordingsDbProperties.HOUSEHOLD_RECORDINGS_COLLECTION, f =>
-            f.In(x => x.Id, domainRecordingIds)).ToList();            
-         
+                f.In(x => x.Id, domainRecordingIds)).ToList();
         }
 
         public bool DeleteHouseholdRecordingById(int partnerId, long domainRecordingId)
@@ -404,14 +408,15 @@ namespace DAL.Recordings
             }
         }
 
-        public List<HouseholdRecording> UpdateHhRecordingsStatusByRecordingKey(int partnerId, string recordingKey, string recordingState)
+        public List<HouseholdRecording> UpdateHhRecordingsStatusByRecordingKey(int partnerId, string recordingKey,
+            string recordingState)
         {
             var factory = _recordingsService.NewMongoDbClient(partnerId, log);
             var updateResult = factory.UpdateMany<HouseholdRecording>(
                 RecordingsDbProperties.HOUSEHOLD_RECORDINGS_COLLECTION,
                 f => f.Eq(x => x.RecordingKey, recordingKey),
                 u => u.Set(c => c.Status, recordingState).Set(c => c.UpdateDate, DateTime.UtcNow));
-            
+
             return factory.Find<HouseholdRecording>(RecordingsDbProperties.HOUSEHOLD_RECORDINGS_COLLECTION, f =>
                 f.Eq(o => o.RecordingKey, recordingKey)).ToList();
         }
@@ -421,12 +426,13 @@ namespace DAL.Recordings
         {
             var factory = _recordingsService.NewMongoDbClient(partnerId, log);
             return factory.Find<HouseholdRecording>(RecordingsDbProperties.HOUSEHOLD_RECORDINGS_COLLECTION, f =>
-                f.And(Builders<HouseholdRecording>.Filter.Eq(o => o.RecordingKey, recordingKey), 
-                    Builders<HouseholdRecording>.Filter.Gt(o => o.ProtectedUntilEpoch, utcNowEpoch), 
+                f.And(Builders<HouseholdRecording>.Filter.Eq(o => o.RecordingKey, recordingKey),
+                    Builders<HouseholdRecording>.Filter.Gt(o => o.ProtectedUntilEpoch, utcNowEpoch),
                     Builders<HouseholdRecording>.Filter.Eq(z => z.Status, "OK"))).ToList();
         }
-        
-        public List<HouseholdRecording> UpdateHhRecordingsIdAndProtectDate(int partnerId, string recordingKey, string recordingState, long utcNowEpoch, int skip)
+
+        public List<HouseholdRecording> UpdateHhRecordingsIdAndProtectDate(int partnerId, string recordingKey,
+            string recordingState, long utcNowEpoch, int skip)
         {
             var factory = _recordingsService.NewMongoDbClient(partnerId, log);
             var option = new MongoDbFindOptions<HouseholdRecording>()
@@ -435,17 +441,17 @@ namespace DAL.Recordings
                 Skip = skip,
                 Sort = s => s.Ascending(v => v.Id)
             };
-            
+
             var hhRecordings = factory.Find(RecordingsDbProperties.HOUSEHOLD_RECORDINGS_COLLECTION, f =>
-                f.And(Builders<HouseholdRecording>.Filter.Eq(o => o.RecordingKey, recordingKey), 
-                    Builders<HouseholdRecording>.Filter.Lt(o => o.ProtectedUntilEpoch, utcNowEpoch), 
+                f.And(Builders<HouseholdRecording>.Filter.Eq(o => o.RecordingKey, recordingKey),
+                    Builders<HouseholdRecording>.Filter.Lt(o => o.ProtectedUntilEpoch, utcNowEpoch),
                     Builders<HouseholdRecording>.Filter.Eq(z => z.Status, "OK")), option).ToList();
             var hhRecordingsIds = hhRecordings.Select(x => x.Id);
             var updateResult = factory.UpdateMany<HouseholdRecording>(
                 RecordingsDbProperties.HOUSEHOLD_RECORDINGS_COLLECTION,
                 f => f.In(x => x.Id, hhRecordingsIds),
                 u => u.Set(c => c.Status, recordingState).Set(c => c.UpdateDate, DateTime.UtcNow));
-            
+
             return hhRecordings;
         }
 
@@ -487,6 +493,7 @@ namespace DAL.Recordings
 
             return program.Id;
         }
+
         public bool DeleteProgram(int partnerId, long id)
         {
             var factory = _recordingsService.NewMongoDbClient(partnerId, log);
@@ -501,15 +508,14 @@ namespace DAL.Recordings
                 return false;
             }
         }
+
         public bool UpdateProgram(int partnerId, Program program)
         {
             var factory = _recordingsService.NewMongoDbClient(partnerId, log);
-
             var updateResult = factory.UpdateOne<Program>(
                 RecordingsDbProperties.PROGRAMS_COLLECTION,
                 f => f.Eq(o => o.Id, program.Id),
-                u => u.Set(c => c, program));
-
+                u => SetUpdateExpression(program, u));
             return updateResult.ModifiedCount > 0;
         }
 
@@ -574,6 +580,20 @@ namespace DAL.Recordings
             UpdateIfNotNull(updateBuilder, updates, x => x.LifeTimeExpiryHandled,
                 timeBasedRecording.LifeTimeExpiryHandled);
             UpdateIfNotNull(updateBuilder, updates, x => x.UpdateDate, DateTime.UtcNow);
+
+            return updateBuilder.Combine(updates);
+        }
+
+        private UpdateDefinition<Program> SetUpdateExpression(Program program,
+            UpdateDefinitionBuilder<Program> updateBuilder)
+        {
+            updateBuilder = new UpdateDefinitionBuilder<Program>();
+            var updates = new List<UpdateDefinition<Program>>();
+
+            UpdateIfNotNull(updateBuilder, updates, x => x.EpgId, program.EpgId);
+            UpdateIfNotNull(updateBuilder, updates, x => x.StartDate, program.StartDate);
+            UpdateIfNotNull(updateBuilder, updates, x => x.EndDate, program.EndDate);
+            UpdateIfNotNull(updateBuilder, updates, x => x.__updated, DateTime.UtcNow);
 
             return updateBuilder.Combine(updates);
         }

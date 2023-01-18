@@ -23,7 +23,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "absoluteStart")]
         [JsonProperty("absoluteStart")]
         [XmlElement(ElementName = "absoluteStart", IsNullable = true)]
-        [SchemeProperty(ReadOnly = true, IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
         public long AbsoluteStartTime { get; set; }
         
         /// <summary>

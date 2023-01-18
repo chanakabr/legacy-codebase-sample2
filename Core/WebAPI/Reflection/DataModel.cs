@@ -7877,10 +7877,6 @@ namespace WebAPI.Reflection
                             return "epgId";
                         case "ExcludedSeasons":
                             return "excludedSeasons";
-                        case "HouseholdSpecificSeriesEndTimeOffset":
-                            return "householdSpecificSeriesEndTimeOffset";
-                        case "HouseholdSpecificSeriesStartTimeOffset":
-                            return "householdSpecificSeriesStartTimeOffset";
                         case "Id":
                             return "id";
                         case "SeasonNumber":

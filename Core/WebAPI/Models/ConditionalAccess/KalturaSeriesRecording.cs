@@ -92,21 +92,5 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("seriesRecordingOption")]
         [XmlElement(ElementName = "seriesRecordingOption")]
         public KalturaSeriesRecordingOption SeriesRecordingOption { get; set; }
-        
-        /// <summary>
-        /// Household specific start time of the recording
-        /// </summary>
-        [DataMember(Name = "householdSpecificSeriesStartTimeOffset")]
-        [JsonProperty("householdSpecificSeriesStartTimeOffset")]
-        [XmlElement(ElementName = "householdSpecificSeriesStartTimeOffset", IsNullable = true)]
-        public int? HouseholdSpecificSeriesStartTimeOffset { get; set; }
-        
-        /// <summary>
-        /// Household specific end time of the recording
-        /// </summary>
-        [DataMember(Name = "householdSpecificSeriesEndTimeOffset")]
-        [JsonProperty("householdSpecificSeriesEndTimeOffset")]
-        [XmlElement(ElementName = "householdSpecificSeriesEndTimeOffset", IsNullable = true)]
-        public int? HouseholdSpecificSeriesEndTimeOffset { get; set; }
     }
 }
