@@ -123,6 +123,12 @@ namespace Core.Catalog
             var suffix = program.Language == defaultLanguage.Code ? "" : program.Language;
             var language = languages[program.Language];
 
+            // We don't store regions in CB that's why we need to calculate regions before insertion to ES on every program update during ingest.
+            if (program.LinearMediaId > 0 && GetLinearChannelsMapping().TryGetValue(program.LinearMediaId, out var regions))
+            {
+                program.regions = regions;
+            }
+
             // Serialize EPG object to string
             string serializedEpg = TryGetSerializedEpg(isOpc(), program, suffix, transactionOperation);
             var epgType = GetTranslationType(IndexManagerV2.EPG_INDEX_TYPE, language);
