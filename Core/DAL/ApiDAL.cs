@@ -3779,6 +3779,9 @@ namespace DAL
 
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@EnablePrivateCopy", settings.IsPrivateCopyEnabled);
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@QuotaInSeconds", settings.DefaultQuota);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@PersonalizedRecordingEnable", settings.PersonalizedRecordingEnable);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@MaxRecordingConcurrency", settings.MaxRecordingConcurrency);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@MaxConcurrencyMargin", settings.MaxConcurrencyMargin);
                 isUpdated = spUpdateTimeShiftedTvPartnerSettings.ExecuteReturnValue<bool>();
             }
 

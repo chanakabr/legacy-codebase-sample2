@@ -2410,13 +2410,14 @@ namespace Core.ConditionalAccess
         }
 
 
-        public static ApiObjects.TimeShiftedTv.Recording Record(int groupID, string userID, long epgID, ApiObjects.RecordingType recordingType)
+        public static ApiObjects.TimeShiftedTv.Recording Record(int groupID, string userID, long epgID, ApiObjects.RecordingType recordingType, 
+            int? startPadding = null, int? endPadding = null, bool isPaddedRecording = false)
         {
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.Record(userID, epgID, recordingType);
+                return t.Record(userID, epgID, recordingType, 0, false, null, startPadding, endPadding, isPaddedRecording);
             }
             else
             {

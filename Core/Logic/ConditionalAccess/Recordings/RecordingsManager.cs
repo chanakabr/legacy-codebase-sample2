@@ -11,12 +11,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using ApiLogic.kronos;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using Synchronizer;
-
-using ApiObjects.QueueObjects;
-using Core.ConditionalAccess;
 using Phx.Lib.Appconfig;
 using CachingProvider.LayeredCache;
 
@@ -161,9 +159,9 @@ namespace Core.Recordings
                         if (existingRecordingWithMinStartDate.RecordingStatus == TstvRecordingStatus.Recorded && existingRecordingWithMinStartDate.EpgEndDate.AddDays(7) > DateTime.UtcNow)
                         {
                             recording = new Recording(existingRecordingWithMinStartDate) { EpgStartDate = startDate, EpgEndDate = endDate, EpgId = programId, RecordingStatus = TstvRecordingStatus.Scheduled };
-                            recording.RecordingStatus = GetTstvRecordingStatus(recording.EpgStartDate, recording.EpgEndDate, recording.RecordingStatus);
+                            recording.RecordingStatus = RecordingsUtils.GetTstvRecordingStatus(recording.EpgStartDate, recording.EpgEndDate, recording.RecordingStatus);
                             recording = ConditionalAccess.Utils.InsertRecording(recording, groupId, RecordingInternalStatus.OK);
-                            UpdateIndex(groupId, recording.Id, eAction.Update);
+                            RecordingsUtils.UpdateIndex(groupId, recording.Id, eAction.Update);
                         }
                         else
                         {
@@ -256,7 +254,7 @@ namespace Core.Recordings
                             //BEO-9298/9302, mark as deleted and remove from all domains
                             if (recording.Id == 0 || !ConditionalAccess.Utils.IsValidRecordingStatus(recording.RecordingStatus))
                             {
-                                var state = ConditionalAccess.Utils.ConvertToDomainRecordingStatus(recording.RecordingStatus);
+                                var state = RecordingsUtils.ConvertToDomainRecordingStatus(recording.RecordingStatus);
                                 var affectedDomains = RecordingsDAL.SetRetryRecordingToFail(groupId, recording.EpgId, state ?? DomainRecordingStatus.Failed);
                                 if (affectedDomains.Count > 0)
                                 {
@@ -324,8 +322,8 @@ namespace Core.Recordings
                 // if last recording then update ES and CB
                 if (isLastRecording || deleteEpgEvent || (isPrivateCopy && !domainIds.Any()))
                 {
-                    UpdateIndex(groupId, slimRecording.Id, eAction.Delete);
-                    UpdateCouchbase(groupId, slimRecording.EpgId, slimRecording.Id, true);
+                    RecordingsUtils.UpdateIndex(groupId, slimRecording.Id, eAction.Delete);
+                    RecordingsUtils.UpdateCouchbase(groupId, slimRecording.EpgId, slimRecording.Id, true);
                 }
 
                 // if last recording or is private recording -> go to the adapter
@@ -432,7 +430,7 @@ namespace Core.Recordings
                                     currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
                                     currentRecording.Status.Set(new Status((int)eResponseStatus.Error, "no ExternalRecordingId"));
                                     ConditionalAccess.Utils.UpdateRecording(currentRecording, groupId, 1, 1, null);
-                                    UpdateIndex(groupId, recordingId, eAction.Update);
+                                    RecordingsUtils.UpdateIndex(groupId, recordingId, eAction.Update);
                                 }
 
                                 currentRecording.Status.Code = (int)eResponseStatus.OK;
@@ -487,7 +485,7 @@ namespace Core.Recordings
 
                                 // Update recording after setting the new status
                                 ConditionalAccess.Utils.UpdateRecording(currentRecording, groupId, 1, 1, null);
-                                UpdateIndex(groupId, recordingId, eAction.Update);
+                                RecordingsUtils.UpdateIndex(groupId, recordingId, eAction.Update);
                             }
                         }
                         else
@@ -542,9 +540,9 @@ namespace Core.Recordings
                 long recordingId = recording.Id;
 
                 // First of all - if EPG was updated, update the recording index, nevermind what was the change
-                UpdateIndex(groupId, recording.EpgId, recordingId);
+                RecordingsUtils.UpdateIndex(groupId, recording.EpgId, recordingId);
 
-                UpdateCouchbase(groupId, programId, recordingId);
+                RecordingsUtils.UpdateCouchbase(groupId, programId, recordingId);
 
                 // If no change was made to program schedule - do nothing
                 if (recording.EpgStartDate == startDate &&
@@ -649,7 +647,7 @@ namespace Core.Recordings
                                 {
                                     recording.RecordingStatus = TstvRecordingStatus.Scheduled;
 
-                                    recording.RecordingStatus = GetTstvRecordingStatus(recording.EpgStartDate, recording.EpgEndDate, recording.RecordingStatus);
+                                    recording.RecordingStatus = RecordingsUtils.GetTstvRecordingStatus(recording.EpgStartDate, recording.EpgEndDate, recording.RecordingStatus);
 
                                     // everything is good
                                     shouldMarkAsFailed = false;
@@ -685,40 +683,45 @@ namespace Core.Recordings
                             RetryTaskBeforeProgramStarted(groupId, recording, eRecordingTask.UpdateRecording);
                         }
                     }
-                }
-            }
 
-            if (shouldUpdateDomainsQuota && status.Code == (int)eResponseStatus.OK)
-            {
-                try
-                {
-                    EnqueueRecordingModificationEvent(groupId, recording, oldRecordingLength);
-                }
-                catch (Exception e)
-                {
-                    log.Error($"Failed to queue task in UpdateRecording, recording: {recording}", e);
+                    if (shouldUpdateDomainsQuota && status.Code == (int)eResponseStatus.OK)
+                    {
+                        try
+                        {
+                            EnqueueRecordingModificationEvent(groupId, recording, oldRecordingLength);
+                        }
+                        catch (Exception e)
+                        {
+                            log.Error($"Failed to queue task in UpdateRecording, recording: {recording}", e);
+                        }
+                    }
                 }
             }
 
             return status;
         }
 
-        private static void EnqueueRecordingModificationEvent(int groupId, Recording recording, int oldRecordingLength, int taskId = 0)
+        public static void EnqueueRecordingModificationEvent(int groupId, Recording recording, int oldRecordingLength, int taskId = 0)
+        {
+            EnqueueRecordingModificationEvent(groupId, recording.Id, oldRecordingLength, taskId);
+        }
+
+        public static void EnqueueRecordingModificationEvent(int groupId, long recordingId, int oldRecordingLength, int taskId = 0)
         {
             GenericCeleryQueue queue = new GenericCeleryQueue();
             DateTime utcNow = DateTime.UtcNow;
-            ApiObjects.QueueObjects.RecordingModificationData data = new ApiObjects.QueueObjects.RecordingModificationData(groupId, taskId, recording.Id, 0, oldRecordingLength) { ETA = utcNow };
+            ApiObjects.QueueObjects.RecordingModificationData data = new ApiObjects.QueueObjects.RecordingModificationData(groupId, taskId, recordingId, 0, oldRecordingLength) { ETA = utcNow };
             bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_MODIFIED_RECORDING, groupId));
             if (!queueExpiredRecordingResult)
             {
-                log.ErrorFormat("Failed to queue ExpiredRecording task for RetryTaskAfterProgramEnded when recording FAILED, recordingId: {0}, groupId: {1}", recording.Id, groupId);
+                log.ErrorFormat("Failed to queue ExpiredRecording task for RetryTaskAfterProgramEnded when recording FAILED, recordingId: {0}, groupId: {1}", recordingId, groupId);
             }
         }
 
         public Recording GetRecordingByProgramId(int groupId, long programId)
         {
             Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(groupId, programId);
-            recording.RecordingStatus = GetTstvRecordingStatus(recording.EpgStartDate, recording.EpgEndDate, recording.RecordingStatus);
+            recording.RecordingStatus = RecordingsUtils.GetTstvRecordingStatus(recording.EpgStartDate, recording.EpgEndDate, recording.RecordingStatus);
 
             return recording;
         }
@@ -754,17 +757,26 @@ namespace Core.Recordings
 
         public long GetRecordingViewableUntilDate(int groupId, long domainId, long domainRecordingId)
         {
-            var domainRecordingIdToRecordingMap = ConditionalAccess.Utils.
+            Recording recording = null;
+
+            if (ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId).PersonalizedRecordingEnable == true)
+            {
+                recording = PaddedRecordingsManager.Instance.GetHouseholdRecordingById(groupId, domainRecordingId, domainId);
+            }
+            else
+            {
+                var domainRecordingIdToRecordingMap = ConditionalAccess.Utils.
                 GetDomainRecordingIdsToRecordingsMap(groupId, domainId, new List<long> { domainRecordingId });
 
-            Recording domainRecording = ConditionalAccess.Utils.ValidateRecordID(groupId, domainId, domainRecordingId, false, domainRecordingIdToRecordingMap);
-            if (!domainRecording.Status.IsOkStatusCode())
-            {
-                log.Debug($"domainRecordingId: {domainRecordingId} for domain: {domainId} wasn't found");
-                return 0;
-            }
+                Recording domainRecording = ConditionalAccess.Utils.ValidateRecordID(groupId, domainId, domainRecordingId, false, domainRecordingIdToRecordingMap);
+                if (!domainRecording.Status.IsOkStatusCode())
+                {
+                    log.Debug($"domainRecordingId: {domainRecordingId} for domain: {domainId} wasn't found");
+                    return 0;
+                }
 
-            var recording = GetRecording(groupId, domainRecording.Id);
+                recording = GetRecording(groupId, domainRecording.Id);
+            }
 
             if (recording == null || recording.Id < 1)
                 return 0;
@@ -843,26 +855,6 @@ namespace Core.Recordings
             return true;
         }
 
-        public static TstvRecordingStatus GetTstvRecordingStatus(DateTime epgStartDate, DateTime epgEndDate, TstvRecordingStatus recordingStatus)
-        {
-            TstvRecordingStatus response = recordingStatus;
-            if (recordingStatus == TstvRecordingStatus.Scheduled)
-            {
-                // If program already finished, we say it is recorded
-                if (epgEndDate < DateTime.UtcNow)
-                {
-                    response = TstvRecordingStatus.Recorded;
-                }
-                // If program already started but didn't finish, we say it is recording
-                else if (epgStartDate < DateTime.UtcNow)
-                {
-                    response = TstvRecordingStatus.Recording;
-                }
-            }
-
-            return response;
-        }
-
         public static void EnqueueMessage(int groupId, long programId, long recordingId, DateTime epgStartDate, DateTime etaTime, eRecordingTask task, long maxDomainSeriesId = 0)
         {
             var queue = new GenericCeleryQueue();
@@ -879,18 +871,18 @@ namespace Core.Recordings
                 };
 
             List<Recording> recordings = ConditionalAccess.Utils.GetAllRecordingsByStatuses(groupId, statuses);
-
             foreach (var recording in recordings)
             {
                 // If the provider failed, we'll start retrying as usual
                 if (recording.EpgStartDate > DateTime.UtcNow)
                 {
+
                     EnqueueMessage(groupId, recording.EpgId, recording.Id, recording.EpgStartDate, DateTime.UtcNow, eRecordingTask.Record);
                 }
 
                 DateTime getStatusTime = recording.EpgEndDate.AddMinutes(1);
-
-                // Anyway we should always check the status after the program finishes
+                
+                // Anyway we should always check the status after the program finishe
                 EnqueueMessage(groupId, recording.EpgId, recording.Id, recording.EpgStartDate, getStatusTime, eRecordingTask.GetStatusAfterProgramEnded);
             }
         }
@@ -920,8 +912,8 @@ namespace Core.Recordings
 
                         if (isNew)
                         {
-                            UpdateCouchbase(groupId, domainRecording.EpgId, domainRecording.Id);
-                            UpdateIndex(groupId, domainRecording.Id, eAction.Update);
+                            RecordingsUtils.UpdateCouchbase(groupId, domainRecording.EpgId, domainRecording.Id);
+                            RecordingsUtils.UpdateIndex(groupId, domainRecording.Id, eAction.Update);
                         }
 
                         domainRecording.Id = domainRecordingId;
@@ -949,8 +941,8 @@ namespace Core.Recordings
                 bool isActionSuccessful = false;
                 if (isLastRecording)
                 {
-                    UpdateIndex(groupId, recordingId, eAction.Delete);
-                    UpdateCouchbase(groupId, programId, recordingId, true);
+                    RecordingsUtils.UpdateIndex(groupId, recordingId, eAction.Delete);
+                    RecordingsUtils.UpdateCouchbase(groupId, programId, recordingId, true);
                     if (shouldDelete && RecordingsDAL.DeleteRecording(recordingId) || !shouldDelete && RecordingsDAL.CancelRecording(recordingId))
                     {
                         isActionSuccessful = true;
@@ -1047,10 +1039,11 @@ namespace Core.Recordings
                     DateTime checkTime = DateTime.UtcNow > endDate ? DateTime.UtcNow.AddMinutes(1) : endDate.AddMinutes(1);
                     eRecordingTask task = eRecordingTask.GetStatusAfterProgramEnded;
                     EnqueueMessage(groupId, programId, recording.Id, startDate, checkTime, task);
+                    
                     recording.Status = null;
 
                     // Update Couchbase that the EPG is recorded
-                    UpdateCouchbase(groupId, programId, recording.Id);
+                    RecordingsUtils.UpdateCouchbase(groupId, programId, recording.Id);
 
                     // After we know that schedule was successful,
                     // we index data so it is available on search
@@ -1059,7 +1052,7 @@ namespace Core.Recordings
                         recording.RecordingStatus == TstvRecordingStatus.Recording ||
                         recording.RecordingStatus == TstvRecordingStatus.Scheduled)
                     {
-                        UpdateIndex(groupId, recording.Id, eAction.Update);
+                        RecordingsUtils.UpdateIndex(groupId, recording.Id, eAction.Update);
                     }
                 }
 
@@ -1090,54 +1083,7 @@ namespace Core.Recordings
         #endregion
 
         #region Private Methods
-
-        public static void UpdateIndex(int groupId, long recordingId, eAction action)
-        {
-            Catalog.Module.UpdateRecordingsIndex(new List<long> { recordingId }, groupId, action);
-        }
-
-        public static void UpdateIndex(int groupId, long epgId, long recordingId)
-        {
-            var epgBL = new TvinciEpgBL(groupId);
-            var epgDoc = epgBL.GetEpgCB((ulong)epgId);
-
-            var recordingDoc = RecordingsDAL.GetRecordingByProgramId_CB(epgId);
-            if (recordingDoc != null && epgDoc.StartDate.Date != recordingDoc.StartDate.Date)
-            {
-                Catalog.Module.UpdateRecordingsIndex(new List<long> { recordingId }, groupId, eAction.Delete);
-            }
-
-            UpdateIndex(groupId, recordingId, eAction.Update);
-        }
-
-        public static void UpdateCouchbase(int groupId, long programId, long recordingId, bool shouldDelete = false)
-        {
-            log.Info($"UpdateCouchbase: recording UpdateCouchbase with epgId:{programId}, recordingId: {recordingId}, shouldDelete: {shouldDelete}");
-            if (shouldDelete)
-            {
-                RecordingCB recording = RecordingsDAL.GetRecordingByProgramId_CB(programId);
-                RecordingsDAL.DeleteRecording_CB(recording);
-            }
-            else
-            {
-                TvinciEpgBL epgBLTvinci = new TvinciEpgBL(groupId);
-                EpgCB epg = epgBLTvinci.GetEpgCB((ulong)programId);
-                if (epg != null)
-                {
-                    RecordingCB recording = new RecordingCB(epg)
-                    {
-                        RecordingId = (ulong)recordingId
-                    };
-
-                    RecordingsDAL.UpdateRecording_CB(recording);
-                }
-                else
-                {
-                    log.Error($"recording UpdateCouchbase failed epgId:{programId}");
-                }
-            }
-        }
-
+        
         private static RecordingCB GetRecordingCB(int groupId, long programId, long recordingId)
         {
             RecordingCB recording = RecordingsDAL.GetRecordingByProgramId_CB(programId);
@@ -1168,7 +1114,8 @@ namespace Core.Recordings
                 log.DebugFormat("Try to enqueue retry task: groupId {0}, recordingId {1}, nextCheck {2}, recordingTask {3}, retries {4}",
                     groupId, currentRecording.Id, nextCheck.ToString(), recordingTask.ToString(), currentRecording.GetStatusRetries);
 
-                EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, currentRecording.EpgStartDate, nextCheck, recordingTask);
+                EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, currentRecording.EpgStartDate,
+                    nextCheck, recordingTask);
             }
             else
             {
@@ -1183,7 +1130,9 @@ namespace Core.Recordings
 
                 try
                 {
-                    EnqueueRecordingModificationEvent(groupId, currentRecording, oldRecordingLength: 0);
+                    EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, currentRecording.EpgStartDate,
+                        nextCheck, recordingTask);
+                    
                 }
                 catch (Exception e)
                 {
@@ -1194,7 +1143,13 @@ namespace Core.Recordings
 
         private static void RetryTaskBeforeProgramStarted(int groupId, Recording recording, eRecordingTask task)
         {
-            var span = recording.EpgStartDate - DateTime.UtcNow;
+            RetryTaskBeforeProgramStarted(groupId, recording.EpgId, recording.Id, recording.EpgStartDate, task, recording);
+        }
+
+        public static void RetryTaskBeforeProgramStarted(int groupId, long programId, long recordingId, DateTime recordingStartDate, eRecordingTask task,
+            Recording recording = null)
+        {
+            var span = recordingStartDate - DateTime.UtcNow;
 
             DateTime nextCheck;
 
@@ -1202,14 +1157,14 @@ namespace Core.Recordings
             if (span.TotalDays > 1)
             {
                 log.DebugFormat("Retry task before program started: Recording id = {0} will retry tomorrow, because start date is {1}",
-                    recording.Id, recording.EpgStartDate);
+                    recordingId, recordingStartDate);
 
                 nextCheck = DateTime.UtcNow.AddDays(1);
             }
             else if (span.TotalHours > 1)
             {
                 log.DebugFormat("Retry task before program started: Recording id = {0} will retry in half the time (in {1} hours), because start date is {2}",
-                    recording.Id, (span.TotalHours / 2), recording.EpgStartDate);
+                    recordingId, (span.TotalHours / 2), recordingStartDate);
 
                 // if there is less than 1 day, get as HALF as close to the start of the program.
                 // e.g. if we are 4 hours away from program, check in 2 hours. If we are 140 minutes away, try in 70 minutes.
@@ -1218,41 +1173,41 @@ namespace Core.Recordings
             else
             {
                 log.DebugFormat("Retry task before program started: Recording id = {0} will retry when program starts, at {1}",
-                    recording.Id, recording.EpgStartDate);
+                    recordingId, recordingStartDate);
 
                 // if we are less than an hour away from the program, try when the program starts (half a minute before it starts)
-                nextCheck = recording.EpgStartDate.AddSeconds(-30);
+                nextCheck = recordingStartDate.AddSeconds(-30);
             }
 
             bool isPrivateCopy = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId).IsPrivateCopyEnabled.Value;
 
             // continue checking until the program started. 
-            if (DateTime.UtcNow < recording.EpgStartDate &&
+            if (DateTime.UtcNow < recordingStartDate &&
                 DateTime.UtcNow < nextCheck)
             {
                 if (isPrivateCopy)
                 {
-                    var _nextCheck = RecordingsDAL.GetDomainRetryRecordingDoc(groupId, recording.EpgId);
+                    var _nextCheck = RecordingsDAL.GetDomainRetryRecordingDoc(groupId, programId);
                     var next = DateUtils.ToUtcUnixTimestampSeconds(nextCheck);
 
                     if (!_nextCheck.HasValue || (_nextCheck.HasValue && _nextCheck.Value <= DateUtils.GetUtcUnixTimestampNow()) 
                         || _nextCheck.Value > next)
                     {
-                        log.Debug($"Updating retry document for epg: {recording.EpgId}, group: {groupId}");
+                        log.Debug($"Updating retry document for epg: {programId}, group: {groupId}");
                         //enqueue - only if no existing cb document
                         if (!_nextCheck.HasValue)
                         {
-                            EnqueueMessage(groupId, recording.EpgId, recording.Id, recording.EpgStartDate, nextCheck, task);
+                            EnqueueMessage(groupId, programId, recordingId, recordingStartDate, nextCheck, task);
                         }
                         //Update document
-                        RecordingsDAL.SaveDomainRetryRecordingDoc(groupId, recording.EpgId, next, CalcTtl(nextCheck));
+                        RecordingsDAL.SaveDomainRetryRecordingDoc(groupId, programId, next, RecordingsUtils.CalcTtl(nextCheck));
                     }
                 }
                 else
                 {
                     log.DebugFormat("Retry task before program started: program didn't start yet, we will enqueue a message now for recording {0}",
-                        recording.Id);
-                    EnqueueMessage(groupId, recording.EpgId, recording.Id, recording.EpgStartDate, nextCheck, task);
+                        recordingId);
+                    EnqueueMessage(groupId, programId, recordingId, recordingStartDate, nextCheck, task);
                 }
             }
             else
@@ -1273,14 +1228,14 @@ namespace Core.Recordings
                     }
                     catch (Exception e)
                     {
-                        log.Error($"Failed to queue ExpiredRecording task for RetryTaskAfterProgramEnded when recording FAILED, recordingId: {recording.Id}, groupId: {groupId}", e);
+                        log.Error($"Failed to queue ExpiredRecording task for RetryTaskAfterProgramEnded when recording FAILED, recordingId: {recordingId}, groupId: {groupId}", e);
                     }
                 }
                 else
                 {
-                    log.DebugFormat("Retry task before program started: program started already, Domain recording {0} is marked as failed.", recording.Id);
+                    log.DebugFormat("Retry task before program started: program started already, Domain recording {0} is marked as failed.", recordingId);
                     //BEO-9046 - Mark as failed for all failed domains by recording_id
-                    var affectedDomains = RecordingsDAL.SetRetryRecordingToFail(groupId, recording.EpgId);
+                    var affectedDomains = RecordingsDAL.SetRetryRecordingToFail(groupId, programId);
                     if (affectedDomains.Count > 0)
                     {
                         affectedDomains.ForEach(domainId =>
@@ -1288,12 +1243,6 @@ namespace Core.Recordings
                     }
                 }
             }
-        }
-
-        private static long CalcTtl(DateTime nextCheck)
-        {
-            var newExpiration = nextCheck.AddHours(1);
-            return DateUtils.ToUtcUnixTimestampSeconds(newExpiration);
         }
 
         private static Status CreateFailStatus(RecordResult adapterResponse)
@@ -1370,7 +1319,7 @@ namespace Core.Recordings
                     {
                         currentRecording.RecordingStatus = TstvRecordingStatus.Scheduled;
 
-                        currentRecording.RecordingStatus = GetTstvRecordingStatus(currentRecording.EpgStartDate, currentRecording.EpgEndDate, currentRecording.RecordingStatus);
+                        currentRecording.RecordingStatus = RecordingsUtils.GetTstvRecordingStatus(currentRecording.EpgStartDate, currentRecording.EpgEndDate, currentRecording.RecordingStatus);
                         currentRecording.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
                         // Insert the new links of the recordings

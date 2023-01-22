@@ -34,7 +34,7 @@ namespace GrpcAPI.Services
                 Core.ConditionalAccess.Utils.GetBaseConditionalAccessImpl(ref t, request.GroupId);
                 if (t != null)
                 {
-                    Core.ConditionalAccess.MediaFileItemPricesContainer[] itemsPrices = t.GetItemsPrices(request.MediaFiles.ToArray(),
+                    MediaFileItemPricesContainer[] itemsPrices = t.GetItemsPrices(request.MediaFiles.ToArray(),
                         request.UserId.ToString(),
                         request.CouponCode,
                         request.OnlyLowest, request.LanguageCode, request.Udid,

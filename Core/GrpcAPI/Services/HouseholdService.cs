@@ -2,6 +2,7 @@ using System;
 using APILogic.Api.Managers;
 using phoenix;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using ApiLogic.Users;
 using ApiObjects.Response;
@@ -10,6 +11,7 @@ using Core.Users;
 using Google.Protobuf.Collections;
 using GrpcAPI.Utils;
 using Microsoft.Extensions.Logging;
+using MoreLinq;
 using Phx.Lib.Log;
 using RolePermissions = ApiObjects.RolePermissions;
 using Status = phoenix.Status;
@@ -30,6 +32,7 @@ namespace GrpcAPI.Services
 
         int IsDevicePlayValid(IsDevicePlayValidRequest request);
         bool IsValidDeviceFamily(IsValidDeviceFamilyRequest request);
+        GetUserDataResponse GetUserData(GetUserDataRequest request);
     }
 
     public class HouseholdService : IHouseholdService
@@ -176,6 +179,18 @@ namespace GrpcAPI.Services
                 : deviceInfoResponse.m_oDevice.m_deviceFamilyID;
 
             return request.DeviceFamilyIds.Count == 0 || request.DeviceFamilyIds.Contains(familyId);
+        }
+        
+        public GetUserDataResponse GetUserData(GetUserDataRequest request)
+        {
+            var deviceInfoResponse = Core.Users.Module.GetUserData(request.GroupId, request.UserId.ToString(), string.Empty);
+            var dynamicData = new MapField<string, string>();
+            deviceInfoResponse.m_user?.m_oDynamicData?.m_sUserData?.ForEach(x =>
+                dynamicData.Add(x.m_sDataType, x.m_sValue));
+            return new GetUserDataResponse
+            {
+                DynamicData = {dynamicData}
+            };
         }
     }
 }

@@ -149,8 +149,9 @@ namespace SoapAdaptersCommon.GrpcAdapters {
             "YXRhEhcuUG9zdEdldFVzZXJEYXRhUmVxdWVzdBoNLlVzZXJSZXNwb25zZRIp",
             "CgZJbnZva2USDi5JbnZva2VSZXF1ZXN0Gg8uSW52b2tlUmVzcG9uc2USQQoO",
             "QWRqdXN0UmVnaW9uSWQSFi5BZGp1c3RSZWdpb25JZFJlcXVlc3QaFy5BZGp1",
-            "c3RSZWdpb25JZFJlc3BvbnNlQiKqAh9Tb2FwQWRhcHRlcnNDb21tb24uR3Jw",
-            "Y0FkYXB0ZXJzYgZwcm90bzM="));
+            "c3RSZWdpb25JZFJlc3BvbnNlQkVaIS4vU29hcEFkYXB0ZXJzQ29tbW9uLkdy",
+            "cGNBZGFwdGVyc6oCH1NvYXBBZGFwdGVyc0NvbW1vbi5HcnBjQWRhcHRlcnNi",
+            "BnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::SoapAdaptersCommon.GrpcAdapters.AdapterStatusCode), typeof(global::SoapAdaptersCommon.GrpcAdapters.SSOMethods), }, null, new pbr::GeneratedClrTypeInfo[] {

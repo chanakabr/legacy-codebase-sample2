@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,8 +32,10 @@ namespace ApiObjects.TimeShiftedTv
         public ProtectionPolicy? ProtectionPolicy { get; set; }
         public int? RecoveryGracePeriod { get; set; }
         public bool? IsPrivateCopyEnabled { get; set; }
-        
         public int? DefaultQuota { get; set; }
+        public bool? PersonalizedRecordingEnable { get; set; }
+        public int? MaxRecordingConcurrency { get; set; }
+        public int? MaxConcurrencyMargin { get; set; }
 
         public TimeShiftedTvPartnerSettings()
         {
@@ -42,7 +45,7 @@ namespace ApiObjects.TimeShiftedTv
             long? catchUpBufferLength, long? trickPlayBufferLength, long? recordingScheduleWindowBuffer, long? paddingAfterProgramEnds, long? paddingBeforeProgramStarts,
             bool? isProtectionEnabled, int? protectionPeriod, int? protectionQuotaPercentage, int? recordingLifetimePeriod, int? cleanupNoticePeroid, bool? isSeriesRecordingEnabled,
             bool? isRecordingPlaybackNonEntitledEnabled, bool? isRecordingPlaybackNonExistingEnabled, int? quotaOveragePolicy, int? protectionPolicy, int? recoveryGracePeriod,
-            bool? isPrivateCopyEnabled, int? defaultQuota)
+            bool? isPrivateCopyEnabled, int? defaultQuota, bool? personalizedRecording, int? maxRecordingConcurrency, int? maxConcurrencyMargin)
         {
             this.IsCatchUpEnabled = isCatchUpEnabled;
             this.IsCdvrEnabled = isCdvrEnabled;
@@ -65,6 +68,9 @@ namespace ApiObjects.TimeShiftedTv
             this.RecoveryGracePeriod = recoveryGracePeriod;
             this.IsPrivateCopyEnabled = isPrivateCopyEnabled;
             this.DefaultQuota = defaultQuota;
+            this.PersonalizedRecordingEnable = personalizedRecording;
+            this.MaxRecordingConcurrency = maxRecordingConcurrency;
+            this.MaxConcurrencyMargin = maxConcurrencyMargin;
 
             if (quotaOveragePolicy.HasValue)
             {
@@ -103,6 +109,9 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("RecoveryGracePeriod: {0}, ", RecoveryGracePeriod.HasValue ? RecoveryGracePeriod.Value.ToString() : "Null"));
             sb.Append(string.Format("IsPrivateCopyEnabled: {0}, ", IsPrivateCopyEnabled.HasValue ? IsPrivateCopyEnabled.Value.ToString() : "Null"));
             sb.Append(string.Format("DefaultQuota: {0}, ", DefaultQuota.HasValue ? DefaultQuota.Value.ToString() : "Null"));
+            sb.Append(string.Format("PersonalizedRecordingEnable: {0}, ", PersonalizedRecordingEnable.HasValue ? PersonalizedRecordingEnable.Value.ToString() : "Null"));
+            sb.Append(string.Format("MaxRecordingConcurrency: {0}, ", MaxRecordingConcurrency.HasValue ? MaxRecordingConcurrency.Value.ToString() : "Null"));
+            sb.Append(string.Format("MaxConcurrencyMargin: {0}, ", MaxConcurrencyMargin.HasValue ? MaxConcurrencyMargin.Value.ToString() : "Null"));
 
             return sb.ToString();
         }

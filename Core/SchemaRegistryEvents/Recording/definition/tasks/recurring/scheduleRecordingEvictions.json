@@ -1,0 +1,13 @@
+{
+  "$id": "http://ott.service.phoenix/tasks/recurring/scheduleRecordingEvictions",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ScheduleRecordingEvictions",
+  "type": "object",
+  "description": "scheduled recording evictions send evacuateRecording event for all expired recording in the next hour (to free the quota)",
+  "x-recurrence-cron-expression": "@every 1h",
+  "allOf": [
+    {
+      "$ref": "ott-schema-registry/tasks/recurring/scheduleRecordingEvictions"
+    }
+  ]
+} 

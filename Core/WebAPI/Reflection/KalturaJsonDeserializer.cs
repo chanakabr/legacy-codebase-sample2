@@ -1377,6 +1377,9 @@ namespace WebAPI.Reflection
                 case "KalturaImageTypeListResponse":
                     return new KalturaImageTypeListResponse(parameters, true);
                     
+                case "KalturaImmediateRecording":
+                    return new KalturaImmediateRecording(parameters, true);
+                    
                 case "KalturaInboxMessage":
                     return new KalturaInboxMessage(parameters, true);
                     
@@ -1724,6 +1727,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaOTTUserType":
                     return new KalturaOTTUserType(parameters, true);
+                    
+                case "KalturaPaddedRecording":
+                    return new KalturaPaddedRecording(parameters, true);
                     
                 case "KalturaParentalRule":
                     return new KalturaParentalRule(parameters, true);
@@ -2279,6 +2285,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaSegmentValues":
                     return new KalturaSegmentValues(parameters, true);
+                    
+                case "KalturaSeriesIdArguments":
+                    return new KalturaSeriesIdArguments(parameters, true);
                     
                 case "KalturaSeriesRecording":
                     return new KalturaSeriesRecording(parameters, true);
@@ -5311,6 +5320,74 @@ namespace WebAPI.Models.ConditionalAccess
             }
         }
     }
+    public partial class KalturaImmediateRecording
+    {
+        private static RuntimeSchemePropertyAttribute EndPaddingSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImmediateRecording")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute AbsoluteStartTimeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImmediateRecording")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute AbsoluteEndTimeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImmediateRecording")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        public KalturaImmediateRecording(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("endPadding") && parameters["endPadding"] != null)
+                {
+                    EndPaddingSchemaProperty.Validate("endPadding", parameters["endPadding"]);
+                    EndPadding = (Int32) Convert.ChangeType(parameters["endPadding"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("absoluteStart") && parameters["absoluteStart"] != null)
+                {
+                    AbsoluteStartTimeSchemaProperty.Validate("absoluteStart", parameters["absoluteStart"]);
+                    AbsoluteStartTime = (Int64) Convert.ChangeType(parameters["absoluteStart"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("absoluteEnd") && parameters["absoluteEnd"] != null)
+                {
+                    AbsoluteEndTimeSchemaProperty.Validate("absoluteEnd", parameters["absoluteEnd"]);
+                    AbsoluteEndTime = (Int64) Convert.ChangeType(parameters["absoluteEnd"], typeof(Int64));
+                }
+            }
+        }
+    }
     public partial class KalturaLicensedUrl
     {
         public KalturaLicensedUrl(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
@@ -5417,6 +5494,57 @@ namespace WebAPI.Models.ConditionalAccess
                 if (parameters.ContainsKey("quotaInMinutes") && parameters["quotaInMinutes"] != null)
                 {
                     QuotaInMinutes = (Int64) Convert.ChangeType(parameters["quotaInMinutes"], typeof(Int64));
+                }
+            }
+        }
+    }
+    public partial class KalturaPaddedRecording
+    {
+        private static RuntimeSchemePropertyAttribute PaddingBeforeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPaddedRecording")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute PaddingAfterSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPaddedRecording")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        public KalturaPaddedRecording(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("startPadding") && parameters["startPadding"] != null)
+                {
+                    PaddingBeforeSchemaProperty.Validate("startPadding", parameters["startPadding"]);
+                    PaddingBefore = (Int32) Convert.ChangeType(parameters["startPadding"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("endPadding") && parameters["endPadding"] != null)
+                {
+                    PaddingAfterSchemaProperty.Validate("endPadding", parameters["endPadding"]);
+                    PaddingAfter = (Int32) Convert.ChangeType(parameters["endPadding"], typeof(Int32));
                 }
             }
         }
@@ -14393,6 +14521,10 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("isActive") && parameters["isActive"] != null)
                 {
                     IsActive = (Boolean) Convert.ChangeType(parameters["isActive"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("adapterGrpcAddress") && parameters["adapterGrpcAddress"] != null)
+                {
+                    AdapterGrpcAddress = (String) Convert.ChangeType(parameters["adapterGrpcAddress"], typeof(String));
                 }
                 if (parameters.ContainsKey("adapterUrl") && parameters["adapterUrl"] != null)
                 {
@@ -26976,6 +27108,10 @@ namespace WebAPI.Models.Catalog
                 {
                     ViewableUntilDate = (Int64) Convert.ChangeType(parameters["viewableUntilDate"], typeof(Int64));
                 }
+                if (parameters.ContainsKey("multiRecord") && parameters["multiRecord"] != null)
+                {
+                    MultiRecord = (Boolean) Convert.ChangeType(parameters["multiRecord"], typeof(Boolean));
+                }
             }
         }
     }
@@ -27227,6 +27363,122 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("typeIn") && parameters["typeIn"] != null)
                 {
                     TypeIn = (String) Convert.ChangeType(parameters["typeIn"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaSeriesIdArguments
+    {
+        private static RuntimeSchemePropertyAttribute AssetTypeIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSeriesIdArguments")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            DynamicMinInt = 0,
+            MaxLength = -1,
+            MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute SeriesIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSeriesIdArguments")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute SeriesIdMetaNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSeriesIdArguments")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute SeasonNumberMetaNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSeriesIdArguments")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute EpisodeNumberMetaNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSeriesIdArguments")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        public KalturaSeriesIdArguments(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (fromRequest)
+            {
+                if (parameters == null || parameters.Count == 0)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "seriesId");
+
+               if (!parameters.ContainsKey("seriesId") || string.IsNullOrWhiteSpace(parameters["seriesId"]?.ToString()))
+                   throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "seriesId");
+
+            }
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("assetTypeIdIn") && parameters["assetTypeIdIn"] != null)
+                {
+                    AssetTypeIdInSchemaProperty.Validate("assetTypeIdIn", parameters["assetTypeIdIn"]);
+                    AssetTypeIdIn = (String) Convert.ChangeType(parameters["assetTypeIdIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("seriesId") && parameters["seriesId"] != null)
+                {
+                    SeriesIdSchemaProperty.Validate("seriesId", parameters["seriesId"]);
+                    SeriesId = (String) Convert.ChangeType(parameters["seriesId"], typeof(String));
+                }
+                if (parameters.ContainsKey("seriesIdMetaName") && parameters["seriesIdMetaName"] != null)
+                {
+                    SeriesIdMetaNameSchemaProperty.Validate("seriesIdMetaName", parameters["seriesIdMetaName"]);
+                    SeriesIdMetaName = (String) Convert.ChangeType(parameters["seriesIdMetaName"], typeof(String));
+                }
+                if (parameters.ContainsKey("seasonNumberMetaName") && parameters["seasonNumberMetaName"] != null)
+                {
+                    SeasonNumberMetaNameSchemaProperty.Validate("seasonNumberMetaName", parameters["seasonNumberMetaName"]);
+                    SeasonNumberMetaName = (String) Convert.ChangeType(parameters["seasonNumberMetaName"], typeof(String));
+                }
+                if (parameters.ContainsKey("episodeNumberMetaName") && parameters["episodeNumberMetaName"] != null)
+                {
+                    EpisodeNumberMetaNameSchemaProperty.Validate("episodeNumberMetaName", parameters["episodeNumberMetaName"]);
+                    EpisodeNumberMetaName = (String) Convert.ChangeType(parameters["episodeNumberMetaName"], typeof(String));
                 }
             }
         }

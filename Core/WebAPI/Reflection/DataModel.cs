@@ -4392,6 +4392,18 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaImmediateRecording":
+                    switch(property.Name)
+                    {
+                        case "AbsoluteEndTime":
+                            return "absoluteEnd";
+                        case "AbsoluteStartTime":
+                            return "absoluteStart";
+                        case "EndPadding":
+                            return "endPadding";
+                    }
+                    break;
+                    
                 case "KalturaInboxMessage":
                     switch(property.Name)
                     {
@@ -5884,6 +5896,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaPaddedRecording":
+                    switch(property.Name)
+                    {
+                        case "PaddingAfter":
+                            return "endPadding";
+                        case "PaddingBefore":
+                            return "startPadding";
+                    }
+                    break;
+                    
                 case "KalturaParentalRule":
                     switch(property.Name)
                     {
@@ -6449,6 +6471,8 @@ namespace WebAPI.Reflection
                 case "KalturaPlaybackProfile":
                     switch(property.Name)
                     {
+                        case "AdapterGrpcAddress":
+                            return "adapterGrpcAddress";
                         case "AdapterUrl":
                             return "adapterUrl";
                         case "Id":
@@ -7193,6 +7217,8 @@ namespace WebAPI.Reflection
                 case "KalturaRecordingAsset":
                     switch(property.Name)
                     {
+                        case "MultiRecord":
+                            return "multiRecord";
                         case "RecordingId":
                             return "recordingId";
                         case "RecordingType":
@@ -7821,6 +7847,22 @@ namespace WebAPI.Reflection
                             return "source";
                         case "Values":
                             return "values";
+                    }
+                    break;
+                    
+                case "KalturaSeriesIdArguments":
+                    switch(property.Name)
+                    {
+                        case "AssetTypeIdIn":
+                            return "assetTypeIdIn";
+                        case "EpisodeNumberMetaName":
+                            return "episodeNumberMetaName";
+                        case "SeasonNumberMetaName":
+                            return "seasonNumberMetaName";
+                        case "SeriesId":
+                            return "seriesId";
+                        case "SeriesIdMetaName":
+                            return "seriesIdMetaName";
                     }
                     break;
                     
@@ -9611,8 +9653,18 @@ namespace WebAPI.Reflection
                             return AssetHistoryController.CleanOldStandard((KalturaAssetsFilter) methodParams[0]);
                             
                         case "getnextepisode":
+                            var oneOfIndices = new[] { 0, 1 };
+                            var oneOfParametersCount = oneOfIndices.Count(x => methodParams[x] != null);
+                            if (oneOfParametersCount == 0)
+                            {
+                                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "assetId, seriesIdArguments");
+                            }
+                            if (oneOfParametersCount > 1)
+                            {
+                                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "assetId", "seriesIdArguments");
+                            }
                             RolesManager.ValidateActionPermitted("assetHistory", "getNextEpisode", WebAPI.Managers.eKSValidation.All);
-                            return AssetHistoryController.GetNextEpisode((long) methodParams[0]);
+                            return AssetHistoryController.GetNextEpisode((Nullable<long>) methodParams[0], (KalturaSeriesIdArguments) methodParams[1], (Nullable<KalturaNotWatchedReturnStrategy>) methodParams[2], (Nullable<KalturaWatchedAllReturnStrategy>) methodParams[3]);
                             
                         case "list":
                             if(isOldVersion)
@@ -12701,6 +12753,10 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("recording", "get", WebAPI.Managers.eKSValidation.All);
                             return RecordingController.Get((long) methodParams[0]);
                             
+                        case "immediaterecord":
+                            RolesManager.ValidateActionPermitted("recording", "immediateRecord", WebAPI.Managers.eKSValidation.All);
+                            return RecordingController.ImmediateRecord((long) methodParams[0], (long) methodParams[1], (Nullable<int>) methodParams[2]);
+                            
                         case "list":
                             RolesManager.ValidateActionPermitted("recording", "list", WebAPI.Managers.eKSValidation.All);
                             return RecordingController.List((KalturaRecordingFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
@@ -12708,6 +12764,10 @@ namespace WebAPI.Reflection
                         case "protect":
                             RolesManager.ValidateActionPermitted("recording", "protect", WebAPI.Managers.eKSValidation.All);
                             return RecordingController.Protect((long) methodParams[0]);
+                            
+                        case "stop":
+                            RolesManager.ValidateActionPermitted("recording", "stop", WebAPI.Managers.eKSValidation.All);
+                            return RecordingController.Stop((long) methodParams[0], (long) methodParams[1], (long) methodParams[2]);
                             
                         case "update":
                             RolesManager.ValidateActionPermitted("recording", "update", WebAPI.Managers.eKSValidation.All);
@@ -15290,7 +15350,10 @@ namespace WebAPI.Reflection
                         case "getnextepisode":
                             ret.Add("assetId", new MethodParam(){
                                 NewName = newParamName,
-                                Type = typeof(long),
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int64),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("assetId", "assetHistory", "getNextEpisode") {
                                     RequiresPermission = false,
                                     MaxLength = -1,
@@ -15300,6 +15363,29 @@ namespace WebAPI.Reflection
                                     MaxItems = -1,
                                     UniqueItems = false,
                                 },
+                            });
+                            ret.Add("seriesIdArguments", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSeriesIdArguments),
+                            });
+                            ret.Add("notWatchedReturnStrategy", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(KalturaNotWatchedReturnStrategy),
+                                IsEnum = true,
+                            });
+                            ret.Add("watchedAllReturnStrategy", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(KalturaWatchedAllReturnStrategy),
+                                IsEnum = true,
                             });
                             return ret;
                             
@@ -21986,6 +22072,22 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
+                        case "immediaterecord":
+                            ret.Add("assetId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("epgChannelId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("endPadding", new MethodParam(){
+                                NewName = newParamName,
+                                IsNullable = true,
+                                Type = typeof(Int32),
+                            });
+                            return ret;
+                            
                         case "list":
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,
@@ -22005,6 +22107,21 @@ namespace WebAPI.Reflection
                             
                         case "protect":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "stop":
+                            ret.Add("assetId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("epgChannelId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("householdRecordingId", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
                             });

@@ -3127,6 +3127,7 @@ namespace Core.Catalog.CatalogManagement
                                 RecordingAsset recordingAsset = new RecordingAsset((EpgAsset)assetPriority?.Asset);
                                 recordingAsset.RecordingId = baseAsset.AssetId;
                                 recordingAsset.RecordingType = recordingsMap[baseAsset.AssetId].RecordingType;
+                                recordingAsset.IsMulti = recordingsMap[baseAsset.AssetId].IsMulti;
 
                                 assetPriority = new AssetPriority(recordingAsset, priorityGroupGetter(baseAsset));
                                 resultScore.Objects.Add(assetPriority);

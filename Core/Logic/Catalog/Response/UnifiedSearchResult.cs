@@ -27,6 +27,9 @@ namespace Core.Catalog.Response
         [DataMember]
         public string RecordingId { get; set; }
 
+        [DataMember]
+        public bool IsMulti { get; set; }
+
         public RecordingSearchResult() : base() { }
 
         public RecordingSearchResult(ExtendedSearchResult extendedSearchResult) : base()

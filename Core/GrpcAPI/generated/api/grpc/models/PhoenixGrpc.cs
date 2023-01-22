@@ -70,6 +70,10 @@ namespace phoenix {
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::phoenix.IsValidDeviceFamilyRequest> __Marshaller_phoenix_IsValidDeviceFamilyRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.IsValidDeviceFamilyRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.GetUserDataRequest> __Marshaller_phoenix_GetUserDataRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetUserDataRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.GetUserDataResponse> __Marshaller_phoenix_GetUserDataResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetUserDataResponse.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::phoenix.GetGroupSecretAndCountryCodeRequest> __Marshaller_phoenix_GetGroupSecretAndCountryCodeRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetGroupSecretAndCountryCodeRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::phoenix.GetGroupSecretAndCountryCodeResponse> __Marshaller_phoenix_GetGroupSecretAndCountryCodeResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetGroupSecretAndCountryCodeResponse.Parser));
@@ -277,6 +281,14 @@ namespace phoenix {
         "IsValidDeviceFamily",
         __Marshaller_phoenix_IsValidDeviceFamilyRequest,
         __Marshaller_google_protobuf_BoolValue);
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::phoenix.GetUserDataRequest, global::phoenix.GetUserDataResponse> __Method_GetUserData = new grpc::Method<global::phoenix.GetUserDataRequest, global::phoenix.GetUserDataResponse>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "GetUserData",
+        __Marshaller_phoenix_GetUserDataRequest,
+        __Marshaller_phoenix_GetUserDataResponse);
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::phoenix.GetGroupSecretAndCountryCodeRequest, global::phoenix.GetGroupSecretAndCountryCodeResponse> __Method_GetGroupSecretAndCountryCode = new grpc::Method<global::phoenix.GetGroupSecretAndCountryCodeRequest, global::phoenix.GetGroupSecretAndCountryCodeResponse>(
@@ -668,6 +680,12 @@ namespace phoenix {
 
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::System.Threading.Tasks.Task<global::Google.Protobuf.WellKnownTypes.BoolValue> IsValidDeviceFamily(global::phoenix.IsValidDeviceFamilyRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::phoenix.GetUserDataResponse> GetUserData(global::phoenix.GetUserDataRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
@@ -1156,6 +1174,26 @@ namespace phoenix {
       public virtual grpc::AsyncUnaryCall<global::Google.Protobuf.WellKnownTypes.BoolValue> IsValidDeviceFamilyAsync(global::phoenix.IsValidDeviceFamilyRequest request, grpc::CallOptions options)
       {
         return CallInvoker.AsyncUnaryCall(__Method_IsValidDeviceFamily, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.GetUserDataResponse GetUserData(global::phoenix.GetUserDataRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return GetUserData(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.GetUserDataResponse GetUserData(global::phoenix.GetUserDataRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_GetUserData, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.GetUserDataResponse> GetUserDataAsync(global::phoenix.GetUserDataRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return GetUserDataAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.GetUserDataResponse> GetUserDataAsync(global::phoenix.GetUserDataRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_GetUserData, null, options, request);
       }
       /// <summary>
       ///group configuration
@@ -2186,6 +2224,7 @@ namespace phoenix {
           .AddMethod(__Method_GetMediaConcurrencyRulesByDomainLimitationModule, serviceImpl.GetMediaConcurrencyRulesByDomainLimitationModule)
           .AddMethod(__Method_IsDevicePlayValid, serviceImpl.IsDevicePlayValid)
           .AddMethod(__Method_IsValidDeviceFamily, serviceImpl.IsValidDeviceFamily)
+          .AddMethod(__Method_GetUserData, serviceImpl.GetUserData)
           .AddMethod(__Method_GetGroupSecretAndCountryCode, serviceImpl.GetGroupSecretAndCountryCode)
           .AddMethod(__Method_GetCDVRAdapter, serviceImpl.GetCDVRAdapter)
           .AddMethod(__Method_IsRegionalization, serviceImpl.IsRegionalization)
@@ -2244,6 +2283,7 @@ namespace phoenix {
       serviceBinder.AddMethod(__Method_GetMediaConcurrencyRulesByDomainLimitationModule, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleRequest, global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleResponse>(serviceImpl.GetMediaConcurrencyRulesByDomainLimitationModule));
       serviceBinder.AddMethod(__Method_IsDevicePlayValid, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.IsDevicePlayValidRequest, global::Google.Protobuf.WellKnownTypes.Int32Value>(serviceImpl.IsDevicePlayValid));
       serviceBinder.AddMethod(__Method_IsValidDeviceFamily, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.IsValidDeviceFamilyRequest, global::Google.Protobuf.WellKnownTypes.BoolValue>(serviceImpl.IsValidDeviceFamily));
+      serviceBinder.AddMethod(__Method_GetUserData, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetUserDataRequest, global::phoenix.GetUserDataResponse>(serviceImpl.GetUserData));
       serviceBinder.AddMethod(__Method_GetGroupSecretAndCountryCode, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetGroupSecretAndCountryCodeRequest, global::phoenix.GetGroupSecretAndCountryCodeResponse>(serviceImpl.GetGroupSecretAndCountryCode));
       serviceBinder.AddMethod(__Method_GetCDVRAdapter, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetCDVRAdapterRequest, global::phoenix.GetCDVRAdapterResponse>(serviceImpl.GetCDVRAdapter));
       serviceBinder.AddMethod(__Method_IsRegionalization, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.IsRegionalizationRequest, global::Google.Protobuf.WellKnownTypes.BoolValue>(serviceImpl.IsRegionalization));

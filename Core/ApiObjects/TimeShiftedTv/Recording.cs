@@ -1,10 +1,7 @@
 ﻿using ApiObjects.Response;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using ApiObjects.Recordings;
 
 namespace ApiObjects.TimeShiftedTv
 {
@@ -47,6 +44,12 @@ namespace ApiObjects.TimeShiftedTv
 
         public string UserId { get; set; }
 
+        public int? StartPadding { get; set; }
+        public int? EndPadding { get; set; }
+        public long? RecordedProgramId { get; set; }
+        public DateTime? AbsoluteStartTime { get; set; }
+        public DateTime? AbsoluteEndTime { get; set; }
+
         public Recording()
         {
             Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -74,6 +77,11 @@ namespace ApiObjects.TimeShiftedTv
             this.Crid = record.Crid;
             this.IsProtected = record.IsProtected;
             this.isExternalRecording = record.isExternalRecording;
+            this.StartPadding = record.StartPadding;
+            this.EndPadding = record.EndPadding;
+            this.RecordedProgramId = record.RecordedProgramId;
+            this.AbsoluteEndTime = record.AbsoluteEndTime;
+            this.AbsoluteStartTime = record.AbsoluteStartTime;
         }
 
         public override string ToString()
@@ -94,6 +102,10 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("CreateDate: {0}, ", CreateDate != null ? CreateDate.ToString() : ""));
             sb.Append(string.Format("UpdateDate: {0}, ", UpdateDate != null ? UpdateDate.ToString() : ""));
             sb.Append(string.Format("Crid: {0}, ", string.IsNullOrEmpty(Crid) ? "" : Crid));
+            sb.Append(string.Format("StartPadding: {0}, ", !StartPadding.HasValue ? "" : StartPadding.Value.ToString()));
+            sb.Append(string.Format("EndPadding: {0}, ", !EndPadding.HasValue ? "" : EndPadding.Value.ToString()));
+            sb.Append(string.Format("AbsoluteEndTime: {0}, ", !AbsoluteEndTime.HasValue ? "" : AbsoluteEndTime.Value.ToString()));
+            sb.Append(string.Format("AbsoluteStartTime: {0}, ", !AbsoluteStartTime.HasValue ? "" : AbsoluteStartTime.Value.ToString()));
 
             return sb.ToString();
         }

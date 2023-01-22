@@ -1393,9 +1393,11 @@ namespace Core.Catalog
                         string key = string.Empty;
                         bool isNpvr = baseAsset.AssetType == eAssetTypes.NPVR;
                         RecordingType? scheduledRecordingType = null;
+                        bool isMulti = false;
+
                         if (isNpvr)
                         {
-                            string epgId = GetEpgIdFromNpvrObject(baseAsset, ref scheduledRecordingType);
+                            string epgId = GetEpgIdFromNpvrObject(baseAsset, ref scheduledRecordingType, ref isMulti);
                             if (!string.IsNullOrEmpty(epgId))
                             {
                                 key = string.Format(keyFormat, eAssetTypes.EPG.ToString(), epgId);
@@ -1415,7 +1417,8 @@ namespace Core.Catalog
                                     RecordingId = recordingId,
                                     RecordingType = scheduledRecordingType,
                                     Program = mappedAsset as ProgramObj,
-                                    m_dUpdateDate = baseAsset.m_dUpdateDate
+                                    m_dUpdateDate = baseAsset.m_dUpdateDate,
+                                    IsMulti = isMulti
                                 };
 
                                 result.Add(recordingObject);
@@ -1450,7 +1453,7 @@ namespace Core.Catalog
                 DateTimeStyles.None,
                 out dateTime);
 
-        private static string GetEpgIdFromNpvrObject(BaseObject baseObject, ref RecordingType? scheduledRecordingType)
+        private static string GetEpgIdFromNpvrObject(BaseObject baseObject, ref RecordingType? scheduledRecordingType, ref bool isMulti)
         {
             string epgId = null;
             try
@@ -1460,6 +1463,7 @@ namespace Core.Catalog
                 {
                     epgId = searchResult.EpgId;
                     scheduledRecordingType = searchResult.RecordingType;
+                    isMulti = searchResult.IsMulti;
                 }
                 else
                 {

@@ -1,18 +1,23 @@
-﻿using ApiObjects.Response;
-using Phx.Lib.Log;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ApiLogic.Catalog.NextEpisode;
+using ApiObjects.Response;
+using Core.Catalog.Response;
+using Core.GroupManagers;
+using Phx.Lib.Log;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.InternalModels;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
+using WebAPI.Mappers;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
-using WebAPI.ObjectsConvertor.Extensions;
+using WebAPI.Validation;
 
 namespace WebAPI.Controllers
 {
@@ -258,31 +263,50 @@ namespace WebAPI.Controllers
         /// Get next episode by last watch asset in given assetId
         /// </summary>
         /// <param name="assetId">asset Id of series to search for next episode</param>
+        /// <param name="seriesIdArguments">series Id arguments</param>
+        /// <param name="watchedAllReturnStrategy">watched all series episodes strategy</param>
+        /// <param name="notWatchedReturnStrategy">not watched any episode strategy</param>
         /// <returns></returns>
         [Action("getNextEpisode")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("assetId", MinLong = 1)]
+        [SchemaMethod(OneOf = new[] { "assetId", "seriesIdArguments" })]
         [Throws(eResponseStatus.InvalidAssetType)]
         [Throws(eResponseStatus.InvalidAssetStruct)]
         [Throws(eResponseStatus.TopicNotFound)]
         [Throws(eResponseStatus.MetaDoesNotExist)]
         [Throws(eResponseStatus.NoNextEpisode)]
-        static public KalturaAssetHistory GetNextEpisode(long assetId)
+        public static KalturaAssetHistory GetNextEpisode(
+            long? assetId = null,
+            KalturaSeriesIdArguments seriesIdArguments = null,
+            KalturaNotWatchedReturnStrategy? notWatchedReturnStrategy = null,
+            KalturaWatchedAllReturnStrategy? watchedAllReturnStrategy = null)
         {
-            KalturaAssetHistory response = null;
-
-            try
+            var contextData = KS.GetContextData();
+            var context = NextEpisodeMapper.Instance.MapToContext(contextData, notWatchedReturnStrategy, watchedAllReturnStrategy);
+            NextEpisodeValidator.Instance.Validate(contextData.GroupId, seriesIdArguments);
+            var isOpcAccount = GroupSettingsManager.Instance.IsOpc(contextData.GroupId);
+            GenericResponse<UserWatchHistory> response;
+            if (!isOpcAccount)
             {
-                var contextData = KS.GetContextData();
-                response = ClientsManager.CatalogClient().GetNextEpisode(contextData.GroupId, contextData.UserId.ToString(), assetId);
+                response = assetId.HasValue
+                    ? NextEpisodeService.GetNextEpisodeByAssetIdForTvm(context, assetId.Value)
+                    : NextEpisodeService.GetNextEpisodeBySeriesIdForTvm(context, seriesIdArguments.SeriesId);
             }
-            catch (ClientException ex)
+            else if (assetId.HasValue)
             {
-                ErrorUtils.HandleClientException(ex);
+                response = NextEpisodeService.GetNextEpisodeByAssetIdForOpc(context, assetId.Value);
+            }
+            else
+            {
+                var seriesType = NextEpisodeMapper.Instance.MapToSeriesType(seriesIdArguments);
+                response = NextEpisodeService.GetNextEpisodeBySeriesIdForOpc(context, seriesIdArguments.SeriesId, seriesType);
             }
 
-            return response;
+            return !response.IsOkStatusCode()
+                ? throw new ClientException(response.Status)
+                : AutoMapper.Mapper.Map<KalturaAssetHistory>(response.Object);
         }
     }
 }

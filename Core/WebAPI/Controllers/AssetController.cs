@@ -298,7 +298,7 @@ namespace WebAPI.Controllers
             var specificAssets = userAssets.Select(_ => new KeyValuePair<eAssetTypes, long>(_.AssetType, _.AssetId)).ToList();
             var pageSize = userAssets.Count;
             var assetTypes = userAssets.Select(_ => _.AssetType).Distinct();
-            var assetTypesKsql = KsqlBuilder.Or(assetTypes.Select(KsqlBuilder.AssetType));
+            var assetTypesKsql = KsqlBuilderOld.Or(assetTypes.Select(KsqlBuilderOld.AssetType));
             
             var searchAssetFilter = new SearchAssetsFilter
             {

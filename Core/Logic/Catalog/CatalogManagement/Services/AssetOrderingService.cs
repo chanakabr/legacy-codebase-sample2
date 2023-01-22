@@ -324,7 +324,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
             {
                 case AssetOrderByMeta parameters:
                     var (isMetaPadded, metaType) = GetMetaEsOrderingValues(parameters.MetaName, input);
-                    return new EsOrderByMetaField(parameters.MetaName, parameters.Direction, isMetaPadded, metaType, input.Language);
+                    return new EsOrderByMetaField(parameters.MetaName, parameters.Direction, isMetaPadded, metaType, input.Language, parameters.IsMissingFirst);
                 case AssetOrderByStatistics parameters:
                     return new EsOrderByStatisticsField(parameters.Field, parameters.Direction, parameters.TrendingAssetWindow);
                 case AssetSlidingWindowOrder parameters:

@@ -505,6 +505,40 @@ namespace Reflector
                 file.WriteLine(tab + "                            }");
             }
 
+            var parameters = action.GetParameters();
+            var schemaMethodAttribute = action.GetCustomAttribute<SchemaMethodAttribute>(true);
+            if (schemaMethodAttribute != null)
+            {
+                var parameterIndices = new List<int>();
+                var oneOf = schemaMethodAttribute.OneOf.ToHashSet();
+                for (var i = 0; i < parameters.Length; i++)
+                {
+                    if (oneOf.Contains(parameters[i].Name))
+                    {
+                        parameterIndices.Add(i);
+                    }
+
+                    if (oneOf.Count == parameterIndices.Count)
+                    {
+                        break;
+                    }
+                }
+
+                if (parameterIndices.Count > 1)
+                {
+                    file.WriteLine(tab + "                            var oneOfIndices = new[] { " + string.Join(", ", parameterIndices) + " };");
+                    file.WriteLine(tab + "                            var oneOfParametersCount = oneOfIndices.Count(x => methodParams[x] != null);");
+                    file.WriteLine(tab + "                            if (oneOfParametersCount == 0)");
+                    file.WriteLine(tab + "                            {");
+                    file.WriteLine(tab + "                                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, \"" + string.Join(", ", oneOf) + "\");");
+                    file.WriteLine(tab + "                            }");
+                    file.WriteLine(tab + "                            if (oneOfParametersCount > 1)");
+                    file.WriteLine(tab + "                            {");
+                    file.WriteLine(tab + "                                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, " + string.Join(", ", oneOf.Select(x => $"\"{x}\"")) + ");");
+                    file.WriteLine(tab + "                            }");
+                }
+            }
+
             ApiAuthorizeAttribute authorization = action.GetCustomAttribute<ApiAuthorizeAttribute>(true);
             if (authorization != null)
             {
@@ -522,7 +556,7 @@ namespace Reflector
                 file.WriteLine(tab + "                            HttpContext.Current.Items[RequestContextConstants.REQUEST_SERVE_CONTENT_TYPE] = \"" + serve.ContentType + "\";");
             }
 
-            string args = String.Join(", ", action.GetParameters()
+            string args = String.Join(", ", parameters
                 .Select(paramInfo => "(" + GetTypeName(paramInfo.ParameterType, true) + ") methodParams[" + paramInfo.Position + "]"));
 
             if (action.IsGenericMethod)

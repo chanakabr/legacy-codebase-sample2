@@ -469,7 +469,7 @@ namespace DalCB
                     viewManager.limit = nPageSize;
                 }
 
-                PerformEPGView(lRes, viewManager);
+                PerformEPGViewWithRetries(lRes, viewManager);
             }
             catch (Exception ex)
             {
@@ -513,7 +513,7 @@ namespace DalCB
                     viewManager.limit = nPageSize;
                 }
 
-                PerformEPGView(lRes, viewManager);
+                PerformEPGViewWithRetries(lRes, viewManager);
             }
             catch (Exception ex)
             {
@@ -552,7 +552,7 @@ namespace DalCB
                     viewManager.limit = nPageSize;
                 }
 
-                PerformEPGView(lRes, viewManager);
+                PerformEPGViewWithRetries(lRes, viewManager);
             }
             catch (Exception ex)
             {
@@ -564,7 +564,21 @@ namespace DalCB
 
         private void PerformEPGView(List<EpgCB> lRes, ViewManager viewManager)
         {
-            var res = cbManager.ViewRows<object>(viewManager);
+            PerformEPGViewInternal(lRes, viewManager, false);
+        }
+
+        private void PerformEPGViewWithRetries(List<EpgCB> lRes, ViewManager viewManager)
+        {
+            PerformEPGViewInternal(lRes, viewManager, true);
+        }
+
+        private void PerformEPGViewInternal(List<EpgCB> lRes, ViewManager viewManager, bool withRetries)
+        {
+            var res = withRetries
+                ? cbManager.ViewRows<object>(viewManager,
+                    ApplicationConfiguration.Current.EpgV1RebuildConfiguration.CouchbaseViewRetryInterval.Value,
+                    TimeSpan.FromMilliseconds(ApplicationConfiguration.Current.EpgV1RebuildConfiguration.CouchbaseViewRetryInterval.Value))
+                : cbManager.ViewRows<object>(viewManager);
 
             if (res != null)
             {

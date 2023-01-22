@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 option csharp_namespace = "SoapAdaptersCommon.GrpcAdapters";
-
+option go_package = "github.com/kaltura/ott-client-sso-adapter-grpc-go";
 
 service SSOAdapterGRPC {
 	rpc SetConfiguration(SetConfigurationRequest) returns (SetConfigurationResponse);
@@ -159,7 +159,12 @@ message ListOfInt64{
     repeated int64 value = 1;
 }
 
-
+enum AdapterStatusCode {
+	OK = 0;
+	Error = 1;
+	SignatureMismatch = 2;
+	NoConfigurationFound = 3;
+}
 
 message User{
 	map<string, string> CustomParams=1;
@@ -231,14 +236,6 @@ message NullableBool{
 
 message NullableInt32{
 	int32 Value=1;
-}
-
-
-enum AdapterStatusCode {
-    OK = 0;
-    Error = 1;
-    SignatureMismatch = 2;
-    NoConfigurationFound = 3;
 }
 
 

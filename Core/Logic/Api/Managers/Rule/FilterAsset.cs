@@ -29,7 +29,7 @@ namespace ApiLogic.Api.Managers.Rule
         {
             var rules = _storage.GetFilterAssetRules(
                 new FilterRuleCondition(groupId, sessionCharacteristicKey));
-            return rules.Count == 0 ? ksqlFilter : KsqlBuilder.And(ksqlFilter, _filterAssetRule.GetFilteringKsql(rules));
+            return rules.Count == 0 ? ksqlFilter : KsqlBuilderOld.And(ksqlFilter, _filterAssetRule.GetFilteringKsql(rules));
         }
     }
 }

@@ -12,23 +12,73 @@ namespace SoapAdaptersCommon.GrpcAdapters {
   {
     static readonly string __ServiceName = "SSOAdapterGRPC";
 
-    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationRequest> __Marshaller_SetConfigurationRequest = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationRequest.Parser.ParseFrom);
-    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationResponse> __Marshaller_SetConfigurationResponse = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationResponse.Parser.ParseFrom);
-    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.GetConfigurationRequest> __Marshaller_GetConfigurationRequest = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::SoapAdaptersCommon.GrpcAdapters.GetConfigurationRequest.Parser.ParseFrom);
-    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.GetConfigurationResponse> __Marshaller_GetConfigurationResponse = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::SoapAdaptersCommon.GrpcAdapters.GetConfigurationResponse.Parser.ParseFrom);
-    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.PreSignInRequest> __Marshaller_PreSignInRequest = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::SoapAdaptersCommon.GrpcAdapters.PreSignInRequest.Parser.ParseFrom);
-    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.PreSignInResponse> __Marshaller_PreSignInResponse = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::SoapAdaptersCommon.GrpcAdapters.PreSignInResponse.Parser.ParseFrom);
-    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.PostSignInRequest> __Marshaller_PostSignInRequest = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::SoapAdaptersCommon.GrpcAdapters.PostSignInRequest.Parser.ParseFrom);
-    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.UserResponse> __Marshaller_UserResponse = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::SoapAdaptersCommon.GrpcAdapters.UserResponse.Parser.ParseFrom);
-    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.PreSignOutRequest> __Marshaller_PreSignOutRequest = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::SoapAdaptersCommon.GrpcAdapters.PreSignOutRequest.Parser.ParseFrom);
-    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.PostSignOutRequest> __Marshaller_PostSignOutRequest = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::SoapAdaptersCommon.GrpcAdapters.PostSignOutRequest.Parser.ParseFrom);
-    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.PreGetUserDataRequest> __Marshaller_PreGetUserDataRequest = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::SoapAdaptersCommon.GrpcAdapters.PreGetUserDataRequest.Parser.ParseFrom);
-    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.PostGetUserDataRequest> __Marshaller_PostGetUserDataRequest = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::SoapAdaptersCommon.GrpcAdapters.PostGetUserDataRequest.Parser.ParseFrom);
-    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.InvokeRequest> __Marshaller_InvokeRequest = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::SoapAdaptersCommon.GrpcAdapters.InvokeRequest.Parser.ParseFrom);
-    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.InvokeResponse> __Marshaller_InvokeResponse = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::SoapAdaptersCommon.GrpcAdapters.InvokeResponse.Parser.ParseFrom);
-    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdRequest> __Marshaller_AdjustRegionIdRequest = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdRequest.Parser.ParseFrom);
-    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdResponse> __Marshaller_AdjustRegionIdResponse = grpc::Marshallers.Create((arg) => global::Google.Protobuf.MessageExtensions.ToByteArray(arg), global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdResponse.Parser.ParseFrom);
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static void __Helper_SerializeMessage(global::Google.Protobuf.IMessage message, grpc::SerializationContext context)
+    {
+      #if !GRPC_DISABLE_PROTOBUF_BUFFER_SERIALIZATION
+      if (message is global::Google.Protobuf.IBufferMessage)
+      {
+        context.SetPayloadLength(message.CalculateSize());
+        global::Google.Protobuf.MessageExtensions.WriteTo(message, context.GetBufferWriter());
+        context.Complete();
+        return;
+      }
+      #endif
+      context.Complete(global::Google.Protobuf.MessageExtensions.ToByteArray(message));
+    }
 
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static class __Helper_MessageCache<T>
+    {
+      public static readonly bool IsBufferMessage = global::System.Reflection.IntrospectionExtensions.GetTypeInfo(typeof(global::Google.Protobuf.IBufferMessage)).IsAssignableFrom(typeof(T));
+    }
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static T __Helper_DeserializeMessage<T>(grpc::DeserializationContext context, global::Google.Protobuf.MessageParser<T> parser) where T : global::Google.Protobuf.IMessage<T>
+    {
+      #if !GRPC_DISABLE_PROTOBUF_BUFFER_SERIALIZATION
+      if (__Helper_MessageCache<T>.IsBufferMessage)
+      {
+        return parser.ParseFrom(context.PayloadAsReadOnlySequence());
+      }
+      #endif
+      return parser.ParseFrom(context.PayloadAsNewBuffer());
+    }
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationRequest> __Marshaller_SetConfigurationRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationResponse> __Marshaller_SetConfigurationResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationResponse.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.GetConfigurationRequest> __Marshaller_GetConfigurationRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::SoapAdaptersCommon.GrpcAdapters.GetConfigurationRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.GetConfigurationResponse> __Marshaller_GetConfigurationResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::SoapAdaptersCommon.GrpcAdapters.GetConfigurationResponse.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.PreSignInRequest> __Marshaller_PreSignInRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::SoapAdaptersCommon.GrpcAdapters.PreSignInRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.PreSignInResponse> __Marshaller_PreSignInResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::SoapAdaptersCommon.GrpcAdapters.PreSignInResponse.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.PostSignInRequest> __Marshaller_PostSignInRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::SoapAdaptersCommon.GrpcAdapters.PostSignInRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.UserResponse> __Marshaller_UserResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::SoapAdaptersCommon.GrpcAdapters.UserResponse.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.PreSignOutRequest> __Marshaller_PreSignOutRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::SoapAdaptersCommon.GrpcAdapters.PreSignOutRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.PostSignOutRequest> __Marshaller_PostSignOutRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::SoapAdaptersCommon.GrpcAdapters.PostSignOutRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.PreGetUserDataRequest> __Marshaller_PreGetUserDataRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::SoapAdaptersCommon.GrpcAdapters.PreGetUserDataRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.PostGetUserDataRequest> __Marshaller_PostGetUserDataRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::SoapAdaptersCommon.GrpcAdapters.PostGetUserDataRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.InvokeRequest> __Marshaller_InvokeRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::SoapAdaptersCommon.GrpcAdapters.InvokeRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.InvokeResponse> __Marshaller_InvokeResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::SoapAdaptersCommon.GrpcAdapters.InvokeResponse.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdRequest> __Marshaller_AdjustRegionIdRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdResponse> __Marshaller_AdjustRegionIdResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdResponse.Parser));
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationRequest, global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationResponse> __Method_SetConfiguration = new grpc::Method<global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationRequest, global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationResponse>(
         grpc::MethodType.Unary,
         __ServiceName,
@@ -36,6 +86,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
         __Marshaller_SetConfigurationRequest,
         __Marshaller_SetConfigurationResponse);
 
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::SoapAdaptersCommon.GrpcAdapters.GetConfigurationRequest, global::SoapAdaptersCommon.GrpcAdapters.GetConfigurationResponse> __Method_GetConfiguration = new grpc::Method<global::SoapAdaptersCommon.GrpcAdapters.GetConfigurationRequest, global::SoapAdaptersCommon.GrpcAdapters.GetConfigurationResponse>(
         grpc::MethodType.Unary,
         __ServiceName,
@@ -43,6 +94,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
         __Marshaller_GetConfigurationRequest,
         __Marshaller_GetConfigurationResponse);
 
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::SoapAdaptersCommon.GrpcAdapters.PreSignInRequest, global::SoapAdaptersCommon.GrpcAdapters.PreSignInResponse> __Method_PreSignIn = new grpc::Method<global::SoapAdaptersCommon.GrpcAdapters.PreSignInRequest, global::SoapAdaptersCommon.GrpcAdapters.PreSignInResponse>(
         grpc::MethodType.Unary,
         __ServiceName,
@@ -50,6 +102,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
         __Marshaller_PreSignInRequest,
         __Marshaller_PreSignInResponse);
 
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::SoapAdaptersCommon.GrpcAdapters.PostSignInRequest, global::SoapAdaptersCommon.GrpcAdapters.UserResponse> __Method_PostSignIn = new grpc::Method<global::SoapAdaptersCommon.GrpcAdapters.PostSignInRequest, global::SoapAdaptersCommon.GrpcAdapters.UserResponse>(
         grpc::MethodType.Unary,
         __ServiceName,
@@ -57,6 +110,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
         __Marshaller_PostSignInRequest,
         __Marshaller_UserResponse);
 
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::SoapAdaptersCommon.GrpcAdapters.PreSignOutRequest, global::SoapAdaptersCommon.GrpcAdapters.UserResponse> __Method_PreSignOut = new grpc::Method<global::SoapAdaptersCommon.GrpcAdapters.PreSignOutRequest, global::SoapAdaptersCommon.GrpcAdapters.UserResponse>(
         grpc::MethodType.Unary,
         __ServiceName,
@@ -64,6 +118,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
         __Marshaller_PreSignOutRequest,
         __Marshaller_UserResponse);
 
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::SoapAdaptersCommon.GrpcAdapters.PostSignOutRequest, global::SoapAdaptersCommon.GrpcAdapters.UserResponse> __Method_PostSignOut = new grpc::Method<global::SoapAdaptersCommon.GrpcAdapters.PostSignOutRequest, global::SoapAdaptersCommon.GrpcAdapters.UserResponse>(
         grpc::MethodType.Unary,
         __ServiceName,
@@ -71,6 +126,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
         __Marshaller_PostSignOutRequest,
         __Marshaller_UserResponse);
 
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::SoapAdaptersCommon.GrpcAdapters.PreGetUserDataRequest, global::SoapAdaptersCommon.GrpcAdapters.UserResponse> __Method_PreGetUserData = new grpc::Method<global::SoapAdaptersCommon.GrpcAdapters.PreGetUserDataRequest, global::SoapAdaptersCommon.GrpcAdapters.UserResponse>(
         grpc::MethodType.Unary,
         __ServiceName,
@@ -78,6 +134,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
         __Marshaller_PreGetUserDataRequest,
         __Marshaller_UserResponse);
 
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::SoapAdaptersCommon.GrpcAdapters.PostGetUserDataRequest, global::SoapAdaptersCommon.GrpcAdapters.UserResponse> __Method_PostGetUserData = new grpc::Method<global::SoapAdaptersCommon.GrpcAdapters.PostGetUserDataRequest, global::SoapAdaptersCommon.GrpcAdapters.UserResponse>(
         grpc::MethodType.Unary,
         __ServiceName,
@@ -85,6 +142,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
         __Marshaller_PostGetUserDataRequest,
         __Marshaller_UserResponse);
 
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::SoapAdaptersCommon.GrpcAdapters.InvokeRequest, global::SoapAdaptersCommon.GrpcAdapters.InvokeResponse> __Method_Invoke = new grpc::Method<global::SoapAdaptersCommon.GrpcAdapters.InvokeRequest, global::SoapAdaptersCommon.GrpcAdapters.InvokeResponse>(
         grpc::MethodType.Unary,
         __ServiceName,
@@ -92,6 +150,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
         __Marshaller_InvokeRequest,
         __Marshaller_InvokeResponse);
 
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdRequest, global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdResponse> __Method_AdjustRegionId = new grpc::Method<global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdRequest, global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdResponse>(
         grpc::MethodType.Unary,
         __ServiceName,
@@ -109,51 +168,61 @@ namespace SoapAdaptersCommon.GrpcAdapters {
     [grpc::BindServiceMethod(typeof(SSOAdapterGRPC), "BindService")]
     public abstract partial class SSOAdapterGRPCBase
     {
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::System.Threading.Tasks.Task<global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationResponse> SetConfiguration(global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
 
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::System.Threading.Tasks.Task<global::SoapAdaptersCommon.GrpcAdapters.GetConfigurationResponse> GetConfiguration(global::SoapAdaptersCommon.GrpcAdapters.GetConfigurationRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
 
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::System.Threading.Tasks.Task<global::SoapAdaptersCommon.GrpcAdapters.PreSignInResponse> PreSignIn(global::SoapAdaptersCommon.GrpcAdapters.PreSignInRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
 
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::System.Threading.Tasks.Task<global::SoapAdaptersCommon.GrpcAdapters.UserResponse> PostSignIn(global::SoapAdaptersCommon.GrpcAdapters.PostSignInRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
 
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::System.Threading.Tasks.Task<global::SoapAdaptersCommon.GrpcAdapters.UserResponse> PreSignOut(global::SoapAdaptersCommon.GrpcAdapters.PreSignOutRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
 
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::System.Threading.Tasks.Task<global::SoapAdaptersCommon.GrpcAdapters.UserResponse> PostSignOut(global::SoapAdaptersCommon.GrpcAdapters.PostSignOutRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
 
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::System.Threading.Tasks.Task<global::SoapAdaptersCommon.GrpcAdapters.UserResponse> PreGetUserData(global::SoapAdaptersCommon.GrpcAdapters.PreGetUserDataRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
 
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::System.Threading.Tasks.Task<global::SoapAdaptersCommon.GrpcAdapters.UserResponse> PostGetUserData(global::SoapAdaptersCommon.GrpcAdapters.PostGetUserDataRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
 
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::System.Threading.Tasks.Task<global::SoapAdaptersCommon.GrpcAdapters.InvokeResponse> Invoke(global::SoapAdaptersCommon.GrpcAdapters.InvokeRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
 
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::System.Threading.Tasks.Task<global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdResponse> AdjustRegionId(global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
@@ -166,185 +235,230 @@ namespace SoapAdaptersCommon.GrpcAdapters {
     {
       /// <summary>Creates a new client for SSOAdapterGRPC</summary>
       /// <param name="channel">The channel to use to make remote calls.</param>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public SSOAdapterGRPCClient(grpc::ChannelBase channel) : base(channel)
       {
       }
       /// <summary>Creates a new client for SSOAdapterGRPC that uses a custom <c>CallInvoker</c>.</summary>
       /// <param name="callInvoker">The callInvoker to use to make remote calls.</param>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public SSOAdapterGRPCClient(grpc::CallInvoker callInvoker) : base(callInvoker)
       {
       }
       /// <summary>Protected parameterless constructor to allow creation of test doubles.</summary>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       protected SSOAdapterGRPCClient() : base()
       {
       }
       /// <summary>Protected constructor to allow creation of configured clients.</summary>
       /// <param name="configuration">The client configuration.</param>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       protected SSOAdapterGRPCClient(ClientBaseConfiguration configuration) : base(configuration)
       {
       }
 
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationResponse SetConfiguration(global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return SetConfiguration(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationResponse SetConfiguration(global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationRequest request, grpc::CallOptions options)
       {
         return CallInvoker.BlockingUnaryCall(__Method_SetConfiguration, null, options, request);
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual grpc::AsyncUnaryCall<global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationResponse> SetConfigurationAsync(global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return SetConfigurationAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual grpc::AsyncUnaryCall<global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationResponse> SetConfigurationAsync(global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationRequest request, grpc::CallOptions options)
       {
         return CallInvoker.AsyncUnaryCall(__Method_SetConfiguration, null, options, request);
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::SoapAdaptersCommon.GrpcAdapters.GetConfigurationResponse GetConfiguration(global::SoapAdaptersCommon.GrpcAdapters.GetConfigurationRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return GetConfiguration(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::SoapAdaptersCommon.GrpcAdapters.GetConfigurationResponse GetConfiguration(global::SoapAdaptersCommon.GrpcAdapters.GetConfigurationRequest request, grpc::CallOptions options)
       {
         return CallInvoker.BlockingUnaryCall(__Method_GetConfiguration, null, options, request);
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual grpc::AsyncUnaryCall<global::SoapAdaptersCommon.GrpcAdapters.GetConfigurationResponse> GetConfigurationAsync(global::SoapAdaptersCommon.GrpcAdapters.GetConfigurationRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return GetConfigurationAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual grpc::AsyncUnaryCall<global::SoapAdaptersCommon.GrpcAdapters.GetConfigurationResponse> GetConfigurationAsync(global::SoapAdaptersCommon.GrpcAdapters.GetConfigurationRequest request, grpc::CallOptions options)
       {
         return CallInvoker.AsyncUnaryCall(__Method_GetConfiguration, null, options, request);
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::SoapAdaptersCommon.GrpcAdapters.PreSignInResponse PreSignIn(global::SoapAdaptersCommon.GrpcAdapters.PreSignInRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return PreSignIn(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::SoapAdaptersCommon.GrpcAdapters.PreSignInResponse PreSignIn(global::SoapAdaptersCommon.GrpcAdapters.PreSignInRequest request, grpc::CallOptions options)
       {
         return CallInvoker.BlockingUnaryCall(__Method_PreSignIn, null, options, request);
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual grpc::AsyncUnaryCall<global::SoapAdaptersCommon.GrpcAdapters.PreSignInResponse> PreSignInAsync(global::SoapAdaptersCommon.GrpcAdapters.PreSignInRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return PreSignInAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual grpc::AsyncUnaryCall<global::SoapAdaptersCommon.GrpcAdapters.PreSignInResponse> PreSignInAsync(global::SoapAdaptersCommon.GrpcAdapters.PreSignInRequest request, grpc::CallOptions options)
       {
         return CallInvoker.AsyncUnaryCall(__Method_PreSignIn, null, options, request);
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::SoapAdaptersCommon.GrpcAdapters.UserResponse PostSignIn(global::SoapAdaptersCommon.GrpcAdapters.PostSignInRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return PostSignIn(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::SoapAdaptersCommon.GrpcAdapters.UserResponse PostSignIn(global::SoapAdaptersCommon.GrpcAdapters.PostSignInRequest request, grpc::CallOptions options)
       {
         return CallInvoker.BlockingUnaryCall(__Method_PostSignIn, null, options, request);
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual grpc::AsyncUnaryCall<global::SoapAdaptersCommon.GrpcAdapters.UserResponse> PostSignInAsync(global::SoapAdaptersCommon.GrpcAdapters.PostSignInRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return PostSignInAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual grpc::AsyncUnaryCall<global::SoapAdaptersCommon.GrpcAdapters.UserResponse> PostSignInAsync(global::SoapAdaptersCommon.GrpcAdapters.PostSignInRequest request, grpc::CallOptions options)
       {
         return CallInvoker.AsyncUnaryCall(__Method_PostSignIn, null, options, request);
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::SoapAdaptersCommon.GrpcAdapters.UserResponse PreSignOut(global::SoapAdaptersCommon.GrpcAdapters.PreSignOutRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return PreSignOut(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::SoapAdaptersCommon.GrpcAdapters.UserResponse PreSignOut(global::SoapAdaptersCommon.GrpcAdapters.PreSignOutRequest request, grpc::CallOptions options)
       {
         return CallInvoker.BlockingUnaryCall(__Method_PreSignOut, null, options, request);
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual grpc::AsyncUnaryCall<global::SoapAdaptersCommon.GrpcAdapters.UserResponse> PreSignOutAsync(global::SoapAdaptersCommon.GrpcAdapters.PreSignOutRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return PreSignOutAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual grpc::AsyncUnaryCall<global::SoapAdaptersCommon.GrpcAdapters.UserResponse> PreSignOutAsync(global::SoapAdaptersCommon.GrpcAdapters.PreSignOutRequest request, grpc::CallOptions options)
       {
         return CallInvoker.AsyncUnaryCall(__Method_PreSignOut, null, options, request);
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::SoapAdaptersCommon.GrpcAdapters.UserResponse PostSignOut(global::SoapAdaptersCommon.GrpcAdapters.PostSignOutRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return PostSignOut(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::SoapAdaptersCommon.GrpcAdapters.UserResponse PostSignOut(global::SoapAdaptersCommon.GrpcAdapters.PostSignOutRequest request, grpc::CallOptions options)
       {
         return CallInvoker.BlockingUnaryCall(__Method_PostSignOut, null, options, request);
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual grpc::AsyncUnaryCall<global::SoapAdaptersCommon.GrpcAdapters.UserResponse> PostSignOutAsync(global::SoapAdaptersCommon.GrpcAdapters.PostSignOutRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return PostSignOutAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual grpc::AsyncUnaryCall<global::SoapAdaptersCommon.GrpcAdapters.UserResponse> PostSignOutAsync(global::SoapAdaptersCommon.GrpcAdapters.PostSignOutRequest request, grpc::CallOptions options)
       {
         return CallInvoker.AsyncUnaryCall(__Method_PostSignOut, null, options, request);
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::SoapAdaptersCommon.GrpcAdapters.UserResponse PreGetUserData(global::SoapAdaptersCommon.GrpcAdapters.PreGetUserDataRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return PreGetUserData(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::SoapAdaptersCommon.GrpcAdapters.UserResponse PreGetUserData(global::SoapAdaptersCommon.GrpcAdapters.PreGetUserDataRequest request, grpc::CallOptions options)
       {
         return CallInvoker.BlockingUnaryCall(__Method_PreGetUserData, null, options, request);
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual grpc::AsyncUnaryCall<global::SoapAdaptersCommon.GrpcAdapters.UserResponse> PreGetUserDataAsync(global::SoapAdaptersCommon.GrpcAdapters.PreGetUserDataRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return PreGetUserDataAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual grpc::AsyncUnaryCall<global::SoapAdaptersCommon.GrpcAdapters.UserResponse> PreGetUserDataAsync(global::SoapAdaptersCommon.GrpcAdapters.PreGetUserDataRequest request, grpc::CallOptions options)
       {
         return CallInvoker.AsyncUnaryCall(__Method_PreGetUserData, null, options, request);
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::SoapAdaptersCommon.GrpcAdapters.UserResponse PostGetUserData(global::SoapAdaptersCommon.GrpcAdapters.PostGetUserDataRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return PostGetUserData(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::SoapAdaptersCommon.GrpcAdapters.UserResponse PostGetUserData(global::SoapAdaptersCommon.GrpcAdapters.PostGetUserDataRequest request, grpc::CallOptions options)
       {
         return CallInvoker.BlockingUnaryCall(__Method_PostGetUserData, null, options, request);
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual grpc::AsyncUnaryCall<global::SoapAdaptersCommon.GrpcAdapters.UserResponse> PostGetUserDataAsync(global::SoapAdaptersCommon.GrpcAdapters.PostGetUserDataRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return PostGetUserDataAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual grpc::AsyncUnaryCall<global::SoapAdaptersCommon.GrpcAdapters.UserResponse> PostGetUserDataAsync(global::SoapAdaptersCommon.GrpcAdapters.PostGetUserDataRequest request, grpc::CallOptions options)
       {
         return CallInvoker.AsyncUnaryCall(__Method_PostGetUserData, null, options, request);
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::SoapAdaptersCommon.GrpcAdapters.InvokeResponse Invoke(global::SoapAdaptersCommon.GrpcAdapters.InvokeRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return Invoke(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::SoapAdaptersCommon.GrpcAdapters.InvokeResponse Invoke(global::SoapAdaptersCommon.GrpcAdapters.InvokeRequest request, grpc::CallOptions options)
       {
         return CallInvoker.BlockingUnaryCall(__Method_Invoke, null, options, request);
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual grpc::AsyncUnaryCall<global::SoapAdaptersCommon.GrpcAdapters.InvokeResponse> InvokeAsync(global::SoapAdaptersCommon.GrpcAdapters.InvokeRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return InvokeAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual grpc::AsyncUnaryCall<global::SoapAdaptersCommon.GrpcAdapters.InvokeResponse> InvokeAsync(global::SoapAdaptersCommon.GrpcAdapters.InvokeRequest request, grpc::CallOptions options)
       {
         return CallInvoker.AsyncUnaryCall(__Method_Invoke, null, options, request);
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdResponse AdjustRegionId(global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return AdjustRegionId(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdResponse AdjustRegionId(global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdRequest request, grpc::CallOptions options)
       {
         return CallInvoker.BlockingUnaryCall(__Method_AdjustRegionId, null, options, request);
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual grpc::AsyncUnaryCall<global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdResponse> AdjustRegionIdAsync(global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return AdjustRegionIdAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual grpc::AsyncUnaryCall<global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdResponse> AdjustRegionIdAsync(global::SoapAdaptersCommon.GrpcAdapters.AdjustRegionIdRequest request, grpc::CallOptions options)
       {
         return CallInvoker.AsyncUnaryCall(__Method_AdjustRegionId, null, options, request);
       }
       /// <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       protected override SSOAdapterGRPCClient NewInstance(ClientBaseConfiguration configuration)
       {
         return new SSOAdapterGRPCClient(configuration);
@@ -353,6 +467,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
 
     /// <summary>Creates service definition that can be registered with a server</summary>
     /// <param name="serviceImpl">An object implementing the server-side handling logic.</param>
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     public static grpc::ServerServiceDefinition BindService(SSOAdapterGRPCBase serviceImpl)
     {
       return grpc::ServerServiceDefinition.CreateBuilder()
@@ -372,6 +487,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
     /// Note: this method is part of an experimental API that can change or be removed without any prior notice.</summary>
     /// <param name="serviceBinder">Service methods will be bound by calling <c>AddMethod</c> on this object.</param>
     /// <param name="serviceImpl">An object implementing the server-side handling logic.</param>
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     public static void BindService(grpc::ServiceBinderBase serviceBinder, SSOAdapterGRPCBase serviceImpl)
     {
       serviceBinder.AddMethod(__Method_SetConfiguration, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationRequest, global::SoapAdaptersCommon.GrpcAdapters.SetConfigurationResponse>(serviceImpl.SetConfiguration));

@@ -390,8 +390,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.DefaultQuota, opt => opt.MapFrom(src => src.DefaultQuota))
                 .ForMember(dest => dest.QuotaOveragePolicy, opt => opt.ResolveUsing(src => ConvertQuotaOveragePolicy(src.QuotaOveragePolicy)))
                 .ForMember(dest => dest.ProtectionPolicy, opt => opt.ResolveUsing(src => ConvertProtectionPolicy(src.ProtectionPolicy)))
-                .ForMember(dest => dest.RecoveryGracePeriod, opt => opt.MapFrom(src => src.RecoveryGracePeriod / (24 * 60 * 60)))
-                .ForMember(dest => dest.PrivateCopyEnabled, opt => opt.MapFrom(src => src.IsPrivateCopyEnabled));// convert to days 
+                .ForMember(dest => dest.RecoveryGracePeriod, opt => opt.MapFrom(src => src.RecoveryGracePeriod / (24 * 60 * 60)))// convert to days 
+                .ForMember(dest => dest.PrivateCopyEnabled, opt => opt.MapFrom(src => src.IsPrivateCopyEnabled))
+                .ForMember(dest => dest.PersonalizedRecording, opt => opt.MapFrom(src => src.PersonalizedRecordingEnable))
+                .ForMember(dest => dest.MaxRecordingConcurrency, opt => opt.MapFrom(src => src.MaxRecordingConcurrency))
+                .ForMember(dest => dest.MaxConcurrencyMargin, opt => opt.MapFrom(src => src.MaxConcurrencyMargin))
+                ;
 
             //KalturaTimeShiftedTvPartnerSettings to TimeShiftedTvPartnerSettings
             cfg.CreateMap<WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings, TimeShiftedTvPartnerSettings>()
@@ -416,8 +420,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsRecordingPlaybackNonExistingChannelEnabled, opt => opt.MapFrom(src => src.NonExistingChannelPlaybackEnabled))
                 .ForMember(dest => dest.QuotaOveragePolicy, opt => opt.ResolveUsing(src => ConvertQuotaOveragePolicy(src.QuotaOveragePolicy)))
                 .ForMember(dest => dest.ProtectionPolicy, opt => opt.ResolveUsing(src => ConvertProtectionPolicy(src.ProtectionPolicy)))
-                .ForMember(dest => dest.RecoveryGracePeriod, opt => opt.MapFrom(src => src.RecoveryGracePeriod * 24 * 60 * 60))
-                .ForMember(dest => dest.IsPrivateCopyEnabled, opt => opt.MapFrom(src => src.PrivateCopyEnabled)); ;// convert days to seconds
+                .ForMember(dest => dest.RecoveryGracePeriod, opt => opt.MapFrom(src => src.RecoveryGracePeriod * 24 * 60 * 60))// convert days to seconds
+                .ForMember(dest => dest.IsPrivateCopyEnabled, opt => opt.MapFrom(src => src.PrivateCopyEnabled))
+                .ForMember(dest => dest.PersonalizedRecordingEnable, opt => opt.MapFrom(src => src.PersonalizedRecording))
+                .ForMember(dest => dest.MaxRecordingConcurrency, opt => opt.MapFrom(src => src.MaxRecordingConcurrency))
+                .ForMember(dest => dest.MaxConcurrencyMargin, opt => opt.MapFrom(src => src.MaxConcurrencyMargin))
+                ;
 
             #endregion
 

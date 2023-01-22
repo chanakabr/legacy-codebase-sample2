@@ -54,14 +54,20 @@ namespace ElasticSearch.Utils
             var sortDescriptor = new SortDescriptor<NestBaseAsset>();
             foreach (var orderByField in orderingsToInclude)
             {
-                if (orderByField.Field.OrderByDirection == OrderDir.ASC)
+                sortDescriptor = sortDescriptor.Field(x =>
                 {
-                    sortDescriptor.Ascending(orderByField.EsV7Field);
-                }
-                else
-                {
-                    sortDescriptor.Descending(orderByField.EsV7Field);
-                }
+                    var order = orderByField.Field.OrderByDirection == OrderDir.ASC
+                        ? SortOrder.Ascending
+                        : SortOrder.Descending;
+                    x = x.Field(orderByField.EsV7Field).Order(order);
+                    if (orderByField.Field is EsOrderByMetaField esOrderByMetaField &&
+                        esOrderByMetaField.IsMissingFirst)
+                    {
+                        x = x.MissingFirst();
+                    }
+
+                    return x;
+                });
             }
 
             return sortDescriptor;
@@ -126,15 +132,22 @@ namespace ElasticSearch.Utils
 
         private static JObject GenerateSortObject(EsOrderByFieldAdapter orderByField)
         {
-            return !string.IsNullOrEmpty(orderByField.EsField)
-                ? new JObject
-                {
-                    [orderByField.EsField] = new JObject
-                    {
-                        ["order"] = JToken.FromObject(orderByField.Field.OrderByDirection.ToString().ToLower())
-                    }
-                }
-                : null;
+            if (string.IsNullOrEmpty(orderByField.EsField))
+            {
+                return null;
+            }
+
+            var esFieldObject = new JObject
+            {
+                ["order"] = JToken.FromObject(orderByField.Field.OrderByDirection.ToString().ToLower())
+            };
+
+            if (orderByField.Field is EsOrderByMetaField orderByMetaField && orderByMetaField.IsMissingFirst)
+            {
+                esFieldObject["missing"] = JToken.FromObject("_first");
+            }
+
+            return new JObject { [orderByField.EsField] = esFieldObject };
         }
     }
 }

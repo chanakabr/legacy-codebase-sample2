@@ -8904,7 +8904,9 @@ namespace Core.Api
                                          && settings.RecordingScheduleWindow == null && settings.PaddingBeforeProgramStarts == null && settings.PaddingAfterProgramEnds == null
                                          && settings.ProtectionPeriod == null && settings.ProtectionQuotaPercentage == null && settings.IsSeriesRecordingEnabled == null
                                          && settings.IsRecordingPlaybackNonEntitledChannelEnabled == null && settings.IsRecordingPlaybackNonExistingChannelEnabled == null
-                                         && !settings.QuotaOveragePolicy.HasValue && !settings.ProtectionPolicy.HasValue && !settings.RecoveryGracePeriod.HasValue && !settings.DefaultQuota.HasValue))
+                                         && !settings.QuotaOveragePolicy.HasValue && !settings.ProtectionPolicy.HasValue && !settings.RecoveryGracePeriod.HasValue && !settings.DefaultQuota.HasValue
+                                         && !settings.PersonalizedRecordingEnable.HasValue && !settings.MaxRecordingConcurrency.HasValue
+                                         && !settings.MaxConcurrencyMargin.HasValue))
                 {
                     response.Code = (int)ApiObjects.Response.eResponseStatus.TimeShiftedTvPartnerSettingsNotSent;
                     response.Message = ApiObjects.Response.eResponseStatus.TimeShiftedTvPartnerSettingsNotSent.ToString();
@@ -9645,9 +9647,12 @@ namespace Core.Api
             return unifiedSearchResult;
         }
 
-        public static UnifiedSearchResponse SearchAssetsExtended(int groupID, string filter, int pageIndex, int pageSize, bool OnlyIsActive, int languageID, bool UseStartDate,
-        string Udid, string UserIP, string SiteGuid, int DomainId, int ExectGroupId, bool IgnoreDeviceRule, bool isAllowedToViewInactiveAssets = false,
-        List<string> extraReturnFields = null, OrderObj order = null)
+        public static UnifiedSearchResponse SearchAssetsExtended(int groupID, string filter, int pageIndex,
+            int pageSize, bool OnlyIsActive, int languageID, bool UseStartDate,
+            string Udid, string UserIP, string SiteGuid, int DomainId, int ExectGroupId, bool IgnoreDeviceRule,
+            bool isAllowedToViewInactiveAssets = false,
+            List<string> extraReturnFields = null, OrderObj order = null,
+            IReadOnlyCollection<AssetOrder> orderingParameters = null)
         {
             UnifiedSearchResponse unifiedSearchResponse = new UnifiedSearchResponse();
 
@@ -9688,6 +9693,7 @@ namespace Core.Api
                         exactGroupId = ExectGroupId,
                         shouldIgnoreDeviceRuleID = IgnoreDeviceRule,
                         order = order,
+                        orderingParameters = orderingParameters,
                         m_sSiteGuid = SiteGuid,
                         domainId = DomainId,
                         isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,

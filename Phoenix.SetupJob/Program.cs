@@ -2,10 +2,10 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using OTT.Service.Kronos;
 using Phoenix.Generated.Tasks.Recurring.EpgV3Cleanup;
 using Phoenix.Generated.Tasks.Recurring.LiveToVodTearDown;
+using Phoenix.Generated.Tasks.Recurring.ScheduleRecordingEvictions;
 using Phoenix.SetupJob.Configuration;
 using Phx.Lib.Log;
 
@@ -59,7 +59,15 @@ namespace Phoenix.SetupJob
                             CronExpression = "@every 4h",
                             TimeoutSecs=600
                         }
-                    }
+                    },
+                    { 
+                        ScheduleRecordingEvictions.ScheduleRecordingEvictionsQualifiedName,
+                        new RegisterServiceRecurrenceTaskItem
+                        {
+                            CronExpression = "@every 1h",
+                            TimeoutSecs = 200
+                        }
+                    },
                 }
             };
             

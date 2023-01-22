@@ -630,6 +630,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.RecordingId, opt => opt.MapFrom(src => src.RecordingId))
                 .ForMember(dest => dest.ViewableUntilDate, opt => opt.MapFrom(src => src.ViewableUntilDate))
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.EpgIdentifier))
+                .ForMember(dest => dest.MultiRecord, opt => opt.MapFrom(src => src.IsMulti))
                 ;
 
             // Asset to KalturaAsset

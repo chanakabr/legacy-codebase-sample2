@@ -37,6 +37,14 @@ namespace WebAPI.Models.API
         public bool? IsActive { get; set; }
 
         /// <summary>
+        /// Playback profile Grpc address
+        /// </summary>
+        [DataMember(Name = "adapterGrpcAddress")]
+        [JsonProperty("adapterGrpcAddress")]
+        [XmlElement(ElementName = "adapterGrpcAddress")]
+        public string AdapterGrpcAddress { get; set; }
+        
+        /// <summary>
         /// Playback profile URL
         /// </summary>
         [DataMember(Name = "adapterUrl")]

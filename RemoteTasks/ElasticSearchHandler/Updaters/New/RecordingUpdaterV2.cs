@@ -51,10 +51,25 @@ namespace ElasticSearchHandler.Updaters
                 return result;
             }
 
-            var recordingIds = this.IDs;
+            var recordingIds = this.IDs.Select(i => (long)i).ToList();
 
             // Get information about relevant recordings
-            epgToRecordingMapping = DAL.RecordingsDAL.GetEpgToRecordingsMap(this.groupId, recordingIds.Select(i => (long)i).ToList());            
+            var tstvs = Core.ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
+            if (tstvs.PersonalizedRecordingEnable == true)
+            {
+                var programs = Core.Recordings.PaddedRecordingsManager.Instance.GetProgramsByProgramIds(this.groupId, recordingIds);
+
+                //DAL.Recordings.RecordingsRepository.Instance.GetProgramsByEpgIds(this.groupId, recordingIds);
+
+                foreach (var program in programs)
+                {
+                    epgToRecordingMapping.Add(program.EpgId, program.Id);
+                }
+            }
+            else
+            {
+                epgToRecordingMapping = DAL.RecordingsDAL.GetEpgToRecordingsMap(this.groupId, recordingIds);
+            }
 
             // Map EPGs to original recordings,
             // Get all program IDs

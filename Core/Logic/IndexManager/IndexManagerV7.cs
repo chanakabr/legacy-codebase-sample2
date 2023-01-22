@@ -1627,6 +1627,7 @@ namespace Core.Catalog
                             result.AssetId = definitions.recordingIdToSearchableRecordingMapping[assetId].DomainRecordingId.ToString();
                             (result as RecordingSearchResult).EpgId = definitions.recordingIdToSearchableRecordingMapping[assetId].EpgId.ToString();
                             (result as RecordingSearchResult).RecordingType = definitions.recordingIdToSearchableRecordingMapping[assetId].RecordingType;
+                            (result as RecordingSearchResult).IsMulti = definitions.recordingIdToSearchableRecordingMapping[assetId].IsMulti;
                         }
 
                         // TODO: check this

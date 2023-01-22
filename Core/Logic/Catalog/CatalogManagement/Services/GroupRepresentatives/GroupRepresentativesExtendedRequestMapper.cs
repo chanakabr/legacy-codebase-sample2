@@ -59,8 +59,8 @@ namespace ApiLogic.Catalog.CatalogManagement.Services.GroupRepresentatives
                 ? new List<string> { extraReturnField }
                 : null;
             extendedSearchRequest.filterQuery = string.IsNullOrEmpty(request.Filter)
-                ? KsqlBuilder.EntitledAssetsOnly
-                : KsqlBuilder.And(KsqlBuilder.EntitledAssetsOnly, request.Filter);
+                ? KsqlBuilderOld.EntitledAssetsOnly
+                : KsqlBuilderOld.And(KsqlBuilderOld.EntitledAssetsOnly, request.Filter);
 
             return extendedSearchRequest;
         }

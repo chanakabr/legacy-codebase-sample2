@@ -22,7 +22,7 @@ namespace ApiLogic.Api.Managers.Rule
         {
             return rules.Count == 0
                 ? string.Empty
-                : KsqlBuilder.And(rules.Select(r => r.Ksql));
+                : KsqlBuilderOld.And(rules.Select(r => r.Ksql));
         }
     }
 }

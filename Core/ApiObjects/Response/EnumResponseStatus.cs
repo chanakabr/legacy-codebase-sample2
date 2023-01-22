@@ -200,7 +200,12 @@ namespace ApiObjects.Response
         RecordingIdsExceededLimit = 3086,
         ProgramStartOverNotEnabled = 3087,
         UnableToPurchaseProgramAssetGroupOfferPurchased = 3088,
-
+        CanOnlyUpdatePaddingAfterRecordingBeforeRecordingEnd = 3089,
+        CanOnlyUpdatePaddingBeforeRecordingBeforeRecordingStart = 3090,
+        CanOnlyAddRecordingBeforeRecordingStart = 3091,
+        CanOnlyCancelRecordingBeforeRecordingEnd = 3092,
+        CanOnlyDeleteRecordingAfterRecordingEnd = 3093,
+        
         #endregion
 
         #region Catalog 4000 - 4999

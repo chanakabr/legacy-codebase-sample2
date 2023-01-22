@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using CouchbaseManager.Exceptions;
 using Phx.Lib.Appconfig;
 using CouchbaseManager.Models;
+using Polly;
 
 namespace CouchbaseManager
 {
@@ -2483,8 +2484,9 @@ namespace CouchbaseManager
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="definitions"></param>
+        /// <param name="shouldRethrowEx"></param>
         /// <returns></returns>
-        public List<ViewRow<T>> ViewRows<T>(ViewManager definitions)
+        public List<ViewRow<T>> ViewRows<T>(ViewManager definitions, bool shouldRethrowEx = false)
         {
             List<ViewRow<T>> result = new List<ViewRow<T>>();
             long totalNumOfRes = 0;
@@ -2511,10 +2513,38 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchbaseManager - " + string.Format("Failed Getting view. error = {0}, ST = {1}", ex.Message, ex.StackTrace), ex);
+                log.ErrorFormat("CouchbaseManager - " + $"Failed Getting view. error = {ex.Message}, ST = {ex.StackTrace}", ex);
+                if (shouldRethrowEx)
+                {
+                    throw;
+                }
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Get the entire view row from view. We emulate a similar class to avoid breaking changes.
+        /// If the result couldn't be retrieved, exception will be thrown.
+        /// </summary>
+        /// <param name="definitions"></param>
+        /// <param name="attempts"></param>
+        /// <param name="interval"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public List<ViewRow<T>> ViewRows<T>(ViewManager definitions, int attempts, TimeSpan interval)
+        {
+            var retryPolicy = Policy.Handle<Exception>().WaitAndRetry(attempts, i => interval);
+            var policyResult = retryPolicy.ExecuteAndCapture(() => this.ViewRows<T>(definitions, true));
+            if (policyResult.Outcome == OutcomeType.Failure)
+            {
+                log.ErrorFormat(
+                    "CouchbaseManager - " + $"Failed Getting view. error = {policyResult.FinalException.Message}, ST = {policyResult.FinalException.StackTrace}",
+                    policyResult.FinalException);
+                throw policyResult.FinalException;
+            }
+
+            return policyResult.Result;
         }
 
         /// <summary>

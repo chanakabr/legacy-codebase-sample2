@@ -16,6 +16,8 @@ namespace ApiObjects.TimeShiftedTv
 
         public RecordingType? RecordingType { get; set; }
 
+        public bool IsMulti { get; set; }
+
         public SearchableRecording() { }
 
         public SearchableRecording(long domainRecordingId, long recordingId, long epgId, RecordingType recordingType)

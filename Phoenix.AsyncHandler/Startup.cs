@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using ApiLogic.Api.Managers;
 using ApiLogic.Catalog.CatalogManagement.Managers;
 using ApiLogic.Catalog.CatalogManagement.Repositories;
@@ -16,6 +15,7 @@ using Core.Catalog.CatalogManagement;
 using Core.GroupManagers;
 using Core.Pricing;
 using Core.Users.Cache;
+using CouchbaseManager;
 using DAL;
 using DAL.MongoDB;
 using ElasticSearch.Utilities;
@@ -31,16 +31,23 @@ using OTT.Lib.Kafka;
 using OTT.Service.TaskScheduler.Extensions.TaskHandler;
 using Phoenix.AsyncHandler.Catalog;
 using Phoenix.AsyncHandler.ConditionalAccess;
+using Phoenix.AsyncHandler.Couchbase;
 using Phoenix.AsyncHandler.Kafka;
 using Phoenix.AsyncHandler.Kronos;
 using Phoenix.AsyncHandler.Pricing;
+using Phoenix.AsyncHandler.Recording;
 using Phoenix.Generated.Api.Events.Crud.Household;
 using Phoenix.Generated.Api.Events.Crud.ProgramAsset;
 using Phoenix.Generated.Api.Events.Logical.appstoreNotification;
 using Phoenix.Generated.Tasks.Recurring.EpgV3Cleanup;
 using Phoenix.Generated.Tasks.Recurring.LiveToVodTearDown;
+using Phoenix.Generated.Tasks.Recurring.ScheduleRecordingEvictions;
+using Phoenix.Generated.Tasks.Scheduled.EvictRecording;
 using Phoenix.Generated.Tasks.Scheduled.renewSubscription;
+using Phoenix.Generated.Tasks.Scheduled.RetryRecording;
+using Phoenix.Generated.Tasks.Scheduled.VerifyRecordingFinalStatus;
 using Phx.Lib.Appconfig;
+using Phx.Lib.Couchbase.IoC;
 using Phx.Lib.Log;
 using Module = Core.Pricing.Module;
 
@@ -80,9 +87,13 @@ namespace Phoenix.AsyncHandler
 
             services.AddKronosHandlers(kafkaConfig[KafkaConfigKeys.BootstrapServers],
                 p => p
+                    .AddHandler<ScheduleRecordingEvictionsHandler>(ScheduleRecordingEvictions.ScheduleRecordingEvictionsQualifiedName)
                     .AddHandler<RenewHandler>(RenewSubscription.RenewSubscriptionQualifiedName)
                     .AddHandler<LiveToVodTearDownHandler>(LiveToVodTearDown.LiveToVodTearDownQualifiedName)
                     .AddHandler<EpgV3CleanupHandler>(EpgV3Cleanup.EpgV3CleanupQualifiedName)
+                    .AddHandler<VerifyRecordingFinalStatusHandler>(VerifyRecordingFinalStatus.VerifyRecordingFinalStatusQualifiedName)
+                    .AddHandler<RetryRecordingHandler>(RetryRecording.RetryRecordingQualifiedName)
+                    .AddHandler<EvictRecordingHandler>(EvictRecording.EvictRecordingQualifiedName)
                 );
 
             services.AddKafkaProducerFactory(kafkaConfig);
@@ -132,6 +143,7 @@ namespace Phoenix.AsyncHandler
                 .AddScoped<IEpgPartnerConfigurationManager>(serviceProvider => EpgPartnerConfigurationManager.Instance)
                 .AddScoped<IGroupManager, GroupManager>()
                 .AddSingleton<ICatalogCache, CatalogCache>()
+                //.AddSingleton<ICouchbaseWorker, CouchbaseWorker>()
                 // live to vod
                 .AddScoped<IConnectionStringHelper, TcmConnectionStringHelper>()
                 .AddScoped<IClientFactoryBuilder, ClientFactoryBuilder>()
@@ -147,6 +159,13 @@ namespace Phoenix.AsyncHandler
             services.AddKafkaHandler<HouseholdNpvrAccountHandler, Household>("household-npvr-account", Household.GetTopic());
             services.AddKafkaHandler<EntitlementLogicalHandler, AppstoreNotification>("appstore-notification", AppstoreNotification.GetTopic());
             services.AddKafkaHandler<LiveToVodAssetHandler, ProgramAsset>("live-to-vod-asset", ProgramAsset.GetTopic());
+            return services;
+        }
+        
+        public static IServiceCollection AddCouchbase(this IServiceCollection services)
+        {
+            services.AddCouchbase();
+            services.AddCouchbaseClient<IScheduledTasks>(eCouchbaseBucket.SCHEDULED_TASKS.ToString());
             return services;
         }
 

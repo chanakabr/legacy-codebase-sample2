@@ -22,6 +22,7 @@ service Phoenix {
   rpc GetMediaConcurrencyRulesByDomainLimitationModule (GetMediaConcurrencyRulesByDomainLimitationModuleRequest) returns (GetMediaConcurrencyRulesByDomainLimitationModuleResponse);
   rpc IsDevicePlayValid (IsDevicePlayValidRequest) returns (google.protobuf.Int32Value);
   rpc IsValidDeviceFamily (IsValidDeviceFamilyRequest) returns (google.protobuf.BoolValue);
+  rpc GetUserData (GetUserDataRequest) returns (GetUserDataResponse);
 
   //group configuration
   rpc GetGroupSecretAndCountryCode (GetGroupSecretAndCountryCodeRequest) returns (GetGroupSecretAndCountryCodeResponse);
