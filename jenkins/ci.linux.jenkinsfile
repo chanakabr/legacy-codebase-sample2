@@ -105,7 +105,7 @@ stage('Unified-CI'){
                                 }
                                 stage('Checkout'){
                                     git branch: "${BRANCH_NAME}", credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend'
-                                    committerEmail = sh (returnStdout: true, script: 'git --no-pager show -s --format=\'%ae\'').trim()
+                                    // committerEmail = sh (returnStdout: true, script: 'git --no-pager show -s --format=\'%ae\'').trim()
 
                                 }
                                 stage("Version Patch"){
@@ -195,7 +195,7 @@ stage('Unified-CI'){
             failFast: true)
         stage('Trigger Wrapper'){
             git branch: "${BRANCH_NAME}", credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend'
-            COMMITER = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
+            // COMMITER = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
             triggerWrapper()
         }
     }
@@ -299,8 +299,8 @@ def buildMsProject(projectFilePath, outputPath, component){
 
 //unified-report
 def report(){
-    def committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
-    echo "${committerEmail}"
+    // def committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
+    // echo "${committerEmail}"
     def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "git rev-parse HEAD", returnStdout: true).trim()
     echo "${GIT_COMMIT}"
     node('Linux'){
