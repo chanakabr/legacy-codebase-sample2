@@ -2,7 +2,6 @@
 using ApiObjects.Pricing;
 using CouchbaseManager;
 using DAL.MongoDB;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using OTT.Lib.MongoDB;
@@ -45,8 +44,8 @@ namespace DAL
 
         public static ICampaignUsageRepository Instance => Lazy.Value;
 
-        private const string CampaignHouseholdUsagesCollectionName = "campaign_household_useges";
-        private const string DBName = "campaign_useges";
+        private const string CampaignHouseholdUsagesCollectionName = "campaign_household_usages";
+        private const string DBName = "campaign_usages";
         public static readonly Dictionary<string, MongoDbConfiguration.CollectionProperties> CampaignHouseholdUsagesCollectionProperties
             = new Dictionary<string, MongoDbConfiguration.CollectionProperties>
             {
@@ -57,16 +56,9 @@ namespace DAL
                         DisableAutoTimestamps = false,
                         IndexBuilder = (builder) =>
                         {
-                            builder.CreateIndex(o => o.Ascending(f => f.HouseholdId), new MongoDbCreateIndexOptions<CampaignHouseholdUsages>
+                            builder.CreateIndex(o => o.Ascending(f => f.HouseholdId).Ascending(f=> f.CampaignId), new MongoDbCreateIndexOptions<CampaignHouseholdUsages>
                             {
-                                Unique = true,
-                                PartialFilterExpression = b => b.Exists(a => a.HouseholdId) & b.Type(a => a.HouseholdId, "long") & b.Gt<object>(a => a.HouseholdId, 0)
-                            });
-
-                            builder.CreateIndex(o => o.Ascending(f => f.CampaignId), new MongoDbCreateIndexOptions<CampaignHouseholdUsages>
-                            {
-                                Unique = true,
-                                PartialFilterExpression = b => b.Exists(a => a.CampaignId) & b.Type(a => a.CampaignId, "long") & b.Gt<object>(a => a.CampaignId, 0)
+                                Unique = true
                             });
 
                             builder.CreateIndex(o => o.Ascending(f => f.Expiration), new MongoDbCreateIndexOptions<CampaignHouseholdUsages>()
@@ -132,22 +124,6 @@ namespace DAL
                     }
                 }, true))
                 .ConfigureAwait(false);
-
-            // var isSaveSuccess = UtilsDal.SaveObjectWithVersionCheckInCB<CampaignInboxMessageMap>(0, eCouchbaseBucket.NOTIFICATION, key, mapping =>
-            // {
-            //     foreach (var id in archiveCampaigns)
-            //     {
-            //         mapping.Campaigns.Remove(id);
-            //     }
-            //     
-            //     var idsToDelete = mapping.Campaigns.Where(x => x.Value.ExpiredAt < utcNow).Select(x => x.Key);
-            //     foreach (var id in idsToDelete)
-            //     {
-            //         mapping.Campaigns.Remove(id);
-            //     }
-            // }, true);
-            //
-            // return isSaveSuccess;
         }
 
         public CampaignInboxMessageMap GetCampaignInboxMessageMapCB(int partnerId, long userId)
@@ -193,40 +169,55 @@ namespace DAL
         // campaign Household Usages
         public int? GetCampaignHouseholdUsages(int partnerId, long householdId, long campaignId)
         {
-            var client = _clientFactory.NewMongoDbClient(partnerId, _logger);
-            var campaignHouseholdUsages = client.Find<CampaignHouseholdUsages>(CampaignHouseholdUsagesCollectionName, f =>
-                f.Where(i => i.HouseholdId.Equals(householdId) && i.CampaignId.Equals(campaignId)))
-                .FirstOrDefault();
-            return campaignHouseholdUsages?.UsageCount;
+            try
+            {
+                var client = _clientFactory.NewMongoDbClient(partnerId, _logger);
+                var campaignHouseholdUsages = client.Find<CampaignHouseholdUsages>(CampaignHouseholdUsagesCollectionName, f =>
+                    f.Where(i => i.HouseholdId.Equals(householdId) && i.CampaignId.Equals(campaignId)))
+                    .FirstOrDefault();
+                return campaignHouseholdUsages?.UsageCount;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Error while calling GetCampaignHouseholdUsages for partnerId:[{partnerId}], householdId:[{householdId}], campaignId:[{campaignId}] - Exception:[{ex}]");
+                return null;
+            }
         }
 
         public bool SetCampaignHouseholdUsage(int partnerId, long householdId, long campaignId, DateTime campaignExpiration)
         {
-            var client = _clientFactory.NewMongoDbClient(partnerId, _logger);
-            
-            var data = new CampaignHouseholdUsages()
+            try
             {
-                CampaignId = campaignId,
-                HouseholdId = householdId,
-                UsageCount = 1,
-                UpdateDate = DateTime.UtcNow,
-                Expiration = campaignExpiration//Set as ttl,
-            };
+                var client = _clientFactory.NewMongoDbClient(partnerId, _logger);
+                var data = new CampaignHouseholdUsages()
+                {
+                    CampaignId = campaignId,
+                    HouseholdId = householdId,
+                    UsageCount = 1,
+                    UpdateDate = DateTime.UtcNow,
+                    Expiration = campaignExpiration//Set as ttl,
+                };
 
-            var result = client.UpdateOne<CampaignHouseholdUsages>(
-                CampaignHouseholdUsagesCollectionName,
-                h => h.Eq(o => o.HouseholdId, householdId) & h.Eq(o => o.CampaignId, campaignId),
-                u => GetUpdateDefinition(data, u),
-                new MongoDbUpdateOptions { IsUpsert = true });
+                var result = client.UpdateOne<CampaignHouseholdUsages>(
+                    CampaignHouseholdUsagesCollectionName,
+                    h => h.Eq(o => o.HouseholdId, householdId) & h.Eq(o => o.CampaignId, campaignId),
+                    u => GetUpdateDefinition(data, u),
+                    new MongoDbUpdateOptions { IsUpsert = true });
 
-            if (result.MatchedCount > 1)
-            {
-                _logger.LogError($"There have been found {result.MatchedCount} {nameof(CampaignHouseholdUsages)}'s documents in the database: {nameof(partnerId)}={partnerId}.");
+                if (result.MatchedCount > 1)
+                {
+                    _logger.LogError($"There have been found {result.MatchedCount} {nameof(CampaignHouseholdUsages)}'s documents in the database: {nameof(partnerId)}={partnerId}.");
+                }
+
+                var isInserted = !string.IsNullOrEmpty(result.UpsertedId);
+                var isUpdated = result.ModifiedCount == 1;
+                return isInserted || isUpdated;
             }
-
-            var isInserted = !string.IsNullOrEmpty(result.UpsertedId);
-            var isUpdated = result.ModifiedCount == 1;
-            return isInserted || isUpdated;
+            catch (Exception ex)
+            {
+                _logger.Error($"Error while calling SetCampaignHouseholdUsage for partnerId:[{partnerId}], householdId:[{householdId}], campaignId:[{campaignId}] - Exception:[{ex}]");
+                return false;
+            }
         }
 
         private static UpdateDefinition<CampaignHouseholdUsages> GetUpdateDefinition(CampaignHouseholdUsages data, UpdateDefinitionBuilder<CampaignHouseholdUsages> updateBuilder)
