@@ -955,8 +955,6 @@ namespace Reflector
 
         private void WriteMapJsonDataMember(string tab, string dataMemberName, string propertyName)
         {
-            WriteAddCommaIfRequired(tab);
-            file.WriteLine($"{tab}stringBuilder.Append(\"\\\"{dataMemberName}\\\":\");");
             if (propertyName == "Metas" || propertyName == "Tags")
             {
                 // filter metas / tags from profile 
@@ -966,6 +964,8 @@ namespace Reflector
                 file.WriteLine($"{tab}    var filteredValues = {propertyName}.Where(pair => valuesToFilter.Contains(pair.Key));");
                 file.WriteLine($"{tab}    if (valuesToFilter.Any())");
                 file.WriteLine($"{tab}    {{");
+                WriteAddCommaIfRequired($"{tab}        ");
+                file.WriteLine($"{tab}        stringBuilder.Append(\"\\\"{dataMemberName}\\\":\");");
                 file.WriteLine($"{tab}        stringBuilder.Append(\"{{\");");
                 WriteMapAsJson($"{tab}        ", "filteredValues");
                 file.WriteLine($"{tab}        stringBuilder.Append(\"}}\");");
@@ -973,8 +973,10 @@ namespace Reflector
                 file.WriteLine($"{tab}}}");
                 file.WriteLine($"{tab}else");
                 file.WriteLine($"{tab}{{");
+                WriteAddCommaIfRequired($"{tab}    ");
+                file.WriteLine($"{tab}    stringBuilder.Append(\"\\\"{dataMemberName}\\\":\");");
                 file.WriteLine($"{tab}    stringBuilder.Append(\"{{\");");
-                WriteMapAsJson($"{tab}        ", propertyName);
+                WriteMapAsJson($"{tab}    ", propertyName);
                 file.WriteLine($"{tab}    stringBuilder.Append(\"}}\");");
                 file.WriteLine($"{tab}}}");
             }
