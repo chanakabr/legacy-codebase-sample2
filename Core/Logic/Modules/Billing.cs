@@ -250,9 +250,12 @@ namespace Core.Billing
         
         public static BillingResponse CC_DummyChargeUser(int nGroupID, string sSiteGUID, double dChargePrice, string sCurrencyCode, string sUserIP, string sCustomData, Int32 nPaymentNumber, Int32 nNumberOfPayments, string sExtraParameters)
         {
-            // add siteguid to logs/monitor
-            HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
-
+            if (HttpContext.Current != null)
+            {
+                // add siteguid to logs/monitor
+                HttpContext.Current.Items[Phx.Lib.Log.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            }
+            
             BaseCreditCard t = null;
             Utils.GetDummyCreditCardImpl(ref t, nGroupID);
             

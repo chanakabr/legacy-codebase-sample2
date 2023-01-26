@@ -49,6 +49,7 @@ using Phoenix.Generated.Tasks.Scheduled.VerifyRecordingFinalStatus;
 using Phx.Lib.Appconfig;
 using Phx.Lib.Couchbase.IoC;
 using Phx.Lib.Log;
+using WebAPI.Filters;
 using Module = Core.Pricing.Module;
 
 namespace Phoenix.AsyncHandler
@@ -59,7 +60,6 @@ namespace Phoenix.AsyncHandler
         {
             KLogger.InitLogger("log4net.config", KLogEnums.AppType.WindowsService, @"/var/log/ott-service-phoenix-async-handler/");
             ApplicationConfiguration.Init();
-
             builder
                 .ConfigureLogging((context, logging) =>
                 {
@@ -74,7 +74,8 @@ namespace Phoenix.AsyncHandler
                         .AddDependencies()
                         .AddKafkaHandlersFromAssembly()
                         .AddMetricsAndHealthHttpServer();
-                });
+                })
+                .ConfigureEventNotificationsConfig();
 
             return builder;
         }

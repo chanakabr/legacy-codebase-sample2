@@ -69,7 +69,7 @@ namespace Core.ConditionalAccess
             userValidStatus = Utils.ValidateUser(groupId, siteguid, ref domainId, true);
 
             var renewDetailsResponse = GetRenewDetails(cas, logString, userValidStatus, domainId, siteguid, purchaseId, groupId, billingGuid, nextEndDate,
-                                                        ref shouldUpdateTaskStatus, out Subscription subscription, userIp);
+                                                        ref shouldUpdateTaskStatus, out Subscription subscription, userIp, isKronos);
             if (renewDetailsResponse.Object == null)
             {
                 if (renewDetailsResponse.Status.Code == (int)eResponseStatus.OK) { return true; }
@@ -2212,7 +2212,7 @@ namespace Core.ConditionalAccess
 
         private static GenericResponse<RenewDetails> GetRenewDetails(BaseConditionalAccess cas, string logString, ResponseStatus userValidStatus, 
             long domainId, string userId, long purchaseId, int groupId, string billingGuid, long nextEndDate,
-            ref bool shouldUpdateTaskStatus, out Subscription subscription, string userIp)
+            ref bool shouldUpdateTaskStatus, out Subscription subscription, string userIp, bool isKronos = false)
         {
             subscription = null;
             var response = new GenericResponse<RenewDetails>();
@@ -2332,7 +2332,7 @@ namespace Core.ConditionalAccess
                             return response;
                         }
 
-                        if (HandleDummySubsciptionRenewal(cas, groupId, renewDetails, billingGuid, logString, userIp, theRequest))
+                        if (HandleDummySubsciptionRenewal(cas, groupId, renewDetails, billingGuid, logString, userIp, theRequest, isKronos))
                         {
                             response.SetStatus(eResponseStatus.OK);
                         }
