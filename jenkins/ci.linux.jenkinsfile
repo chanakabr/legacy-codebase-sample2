@@ -17,13 +17,16 @@ stage('Unified-CI'){
             "Linux" : {
                 node('Linux'){   
                     try{                        
-                        stage('Checkout'){
+                        stage('Checkout') {
                             deleteDir()
-                            git branch: "${BRANCH_NAME}", credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend'
-                            script {
-                                committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim() 
-                            }
+                            checkout scm: [
+                                    $class: 'GitSCM',
+                                    branches: scm.branches,
+                                    submoduleCfg: [],
+                                    userRemoteConfigs: scm.userRemoteConfigs
+                            ]
                         }
+
                         stage('Build Base Images'){
                             def GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
                             sh(label:'Bulid Base OTT-BE image', script: "docker build -t ott-be-base-build:${GIT_COMMIT} -f ./Docker/Base.Build.Dockerfile .")
@@ -58,6 +61,18 @@ stage('Unified-CI'){
                             ws("${WORKSPACE}/Core/SoapAdaptersCommon/GrpcAdapters/playbackAdapter") {
                                 buildAndPublishInterserviceClients("playback-adapter")
                             }
+                        }
+                        if (ci.is_building_tag()){
+                        stage("Release BE"){
+                            build (
+                                    wait: false, 
+                                    job: 'OTT-BE-Release-Wrapper', 
+                                    parameters: [
+                                        string(name: 'BRANCH', value: "${BRANCH_NAME}"), 
+                                        string(name: 'type', value: 'main')
+                                        ]
+                                )
+                        }
                         }
                         stage("Trigger Sonar Scan"){
                             if (BRANCH_NAME == "master") {
