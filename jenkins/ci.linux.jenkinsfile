@@ -62,7 +62,7 @@ stage('Unified-CI'){
                                 buildAndPublishInterserviceClients("playback-adapter")
                             }
                         }
-
+                        if (ci.is_building_tag()){
                         stage("Release BE"){
                             build (
                                     wait: false, 
@@ -72,6 +72,7 @@ stage('Unified-CI'){
                                         string(name: 'type', value: 'main')
                                         ]
                                 )
+                        }
                         }
                         stage("Trigger Sonar Scan"){
                             if (BRANCH_NAME == "master") {
