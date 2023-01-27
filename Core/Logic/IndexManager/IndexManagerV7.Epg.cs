@@ -123,6 +123,13 @@ namespace Core.Catalog
         {
             var expiry = GetEpgExpiry(prog);
             var progLang = languages[prog.Language];
+
+            // We don't store regions in CB that's why we need to calculate regions before insertion to ES on every program update during ingest.
+            if (prog.LinearMediaId > 0 && GetLinearChannelsMapping().TryGetValue(prog.LinearMediaId, out var regions))
+            {
+                prog.regions = regions;
+            }
+
             var epg = NestDataCreator.GetEpg(prog, progLang.ID, withRouting: true, IsOpc(), expiry);
             epg.DocumentId = prog.DocumentId;
             epg.DocumentTransactionalStatus = transactionOperation.ToString();
