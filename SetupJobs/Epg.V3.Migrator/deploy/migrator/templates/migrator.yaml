@@ -21,6 +21,12 @@ spec:
       - name: epg-v3-migrator-{{ .Values.partner }}-conf
         configMap:
           name: epg-v3-migrator-{{ .Values.partner }}-conf
+      nodeSelector:
+        karpenter.sh/provisioner-name: "ondemand"
+      tolerations:
+        - key: "karpenter.sh/ondemand-provisioner"
+          operator: "Exists"
+          effect: "NoSchedule"
       containers:
       - name: epg-v3-migrator-{{ .Values.partner }}
         image: {{ .Values.account }}.dkr.ecr.{{ .Values.region }}.amazonaws.com/{{ .Values.image }}

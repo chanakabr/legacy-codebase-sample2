@@ -578,15 +578,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.CreateDate)))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.UpdateDate)))
                 .ForMember(dest => dest.Status, opt => opt.Ignore())
-                // .ForMember(dest => dest.HouseholdSpecificStartTimeOffset, opt => opt.MapFrom(src => src.HouseholdSpecificStartTimeOffset))
-                //Todo - Matan, after new types
-                // .ForMember(dest => dest.HouseholdSpecificEndTimeOffset, opt => opt.MapFrom(src => src.HouseholdSpecificEndTimeOffset))
+                .ForMember(dest => dest.Duration, opt => opt.Ignore())
                 ;
             
             cfg.CreateMap<KalturaPaddedRecording, Recording>()
                 .IncludeBase<KalturaRecording, Recording>()
-                .ForMember(dest => dest.StartPadding, opt => opt.MapFrom(src => src.PaddingBefore))
-                .ForMember(dest => dest.EndPadding, opt => opt.MapFrom(src => src.PaddingAfter))
+                .ForMember(dest => dest.StartPadding, opt => opt.MapFrom(src => src.StartPadding))
+                .ForMember(dest => dest.EndPadding, opt => opt.MapFrom(src => src.EndPadding))
+                .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.Duration)))
                 ;
             
               
@@ -594,13 +593,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .IncludeBase<KalturaRecording, Recording>()
                 .ForMember(dest => dest.AbsoluteEndTime, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.AbsoluteEndTime)))
                 .ForMember(dest => dest.AbsoluteStartTime, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.AbsoluteStartTime)))
-                .ForMember(dest => dest.EndPadding, opt => opt.MapFrom(src => src.EndPadding))
+                .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.Duration)))
                 ;
             
             cfg.CreateMap<Recording, KalturaImmediateRecording>()
                 .IncludeBase<Recording, KalturaRecording>()
                 .ForMember(dest => dest.AbsoluteEndTime, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.AbsoluteEndTime)))
                 .ForMember(dest => dest.AbsoluteStartTime, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.AbsoluteStartTime)))
+                .ForMember(dest => dest.EndPadding, opt => opt.Ignore())
                 ;
 
             // Recording to KalturaRecording
@@ -617,8 +617,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<Recording, KalturaPaddedRecording>()
                 .IncludeBase<Recording, KalturaRecording>()
-                .ForMember(dest => dest.PaddingBefore, opt => opt.MapFrom(src => src.StartPadding))
-                .ForMember(dest => dest.PaddingAfter, opt => opt.MapFrom(src => src.EndPadding))
+                .ForMember(dest => dest.StartPadding, opt => opt.MapFrom(src => src.StartPadding))
+                .ForMember(dest => dest.EndPadding, opt => opt.MapFrom(src => src.EndPadding))
                 ;
             
             // KalturaExternalRecording to ExternalRecording

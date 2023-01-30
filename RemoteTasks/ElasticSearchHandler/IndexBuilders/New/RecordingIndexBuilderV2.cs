@@ -63,12 +63,11 @@ namespace ElasticSearchHandler.IndexBuilders
             var tstvs = Core.ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
             if (tstvs.PersonalizedRecordingEnable == true)
             {
-                PopulateIndexPersonalizedRecording(newIndexName, languages);
+                log.Warn($"rebuild recording index for EBR not supported {groupId}");
+                return;
             }
-            else
-            {
-                PopulateIndexPaging(newIndexName, languages);
-            }
+
+            PopulateIndexPaging(newIndexName, languages);
         }
 
         private void PopulateIndexPaging(string newIndexName, List<LanguageObj> languages, long minId = 0)
@@ -81,42 +80,6 @@ namespace ElasticSearchHandler.IndexBuilders
 
             // Get information about relevant recordings
             epgToRecordingMapping = DAL.RecordingsDAL.GetEpgToRecordingsMapByRecordingStatuses(this.groupId, statuses, minId);
-            
-            if (epgToRecordingMapping?.Count > 0)
-            {
-                PopulateProgramsIndex(newIndexName, languages);
-
-                maxId = epgToRecordingMapping.Values.Max();
-
-                if (maxId > minId)
-                {
-                    PopulateIndexPaging(newIndexName, languages, maxId);
-                }
-            }
-        }
-
-        private void PopulateIndexPersonalizedRecording(string newIndexName, List<LanguageObj> languages, int skip = 0)
-        {
-            log.Debug($"PopulateIndexPersonalizedRecording skip:{skip}");
-
-            // Get information about relevant recordings
-            epgToRecordingMapping = null;
-            var programs = DAL.Recordings.RecordingsRepository.Instance.GetAllRecordedPrograms(this.groupId, 500, skip);
-
-            if (programs?.Count > 0)
-            {
-                skip += programs.Count;
-
-                epgToRecordingMapping = programs.ToDictionary(x => x.EpgId, x => x.Id);
-
-                PopulateProgramsIndex(newIndexName, languages);
-
-                PopulateIndexPersonalizedRecording(newIndexName, languages, skip);
-            }
-        }
-
-        private void PopulateProgramsIndex(string newIndexName, List<LanguageObj> languages)
-        {
             List<string> epgIds = new List<string>();
 
             List<EpgCB> epgs = new List<EpgCB>();
@@ -124,6 +87,13 @@ namespace ElasticSearchHandler.IndexBuilders
 
             foreach (var programId in epgToRecordingMapping.Keys)
             {
+                long recordingId = epgToRecordingMapping[programId];
+
+                if (recordingId > maxId)
+                {
+                    maxId = recordingId;
+                }
+
                 // for main language
                 epgIds.Add(programId.ToString());
 
@@ -152,6 +122,11 @@ namespace ElasticSearchHandler.IndexBuilders
             Dictionary<ulong, Dictionary<string, EpgCB>> epgDictionary = BuildEpgsLanguageDictionary(epgs);
 
             _IndexManager.AddEPGsToIndex(newIndexName, true, epgDictionary, linearChannelsRegionsMapping, epgToRecordingMapping);
+
+            if (maxId > minId)
+            {
+                PopulateIndexPaging(newIndexName, languages, maxId);
+            }
         }
 
         protected override bool FinishUpEpgIndex(string newIndexName)

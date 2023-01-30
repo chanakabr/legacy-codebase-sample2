@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ApiObjects;
 using Catalog.Response;
 using Core.Catalog.Request;
 using Core.Catalog.Response;

@@ -60,7 +60,8 @@ namespace Core.Recordings
             bool shouldContinue = true;
 
             // Get model by Id/default of group
-            QuotaManagementModel quotaManagerModel = ConditionalAccessDAL.GetQuotaManagementModel(groupId, quotaManagerModelId);
+            QuotaManagementModel quotaManagerModel =
+                ConditionalAccessDAL.GetQuotaManagementModel(groupId, quotaManagerModelId);
 
             // Check that we don't exceed amount of seconds
 
@@ -77,7 +78,8 @@ namespace Core.Recordings
             return status;
         }
 
-        public Status CheckQuotaByAvailableSeconds(int groupId, long householdId, int availableSeconds, List<Recording> newRecordings, bool isAggregative)
+        public Status CheckQuotaByAvailableSeconds(int groupId, long householdId, int availableSeconds,
+            List<Recording> newRecordings, bool isAggregative)
         {
             Status status = new Status((int)eResponseStatus.OK);
 
@@ -93,8 +95,11 @@ namespace Core.Recordings
                 // Mark this, current-specific, recording as failed
                 if (tempSeconds < 0)
                 {
-                    log.DebugFormat("Requested EPG exceeds domain's quota. EPG duration is {0} seconds and there are {1} seconds available.", currentEpgSeconds, initialSecondsLeft);
-                    recording.Status = new Status((int)eResponseStatus.ExceededQuota, eResponseStatus.ExceededQuota.ToString());
+                    log.DebugFormat(
+                        "Requested EPG exceeds domain's quota. EPG duration is {0} seconds and there are {1} seconds available.",
+                        currentEpgSeconds, initialSecondsLeft);
+                    recording.Status = new Status((int)eResponseStatus.ExceededQuota,
+                        eResponseStatus.ExceededQuota.ToString());
                 }
 
                 // If we check each recording individually or not
@@ -107,7 +112,7 @@ namespace Core.Recordings
             return status;
         }
 
-        public static int GetRecordingDurationSeconds(int groupId, Recording recording)
+        public static int GetRecordingDurationSeconds(int groupId, Recording recording, bool decreaseDefaultPadding = true)
         {
             DateTime start = recording.EpgStartDate;
             DateTime end = recording.EpgEndDate;
@@ -119,35 +124,65 @@ namespace Core.Recordings
             {
                 if (recording.AbsoluteStartTime.HasValue && recording.AbsoluteEndTime.HasValue)
                 {
-                    seconds = PaddedRecordingsManager.Instance.GetImmediateRecordingTimeSpanSeconds(recording.AbsoluteStartTime, recording.AbsoluteEndTime);
+                    seconds = PaddedRecordingsManager.Instance.GetImmediateRecordingTimeSpanSeconds(
+                        recording.AbsoluteStartTime, recording.AbsoluteEndTime);
                 }
-                else 
+                else
                 {
                     if (recording.EndPadding.HasValue)
                         seconds += 60 * recording.EndPadding.Value;
-    
+
                     if (recording.StartPadding.HasValue)
                         seconds += 60 * recording.StartPadding.Value;
+                }
+
+                if (decreaseDefaultPadding)
+                {
+                    //BEO-13503, remove default paddings from recording
+                    var defaultStart = Utils.ConvertSecondsToMinutes((int)(accountSettings.PaddingBeforeProgramStarts ?? 0));
+                    var defaultEnd = Utils.ConvertSecondsToMinutes((int)(accountSettings.PaddingAfterProgramEnds ?? 0));
+                    
+                    var shouldRemoveStartPadding = !defaultStart.Equals(recording.StartPadding ?? 0);
+                    var shouldRemoveEndPadding = !defaultEnd.Equals(recording.EndPadding ?? 0);
+                    
+                    var isImmediate = recording.AbsoluteEndTime.HasValue &&
+                                      (recording.StartPadding == null || recording.StartPadding == 0);
+                    if (shouldRemoveStartPadding && !isImmediate) //not immediate
+                    {
+                        var _s = seconds - accountSettings.PaddingBeforeProgramStarts ?? 0;
+                        seconds -= (int)_s > 0 ? (int)_s : 0;
+                    }
+
+                    var isStopped = recording.AbsoluteEndTime.HasValue &&
+                                    (recording.EndPadding == null || recording.EndPadding == 0);
+                    if (shouldRemoveEndPadding && !isStopped) //not stopped
+                    {
+                        var _s = seconds - accountSettings.PaddingAfterProgramEnds ?? 0;
+                        seconds -= (int)_s > 0 ? (int)_s : 0;
+                    }
                 }
             }
 
             return seconds;
         }
 
-        public static long GetRecordingDurationWithPaddingSeconds(int groupId, Recording recording, TimeShiftedTvPartnerSettings accountSettings)
-        {
-            var result = GetRecordingDurationSeconds(groupId, recording);
-
-            var isStartPaddingNeeded = !recording.AbsoluteStartTime.HasValue && (!recording.StartPadding.HasValue || recording.StartPadding.Value == 0); 
-            var isEndPaddingNeeded = !recording.AbsoluteStartTime.HasValue && (!recording.EndPadding.HasValue || recording.EndPadding.Value == 0); 
-            
-            if (isStartPaddingNeeded && accountSettings.PaddingBeforeProgramStarts.HasValue)
-                result += (int)accountSettings.PaddingBeforeProgramStarts.Value;
-            if (isEndPaddingNeeded && accountSettings.PaddingAfterProgramEnds.HasValue)
-                result += (int)accountSettings.PaddingAfterProgramEnds.Value;
-
-            return result;
-        }
+        // public static long GetRecordingDurationWithPaddingSeconds(int groupId, Recording recording,
+        //     TimeShiftedTvPartnerSettings accountSettings)
+        // {
+        //     var result = GetRecordingDurationSeconds(groupId, recording);
+        //
+        //     var isStartPaddingNeeded = !recording.AbsoluteStartTime.HasValue &&
+        //                                (!recording.StartPadding.HasValue || recording.StartPadding.Value == 0);
+        //     var isEndPaddingNeeded = !recording.AbsoluteStartTime.HasValue &&
+        //                              (!recording.EndPadding.HasValue || recording.EndPadding.Value == 0);
+        //
+        //     if (isStartPaddingNeeded && accountSettings.PaddingBeforeProgramStarts.HasValue)
+        //         result += (int)accountSettings.PaddingBeforeProgramStarts.Value;
+        //     if (isEndPaddingNeeded && accountSettings.PaddingAfterProgramEnds.HasValue)
+        //         result += (int)accountSettings.PaddingAfterProgramEnds.Value;
+        //
+        //     return result;
+        // }
 
         public ApiObjects.TimeShiftedTv.DomainQuotaResponse GetDomainQuotaResponse(int groupId, long domainId)
         {
@@ -183,6 +218,7 @@ namespace Core.Recordings
             {
                 return domainQuota.Total;
             }
+
             return domainQuota.Total - used;
         }
 
@@ -196,6 +232,7 @@ namespace Core.Recordings
             {
                 return RecordingsDAL.UpdateDomainUsedQuota(domainId, (-1) * quotaToDecrease, defaultQuota);
             }
+
             return false;
         }
 
@@ -207,14 +244,17 @@ namespace Core.Recordings
         /// <param name="quotaToIncrease"></param>
         /// <param name="shouldForceIncrease">If true - decrease the quota to 0 if not enough quota</param>
         /// <returns></returns>
-        public bool SetDomainUsedQuota(int groupId, long domainId, int quotaToIncrease, bool shouldForceIncrease = false)
+        public bool SetDomainUsedQuota(int groupId, long domainId, int quotaToIncrease,
+            bool shouldForceIncrease = false)
         {
             int defaultQuota = 0;
             DomainQuota domainQuota = GetDomainQuota(groupId, domainId, ref defaultQuota);
             if (domainQuota != null)
             {
-                return RecordingsDAL.UpdateDomainUsedQuota(domainId, quotaToIncrease, defaultQuota, shouldForceIncrease);
+                return RecordingsDAL.UpdateDomainUsedQuota(domainId, quotaToIncrease, defaultQuota,
+                    shouldForceIncrease);
             }
+
             return false;
         }
 
@@ -236,12 +276,14 @@ namespace Core.Recordings
             }
 
 
-            response = allRecords.Values.Where(x => x.isExternalRecording == false).Select(r => GetRecordingDurationSeconds(groupId, r)).Sum();
+            response = allRecords.Values.Where(x => x.isExternalRecording == false)
+                .Select(r => GetRecordingDurationSeconds(groupId, r)).Sum();
 
             return response;
         }
 
-        internal Status CheckQuotaByTotalSeconds(int groupId, long householdId, int totalSeconds, bool isAggregative, List<Recording> newRecordings, List<Recording> currentRecordings)
+        internal Status CheckQuotaByTotalSeconds(int groupId, long householdId, int totalSeconds, bool isAggregative,
+            List<Recording> newRecordings, List<Recording> currentRecordings)
         {
             Status status = new Status((int)eResponseStatus.OK);
             bool shouldContinue = true;
@@ -274,7 +316,8 @@ namespace Core.Recordings
         [Obsolete("Not using hh quota document")]
         public ApiObjects.Response.Status SetDomainTotalQuota(int groupId, long domainId, long totalQuota)
         {
-            ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            ApiObjects.Response.Status status =
+                new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             int defaultQuota = 0;
             bool result = false;
             DomainQuota domainQuota = GetDomainQuota(groupId, domainId, ref defaultQuota);
@@ -283,14 +326,17 @@ namespace Core.Recordings
                 domainQuota.Total = (int)totalQuota;
                 result = RecordingsDAL.SetDomainQuota(domainId, domainQuota);
             }
+
             if (result)
             {
                 status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
+
             return status;
         }
 
-        public List<Recording> HandleDomainAutoDelete(int groupId, long domainId, int recordingDuration, DomainRecordingStatus domainRecordingStatus = DomainRecordingStatus.Deleted)
+        public List<Recording> HandleDomainAutoDelete(int groupId, long domainId, int recordingDuration,
+            DomainRecordingStatus domainRecordingStatus = DomainRecordingStatus.Deleted)
         {
             List<Recording> deletedRecordings = null;
             int limitRetries = RETRY_LIMIT;
@@ -300,7 +346,8 @@ namespace Core.Recordings
             {
                 while (limitRetries > 0)
                 {
-                    deletedRecordings = DeleteDomainOldestRecordings(groupId, domainId, recordingDuration, domainRecordingStatus);
+                    deletedRecordings =
+                        DeleteDomainOldestRecordings(groupId, domainId, recordingDuration, domainRecordingStatus);
                     if (deletedRecordings?.Count > 0)
                     {
                         break;
@@ -314,18 +361,22 @@ namespace Core.Recordings
 
                 if (deletedRecordings == null) // fail to delete and free some quota 
                 {
-                    log.ErrorFormat("Failed HandleDomainAutoDelete groupID: {0}, domainID: {1}, recordingDuration: {2}", groupId, domainId, recordingDuration);
+                    log.ErrorFormat("Failed HandleDomainAutoDelete groupID: {0}, domainID: {1}, recordingDuration: {2}",
+                        groupId, domainId, recordingDuration);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed HandleDomainAutoDelete groupID: {0}, domainID: {1}, recordingDuration: {2}, ex: {4}", groupId, domainId, recordingDuration, ex);
+                log.ErrorFormat(
+                    "Failed HandleDomainAutoDelete groupID: {0}, domainID: {1}, recordingDuration: {2}, ex: {4}",
+                    groupId, domainId, recordingDuration, ex);
             }
 
             return deletedRecordings;
         }
 
-        public ApiObjects.Response.Status HandleDomainRecoveringRecording(int groupId, long domainId, int totalRecordingDuration)
+        public ApiObjects.Response.Status HandleDomainRecoveringRecording(int groupId, long domainId,
+            int totalRecordingDuration)
         {
             ApiObjects.Response.Status bRes = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             List<long> domainRecordingIds = new List<long>();
@@ -341,7 +392,7 @@ namespace Core.Recordings
                     recordings = PaddedRecordingsManager.Instance.GetHouseholdRecordingsToRecover(groupId, domainId);
                 }
                 else
-                { 
+                {
                     recordings = Utils.GetDomainRecordingsToRecover(groupId, domainId);
                 }
 
@@ -349,7 +400,8 @@ namespace Core.Recordings
                 {
                     foreach (KeyValuePair<long, Recording> recording in recordings)
                     {
-                        recordingDuration = (int)(recording.Value.EpgEndDate - recording.Value.EpgStartDate).TotalSeconds;
+                        recordingDuration =
+                            (int)(recording.Value.EpgEndDate - recording.Value.EpgStartDate).TotalSeconds;
                         tempRecordingDuration += recordingDuration;
 
                         if (tempRecordingDuration > totalRecordingDuration)
@@ -357,6 +409,7 @@ namespace Core.Recordings
                             tempRecordingDuration -= recordingDuration;
                             break;
                         }
+
                         domainRecordingIds.Add(recording.Key);
                     }
 
@@ -364,7 +417,8 @@ namespace Core.Recordings
                     {
                         if (accountSettings != null && accountSettings.PersonalizedRecordingEnable == true)
                         {
-                            PaddedRecordingsManager.Instance.UpdateHouseholdRecordingsStatus(groupId, domainRecordingIds,
+                            PaddedRecordingsManager.Instance.UpdateHouseholdRecordingsStatus(groupId,
+                                domainRecordingIds,
                                 DomainRecordingStatus.OK.ToString());
                         }
                         else
@@ -372,35 +426,44 @@ namespace Core.Recordings
                             // update all these domain recording ids to status OK  and update used quota
                             if (RecordingsDAL.RecoverDomainRecordings(domainRecordingIds, DomainRecordingStatus.OK))
                             {
-                                bRes = new Status((int) eResponseStatus.OK, eResponseStatus.OK.ToString());
+                                bRes = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                             }
                         }
                     }
                 }
                 else
                 {
-                    log.DebugFormat("fount 0 domainRecordingIds to recover groupID: {0}, domainID: {1}", groupId, domainId);
+                    log.DebugFormat("fount 0 domainRecordingIds to recover groupID: {0}, domainID: {1}", groupId,
+                        domainId);
                 }
 
                 if (bRes.Code != (int)eResponseStatus.OK) // fail to recover recordings
                 {
-                    log.ErrorFormat("Failed HandleDominQuotaOvarge groupID: {0}, domainID: {1}, recordingDuration: {2}, status = {3}", groupId, domainId, totalRecordingDuration, bRes.Message);
+                    log.ErrorFormat(
+                        "Failed HandleDominQuotaOvarge groupID: {0}, domainID: {1}, recordingDuration: {2}, status = {3}",
+                        groupId, domainId, totalRecordingDuration, bRes.Message);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed HandleDomainRecoveringRecording groupID: {0}, domainID: {1}, recordingDuration: {2}, status = {3}, ex: {4}", groupId, domainId, totalRecordingDuration, bRes.Message, ex);
+                log.ErrorFormat(
+                    "Failed HandleDomainRecoveringRecording groupID: {0}, domainID: {1}, recordingDuration: {2}, status = {3}, ex: {4}",
+                    groupId, domainId, totalRecordingDuration, bRes.Message, ex);
             }
+
             return bRes;
         }
 
-        private List<Recording> DeleteDomainOldestRecordings(int groupId, long domainId, int newRecordingDuration, DomainRecordingStatus domainRecordingStatus = DomainRecordingStatus.Deleted)
+        private List<Recording> DeleteDomainOldestRecordings(int groupId, long domainId, int newRecordingDuration,
+            DomainRecordingStatus domainRecordingStatus = DomainRecordingStatus.Deleted)
         {
             List<Recording> deletedRecordings = null;
             try
             {
-                List<TstvRecordingStatus> recordingStatuses = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recorded };
-                Dictionary<long, Recording> domainRecordingIdToRecordingMap = Utils.GetDomainRecordingsByTstvRecordingStatuses(groupId, domainId, recordingStatuses);
+                List<TstvRecordingStatus> recordingStatuses = new List<TstvRecordingStatus>()
+                    { TstvRecordingStatus.Recorded };
+                Dictionary<long, Recording> domainRecordingIdToRecordingMap =
+                    Utils.GetDomainRecordingsByTstvRecordingStatuses(groupId, domainId, recordingStatuses);
                 if (domainRecordingIdToRecordingMap != null && domainRecordingIdToRecordingMap.Count > 0)
                 {
                     var accountSettings = Utils.GetTimeShiftedTvPartnerSettings(groupId);
@@ -414,7 +477,8 @@ namespace Core.Recordings
                     if (ordered != null)
                     {
                         // build list of domain recordings id - Least as needed   
-                        Dictionary<long, Recording> recordings = ordered.ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Value);
+                        Dictionary<long, Recording> recordings =
+                            ordered.ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Value);
                         long recordingDuration = 0;
 
                         foreach (KeyValuePair<long, Recording> recording in recordings)
@@ -427,7 +491,8 @@ namespace Core.Recordings
 
                             deletedRecordings.Add(recording.Value);
 
-                            recordingDuration = GetRecordingDurationWithPaddingSeconds(groupId, recording.Value, accountSettings);
+                            recordingDuration =
+                                GetRecordingDurationSeconds(groupId, recording.Value, false);
                             quotaClearanceSeconds += recordingDuration;
 
                             if (quotaClearanceSeconds >= newRecordingDuration)
@@ -442,11 +507,13 @@ namespace Core.Recordings
                         // delete all and DecreaseDomainUsedQuota
                         if (domainRecordingIds != null && domainRecordingIds.Count > 0)
                         {
-                            log.DebugFormat("try to deleted domainRecordingIds: {0}, QuotaOverageDuration : {1}", string.Join(",", domainRecordingIds), quotaClearanceSeconds);
+                            log.DebugFormat("try to deleted domainRecordingIds: {0}, QuotaOverageDuration : {1}",
+                                string.Join(",", domainRecordingIds), quotaClearanceSeconds);
 
                             if (accountSettings != null && accountSettings.PersonalizedRecordingEnable == true)
                             {
-                                PaddedRecordingsManager.Instance.UpdateHouseholdRecordingsStatus(groupId, domainRecordingIds,
+                                PaddedRecordingsManager.Instance.UpdateHouseholdRecordingsStatus(groupId,
+                                    domainRecordingIds,
                                     domainRecordingStatus.ToString());
                             }
                             else
@@ -454,7 +521,9 @@ namespace Core.Recordings
                                 if (!RecordingsDAL.DeleteDomainRecording(domainRecordingIds, domainRecordingStatus))
                                 {
                                     deletedRecordings = null;
-                                    log.ErrorFormat("Fail in DeleteDomainOldestRecordings to perform delete domainRecordingID = {0}", string.Join(",", domainRecordingIds));
+                                    log.ErrorFormat(
+                                        "Fail in DeleteDomainOldestRecordings to perform delete domainRecordingID = {0}",
+                                        string.Join(",", domainRecordingIds));
                                 }
                             }
                         }
@@ -480,14 +549,15 @@ namespace Core.Recordings
 
             // check if record is protected - ignore it 
             return (!recording.ViewableUntilDate.HasValue || recording.ViewableUntilDate.Value == 0 ||
-                (recording.ProtectedUntilDate.HasValue && recording.ProtectedUntilDate.Value > currentUtcTime));
+                    (recording.ProtectedUntilDate.HasValue && recording.ProtectedUntilDate.Value > currentUtcTime));
         }
 
         #endregion
 
         #region Private Methods
 
-        private static Status DeductRecordings(List<Recording> recordings, int groupId, ref bool shouldContinue, ref int secondsLeft)
+        private static Status DeductRecordings(List<Recording> recordings, int groupId, ref bool shouldContinue,
+            ref int secondsLeft)
         {
             Status status = new Status((int)eResponseStatus.OK);
 
@@ -501,7 +571,8 @@ namespace Core.Recordings
                     // Mark the entire operation as failure, something here is completely wrong
                     if (secondsLeft < 0)
                     {
-                        status = new Status((int)eResponseStatus.ExceededQuota, eResponseStatus.ExceededQuota.ToString());
+                        status = new Status((int)eResponseStatus.ExceededQuota,
+                            eResponseStatus.ExceededQuota.ToString());
                         shouldContinue = false;
                         break;
                     }
@@ -523,8 +594,7 @@ namespace Core.Recordings
 
             return domainQuota;
         }
+
         #endregion
-
-
     }
 }

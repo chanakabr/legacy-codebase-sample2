@@ -40,6 +40,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Core\LiveToVod\LiveToVod.csproj" />
     <ProjectReference Include="..\Core\Logic\ApiLogic.csproj" />
+    <ProjectReference Include="..\Core\WebAPI\WebAPI.csproj" />
   </ItemGroup>
 
 </Project>

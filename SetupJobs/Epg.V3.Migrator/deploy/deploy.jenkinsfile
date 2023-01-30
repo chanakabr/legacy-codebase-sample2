@@ -8,17 +8,17 @@ YELLOW="\u001B[33m"
 
 properties([
     parameters([
-        choice(name: 'target_env', choices: ['onebox','frs1', 'sgs1', 'frt1', 'vrs1', 'ohs1', 'prt1', 'ort2', 'sgt2', 'orp2'], defaultValue: "onebox"),
+        choice(name: 'target_env', choices: ['onebox','frs1', 'sgs1', 'frt1', 'vrs1', 'ohs1', 'prt1', 'ort2', 'sgt2', 'orp2', 'frp1'], defaultValue: "onebox"),
         string(name: 'onebox_host'),
         string(name: 'partner'),
         string(name: 'batch_size', defaultValue: "2000"),
-        string(name: 'tag', defaultValue: "build"),
+        string(name: 'tag', defaultValue: ""),
     ])
 ])
 
 lock(resource: "Queue_${env.JOB_NAME}_${target_env}_${partner}", inversePrecedence: false) {
     node('Linux'){
-        
+
         AWS_REGION="us-west-2"
         ECR_URL ='870777418594.dkr.ecr.us-west-2.amazonaws.com'
         PIPECLI_VERSION="1.0.3"
@@ -27,7 +27,14 @@ lock(resource: "Queue_${env.JOB_NAME}_${target_env}_${partner}", inversePreceden
         sh "region=\$(wget -qO- http://169.254.169.254/latest/meta-data/placement/availability-zone | sed 's/.\$//');login=\$(aws ecr get-login --no-include-email --region \$region); \$login "
         sh "\$(aws ecr get-login --no-include-email --region ${AWS_REGION})"
         sh "docker pull 870777418594.dkr.ecr.us-west-2.amazonaws.com/pipecli:${PIPECLI_VERSION}"
-       
+
+        deleteDir()
+        checkout scm
+        if (tag == null || tag.isEmpty())
+        {
+            tag = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+        }
+
         branch = "$BRANCH_NAME"
         repo = "ott-service-phoenix-epg-v3-migrator"
         image = "${branch.toLowerCase()}/${repo}:${tag}"
@@ -35,8 +42,6 @@ lock(resource: "Queue_${env.JOB_NAME}_${target_env}_${partner}", inversePreceden
         component_name = "epg-v3-migrator"
         component_name_und = sh (script: "echo ${component_name} | sed -r 's/-/_/g'",returnStdout: true).trim()
 
-        deleteDir()
-        checkout scm
         currentBuild.displayName = "#${BUILD_NUMBER} - ${target_env} - ${tag} - ${partner}"
 
         src_region = "us-west-2"

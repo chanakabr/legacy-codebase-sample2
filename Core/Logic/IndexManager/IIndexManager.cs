@@ -8,7 +8,6 @@ using Catalog.Response;
 using ApiObjects.Statistics;
 using GroupsCacheManager;
 using ApiObjects.BulkUpload;
-using Core.Api;
 
 namespace Core.Catalog
 {
@@ -22,6 +21,8 @@ namespace Core.Catalog
         void MigrateEpgToV3(int batchSize, EpgFeatureVersion originalEpgVersion);
         void RollbackEpgV3ToV2(int batchSize);
         void RollbackEpgV3ToV1(int batchSize);
+        void RollbackEpgV3ToV2WithoutReindexing(bool rollbackFromBackup, int batchSize);
+        void RollbackEpgV3ToV1WithoutReindexing(bool rollbackFromBackup, int batchSize);
         bool ForceRefreshEpgIndex(string indexName);
         bool FinalizeEpgV2Indices(List<DateTime> date);
 

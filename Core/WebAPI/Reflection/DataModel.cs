@@ -5899,9 +5899,9 @@ namespace WebAPI.Reflection
                 case "KalturaPaddedRecording":
                     switch(property.Name)
                     {
-                        case "PaddingAfter":
+                        case "EndPadding":
                             return "endPadding";
-                        case "PaddingBefore":
+                        case "StartPadding":
                             return "startPadding";
                     }
                     break;
@@ -7199,6 +7199,8 @@ namespace WebAPI.Reflection
                             return "assetId";
                         case "CreateDate":
                             return "createDate";
+                        case "Duration":
+                            return "duration";
                         case "Id":
                             return "id";
                         case "IsProtected":

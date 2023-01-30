@@ -123,6 +123,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidAssetId)]
         [Throws(eResponseStatus.InvalidParameters)]
         [Throws(eResponseStatus.CanOnlyAddRecordingBeforeRecordingStart)]
+        [Throws(eResponseStatus.RecordingExceededConcurrency)]
         [Throws(StatusCode.ArgumentCannotBeEmpty)]
         public static KalturaRecording Add(KalturaRecording recording)
         {
@@ -152,7 +153,7 @@ namespace WebAPI.Controllers
                     {
                         case KalturaPaddedRecording rec:
                             response = ClientsManager.ConditionalAccessClient()
-                                .Record(groupId, userId.ToString(), rec.AssetId, rec.PaddingBefore, rec.PaddingAfter,
+                                .Record(groupId, userId.ToString(), rec.AssetId, rec.StartPadding, rec.EndPadding,
                                     true);
                             break; 
                         case KalturaRecording rec:
@@ -242,10 +243,26 @@ namespace WebAPI.Controllers
                 var timeShiftedSettings = Core.ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
                 if (timeShiftedSettings.PersonalizedRecordingEnable == true)
                 {
-                    Func<GenericResponse<Recording>> cancelHouseholdRecordingFunc = () =>
-                        PaddedRecordingsManager.Instance.CancelHouseholdRecordings(groupId, id, userId);
+                    var canceledRecording = PaddedRecordingsManager.Instance.CancelHouseholdRecordings(groupId, id, userId);
 
-                    response = ClientUtils.GetResponseFromWS<KalturaRecording, Recording>(cancelHouseholdRecordingFunc);
+                    if (canceledRecording == null)
+                    {
+                        throw new ClientException(StatusCode.Error);
+                    }
+
+                    if (!canceledRecording.IsOkStatusCode())
+                    {
+                        throw new ClientException(canceledRecording.Status);
+                    }
+                    
+                    if (canceledRecording.Object.AbsoluteStartTime.HasValue)
+                    {
+                        response = Mapper.Map<KalturaImmediateRecording>(canceledRecording.Object);
+                    }
+                    else
+                    {
+                        response = Mapper.Map<KalturaPaddedRecording>(canceledRecording.Object);
+                    }
                 }
                 else
                 {
@@ -286,10 +303,25 @@ namespace WebAPI.Controllers
                 var timeShiftedSettings = Core.ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
                 if (timeShiftedSettings.PersonalizedRecordingEnable == true)
                 {
-                    Func<GenericResponse<Recording>> cancelHouseholdRecordingFunc = () =>
-                        PaddedRecordingsManager.Instance.DeleteHouseholdRecordings(groupId, id, userId);
+                    var deletedRecording = PaddedRecordingsManager.Instance.DeleteHouseholdRecordings(groupId, id, userId);
+                    if (deletedRecording == null)
+                    {
+                        throw new ClientException(StatusCode.Error);
+                    }
 
-                    response = ClientUtils.GetResponseFromWS<KalturaRecording, Recording>(cancelHouseholdRecordingFunc);
+                    if (!deletedRecording.IsOkStatusCode())
+                    {
+                        throw new ClientException(deletedRecording.Status);
+                    }
+                    
+                    if (deletedRecording.Object.AbsoluteStartTime.HasValue)
+                    {
+                        response = Mapper.Map<KalturaImmediateRecording>(deletedRecording.Object);
+                    }
+                    else
+                    {
+                        response = Mapper.Map<KalturaPaddedRecording>(deletedRecording.Object);
+                    }
                 }
                 else
                 {
@@ -525,6 +557,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.RecordingStatusNotValid)]
         [Throws(eResponseStatus.RecordingFailed)]
         [Throws(eResponseStatus.InvalidParameters)]
+        [Throws(eResponseStatus.RecordingExceededConcurrency)]
         [Throws(eResponseStatus.NotAllowed)]
         public static KalturaImmediateRecording ImmediateRecord(long assetId, long epgChannelId, int? endPadding)
         {

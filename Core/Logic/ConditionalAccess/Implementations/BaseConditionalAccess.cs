@@ -14119,9 +14119,17 @@ namespace Core.ConditionalAccess
                             recording.Status = status;
                             return recording;
                         }
-                        
-                        recording = PaddedRecordingsManager.Instance.Record(m_nGroupID, recording.EpgId, recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate,
-                            recording.Crid, new List<long>() { domainID }, out failedDomainIds, recording.StartPadding, recording.EndPadding, RecordingContext.Regular);
+
+                        if (!PaddedRecordingsManager.Instance.ValidateRecordingConcurrency(m_nGroupID, domainID, recording))
+                        {
+                            log.Debug($"epgID: {epgID} can't be recoded due to recording concurrency of {accountSettings.MaxRecordingConcurrency}");
+                            recording = new Recording() { Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingExceededConcurrency, eResponseStatus.RecordingFailed.ToString()) };
+                        }
+                        else
+                        {
+                            recording = PaddedRecordingsManager.Instance.Record(m_nGroupID, recording.EpgId, recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate,
+                                recording.Crid, new List<long>() { domainID }, out failedDomainIds, recording.StartPadding, recording.EndPadding, RecordingContext.Regular);
+                        }
                     }
                     else
                     {
@@ -14129,9 +14137,8 @@ namespace Core.ConditionalAccess
                             recording.Crid, new List<long>() { domainID }, out failedDomainIds);
                     }
 
-
                     bool canRecord = recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK
-                                        && recording.Id > 0 && Utils.IsValidRecordingStatus(recording.RecordingStatus);
+                                     && recording.Id > 0 && Utils.IsValidRecordingStatus(recording.RecordingStatus);
 
                     if (canRecord)
                     {

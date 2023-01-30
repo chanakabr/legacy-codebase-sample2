@@ -19,9 +19,11 @@ node('Linux') {
 		]
 	}
 
+    def GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+
     stage('Build Base Images'){
-        sh(label:'Bulid Base OTT-BE image', script: 'docker build -t ott-be-base-build:latest -f ./Docker/Base.Build.Dockerfile .')               
-        sh(label:'Bulid Base OTT-BE image', script: 'docker build -t ott-be-base-runtime:latest -f ./Docker/Base.Runtime.Dockerfile .')           
+        sh(label:'Bulid Base OTT-BE image', script: "docker build -t ott-be-base-build:${GIT_COMMIT} -f ./Docker/Base.Build.Dockerfile .")
+        sh(label:'Bulid Base OTT-BE image', script: "docker build -t ott-be-base-runtime:${GIT_COMMIT} --build-arg BUILD_IMAGE=ott-be-base-build:${GIT_COMMIT} -f ./Docker/Base.Runtime.Dockerfile .")
     }
 
 	stage('Test') {
@@ -31,7 +33,8 @@ node('Linux') {
     }
 	
 	stage('Build and Publish') {
-		dockerRet = dockerBuildAndPublishToEcr("ott-service-phoenix-setup-job","./Docker/Phoenix.SetupJob.Dockerfile")
+        buildArgs = ["BUILD_IMAGE":"ott-be-base-build:${GIT_COMMIT}", "RUN_IMAGE":"ott-be-base-runtime:${GIT_COMMIT}"]
+        dockerRet = dockerBuildAndPublishToEcr("ott-service-phoenix-setup-job","./Docker/Phoenix.SetupJob.Dockerfile", [], buildArgs)
 	}
 
 	additionalMsg = "${dockerRet}"
@@ -56,12 +59,13 @@ def runTestInDocker(testProjects){
     def BLUE="\u001B[34m"
     def CYAN="\u001B[36m"
     def testFailed=false
+    def GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
     for(project in testProjects) { 
         if (testFailed) {
             sh "exit 1"
         } 
         echo "${GREEN}------------------------------------------- Starting Tests: ${project} -------------------------------------------${ANSI_END}"
-        withTestbed(['DOTNET_CLI_HOME=/tmp/DOTNET_CLI_HOME'], "mcr.microsoft.com/dotnet/core/sdk:3.1-alpine", project) {
+        withTestbed(['DOTNET_CLI_HOME=/tmp/DOTNET_CLI_HOME'], "ott-be-base-build:${GIT_COMMIT}", project) {
             def testStatus = sh ( script: "dotnet test ${project} --logger \"junit;LogFilePath=./test-results.xml\"", returnStatus: true)
             if(testStatus != 0) {
                 echo "${RED}------------------------------------------- Test: ${project} FAILED!!! -------------------------------------------${ANSI_END}"

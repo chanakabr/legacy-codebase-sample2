@@ -190,6 +190,8 @@ namespace ElasticSearch.Common
                 JObject jsonBody = BuildReindexRequestBody(source, destination, filterQuery, scriptFileName, batchSize);
                 string body = jsonBody.ToString();
                 int status = 0;
+                log.Info(url);
+                log.Info(body);
                 string postResult = SendPostHttpReq(url, ref status, string.Empty, string.Empty, body, true);
                 log.Debug($"Reindex > result:[{postResult}]");
                 if (!string.IsNullOrEmpty(postResult))
@@ -251,8 +253,12 @@ namespace ElasticSearch.Common
 
             jsonBody["dest"] = new JObject();
             jsonBody["dest"]["index"] = destination;
-            jsonBody["script"] = new JObject();
-            jsonBody["script"]["file"] = scriptFileName;
+            if (!string.IsNullOrEmpty(scriptFileName))
+            {
+                jsonBody["script"] = new JObject();
+                jsonBody["script"]["file"] = scriptFileName;
+            }
+
             return jsonBody;
         }
 

@@ -427,6 +427,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dockers", "Dockers", "{AA13
 		Docker\Phoenix.SetupJob.Dockerfile = Docker\Phoenix.SetupJob.Dockerfile
 		Docker\Tvpapi.Dockerfile = Docker\Tvpapi.Dockerfile
 		Docker\WSIngest.Dockerfile = Docker\WSIngest.Dockerfile
+		Docker\Segmentation.Migrator.Dockerfile = Docker\Segmentation.Migrator.Dockerfile
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Jenkins", "Jenkins", "{F481A1A8-8994-438F-B9A2-5C71A24336C0}"
@@ -436,7 +437,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Jenkins", "Jenkins", "{F481
 		jenkins\ci.nuget.push.jenkinsfile = jenkins\ci.nuget.push.jenkinsfile
 		jenkins\ci.phoenix.grpc.jenkinsfile = jenkins\ci.phoenix.grpc.jenkinsfile
 		jenkins\ci.phoenix.setup.job.jenkinsfile = jenkins\ci.phoenix.setup.job.jenkinsfile
-		jenkins\ci.segmentation.migration.reader.jenkinsfile = jenkins\ci.segmentation.migration.reader.jenkinsfile
+		jenkins\ci.segmentation.migrator.jenkinsfile = jenkins\ci.segmentation.migrator.jenkinsfile
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Segmentation.Migrator", "SetupJobs\Segmentation.Migrator\Segmentation.Migrator.csproj", "{3F7AF2E7-3508-4CD6-B688-2C1713505A64}"
