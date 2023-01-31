@@ -600,7 +600,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .IncludeBase<Recording, KalturaRecording>()
                 .ForMember(dest => dest.AbsoluteEndTime, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.AbsoluteEndTime)))
                 .ForMember(dest => dest.AbsoluteStartTime, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.AbsoluteStartTime)))
-                .ForMember(dest => dest.EndPadding, opt => opt.Ignore())
                 ;
 
             // Recording to KalturaRecording
