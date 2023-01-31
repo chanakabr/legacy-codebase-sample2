@@ -2399,7 +2399,7 @@ namespace Core.Recordings
 
                 recording.AbsoluteStartTime = _absoluteStartTime;
                 recording.AbsoluteEndTime = _absoluteEndTime;
-                recording.EndPadding = endPadding ?? 0;
+                recording.EndPadding = absoluteEndOffset;
                 recording.Id = hhRecording.rec.Id;
                 response.Object = recording;
             }
