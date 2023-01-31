@@ -122,6 +122,11 @@ namespace Core.Recordings
             TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(groupId);
             if (accountSettings != null && accountSettings.PersonalizedRecordingEnable == true)
             {
+                if (decreaseDefaultPadding && IsHasDefaultPadding(accountSettings, recording))
+                {
+                    return seconds;
+                }
+
                 if (recording.AbsoluteStartTime.HasValue && recording.AbsoluteEndTime.HasValue)
                 {
                     seconds = PaddedRecordingsManager.Instance.GetImmediateRecordingTimeSpanSeconds(
@@ -135,35 +140,24 @@ namespace Core.Recordings
                     if (recording.StartPadding.HasValue)
                         seconds += 60 * recording.StartPadding.Value;
                 }
-
-                if (decreaseDefaultPadding)
-                {
-                    //BEO-13503, remove default paddings from recording
-                    var defaultStart = Utils.ConvertSecondsToMinutes((int)(accountSettings.PaddingBeforeProgramStarts ?? 0));
-                    var defaultEnd = Utils.ConvertSecondsToMinutes((int)(accountSettings.PaddingAfterProgramEnds ?? 0));
-                    
-                    var shouldRemoveStartPadding = defaultStart.Equals(recording.StartPadding ?? 0);
-                    var shouldRemoveEndPadding = defaultEnd.Equals(recording.EndPadding ?? 0);
-                    
-                    var isImmediate = recording.AbsoluteEndTime.HasValue &&
-                                      (recording.StartPadding == null || recording.StartPadding == 0);
-                    if (shouldRemoveStartPadding && !isImmediate) //not immediate
-                    {
-                        var _s = seconds - accountSettings.PaddingBeforeProgramStarts ?? 0;
-                        seconds -= (int)_s > 0 ? (int)_s : 0;
-                    }
-
-                    var isStopped = recording.AbsoluteEndTime.HasValue &&
-                                    (recording.EndPadding == null || recording.EndPadding == 0);
-                    if (shouldRemoveEndPadding && !isStopped) //not stopped
-                    {
-                        var _s = seconds - accountSettings.PaddingAfterProgramEnds ?? 0;
-                        seconds -= (int)_s > 0 ? (int)_s : 0;
-                    }
-                }
             }
 
-            return seconds;
+            return seconds > 0 ? seconds : 0;
+        }
+
+        private static bool IsHasDefaultPadding(TimeShiftedTvPartnerSettings accountSettings, Recording recording)
+        {
+            if (recording.AbsoluteEndTime.HasValue)
+            {
+                return false;
+            }
+            
+            var defaultStart = Utils.ConvertSecondsToMinutes((int)(accountSettings.PaddingBeforeProgramStarts ?? 0));
+            var defaultEnd = Utils.ConvertSecondsToMinutes((int)(accountSettings.PaddingAfterProgramEnds ?? 0));
+            var shouldRemoveStartPadding = defaultStart.Equals(recording.StartPadding ?? 0);
+            var shouldRemoveEndPadding = defaultEnd.Equals(recording.EndPadding ?? 0);
+            
+            return shouldRemoveStartPadding && shouldRemoveEndPadding;
         }
 
         // public static long GetRecordingDurationWithPaddingSeconds(int groupId, Recording recording,
@@ -274,7 +268,6 @@ namespace Core.Recordings
             {
                 return response;
             }
-
 
             response = allRecords.Values.Where(x => x.isExternalRecording == false)
                 .Select(r => GetRecordingDurationSeconds(groupId, r)).Sum();
