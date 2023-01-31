@@ -982,6 +982,8 @@ namespace Reflector
             }
             else
             {
+                WriteAddCommaIfRequired(tab);
+                file.WriteLine($"{tab}stringBuilder.Append(\"\\\"{dataMemberName}\\\":\");");
                 file.WriteLine($"{tab}stringBuilder.Append(\"{{\");");
                 WriteMapAsJson($"{tab}", propertyName);
                 file.WriteLine($"{tab}stringBuilder.Append(\"}}\");");
