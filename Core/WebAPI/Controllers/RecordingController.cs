@@ -559,7 +559,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidParameters)]
         [Throws(eResponseStatus.RecordingExceededConcurrency)]
         [Throws(eResponseStatus.NotAllowed)]
-        public static KalturaImmediateRecording ImmediateRecord(long assetId, long epgChannelId, int? endPadding)
+        public static KalturaImmediateRecording ImmediateRecord(long assetId, long epgChannelId, int? endPadding = null)
         {
             KalturaImmediateRecording response = null;
 

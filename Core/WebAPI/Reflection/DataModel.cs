@@ -22085,6 +22085,8 @@ namespace WebAPI.Reflection
                             });
                             ret.Add("endPadding", new MethodParam(){
                                 NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
                                 IsNullable = true,
                                 Type = typeof(Int32),
                             });
