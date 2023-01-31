@@ -142,8 +142,8 @@ namespace Core.Recordings
                     var defaultStart = Utils.ConvertSecondsToMinutes((int)(accountSettings.PaddingBeforeProgramStarts ?? 0));
                     var defaultEnd = Utils.ConvertSecondsToMinutes((int)(accountSettings.PaddingAfterProgramEnds ?? 0));
                     
-                    var shouldRemoveStartPadding = !defaultStart.Equals(recording.StartPadding ?? 0);
-                    var shouldRemoveEndPadding = !defaultEnd.Equals(recording.EndPadding ?? 0);
+                    var shouldRemoveStartPadding = defaultStart.Equals(recording.StartPadding ?? 0);
+                    var shouldRemoveEndPadding = defaultEnd.Equals(recording.EndPadding ?? 0);
                     
                     var isImmediate = recording.AbsoluteEndTime.HasValue &&
                                       (recording.StartPadding == null || recording.StartPadding == 0);
