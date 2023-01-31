@@ -2215,9 +2215,9 @@ namespace Core.Recordings
             var accountSettings = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
 
             var _absoluteStartTime = DateTime.UtcNow.RoundDown(TimeSpan.FromMinutes(1));
-            var absoluteEndOffset = endPadding ?? Core.ConditionalAccess.Utils.ConvertSecondsToMinutes(accountSettings.PaddingAfterProgramEnds ?? 0);
+            var absoluteEndOffset = endPadding ?? Core.ConditionalAccess.Utils.ConvertSecondsToMinutes((int)(accountSettings.PaddingAfterProgramEnds ?? 0));
             var _absoluteEndTime =
-                _program.EndDate.AddMinutes(absoluteEndOffset ?? 0).RoundUp(TimeSpan.FromMinutes(1));
+                _program.EndDate.AddMinutes(absoluteEndOffset).RoundUp(TimeSpan.FromMinutes(1));
 
             if (DateTime.UtcNow < _program.StartDate)
             {
@@ -2552,7 +2552,7 @@ namespace Core.Recordings
             if (recording.StartPadding.HasValue && recording.StartPadding.Value > 0)
                 return recording.EpgStartDate.AddMinutes(-1 * recording.StartPadding.Value);
 
-            return recording.EpgStartDate.AddMinutes(-1 * ConditionalAccess.Utils.ConvertSecondsToMinutes(settings.PaddingBeforeProgramStarts ?? 0));
+            return recording.EpgStartDate.AddMinutes(-1 * ConditionalAccess.Utils.ConvertSecondsToMinutes((int)(settings.PaddingBeforeProgramStarts ?? 0)));
         }
 
         public DateTime GetActualEndDate(TimeShiftedTvPartnerSettings settings, Recording recording)
@@ -2563,7 +2563,7 @@ namespace Core.Recordings
             if (recording.EndPadding.HasValue && recording.EndPadding.Value > 0)
                 return recording.EpgEndDate.AddMinutes(recording.EndPadding.Value);
 
-            return recording.EpgEndDate.AddMinutes(ConditionalAccess.Utils.ConvertSecondsToMinutes(settings.PaddingAfterProgramEnds ?? 0));
+            return recording.EpgEndDate.AddMinutes(ConditionalAccess.Utils.ConvertSecondsToMinutes((int)(settings.PaddingAfterProgramEnds ?? 0)));
         }
 
         public bool ScheduleRecordingEvictions()
