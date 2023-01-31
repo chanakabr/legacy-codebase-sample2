@@ -17,6 +17,7 @@ using CachingProvider.LayeredCache;
 using DAL;
 using DAL.Recordings;
 using Newtonsoft.Json;
+using Notifiers;
 using Phoenix.Generated.Tasks.Scheduled.EvictRecording;
 using Phoenix.Generated.Tasks.Scheduled.RetryRecording;
 using Phoenix.Generated.Tasks.Scheduled.VerifyRecordingFinalStatus;
@@ -2214,7 +2215,7 @@ namespace Core.Recordings
             var accountSettings = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
 
             var _absoluteStartTime = DateTime.UtcNow.RoundDown(TimeSpan.FromMinutes(1));
-            var absoluteEndOffset = endPadding ?? accountSettings.PaddingAfterProgramEnds;
+            var absoluteEndOffset = endPadding ?? Core.ConditionalAccess.Utils.ConvertSecondsToMinutes(accountSettings.PaddingAfterProgramEnds ?? 0);
             var _absoluteEndTime =
                 _program.EndDate.AddMinutes(absoluteEndOffset ?? 0).RoundUp(TimeSpan.FromMinutes(1));
 
@@ -2278,7 +2279,7 @@ namespace Core.Recordings
             syncParmeters.Add("absoluteEnd", _absoluteEndTime);
             syncParmeters.Add("startDate", _program.StartDate); 
             syncParmeters.Add("endDate", _program.EndDate); //calc viewable until date
-            syncParmeters.Add("paddingAfter", endPadding);
+            syncParmeters.Add("paddingAfter", absoluteEndOffset);
             syncParmeters.Add("crid", epgs.First().CRID);
 
             try
@@ -2551,7 +2552,7 @@ namespace Core.Recordings
             if (recording.StartPadding.HasValue && recording.StartPadding.Value > 0)
                 return recording.EpgStartDate.AddMinutes(-1 * recording.StartPadding.Value);
 
-            return recording.EpgStartDate.AddMinutes(-1 * settings.PaddingBeforeProgramStarts ?? 0);
+            return recording.EpgStartDate.AddMinutes(-1 * ConditionalAccess.Utils.ConvertSecondsToMinutes(settings.PaddingBeforeProgramStarts ?? 0));
         }
 
         public DateTime GetActualEndDate(TimeShiftedTvPartnerSettings settings, Recording recording)
@@ -2562,7 +2563,7 @@ namespace Core.Recordings
             if (recording.EndPadding.HasValue && recording.EndPadding.Value > 0)
                 return recording.EpgEndDate.AddMinutes(recording.EndPadding.Value);
 
-            return recording.EpgEndDate.AddMinutes(settings.PaddingAfterProgramEnds ?? 0);
+            return recording.EpgEndDate.AddMinutes(ConditionalAccess.Utils.ConvertSecondsToMinutes(settings.PaddingAfterProgramEnds ?? 0));
         }
 
         public bool ScheduleRecordingEvictions()
