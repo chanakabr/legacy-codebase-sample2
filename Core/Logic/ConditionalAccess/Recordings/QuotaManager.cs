@@ -142,7 +142,7 @@ namespace Core.Recordings
                 }
             }
 
-            return seconds > 0 ? seconds : 0;
+            return seconds > 0 ? seconds : 0; 
         }
 
         private static bool IsHasDefaultPadding(TimeShiftedTvPartnerSettings accountSettings, Recording recording)
