@@ -10,6 +10,7 @@
 
     <ItemGroup>
       <Folder Include="ConditionalAccess\generated\tasks\scheduled" />
+      <Folder Include="Recording\definition\api\events" />
     </ItemGroup>
 
 </Project>

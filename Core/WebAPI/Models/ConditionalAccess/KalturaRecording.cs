@@ -78,5 +78,14 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "updateDate")]
         [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
+        
+        /// <summary>
+        /// Duration in seconds
+        /// </summary>
+        [DataMember(Name = "duration")]
+        [JsonProperty("duration")]
+        [XmlElement(ElementName = "duration", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true, IsNullable = true)]
+        public long? Duration { get; set; }
     }
 }

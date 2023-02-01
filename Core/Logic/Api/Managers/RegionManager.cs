@@ -560,7 +560,7 @@ namespace ApiLogic.Api.Managers
                 regionsCache = null;
             }
 
-            return new Tuple<RegionsCache, bool>(regionsCache, regionsCache != null);
+            return new Tuple<RegionsCache, bool>(regionsCache, regionsCache != null);   
         }
 
         private static List<long> GetLinearChannelsDiff(IEnumerable<KeyValuePair<long, int>> newLinearChannels, IEnumerable<KeyValuePair<long, int>> existingLinearChannels)

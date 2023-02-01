@@ -5937,8 +5937,8 @@ namespace Core.ConditionalAccess
                         }
                         else
                         {
-                            recording.StartPadding = paddingBefore ?? (accountSettings.PaddingBeforeProgramStarts.HasValue ? (int)accountSettings.PaddingBeforeProgramStarts : 0);
-                            recording.EndPadding = paddingAfter ?? (accountSettings.PaddingAfterProgramEnds.HasValue ? (int)accountSettings.PaddingAfterProgramEnds : 0);   
+                            recording.StartPadding = paddingBefore ?? ConvertSecondsToMinutes((int)(accountSettings.PaddingBeforeProgramStarts ?? 0)); //Seconds to minutes
+                            recording.EndPadding = paddingAfter ?? ConvertSecondsToMinutes((int)(accountSettings.PaddingAfterProgramEnds ?? 0)); //seconds to minutes
                         }
                     }
                     else if (accountSettings.PaddingBeforeProgramStarts.HasValue && accountSettings.PaddingAfterProgramEnds.HasValue)
@@ -5999,6 +5999,16 @@ namespace Core.ConditionalAccess
             }
 
             return recording;
+        }
+
+        public static int ConvertSecondsToMinutes(int? accountSettingsPaddingBeforeProgramStarts)
+        {
+            if (!accountSettingsPaddingBeforeProgramStarts.HasValue || accountSettingsPaddingBeforeProgramStarts.Value == 0)
+                return 0;
+
+            var val = (double)accountSettingsPaddingBeforeProgramStarts.Value;
+            var minutes = TimeSpan.FromSeconds(val).TotalMinutes;
+            return (int)Math.Ceiling(minutes);
         }
 
         internal static int MapActionTypeForAdapter(eEPGFormatType eformat)

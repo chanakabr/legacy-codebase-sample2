@@ -5500,7 +5500,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaPaddedRecording
     {
-        private static RuntimeSchemePropertyAttribute PaddingBeforeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPaddedRecording")
+        private static RuntimeSchemePropertyAttribute StartPaddingSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPaddedRecording")
         {
             ReadOnly = false,
             InsertOnly = false,
@@ -5515,7 +5515,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        private static RuntimeSchemePropertyAttribute PaddingAfterSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPaddedRecording")
+        private static RuntimeSchemePropertyAttribute EndPaddingSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPaddedRecording")
         {
             ReadOnly = false,
             InsertOnly = false,
@@ -5538,13 +5538,13 @@ namespace WebAPI.Models.ConditionalAccess
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("startPadding") && parameters["startPadding"] != null)
                 {
-                    PaddingBeforeSchemaProperty.Validate("startPadding", parameters["startPadding"]);
-                    PaddingBefore = (Int32) Convert.ChangeType(parameters["startPadding"], typeof(Int32));
+                    StartPaddingSchemaProperty.Validate("startPadding", parameters["startPadding"]);
+                    StartPadding = (Int32) Convert.ChangeType(parameters["startPadding"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("endPadding") && parameters["endPadding"] != null)
                 {
-                    PaddingAfterSchemaProperty.Validate("endPadding", parameters["endPadding"]);
-                    PaddingAfter = (Int32) Convert.ChangeType(parameters["endPadding"], typeof(Int32));
+                    EndPaddingSchemaProperty.Validate("endPadding", parameters["endPadding"]);
+                    EndPadding = (Int32) Convert.ChangeType(parameters["endPadding"], typeof(Int32));
                 }
             }
         }
@@ -6288,6 +6288,20 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
+        private static RuntimeSchemePropertyAttribute DurationSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRecording")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         public KalturaRecording(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
@@ -6351,6 +6365,11 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("duration") && parameters["duration"] != null)
+                {
+                    DurationSchemaProperty.Validate("duration", parameters["duration"]);
+                    Duration = (Int64) Convert.ChangeType(parameters["duration"], typeof(Int64));
                 }
             }
         }

@@ -14,7 +14,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("startPadding")]
         [XmlElement(ElementName = "startPadding", IsNullable = true)]
         [SchemeProperty(MinInteger = 0, IsNullable = true)]
-        public int? PaddingBefore { get; set; }
+        public int? StartPadding { get; set; }
         
         /// <summary>
         /// Household specific end padding of the recording
@@ -23,6 +23,6 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("endPadding")]
         [XmlElement(ElementName = "endPadding", IsNullable = true)]
         [SchemeProperty(MinInteger = 0, IsNullable = true)]
-        public int? PaddingAfter { get; set; }
+        public int? EndPadding { get; set; }
     }
 }
