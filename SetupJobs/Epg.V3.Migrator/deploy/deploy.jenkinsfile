@@ -127,6 +127,7 @@ def deployComponent(component_name,component_name_und){
                 --set partner=${partner}\
                 --set branch=${branch}\
                 --set batch_size=${batch_size}\
+                --set target_env=${target_env}\
                  > deploy.yaml
 
                 argocd app create --file deploy.yaml --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web} --upsert
@@ -177,6 +178,7 @@ def deployComponent(component_name,component_name_und){
                     --set partner=${partner}\
                     --set branch=${branch}\
                     --set batch_size=${batch_size}\
+                    --set target_env=${target_env}\
                      > deploy.yaml
 
                     argocd app create --file deploy.yaml --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web} --upsert

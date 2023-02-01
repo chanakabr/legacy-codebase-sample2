@@ -133,6 +133,7 @@ def deployComponent(component_name,component_name_und){
                 --set original_epg_version=${original_epg_version}\
                 --set preserve_data_from_v3=${preserve_data_from_v3}\
                 --set rollback_from_backup_epg_v2=${rollback_from_backup_epg_v2}\
+                --set target_env=${target_env}\
                  > deploy.yaml
 
                 argocd app create --file deploy.yaml --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web} --upsert
@@ -186,6 +187,7 @@ def deployComponent(component_name,component_name_und){
                     --set original_epg_version=${original_epg_version}\
                     --set preserve_data_from_v3=${preserve_data_from_v3}\
                     --set rollback_from_backup_epg_v2=${rollback_from_backup_epg_v2}\
+                    --set target_env=${target_env}\
                      > deploy.yaml
 
                     argocd app create --file deploy.yaml --server ${argo_server} --auth-token ${argo_token} ${insecure} ${grpc_web} --upsert

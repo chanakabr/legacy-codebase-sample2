@@ -34,4 +34,6 @@ spec:
           value: "{{ .Values.preserve_data_from_v3 }}"
         - name: rollback_from_backup_epg_v2
           value: "{{ .Values.rollback_from_backup_epg_v2 }}"
+        - name: target_env
+          value: "{{ .Values.target_env }}"
    
