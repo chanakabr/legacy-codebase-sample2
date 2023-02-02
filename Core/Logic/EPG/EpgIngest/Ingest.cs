@@ -197,6 +197,7 @@ namespace EpgIngest
 
         private bool SaveChannelPrograms(List<programme> programs, int kalturaChannelID, string channelID, EpgChannelType epgChannelType, IngestResponse ingestResponse, DateTime dPublishDate)
         {
+            log.Info($"BEO-12687: Start SaveChannelPrograms for kalturaChannelId {kalturaChannelID}, channelId {channelID}, programs count {programs.Count}");
             var epgChannelIds = new List<string>() { kalturaChannelID.ToString() };
             // EpgObject m_ChannelsFaild = null; // save all program that got exceptions TODO ????????            
             bool success = false;
@@ -208,7 +209,6 @@ namespace EpgIngest
             EpgPicture epgPicture;
             string language = string.Empty;
 
-            Dictionary<string, EpgCB> dEpgCbTranslate = new Dictionary<string, EpgCB>(); // Language, EpgCB
             Dictionary<string, List<KeyValuePair<string, EpgCB>>> dEpg = new Dictionary<string, List<KeyValuePair<string, EpgCB>>>();// EpgIdentifier , <Language, EpgCB>
 
             //update log topic with kaltura channelID
@@ -260,6 +260,7 @@ namespace EpgIngest
                     DateTime dDate = new DateTime(dProgStartDate.Year, dProgStartDate.Month, dProgStartDate.Day);
                     if (!deletedDays.Contains(dDate))
                     {
+                        log.Warn($"BEO-12687: kalturaChannelId: {kalturaChannelID}; day {dDate}; publish date {dPublishDate}");
                         deletedDays.Add(dDate);
                     }
 
@@ -283,7 +284,7 @@ namespace EpgIngest
 
                     #region Name  With languages
 
-                    dEpgCbTranslate = new Dictionary<string, EpgCB>(); // name.lang, EpgCB
+                    var dEpgCbTranslate = new Dictionary<string, EpgCB>(); // name.lang, EpgCB
 
                     foreach (title name in prog.title)
                     {
@@ -339,10 +340,17 @@ namespace EpgIngest
                             long imageTypeId = 0;
                             if (isOpcAccount)
                             {
-                                if (groupRatioNamesToImageTypes.ContainsKey(icon.ratio))
+                                if (icon != null && icon.ratio != null)
                                 {
-                                    imageTypeId = groupRatioNamesToImageTypes[icon.ratio].Id;
-                                    ratio = (int)groupRatioNamesToImageTypes[icon.ratio].RatioId.Value;
+                                    if (groupRatioNamesToImageTypes.ContainsKey(icon.ratio))
+                                    {
+                                        imageTypeId = groupRatioNamesToImageTypes[icon.ratio].Id;
+                                        ratio = (int)groupRatioNamesToImageTypes[icon.ratio].RatioId.Value;
+                                    }
+                                }
+                                else
+                                {
+                                    log.Warn($"icon.ratio is null for prog {prog.id} : {prog.external_id}");
                                 }
                             }
                             else
@@ -452,7 +460,7 @@ namespace EpgIngest
                 catch (Exception ex)
                 {
                     success = false;
-                    log.Error("Genarate Epgs - " + string.Format("Exception in generating EPG name {0} in group: {1}. exception: {2} ", newEpgItem.Name, m_Channels.parentgroupid, ex.Message), ex);
+                    log.Error($"Genarate Epgs - Exception in generating EPG name {newEpgItem.Name}, epgId {newEpgItem.EpgID}, coGuid {newEpgItem.CoGuid}; - in group: {m_Channels.parentgroupid}. exception: {ex}", ex);
                 }
             }
 
@@ -554,6 +562,10 @@ namespace EpgIngest
             return success;
         }
 
+        private string ProgToString(programme prog)
+        {
+            return $"external_id: {prog.external_id};";
+        }
         private void GetProtectedEpgMetas(ref Dictionary<string, List<KeyValuePair<string, EpgCB>>> dEpg, List<EpgCB> lResCB, List<string> protectedMetaName)
         {
             if (lResCB == null || lResCB.Count() == 0)
@@ -733,6 +745,7 @@ namespace EpgIngest
                 string epgIDCB = string.Empty;
 
                 DataTable dt = EpgDal.EpgGuidExsits(epgGuid, groupID, channelID);
+                log.Warn($"BEO-12687: epgGuid.Count = {epgGuid.Count}; epgGuid = {string.Join(",", epgGuid)}");
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     foreach (DataRow dr in dt.Rows)
@@ -759,6 +772,7 @@ namespace EpgIngest
                     }
                 }
 
+
                 if (epgIds.Count > 0)
                 {
                     // get all epg object from CB
@@ -769,6 +783,11 @@ namespace EpgIngest
                     // TO DO need to add all keys for languages 
                     if (lResCB != null && lResCB.Count > 0) // start comper the objects
                     {
+                        foreach (var epgGuid1 in epgGuid)
+                        {
+                            log.Warn($"BEO-12687: epgGuid {epgGuid1} exists or not in lResCB: {lResCB.Exists(epg => epg.CoGuid == epgGuid1)}");
+                        }
+                        log.Warn($"BEO-12687: lResCB.Count = {lResCB.Count}; lResCB = {string.Join(",", lResCB.Select(epg => epg.CoGuid))}");
                         foreach (EpgCB cbEpg in lResCB)
                         {
                             if (epgDic.ContainsKey(cbEpg.EpgIdentifier))
@@ -824,6 +843,7 @@ namespace EpgIngest
                                 if (epgDic[cbEpg.EpgIdentifier].Count() == 0)
                                 {
                                     epgDic.Remove(cbEpg.EpgIdentifier);
+                                    log.Info($"GapsInvestigation: Removing from epgDic EpgIdentifier of {cbEpg.EpgIdentifier}");
                                 }
 
                                 removeLang.Clear();
@@ -1049,6 +1069,7 @@ namespace EpgIngest
                         {
                             epgDic[sGuid].EpgID = nEPG_ID;  //update the EPGCB with the ID
                             updateEpgDic.Add(sGuid, epgDic[sGuid]);
+                            log.Info($"GapsInvestigation: UpdateEPG_Channels_sched going to update {epgDic[sGuid].EpgID}");
                         }
                     }
                 }
@@ -1079,6 +1100,7 @@ namespace EpgIngest
                 if (kv.Value != null && kv.Value.EpgID == 0)
                 {
                     insertEpgDic.Add(kv.Key, kv.Value);
+                    log.Info($"GapsInvestigation: InsertEPG_Channels_sched going to insert EPG with external ID {kv.Value.EpgIdentifier}");
                 }
             }
             InitTables.FillEPGDataTable(insertEpgDic, ref dtEPG, dPublishDate);
