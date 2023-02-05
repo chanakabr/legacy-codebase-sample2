@@ -562,10 +562,6 @@ namespace EpgIngest
             return success;
         }
 
-        private string ProgToString(programme prog)
-        {
-            return $"external_id: {prog.external_id};";
-        }
         private void GetProtectedEpgMetas(ref Dictionary<string, List<KeyValuePair<string, EpgCB>>> dEpg, List<EpgCB> lResCB, List<string> protectedMetaName)
         {
             if (lResCB == null || lResCB.Count() == 0)
@@ -745,7 +741,7 @@ namespace EpgIngest
                 string epgIDCB = string.Empty;
 
                 DataTable dt = EpgDal.EpgGuidExsits(epgGuid, groupID, channelID);
-                log.Warn($"BEO-12687: epgGuid.Count = {epgGuid.Count}; epgGuid = {string.Join(",", epgGuid)}");
+
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     foreach (DataRow dr in dt.Rows)
@@ -783,11 +779,6 @@ namespace EpgIngest
                     // TO DO need to add all keys for languages 
                     if (lResCB != null && lResCB.Count > 0) // start comper the objects
                     {
-                        foreach (var epgGuid1 in epgGuid)
-                        {
-                            log.Warn($"BEO-12687: epgGuid {epgGuid1} exists or not in lResCB: {lResCB.Exists(epg => epg.CoGuid == epgGuid1)}");
-                        }
-                        log.Warn($"BEO-12687: lResCB.Count = {lResCB.Count}; lResCB = {string.Join(",", lResCB.Select(epg => epg.CoGuid))}");
                         foreach (EpgCB cbEpg in lResCB)
                         {
                             if (epgDic.ContainsKey(cbEpg.EpgIdentifier))
@@ -843,7 +834,7 @@ namespace EpgIngest
                                 if (epgDic[cbEpg.EpgIdentifier].Count() == 0)
                                 {
                                     epgDic.Remove(cbEpg.EpgIdentifier);
-                                    log.Info($"GapsInvestigation: Removing from epgDic EpgIdentifier of {cbEpg.EpgIdentifier}");
+                                    log.Info($"BEO-12687: Removing from epgDic EpgIdentifier of {cbEpg.EpgIdentifier}");
                                 }
 
                                 removeLang.Clear();
@@ -1069,7 +1060,6 @@ namespace EpgIngest
                         {
                             epgDic[sGuid].EpgID = nEPG_ID;  //update the EPGCB with the ID
                             updateEpgDic.Add(sGuid, epgDic[sGuid]);
-                            log.Info($"GapsInvestigation: UpdateEPG_Channels_sched going to update {epgDic[sGuid].EpgID}");
                         }
                     }
                 }
