@@ -10619,7 +10619,7 @@ namespace WebAPI.Reflection
                                 return EntitlementController.ListOldStandard((KalturaEntitlementsFilter) methodParams[0]);
                             }
                             RolesManager.ValidateActionPermitted("entitlement", "list", WebAPI.Managers.eKSValidation.All);
-                            return EntitlementController.List((KalturaBaseEntitlementFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            return EntitlementController.List((KalturaEntitlementFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "listexpired":
                             RolesManager.ValidateActionPermitted("entitlement", "listExpired", WebAPI.Managers.eKSValidation.All);
@@ -17566,7 +17566,7 @@ namespace WebAPI.Reflection
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,
                                 IsKalturaObject = true,
-                                Type = typeof(KalturaBaseEntitlementFilter),
+                                Type = typeof(KalturaEntitlementFilter),
                             });
                             ret.Add("pager", new MethodParam(){
                                 NewName = newParamName,
