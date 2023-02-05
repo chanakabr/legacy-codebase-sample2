@@ -63,11 +63,12 @@ namespace ElasticSearchHandler.IndexBuilders
             var tstvs = Core.ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
             if (tstvs.PersonalizedRecordingEnable == true)
             {
-                log.Warn($"rebuild recording index for EBR not supported {groupId}");
-                return;
+                new RebuildRecordingsIndexMessageService().PublishKafkaEvent(groupId, languages, SwitchIndexAlias, DeleteOldIndices, newIndexName);
             }
-
-            PopulateIndexPaging(newIndexName, languages);
+            else
+            {
+                PopulateIndexPaging(newIndexName, languages);
+            }
         }
 
         private void PopulateIndexPaging(string newIndexName, List<LanguageObj> languages, long minId = 0)
@@ -131,6 +132,11 @@ namespace ElasticSearchHandler.IndexBuilders
 
         protected override bool FinishUpEpgIndex(string newIndexName)
         {
+            var tstvs = Core.ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
+            if (tstvs.PersonalizedRecordingEnable == true)
+            {
+                return true;
+            }
             return _IndexManager.PublishEpgIndex(newIndexName, isRecording: true, this.SwitchIndexAlias, this.DeleteOldIndices);
         }
 
