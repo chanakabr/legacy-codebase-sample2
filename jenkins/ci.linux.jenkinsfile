@@ -17,13 +17,16 @@ stage('Unified-CI'){
             "Linux" : {
                 node('Linux'){   
                     try{                        
-                        stage('Checkout'){
+                        stage('Checkout') {
                             deleteDir()
-                            git branch: "${BRANCH_NAME}", credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend'
-                            script {
-                                committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim() 
-                            }
+                            checkout scm: [
+                                    $class: 'GitSCM',
+                                    branches: scm.branches,
+                                    submoduleCfg: [],
+                                    userRemoteConfigs: scm.userRemoteConfigs
+                            ]
                         }
+
                         stage('Build Base Images'){
                             def GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
                             sh(label:'Bulid Base OTT-BE image', script: "docker build -t ott-be-base-build:${GIT_COMMIT} -f ./Docker/Base.Build.Dockerfile .")
@@ -178,6 +181,18 @@ stage('Unified-CI'){
                 }       
             },
             failFast: true)
+        if (ci.is_building_tag()){
+            stage("Release BE"){
+                build (
+                        wait: false, 
+                        job: 'OTT-BE-Release-Wrapper', 
+                        parameters: [
+                            string(name: 'BRANCH', value: "${BRANCH_NAME}"), 
+                            string(name: 'type', value: 'main')
+                            ]
+                    )
+            }
+            }
         stage('Trigger Wrapper'){
             git branch: "${BRANCH_NAME}", credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend'
             COMMITER = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
@@ -284,8 +299,9 @@ def buildMsProject(projectFilePath, outputPath, component){
 
 //unified-report
 def report(){
-    def committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
-    echo "${committerEmail}"
+    // def committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
+    // echo "${committerEmail}"
+    comm
     def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "git rev-parse HEAD", returnStdout: true).trim()
     echo "${GIT_COMMIT}"
     node('Linux'){
