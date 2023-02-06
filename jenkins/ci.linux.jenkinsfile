@@ -1,6 +1,5 @@
 library identifier: 'ott-lib-jenkins@master', retriever: modernSCM([$class: 'GitSCMSource', credentialsId: 'github-ott-ci-cd', remote: 'https://github.com/kaltura/ott-lib-jenkins'])
-stage('Unified-CI'){
-    node('Linux'){  
+stage('Unified-CI'){ 
         AWS_REGION = 'us-west-2'
         ECR_URL = '870777418594.dkr.ecr.us-west-2.amazonaws.com'
         component = env.JOB_NAME
@@ -62,18 +61,6 @@ stage('Unified-CI'){
                                 buildAndPublishInterserviceClients("playback-adapter")
                             }
                         }
-                        if (ci.is_building_tag()){
-                        stage("Release BE"){
-                            build (
-                                    wait: false, 
-                                    job: 'OTT-BE-Release-Wrapper', 
-                                    parameters: [
-                                        string(name: 'BRANCH', value: "${BRANCH_NAME}"), 
-                                        string(name: 'type', value: 'main')
-                                        ]
-                                )
-                        }
-                        }
                         stage("Trigger Sonar Scan"){
                             if (BRANCH_NAME == "master") {
                                 build (
@@ -103,10 +90,14 @@ stage('Unified-CI'){
                                     sh label: 'clean bin and obj folders', script: 'find . -iname \'bin\' -o -iname \'obj\' | xargs rm -rf'
                                     sh label: 'clean published folder', script: 'rm -rf ./published'
                                 }
-                                stage('Checkout'){
-                                    git branch: "${BRANCH_NAME}", credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend'
-                                    // committerEmail = sh (returnStdout: true, script: 'git --no-pager show -s --format=\'%ae\'').trim()
-
+                                stage('Checkout') {
+                                    deleteDir()
+                                    checkout scm: [
+                                            $class: 'GitSCM',
+                                            branches: scm.branches,
+                                            submoduleCfg: [],
+                                            userRemoteConfigs: scm.userRemoteConfigs
+                                    ]
                                 }
                                 stage("Version Patch"){
                                     dir('Core') { bat 'sh DllVersioning.Core.sh .' }
@@ -193,12 +184,23 @@ stage('Unified-CI'){
                 }       
             },
             failFast: true)
+        if (ci.is_building_tag()){
+            stage("Release BE"){
+                build (
+                        wait: false, 
+                        job: 'OTT-BE-Release-Wrapper', 
+                        parameters: [
+                            string(name: 'BRANCH', value: "${BRANCH_NAME}"), 
+                            string(name: 'type', value: 'main')
+                            ]
+                    )
+            }
+            }
         stage('Trigger Wrapper'){
             git branch: "${BRANCH_NAME}", credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend'
             // COMMITER = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
             triggerWrapper()
         }
-    }
 }
 
 //linux funcs
@@ -299,8 +301,8 @@ def buildMsProject(projectFilePath, outputPath, component){
 
 //unified-report
 def report(){
-    // def committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
-    // echo "${committerEmail}"
+    def committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
+    echo "${committerEmail}"
     comm
     def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "git rev-parse HEAD", returnStdout: true).trim()
     echo "${GIT_COMMIT}"
