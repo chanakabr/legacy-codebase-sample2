@@ -1,6 +1,5 @@
 library identifier: 'ott-lib-jenkins@master', retriever: modernSCM([$class: 'GitSCMSource', credentialsId: 'github-ott-ci-cd', remote: 'https://github.com/kaltura/ott-lib-jenkins'])
-stage('Unified-CI'){
-    node('Linux'){  
+stage('Unified-CI'){ 
         AWS_REGION = 'us-west-2'
         ECR_URL = '870777418594.dkr.ecr.us-west-2.amazonaws.com'
         component = env.JOB_NAME
@@ -198,7 +197,6 @@ stage('Unified-CI'){
             COMMITER = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
             triggerWrapper()
         }
-    }
 }
 
 //linux funcs
