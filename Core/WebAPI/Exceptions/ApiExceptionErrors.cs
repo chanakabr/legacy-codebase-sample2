@@ -169,6 +169,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType CAN_ONLY_ADD_RECORDING_BEFORE_RECORDING_START = new ClientExceptionType(eResponseStatus.CanOnlyAddRecordingBeforeRecordingStart, "Can Only Add Recording Before Recording Start", "Can Only Add Recording Before Recording Start");
         public static ClientExceptionType CAN_ONLY_CANCEL_RECORDING_BEFORE_RECORDING_START = new ClientExceptionType(eResponseStatus.CanOnlyCancelRecordingBeforeRecordingEnd, "Can Only Cancel Recording Before Recording End", "Can Only Cancel Recording Before Recording End");
         public static ClientExceptionType CAN_ONLY_DELETE_RECORDING_AFTER_RECORDING_END = new ClientExceptionType(eResponseStatus.CanOnlyDeleteRecordingAfterRecordingEnd, "Can Only Delete Recording After Recording end", "Can Only Delete Recording After Recording end");
+        public static ClientExceptionType RECORDING_EXCEEDED_CONCURRENCY = new ClientExceptionType(eResponseStatus.RecordingExceededConcurrency, "Recording Exceeded Concurrency", "Recording Exceeded Concurrency");
 
         #endregion
 

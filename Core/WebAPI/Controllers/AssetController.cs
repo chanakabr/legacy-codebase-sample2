@@ -522,7 +522,12 @@ namespace WebAPI.Controllers
                 if (Utils.Utils.DoesGroupUsesTemplates(groupId))
                 {
                     var epgAsset = ClientsManager.CatalogClient().GetEpgAsset(groupId, epgId, isAllowedToViewInactiveAssets);
-                    return new KalturaRecordingAsset(epgAsset) { RecordingId = id.ToString(), RecordingType = recording.Type };
+                    return new KalturaRecordingAsset(epgAsset)
+                    {
+                        RecordingId = id.ToString(),
+                        RecordingType = recording.Type, 
+                        ViewableUntilDate = recording.ViewableUntilDate.HasValue ? recording.ViewableUntilDate.Value : 0
+                    };
                 }
                 else
                 {

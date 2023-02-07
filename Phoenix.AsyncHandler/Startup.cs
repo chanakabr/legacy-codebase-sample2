@@ -39,6 +39,8 @@ using Phoenix.AsyncHandler.Recording;
 using Phoenix.Generated.Api.Events.Crud.Household;
 using Phoenix.Generated.Api.Events.Crud.ProgramAsset;
 using Phoenix.Generated.Api.Events.Logical.appstoreNotification;
+using Phoenix.Generated.Api.Events.Logical.IndexRecording;
+using Phoenix.Generated.Api.Events.Logical.RebuildRecordingsIndex;
 using Phoenix.Generated.Tasks.Recurring.EpgV3Cleanup;
 using Phoenix.Generated.Tasks.Recurring.LiveToVodTearDown;
 using Phoenix.Generated.Tasks.Recurring.ScheduleRecordingEvictions;
@@ -74,7 +76,7 @@ namespace Phoenix.AsyncHandler
                         .AddDependencies()
                         .AddKafkaHandlersFromAssembly()
                         .AddMetricsAndHealthHttpServer();
-                })
+                }).ConfigureMappings()
                 .ConfigureEventNotificationsConfig();
 
             return builder;
@@ -157,6 +159,8 @@ namespace Phoenix.AsyncHandler
 
         public static IServiceCollection AddKafkaHandlersFromAssembly(this IServiceCollection services)
         {
+            services.AddKafkaHandler<IndexRecordingHandler, IndexRecording>("Index-Recording", IndexRecording.GetTopic());
+            services.AddKafkaHandler<RebuildRecordingsIndexHandler, RebuildRecordingsIndex>("rebuild-recordings-index", RebuildRecordingsIndex.GetTopic());
             services.AddKafkaHandler<HouseholdNpvrAccountHandler, Household>("household-npvr-account", Household.GetTopic());
             services.AddKafkaHandler<EntitlementLogicalHandler, AppstoreNotification>("appstore-notification", AppstoreNotification.GetTopic());
             services.AddKafkaHandler<LiveToVodAssetHandler, ProgramAsset>("live-to-vod-asset", ProgramAsset.GetTopic());

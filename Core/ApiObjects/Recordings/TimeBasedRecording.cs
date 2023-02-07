@@ -70,6 +70,8 @@ namespace ApiObjects.Recordings
         {
             Status = tstvRecordingStatus.ToString();
         }
+
+        public bool IsImmediateRecording() => AbsoluteEndTime.HasValue;
     }
 }
   

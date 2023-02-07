@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -10,7 +9,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// Entitlements filter 
     /// </summary>
-    public partial class KalturaEntitlementFilter : KalturaBaseEntitlementFilter
+    public partial class KalturaEntitlementFilter : KalturaFilter<KalturaEntitlementOrderBy>
     {
         /// <summary>
         ///The type of the entitlements to return
@@ -19,6 +18,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("entitlementTypeEqual")]
         [XmlElement(ElementName = "entitlementTypeEqual")]
         [OldStandardProperty("entitlement_type")]
+        [SchemeProperty(IsNullable = true)]
         [Deprecated("4.8.0.0")]
         public KalturaTransactionType? EntitlementTypeEqual { get; set; }
 
@@ -28,6 +28,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "productTypeEqual")]
         [JsonProperty("productTypeEqual")]
         [XmlElement(ElementName = "productTypeEqual")]
+        [SchemeProperty(IsNullable = true)]
         public KalturaTransactionType? ProductTypeEqual { get; set; }
 
         /// <summary>
@@ -44,6 +45,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "isExpiredEqual")]
         [JsonProperty("isExpiredEqual")]
         [XmlElement(ElementName = "isExpiredEqual")]
+        [SchemeProperty(IsNullable = true)]
         public bool? IsExpiredEqual { get; set; }
 
         public override KalturaEntitlementOrderBy GetDefaultOrderByValue()

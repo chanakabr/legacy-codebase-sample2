@@ -6,9 +6,9 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
+using WebAPI.ModelsValidators;
 using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
-using WebAPI.ModelsValidators;
 
 namespace WebAPI.Controllers
 {
@@ -228,7 +228,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.UserDoesNotExist)]
-        static public KalturaEntitlementListResponse List(KalturaBaseEntitlementFilter filter, KalturaFilterPager pager = null)
+        static public KalturaEntitlementListResponse List(KalturaEntitlementFilter filter, KalturaFilterPager pager = null)
         {
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -242,9 +242,10 @@ namespace WebAPI.Controllers
             KalturaEntitlementListResponse response = null;
             switch (filter)
             {
+                case KalturaProgramAssetGroupOfferEntitlementFilter f:
+                    response = ListByPagoEntitlementFilter(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), pager, f); break;
                 case KalturaEntitlementFilter f:
                     response = ListByEntitlementFilter(groupId, KS.GetFromRequest().UserId, pager, f); break;
-                case KalturaProgramAssetGroupOfferEntitlementFilter f: response = ListByPagoEntitlementFilter(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), pager, f); break;
                 default: throw new NotImplementedException($"List for {filter.objectType} is not implemented");
             }
 
@@ -257,7 +258,7 @@ namespace WebAPI.Controllers
 
         private static KalturaEntitlementListResponse ListByPagoEntitlementFilter(int groupId, int domainId, KalturaFilterPager pager, KalturaProgramAssetGroupOfferEntitlementFilter filter)
         {
-            return  ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, domainId,
+            return ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, domainId,
                            KalturaTransactionType.programAssetGroupOffer, false, pager.PageSize.Value, pager.GetRealPageIndex(), filter.OrderBy);
         }
 
@@ -268,17 +269,17 @@ namespace WebAPI.Controllers
                 case KalturaEntityReferenceBy.user:
                     {
                         return ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, userId,
-                            filter.EntitlementTypeEqual.HasValue ? filter.EntitlementTypeEqual.Value : filter.ProductTypeEqual.Value,
+                            filter.EntitlementTypeEqual ?? filter.ProductTypeEqual.Value,
                             filter.getIsExpiredEqual(), pager.PageSize.Value, pager.GetRealPageIndex(), filter.OrderBy);
                     }
                 case KalturaEntityReferenceBy.household:
                     {
-                        return  ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId),
-                            filter.EntitlementTypeEqual.HasValue ? filter.EntitlementTypeEqual.Value : filter.ProductTypeEqual.Value,
+                        return ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId),
+                            filter.EntitlementTypeEqual ?? filter.ProductTypeEqual.Value,
                             filter.getIsExpiredEqual(), pager.PageSize.Value, pager.GetRealPageIndex(), filter.OrderBy);
                     }
             }
-            
+
             return null;
         }
 
