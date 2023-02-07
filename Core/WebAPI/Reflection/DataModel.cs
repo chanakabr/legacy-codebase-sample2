@@ -5899,9 +5899,9 @@ namespace WebAPI.Reflection
                 case "KalturaPaddedRecording":
                     switch(property.Name)
                     {
-                        case "PaddingAfter":
+                        case "EndPadding":
                             return "endPadding";
-                        case "PaddingBefore":
+                        case "StartPadding":
                             return "startPadding";
                     }
                     break;
@@ -7199,6 +7199,8 @@ namespace WebAPI.Reflection
                             return "assetId";
                         case "CreateDate":
                             return "createDate";
+                        case "Duration":
+                            return "duration";
                         case "Id":
                             return "id";
                         case "IsProtected":
@@ -10617,7 +10619,7 @@ namespace WebAPI.Reflection
                                 return EntitlementController.ListOldStandard((KalturaEntitlementsFilter) methodParams[0]);
                             }
                             RolesManager.ValidateActionPermitted("entitlement", "list", WebAPI.Managers.eKSValidation.All);
-                            return EntitlementController.List((KalturaBaseEntitlementFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            return EntitlementController.List((KalturaEntitlementFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "listexpired":
                             RolesManager.ValidateActionPermitted("entitlement", "listExpired", WebAPI.Managers.eKSValidation.All);
@@ -17564,7 +17566,7 @@ namespace WebAPI.Reflection
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,
                                 IsKalturaObject = true,
-                                Type = typeof(KalturaBaseEntitlementFilter),
+                                Type = typeof(KalturaEntitlementFilter),
                             });
                             ret.Add("pager", new MethodParam(){
                                 NewName = newParamName,
@@ -22083,6 +22085,8 @@ namespace WebAPI.Reflection
                             });
                             ret.Add("endPadding", new MethodParam(){
                                 NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
                                 IsNullable = true,
                                 Type = typeof(Int32),
                             });

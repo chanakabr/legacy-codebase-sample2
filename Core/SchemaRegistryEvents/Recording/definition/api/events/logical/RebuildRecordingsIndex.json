@@ -1,0 +1,54 @@
+{
+  "$id":"http://ott.service.phoenix/logical/RebuildRecordingsIndex",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RebuildRecordingsIndex",
+  "type": "object",
+  "description": "Rebuild Recording sIndex ",
+  "allOf": [
+    {
+      "$ref": "ott-schema-registry/events/base"
+    },
+    {
+      "properties": 
+      {
+        "languages":
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "number",
+                "format": "int64"
+              },
+              "name": {
+                "type": "string"
+              },
+              "code": {
+                "type": "string"
+              },
+              "direction": {
+                "type": "string"
+              },
+              "isDefault": {
+                "type": "boolean"
+              },
+              "displayName": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "switchIndexAlias": {
+          "type": "boolean"
+        },
+        "deleteOldIndices": {
+          "type": "boolean"
+        },
+        "newIndexName": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}
