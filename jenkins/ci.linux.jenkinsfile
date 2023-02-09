@@ -13,7 +13,7 @@ stage('Unified-CI'){
         ])
         skipDefaultCheckout()
 
-        parallel(   
+        parallel(
             "Linux" : {
                 node('Linux'){   
                     try{                        
@@ -73,9 +73,10 @@ stage('Unified-CI'){
                         }
                     } catch (e){
                         throw e
+                        echo "Reporting job with result - ${currentBuild.currentResult}  (linux)"
+                        report()
                     } finally{
-                            report()
-                            sleep 10
+                        sleep 10
                     }
                 }
             },
@@ -171,13 +172,16 @@ stage('Unified-CI'){
                         }
                     } catch (e){
                         throw e
+                        echo "Reporting job with result - ${currentBuild.currentResult}  (windows)"
+                        report()
                     } finally{
-                            report()
-                            sleep 10
+                        sleep 10
                     }
                 }       
             },
             failFast: true)
+            echo "Reporting job with result - ${currentBuild.currentResult}  (final)"
+            report()
         stage('Trigger Wrapper'){
             git branch: "${BRANCH_NAME}", credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend'
             COMMITER = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
