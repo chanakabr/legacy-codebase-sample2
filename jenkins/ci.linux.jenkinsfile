@@ -288,11 +288,11 @@ def buildMsProject(projectFilePath, outputPath, component){
 
 //unified-report
 def report(){
-    def committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
-    echo "${committerEmail}"
-    def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "git rev-parse HEAD", returnStdout: true).trim()
-    echo "${GIT_COMMIT}"
     node('Linux'){
+        def committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
+        echo "${committerEmail}"
+        def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "git rev-parse HEAD", returnStdout: true).trim()
+        echo "${GIT_COMMIT}"
         sh "\$(aws ecr get-login --no-include-email --region ${AWS_REGION})"
         // def reportout = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult} ${GIT_COMMIT} NA ${committerEmail}", returnStdout: true)
         // echo "${reportout}"
