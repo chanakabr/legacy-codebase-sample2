@@ -15,8 +15,8 @@ stage('Unified-CI'){
 
         parallel(
             "Linux" : {
-                node('Linux'){   
-                    try{                        
+                node('Linux'){
+                    try{
                         stage('Checkout'){
                             deleteDir()
                             git branch: "${BRANCH_NAME}", credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend'
