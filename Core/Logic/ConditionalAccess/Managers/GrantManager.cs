@@ -718,7 +718,8 @@ namespace Core.ConditionalAccess
                 }
 
                 SubscriptionsResponse subscriptionsResponse = Pricing.Module.Instance.GetSubscriptions(groupId, subscriptionIds, string.Empty, string.Empty, string.Empty,
-                    new AssetSearchDefinition() { UserId = long.Parse(userId), IsAllowedToViewInactiveAssets = true });
+                   new AssetSearchDefinition() { UserId = long.Parse(userId), IsAllowedToViewInactiveAssets = true }, SubscriptionOrderBy.StartDateAsc,
+                   0, 30, true, null, false, null, null, null, null);
 
                 if (subscriptionsResponse != null &&
                     subscriptionsResponse.Status.Code == (int)eResponseStatus.OK &&

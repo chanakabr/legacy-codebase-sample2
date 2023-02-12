@@ -41,14 +41,11 @@ namespace WebAPI.Controllers
         {
             KalturaSubscriptionListResponse response = new KalturaSubscriptionListResponse();
 
-            bool isFilterValid = false;
-
             if (pager == null)
             {
                 pager = new KalturaFilterPager();
             }
-			
-	
+
             if (filter == null)
             {
                 filter = new KalturaSubscriptionFilter();
@@ -70,6 +67,7 @@ namespace WebAPI.Controllers
             try
             {
                 var coreFilter = AutoMapper.Mapper.Map<SubscriptionFilter>(filter);
+                var subscriptionTypeIn = filter.GetSubscriptionTypeIn();
 
                 if (filter.MediaFileIdEqual.HasValue)
                 {
@@ -83,7 +81,8 @@ namespace WebAPI.Controllers
                     {
                         getListFunc = () =>
                             SubscriptionManager.Instance.GetSubscriptionsData(groupId, new HashSet<long>(subscriptionsIds.Select(t => (long)t).ToList()),
-                                        udid, language, coreFilter.OrderBy, assetSearchDefinition, pager.GetRealPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
+                                        udid, language, coreFilter.OrderBy, assetSearchDefinition, pager.GetRealPageIndex(), pager.PageSize, filter.CouponGroupIdEqual, 
+                                        false, subscriptionTypeIn);
 
                         result = ClientUtils.GetResponseListFromWS<KalturaSubscription, Subscription>(getListFunc);
                     }
@@ -92,7 +91,8 @@ namespace WebAPI.Controllers
                 {
                     getListFunc = () =>
                         SubscriptionManager.Instance.GetSubscriptionsData(groupId, new HashSet<long>(filter.getSubscriptionIdIn()),
-                                    udid, language, coreFilter.OrderBy, assetSearchDefinition, pager.GetRealPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
+                                    udid, language, coreFilter.OrderBy, assetSearchDefinition, pager.GetRealPageIndex(), pager.PageSize, filter.CouponGroupIdEqual, 
+                                    false, subscriptionTypeIn);
 
                     result = ClientUtils.GetResponseListFromWS<KalturaSubscription, Subscription>(getListFunc);
                 }
@@ -107,21 +107,21 @@ namespace WebAPI.Controllers
                 {
                     getListFunc = () =>
                        SubscriptionManager.Instance.GetSubscriptionsData(groupId, null, udid, language, coreFilter.OrderBy, assetSearchDefinition,
-                            pager.GetRealPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
+                            pager.GetRealPageIndex(), pager.PageSize, filter.CouponGroupIdEqual, false, subscriptionTypeIn);
 
                     result = ClientUtils.GetResponseListFromWS<KalturaSubscription, Subscription>(getListFunc);
                 }
-                else 
+                else
                 {
                     bool inactiveAssets = false;
                     if (filter.AlsoInactive.HasValue)
                     {
                         inactiveAssets = isAllowedToViewInactiveAssets && filter.AlsoInactive.Value;
                     }
-                       
+
                     getListFunc = () =>
-                      SubscriptionManager.Instance.GetSubscriptionsData(groupId, udid, language, coreFilter.OrderBy, pager.GetRealPageIndex(), pager.PageSize, filter.CouponGroupIdEqual, 
-                                                                        inactiveAssets, filter.PreviewModuleIdEqual, filter.PricePlanIdEqual, filter.ChannelIdEqual);
+                      SubscriptionManager.Instance.GetSubscriptionsData(groupId, udid, language, coreFilter.OrderBy, pager.GetRealPageIndex(), pager.PageSize, 
+                        filter.CouponGroupIdEqual, inactiveAssets, filter.PreviewModuleIdEqual, filter.PricePlanIdEqual, filter.ChannelIdEqual, subscriptionTypeIn);
 
                     result = ClientUtils.GetResponseListFromWS<KalturaSubscription, Subscription>(getListFunc);
                 }
@@ -237,7 +237,7 @@ namespace WebAPI.Controllers
         [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.ChannelDoesNotExist)]
-        [Throws(eResponseStatus.CouponGroupNotExist)]        
+        [Throws(eResponseStatus.CouponGroupNotExist)]
         [Throws(eResponseStatus.ExternalIdAlreadyExists)]
         [Throws(eResponseStatus.InvalidFileTypes)]
         [Throws(eResponseStatus.DlmNotExist)]
@@ -314,7 +314,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.SubscriptionDoesNotExist)]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.ChannelDoesNotExist)]
-        [Throws(eResponseStatus.CouponGroupNotExist)]        
+        [Throws(eResponseStatus.CouponGroupNotExist)]
         [Throws(eResponseStatus.ExternalIdAlreadyExists)]
         [Throws(eResponseStatus.InvalidFileTypes)]
         [Throws(eResponseStatus.DlmNotExist)]

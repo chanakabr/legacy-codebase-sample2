@@ -88,11 +88,10 @@ namespace ApiLogic.Pricing.Handlers
         }
 
         public GenericListResponse<Subscription> GetSubscriptionsData(int groupId, HashSet<long> subscriptionsIds, string udid, string languageCode, SubscriptionOrderBy orderBy,
-            AssetSearchDefinition assetSearchDefinition, int pageIndex, int? pageSize = 30, int? couponGroupIdEqual = null, bool getAlsoInActive = false)
+            AssetSearchDefinition assetSearchDefinition, int pageIndex, int? pageSize = 30, int? couponGroupIdEqual = null, bool getAlsoInActive = false, HashSet<SubscriptionType> subscriptionTypes = null)
         {
-
             SubscriptionsResponse response = _pricingModule.GetSubscriptions(groupId, subscriptionsIds, string.Empty, languageCode, udid, assetSearchDefinition, orderBy,
-                pageIndex, pageSize.Value, false, couponGroupIdEqual, getAlsoInActive);
+                pageIndex, pageSize.Value, false, couponGroupIdEqual, getAlsoInActive, null, null, null, subscriptionTypes);
 
             GenericListResponse<Subscription> result = new GenericListResponse<Subscription>();
             if (response.Subscriptions != null)
@@ -121,10 +120,12 @@ namespace ApiLogic.Pricing.Handlers
             return result;
         }
 
-        public GenericListResponse<Subscription> GetSubscriptionsData(int groupId, string udid, string language, SubscriptionOrderBy orderBy, int pageIndex, int? pageSize, int? couponGroupIdEqual = null,
-                                                                      bool getAlsoInActive = false, long? previewModuleIdEqual = null, long? pricePlanIdEqual = null, long? channelIdEqual = null)
+        public GenericListResponse<Subscription> GetSubscriptionsData(int groupId, string udid, string language, SubscriptionOrderBy orderBy, int pageIndex, int? pageSize, 
+            int? couponGroupIdEqual = null, bool getAlsoInActive = false, long? previewModuleIdEqual = null, long? pricePlanIdEqual = null, long? channelIdEqual = null,
+            HashSet<SubscriptionType> subscriptionTypes = null)
         {
-            var response = _pricingModule.GetSubscriptions(groupId, language, udid, orderBy, pageIndex, pageSize.Value, false, getAlsoInActive, couponGroupIdEqual, previewModuleIdEqual, pricePlanIdEqual, channelIdEqual);
+            var response = _pricingModule.GetSubscriptions(groupId, language, udid, orderBy, pageIndex, pageSize.Value, false, getAlsoInActive, couponGroupIdEqual, 
+                previewModuleIdEqual, pricePlanIdEqual, channelIdEqual, subscriptionTypes);
 
             GenericListResponse<Subscription> result = new GenericListResponse<Subscription>();
             if (response.Subscriptions != null)

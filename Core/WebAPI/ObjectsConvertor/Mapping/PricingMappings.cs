@@ -16,8 +16,8 @@ using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
 using WebAPI.Models.Users;
-using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.ModelsFactory;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -394,6 +394,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<KalturaSubscriptionFilter, SubscriptionFilter>()
              .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => ConvertSubscriptionOrderBy(src.OrderBy)));
+
+            cfg.CreateMap<KalturaSubscriptionDependencyType, SubscriptionType>()
+               .ConvertUsing(type =>
+               {
+                   switch (type)
+                   {
+                       case KalturaSubscriptionDependencyType.NOTAPPLICABLE:
+                           return SubscriptionType.NotApplicable;
+                       case KalturaSubscriptionDependencyType.BASE:
+                           return SubscriptionType.Base;
+                       case KalturaSubscriptionDependencyType.ADDON:
+                           return SubscriptionType.AddOn;
+                       default:
+                           throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown KalturaSubscriptionDependencyType value : {type.ToString()}");
+                   }
+               });
 
             // KalturaPricePlan
             cfg.CreateMap<UsageModule, KalturaPricePlan>()
