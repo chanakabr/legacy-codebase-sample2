@@ -8,7 +8,7 @@ YELLOW="\u001B[33m"
 
 properties([
     parameters([
-        choice(name: 'target_env', choices: ['onebox','frs1', 'sgs1', 'frt1', 'vrs1', 'ohs1', 'prt1', 'ort2', 'sgt2', 'orp2', 'frp1'], defaultValue: "onebox"),
+        choice(name: 'target_env', choices: ['onebox','frs1', 'sgs1', 'frt1', 'vrs1', 'ohs1', 'prt1', 'ort2', 'sgt2', 'orp2', 'bgp1', 'bgt1', 'bgs1', 'prd1', 'frp1'], defaultValue: "onebox"),
         string(name: 'onebox_host'),
         string(name: 'partner'),
         string(name: 'batch_size', defaultValue: "2000"),
