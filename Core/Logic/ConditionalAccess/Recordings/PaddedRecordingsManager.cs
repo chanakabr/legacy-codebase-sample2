@@ -2248,10 +2248,10 @@ namespace Core.Recordings
 
             if (!ValidateRecordingConcurrency(groupId, domainId, _recDates))
             {
-                log.Debug(
-                    $"epgID: {_program.EpgId} can't be recoded due to recording concurrency of {accountSettings.MaxRecordingConcurrency}");
-                response.SetStatus(eResponseStatus.RecordingFailed,
-                    eResponseStatus.RecordingExceededConcurrency.ToString());
+                var _msg =
+                    $"epgID: {_program.EpgId} can't be recoded due to recording concurrency of {accountSettings.MaxRecordingConcurrency}";
+                log.Debug(_msg);
+                response.SetStatus(eResponseStatus.RecordingExceededConcurrency, _msg);
                 return response;
             }
 
