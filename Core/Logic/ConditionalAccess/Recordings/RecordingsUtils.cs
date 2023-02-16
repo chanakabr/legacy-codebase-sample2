@@ -303,7 +303,8 @@ namespace Core.Recordings
                     recordingId, groupId);
         }
 
-        public static Recording BuildRecordingFromTBRecording(int groupId, TimeBasedRecording timeBasedRecording, Program program, HouseholdRecording householdRecording = null)
+        public static Recording BuildRecordingFromTBRecording(int groupId, TimeBasedRecording timeBasedRecording, 
+            Program program, HouseholdRecording householdRecording = null, bool isStopped = false)
         {
             Recording recording = new Recording()
             {
@@ -333,7 +334,11 @@ namespace Core.Recordings
             }
 
             TstvRecordingStatus? recordingStatus;
-            if (Enum.IsDefined(typeof(RecordingInternalStatus), timeBasedRecording.Status))
+            if (isStopped)
+            {
+                recordingStatus = TstvRecordingStatus.Recorded;
+            }
+            else if (Enum.IsDefined(typeof(RecordingInternalStatus), timeBasedRecording.Status))
             {
                 var recordingInternalStatus = (RecordingInternalStatus)Enum.Parse(typeof(RecordingInternalStatus), timeBasedRecording.Status);
 

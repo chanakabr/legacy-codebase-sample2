@@ -651,10 +651,12 @@ namespace Core.Recordings
             int? recordingLifetime = accountSettings.RecordingLifetimePeriod;
             DateTime? viewableUntilDate = null;
             if (recordingLifetime.HasValue)
-            {
                 viewableUntilDate = endDate.AddDays(recordingLifetime.Value);
-            }
 
+            var isStopped = false;
+            if (parameters.TryGetValue("isStopped", out var _isStopped))
+                isStopped = (bool)_isStopped;
+            
             // for private copy we always issue a recording            
             //Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(groupId, epgId);
             Program program = _repository.GetProgramByEpg(groupId, epgId);
@@ -772,7 +774,7 @@ namespace Core.Recordings
 
             if (program != null && recording != null)
             {
-                parameters["recording"] = RecordingsUtils.BuildRecordingFromTBRecording(groupId, recording, program);
+                parameters["recording"] = RecordingsUtils.BuildRecordingFromTBRecording(groupId, recording, program, null, isStopped);
             }
 
             return success;
@@ -1002,6 +1004,7 @@ namespace Core.Recordings
                 syncParmeters.Add("absoluteStart", absoluteStartTime);
                 syncParmeters.Add("absoluteEnd", absoluteEndTime);
                 syncParmeters.Add("endDate", programByEpg.EndDate);
+                syncParmeters.Add("isStopped", true);
 
                 var newRecordingKey =
                     GetImmediateRecordingKey(hhRecording.EpgId, absoluteStartTimeEpoch, absoluteEndTimeEpoch);
@@ -1122,7 +1125,7 @@ namespace Core.Recordings
                         timeBasedRecording = _repository.GetRecordingByKey(contextData.GroupId, newRecordingKey);
 
                     recording.Object = RecordingsUtils.BuildRecordingFromTBRecording(contextData.GroupId, timeBasedRecording, program,
-                        newHhRecording);
+                        newHhRecording, true);
                 }
 
                 if (recording.Object != null)
