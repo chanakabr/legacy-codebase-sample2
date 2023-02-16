@@ -15,7 +15,7 @@ namespace DAL.Recordings
 {
     public interface IRecordingsRepository
     {
-        TimeBasedRecording GetRecordingByKey(int partnerId, String key);
+        TimeBasedRecording GetRecordingByKey(int partnerId, string key);
         TimeBasedRecording GetRecordingById(int partnerId, long id);
         List<TimeBasedRecording> GetRecordingsByKeys(int partnerId, List<string> Keys);
         List<TimeBasedRecording> GetRecordingsByEpgId(int partnerId, long epgId);
@@ -85,6 +85,8 @@ namespace DAL.Recordings
         HouseholdRecording GetHouseholdRecording(int partnerId, long id, long householdId);
 
         List<long> GetAllPartnerIds();
+        
+        List<HouseholdRecording> GetAllHhRecordings(int partnerId, long householdId, List<string> recordingStatuses, string type);
     }
 
     public class RecordingsRepository : IRecordingsRepository
@@ -147,7 +149,7 @@ namespace DAL.Recordings
             return recording.Id;
         }
 
-        public TimeBasedRecording GetRecordingByKey(int partnerId, String key)
+        public TimeBasedRecording GetRecordingByKey(int partnerId, string key)
         {
             var factory = _recordingsService.NewMongoDbClient(partnerId, log);
             return factory
@@ -624,6 +626,17 @@ namespace DAL.Recordings
                 var update = updateBuilder.Set(field, value);
                 updates.Add(update);
             }
+        }
+        
+        public List<HouseholdRecording> GetAllHhRecordings(int partnerId, long householdId, List<string> recordingStatuses, string type)
+        {
+            var factory = _recordingsService.NewMongoDbClient(partnerId, log);
+            return factory.Find<HouseholdRecording>(RecordingsDbProperties.HOUSEHOLD_RECORDINGS_COLLECTION, f =>
+                f.And(
+                    Builders<HouseholdRecording>.Filter.Eq(o => o.HouseholdId, householdId),
+                    Builders<HouseholdRecording>.Filter.Eq(o => o.RecordingType, type),
+                    Builders<HouseholdRecording>.Filter.In(z => z.Status, recordingStatuses)
+                )).ToList();
         }
     }
 }

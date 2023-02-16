@@ -12,11 +12,12 @@ stage('Unified-CI'){
         ])
         skipDefaultCheckout()
 
-        parallel(   
+        parallel(
             "Linux" : {
                 node('Linux'){   
                     try{                        
-                        stage('Checkout') {
+                        stage('Checkout'){
+
                             deleteDir()
                             checkout scm: [
                                     $class: 'GitSCM',
@@ -74,9 +75,10 @@ stage('Unified-CI'){
                         }
                     } catch (e){
                         throw e
+                        echo "Reporting job with result - ${currentBuild.currentResult}  (linux)"
+                        report()
                     } finally{
-                            report()
-                            sleep 10
+                        sleep 10
                     }
                 }
             },
@@ -97,6 +99,11 @@ stage('Unified-CI'){
                                             submoduleCfg: [],
                                             userRemoteConfigs: scm.userRemoteConfigs
                                     ]
+                                stage('Checkout'){
+                                    deleteDir()
+                                    git branch: "${BRANCH_NAME}", credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend'
+                                    committerEmail = sh (returnStdout: true, script: 'git --no-pager show -s --format=\'%ae\'').trim()
+
                                 }
                                 stage("Version Patch"){
                                     dir('Core') { bat 'sh DllVersioning.Core.sh .' }
@@ -176,13 +183,15 @@ stage('Unified-CI'){
                         }
                     } catch (e){
                         throw e
+                        echo "Reporting job with result - ${currentBuild.currentResult}  (windows)"
+                        report()
                     } finally{
-                            report()
-                            sleep 10
+                        sleep 10
                     }
                 }       
             },
             failFast: true)
+
         if (ci.is_building_tag()){
             stage("Release BE"){
                 build (
@@ -195,6 +204,9 @@ stage('Unified-CI'){
                     )
             }
             }
+
+            echo "Reporting job with result - ${currentBuild.currentResult}  (final)"
+            report()
         stage('Trigger Wrapper'){
             git branch: "${BRANCH_NAME}", credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend'
             COMMITER = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
@@ -300,6 +312,7 @@ def buildMsProject(projectFilePath, outputPath, component){
 
 //unified-report
 def report(){
+    git branch: "${BRANCH_NAME}", credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend'
     def committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
     echo "${committerEmail}"
     def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "git rev-parse HEAD", returnStdout: true).trim()

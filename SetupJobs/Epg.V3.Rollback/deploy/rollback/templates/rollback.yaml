@@ -21,12 +21,14 @@ spec:
       - name: epg-v3-rollback-{{ .Values.partner }}-conf
         configMap:
           name: epg-v3-rollback-{{ .Values.partner }}-conf
+      {{ if ne .Values.target_env "onebox" }}
       nodeSelector:
         karpenter.sh/provisioner-name: "ondemand"
       tolerations:
         - key: "karpenter.sh/ondemand-provisioner"
           operator: "Exists"
           effect: "NoSchedule"
+      {{ end }}
       containers:
       - name: epg-v3-rollback-{{ .Values.partner }}
         image: {{ .Values.account }}.dkr.ecr.{{ .Values.region }}.amazonaws.com/{{ .Values.image }}

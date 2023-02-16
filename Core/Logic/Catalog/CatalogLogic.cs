@@ -55,13 +55,17 @@ using CouchbaseManager;
 using KalturaRequestContext;
 using System.Threading;
 using ApiLogic.Catalog.NextEpisode;
+using ApiLogic.Catalog.Services;
+using ApiLogic.Context;
 using ApiLogic.IndexManager.QueryBuilders.SearchPriority;
 using ApiLogic.IndexManager.Sorting;
 using ApiLogic.Segmentation;
 using ApiObjects.NextEpisode;
+using ApiObjects.TimeShiftedTv;
 using ChannelsSchema;
 using ElasticSearch.Searcher;
 using ElasticSearch.Utils;
+using EventBus.Kafka;
 using Microsoft.Extensions.Logging;
 using OrderDir = ApiObjects.SearchObjects.OrderDir;
 
@@ -3561,7 +3565,7 @@ namespace Core.Catalog
             return Update(longIds, groupId, updatedObjectType, action);
         }
 
-        private static bool Update(List<long> ids, int groupId, eObjectType updatedObjectType, eAction action)
+        private static bool Update(List<long> ids, int groupId, eObjectType updatedObjectType, eAction action, bool isUseKronos = false)
         {
             bool isUpdateIndexSucceeded = false;
 
@@ -3581,19 +3585,26 @@ namespace Core.Catalog
 
                 if (doesGroupUsesTemplates || group != null)
                 {
-                    ApiObjects.CeleryIndexingData data = new CeleryIndexingData(groupIdForCelery, ids,
-                        updatedObjectType, action, DateTime.UtcNow);
-                    var queue = new CatalogQueue();
-                    isUpdateIndexSucceeded = queue.Enqueue(data,
-                        string.Format(@"Tasks\{0}\{1}", groupIdForCelery, updatedObjectType.ToString()));
+                    if (isUseKronos)
+                    {
+                        IndexRecordingMessageService.PublishKafkaEvent(groupIdForCelery, ids, action);
+                    }
+                    else
+                    {
+                        ApiObjects.CeleryIndexingData data = new CeleryIndexingData(groupIdForCelery, ids,
+                            updatedObjectType, action, DateTime.UtcNow);
+                        var queue = new CatalogQueue();
+                        isUpdateIndexSucceeded = queue.Enqueue(data,
+                            string.Format(@"Tasks\{0}\{1}", groupIdForCelery, updatedObjectType.ToString()));
 
-                    // backward compatibility
-                    var legacyQueue = new CatalogQueue(true);
-                    ApiObjects.MediaIndexingObjects.IndexingData oldData =
-                        new ApiObjects.MediaIndexingObjects.IndexingData(ids, groupIdForCelery, updatedObjectType,
-                            action);
-                    legacyQueue.Enqueue(oldData,
-                        string.Format(@"{0}\{1}", groupIdForCelery, updatedObjectType.ToString()));
+                        // backward compatibility
+                        var legacyQueue = new CatalogQueue(true);
+                        ApiObjects.MediaIndexingObjects.IndexingData oldData =
+                            new ApiObjects.MediaIndexingObjects.IndexingData(ids, groupIdForCelery, updatedObjectType,
+                                action);
+                        legacyQueue.Enqueue(oldData,
+                            string.Format(@"{0}\{1}", groupIdForCelery, updatedObjectType.ToString()));
+                    }
                 }
 
                 switch (updatedObjectType)
@@ -8963,7 +8974,8 @@ namespace Core.Catalog
 
         public static bool UpdateRecordingsIndex(List<long> recordingsIds, int groupId, eAction action)
         {
-            return CatalogLogic.Update(recordingsIds, groupId, eObjectType.Recording, action);
+            TimeShiftedTvPartnerSettings accountSettings = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
+            return CatalogLogic.Update(recordingsIds, groupId, eObjectType.Recording, action, accountSettings.PersonalizedRecordingEnable == true);
         }
 
         public static bool RebuildEpgChannel(int groupId, int epgChannelID, DateTime fromDate, DateTime toDate,

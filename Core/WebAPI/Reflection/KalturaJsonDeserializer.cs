@@ -363,9 +363,6 @@ namespace WebAPI.Reflection
                 case "KalturaBaseChannelOrder":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
-                case "KalturaBaseEntitlementFilter":
-                    return new KalturaBaseEntitlementFilter(parameters, true);
-                    
                 case "KalturaBaseOTTUser":
                     return new KalturaBaseOTTUser(parameters, true);
                     
@@ -3053,12 +3050,6 @@ namespace WebAPI.Models.ConditionalAccess
             }
         }
     }
-    public partial class KalturaBaseEntitlementFilter
-    {
-        public KalturaBaseEntitlementFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
-        {
-        }
-    }
     public partial class KalturaBillingResponse
     {
         public KalturaBillingResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
@@ -4825,6 +4816,48 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaEntitlementFilter
     {
+        private static RuntimeSchemePropertyAttribute EntitlementTypeEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlementFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute ProductTypeEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlementFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute IsExpiredEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlementFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         public KalturaEntitlementFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
@@ -4833,6 +4866,7 @@ namespace WebAPI.Models.ConditionalAccess
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("entitlementTypeEqual") && parameters["entitlementTypeEqual"] != null)
                 {
+                    EntitlementTypeEqualSchemaProperty.Validate("entitlementTypeEqual", parameters["entitlementTypeEqual"]);
                     if(string.IsNullOrEmpty(parameters["entitlementTypeEqual"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "entitlementTypeEqual");
@@ -4847,6 +4881,7 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("entitlement_type") && parameters["entitlement_type"] != null && isOldVersion)
                 {
+                    EntitlementTypeEqualSchemaProperty.Validate("entitlement_type", parameters["entitlement_type"]);
                     if(string.IsNullOrEmpty(parameters["entitlement_type"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "entitlement_type");
@@ -4861,6 +4896,7 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("productTypeEqual") && parameters["productTypeEqual"] != null)
                 {
+                    ProductTypeEqualSchemaProperty.Validate("productTypeEqual", parameters["productTypeEqual"]);
                     if(string.IsNullOrEmpty(parameters["productTypeEqual"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "productTypeEqual");
@@ -4889,6 +4925,7 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("isExpiredEqual") && parameters["isExpiredEqual"] != null)
                 {
+                    IsExpiredEqualSchemaProperty.Validate("isExpiredEqual", parameters["isExpiredEqual"]);
                     IsExpiredEqual = (Boolean) Convert.ChangeType(parameters["isExpiredEqual"], typeof(Boolean));
                 }
             }
@@ -5500,7 +5537,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaPaddedRecording
     {
-        private static RuntimeSchemePropertyAttribute PaddingBeforeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPaddedRecording")
+        private static RuntimeSchemePropertyAttribute StartPaddingSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPaddedRecording")
         {
             ReadOnly = false,
             InsertOnly = false,
@@ -5515,7 +5552,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        private static RuntimeSchemePropertyAttribute PaddingAfterSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPaddedRecording")
+        private static RuntimeSchemePropertyAttribute EndPaddingSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPaddedRecording")
         {
             ReadOnly = false,
             InsertOnly = false,
@@ -5538,13 +5575,13 @@ namespace WebAPI.Models.ConditionalAccess
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("startPadding") && parameters["startPadding"] != null)
                 {
-                    PaddingBeforeSchemaProperty.Validate("startPadding", parameters["startPadding"]);
-                    PaddingBefore = (Int32) Convert.ChangeType(parameters["startPadding"], typeof(Int32));
+                    StartPaddingSchemaProperty.Validate("startPadding", parameters["startPadding"]);
+                    StartPadding = (Int32) Convert.ChangeType(parameters["startPadding"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("endPadding") && parameters["endPadding"] != null)
                 {
-                    PaddingAfterSchemaProperty.Validate("endPadding", parameters["endPadding"]);
-                    PaddingAfter = (Int32) Convert.ChangeType(parameters["endPadding"], typeof(Int32));
+                    EndPaddingSchemaProperty.Validate("endPadding", parameters["endPadding"]);
+                    EndPadding = (Int32) Convert.ChangeType(parameters["endPadding"], typeof(Int32));
                 }
             }
         }
@@ -6288,6 +6325,20 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
+        private static RuntimeSchemePropertyAttribute DurationSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRecording")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         public KalturaRecording(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
@@ -6351,6 +6402,11 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("duration") && parameters["duration"] != null)
+                {
+                    DurationSchemaProperty.Validate("duration", parameters["duration"]);
+                    Duration = (Int64) Convert.ChangeType(parameters["duration"], typeof(Int64));
                 }
             }
         }

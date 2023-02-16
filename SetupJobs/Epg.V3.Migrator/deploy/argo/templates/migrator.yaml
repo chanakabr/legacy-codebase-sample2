@@ -28,4 +28,6 @@ spec:
           value: "{{ .Values.partner }}"
         - name: batch_size
           value: "{{ .Values.batch_size }}"
+        - name: target_env
+          value: "{{ .Values.target_env }}"
    
