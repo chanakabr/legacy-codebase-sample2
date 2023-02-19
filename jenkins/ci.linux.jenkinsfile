@@ -99,6 +99,7 @@ stage('Unified-CI'){
                                             submoduleCfg: [],
                                             userRemoteConfigs: scm.userRemoteConfigs
                                     ]
+                                }
                                 stage("Version Patch"){
                                     dir('Core') { bat 'sh DllVersioning.Core.sh .' }
                                     dir('phoenix') { bat 'sh ../Core/DllVersioning.Core.sh .' }
