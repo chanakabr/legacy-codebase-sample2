@@ -99,12 +99,6 @@ stage('Unified-CI'){
                                             submoduleCfg: [],
                                             userRemoteConfigs: scm.userRemoteConfigs
                                     ]
-                                stage('Checkout'){
-                                    deleteDir()
-                                    git branch: "${BRANCH_NAME}", credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend'
-                                    committerEmail = sh (returnStdout: true, script: 'git --no-pager show -s --format=\'%ae\'').trim()
-
-                                }
                                 stage("Version Patch"){
                                     dir('Core') { bat 'sh DllVersioning.Core.sh .' }
                                     dir('phoenix') { bat 'sh ../Core/DllVersioning.Core.sh .' }
