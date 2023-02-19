@@ -180,6 +180,7 @@ stage('Unified-CI'){
                                         )
                                     }
                                 }
+                            }
                         }
                     } catch (e){
                         throw e
