@@ -176,7 +176,6 @@ stage('Unified-CI'){
                                     }
                                 }
                             }
-                        }
                     } catch (e){
                         throw e
                         echo "Reporting job with result - ${currentBuild.currentResult}  (windows)"
