@@ -1220,7 +1220,8 @@ namespace WebAPI.WebServices
                     }
                 }
 
-                return Core.Pricing.Module.Instance.GetSubscriptions(nGroupID, subIds, sCountryCd2, sLanguageCode3, sDeviceName, null, orderBy);
+                return Core.Pricing.Module.Instance.GetSubscriptions(nGroupID, subIds, sCountryCd2, sLanguageCode3, sDeviceName, null, orderBy,
+                    0, 30, true, null, false, null, null, null, null);
             }
             else
             {

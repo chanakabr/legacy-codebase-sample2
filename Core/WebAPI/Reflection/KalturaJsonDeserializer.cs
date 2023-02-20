@@ -33031,6 +33031,21 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
+        private static RuntimeSchemePropertyAttribute DependencyTypeInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscriptionFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            DynamicType = typeof(KalturaSubscriptionDependencyType),
+            MaxLength = -1,
+            MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         public KalturaSubscriptionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
@@ -33074,6 +33089,11 @@ namespace WebAPI.Models.Pricing
                 {
                     AlsoInactiveSchemaProperty.Validate("alsoInactive", parameters["alsoInactive"]);
                     AlsoInactive = (Boolean) Convert.ChangeType(parameters["alsoInactive"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("dependencyTypeIn") && parameters["dependencyTypeIn"] != null)
+                {
+                    DependencyTypeInSchemaProperty.Validate("dependencyTypeIn", parameters["dependencyTypeIn"]);
+                    DependencyTypeIn = (String) Convert.ChangeType(parameters["dependencyTypeIn"], typeof(String));
                 }
             }
         }

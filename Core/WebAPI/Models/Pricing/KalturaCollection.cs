@@ -1,15 +1,10 @@
-﻿using ApiObjects.Pricing;
-using Newtonsoft.Json;
-using System;
+﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
-using WebAPI.ObjectsConvertor.Extensions;
-using WebAPI.ModelsValidators;
 
 namespace WebAPI.Models.Pricing
 {

@@ -20,12 +20,14 @@ namespace Core.Pricing
 
         SubscriptionsResponse GetSubscriptions(int groupId, HashSet<long> subscriptionIds, string sCountryCd2, string sLanguageCode3, string sDeviceName,
             AssetSearchDefinition assetSearchDefinition, SubscriptionOrderBy orderBy = SubscriptionOrderBy.StartDateAsc, int pageIndex = 0, int pageSize = 30,
-            bool shouldIgnorePaging = true, int? couponGroupIdEqual = null, bool getAlsoInActive = false, long? previewModuleIdEqual = null, long? pricePlanIdEqual = null, long? channelIdEqual = null);
+            bool shouldIgnorePaging = true, int? couponGroupIdEqual = null, bool getAlsoInActive = false, long? previewModuleIdEqual = null, long? pricePlanIdEqual = null, 
+            long? channelIdEqual = null, HashSet<SubscriptionType> subscriptionTypes = null);
 
         SubscriptionsResponse GetSubscriptionsByProductCodes(int nGroupID, List<string> productCodes, SubscriptionOrderBy orderBy = SubscriptionOrderBy.StartDateAsc);
 
         SubscriptionsResponse GetSubscriptions(int groupId, string language, string udid, SubscriptionOrderBy orderBy, int pageIndex, int pageSize,
-            bool shouldIgnorePaging, bool getAlsoInActive, int? couponGroupIdEqual = null, long? previewModuleIdEqual = null, long? pricePlanIdEqual = null, long? channelIdEqual = null);
+            bool shouldIgnorePaging, bool getAlsoInActive, int? couponGroupIdEqual = null, long? previewModuleIdEqual = null, long? pricePlanIdEqual = null, 
+            long? channelIdEqual = null, HashSet<SubscriptionType> subscriptionTypes = null);
 
         CouponsGroupResponse GetCouponsGroup(int groupId, long id);
 
@@ -268,7 +270,8 @@ namespace Core.Pricing
             if (long.TryParse(userId, out nUserId))
             {
                 var res = GetSubscriptions(nGroupID, new HashSet<long>() { long.Parse(sSubscriptionCode) },
-                    string.Empty, string.Empty, string.Empty, new AssetSearchDefinition() { UserId = nUserId });
+                    string.Empty, string.Empty, string.Empty, new AssetSearchDefinition() { UserId = nUserId }, SubscriptionOrderBy.StartDateAsc,
+                    0, 30, true, null, false, null, null, null, null);
 
                 if (res != null && res.Subscriptions?.Length == 1)
                 {
@@ -833,7 +836,8 @@ namespace Core.Pricing
 
         public SubscriptionsResponse GetSubscriptions(int groupId, HashSet<long> subscriptionIds, string sCountryCd2, string sLanguageCode3, string sDeviceName,
             AssetSearchDefinition assetSearchDefinition, SubscriptionOrderBy orderBy = SubscriptionOrderBy.StartDateAsc, int pageIndex = 0, int pageSize = 30,
-            bool shouldIgnorePaging = true, int? couponGroupIdEqual = null, bool getAlsoInActive = false, long? previewModuleIdEqual = null, long? pricePlanIdEqual = null, long? channelIdEqual = null)
+            bool shouldIgnorePaging = true, int? couponGroupIdEqual = null, bool getAlsoInActive = false, long? previewModuleIdEqual = null, long? pricePlanIdEqual = null, 
+            long? channelIdEqual = null, HashSet<SubscriptionType> subscriptionTypes = null)
         {
             SubscriptionsResponse response = new SubscriptionsResponse();
 
@@ -852,120 +856,104 @@ namespace Core.Pricing
                     return response;
                 }
 
-                if (filter.ObjectIds?.Count > 0)
+                response.Status = new Status((int)eResponseStatus.OK, "OK");
+                if (filter.ObjectIds == null && filter.ObjectIds.Any())
                 {
-                    bool calcPaging = !shouldIgnorePaging && !couponGroupIdEqual.HasValue && !previewModuleIdEqual.HasValue && !pricePlanIdEqual.HasValue && !channelIdEqual.HasValue;
-
-                    if (orderBy == SubscriptionOrderBy.CreateDateAsc || orderBy == SubscriptionOrderBy.CreateDateDesc)
-                    {
-                        if (orderBy == SubscriptionOrderBy.CreateDateAsc)
-                        {
-                            filter.ObjectIds = filter.ObjectIds.OrderBy(x => x).ToList();
-                        }
-                        else //(orderBy == SubscriptionOrderBy.CreateDateDesc)
-                        {
-                            filter.ObjectIds = filter.ObjectIds.OrderByDescending(x => x).ToList();
-                        }
-                    }
-                    else
-                    {
-                        var groupSubscriptions = PricingCache.Instance.GetGroupSubscriptionsItems(groupId, getAlsoInActive);
-                        if (groupSubscriptions?.Count > 0)
-                        {
-                            var subSet = new HashSet<long>(filter.ObjectIds);
-
-                            var subs = groupSubscriptions.Where(x => subSet.Contains(x.Id)).ToList();
-
-                            if (subs?.Count > 0)
-                            {
-                                if (orderBy == SubscriptionOrderBy.NameAsc)
-                                {
-                                    subs = subs.OrderBy(x => x.Name).ToList();
-                                }
-                                else if (orderBy == SubscriptionOrderBy.NameDesc)
-                                {
-                                    subs = subs.OrderByDescending(x => x.Name).ToList();
-                                }
-                                else if (orderBy == SubscriptionOrderBy.StartDateAsc)
-                                {
-                                    subs = subs.OrderBy(x => x.StartDate).ToList();
-                                }
-                                else if (orderBy == SubscriptionOrderBy.StartDateDesc)
-                                {
-                                    subs = subs.OrderByDescending(x => x.StartDate).ToList();
-                                }
-                                else if (orderBy == SubscriptionOrderBy.UpdateDateAsc)
-                                {
-                                    subs = subs.OrderBy(x => x.UpdateDate).ToList();
-                                }
-                                else if (orderBy == SubscriptionOrderBy.UpdateDateDesc)
-                                {
-                                    subs = subs.OrderByDescending(x => x.UpdateDate).ToList();
-                                }
-
-                                filter.ObjectIds = subs.Select(x => x.Id).ToList();
-                            }
-                        }
-                        else
-                        {
-                            return response;
-                        }
-                    }
-
-                    response.TotalItems = filter.ObjectIds.Count;
-
-                    int startIndexOnList = 0;
-                    int rangeToGetFromList = 0;
-                    if (calcPaging)
-                    {
-                        startIndexOnList = pageIndex * pageSize;
-                        rangeToGetFromList = (startIndexOnList + pageSize) > filter.ObjectIds.Count ? (filter.ObjectIds.Count - startIndexOnList) > 0 ? (filter.ObjectIds.Count - startIndexOnList) : 0 : pageSize;
-
-                        if (rangeToGetFromList == 0)
-                        {
-                            response.Status = new Status((int)eResponseStatus.OK, "OK");
-                            response.Subscriptions = new Subscription[0];
-                            return response;
-                        }
-                    }
-
-                    if (calcPaging && rangeToGetFromList > 0)
-                    {
-                        filter.ObjectIds = filter.ObjectIds.Skip(startIndexOnList).Take(rangeToGetFromList).ToList();
-                    }
-
-                    if (filter.ObjectIds?.Count > 0)
-                    {
-                        var subscriptions = PricingCache.Instance.GetSubscriptions(groupId, filter.ObjectIds);
-
-                        if (subscriptions?.Count > 0)
-                        {
-                            response.Subscriptions = subscriptions.ToArray();
-
-                            if (couponGroupIdEqual.HasValue)
-                            {
-                                FilterSubscriptionsByCoupon(couponGroupIdEqual.Value, response);
-                            }
-                            else if (previewModuleIdEqual.HasValue)
-                            {
-                                FilterSubscriptionsByPreviewModule(previewModuleIdEqual.Value, response);
-                            }
-                            else if (pricePlanIdEqual.HasValue)
-                            {
-                                FilterSubscriptionsByPricePlan(pricePlanIdEqual.Value, response);
-                            }
-                            else if (channelIdEqual.HasValue)
-                            {
-                                FilterSubscriptionsByChannel(channelIdEqual.Value, response);
-                            }
-                        }
-                    }
+                    return response;
                 }
 
-                response.Status = new Status((int)eResponseStatus.OK, "OK");
+                response.TotalItems = filter.ObjectIds.Count;
+
+                var subscriptions = PricingCache.Instance.GetSubscriptions(groupId, filter.ObjectIds);
+                if (subscriptions == null || !subscriptions.Any())
+                {
+                    return response;
+                }
+
+                response.Subscriptions = subscriptions.ToArray();
+                response.TotalItems = response.Subscriptions.Length;
+
+                // filter
+                if (couponGroupIdEqual.HasValue)
+                {
+                    FilterSubscriptionsByCoupon(couponGroupIdEqual.Value, response);
+                }
+                else if (previewModuleIdEqual.HasValue)
+                {
+                    FilterSubscriptionsByPreviewModule(previewModuleIdEqual.Value, response);
+                }
+                else if (pricePlanIdEqual.HasValue)
+                {
+                    FilterSubscriptionsByPricePlan(pricePlanIdEqual.Value, response);
+                }
+                else if (channelIdEqual.HasValue)
+                {
+                    FilterSubscriptionsByChannel(channelIdEqual.Value, response);
+                }
+
+                if (subscriptionTypes != null && subscriptionTypes.Any())
+                {
+                    FilterSubscriptionsByType(subscriptionTypes, response);
+                }
+
+                if (response.Subscriptions.Length == 0)
+                {
+                    return response;
+                }
+
+                // order
+                if (orderBy == SubscriptionOrderBy.CreateDateAsc)
+                {
+                    response.Subscriptions = response.Subscriptions.OrderBy(x => x.CreateDate).ToArray();
+                }
+                else if (orderBy == SubscriptionOrderBy.CreateDateDesc)
+                {
+                    response.Subscriptions = response.Subscriptions.OrderByDescending(x => x.CreateDate).ToArray();
+                }
+                else if (orderBy == SubscriptionOrderBy.NameAsc)
+                {
+                    response.Subscriptions = response.Subscriptions.OrderBy(x => x.m_sName?.Length > 0 ? x.m_sName[0].m_sValue : "").ToArray();
+                }
+                else if (orderBy == SubscriptionOrderBy.NameDesc)
+                {
+                    response.Subscriptions = response.Subscriptions.OrderByDescending(x => x.m_sName?.Length > 0 ? x.m_sName[0].m_sValue : "").ToArray();
+                }
+                else if (orderBy == SubscriptionOrderBy.StartDateAsc)
+                {
+                    response.Subscriptions = response.Subscriptions.OrderBy(x => x.m_dStartDate).ToArray();
+                }
+                else if (orderBy == SubscriptionOrderBy.StartDateDesc)
+                {
+                    response.Subscriptions = response.Subscriptions.OrderByDescending(x => x.m_dStartDate).ToArray();
+                }
+                else if (orderBy == SubscriptionOrderBy.UpdateDateAsc)
+                {
+                    response.Subscriptions = response.Subscriptions.OrderBy(x => x.UpdateDate).ToArray();
+                }
+                else if (orderBy == SubscriptionOrderBy.UpdateDateDesc)
+                {
+                    response.Subscriptions = response.Subscriptions.OrderByDescending(x => x.UpdateDate).ToArray();
+                }
+
+                // page
+                if (!shouldIgnorePaging && !couponGroupIdEqual.HasValue && !previewModuleIdEqual.HasValue && !pricePlanIdEqual.HasValue && !channelIdEqual.HasValue)
+                {
+                    int startIndexOnList = pageIndex * pageSize;
+                    int rangeToGetFromList = (startIndexOnList + pageSize) > response.Subscriptions.Length ? (response.Subscriptions.Length - startIndexOnList) > 0 ? (response.Subscriptions.Length - startIndexOnList) : 0 : pageSize;
+
+                    if (rangeToGetFromList == 0)
+                    {
+                        response.Status = new Status((int)eResponseStatus.OK, "OK");
+                        response.Subscriptions = new Subscription[0];
+                        return response;
+                    }
+
+                    response.Subscriptions = response.Subscriptions.Skip(startIndexOnList).Take(rangeToGetFromList).ToArray();
+                }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                log.Error($"Exception while calling GetSubscriptions, ex:[{ex}].");
                 response.Status = new Status((int)eResponseStatus.Error, "Error");
             }
 
@@ -1009,8 +997,14 @@ namespace Core.Pricing
             response.TotalItems = response.Subscriptions.Length;
         }
 
-        public SubscriptionsResponse GetSubscriptions(int groupId, string language, string udid, SubscriptionOrderBy orderBy, int pageIndex, int pageSize, bool shouldIgnorePaging, bool getAlsoInActive,
-            int? couponGroupIdEqual = null, long? previewModuleIdEqual = null, long? pricePlanIdEqual = null, long? channelIdEqual = null)
+        private static void FilterSubscriptionsByType(HashSet<SubscriptionType> subscriptionTypes, SubscriptionsResponse response)
+        {
+            response.Subscriptions = response.Subscriptions.Where(x => subscriptionTypes.Contains(x.Type)).ToArray();
+            response.TotalItems = response.Subscriptions.Length;
+        }
+
+        public SubscriptionsResponse GetSubscriptions(int groupId, string language, string udid, SubscriptionOrderBy orderBy, int pageIndex, int pageSize, bool shouldIgnorePaging, 
+            bool getAlsoInActive, int? couponGroupIdEqual = null, long? previewModuleIdEqual = null, long? pricePlanIdEqual = null, long? channelIdEqual = null, HashSet<SubscriptionType> subscriptionTypes = null)
         {
             // get group's subscriptionIds
             var groupSubscriptions = PricingCache.Instance.GetGroupSubscriptionsItems(groupId, getAlsoInActive);
@@ -1022,8 +1016,8 @@ namespace Core.Pricing
 
             var subscriptionIds = new HashSet<long>(groupSubscriptions.Select(x => x.Id).ToList());
 
-            return GetSubscriptions(groupId, subscriptionIds, string.Empty,
-            language, udid, null, orderBy, pageIndex, pageSize, shouldIgnorePaging, couponGroupIdEqual, getAlsoInActive, previewModuleIdEqual, pricePlanIdEqual, channelIdEqual);
+            return GetSubscriptions(groupId, subscriptionIds, string.Empty, language, udid, null, orderBy, pageIndex, pageSize, shouldIgnorePaging, couponGroupIdEqual, 
+                getAlsoInActive, previewModuleIdEqual, pricePlanIdEqual, channelIdEqual, subscriptionTypes);
         }
 
         public static CollectionsResponse GetCollectionsData(int nGroupID, string[] oCollCodes, string sCountryCd2, string sLanguageCode3, string sDeviceName, int pageIndex = 0, int pageSize = 30, bool shouldIgnorePaging = true, int? couponGroupIdEqual = null)
@@ -1480,7 +1474,7 @@ namespace Core.Pricing
                     {
                         List<KeyValuePair<long, int>> setToPriorities = subscriptionIdToSetIdsMap.Where(x => x.Value != null).SelectMany(x => x.Value).ToList();
                         List<long> setIds = setToPriorities.Select(x => x.Key).Distinct().ToList();
-                        if (setIds != null && setIds.Count >= 0)
+                        if (setIds != null && setIds.Any())
                         {
                             List<long> usedSubscriptionIds = subscriptionIdToSetIdsMap.Where(x => x.Value != null & x.Value.Count > 0).Select(x => x.Key).ToList();
                             string msg = string.Format("{0} for the following subbscriptionIds: {1}", eResponseStatus.SubscriptionAlreadyBelongsToAnotherSubscriptionSet.ToString(), string.Join(",", usedSubscriptionIds));
@@ -1543,7 +1537,7 @@ namespace Core.Pricing
 
                         List<KeyValuePair<long, int>> setToPriorities = subscriptionIdToSetIdsMap.Where(x => x.Value != null).SelectMany(x => x.Value).ToList();
                         List<long> setIds = setToPriorities.Where(x => x.Key != setId).Distinct().Select(x => x.Key).ToList();
-                        if (setIds != null && setIds.Count >= 0)
+                        if (setIds != null && setIds.Any())
                         {
                             List<long> usedSubscriptionIds = subscriptionIdToSetIdsMap.Where(x => x.Value != null & x.Value.Count > 0).Select(x => x.Key).ToList();
                             string msg = string.Format("{0} for the following subbscriptionIds: {1}", eResponseStatus.SubscriptionAlreadyBelongsToAnotherSubscriptionSet.ToString(), string.Join(",", usedSubscriptionIds));
@@ -1735,7 +1729,8 @@ namespace Core.Pricing
                                 subIds.Add(item);
                             }
 
-                            SubscriptionsResponse subscriptionsResponse = Instance.GetSubscriptions(groupId, subIds, string.Empty, string.Empty, string.Empty, null);
+                            SubscriptionsResponse subscriptionsResponse = Instance.GetSubscriptions(groupId, subIds, string.Empty, string.Empty, string.Empty, null, 
+                                SubscriptionOrderBy.StartDateAsc, 0, 30, true, null, false, null, null, null, null);
                             if (subscriptionsResponse != null && subscriptionsResponse.Status.Code == (int)eResponseStatus.OK && subscriptionsResponse.Subscriptions != null && subscriptionsResponse.Subscriptions.Count() > 0)
                             {
                                 foreach (Subscription sub in subscriptionsResponse.Subscriptions)
