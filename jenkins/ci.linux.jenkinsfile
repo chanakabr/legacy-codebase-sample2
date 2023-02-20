@@ -15,13 +15,7 @@ stage('Unified-CI'){
         parallel(
             "Linux" : {
                 node('Linux'){   
-                    try{  
-                    deleteDir()
-                    withEnv(['MSBUILD=msbuild', "component=${env.JOB_NAME}"]){
-                            stage('Clean') {
-                                sh label: 'clean bin and obj folders', script: 'find . -iname \'bin\' -o -iname \'obj\' | xargs rm -rf'
-                                sh label: 'clean published folder', script: 'rm -rf ./published'
-                            }                      
+                    try{               
                         stage('Checkout'){
                             checkout scm: [
                                     $class: 'GitSCM',
@@ -90,13 +84,14 @@ stage('Unified-CI'){
                 node('Windows'){
                     def msbuild = tool name: 'default', type:'hudson.plugins.msbuild.MsBuildInstallation'
                     try{
+                        deleteDir()
                         withEnv(['MSBUILD=msbuild', "component=${env.JOB_NAME}"]){
                                 stage('Clean') {
                                     sh label: 'clean bin and obj folders', script: 'find . -iname \'bin\' -o -iname \'obj\' | xargs rm -rf'
                                     sh label: 'clean published folder', script: 'rm -rf ./published'
                                 }
                                 stage('Checkout') {
-                                    deleteDir()
+                                    
                                     checkout scm: [
                                             $class: 'GitSCM',
                                             branches: scm.branches,
