@@ -14080,10 +14080,9 @@ namespace Core.ConditionalAccess
                 if (recording == null || recording.Status == null || recording.Status.Code != (int)eResponseStatus.OK)
                 {
                     //check if it setting for quota_overage if so asuncronize action to delete oldest recordings 
-                    //else return exceedeQuota
+                    //else return exceedQuota
                     if (recording.Status.Code == (int)eResponseStatus.ExceededQuota)
                     {
-                        
                         if (accountSettings != null && accountSettings.QuotaOveragePolicy == QuotaOveragePolicy.FIFOAutoDelete)
                         {
                             quotaOverage = true;
@@ -14122,8 +14121,9 @@ namespace Core.ConditionalAccess
 
                         if (!PaddedRecordingsManager.Instance.ValidateRecordingConcurrency(m_nGroupID, domainID, recording))
                         {
-                            log.Debug($"epgID: {epgID} can't be recoded due to recording concurrency of {accountSettings.MaxRecordingConcurrency}");
-                            recording = new Recording() { Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingExceededConcurrency, eResponseStatus.RecordingFailed.ToString()) };
+                            var _msg =
+                                $"epgID: {epgID} can't be recoded due to recording concurrency of {accountSettings.MaxRecordingConcurrency}";
+                            recording.Status.Set((int)eResponseStatus.RecordingExceededConcurrency, _msg);
                         }
                         else
                         {
@@ -14170,6 +14170,10 @@ namespace Core.ConditionalAccess
                         {
                             UpdateOrInsertDomainRecording(userID, epgID, domainSeriesRecordingId, ref recording, domainID, recordingDuration, recordingType);
                         }
+                    }
+                    else if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.RecordingExceededConcurrency)
+                    {
+                        log.Debug(recording.Status.ToString());
                     }
                     else
                     {

@@ -49,7 +49,8 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.Instance.GetSubscriptions(groupId, subIds, string.Empty, languageCode, udid, assetSearchDefinition, wsOrderBy, pageIndex, pageSize.Value, false, couponGroupIdEqual);
+                    response = Core.Pricing.Module.Instance.GetSubscriptions(groupId, subIds, string.Empty, languageCode, udid, assetSearchDefinition, wsOrderBy, pageIndex, 
+                        pageSize.Value, false, couponGroupIdEqual, false, null, null, null, null);
                 }
             }
             catch (Exception ex)
@@ -73,7 +74,8 @@ namespace WebAPI.Clients
             return subscriptions;
         }
 
-        internal List<KalturaSubscription> GetSubscriptionsData(int groupId, string udid, string language, KalturaSubscriptionOrderBy orderBy, int pageIndex, int? pageSize, int? couponGroupIdEqual = null, bool getAlsoInActive = false)
+        internal List<KalturaSubscription> GetSubscriptionsData(int groupId, string udid, string language, KalturaSubscriptionOrderBy orderBy, int pageIndex, int? pageSize, 
+            int? couponGroupIdEqual = null, bool getAlsoInActive = false)
         {
             SubscriptionsResponse response = null;
             List<KalturaSubscription> subscriptions = new List<KalturaSubscription>();
@@ -85,7 +87,8 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.Instance.GetSubscriptions(groupId, language, udid, wsOrderBy, pageIndex, pageSize.Value, false, getAlsoInActive, couponGroupIdEqual);
+                    response = Core.Pricing.Module.Instance.GetSubscriptions(groupId, language, udid, wsOrderBy, pageIndex, pageSize.Value, false, getAlsoInActive, 
+                        couponGroupIdEqual, null, null, null, null);
                 }
             }
             catch (Exception ex)
@@ -700,7 +703,7 @@ namespace WebAPI.Clients
             pricePlans = AutoMapper.Mapper.Map<List<KalturaPricePlan>>(response.UsageModules);
 
             return pricePlans;
-        }     
+        }
 
         internal List<KalturaSubscription> GetSubscriptionsDataByProductCodes(int groupId, List<string> productCodes, KalturaSubscriptionOrderBy orderBy)
         {

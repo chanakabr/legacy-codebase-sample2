@@ -112,7 +112,7 @@ namespace TVPApiModule.Services
                 {
                     if (p_arrSubscriptionCodes != null && p_arrSubscriptionCodes.Length> 0)
                     {
-                        var res = Core.Pricing.Module.Instance.GetSubscriptions(m_groupID, new HashSet<long>(p_arrSubscriptionCodes.Select(s => long.Parse(s)).ToList()), string.Empty,
+                         var res = Core.Pricing.Module.Instance.GetSubscriptions(m_groupID, new HashSet<long>(p_arrSubscriptionCodes.Select(s => long.Parse(s)).ToList()), string.Empty,
                             string.Empty, string.Empty, null);
                         if (res != null)
                             arrSubs = res.Subscriptions;

@@ -1,10 +1,6 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -87,6 +83,16 @@ namespace WebAPI.Models.Pricing
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         [SchemeProperty(RequiresPermission = (int)RequestType.READ)]
         public bool? AlsoInactive { get; set; }
+
+        /// <summary>
+        /// comma separated values of KalturaSubscriptionDependencyType 
+        /// return subscriptions associated by their subscription sets dependency Type
+        /// </summary>
+        [DataMember(Name = "dependencyTypeIn")]
+        [JsonProperty("dependencyTypeIn")]
+        [XmlElement(ElementName = "dependencyTypeIn")]
+        [SchemeProperty(IsNullable = true, DynamicType = typeof(KalturaSubscriptionDependencyType), MinLength = 1)]
+        public string DependencyTypeIn { get; set; }
 
         public override KalturaSubscriptionOrderBy GetDefaultOrderByValue()
         {

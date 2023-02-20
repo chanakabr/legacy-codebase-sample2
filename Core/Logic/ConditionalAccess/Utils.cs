@@ -472,7 +472,8 @@ namespace Core.ConditionalAccess
                 }
             }
 
-            var res = Pricing.Module.Instance.GetSubscriptions(nGroupID, subIds, string.Empty, string.Empty, string.Empty, null);
+            var res = Pricing.Module.Instance.GetSubscriptions(nGroupID, subIds, string.Empty, string.Empty, string.Empty, null, SubscriptionOrderBy.StartDateAsc,
+                                                               0, 30, true, null, false, null, null, null, null);
             if (res != null)
                 return res.Subscriptions;
             return null;
@@ -4516,8 +4517,7 @@ namespace Core.ConditionalAccess
                     }
 
                     SubscriptionsResponse subscriptionsResponse = Core.Pricing.Module.Instance.GetSubscriptions(groupId, subIds, String.Empty, String.Empty,
-                        String.Empty, null);
-
+                        String.Empty, null, SubscriptionOrderBy.StartDateAsc, 0, 30, true, null, false, null, null, null, null);
                     if (subscriptionsResponse != null && subscriptionsResponse.Status.Code == (int)eResponseStatus.OK && subscriptionsResponse.Subscriptions.Count() > 0)
                     {
                         foreach (Subscription subscription in subscriptionsResponse.Subscriptions)

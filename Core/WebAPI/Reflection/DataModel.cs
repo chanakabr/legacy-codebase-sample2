@@ -8475,6 +8475,8 @@ namespace WebAPI.Reflection
                             return "channelIdEqual";
                         case "CouponGroupIdEqual":
                             return "couponGroupIdEqual";
+                        case "DependencyTypeIn":
+                            return "dependencyTypeIn";
                         case "ExternalIdIn":
                             return "externalIdIn";
                         case "Ksql":

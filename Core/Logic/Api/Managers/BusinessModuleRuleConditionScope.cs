@@ -1,5 +1,6 @@
 ﻿using ApiLogic.Api.Managers;
 using ApiObjects;
+using ApiObjects.Pricing;
 using ApiObjects.Rules;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
@@ -163,7 +164,8 @@ namespace APILogic.Api.Managers
 
         public bool IsMediaIncludedInSubscription(int groupId, long mediaId, HashSet<long> subscriptionIds)
         {
-            var subscriptionsChannels = Core.Pricing.Module.Instance.GetSubscriptions(groupId, subscriptionIds, string.Empty, string.Empty, string.Empty, null);
+            var subscriptionsChannels = Core.Pricing.Module.Instance.GetSubscriptions(groupId, subscriptionIds, string.Empty, string.Empty, string.Empty, null, 
+                SubscriptionOrderBy.StartDateAsc, 0, 30, true, null, false, null, null, null, null);
             if (subscriptionsChannels == null || subscriptionsChannels.Subscriptions == null) { return false; }
 
             HashSet<int> channelsIds = new HashSet<int>();
