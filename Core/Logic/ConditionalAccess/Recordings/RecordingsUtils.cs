@@ -324,8 +324,7 @@ namespace Core.Recordings
                 EndPadding = timeBasedRecording.PaddingAfterMins,
                 RecordedProgramId = timeBasedRecording.ProgramId,
                 AbsoluteStartTime = timeBasedRecording.AbsoluteStartTime,
-                AbsoluteEndTime = timeBasedRecording.AbsoluteEndTime,
-                IsStopped = householdRecording?.IsStopped ?? false
+                AbsoluteEndTime = timeBasedRecording.AbsoluteEndTime
             };
 
             if (householdRecording != null)
@@ -349,7 +348,8 @@ namespace Core.Recordings
             }
             
             //BEO-13622
-            if (recording.IsStopped && recordingStatus == TstvRecordingStatus.Recording)
+            var isStopped = householdRecording?.IsStopped ?? false;
+            if (isStopped && recordingStatus == TstvRecordingStatus.Recording)
             {
                 recordingStatus = TstvRecordingStatus.Recorded;
             }
