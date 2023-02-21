@@ -15,7 +15,8 @@ stage('Unified-CI'){
         parallel(
             "Linux" : {
                 node('Linux'){   
-                    try{               
+                    try{
+                        deleteDir()             
                         stage('Checkout'){
                             checkout scm: [
                                     $class: 'GitSCM',
@@ -331,3 +332,6 @@ def triggerWrapper(){
                                                 string(name: 'COMMITER', value: "${COMMITER}")
                                                 ], wait: false
 }
+
+
+
