@@ -50,6 +50,7 @@ namespace ApiObjects.TimeShiftedTv
         public DateTime? AbsoluteStartTime { get; set; }
         public DateTime? AbsoluteEndTime { get; set; }
         public long? Duration { get; set; }
+        public bool IsStopped { get; set; }
 
         public Recording()
         {
@@ -84,6 +85,7 @@ namespace ApiObjects.TimeShiftedTv
             this.AbsoluteEndTime = record.AbsoluteEndTime;
             this.AbsoluteStartTime = record.AbsoluteStartTime;
             this.Duration = record.Duration;
+            this.IsStopped = record.IsStopped;
         }
 
         public override string ToString()
@@ -109,9 +111,9 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("AbsoluteEndTime: {0}, ", !AbsoluteEndTime.HasValue ? "" : AbsoluteEndTime.Value.ToString()));
             sb.Append(string.Format("AbsoluteStartTime: {0}, ", !AbsoluteStartTime.HasValue ? "" : AbsoluteStartTime.Value.ToString()));
             sb.Append(string.Format("Duration: {0}, ", !Duration.HasValue ? "" : Duration.Value.ToString()));
+            sb.Append(string.Format("IsStopped: {0}, ", IsStopped.ToString()));
 
             return sb.ToString();
         }
-
     }
 }

@@ -304,9 +304,9 @@ namespace Core.Recordings
         }
 
         public static Recording BuildRecordingFromTBRecording(int groupId, TimeBasedRecording timeBasedRecording, 
-            Program program, HouseholdRecording householdRecording = null, bool isStopped = false)
+            Program program, HouseholdRecording householdRecording = null)
         {
-            Recording recording = new Recording()
+            var recording = new Recording()
             {
                 Id = householdRecording?.Id ?? timeBasedRecording.Id,
                 Status = new Status(eResponseStatus.OK),
@@ -324,7 +324,8 @@ namespace Core.Recordings
                 EndPadding = timeBasedRecording.PaddingAfterMins,
                 RecordedProgramId = timeBasedRecording.ProgramId,
                 AbsoluteStartTime = timeBasedRecording.AbsoluteStartTime,
-                AbsoluteEndTime = timeBasedRecording.AbsoluteEndTime
+                AbsoluteEndTime = timeBasedRecording.AbsoluteEndTime,
+                IsStopped = householdRecording?.IsStopped ?? false
             };
 
             if (householdRecording != null)
@@ -334,11 +335,7 @@ namespace Core.Recordings
             }
 
             TstvRecordingStatus? recordingStatus;
-            if (isStopped)
-            {
-                recordingStatus = TstvRecordingStatus.Recorded;
-            }
-            else if (Enum.IsDefined(typeof(RecordingInternalStatus), timeBasedRecording.Status))
+            if (Enum.IsDefined(typeof(RecordingInternalStatus), timeBasedRecording.Status))
             {
                 var recordingInternalStatus = (RecordingInternalStatus)Enum.Parse(typeof(RecordingInternalStatus), timeBasedRecording.Status);
 
@@ -350,7 +347,13 @@ namespace Core.Recordings
             {
                 recordingStatus = (TstvRecordingStatus)Enum.Parse(typeof(TstvRecordingStatus), timeBasedRecording.Status);  //fix "Scheduled" value TODO: change the enum received 
             }
-
+            
+            //BEO-13622
+            if (recording.IsStopped && recordingStatus == TstvRecordingStatus.Recording)
+            {
+                recordingStatus = TstvRecordingStatus.Recorded;
+            }
+            
             if (recordingStatus.HasValue)
             {
                 recording.RecordingStatus = recordingStatus.Value;
