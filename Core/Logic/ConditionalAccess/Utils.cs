@@ -5651,7 +5651,8 @@ namespace Core.ConditionalAccess
                     }
 
                     //BEO-13622
-                    if (recording.RecordingStatus != TstvRecordingStatus.Recorded || accountSettings.PersonalizedRecordingEnable == false)
+                    if (recording.RecordingStatus != TstvRecordingStatus.Recorded || !accountSettings.PersonalizedRecordingEnable.HasValue 
+                        || accountSettings.PersonalizedRecordingEnable == false)
                     {
                         recording.RecordingStatus = SetRecordingStatus(startDate, endDate);
                     }
