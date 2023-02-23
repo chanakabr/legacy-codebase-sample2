@@ -5649,8 +5649,12 @@ namespace Core.ConditionalAccess
                         startDate = recording.AbsoluteStartTime ?? recording.EpgStartDate.AddMinutes(-1 * (recording.StartPadding ?? 0));
                         endDate =   recording.AbsoluteEndTime ?? recording.EpgEndDate.AddMinutes(recording.EndPadding ?? 0);
                     }
-                    
-                    recording.RecordingStatus = SetRecordingStatus(startDate, endDate);
+
+                    //BEO-13622
+                    if (recording.RecordingStatus != TstvRecordingStatus.Recorded || accountSettings.PersonalizedRecordingEnable == false)
+                    {
+                        recording.RecordingStatus = SetRecordingStatus(startDate, endDate);
+                    }
 
                     if (recording.RecordingStatus == TstvRecordingStatus.Recorded && (!recording.ViewableUntilDate.HasValue || recording.ViewableUntilDate.Value == 0))
                     {
