@@ -15,7 +15,8 @@ stage('Unified-CI'){
         parallel(
             "Linux" : {
                 node('Linux'){   
-                    try{               
+                    try{
+                        deleteDir()             
                         stage('Checkout'){
                             checkout scm: [
                                     $class: 'GitSCM',
