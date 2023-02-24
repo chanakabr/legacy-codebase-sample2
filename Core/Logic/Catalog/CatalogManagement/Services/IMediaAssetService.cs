@@ -13,6 +13,7 @@ namespace Core.Catalog.CatalogManagement
             DataTable newTagsTable,
             DataTable filesTable,
             DataTable labelsTable,
+            DataTable mediaFileDynamicDataTable,
             DataTable imagesTable,
             DataTable updateDateTable,
             DataTable linearAssetTable,

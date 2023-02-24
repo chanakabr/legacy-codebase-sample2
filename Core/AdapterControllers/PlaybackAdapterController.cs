@@ -306,7 +306,8 @@ namespace AdapterControllers
                                 BusinessModuleId = x.BusinessModuleId,
                                 BusinessModuleType = ConvertModuleType(x.BusinessModuleType)
                             },
-                            Labels = x.Labels
+                            Labels = x.Labels,
+                            DynamicData = x.DynamicData?.ToDictionary(_ => _.Key, _ => _.Value.AsEnumerable())
                         }).ToList();
                 }
 
@@ -564,7 +565,8 @@ namespace AdapterControllers
                             Type = x.Type,
                             BusinessModuleId = x.BusinessModuleDetails?.BusinessModuleId,
                             BusinessModuleType = ConvertModuleType(x.BusinessModuleDetails?.BusinessModuleType),
-                            Labels = x.Labels
+                            Labels = x.Labels,
+                            DynamicData = x.DynamicData?.Select(_ => new KeyListOfStrings { Key = _.Key, Value = _.Value.ToList() }).ToList()
                         }).ToList();
                 }
 

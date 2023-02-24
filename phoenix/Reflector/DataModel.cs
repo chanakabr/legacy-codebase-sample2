@@ -85,6 +85,7 @@ namespace Reflector
             WriteGetMethodParams();
             wrtieGetFailureHttpCode();
             WriteCustomStatusCodeResponseEnabled();
+            WriteCheckOneOf();
         }
 
         protected override void writeFooter()
@@ -161,7 +162,7 @@ namespace Reflector
             file.WriteLine("        }");
             file.WriteLine("        ");
         }
-        
+
         private void WriteGetMethodParams()
         {
             List<PropertyInfo> schemeArgumentProperties = typeof(SchemeArgumentAttribute).GetProperties().ToList();
@@ -182,7 +183,7 @@ namespace Reflector
             file.WriteLine("                switch (service)");
             file.WriteLine("                {");
 
-            // run over all controllers to get all OldStandardActions methods names 
+            // run over all controllers to get all OldStandardActions methods names
             foreach (Type controller in controllers)
             {
                 List<MethodInfo> actions = controller.GetMethods().ToList();
@@ -258,7 +259,7 @@ namespace Reflector
             {
                 var serviceAttribute = controller.GetCustomAttribute<ServiceAttribute>(true);
                 if (serviceAttribute == null) { continue; }
-                
+
                 file.WriteLine("                case \"" + serviceAttribute.Name.ToLower() + "\":");
                 file.WriteLine("                    switch(action)");
                 file.WriteLine("                    {");
@@ -269,7 +270,7 @@ namespace Reflector
                 foreach (MethodInfo action in actions)
                 {
                     if (action.DeclaringType != controller) { continue; }
-                    
+
                     var actionAttribute = action.GetCustomAttribute<ActionAttribute>(true);
                     if (actionAttribute == null) { continue; }
 
@@ -287,7 +288,7 @@ namespace Reflector
             file.WriteLine("        }");
             file.WriteLine("        ");
         }
-        
+
         private void WriteActionParams(ActionAttribute actionAttribute, MethodInfo action, List<PropertyInfo> schemeArgumentProperties, ServiceAttribute serviceAttribute, Dictionary<string, bool> optionalParameters = null)
         {
             file.WriteLine("                        case \"" + actionAttribute.Name.ToLower() + "\":");
@@ -310,12 +311,12 @@ namespace Reflector
                 {
                     hasOldStandard = true;
                 }
-                
+
                 if (hasOldStandard)
                 {
                     file.WriteLine("                            paramName = \"" + parameter.Name + "\";");
                     file.WriteLine("                            newParamName = null;");
-                    
+
                     foreach (var oldStandardArgumentAttribute in oldStandardAttributesMap[parameter.Name])
                     {
                         if (!string.IsNullOrEmpty(oldStandardArgumentAttribute.Key))
@@ -509,33 +510,27 @@ namespace Reflector
             var schemaMethodAttribute = action.GetCustomAttribute<SchemaMethodAttribute>(true);
             if (schemaMethodAttribute != null)
             {
-                var parameterIndices = new List<int>();
                 var oneOf = schemaMethodAttribute.OneOf.ToHashSet();
+                var oneOfIndices = new Dictionary<int, string>();
                 for (var i = 0; i < parameters.Length; i++)
                 {
-                    if (oneOf.Contains(parameters[i].Name))
+                    var parameterName = parameters[i].Name;
+                    if (oneOf.Contains(parameterName))
                     {
-                        parameterIndices.Add(i);
+                        oneOfIndices[i] = parameterName;
                     }
 
-                    if (oneOf.Count == parameterIndices.Count)
+                    if (oneOf.Count == oneOfIndices.Count)
                     {
                         break;
                     }
                 }
 
-                if (parameterIndices.Count > 1)
+                if (oneOfIndices.Count > 1)
                 {
-                    file.WriteLine(tab + "                            var oneOfIndices = new[] { " + string.Join(", ", parameterIndices) + " };");
-                    file.WriteLine(tab + "                            var oneOfParametersCount = oneOfIndices.Count(x => methodParams[x] != null);");
-                    file.WriteLine(tab + "                            if (oneOfParametersCount == 0)");
-                    file.WriteLine(tab + "                            {");
-                    file.WriteLine(tab + "                                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, \"" + string.Join(", ", oneOf) + "\");");
-                    file.WriteLine(tab + "                            }");
-                    file.WriteLine(tab + "                            if (oneOfParametersCount > 1)");
-                    file.WriteLine(tab + "                            {");
-                    file.WriteLine(tab + "                                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, " + string.Join(", ", oneOf.Select(x => $"\"{x}\"")) + ");");
-                    file.WriteLine(tab + "                            }");
+                    var oneOfDictItems = string.Join(", ", oneOfIndices.Select(kv => $"{{{kv.Key}, \"{kv.Value}\"}}"));
+                    file.WriteLine(tab + $"                            var oneOfIndices = new Dictionary<int, string> {{{oneOfDictItems}}};");
+                    file.WriteLine(tab + "                            CheckOneOf(oneOfIndices, methodParams);");
                 }
             }
 
@@ -585,7 +580,7 @@ namespace Reflector
             file.WriteLine("            {");
 
             OldStandardActionAttribute oldStandardActionAttribute;
-            
+
             foreach (Type controller in controllers)
             {
                 var controllerName = controller.Name;
@@ -874,6 +869,25 @@ namespace Reflector
             file.WriteLine("            return false;");
             file.WriteLine("        }");
             file.WriteLine("        ");
+        }
+
+        private void WriteCheckOneOf()
+        {
+            file.WriteLine("        private static void CheckOneOf(Dictionary<int, string> oneOfIndices, List<object> methodParams)");
+            file.WriteLine("        {");
+            file.WriteLine("            var oneOfParameters = oneOfIndices.Keys.Where(x => methodParams[x] != null).ToList();");
+            file.WriteLine("            var oneOfParametersCount = oneOfParameters.Count();");
+            file.WriteLine("            if (oneOfParametersCount == 0)");
+            file.WriteLine("            {");
+            file.WriteLine("                var arguments = string.Join(\", \", oneOfIndices.Values);");
+            file.WriteLine("                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, arguments);");
+            file.WriteLine("            }");
+            file.WriteLine("            if (oneOfParametersCount > 1)");
+            file.WriteLine("            {");
+            file.WriteLine("                var arguments = string.Join(\", \", oneOfIndices.Where(kv => oneOfParameters.Contains(kv.Key)).Select(kv => kv.Value));");
+            file.WriteLine("                throw new BadRequestException(BadRequestException.MULTIPLE_ARGUMENTS_CONFLICTS_EACH_OTHER, arguments);");
+            file.WriteLine("            }");
+            file.WriteLine("        }");
         }
     }
 }

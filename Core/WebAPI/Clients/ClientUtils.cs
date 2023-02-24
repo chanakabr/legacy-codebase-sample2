@@ -394,6 +394,35 @@ namespace WebAPI.Clients
 
             return response;
         }
-        
+
+        internal static T Get<T>(this GenericResponse<T> response)
+        {
+            if (response == null)
+            {
+                throw new ClientException(StatusCode.Error);
+            }
+
+            if (!response.IsOkStatusCode())
+            {
+                throw new ClientException(response.Status);
+            }
+
+            return response.Object;
+        }
+
+        internal static (List<T> items, int totalItems) GetList<T>(this GenericListResponse<T> response)
+        {
+            if (response == null)
+            {
+                throw new ClientException(StatusCode.Error);
+            }
+
+            if (!response.IsOkStatusCode())
+            {
+                throw new ClientException(response.Status);
+            }
+
+            return (response.Objects, response.TotalItems);
+        }
     }
 }

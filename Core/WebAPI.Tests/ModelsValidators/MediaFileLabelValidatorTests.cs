@@ -2,18 +2,19 @@ using FluentAssertions;
 using NUnit.Framework;
 using WebAPI.Exceptions;
 using WebAPI.Models.Catalog;
+using WebAPI.ModelsValidators;
 
-namespace WebAPI.Tests.Models.Catalog
+namespace WebAPI.Tests.ModelsValidators
 {
     [TestFixture]
-    public class KalturaLabelValidatorTests
+    public class MediaFileLabelValidatorTests
     {
         [TestCase(1)]
         [TestCase(128)]
         public void ValidateToAdd_ValidCommaSeparatedString_NoException(int valueLength)
         {
             var commaSeparatedLabelValues = $" {new string('x', valueLength)} ,l1,l2,l3,l4,l5,l6,l7,l8,l9,l10,l11,l12,l13,l14,l15,l16,l17,l18,l19,l20,l21,l22,l23,l24";
-            var validator = new KalturaLabelValidator();
+            var validator = new MediaFileLabelValidator();
 
             validator.ValidateToAdd(commaSeparatedLabelValues, KalturaEntityAttribute.MEDIA_FILE_LABELS, "label");
         }
@@ -22,7 +23,7 @@ namespace WebAPI.Tests.Models.Catalog
         [TestCase("")]
         public void ValidateToAdd_EmptyCommaSeparatedString_NoException(string commaSeparatedLabelValues)
         {
-            var validator = new KalturaLabelValidator();
+            var validator = new MediaFileLabelValidator();
 
             validator.ValidateToAdd(commaSeparatedLabelValues, KalturaEntityAttribute.MEDIA_FILE_LABELS, "label");
         }
@@ -33,7 +34,7 @@ namespace WebAPI.Tests.Models.Catalog
         [TestCase("l1,,l3")]
         public void ValidateToAdd_CommaSeparatedStringWithEmptyValue_ThrowsException(string commaSeparatedLabelValues)
         {
-            var validator = new KalturaLabelValidator();
+            var validator = new MediaFileLabelValidator();
 
             var exception = Assert.Throws<BadRequestException>(() => validator.ValidateToAdd(commaSeparatedLabelValues, KalturaEntityAttribute.MEDIA_FILE_LABELS, "label"));
 
@@ -44,7 +45,7 @@ namespace WebAPI.Tests.Models.Catalog
         public void ValidateToAdd_CommaSeparatedStringWithTooLongValue_ThrowsException()
         {
             var commaSeparatedLabelValues = $"{new string('x', 129)},l1,l2";
-            var validator = new KalturaLabelValidator();
+            var validator = new MediaFileLabelValidator();
 
             var exception = Assert.Throws<BadRequestException>(() => validator.ValidateToAdd(commaSeparatedLabelValues, KalturaEntityAttribute.MEDIA_FILE_LABELS, "label"));
 
@@ -54,7 +55,7 @@ namespace WebAPI.Tests.Models.Catalog
         [Test]
         public void ValidateToAdd_CommaSeparatedStringWithInvalidEntityAttribute_ThrowsException()
         {
-            var validator = new KalturaLabelValidator();
+            var validator = new MediaFileLabelValidator();
 
             var exception = Assert.Throws<BadRequestException>(() => validator.ValidateToAdd("l1,l2,l3", (KalturaEntityAttribute)2, "label"));
 
@@ -65,7 +66,7 @@ namespace WebAPI.Tests.Models.Catalog
         public void ValidateToAdd_CommaSeparatedStringWithTooManyLabelValues_ThrowsException()
         {
             var commaSeparatedLabelValues = "l0,l1,l2,l3,l4,l5,l6,l7,l8,l9,l10,l11,l12,l13,l14,l15,l16,l17,l18,l19,l20,l21,l22,l23,l24,l25";
-            var validator = new KalturaLabelValidator();
+            var validator = new MediaFileLabelValidator();
 
             var exception = Assert.Throws<BadRequestException>(() => validator.ValidateToAdd(commaSeparatedLabelValues, KalturaEntityAttribute.MEDIA_FILE_LABELS, "label"));
 
@@ -75,7 +76,7 @@ namespace WebAPI.Tests.Models.Catalog
         [Test]
         public void ValidateToAdd_CommaSeparatedStringWithDuplicatedLabelValues_ThrowsException()
         {
-            var validator = new KalturaLabelValidator();
+            var validator = new MediaFileLabelValidator();
 
             var exception = Assert.Throws<BadRequestException>(() => validator.ValidateToAdd("l1,l2,l1", KalturaEntityAttribute.MEDIA_FILE_LABELS, "label"));
 
@@ -88,7 +89,7 @@ namespace WebAPI.Tests.Models.Catalog
         {
             var value = $" {new string('x', valueLength)} ";
             var label = new KalturaLabel { EntityAttribute = KalturaEntityAttribute.MEDIA_FILE_LABELS, Value = value };
-            var validator = new KalturaLabelValidator();
+            var validator = new MediaFileLabelValidator();
 
             validator.ValidateToAdd(label, "label");
         }
@@ -96,7 +97,7 @@ namespace WebAPI.Tests.Models.Catalog
         [Test]
         public void ValidateToAdd_Null_ThrowsException()
         {
-            var validator = new KalturaLabelValidator();
+            var validator = new MediaFileLabelValidator();
 
             var exception = Assert.Throws<BadRequestException>(() => validator.ValidateToAdd(null, "label"));
 
@@ -109,7 +110,7 @@ namespace WebAPI.Tests.Models.Catalog
         public void ValidateToAdd_EmptyValue_ThrowsException(string value)
         {
             var label = new KalturaLabel { EntityAttribute = KalturaEntityAttribute.MEDIA_FILE_LABELS, Value = value };
-            var validator = new KalturaLabelValidator();
+            var validator = new MediaFileLabelValidator();
 
             var exception = Assert.Throws<BadRequestException>(() => validator.ValidateToAdd(label, "label"));
 
@@ -121,7 +122,7 @@ namespace WebAPI.Tests.Models.Catalog
         {
             var value = new string('x', 129);
             var label = new KalturaLabel { EntityAttribute = KalturaEntityAttribute.MEDIA_FILE_LABELS, Value = value };
-            var validator = new KalturaLabelValidator();
+            var validator = new MediaFileLabelValidator();
 
             var exception = Assert.Throws<BadRequestException>(() => validator.ValidateToAdd(label, "label"));
 
@@ -132,7 +133,7 @@ namespace WebAPI.Tests.Models.Catalog
         public void ValidateToAdd_ValueWithComma_ThrowsException()
         {
             var label = new KalturaLabel { EntityAttribute = KalturaEntityAttribute.MEDIA_FILE_LABELS, Value = "with,comma" };
-            var validator = new KalturaLabelValidator();
+            var validator = new MediaFileLabelValidator();
 
             var exception = Assert.Throws<BadRequestException>(() => validator.ValidateToAdd(label, "label"));
 
@@ -143,7 +144,7 @@ namespace WebAPI.Tests.Models.Catalog
         public void ValidateToAdd_EntityAttributeInvalid_ThrowsException()
         {
             var label = new KalturaLabel { EntityAttribute = (KalturaEntityAttribute)2, Value = "value" };
-            var validator = new KalturaLabelValidator();
+            var validator = new MediaFileLabelValidator();
 
             var exception = Assert.Throws<BadRequestException>(() => validator.ValidateToAdd(label, "label"));
 
@@ -156,7 +157,7 @@ namespace WebAPI.Tests.Models.Catalog
         {
             var value = $" {new string('x', valueLength)} ";
             var label = new KalturaLabel { EntityAttribute = (KalturaEntityAttribute)2, Value = value };
-            var validator = new KalturaLabelValidator();
+            var validator = new MediaFileLabelValidator();
 
             validator.ValidateToUpdate(label, "label");
         }
@@ -164,7 +165,7 @@ namespace WebAPI.Tests.Models.Catalog
         [Test]
         public void ValidateToUpdate_Null_ThrowsException()
         {
-            var validator = new KalturaLabelValidator();
+            var validator = new MediaFileLabelValidator();
 
             var exception = Assert.Throws<BadRequestException>(() => validator.ValidateToUpdate(null, "label"));
 
@@ -177,7 +178,7 @@ namespace WebAPI.Tests.Models.Catalog
         public void ValidateToUpdate_EmptyValue_ThrowsException(string value)
         {
             var label = new KalturaLabel { EntityAttribute = KalturaEntityAttribute.MEDIA_FILE_LABELS, Value = value };
-            var validator = new KalturaLabelValidator();
+            var validator = new MediaFileLabelValidator();
 
             var exception = Assert.Throws<BadRequestException>(() => validator.ValidateToUpdate(label, "label"));
 
@@ -189,7 +190,7 @@ namespace WebAPI.Tests.Models.Catalog
         {
             var value = new string('x', 129);
             var label = new KalturaLabel { EntityAttribute = KalturaEntityAttribute.MEDIA_FILE_LABELS, Value = value };
-            var validator = new KalturaLabelValidator();
+            var validator = new MediaFileLabelValidator();
 
             var exception = Assert.Throws<BadRequestException>(() => validator.ValidateToUpdate(label, "label"));
 
@@ -200,7 +201,7 @@ namespace WebAPI.Tests.Models.Catalog
         public void ValidateToUpdate_ValueWithComma_ThrowsException()
         {
             var label = new KalturaLabel { EntityAttribute = KalturaEntityAttribute.MEDIA_FILE_LABELS, Value = "with,comma" };
-            var validator = new KalturaLabelValidator();
+            var validator = new MediaFileLabelValidator();
 
             var exception = Assert.Throws<BadRequestException>(() => validator.ValidateToUpdate(label, "label"));
 

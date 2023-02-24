@@ -21,8 +21,8 @@ namespace WebAPI.Models.General
         [JsonProperty(PropertyName = "relatedObjects")]
         [XmlElement(ElementName = "relatedObjects")]
         public SerializableDictionary<string, IKalturaListResponse> relatedObjects { get; set; }
-        
-        public KalturaOTTObject(Dictionary<string, object> parameters = null)
+
+        public KalturaOTTObject(Dictionary<string, object> parameters = null, bool fromRequest = false)
         {
             Init();
         }

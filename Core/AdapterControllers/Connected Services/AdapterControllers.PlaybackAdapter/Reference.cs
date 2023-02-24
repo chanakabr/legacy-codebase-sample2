@@ -690,6 +690,8 @@ namespace AdapterControllers.PlaybackAdapter
         
         private System.Nullable<long> DurationField;
         
+        private System.Collections.Generic.List<AdapterControllers.PlaybackAdapter.KeyListOfStrings> DynamicDataField;
+        
         private System.Nullable<long> EndDateField;
         
         private string ExternalIdField;
@@ -819,6 +821,19 @@ namespace AdapterControllers.PlaybackAdapter
             set
             {
                 this.DurationField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<AdapterControllers.PlaybackAdapter.KeyListOfStrings> DynamicData
+        {
+            get
+            {
+                return this.DynamicDataField;
+            }
+            set
+            {
+                this.DynamicDataField = value;
             }
         }
         
@@ -1001,6 +1016,43 @@ namespace AdapterControllers.PlaybackAdapter
             set
             {
                 this.TypeIdField = value;
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="KeyListOfStrings", Namespace="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models")]
+    public partial class KeyListOfStrings : object
+    {
+        
+        private string KeyField;
+        
+        private System.Collections.Generic.List<string> ValueField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Key
+        {
+            get
+            {
+                return this.KeyField;
+            }
+            set
+            {
+                this.KeyField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<string> Value
+        {
+            get
+            {
+                return this.ValueField;
+            }
+            set
+            {
+                this.ValueField = value;
             }
         }
     }

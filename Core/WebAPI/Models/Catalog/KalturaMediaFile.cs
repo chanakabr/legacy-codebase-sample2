@@ -307,6 +307,15 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "labels")]
         public string Labels { get; set; }
 
+        /// <summary>
+        /// List of KalturaMediaFile's dynamic data keys
+        /// </summary>
+        [DataMember(Name = "dynamicData")]
+        [JsonProperty("dynamicData")]
+        [XmlElement(ElementName = "dynamicData", IsNullable = true)]
+        [SchemeProperty(MaxItems = 50, IsNullable = true)]
+        public SerializableDictionary<string, KalturaStringValueArray> DynamicData { get; set; }
+
         #endregion
     }
 }

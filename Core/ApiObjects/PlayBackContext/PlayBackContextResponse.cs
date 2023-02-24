@@ -59,8 +59,10 @@ namespace ApiObjects
         public BusinessModuleDetails BusinessModuleDetails { get; set; }
 
         public long GroupId { get; set; }
-        
+
         public string Labels { get; set; }
+
+        public IDictionary<string, IEnumerable<string>> DynamicData { get; set; }
 
         public int GetCdnId(bool isAlternative)
         {

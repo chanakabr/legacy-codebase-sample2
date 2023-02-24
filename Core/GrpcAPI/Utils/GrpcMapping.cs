@@ -7,6 +7,7 @@ using Google.Protobuf.Collections;
 using Google.Protobuf.WellKnownTypes;
 using phoenix;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using AssetRule = phoenix.AssetRule;
@@ -651,7 +652,8 @@ namespace GrpcAPI.Utils
                 .ForMember(dest => dest.Opl, opt => opt.MapFrom(src => src.Opl))
                 .ForMember(dest => dest.BusinessModuleDetails, opt => opt.MapFrom(src => src.BusinessModuleDetails))
                 .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.GroupId))
-                .ForMember(dest => dest.Labels, opt => opt.MapFrom(src => src.Labels)).ReverseMap();
+                .ForMember(dest => dest.Labels, opt => opt.MapFrom(src => src.Labels))
+                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => ToDictionary(src.DynamicData))).ReverseMap();
 
             cfg.CreateMap<PaymentGateway, PaymentGatewayProfile>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
@@ -674,6 +676,11 @@ namespace GrpcAPI.Utils
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                 .ForMember(dest => dest.Selected, opt => opt.MapFrom(src => src.Selected))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
+        }
+
+        private static IDictionary<string, IEnumerable<string>> ToDictionary(MapField<string, ListOfStrings> mapField)
+        {
+            return mapField?.ToDictionary(x => x.Key, x => x.Value.Value.AsEnumerable());
         }
 
         private static Timestamp ToUtcUnixTimestampSeconds(DateTime? dateTime)

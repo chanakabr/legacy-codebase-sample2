@@ -24,7 +24,7 @@ namespace WebAPI.Models.General
 
         public abstract KalturaT GetDefaultOrderByValue();
 
-        public KalturaFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null && parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
             {

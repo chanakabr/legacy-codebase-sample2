@@ -21,6 +21,7 @@ namespace Core.Catalog
         public MediaFileTypeQuality Quality { get; set; }
         public HashSet<string> VideoCodecs { get; set; }
         public HashSet<string> AudioCodecs { get; set; }
+        public HashSet<string> DynamicDataKeys { get; set; }
 
         public MediaFileType()
         {
@@ -36,6 +37,7 @@ namespace Core.Catalog
             this.Quality = MediaFileTypeQuality.None;
             this.VideoCodecs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             this.AudioCodecs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            DynamicDataKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         }
         
         public override string ToString()
@@ -50,8 +52,9 @@ namespace Core.Catalog
             sb.AppendFormat("StreamerType: {0}, ", StreamerType.HasValue ? StreamerType.Value.ToString() : string.Empty);
             sb.AppendFormat("DrmId: {0}, ", DrmId.HasValue ? DrmId.Value.ToString() : string.Empty);
             sb.AppendFormat("Quality: {0}, ", Quality.ToString());
-            sb.AppendFormat("VideoCodecs: {0},", VideoCodecs == null || VideoCodecs.Count > 0 ? string.Empty : string.Join(",", VideoCodecs));
-            sb.AppendFormat("AudioCodecs: {0},", AudioCodecs == null || AudioCodecs.Count > 0 ? string.Empty : string.Join(",", AudioCodecs));
+            sb.AppendFormat("VideoCodecs: {0},", VideoCodecs == null || VideoCodecs.Count == 0 ? string.Empty : string.Join(",", VideoCodecs));
+            sb.AppendFormat("AudioCodecs: {0},", AudioCodecs == null || AudioCodecs.Count == 0 ? string.Empty : string.Join(",", AudioCodecs));
+            sb.AppendFormat("DynamicDataKeys: {0}", DynamicDataKeys == null || DynamicDataKeys.Count == 0 ? string.Empty : string.Join(",", DynamicDataKeys));
             return sb.ToString();
         }
 

@@ -6,6 +6,7 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.ModelsValidators;
 using WebAPI.Utils;
+using WebAPI.Validation;
 
 namespace WebAPI.Controllers
 {
@@ -19,7 +20,8 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         /// <remarks>Possible error codes: InvalidArgument = 50026, ArgumentCannotBeEmpty = 50027, ArgumentMaxLengthCrossed = 500045, ArgumentsDuplicate = 500066, MaxArguments = 500088,
         /// AssetDoesNotExist = 4039, MediaFileTypeDoesNotExist = 4052, MediaFileExternalIdMustBeUnique = 4056, MediaFileAltExternalIdMustBeUnique = 4057,
-        /// ExternaldAndAltExternalIdMustBeUnique = 4058, CdnAdapterProfileDoesNotExist = 4062, DefaultCdnAdapterProfileNotConfigurd, MediaFileWithThisTypeAlreadyExistForAsset = 4065.</remarks>
+        /// ExternaldAndAltExternalIdMustBeUnique = 4058, CdnAdapterProfileDoesNotExist = 4062, DefaultCdnAdapterProfileNotConfigurd, MediaFileWithThisTypeAlreadyExistForAsset = 4065,
+        /// DynamicDataKeyDoesNotExist = 4120.</remarks>
         [Action("add")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
@@ -30,29 +32,14 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.CdnAdapterProfileDoesNotExist)]
         [Throws(eResponseStatus.DefaultCdnAdapterProfileNotConfigurd)]
         [Throws(eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset)]
+        [Throws(eResponseStatus.DynamicDataKeyDoesNotExist)]
         static public KalturaMediaFile Add(KalturaMediaFile mediaFile)
         {
+            MediaFileValidator.Instance.ValidateToAdd(mediaFile, nameof(mediaFile));
+
             KalturaMediaFile response = null;
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
-
-            if (mediaFile.AssetId <= 0)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "assetId");
-            }
-
-            if (!mediaFile.TypeId.HasValue)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "type");
-            }
-
-            if (string.IsNullOrEmpty(mediaFile.ExternalId))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalId");
-            }
-
-            var validator = new KalturaLabelValidator();
-            validator.ValidateToAdd(mediaFile.Labels, KalturaEntityAttribute.MEDIA_FILE_LABELS, $"{nameof(mediaFile)}.labels");
 
             try
             {
@@ -103,7 +90,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         /// <remarks>Possible error codes: InvalidArgument = 50026, ArgumentCannotBeEmpty = 50027, ArgumentMaxLengthCrossed = 500045, ArgumentsDuplicate = 500066, MaxArguments = 500088,
         /// MediaFileDoesNotExist = 4053, MediaFileNotBelongToAsset = 4054, MediaFileExternalIdMustBeUnique = 4056, MediaFileAltExternalIdMustBeUnique = 4057,
-        /// ExternaldAndAltExternalIdMustBeUnique = 4058, MediaFileWithThisTypeAlreadyExistForAsset = 4065.</remarks>
+        /// ExternaldAndAltExternalIdMustBeUnique = 4058, MediaFileWithThisTypeAlreadyExistForAsset = 4065, DynamicDataKeyDoesNotExist = 4120.</remarks>
         [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.MediaFileDoesNotExist)]
@@ -112,15 +99,15 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset)]
         [Throws(eResponseStatus.CdnAdapterProfileDoesNotExist)]
         [Throws(eResponseStatus.DefaultCdnAdapterProfileNotConfigurd)]
+        [Throws(eResponseStatus.DynamicDataKeyDoesNotExist)]
         [SchemeArgument("id", MinLong = 1)]
         static public KalturaMediaFile Update(long id, KalturaMediaFile mediaFile)
         {
+            MediaFileValidator.Instance.ValidateToUpdate(mediaFile, nameof(mediaFile));
+
             KalturaMediaFile response = null;
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
-
-            var validator = new KalturaLabelValidator();
-            validator.ValidateToAdd(mediaFile.Labels, KalturaEntityAttribute.MEDIA_FILE_LABELS, $"{nameof(mediaFile)}.labels");
 
             try
             {

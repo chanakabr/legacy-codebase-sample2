@@ -183,8 +183,20 @@ namespace ApiLogic.Catalog.CatalogManagement.Managers
                         {
                             foreach (var fileAttribute in fileSystemNameToExcelAttribute)
                             {
-                                var excelColumn = ExcelManager.GetExcelColumnByAttribute(fileAttribute.Value, mediaFileType.Name, null, mediaFileType.Description, fileAttribute.Key);
-                                excelColumns.TryAdd(excelColumn.ToString(), excelColumn);
+                                if (fileAttribute.Key == AssetFile.DYNAMIC_DATA && mediaFileType.DynamicDataKeys != null)
+                                {
+                                    foreach (var key in mediaFileType.DynamicDataKeys)
+                                    {
+                                        var dynamicDataAttribute = fileSystemNameToExcelAttribute[AssetFile.DYNAMIC_DATA];
+                                        var dynamicDataColumn = ExcelManager.GetExcelColumnByAttribute(dynamicDataAttribute, mediaFileType.Name, null, null, key);
+                                        excelColumns.TryAdd(dynamicDataColumn.ToString(), dynamicDataColumn);
+                                    }
+                                }
+                                else
+                                {
+                                    var excelColumn = ExcelManager.GetExcelColumnByAttribute(fileAttribute.Value, mediaFileType.Name, null, mediaFileType.Description, fileAttribute.Key);
+                                    excelColumns.TryAdd(excelColumn.ToString(), excelColumn);
+                                }
                             }
                         }
                     }

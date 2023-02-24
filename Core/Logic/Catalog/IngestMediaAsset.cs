@@ -1,5 +1,4 @@
 ﻿using System.Xml.Serialization;
-using System.Xml;
 using System.Collections.Generic;
 using ApiObjects.Response;
 using System.Linq;
@@ -774,10 +773,32 @@ namespace Core.Catalog
 
         [XmlAttribute("labels")]
         public string Labels { get; set; }
+        
+        [XmlElement("dynamicData")]
+        public IngestDynamicData<string, string[]> DynamicData { get; set; }
 
         public IngestMediaFile()
         {
-            this.Quality = "HIGH";
+            Quality = "HIGH";
+            DynamicData = new IngestDynamicData<string, string[]>
+            {
+                Items = Array.Empty<IngestKeyValuePair<string, string[]>>()
+            };
         }
+    }
+
+    public class IngestDynamicData<TKey, TValue>
+    {
+        [XmlElement("keyValues")]
+        public IngestKeyValuePair<TKey, TValue>[] Items { get; set; }
+    }
+
+    public class IngestKeyValuePair<TKey, TValue>
+    {
+        [XmlElement("key")]
+        public TKey Key { get; set; }
+
+        [XmlElement("value")]
+        public TValue Value { get; set; }
     }
 }

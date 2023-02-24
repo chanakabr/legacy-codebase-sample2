@@ -1178,7 +1178,13 @@ namespace ApiObjects
         [ProtoEnum(Name = "RuleActionType_FilterFileByLabelInDiscovery")]
         FilterFileByLabelInDiscovery,
         [ProtoEnum(Name = "RuleActionType_FilterFileByLabelInPlayback")]
-        FilterFileByLabelInPlayback
+        FilterFileByLabelInPlayback,
+        [ProtoEnum(Name = "RuleActionType_NONE")]
+        NONE,
+        [ProtoEnum(Name = "RuleActionType_FilterFileByDynamicDataInDiscovery")]
+        FilterFileByDynamicDataInDiscovery,
+        [ProtoEnum(Name = "RuleActionType_FilterFileByDynamicDataInPlayback")]
+        FilterFileByDynamicDataInPlayback
     }
 
     public enum RuleConditionType

@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Runtime.Serialization;
+using AdapaterCommon.Models;
 
 namespace PlaybackAdapter
 {
@@ -49,5 +51,7 @@ namespace PlaybackAdapter
         public long? CatalogEndDate { get; set; }
         [DataMember]
         public string Labels { get; set; }
+        [DataMember]
+        public List<KeyListOfStrings> DynamicData { get; set; }
     }
 }

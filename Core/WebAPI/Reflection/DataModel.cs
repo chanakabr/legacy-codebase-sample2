@@ -3734,6 +3734,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaFilterFileByDynamicDataAction":
+                    switch(property.Name)
+                    {
+                        case "Key":
+                            return "key";
+                        case "Values":
+                            return "values";
+                    }
+                    break;
+                    
                 case "KalturaFilterFileByFileTypeIdAction":
                     switch(property.Name)
                     {
@@ -5255,6 +5265,8 @@ namespace WebAPI.Reflection
                             return "cdnName";
                         case "Duration":
                             return "duration";
+                        case "DynamicData":
+                            return "dynamicData";
                         case "EndDate":
                             return "endDate";
                         case "ExternalId":
@@ -5298,6 +5310,44 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaMediaFileDynamicData":
+                    switch(property.Name)
+                    {
+                        case "Id":
+                            return "id";
+                        case "MediaFileTypeId":
+                            return "mediaFileTypeId";
+                        case "MediaFileTypeKeyName":
+                            return "mediaFileTypeKeyName";
+                        case "Value":
+                            return "value";
+                    }
+                    break;
+                    
+                case "KalturaMediaFileDynamicDataFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                        case "MediaFileTypeId":
+                            return "mediaFileTypeId";
+                        case "MediaFileTypeKeyName":
+                            return "mediaFileTypeKeyName";
+                        case "ValueEqual":
+                            return "valueEqual";
+                        case "ValueStartsWith":
+                            return "valueStartsWith";
+                    }
+                    break;
+                    
+                case "KalturaMediaFileDynamicDataListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaMediaFileFilter":
                     switch(property.Name)
                     {
@@ -5327,6 +5377,8 @@ namespace WebAPI.Reflection
                             return "description";
                         case "DrmProfileId":
                             return "drmProfileId";
+                        case "DynamicDataKeys":
+                            return "dynamicDataKeys";
                         case "Id":
                             return "id";
                         case "IsTrailer":
@@ -9657,16 +9709,8 @@ namespace WebAPI.Reflection
                             return AssetHistoryController.CleanOldStandard((KalturaAssetsFilter) methodParams[0]);
                             
                         case "getnextepisode":
-                            var oneOfIndices = new[] { 0, 1 };
-                            var oneOfParametersCount = oneOfIndices.Count(x => methodParams[x] != null);
-                            if (oneOfParametersCount == 0)
-                            {
-                                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "assetId, seriesIdArguments");
-                            }
-                            if (oneOfParametersCount > 1)
-                            {
-                                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "assetId", "seriesIdArguments");
-                            }
+                            var oneOfIndices = new Dictionary<int, string> {{0, "assetId"}, {1, "seriesIdArguments"}};
+                            CheckOneOf(oneOfIndices, methodParams);
                             RolesManager.ValidateActionPermitted("assetHistory", "getNextEpisode", WebAPI.Managers.eKSValidation.All);
                             return AssetHistoryController.GetNextEpisode((Nullable<long>) methodParams[0], (KalturaSeriesIdArguments) methodParams[1], (Nullable<KalturaNotWatchedReturnStrategy>) methodParams[2], (Nullable<KalturaWatchedAllReturnStrategy>) methodParams[3]);
                             
@@ -11552,6 +11596,24 @@ namespace WebAPI.Reflection
                         case "update":
                             RolesManager.ValidateActionPermitted("mediaFile", "update", WebAPI.Managers.eKSValidation.All);
                             return MediaFileController.Update((long) methodParams[0], (KalturaMediaFile) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "mediafiledynamicdata":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("mediaFileDynamicData", "add", WebAPI.Managers.eKSValidation.All);
+                            return MediaFileDynamicDataController.Add((KalturaMediaFileDynamicData) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("mediaFileDynamicData", "delete", WebAPI.Managers.eKSValidation.All);
+                            return MediaFileDynamicDataController.Delete((long) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("mediaFileDynamicData", "list", WebAPI.Managers.eKSValidation.All);
+                            return MediaFileDynamicDataController.List((KalturaMediaFileDynamicDataFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
                     break;
@@ -19531,6 +19593,42 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "mediafiledynamicdata":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("dynamicData", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaMediaFileDynamicData),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaMediaFileDynamicDataFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
                 case "mediafiletype":
                     switch(action)
                     {
@@ -24484,5 +24582,20 @@ namespace WebAPI.Reflection
             return false;
         }
         
+        private static void CheckOneOf(Dictionary<int, string> oneOfIndices, List<object> methodParams)
+        {
+            var oneOfParameters = oneOfIndices.Keys.Where(x => methodParams[x] != null).ToList();
+            var oneOfParametersCount = oneOfParameters.Count();
+            if (oneOfParametersCount == 0)
+            {
+                var arguments = string.Join(", ", oneOfIndices.Values);
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, arguments);
+            }
+            if (oneOfParametersCount > 1)
+            {
+                var arguments = string.Join(", ", oneOfIndices.Where(kv => oneOfParameters.Contains(kv.Key)).Select(kv => kv.Value));
+                throw new BadRequestException(BadRequestException.MULTIPLE_ARGUMENTS_CONFLICTS_EACH_OTHER, arguments);
+            }
+        }
     }
 }

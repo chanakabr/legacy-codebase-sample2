@@ -731,6 +731,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Opl, opt => opt.ResolveUsing(src => src.Opl))
               .ForMember(dest => dest.BusinessModuleDetails, opt => opt.ResolveUsing(src => src.BusinessModuleDetails))
               .ForMember(dest => dest.Labels, opt => opt.MapFrom(src => src.Labels))
+              .ForMember(dest => dest.DynamicData, opt => opt.ResolveUsing(src => ConvertDynamicData(src.DynamicData)))
               ;
 
             cfg.CreateMap<PlaybackContextResponse, KalturaPlaybackContext>()
@@ -1109,6 +1110,39 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return res;
+        }
+
+        private static SerializableDictionary<string, KalturaStringValueArray> ConvertDynamicData(IDictionary<string, IEnumerable<string>> dictionary)
+        {
+            if (dictionary == null)
+            {
+                return null;
+            }
+
+            var serializableDictionary = new SerializableDictionary<string, KalturaStringValueArray>();
+            foreach (var item in dictionary)
+            {
+                var stringValueArray = BuildKalturaStringValueArray(item.Value);
+                serializableDictionary.Add(item.Key, stringValueArray);
+            }
+
+            return serializableDictionary;
+        }
+
+        public static KalturaStringValueArray BuildKalturaStringValueArray(IEnumerable<string> list)
+        {
+            if (list == null)
+            {
+                return null;
+            }
+
+            var stringValueArray = new KalturaStringValueArray();
+            foreach (var item in list)
+            {
+                stringValueArray.Objects.Add(new KalturaStringValue { value = item });
+            }
+
+            return stringValueArray;
         }
 
         internal static List<CDVRAdapterSettings> ConvertCDVRAdapterSettings(SerializableDictionary<string, KalturaStringValue> settings)

@@ -12,7 +12,6 @@ using ApiObjects.CouchbaseWrapperObjects;
 using ApiObjects.Epg;
 using ApiObjects.MediaMarks;
 using ApiObjects.PlayCycle;
-using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CouchbaseManager;
 using DAL;
@@ -4706,8 +4705,19 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet InsertMediaFileType(int groupId, string name, string description, bool? isActive, bool isTrailer, int streamerType, int? drmId,
-                                                    MediaFileTypeQuality quality, HashSet<string> videoCodecs, HashSet<string> audioCodecs, long userId)
+        public static DataSet InsertMediaFileType(
+            int groupId,
+            string name,
+            string description,
+            bool? isActive,
+            bool isTrailer,
+            int streamerType,
+            int? drmId,
+            MediaFileTypeQuality quality,
+            HashSet<string> videoCodecs,
+            HashSet<string> audioCodecs,
+            HashSet<string> dynamicDataKeys,
+            long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertMediaFileType");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4721,13 +4731,23 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@Quality", (int)quality);
             sp.AddParameter("@VideoCodecs", videoCodecs != null && videoCodecs.Count > 0 ? string.Join(",", videoCodecs) : string.Empty);
             sp.AddParameter("@AudioCodecs", audioCodecs != null && audioCodecs.Count > 0 ? string.Join(",", audioCodecs) : string.Empty);
+            sp.AddIDListParameter("@DynamicDataKeys", dynamicDataKeys ?? new HashSet<string>(), "STR");
             sp.AddParameter("@UpdaterId", userId);
 
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet UpdateMediaFileType(int groupId, long id, string name, string description, bool? isActive, MediaFileTypeQuality quality,
-                                                    HashSet<string> videoCodecs, HashSet<string> audioCodecs, long userId)
+        public static DataSet UpdateMediaFileType(
+            int groupId,
+            long id,
+            string name,
+            string description,
+            bool? isActive,
+            MediaFileTypeQuality quality,
+            HashSet<string> videoCodecs,
+            HashSet<string> audioCodecs,
+            HashSet<string> dynamicDataKeys,
+            long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMediaFileType");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4739,6 +4759,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@Quality", quality);
             sp.AddParameter("@VideoCodecs", videoCodecs != null && videoCodecs.Count > 0 ? string.Join(",", videoCodecs) : string.Empty);
             sp.AddParameter("@AudioCodecs", audioCodecs != null && audioCodecs.Count > 0 ? string.Join(",", audioCodecs) : string.Empty);
+            sp.AddIDListParameter("@DynamicDataKeys", dynamicDataKeys ?? new HashSet<string>(), "STR");
             sp.AddParameter("@UpdaterId", userId);
 
             return sp.ExecuteDataSet();
@@ -5269,7 +5290,7 @@ namespace Tvinci.Core.DAL
         public static DataSet InsertMediaFile(int groupId, long userId, string additionalData, string altStreamingCode, long? altStreamingSuplierId, long assetId,
             long billingType, double? duration, DateTime? endDate, string externalId, string externalStoreId, long? fileSize, bool? isDefaultLanguage,
             string language, int? orderNum, DateTime? startDate, string url, long? streamingSuplierId, int? type, string altExternalId,
-            bool? isActive, DateTime? catalogEndDate, IReadOnlyCollection<string> labelValues, string opl = "")
+            bool? isActive, DateTime? catalogEndDate, IReadOnlyCollection<string> labelValues, IEnumerable<KeyValuePair<string, string>> dynamicData, string opl = "")
         {
             StoredProcedure sp = new StoredProcedure("InsertMediaFile");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5296,6 +5317,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@fileSize", fileSize ?? 0);
             sp.AddParameter("@IsActive", isActive.HasValue ? isActive.Value ? 1 : 0 : 0);
             sp.AddParameter("@catalogEndDate", catalogEndDate);
+            sp.AddKeyValueListParameter("@dynamicData", dynamicData.ToList(), "idKey", "value");
             if (!string.IsNullOrEmpty(opl))
             {
                 sp.AddParameter("@opl", opl);
@@ -5328,7 +5350,7 @@ namespace Tvinci.Core.DAL
 
         public static DataSet UpdateMediaFile(int groupId, long id, long userId, string additionalData, string altStreamingCode, long? altStreamingSuplierId, long assetId, long billingType,
             long? duration, DateTime? endDate, string externalId, string externalStoreId, long? fileSize, bool? isDefaultLanguage, string language, int? orderNum, DateTime? startDate,
-            string url, long? streamingSuplierId, int? type, string altExternalId, bool? isActive, DateTime? catalogEndDate, string opl, IReadOnlyCollection<string> labelValues)
+            string url, long? streamingSuplierId, int? type, string altExternalId, bool? isActive, DateTime? catalogEndDate, string opl, IReadOnlyCollection<string> labelValues, IEnumerable<KeyValuePair<string, string>> dynamicData)
         {
             StoredProcedure sp = new StoredProcedure("UpdateMediaFile");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5357,6 +5379,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@catalogEndDate", catalogEndDate);
             sp.AddParameter("@opl", opl);
             sp.AddDataTableParameter("@labelValues", CreateLabelValuesDataTable(labelValues.ToList()));
+            sp.AddKeyValueListParameter("@dynamicData", dynamicData.ToList(), "idKey", "value");
 
             return sp.ExecuteDataSet();
         }

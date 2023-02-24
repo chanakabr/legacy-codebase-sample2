@@ -1109,6 +1109,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                    case KalturaRuleActionType.FilterFileByStreamerTypeInPlayback: return RuleActionType.FilterFileByStreamerTypeInPlayback;
                    case KalturaRuleActionType.FilterFileByLabelInDiscovery: return RuleActionType.FilterFileByLabelInDiscovery;
                    case KalturaRuleActionType.FilterFileByLabelInPlayback: return RuleActionType.FilterFileByLabelInPlayback;
+                   case KalturaRuleActionType.FilterFileByDynamicDataInDiscovery: return RuleActionType.FilterFileByDynamicDataInDiscovery;
+                   case KalturaRuleActionType.FilterFileByDynamicDataInPlayback: return RuleActionType.FilterFileByDynamicDataInPlayback;
                    default: throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown RuleAction value : {0}", kalturaRuleActionType.ToString()));
                }
            });
@@ -1144,6 +1146,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         case RuleActionType.FilterFileByStreamerTypeInPlayback: return KalturaRuleActionType.FilterFileByStreamerTypeInPlayback;
                         case RuleActionType.FilterFileByLabelInDiscovery: return KalturaRuleActionType.FilterFileByLabelInDiscovery;
                         case RuleActionType.FilterFileByLabelInPlayback: return KalturaRuleActionType.FilterFileByLabelInPlayback;
+                        case RuleActionType.FilterFileByDynamicDataInDiscovery: return KalturaRuleActionType.FilterFileByDynamicDataInDiscovery;
+                        case RuleActionType.FilterFileByDynamicDataInPlayback: return KalturaRuleActionType.FilterFileByDynamicDataInPlayback;
                         default: throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown ruleActionType value : {0}", ruleActionType.ToString()));
                     }
                 });
@@ -1469,6 +1473,28 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<FilterAssetByKsql, KalturaFilterAssetByKsqlAction>()
                 .IncludeBase<AssetRuleAction, KalturaAssetRuleAction>()
                 .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql));
+
+            cfg.CreateMap<KalturaFilterFileByDynamicDataAction, FilterFileByDynamicData>()
+                .IncludeBase<KalturaAssetRuleAction, AssetRuleAction>()
+                .ForMember(dest => dest.Key, opt => opt.ResolveUsing(src => src.Key))
+                .ForMember(dest => dest.Values, opt => opt.ResolveUsing(src => src.GetValues()));
+
+            cfg.CreateMap<KalturaFilterFileByDynamicDataInDiscoveryAction, FilterFileByDynamicDataInDiscovery>()
+                .IncludeBase<KalturaFilterFileByDynamicDataAction, FilterFileByDynamicData>();
+
+            cfg.CreateMap<KalturaFilterFileByDynamicDataInPlaybackAction, FilterFileByDynamicDataInPlayback>()
+                .IncludeBase<KalturaFilterFileByDynamicDataAction, FilterFileByDynamicData>();
+
+            cfg.CreateMap<FilterFileByDynamicData, KalturaFilterFileByDynamicDataAction>()
+                .IncludeBase<AssetRuleAction, KalturaAssetRuleAction>()
+                .ForMember(dest => dest.Key, opt => opt.ResolveUsing(src => src.Key))
+                .ForMember(dest => dest.Values, opt => opt.MapFrom(src => string.Join(",", src.Values)));
+
+            cfg.CreateMap<FilterFileByDynamicDataInDiscovery, KalturaFilterFileByDynamicDataInDiscoveryAction>()
+                .IncludeBase<FilterFileByDynamicData, KalturaFilterFileByDynamicDataAction>();
+
+            cfg.CreateMap<FilterFileByDynamicDataInPlayback, KalturaFilterFileByDynamicDataInPlaybackAction>()
+                .IncludeBase<FilterFileByDynamicData, KalturaFilterFileByDynamicDataAction>();
 
             cfg.CreateMap<KalturaRuleType?, RuleType?>()
                 .ConvertUsing(kalturaRuleType =>
@@ -1911,10 +1937,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsTokenized, opt => opt.MapFrom(src => src.IsTokenized))
                 .ForMember(dest => dest.Opl, opt => opt.MapFrom(src => src.OutputProtecationLevel))
                 .ForMember(dest => dest.BusinessModuleDetails, opt => opt.MapFrom(src => src.BusinessModuleDetails))
+                .ForMember(dest => dest.Labels, opt => opt.MapFrom(src => src.Labels))
+                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => BuildStringAndKalturaStringValueArraySerializableDictionary(src.DynamicData)))
                 ;
 
             cfg.CreateMap<KalturaPlaybackSource, ApiObjects.PlaybackAdapter.PlaybackSource>()
-             .ForMember(dest => dest.Format, opt => opt.MapFrom(src => src.Format))
+                .ForMember(dest => dest.Format, opt => opt.MapFrom(src => src.Format))
                 .ForMember(dest => dest.Protocols, opt => opt.MapFrom(src => src.Protocols))
                 .ForMember(dest => dest.Drm, opt => opt.MapFrom(src => src.Drm))
                 .ForMember(dest => dest.AdsPolicy, opt => opt.MapFrom(src => src.AdsPolicy))
@@ -1924,6 +1952,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsTokenized, opt => opt.MapFrom(src => src.IsTokenized))
                 .ForMember(dest => dest.OutputProtecationLevel, opt => opt.MapFrom(src => src.Opl))
                 .ForMember(dest => dest.BusinessModuleDetails, opt => opt.MapFrom(src => src.BusinessModuleDetails))
+                .ForMember(dest => dest.Labels, opt => opt.MapFrom(src => src.Labels))
+                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => BuildStringAndStringEnumerableDictionary(src.DynamicData)))
                 ;
 
             cfg.CreateMap<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData, KalturaPluginData>();
@@ -3767,6 +3797,46 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return stringList;
+        }
+
+        private static IDictionary<string, IEnumerable<string>> BuildStringAndStringEnumerableDictionary(SerializableDictionary<string, KalturaStringValueArray> dictionary)
+        {
+            return dictionary?.ToDictionary(
+                x => x.Key,
+                x => x.Value.Objects.Select(_ => _.value));
+        }
+
+        private static SerializableDictionary<string, KalturaStringValueArray> BuildStringAndKalturaStringValueArraySerializableDictionary(IDictionary<string, IEnumerable<string>> dictionary)
+        {
+            if (dictionary == null)
+            {
+                return null;
+            }
+
+            var serializableDictionary = new SerializableDictionary<string, KalturaStringValueArray>();
+            foreach (var item in dictionary)
+            {
+                var stringValueArray = BuildKalturaStringValueArray(item.Value);
+                serializableDictionary.Add(item.Key, stringValueArray);
+            }
+
+            return serializableDictionary;
+        }
+
+        public static KalturaStringValueArray BuildKalturaStringValueArray(IEnumerable<string> list)
+        {
+            if (list == null)
+            {
+                return null;
+            }
+
+            var stringValueArray = new KalturaStringValueArray();
+            foreach (var item in list)
+            {
+                stringValueArray.Objects.Add(new KalturaStringValue { value = item });
+            }
+
+            return stringValueArray;
         }
     }
 }

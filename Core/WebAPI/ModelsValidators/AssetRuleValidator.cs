@@ -130,6 +130,8 @@ namespace WebAPI.ModelsValidators
                             KalturaRuleActionType.FilterFileByStreamerTypeInPlayback,
                             KalturaRuleActionType.FilterFileByLabelInDiscovery,
                             KalturaRuleActionType.FilterFileByLabelInPlayback,
+                            KalturaRuleActionType.FilterFileByDynamicDataInDiscovery,
+                            KalturaRuleActionType.FilterFileByDynamicDataInPlayback
                         };
 
             return allowedActions;

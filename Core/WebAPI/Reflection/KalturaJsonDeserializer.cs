@@ -1173,6 +1173,15 @@ namespace WebAPI.Reflection
                 case "KalturaFilterFileByAudioCodecInPlaybackAction":
                     return new KalturaFilterFileByAudioCodecInPlaybackAction(parameters, true);
                     
+                case "KalturaFilterFileByDynamicDataAction":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
+                case "KalturaFilterFileByDynamicDataInDiscoveryAction":
+                    return new KalturaFilterFileByDynamicDataInDiscoveryAction(parameters, true);
+                    
+                case "KalturaFilterFileByDynamicDataInPlaybackAction":
+                    return new KalturaFilterFileByDynamicDataInPlaybackAction(parameters, true);
+                    
                 case "KalturaFilterFileByFileTypeIdAction":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
@@ -1598,6 +1607,15 @@ namespace WebAPI.Reflection
                     
                 case "KalturaMediaFile":
                     return new KalturaMediaFile(parameters, true);
+                    
+                case "KalturaMediaFileDynamicData":
+                    return new KalturaMediaFileDynamicData(parameters, true);
+                    
+                case "KalturaMediaFileDynamicDataFilter":
+                    return new KalturaMediaFileDynamicDataFilter(parameters, true);
+                    
+                case "KalturaMediaFileDynamicDataListResponse":
+                    return new KalturaMediaFileDynamicDataListResponse(parameters, true);
                     
                 case "KalturaMediaFileFilter":
                     return new KalturaMediaFileFilter(parameters, true);
@@ -2710,6 +2728,17 @@ namespace WebAPI.Reflection
             
             throw new RequestParserException(RequestParserException.INVALID_OBJECT_TYPE, objectType);
         }
+
+        public static void CheckOneOf(Dictionary<string, object> parameters, string[] allOneOfParams)
+        {
+            var oneOfParameters = allOneOfParams.Where(p => parameters.TryGetValue(p, out var value) && !string.IsNullOrWhiteSpace(value.ToString())).ToList();
+
+            if (oneOfParameters.Count == 0)
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, string.Join(", ", allOneOfParams));
+
+            if (oneOfParameters.Count > 1)
+                throw new BadRequestException(BadRequestException.MULTIPLE_ARGUMENTS_CONFLICTS_EACH_OTHER, string.Join(", ", oneOfParameters));
+        }
     }
 }
 
@@ -2717,13 +2746,13 @@ namespace WebAPI.Models.ConditionalAccess
 {
     public partial class KalturaAccessControlBlockAction
     {
-        public KalturaAccessControlBlockAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAccessControlBlockAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaAccessControlMessage
     {
-        public KalturaAccessControlMessage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAccessControlMessage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -2740,7 +2769,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaAdsContext
     {
-        public KalturaAdsContext(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAdsContext(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -2774,7 +2803,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaAdsSource(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAdsSource(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -2812,13 +2841,13 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaAllowPlaybackAction
     {
-        public KalturaAllowPlaybackAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAllowPlaybackAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaApplyDiscountModuleAction
     {
-        public KalturaApplyDiscountModuleAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaApplyDiscountModuleAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -2831,13 +2860,13 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaApplyFreePlaybackAction
     {
-        public KalturaApplyFreePlaybackAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaApplyFreePlaybackAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaApplyPlaybackAdapterAction
     {
-        public KalturaApplyPlaybackAdapterAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaApplyPlaybackAdapterAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -2906,7 +2935,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaAssetFileContext(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetFileContext(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -2937,7 +2966,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaAssetLifeCycleBuisnessModuleTransitionAction
     {
-        public KalturaAssetLifeCycleBuisnessModuleTransitionAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetLifeCycleBuisnessModuleTransitionAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -2954,7 +2983,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaAssetLifeCycleTagTransitionAction
     {
-        public KalturaAssetLifeCycleTagTransitionAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetLifeCycleTagTransitionAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -2981,7 +3010,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaAssetLifeCycleTransitionAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetLifeCycleTransitionAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -3021,25 +3050,25 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaAssetRuleAction
     {
-        public KalturaAssetRuleAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetRuleAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaAssetUserRuleAction
     {
-        public KalturaAssetUserRuleAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetUserRuleAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaAssetUserRuleBlockAction
     {
-        public KalturaAssetUserRuleBlockAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetUserRuleBlockAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaAssetUserRuleFilterAction
     {
-        public KalturaAssetUserRuleFilterAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetUserRuleFilterAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -3052,7 +3081,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaBillingResponse
     {
-        public KalturaBillingResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBillingResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -3317,7 +3346,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaBillingTransaction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBillingTransaction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -3555,7 +3584,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaBillingTransactionListResponse
     {
-        public KalturaBillingTransactionListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBillingTransactionListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -3575,13 +3604,13 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaBlockPlaybackAction
     {
-        public KalturaBlockPlaybackAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBlockPlaybackAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaBumpersPlaybackPluginData
     {
-        public KalturaBumpersPlaybackPluginData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBumpersPlaybackPluginData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -3598,19 +3627,19 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaBusinessModuleRuleAction
     {
-        public KalturaBusinessModuleRuleAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBusinessModuleRuleAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaCampaignEntitlementDiscountDetails
     {
-        public KalturaCampaignEntitlementDiscountDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCampaignEntitlementDiscountDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaCaptionPlaybackPluginData
     {
-        public KalturaCaptionPlaybackPluginData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCaptionPlaybackPluginData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -3663,7 +3692,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaCDVRAdapterProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCDVRAdapterProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -3732,7 +3761,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaCDVRAdapterProfileListResponse
     {
-        public KalturaCDVRAdapterProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCDVRAdapterProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -3752,7 +3781,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaCloudRecordingFilter
     {
-        public KalturaCloudRecordingFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCloudRecordingFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -3768,7 +3797,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaCloudSeriesRecordingFilter
     {
-        public KalturaCloudSeriesRecordingFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCloudSeriesRecordingFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -3784,7 +3813,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaCollectionEntitlement
     {
-        public KalturaCollectionEntitlement(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCollectionEntitlement(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -3862,7 +3891,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaCompensation(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCompensation(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -3916,7 +3945,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaCompensationEntitlementDiscountDetails
     {
-        public KalturaCompensationEntitlementDiscountDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCompensationEntitlementDiscountDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -3950,7 +3979,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaCouponEntitlementDiscountDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCouponEntitlementDiscountDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -3971,7 +4000,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaCustomDrmPlaybackPluginData
     {
-        public KalturaCustomDrmPlaybackPluginData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCustomDrmPlaybackPluginData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -3984,13 +4013,13 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaDiscountEntitlementDiscountDetails
     {
-        public KalturaDiscountEntitlementDiscountDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDiscountEntitlementDiscountDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaDrmPlaybackPluginData
     {
-        public KalturaDrmPlaybackPluginData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDrmPlaybackPluginData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -4024,7 +4053,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaEndDateOffsetRuleAction
     {
-        public KalturaEndDateOffsetRuleAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEndDateOffsetRuleAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -4352,7 +4381,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaEntitlement(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEntitlement(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -4672,7 +4701,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaEntitlementCancellation(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEntitlementCancellation(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -4760,7 +4789,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaEntitlementDiscountDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEntitlementDiscountDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -4800,7 +4829,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaEntitlementDiscountDetailsIdentifier(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEntitlementDiscountDetailsIdentifier(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -4858,7 +4887,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaEntitlementFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEntitlementFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -4933,7 +4962,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaEntitlementListResponse
     {
-        public KalturaEntitlementListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEntitlementListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -4981,7 +5010,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaEntitlementPriceDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEntitlementPriceDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -5016,7 +5045,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaEntitlementRenewal
     {
-        public KalturaEntitlementRenewal(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEntitlementRenewal(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -5052,7 +5081,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaEntitlementRenewalBase
     {
-        public KalturaEntitlementRenewalBase(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEntitlementRenewalBase(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -5073,7 +5102,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaEntitlementsFilter
     {
-        public KalturaEntitlementsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEntitlementsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -5126,7 +5155,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaExternalReceipt
     {
-        public KalturaExternalReceipt(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaExternalReceipt(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -5185,7 +5214,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaExternalRecording(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaExternalRecording(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -5214,7 +5243,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaExternalRecordingFilter
     {
-        public KalturaExternalRecordingFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaExternalRecordingFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -5230,13 +5259,13 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaExternalRecordingResponseProfileFilter
     {
-        public KalturaExternalRecordingResponseProfileFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaExternalRecordingResponseProfileFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaExternalSeriesRecording
     {
-        public KalturaExternalSeriesRecording(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaExternalSeriesRecording(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -5252,7 +5281,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaFairPlayPlaybackPluginData
     {
-        public KalturaFairPlayPlaybackPluginData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFairPlayPlaybackPluginData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -5265,13 +5294,13 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaHouseholdPremiumService
     {
-        public KalturaHouseholdPremiumService(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHouseholdPremiumService(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaHouseholdPremiumServiceListResponse
     {
-        public KalturaHouseholdPremiumServiceListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHouseholdPremiumServiceListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -5333,7 +5362,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaHouseholdQuota(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHouseholdQuota(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -5401,7 +5430,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaImmediateRecording(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaImmediateRecording(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -5427,7 +5456,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaLicensedUrl
     {
-        public KalturaLicensedUrl(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaLicensedUrl(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -5454,7 +5483,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaLicensedUrlBaseRequest
     {
-        public KalturaLicensedUrlBaseRequest(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaLicensedUrlBaseRequest(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -5467,7 +5496,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaLicensedUrlEpgRequest
     {
-        public KalturaLicensedUrlEpgRequest(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaLicensedUrlEpgRequest(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -5494,7 +5523,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaLicensedUrlMediaRequest
     {
-        public KalturaLicensedUrlMediaRequest(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaLicensedUrlMediaRequest(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -5511,7 +5540,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaLicensedUrlRecordingRequest
     {
-        public KalturaLicensedUrlRecordingRequest(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaLicensedUrlRecordingRequest(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -5524,7 +5553,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaNpvrPremiumService
     {
-        public KalturaNpvrPremiumService(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaNpvrPremiumService(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -5567,7 +5596,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPaddedRecording(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPaddedRecording(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -5602,7 +5631,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPartnerPremiumService(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPartnerPremiumService(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -5626,7 +5655,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaPartnerPremiumServices
     {
-        public KalturaPartnerPremiumServices(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPartnerPremiumServices(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -5646,7 +5675,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaPlaybackContext
     {
-        public KalturaPlaybackContext(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPlaybackContext(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -5725,7 +5754,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPlaybackContextOptions(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPlaybackContextOptions(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -5784,7 +5813,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaPlaybackPluginData
     {
-        public KalturaPlaybackPluginData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPlaybackPluginData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -5818,7 +5847,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPlaybackSource(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPlaybackSource(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -5890,7 +5919,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaPluginData
     {
-        public KalturaPluginData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPluginData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -5924,7 +5953,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPpvEntitlement(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPpvEntitlement(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -5969,7 +5998,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPremiumService(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPremiumService(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -5989,7 +6018,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaPricesFilter
     {
-        public KalturaPricesFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPricesFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -6052,7 +6081,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaProductPriceFilter
     {
-        public KalturaProductPriceFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaProductPriceFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -6085,13 +6114,13 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaProgramAssetGroupOfferEntitlement
     {
-        public KalturaProgramAssetGroupOfferEntitlement(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaProgramAssetGroupOfferEntitlement(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaProgramAssetGroupOfferEntitlementFilter
     {
-        public KalturaProgramAssetGroupOfferEntitlementFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaProgramAssetGroupOfferEntitlementFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -6127,7 +6156,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPurchase(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPurchase(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -6189,7 +6218,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPurchaseBase(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPurchaseBase(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -6228,7 +6257,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaPurchaseSession
     {
-        public KalturaPurchaseSession(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPurchaseSession(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -6339,7 +6368,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaRecording(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRecording(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -6413,7 +6442,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaRecordingContext
     {
-        public KalturaRecordingContext(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRecordingContext(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -6445,7 +6474,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaRecordingContextFilter
     {
-        public KalturaRecordingContextFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRecordingContextFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -6458,7 +6487,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaRecordingContextListResponse
     {
-        public KalturaRecordingContextListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRecordingContextListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -6521,7 +6550,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaRecordingFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRecordingFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -6551,7 +6580,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaRecordingListResponse
     {
-        public KalturaRecordingListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRecordingListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -6585,7 +6614,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaRuleAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRuleAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -6671,7 +6700,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSeriesRecording(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSeriesRecording(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -6750,13 +6779,13 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaSeriesRecordingFilter
     {
-        public KalturaSeriesRecordingFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSeriesRecordingFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaSeriesRecordingListResponse
     {
-        public KalturaSeriesRecordingListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSeriesRecordingListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -6820,7 +6849,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSeriesRecordingOption(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSeriesRecordingOption(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -6856,7 +6885,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaStartDateOffsetRuleAction
     {
-        public KalturaStartDateOffsetRuleAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaStartDateOffsetRuleAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -7004,7 +7033,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSubscriptionEntitlement(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSubscriptionEntitlement(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -7092,7 +7121,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaTimeOffsetRuleAction
     {
-        public KalturaTimeOffsetRuleAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTimeOffsetRuleAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -7109,13 +7138,13 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaTrailEntitlementDiscountDetails
     {
-        public KalturaTrailEntitlementDiscountDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTrailEntitlementDiscountDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaTransaction
     {
-        public KalturaTransaction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTransaction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -7166,7 +7195,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaTransactionHistoryFilter
     {
-        public KalturaTransactionHistoryFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTransactionHistoryFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -7233,7 +7262,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaTransactionsFilter
     {
-        public KalturaTransactionsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTransactionsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -7274,7 +7303,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaTransactionStatus
     {
-        public KalturaTransactionStatus(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTransactionStatus(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -7313,7 +7342,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaUnifiedPaymentRenewal
     {
-        public KalturaUnifiedPaymentRenewal(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUnifiedPaymentRenewal(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -7384,7 +7413,7 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaUserBillingTransaction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserBillingTransaction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -7476,7 +7505,7 @@ namespace WebAPI.Models.Social
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaActionPermissionItem(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaActionPermissionItem(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -7537,7 +7566,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaFacebookPost
     {
-        public KalturaFacebookPost(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFacebookPost(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -7561,13 +7590,13 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaFacebookSocial
     {
-        public KalturaFacebookSocial(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFacebookSocial(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaNetworkActionStatus
     {
-        public KalturaNetworkActionStatus(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaNetworkActionStatus(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -7646,7 +7675,7 @@ namespace WebAPI.Models.Social
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSocial(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSocial(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -7728,7 +7757,7 @@ namespace WebAPI.Models.Social
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSocialAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSocialAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -7785,7 +7814,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialActionFilter
     {
-        public KalturaSocialActionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSocialActionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -7816,7 +7845,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialActionListResponse
     {
-        public KalturaSocialActionListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSocialActionListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -7836,7 +7865,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialActionRate
     {
-        public KalturaSocialActionRate(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSocialActionRate(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -7849,7 +7878,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialComment
     {
-        public KalturaSocialComment(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSocialComment(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -7874,7 +7903,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialCommentFilter
     {
-        public KalturaSocialCommentFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSocialCommentFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -7919,7 +7948,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialCommentListResponse
     {
-        public KalturaSocialCommentListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSocialCommentListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -7939,13 +7968,13 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialConfig
     {
-        public KalturaSocialConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSocialConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaSocialFacebookConfig
     {
-        public KalturaSocialFacebookConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSocialFacebookConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -7968,7 +7997,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialFriendActivity
     {
-        public KalturaSocialFriendActivity(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSocialFriendActivity(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -7996,7 +8025,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialFriendActivityFilter
     {
-        public KalturaSocialFriendActivityFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSocialFriendActivityFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -8027,7 +8056,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialFriendActivityListResponse
     {
-        public KalturaSocialFriendActivityListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSocialFriendActivityListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -8047,7 +8076,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialNetworkComment
     {
-        public KalturaSocialNetworkComment(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSocialNetworkComment(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -8064,7 +8093,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialResponse
     {
-        public KalturaSocialResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSocialResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -8145,7 +8174,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialUser
     {
-        public KalturaSocialUser(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSocialUser(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -8200,7 +8229,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialUserConfig
     {
-        public KalturaSocialUserConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSocialUserConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -8220,13 +8249,13 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaTwitterTwit
     {
-        public KalturaTwitterTwit(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTwitterTwit(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaUserSocialActionResponse
     {
-        public KalturaUserSocialActionResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserSocialActionResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -8289,7 +8318,7 @@ namespace WebAPI.Models.General
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaActionResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaActionResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -8317,13 +8346,13 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaAggregationCountFilter
     {
-        public KalturaAggregationCountFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAggregationCountFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaApiActionPermissionItem
     {
-        public KalturaApiActionPermissionItem(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaApiActionPermissionItem(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -8340,7 +8369,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaApiArgumentPermissionItem
     {
-        public KalturaApiArgumentPermissionItem(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaApiArgumentPermissionItem(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -8361,7 +8390,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaApiParameterPermissionItem
     {
-        public KalturaApiParameterPermissionItem(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaApiParameterPermissionItem(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -8392,7 +8421,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaApiPriviligesPermissionItem
     {
-        public KalturaApiPriviligesPermissionItem(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaApiPriviligesPermissionItem(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -8535,7 +8564,7 @@ namespace WebAPI.Models.General
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaAppToken(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAppToken(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -8633,13 +8662,13 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaBaseResponseProfile
     {
-        public KalturaBaseResponseProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBaseResponseProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaBooleanValue
     {
-        public KalturaBooleanValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBooleanValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -8652,7 +8681,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaClientConfiguration
     {
-        public KalturaClientConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaClientConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -8683,7 +8712,7 @@ namespace WebAPI.Models.General
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaDetachedResponseProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDetachedResponseProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -8721,7 +8750,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaDoubleValue
     {
-        public KalturaDoubleValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDoubleValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -8763,7 +8792,7 @@ namespace WebAPI.Models.General
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaDuration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDuration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -8798,7 +8827,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaDurationListResponse
     {
-        public KalturaDurationListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDurationListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -8860,7 +8889,7 @@ namespace WebAPI.Models.General
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaDynamicList(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDynamicList(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -8890,7 +8919,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaDynamicListFilter
     {
-        public KalturaDynamicListFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDynamicListFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -8910,7 +8939,7 @@ namespace WebAPI.Models.General
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaDynamicListIdInFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDynamicListIdInFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -8926,7 +8955,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaDynamicListListResponse
     {
-        public KalturaDynamicListListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDynamicListListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -8975,7 +9004,7 @@ namespace WebAPI.Models.General
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaDynamicListSearchFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDynamicListSearchFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -8996,13 +9025,13 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaEventContext
     {
-        public KalturaEventContext(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEventContext(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaEventContextAction
     {
-        public KalturaEventContextAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEventContextAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9051,7 +9080,7 @@ namespace WebAPI.Models.General
             Default = 1,
             UniqueItems = false,
         };
-        public KalturaFilterPager(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFilterPager(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9086,7 +9115,7 @@ namespace WebAPI.Models.General
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaGroupPermission(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaGroupPermission(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9102,7 +9131,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaIdentifierTypeFilter
     {
-        public KalturaIdentifierTypeFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIdentifierTypeFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9129,7 +9158,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaIntegerValue
     {
-        public KalturaIntegerValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIntegerValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9142,7 +9171,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaIntegerValueListResponse
     {
-        public KalturaIntegerValueListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIntegerValueListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9162,7 +9191,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaKeyValue
     {
-        public KalturaKeyValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaKeyValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9179,7 +9208,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaListResponse
     {
-        public KalturaListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9192,7 +9221,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaLongValue
     {
-        public KalturaLongValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaLongValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9205,7 +9234,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaMessage
     {
-        public KalturaMessage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaMessage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9229,7 +9258,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaMultilingualString
     {
-        public KalturaMultilingualString(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaMultilingualString(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9249,7 +9278,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaMultilingualStringValue
     {
-        public KalturaMultilingualStringValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaMultilingualStringValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9269,7 +9298,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaMultilingualStringValueArray
     {
-        public KalturaMultilingualStringValueArray(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaMultilingualStringValueArray(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9387,7 +9416,7 @@ namespace WebAPI.Models.General
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaNotification(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaNotification(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9477,7 +9506,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaOnDemandResponseProfile
     {
-        public KalturaOnDemandResponseProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaOnDemandResponseProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9490,13 +9519,13 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaOTTObjectSupportNullable
     {
-        public KalturaOTTObjectSupportNullable(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaOTTObjectSupportNullable(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaPersistedFilter<KalturaT>
     {
-        public KalturaPersistedFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPersistedFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9509,13 +9538,13 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaPriorityGroupFilter
     {
-        public KalturaPriorityGroupFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPriorityGroupFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaPriorityGroupListResponse
     {
-        public KalturaPriorityGroupListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPriorityGroupListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9535,7 +9564,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaRegexExpression
     {
-        public KalturaRegexExpression(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRegexExpression(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9552,19 +9581,19 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaReport
     {
-        public KalturaReport(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaReport(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaReportFilter
     {
-        public KalturaReportFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaReportFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaReportListResponse
     {
-        public KalturaReportListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaReportListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9584,7 +9613,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaRequestConfiguration
     {
-        public KalturaRequestConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRequestConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9643,7 +9672,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaString
     {
-        public KalturaString(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaString(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9656,7 +9685,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaStringValue
     {
-        public KalturaStringValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaStringValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9669,7 +9698,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaStringValueArray
     {
-        public KalturaStringValueArray(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaStringValueArray(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9689,7 +9718,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaTranslationToken
     {
-        public KalturaTranslationToken(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTranslationToken(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9706,19 +9735,19 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaUdidDynamicList
     {
-        public KalturaUdidDynamicList(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUdidDynamicList(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaUdidDynamicListSearchFilter
     {
-        public KalturaUdidDynamicListSearchFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUdidDynamicListSearchFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaValue
     {
-        public KalturaValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9735,13 +9764,13 @@ namespace WebAPI.Models.API
 {
     public partial class KalturaAddDefaultIfEmptyResponseProfile
     {
-        public KalturaAddDefaultIfEmptyResponseProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAddDefaultIfEmptyResponseProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaAssetCondition
     {
-        public KalturaAssetCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (fromRequest)
             {
@@ -9763,7 +9792,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaAssetConditionBase
     {
-        public KalturaAssetConditionBase(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetConditionBase(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -9811,7 +9840,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaAssetRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9861,7 +9890,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaAssetRuleBase
     {
-        public KalturaAssetRuleBase(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetRuleBase(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -9882,7 +9911,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaAssetRuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetRuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9937,7 +9966,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaAssetRuleListResponse
     {
-        public KalturaAssetRuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetRuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9957,7 +9986,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaAssetShopCondition
     {
-        public KalturaAssetShopCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetShopCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -9981,13 +10010,13 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaAssetSubscriptionCondition
     {
-        public KalturaAssetSubscriptionCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetSubscriptionCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaAssetUserRule
     {
-        public KalturaAssetUserRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetUserRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -10018,7 +10047,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaAssetUserRuleFilter
     {
-        public KalturaAssetUserRuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetUserRuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -10059,7 +10088,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaAssetUserRuleListResponse
     {
-        public KalturaAssetUserRuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetUserRuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -10079,13 +10108,13 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaBasePermissionFilter
     {
-        public KalturaBasePermissionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBasePermissionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaBasePromotion
     {
-        public KalturaBasePromotion(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBasePromotion(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -10105,7 +10134,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaBaseRegionFilter
     {
-        public KalturaBaseRegionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBaseRegionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -10125,7 +10154,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaBatchCampaign(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBatchCampaign(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -10152,13 +10181,13 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaBatchCampaignSearchFilter
     {
-        public KalturaBatchCampaignSearchFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBatchCampaignSearchFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaBusinessModuleCondition
     {
-        public KalturaBusinessModuleCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBusinessModuleCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -10213,7 +10242,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaBusinessModuleRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBusinessModuleRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -10256,7 +10285,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaBusinessModuleRuleFilter
     {
-        public KalturaBusinessModuleRuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBusinessModuleRuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -10301,7 +10330,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaBusinessModuleRuleListResponse
     {
-        public KalturaBusinessModuleRuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBusinessModuleRuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -10477,7 +10506,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaCampaign(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCampaign(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -10576,13 +10605,13 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaCampaignFilter
     {
-        public KalturaCampaignFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCampaignFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaCampaignIdInFilter
     {
-        public KalturaCampaignIdInFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCampaignIdInFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -10595,7 +10624,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaCampaignListResponse
     {
-        public KalturaCampaignListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCampaignListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -10657,7 +10686,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaCampaignSearchFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCampaignSearchFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -10724,7 +10753,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaCampaignSegmentFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCampaignSegmentFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (fromRequest)
             {
@@ -10779,7 +10808,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaCDNAdapterProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCDNAdapterProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -10827,7 +10856,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaCDNAdapterProfileListResponse
     {
-        public KalturaCDNAdapterProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCDNAdapterProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -10877,7 +10906,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaCDNPartnerSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCDNPartnerSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -10914,7 +10943,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaChannelCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaChannelCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (fromRequest)
             {
@@ -10939,7 +10968,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaChannelEnrichmentHolder
     {
-        public KalturaChannelEnrichmentHolder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaChannelEnrichmentHolder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -10962,7 +10991,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaChannelProfile
     {
-        public KalturaChannelProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaChannelProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -11037,7 +11066,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaCognitoIdentity
     {
-        public KalturaCognitoIdentity(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCognitoIdentity(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -11057,7 +11086,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaCognitoUserPool
     {
-        public KalturaCognitoUserPool(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCognitoUserPool(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -11092,7 +11121,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaConcurrencyCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaConcurrencyCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (fromRequest)
             {
@@ -11145,7 +11174,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -11190,7 +11219,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaCountryCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCountryCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -11206,7 +11235,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaCountryFilter
     {
-        public KalturaCountryFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCountryFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -11227,7 +11256,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaCountryListResponse
     {
-        public KalturaCountryListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCountryListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -11262,7 +11291,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaCouponPromotion(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCouponPromotion(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (fromRequest)
             {
@@ -11287,7 +11316,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaCredentialsProvider
     {
-        public KalturaCredentialsProvider(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCredentialsProvider(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -11307,7 +11336,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaCurrency
     {
-        public KalturaCurrency(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCurrency(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -11336,7 +11365,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaCurrencyFilter
     {
-        public KalturaCurrencyFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCurrencyFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -11353,7 +11382,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaCurrencyListResponse
     {
-        public KalturaCurrencyListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCurrencyListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -11373,7 +11402,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaDateCondition
     {
-        public KalturaDateCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDateCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -11390,7 +11419,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaDefaultRegionFilter
     {
-        public KalturaDefaultRegionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDefaultRegionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -11411,7 +11440,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaDeviceBrandCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDeviceBrandCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -11483,7 +11512,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaDeviceBrandFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDeviceBrandFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -11524,7 +11553,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaDeviceBrandListResponse
     {
-        public KalturaDeviceBrandListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDeviceBrandListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -11574,7 +11603,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaDeviceDynamicDataCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDeviceDynamicDataCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -11610,7 +11639,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaDeviceFamilyCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDeviceFamilyCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -11668,7 +11697,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaDeviceFamilyFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDeviceFamilyFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -11704,7 +11733,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaDeviceFamilyListResponse
     {
-        public KalturaDeviceFamilyListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDeviceFamilyListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -11739,7 +11768,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaDeviceManufacturerCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDeviceManufacturerCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -11755,7 +11784,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaDeviceModelCondition
     {
-        public KalturaDeviceModelCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDeviceModelCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -11824,7 +11853,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaDrmProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDrmProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -11867,7 +11896,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaDrmProfileListResponse
     {
-        public KalturaDrmProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDrmProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -11916,7 +11945,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaDynamicKeysCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDynamicKeysCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -11980,7 +12009,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaEventNotification(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEventNotification(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -12051,7 +12080,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaEventNotificationFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEventNotificationFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -12075,7 +12104,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaEventNotificationListResponse
     {
-        public KalturaEventNotificationListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEventNotificationListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -12095,7 +12124,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaEventNotificationObjectScope
     {
-        public KalturaEventNotificationObjectScope(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEventNotificationObjectScope(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -12115,19 +12144,19 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaEventNotificationScope
     {
-        public KalturaEventNotificationScope(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEventNotificationScope(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaEventObject
     {
-        public KalturaEventObject(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEventObject(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaExportFilter
     {
-        public KalturaExportFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaExportFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -12162,7 +12191,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaExportTask(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaExportTask(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -12288,7 +12317,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaExportTaskFilter
     {
-        public KalturaExportTaskFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaExportTaskFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -12301,7 +12330,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaExportTaskListResponse
     {
-        public KalturaExportTaskListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaExportTaskListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -12349,7 +12378,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaExternalChannelProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaExternalChannelProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -12424,7 +12453,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaExternalChannelProfileByIdInFilter
     {
-        public KalturaExternalChannelProfileByIdInFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaExternalChannelProfileByIdInFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -12437,13 +12466,13 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaExternalChannelProfileFilter
     {
-        public KalturaExternalChannelProfileFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaExternalChannelProfileFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaExternalChannelProfileListResponse
     {
-        public KalturaExternalChannelProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaExternalChannelProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -12479,7 +12508,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaFileTypeCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFileTypeCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (fromRequest)
             {
@@ -12504,7 +12533,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaGenericRule
     {
-        public KalturaGenericRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaGenericRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -12555,7 +12584,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaGenericRuleFilter
     {
-        public KalturaGenericRuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaGenericRuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -12582,7 +12611,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaGenericRuleListResponse
     {
-        public KalturaGenericRuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaGenericRuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -12602,7 +12631,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaHeaderCondition
     {
-        public KalturaHeaderCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHeaderCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -12647,7 +12676,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaIngestProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIngestProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -12723,7 +12752,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaIngestProfileListResponse
     {
-        public KalturaIngestProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIngestProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -12743,7 +12772,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaIot
     {
-        public KalturaIot(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIot(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -12800,7 +12829,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaIotClientConfiguration
     {
-        public KalturaIotClientConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIotClientConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -12872,7 +12901,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaIotDefault
     {
-        public KalturaIotDefault(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIotDefault(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -12893,13 +12922,13 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaIotFilter
     {
-        public KalturaIotFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIotFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaIotListResponse
     {
-        public KalturaIotListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIotListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -12919,7 +12948,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaIotProfileAws
     {
-        public KalturaIotProfileAws(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIotProfileAws(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -12960,13 +12989,13 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaIotProfileFilter
     {
-        public KalturaIotProfileFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIotProfileFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaIpRangeCondition
     {
-        public KalturaIpRangeCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIpRangeCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -12983,7 +13012,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaIpV6RangeCondition
     {
-        public KalturaIpV6RangeCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIpV6RangeCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -13000,7 +13029,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaLanguage
     {
-        public KalturaLanguage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaLanguage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -13033,7 +13062,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaLanguageFilter
     {
-        public KalturaLanguageFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaLanguageFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -13050,7 +13079,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaLanguageListResponse
     {
-        public KalturaLanguageListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaLanguageListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -13070,7 +13099,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaMediaConcurrencyRule
     {
-        public KalturaMediaConcurrencyRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaMediaConcurrencyRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -13105,7 +13134,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaMediaConcurrencyRuleListResponse
     {
-        public KalturaMediaConcurrencyRuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaMediaConcurrencyRuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -13119,6 +13148,125 @@ namespace WebAPI.Models.API
                     {
                         Objects = OTTObjectBuilder.buildList(typeof(KalturaMediaConcurrencyRule), parameters["objects"] as object[]);
                     }
+                }
+            }
+        }
+    }
+    public partial class KalturaMediaFileDynamicDataFilter
+    {
+        private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaFileDynamicDataFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            DynamicMinInt = 1,
+            MaxLength = 200,
+            MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute MediaFileTypeIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaFileDynamicDataFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute MediaFileTypeKeyNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaFileDynamicDataFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = 50,
+            MinLength = 1,
+            Pattern = @"^[^,]+$",
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute ValueEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaFileDynamicDataFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = 50,
+            MinLength = 0,
+            Pattern = @"^[^,]+$",
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute ValueStartsWithSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaFileDynamicDataFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = 50,
+            MinLength = 0,
+            Pattern = @"^[^,]+$",
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        public KalturaMediaFileDynamicDataFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
+        {
+            if (fromRequest)
+            {
+                if (parameters == null || parameters.Count == 0)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaMediaFileDynamicDataFilter");
+
+                Deserializer.CheckOneOf(parameters, new[] {"idIn", "mediaFileTypeKeyName"});
+
+            }
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
+                {
+                    IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
+                    IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("mediaFileTypeId") && parameters["mediaFileTypeId"] != null)
+                {
+                    MediaFileTypeIdSchemaProperty.Validate("mediaFileTypeId", parameters["mediaFileTypeId"]);
+                    MediaFileTypeId = (Int64) Convert.ChangeType(parameters["mediaFileTypeId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("mediaFileTypeKeyName") && parameters["mediaFileTypeKeyName"] != null)
+                {
+                    MediaFileTypeKeyNameSchemaProperty.Validate("mediaFileTypeKeyName", parameters["mediaFileTypeKeyName"]);
+                    MediaFileTypeKeyName = (String) Convert.ChangeType(parameters["mediaFileTypeKeyName"], typeof(String));
+                }
+                if (parameters.ContainsKey("valueEqual") && parameters["valueEqual"] != null)
+                {
+                    ValueEqualSchemaProperty.Validate("valueEqual", parameters["valueEqual"]);
+                    ValueEqual = (String) Convert.ChangeType(parameters["valueEqual"], typeof(String));
+                }
+                if (parameters.ContainsKey("valueStartsWith") && parameters["valueStartsWith"] != null)
+                {
+                    ValueStartsWithSchemaProperty.Validate("valueStartsWith", parameters["valueStartsWith"]);
+                    ValueStartsWith = (String) Convert.ChangeType(parameters["valueStartsWith"], typeof(String));
                 }
             }
         }
@@ -13280,7 +13428,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaMeta(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaMeta(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -13446,7 +13594,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaMetaFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaMetaFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -13545,7 +13693,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaMetaListResponse
     {
-        public KalturaMetaListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaMetaListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -13565,7 +13713,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaNotCondition
     {
-        public KalturaNotCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaNotCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -13592,7 +13740,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaOrCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaOrCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (fromRequest)
             {
@@ -13638,7 +13786,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaOSSAdapterBaseProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaOSSAdapterBaseProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -13672,7 +13820,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaOSSAdapterProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaOSSAdapterProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -13731,7 +13879,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaOSSAdapterProfileListResponse
     {
-        public KalturaOSSAdapterProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaOSSAdapterProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -13961,7 +14109,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaParentalRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaParentalRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -14140,7 +14288,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaParentalRuleFilter
     {
-        public KalturaParentalRuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaParentalRuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -14163,7 +14311,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaParentalRuleListResponse
     {
-        public KalturaParentalRuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaParentalRuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -14211,7 +14359,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPermission(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPermission(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -14258,7 +14406,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaPermissionByIdInFilter
     {
-        public KalturaPermissionByIdInFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPermissionByIdInFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -14285,7 +14433,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPermissionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPermissionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -14319,7 +14467,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPermissionItem(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPermissionItem(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -14343,7 +14491,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaPermissionItemByApiActionFilter
     {
-        public KalturaPermissionItemByApiActionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPermissionItemByApiActionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -14360,7 +14508,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaPermissionItemByArgumentFilter
     {
-        public KalturaPermissionItemByArgumentFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPermissionItemByArgumentFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -14373,7 +14521,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaPermissionItemByIdInFilter
     {
-        public KalturaPermissionItemByIdInFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPermissionItemByIdInFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -14386,7 +14534,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaPermissionItemByParameterFilter
     {
-        public KalturaPermissionItemByParameterFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPermissionItemByParameterFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -14403,13 +14551,13 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaPermissionItemFilter
     {
-        public KalturaPermissionItemFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPermissionItemFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaPermissionItemListResponse
     {
-        public KalturaPermissionItemListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPermissionItemListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -14429,7 +14577,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaPermissionListResponse
     {
-        public KalturaPermissionListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPermissionListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -14449,7 +14597,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaPin
     {
-        public KalturaPin(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPin(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -14490,7 +14638,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaPinResponse
     {
-        public KalturaPinResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPinResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -14559,7 +14707,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPlaybackProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPlaybackProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -14604,7 +14752,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaPlaybackProfileFilter
     {
-        public KalturaPlaybackProfileFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPlaybackProfileFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -14617,7 +14765,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaPlaybackProfileListResponse
     {
-        public KalturaPlaybackProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPlaybackProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -14668,7 +14816,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPromotion(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPromotion(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -14693,7 +14841,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaPurchaseSettings
     {
-        public KalturaPurchaseSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPurchaseSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -14716,7 +14864,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaPurchaseSettingsResponse
     {
-        public KalturaPurchaseSettingsResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPurchaseSettingsResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -14783,7 +14931,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaRecommendationProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRecommendationProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -14851,7 +14999,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaRecommendationProfileListResponse
     {
-        public KalturaRecommendationProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRecommendationProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -14928,7 +15076,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaRegion(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRegion(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -14974,7 +15122,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaRegionalChannel
     {
-        public KalturaRegionalChannel(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRegionalChannel(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -14991,7 +15139,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaRegionalChannelMultiLcns
     {
-        public KalturaRegionalChannelMultiLcns(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRegionalChannelMultiLcns(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -15004,7 +15152,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaRegionChannelNumber
     {
-        public KalturaRegionChannelNumber(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRegionChannelNumber(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -15021,7 +15169,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaRegionChannelNumberMultiLcns
     {
-        public KalturaRegionChannelNumberMultiLcns(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRegionChannelNumberMultiLcns(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -15034,7 +15182,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaRegionFilter
     {
-        public KalturaRegionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRegionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -15067,7 +15215,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaRegionListResponse
     {
-        public KalturaRegionListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRegionListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -15087,7 +15235,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaRegistrySettings
     {
-        public KalturaRegistrySettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRegistrySettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -15104,7 +15252,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaRegistrySettingsListResponse
     {
-        public KalturaRegistrySettingsListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRegistrySettingsListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -15152,7 +15300,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -15185,7 +15333,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaRuleFilter
     {
-        public KalturaRuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -15320,7 +15468,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSearchHistory(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSearchHistory(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -15371,13 +15519,13 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaSearchHistoryFilter
     {
-        public KalturaSearchHistoryFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSearchHistoryFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaSearchHistoryListResponse
     {
-        public KalturaSearchHistoryListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSearchHistoryListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -15412,7 +15560,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSegmentsCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSegmentsCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -15443,7 +15591,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSubscriptionCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSubscriptionCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -15626,7 +15774,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaTimeShiftedTvPartnerSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTimeShiftedTvPartnerSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -15818,7 +15966,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaTriggerCampaign(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTriggerCampaign(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -15873,13 +16021,13 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaTriggerCampaignSearchFilter
     {
-        public KalturaTriggerCampaignSearchFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTriggerCampaignSearchFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaTvmDeviceRule
     {
-        public KalturaTvmDeviceRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTvmDeviceRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -15892,7 +16040,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaTvmGeoRule
     {
-        public KalturaTvmGeoRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTvmGeoRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -15953,7 +16101,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaTvmRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTvmRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -15984,7 +16132,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaTvmRuleFilter
     {
-        public KalturaTvmRuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTvmRuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -16011,7 +16159,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaTvmRuleListResponse
     {
-        public KalturaTvmRuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTvmRuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -16046,7 +16194,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaUdidDynamicListCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUdidDynamicListCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -16076,7 +16224,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaUserAssetRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserAssetRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -16114,7 +16262,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaUserAssetRuleFilter
     {
-        public KalturaUserAssetRuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserAssetRuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -16131,7 +16279,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaUserAssetRuleListResponse
     {
-        public KalturaUserAssetRuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserAssetRuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -16179,7 +16327,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaUserRole(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserRole(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -16262,7 +16410,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaUserRoleCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserRoleCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -16278,7 +16426,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaUserRoleFilter
     {
-        public KalturaUserRoleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserRoleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -16334,7 +16482,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaUserRoleListResponse
     {
-        public KalturaUserRoleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserRoleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -16369,7 +16517,7 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaUserSessionProfileCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserSessionProfileCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -16385,7 +16533,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaUserSubscriptionCondition
     {
-        public KalturaUserSubscriptionCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserSubscriptionCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -16395,7 +16543,7 @@ namespace WebAPI.Models.IngestStatus
 {
     public partial class KalturaAggregatedIngestInfo
     {
-        public KalturaAggregatedIngestInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAggregatedIngestInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -16420,7 +16568,7 @@ namespace WebAPI.Models.IngestStatus
     }
     public partial class KalturaChannelAggregatedIngestInfo
     {
-        public KalturaChannelAggregatedIngestInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaChannelAggregatedIngestInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -16444,7 +16592,7 @@ namespace WebAPI.Models.IngestStatus
     }
     public partial class KalturaDateAggregatedIngestInfo
     {
-        public KalturaDateAggregatedIngestInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDateAggregatedIngestInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -16468,7 +16616,7 @@ namespace WebAPI.Models.IngestStatus
     }
     public partial class KalturaEpgIngestErrorMessage
     {
-        public KalturaEpgIngestErrorMessage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEpgIngestErrorMessage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -16566,7 +16714,7 @@ namespace WebAPI.Models.IngestStatus
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaIngestByCompoundFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIngestByCompoundFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -16617,7 +16765,7 @@ namespace WebAPI.Models.IngestStatus
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaIngestByIdsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIngestByIdsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -16704,7 +16852,7 @@ namespace WebAPI.Models.IngestStatus
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaIngestEpg(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIngestEpg(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -16762,7 +16910,7 @@ namespace WebAPI.Models.IngestStatus
     }
     public partial class KalturaIngestEpgDetails
     {
-        public KalturaIngestEpgDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIngestEpgDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -16793,7 +16941,7 @@ namespace WebAPI.Models.IngestStatus
     }
     public partial class KalturaIngestEpgDetailsAggregation
     {
-        public KalturaIngestEpgDetailsAggregation(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIngestEpgDetailsAggregation(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -16835,7 +16983,7 @@ namespace WebAPI.Models.IngestStatus
     }
     public partial class KalturaIngestEpgProgramResult
     {
-        public KalturaIngestEpgProgramResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIngestEpgProgramResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -16904,7 +17052,7 @@ namespace WebAPI.Models.IngestStatus
     }
     public partial class KalturaIngestEpgProgramResultFilter
     {
-        public KalturaIngestEpgProgramResultFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIngestEpgProgramResultFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -16924,7 +17072,7 @@ namespace WebAPI.Models.IngestStatus
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaIngestProgramResultsByCombinedFieldsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIngestProgramResultsByCombinedFieldsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -16954,7 +17102,7 @@ namespace WebAPI.Models.IngestStatus
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaIngestProgramResultsByCompoundFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIngestProgramResultsByCompoundFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -16984,7 +17132,7 @@ namespace WebAPI.Models.IngestStatus
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaIngestProgramResultsByExternalIdsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIngestProgramResultsByExternalIdsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -17014,7 +17162,7 @@ namespace WebAPI.Models.IngestStatus
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaIngestProgramResultsByProgramIdsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIngestProgramResultsByProgramIdsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -17072,7 +17220,7 @@ namespace WebAPI.Models.IngestStatus
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaIngestProgramResultsByRefineFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIngestProgramResultsByRefineFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -17127,7 +17275,7 @@ namespace WebAPI.Models.IngestStatus
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaIngestStatusEpgConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIngestStatusEpgConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -17148,7 +17296,7 @@ namespace WebAPI.Models.IngestStatus
     }
     public partial class KalturaIngestStatusEpgListResponse
     {
-        public KalturaIngestStatusEpgListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIngestStatusEpgListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -17168,7 +17316,7 @@ namespace WebAPI.Models.IngestStatus
     }
     public partial class KalturaIngestStatusEpgProgramResultListResponse
     {
-        public KalturaIngestStatusEpgProgramResultListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIngestStatusEpgProgramResultListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -17202,7 +17350,7 @@ namespace WebAPI.Models.IngestStatus
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaIngestStatusPartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaIngestStatusPartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -17229,7 +17377,7 @@ namespace WebAPI.Models.MultiRequest
 {
     public partial class KalturaAggregatedPropertySkipCondition
     {
-        public KalturaAggregatedPropertySkipCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAggregatedPropertySkipCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -17252,7 +17400,7 @@ namespace WebAPI.Models.MultiRequest
     }
     public partial class KalturaPropertySkipCondition
     {
-        public KalturaPropertySkipCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPropertySkipCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -17283,13 +17431,13 @@ namespace WebAPI.Models.MultiRequest
     }
     public partial class KalturaSkipCondition
     {
-        public KalturaSkipCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSkipCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaSkipOnErrorCondition
     {
-        public KalturaSkipOnErrorCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSkipOnErrorCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -17358,7 +17506,7 @@ namespace WebAPI.Models.Notification
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaAnnouncement(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAnnouncement(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -17456,7 +17604,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaAnnouncementFilter
     {
-        public KalturaAnnouncementFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAnnouncementFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -17469,7 +17617,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaAnnouncementListResponse
     {
-        public KalturaAnnouncementListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAnnouncementListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -17545,7 +17693,7 @@ namespace WebAPI.Models.Notification
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaAssetEvent(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetEvent(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -17576,7 +17724,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaAssetReminder
     {
-        public KalturaAssetReminder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetReminder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -17589,7 +17737,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaAssetReminderFilter
     {
-        public KalturaAssetReminderFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetReminderFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -17685,7 +17833,7 @@ namespace WebAPI.Models.Notification
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaBookmarkEvent(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBookmarkEvent(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -17754,7 +17902,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaConcurrencyViolation
     {
-        public KalturaConcurrencyViolation(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaConcurrencyViolation(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -17787,7 +17935,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaDateTrigger
     {
-        public KalturaDateTrigger(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDateTrigger(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -17800,13 +17948,13 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaDispatcher
     {
-        public KalturaDispatcher(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDispatcher(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaEmailMessage
     {
-        public KalturaEmailMessage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEmailMessage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -17886,7 +18034,7 @@ namespace WebAPI.Models.Notification
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaEngagement(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEngagement(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -17959,7 +18107,7 @@ namespace WebAPI.Models.Notification
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaEngagementAdapter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEngagementAdapter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -18008,7 +18156,7 @@ namespace WebAPI.Models.Notification
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaEngagementAdapterBase(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEngagementAdapterBase(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -18028,7 +18176,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaEngagementAdapterListResponse
     {
-        public KalturaEngagementAdapterListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEngagementAdapterListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -18048,7 +18196,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaEngagementFilter
     {
-        public KalturaEngagementFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEngagementFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -18065,7 +18213,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaEngagementListResponse
     {
-        public KalturaEngagementListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEngagementListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -18117,7 +18265,7 @@ namespace WebAPI.Models.Notification
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaEpgNotificationSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEpgNotificationSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -18164,7 +18312,7 @@ namespace WebAPI.Models.Notification
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaFeed(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFeed(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -18255,7 +18403,7 @@ namespace WebAPI.Models.Notification
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaFollowDataBase(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFollowDataBase(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -18301,7 +18449,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaFollowDataTvSeries
     {
-        public KalturaFollowDataTvSeries(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFollowDataTvSeries(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -18335,7 +18483,7 @@ namespace WebAPI.Models.Notification
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaFollowTvSeries(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFollowTvSeries(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -18351,13 +18499,13 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaFollowTvSeriesFilter
     {
-        public KalturaFollowTvSeriesFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFollowTvSeriesFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaFollowTvSeriesListResponse
     {
-        public KalturaFollowTvSeriesListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFollowTvSeriesListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -18433,7 +18581,7 @@ namespace WebAPI.Models.Notification
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaInboxMessage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaInboxMessage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -18496,7 +18644,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaInboxMessageFilter
     {
-        public KalturaInboxMessageFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaInboxMessageFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -18517,7 +18665,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaInboxMessageListResponse
     {
-        public KalturaInboxMessageListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaInboxMessageListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -18537,7 +18685,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaInboxMessageResponse
     {
-        public KalturaInboxMessageResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaInboxMessageResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -18557,7 +18705,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaInboxMessageTypeHolder
     {
-        public KalturaInboxMessageTypeHolder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaInboxMessageTypeHolder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -18580,7 +18728,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaLineupNotificationSettings
     {
-        public KalturaLineupNotificationSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaLineupNotificationSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -18593,7 +18741,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaListFollowDataTvSeriesResponse
     {
-        public KalturaListFollowDataTvSeriesResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaListFollowDataTvSeriesResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -18613,7 +18761,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaMailDispatcher
     {
-        public KalturaMailDispatcher(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaMailDispatcher(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -18630,7 +18778,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaMessageAnnouncementListResponse
     {
-        public KalturaMessageAnnouncementListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaMessageAnnouncementListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -18650,7 +18798,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaMessageTemplate
     {
-        public KalturaMessageTemplate(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaMessageTemplate(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -18739,7 +18887,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaNotificationSettings
     {
-        public KalturaNotificationSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaNotificationSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -18809,7 +18957,7 @@ namespace WebAPI.Models.Notification
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaNotificationsPartnerSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaNotificationsPartnerSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -18936,7 +19084,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaNotificationsSettings
     {
-        public KalturaNotificationsSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaNotificationsSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -18971,25 +19119,25 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaPartnerNotificationSettings
     {
-        public KalturaPartnerNotificationSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPartnerNotificationSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaPersonalFeed
     {
-        public KalturaPersonalFeed(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPersonalFeed(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaPersonalFeedFilter
     {
-        public KalturaPersonalFeedFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPersonalFeedFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaPersonalFeedListResponse
     {
-        public KalturaPersonalFeedListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPersonalFeedListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -19009,13 +19157,13 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaPersonalFollowFeed
     {
-        public KalturaPersonalFollowFeed(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPersonalFollowFeed(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaPersonalFollowFeedResponse
     {
-        public KalturaPersonalFollowFeedResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPersonalFollowFeedResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -19049,7 +19197,7 @@ namespace WebAPI.Models.Notification
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaProgramAssetEvent(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaProgramAssetEvent(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -19094,7 +19242,7 @@ namespace WebAPI.Models.Notification
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPushMessage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPushMessage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -19131,7 +19279,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaRegistryResponse
     {
-        public KalturaRegistryResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRegistryResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -19180,7 +19328,7 @@ namespace WebAPI.Models.Notification
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaReminder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaReminder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -19215,7 +19363,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaReminderFilter<KalturaT>
     {
-        public KalturaReminderFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaReminderFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -19228,7 +19376,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaReminderListResponse
     {
-        public KalturaReminderListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaReminderListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -19248,7 +19396,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaSeasonsReminderFilter
     {
-        public KalturaSeasonsReminderFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSeasonsReminderFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -19298,7 +19446,7 @@ namespace WebAPI.Models.Notification
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSeriesReminder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSeriesReminder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -19323,7 +19471,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaSeriesReminderFilter
     {
-        public KalturaSeriesReminderFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSeriesReminderFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -19382,7 +19530,7 @@ namespace WebAPI.Models.Notification
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSmsAdapterProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSmsAdapterProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -19427,13 +19575,13 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaSmsAdapterProfileFilter
     {
-        public KalturaSmsAdapterProfileFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSmsAdapterProfileFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaSmsAdapterProfileListResponse
     {
-        public KalturaSmsAdapterProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSmsAdapterProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -19453,13 +19601,13 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaSmsDispatcher
     {
-        public KalturaSmsDispatcher(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSmsDispatcher(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaSubscribeReference
     {
-        public KalturaSubscribeReference(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSubscribeReference(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -19480,7 +19628,7 @@ namespace WebAPI.Models.Notification
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSubscriptionSubscribeReference(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSubscriptionSubscribeReference(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -19496,7 +19644,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaSubscriptionTrigger
     {
-        public KalturaSubscriptionTrigger(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSubscriptionTrigger(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -19537,7 +19685,7 @@ namespace WebAPI.Models.Notification
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaTopic(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTopic(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -19579,13 +19727,13 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaTopicFilter
     {
-        public KalturaTopicFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTopicFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaTopicListResponse
     {
-        public KalturaTopicListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTopicListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -19633,7 +19781,7 @@ namespace WebAPI.Models.Notification
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaTopicNotification(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTopicNotification(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -19669,7 +19817,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaTopicNotificationFilter
     {
-        public KalturaTopicNotificationFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTopicNotificationFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -19689,7 +19837,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaTopicNotificationListResponse
     {
-        public KalturaTopicNotificationListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTopicNotificationListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -19752,7 +19900,7 @@ namespace WebAPI.Models.Notification
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaTopicNotificationMessage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTopicNotificationMessage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -19818,7 +19966,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaTopicNotificationMessageFilter
     {
-        public KalturaTopicNotificationMessageFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTopicNotificationMessageFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -19831,7 +19979,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaTopicNotificationMessageListResponse
     {
-        public KalturaTopicNotificationMessageListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTopicNotificationMessageListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -19851,7 +19999,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaTopicResponse
     {
-        public KalturaTopicResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTopicResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -19871,7 +20019,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaTrigger
     {
-        public KalturaTrigger(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTrigger(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -19933,7 +20081,7 @@ namespace WebAPI.Models.Notification
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaTriggerCampaignEvent(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTriggerCampaignEvent(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -20136,7 +20284,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -20293,7 +20441,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetBookmark
     {
-        public KalturaAssetBookmark(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetBookmark(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -20355,7 +20503,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetBookmarks
     {
-        public KalturaAssetBookmarks(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetBookmarks(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -20390,7 +20538,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaAssetComment(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetComment(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -20443,7 +20591,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaAssetCommentFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetCommentFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -20473,7 +20621,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetCommentListResponse
     {
-        public KalturaAssetCommentListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetCommentListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -20493,7 +20641,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetCount
     {
-        public KalturaAssetCount(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetCount(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -20521,7 +20669,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetCountListResponse
     {
-        public KalturaAssetCountListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetCountListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -20545,7 +20693,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetDynamicOrder
     {
-        public KalturaAssetDynamicOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetDynamicOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -20572,7 +20720,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetFieldGroupBy
     {
-        public KalturaAssetFieldGroupBy(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetFieldGroupBy(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -20595,7 +20743,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetFile
     {
-        public KalturaAssetFile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetFile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -20680,7 +20828,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaAssetFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -20740,7 +20888,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetGroupBy
     {
-        public KalturaAssetGroupBy(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetGroupBy(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -20830,7 +20978,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaAssetHistory(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetHistory(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -20881,7 +21029,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetHistoryFilter
     {
-        public KalturaAssetHistoryFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetHistoryFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -20973,7 +21121,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetHistoryListResponse
     {
-        public KalturaAssetHistoryListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetHistoryListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -20993,19 +21141,19 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetHistorySuppressFilter
     {
-        public KalturaAssetHistorySuppressFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetHistorySuppressFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaAssetImagePerRatioFilter
     {
-        public KalturaAssetImagePerRatioFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetImagePerRatioFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaAssetInfo
     {
-        public KalturaAssetInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -21060,7 +21208,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetInfoFilter
     {
-        public KalturaAssetInfoFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetInfoFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -21131,7 +21279,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetInfoListResponse
     {
-        public KalturaAssetInfoListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetInfoListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -21161,7 +21309,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetListResponse
     {
-        public KalturaAssetListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -21181,7 +21329,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetMetaOrTagGroupBy
     {
-        public KalturaAssetMetaOrTagGroupBy(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetMetaOrTagGroupBy(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -21194,7 +21342,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetOrder
     {
-        public KalturaAssetOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -21217,7 +21365,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetsBookmarksResponse
     {
-        public KalturaAssetsBookmarksResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetsBookmarksResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -21237,7 +21385,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetsCount
     {
-        public KalturaAssetsCount(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetsCount(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -21261,7 +21409,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetsFilter
     {
-        public KalturaAssetsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -21294,7 +21442,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetStatistics
     {
-        public KalturaAssetStatistics(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetStatistics(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -21355,7 +21503,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetStatisticsListResponse
     {
-        public KalturaAssetStatisticsListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetStatisticsListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -21391,7 +21539,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaAssetStatisticsOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetStatisticsOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -21421,7 +21569,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetStatisticsQuery
     {
-        public KalturaAssetStatisticsQuery(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetStatisticsQuery(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -21583,7 +21731,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaAssetStruct(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetStruct(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -21695,7 +21843,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaAssetStructFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetStructFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -21734,7 +21882,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetStructListResponse
     {
-        public KalturaAssetStructListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetStructListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -21909,7 +22057,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaAssetStructMeta(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetStructMeta(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -22005,7 +22153,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaAssetStructMetaFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetStructMetaFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -22026,7 +22174,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetStructMetaListResponse
     {
-        public KalturaAssetStructMetaListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetStructMetaListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -22060,7 +22208,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaBaseAssetInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBaseAssetInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -22132,13 +22280,13 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaBaseAssetOrder
     {
-        public KalturaBaseAssetOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBaseAssetOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaBaseAssetStructFilter
     {
-        public KalturaBaseAssetStructFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBaseAssetStructFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -22158,7 +22306,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaBaseChannel(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBaseChannel(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -22174,7 +22322,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaBaseSearchAssetFilter
     {
-        public KalturaBaseSearchAssetFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBaseSearchAssetFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -22282,7 +22430,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaBookmark(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBookmark(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -22367,7 +22515,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaBookmarkFilter
     {
-        public KalturaBookmarkFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBookmarkFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -22405,7 +22553,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaBookmarkListResponse
     {
-        public KalturaBookmarkListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBookmarkListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -22425,7 +22573,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaBookmarkPlayerData
     {
-        public KalturaBookmarkPlayerData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBookmarkPlayerData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -22479,7 +22627,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaBundleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBundleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -22513,7 +22661,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaBusinessModuleDetails
     {
-        public KalturaBusinessModuleDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBusinessModuleDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -22540,7 +22688,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaBuzzScore
     {
-        public KalturaBuzzScore(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBuzzScore(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -22575,7 +22723,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaCatalogWithHolder
     {
-        public KalturaCatalogWithHolder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCatalogWithHolder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -22766,7 +22914,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaCategoryItem(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCategoryItem(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -22901,7 +23049,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaCategoryItemAncestorsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCategoryItemAncestorsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -22917,7 +23065,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaCategoryItemByIdInFilter
     {
-        public KalturaCategoryItemByIdInFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCategoryItemByIdInFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -22930,13 +23078,13 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaCategoryItemFilter
     {
-        public KalturaCategoryItemFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCategoryItemFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaCategoryItemListResponse
     {
-        public KalturaCategoryItemListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCategoryItemListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -22956,7 +23104,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaCategoryItemSearchFilter
     {
-        public KalturaCategoryItemSearchFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCategoryItemSearchFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -23133,7 +23281,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaCategoryTree(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCategoryTree(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -23393,7 +23541,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaCategoryVersion(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCategoryVersion(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -23469,7 +23617,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaCategoryVersionFilter
     {
-        public KalturaCategoryVersionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCategoryVersionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -23490,7 +23638,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaCategoryVersionFilterByTree(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCategoryVersionFilterByTree(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -23520,7 +23668,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaCategoryVersionListResponse
     {
-        public KalturaCategoryVersionListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCategoryVersionListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -23680,7 +23828,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaChannel(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaChannel(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -23924,7 +24072,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaChannelExternalFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaChannelExternalFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -23964,7 +24112,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaChannelFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaChannelFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -23984,7 +24132,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaChannelListResponse
     {
-        public KalturaChannelListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaChannelListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -24047,7 +24195,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaChannelOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaChannelOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -24090,13 +24238,13 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaChannelsBaseFilter
     {
-        public KalturaChannelsBaseFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaChannelsBaseFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaChannelSearchByKsqlFilter
     {
-        public KalturaChannelSearchByKsqlFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaChannelSearchByKsqlFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -24153,7 +24301,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaChannelsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaChannelsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -24186,13 +24334,13 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaContentResource
     {
-        public KalturaContentResource(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaContentResource(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaDiscoveryMediaFile
     {
-        public KalturaDiscoveryMediaFile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDiscoveryMediaFile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -24247,7 +24395,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaDynamicChannel(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDynamicChannel(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -24327,7 +24475,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaDynamicOrderBy(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDynamicOrderBy(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -24358,7 +24506,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaEPGChannelAssets
     {
-        public KalturaEPGChannelAssets(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEPGChannelAssets(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -24388,7 +24536,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaEPGChannelAssetsListResponse
     {
-        public KalturaEPGChannelAssetsListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEPGChannelAssetsListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -24421,7 +24569,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaEpgChannelFilter
     {
-        public KalturaEpgChannelFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEpgChannelFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -24573,7 +24721,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaImage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaImage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -24667,7 +24815,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaImageFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaImageFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -24709,7 +24857,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaImageListResponse
     {
-        public KalturaImageListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaImageListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -24815,7 +24963,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaImageType(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaImageType(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -24891,7 +25039,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaImageTypeFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaImageTypeFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -24912,7 +25060,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaImageTypeListResponse
     {
-        public KalturaImageTypeListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaImageTypeListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -24960,7 +25108,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaLabel(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaLabel(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -24995,7 +25143,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaLabelFilter
     {
-        public KalturaLabelFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaLabelFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -25030,7 +25178,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaLabelListResponse
     {
-        public KalturaLabelListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaLabelListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -25050,7 +25198,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaLastPosition
     {
-        public KalturaLastPosition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaLastPosition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -25081,7 +25229,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaLastPositionFilter
     {
-        public KalturaLastPositionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaLastPositionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -25129,7 +25277,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaLastPositionListResponse
     {
-        public KalturaLastPositionListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaLastPositionListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -25149,7 +25297,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaLinearAssetStructFilter
     {
-        public KalturaLinearAssetStructFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaLinearAssetStructFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -25169,7 +25317,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaLineupChannelAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaLineupChannelAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -25185,7 +25333,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaLineupChannelAssetListResponse
     {
-        public KalturaLineupChannelAssetListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaLineupChannelAssetListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -25461,7 +25609,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaLiveAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaLiveAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -25626,7 +25774,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaLiveToVodInfoAsset
     {
-        public KalturaLiveToVodInfoAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaLiveToVodInfoAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -25681,7 +25829,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaManualChannel(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaManualChannel(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -25708,7 +25856,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaManualCollectionAsset
     {
-        public KalturaManualCollectionAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaManualCollectionAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -25875,7 +26023,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaMediaAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaMediaAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -26012,7 +26160,21 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaMediaFile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        private static RuntimeSchemePropertyAttribute DynamicDataSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaFile")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = 50,
+            UniqueItems = false,
+        };
+        public KalturaMediaFile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -26179,12 +26341,112 @@ namespace WebAPI.Models.Catalog
                 {
                     Labels = (String) Convert.ChangeType(parameters["labels"], typeof(String));
                 }
+                if (parameters.ContainsKey("dynamicData") && parameters["dynamicData"] != null)
+                {
+                    DynamicDataSchemaProperty.Validate("dynamicData", parameters["dynamicData"]);
+                    if (parameters["dynamicData"] is JObject)
+                    {
+                        DynamicData = OTTObjectBuilder.buildDictionary<KalturaStringValueArray>(typeof(KalturaStringValueArray), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaMediaFileDynamicData
+    {
+        private static RuntimeSchemePropertyAttribute MediaFileTypeKeyNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaFileDynamicData")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = 50,
+            MinLength = 1,
+            Pattern = @"^[^,]+$",
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute ValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaFileDynamicData")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = 50,
+            MinLength = 1,
+            Pattern = @"^[^,]+$",
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        public KalturaMediaFileDynamicData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
+        {
+            if (fromRequest)
+            {
+                if (parameters == null || parameters.Count == 0)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "mediaFileTypeId,mediaFileTypeKeyName,value");
+
+               if (!parameters.ContainsKey("mediaFileTypeId") || string.IsNullOrWhiteSpace(parameters["mediaFileTypeId"]?.ToString()))
+                   throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "mediaFileTypeId");
+               if (!parameters.ContainsKey("mediaFileTypeKeyName") || string.IsNullOrWhiteSpace(parameters["mediaFileTypeKeyName"]?.ToString()))
+                   throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "mediaFileTypeKeyName");
+               if (!parameters.ContainsKey("value") || string.IsNullOrWhiteSpace(parameters["value"]?.ToString()))
+                   throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "value");
+
+            }
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("mediaFileTypeId") && parameters["mediaFileTypeId"] != null)
+                {
+                    MediaFileTypeId = (Int64) Convert.ChangeType(parameters["mediaFileTypeId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("mediaFileTypeKeyName") && parameters["mediaFileTypeKeyName"] != null)
+                {
+                    MediaFileTypeKeyNameSchemaProperty.Validate("mediaFileTypeKeyName", parameters["mediaFileTypeKeyName"]);
+                    MediaFileTypeKeyName = (String) Convert.ChangeType(parameters["mediaFileTypeKeyName"], typeof(String));
+                }
+                if (parameters.ContainsKey("value") && parameters["value"] != null)
+                {
+                    ValueSchemaProperty.Validate("value", parameters["value"]);
+                    Value = (String) Convert.ChangeType(parameters["value"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaMediaFileDynamicDataListResponse
+    {
+        public KalturaMediaFileDynamicDataListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = OTTObjectBuilder.buildList<KalturaMediaFileDynamicData>(typeof(KalturaMediaFileDynamicData), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaMediaFileDynamicData), parameters["objects"] as object[]);
+                    }
+                }
             }
         }
     }
     public partial class KalturaMediaFileFilter
     {
-        public KalturaMediaFileFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaMediaFileFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -26201,7 +26463,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaMediaFileListResponse
     {
-        public KalturaMediaFileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaMediaFileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -26390,7 +26652,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaMediaFileType(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaMediaFileType(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -26476,12 +26738,16 @@ namespace WebAPI.Models.Catalog
                     AudioCodecsSchemaProperty.Validate("audioCodecs", parameters["audioCodecs"]);
                     AudioCodecs = (String) Convert.ChangeType(parameters["audioCodecs"], typeof(String));
                 }
+                if (parameters.ContainsKey("dynamicDataKeys") && parameters["dynamicDataKeys"] != null)
+                {
+                    DynamicDataKeys = (String) Convert.ChangeType(parameters["dynamicDataKeys"], typeof(String));
+                }
             }
         }
     }
     public partial class KalturaMediaFileTypeListResponse
     {
-        public KalturaMediaFileTypeListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaMediaFileTypeListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -26515,7 +26781,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaMediaImage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaMediaImage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -26581,7 +26847,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaOTTCategory(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaOTTCategory(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -26653,7 +26919,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaPersonalAsset
     {
-        public KalturaPersonalAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPersonalAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -26706,7 +26972,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaPersonalAssetListResponse
     {
-        public KalturaPersonalAssetListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPersonalAssetListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -26726,7 +26992,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaPersonalAssetRequest
     {
-        public KalturaPersonalAssetRequest(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPersonalAssetRequest(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -26777,7 +27043,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaPersonalAssetSelectionFilter
     {
-        public KalturaPersonalAssetSelectionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPersonalAssetSelectionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -26790,7 +27056,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaPersonalAssetWithHolder
     {
-        public KalturaPersonalAssetWithHolder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPersonalAssetWithHolder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -26813,7 +27079,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaPersonalFile
     {
-        public KalturaPersonalFile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPersonalFile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -26853,7 +27119,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPersonalListSearchFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPersonalListSearchFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -26869,7 +27135,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaPlayerAssetData
     {
-        public KalturaPlayerAssetData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPlayerAssetData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -26954,7 +27220,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaProgramAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaProgramAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -27082,7 +27348,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaRatio(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRatio(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -27118,7 +27384,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaRatioListResponse
     {
-        public KalturaRatioListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRatioListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -27138,7 +27404,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaRecordingAsset
     {
-        public KalturaRecordingAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRecordingAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -27173,7 +27439,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaRelatedEntity
     {
-        public KalturaRelatedEntity(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRelatedEntity(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -27200,7 +27466,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaRelatedEntityArray
     {
-        public KalturaRelatedEntityArray(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRelatedEntityArray(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -27235,7 +27501,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaRelatedExternalFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRelatedExternalFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -27278,7 +27544,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaRelatedFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRelatedFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -27331,7 +27597,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaScheduledRecordingProgramFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaScheduledRecordingProgramFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -27374,7 +27640,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaSearchAssetFilter
     {
-        public KalturaSearchAssetFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSearchAssetFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -27391,7 +27657,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaSearchAssetListFilter
     {
-        public KalturaSearchAssetListFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSearchAssetListFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -27404,7 +27670,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaSearchExternalFilter
     {
-        public KalturaSearchExternalFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSearchExternalFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -27496,7 +27762,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSeriesIdArguments(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSeriesIdArguments(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (fromRequest)
             {
@@ -27569,7 +27835,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSlimAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSlimAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -27600,7 +27866,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaSlimAssetInfoWrapper
     {
-        public KalturaSlimAssetInfoWrapper(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSlimAssetInfoWrapper(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -27662,7 +27928,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaStreamingDevice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaStreamingDevice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -27695,7 +27961,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaStreamingDeviceFilter
     {
-        public KalturaStreamingDeviceFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaStreamingDeviceFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -27718,7 +27984,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaStreamingDeviceListResponse
     {
-        public KalturaStreamingDeviceListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaStreamingDeviceListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -27767,7 +28033,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaTag(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTag(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -27814,7 +28080,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaTagFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTagFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -27846,7 +28112,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaTagListResponse
     {
-        public KalturaTagListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTagListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -27881,7 +28147,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaUnifiedChannel(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUnifiedChannel(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -27939,7 +28205,7 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaUnifiedChannelInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUnifiedChannelInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -27972,7 +28238,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaUploadedFileTokenResource
     {
-        public KalturaUploadedFileTokenResource(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUploadedFileTokenResource(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -27985,7 +28251,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaUrlResource
     {
-        public KalturaUrlResource(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUrlResource(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -27998,7 +28264,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaWatchHistoryAsset
     {
-        public KalturaWatchHistoryAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaWatchHistoryAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -28044,7 +28310,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaWatchHistoryAssetWrapper
     {
-        public KalturaWatchHistoryAssetWrapper(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaWatchHistoryAssetWrapper(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -28096,7 +28362,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaAssetFilePpv(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetFilePpv(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -28163,7 +28429,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaAssetFilePpvFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetFilePpvFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -28184,7 +28450,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaAssetFilePpvListResponse
     {
-        public KalturaAssetFilePpvListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetFilePpvListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -28204,7 +28470,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaAssetPrice
     {
-        public KalturaAssetPrice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetPrice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -28553,7 +28819,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaCollection(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCollection(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -28864,7 +29130,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaCollectionCouponGroup(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCollectionCouponGroup(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -28933,7 +29199,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaCollectionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCollectionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -28963,7 +29229,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaCollectionListResponse
     {
-        public KalturaCollectionListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCollectionListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -28983,7 +29249,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaCollectionPrice
     {
-        public KalturaCollectionPrice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCollectionPrice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -29059,7 +29325,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaCoupon(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCoupon(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -29124,13 +29390,13 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaCouponGenerationOptions
     {
-        public KalturaCouponGenerationOptions(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCouponGenerationOptions(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaCouponListResponse
     {
-        public KalturaCouponListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCouponListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -29281,7 +29547,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaCouponsGroup(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCouponsGroup(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -29382,7 +29648,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaCouponsGroupListResponse
     {
-        public KalturaCouponsGroupListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCouponsGroupListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -29402,7 +29668,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaDiscount
     {
-        public KalturaDiscount(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDiscount(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -29517,7 +29783,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaDiscountDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDiscountDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -29585,7 +29851,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaDiscountDetailsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDiscountDetailsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -29601,7 +29867,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaDiscountDetailsListResponse
     {
-        public KalturaDiscountDetailsListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDiscountDetailsListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -29677,7 +29943,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaDiscountModule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDiscountModule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -29718,7 +29984,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaItemPrice
     {
-        public KalturaItemPrice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaItemPrice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -29759,7 +30025,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaItemPriceListResponse
     {
-        public KalturaItemPriceListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaItemPriceListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -30059,7 +30325,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPpv(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPpv(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -30244,7 +30510,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPpvFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPpvFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -30268,7 +30534,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaPPVItemPriceDetails
     {
-        public KalturaPPVItemPriceDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPPVItemPriceDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -30488,7 +30754,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaPpvListResponse
     {
-        public KalturaPpvListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPpvListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -30508,7 +30774,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaPpvPrice
     {
-        public KalturaPpvPrice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPpvPrice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -30653,7 +30919,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPreviewModule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPreviewModule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -30709,7 +30975,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPreviewModuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPreviewModuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -30725,7 +30991,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaPreviewModuleListResponse
     {
-        public KalturaPreviewModuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPreviewModuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -30787,7 +31053,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPrice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPrice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -30881,7 +31147,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPriceDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPriceDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -30952,7 +31218,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPriceDetailsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPriceDetailsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -30968,7 +31234,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaPriceDetailsListResponse
     {
-        public KalturaPriceDetailsListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPriceDetailsListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -31061,7 +31327,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPricePlan(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPricePlan(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -31132,7 +31398,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPricePlanFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPricePlanFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -31148,7 +31414,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaPricePlanListResponse
     {
-        public KalturaPricePlanListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPricePlanListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -31196,7 +31462,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaProductCode(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaProductCode(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -31245,7 +31511,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaProductPrice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaProductPrice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -31341,7 +31607,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaProductPriceListResponse
     {
-        public KalturaProductPriceListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaProductPriceListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -31361,7 +31627,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaProductsPriceListResponse
     {
-        public KalturaProductsPriceListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaProductsPriceListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -31549,7 +31815,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaProgramAssetGroupOffer(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaProgramAssetGroupOffer(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -31688,7 +31954,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaProgramAssetGroupOfferFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaProgramAssetGroupOfferFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -31719,7 +31985,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaProgramAssetGroupOfferIdInFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaProgramAssetGroupOfferIdInFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -31735,7 +32001,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaProgramAssetGroupOfferListResponse
     {
-        public KalturaProgramAssetGroupOfferListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaProgramAssetGroupOfferListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -31755,13 +32021,13 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaProgramAssetGroupOfferPrice
     {
-        public KalturaProgramAssetGroupOfferPrice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaProgramAssetGroupOfferPrice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaPromotionInfo
     {
-        public KalturaPromotionInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPromotionInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -31774,7 +32040,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaPublicCouponGenerationOptions
     {
-        public KalturaPublicCouponGenerationOptions(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPublicCouponGenerationOptions(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -31787,7 +32053,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaRandomCouponGenerationOptions
     {
-        public KalturaRandomCouponGenerationOptions(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRandomCouponGenerationOptions(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -32263,7 +32529,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSubscription(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSubscription(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -32932,7 +33198,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSubscriptionCouponGroup(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSubscriptionCouponGroup(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -32958,7 +33224,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaSubscriptionDependencySet
     {
-        public KalturaSubscriptionDependencySet(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSubscriptionDependencySet(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -32986,7 +33252,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSubscriptionDependencySetFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSubscriptionDependencySetFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -33046,7 +33312,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSubscriptionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSubscriptionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -33100,7 +33366,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaSubscriptionListResponse
     {
-        public KalturaSubscriptionListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSubscriptionListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -33120,7 +33386,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaSubscriptionPrice
     {
-        public KalturaSubscriptionPrice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSubscriptionPrice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -33202,7 +33468,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSubscriptionSet(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSubscriptionSet(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -33241,7 +33507,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaSubscriptionSetFilter
     {
-        public KalturaSubscriptionSetFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSubscriptionSetFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -33272,7 +33538,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaSubscriptionSetListResponse
     {
-        public KalturaSubscriptionSetListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSubscriptionSetListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -33292,7 +33558,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaSubscriptionsFilter
     {
-        public KalturaSubscriptionsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSubscriptionsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -33326,7 +33592,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaSubscriptionSwitchSet
     {
-        public KalturaSubscriptionSwitchSet(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSubscriptionSwitchSet(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -33419,7 +33685,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaUsageModule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUsageModule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -33519,7 +33785,7 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaUsageModuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUsageModuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -33535,7 +33801,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaUsageModuleListResponse
     {
-        public KalturaUsageModuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUsageModuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -33587,7 +33853,7 @@ namespace WebAPI.Models.Segmentation
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaAssetOrderSegmentAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetOrderSegmentAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (fromRequest)
             {
@@ -33626,7 +33892,7 @@ namespace WebAPI.Models.Segmentation
     }
     public partial class KalturaBaseSegmentAction
     {
-        public KalturaBaseSegmentAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBaseSegmentAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -33646,7 +33912,7 @@ namespace WebAPI.Models.Segmentation
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaBaseSegmentationTypeFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBaseSegmentationTypeFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -33672,19 +33938,19 @@ namespace WebAPI.Models.Segmentation
     }
     public partial class KalturaBaseSegmentCondition
     {
-        public KalturaBaseSegmentCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBaseSegmentCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaBaseSegmentValue
     {
-        public KalturaBaseSegmentValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBaseSegmentValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaBlockSubscriptionSegmentAction
     {
-        public KalturaBlockSubscriptionSegmentAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBlockSubscriptionSegmentAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -33718,7 +33984,7 @@ namespace WebAPI.Models.Segmentation
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaContentActionCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaContentActionCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -33851,7 +34117,7 @@ namespace WebAPI.Models.Segmentation
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaContentScoreCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaContentScoreCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -33920,7 +34186,7 @@ namespace WebAPI.Models.Segmentation
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaContentSource(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaContentSource(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -33951,7 +34217,7 @@ namespace WebAPI.Models.Segmentation
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaHouseholdSegment(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHouseholdSegment(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -33971,7 +34237,7 @@ namespace WebAPI.Models.Segmentation
     }
     public partial class KalturaHouseholdSegmentFilter
     {
-        public KalturaHouseholdSegmentFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHouseholdSegmentFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -33984,7 +34250,7 @@ namespace WebAPI.Models.Segmentation
     }
     public partial class KalturaHouseholdSegmentListResponse
     {
-        public KalturaHouseholdSegmentListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHouseholdSegmentListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -34018,7 +34284,7 @@ namespace WebAPI.Models.Segmentation
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaKsqlSegmentAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaKsqlSegmentAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (fromRequest)
             {
@@ -34117,7 +34383,7 @@ namespace WebAPI.Models.Segmentation
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaMonetizationCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaMonetizationCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (fromRequest)
             {
@@ -34239,7 +34505,7 @@ namespace WebAPI.Models.Segmentation
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaMonetizationSource(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaMonetizationSource(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -34299,7 +34565,7 @@ namespace WebAPI.Models.Segmentation
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSegmentAllValues(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSegmentAllValues(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -34315,19 +34581,19 @@ namespace WebAPI.Models.Segmentation
     }
     public partial class KalturaSegmentAssetFilterAction
     {
-        public KalturaSegmentAssetFilterAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSegmentAssetFilterAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaSegmentAssetFilterSegmentAction
     {
-        public KalturaSegmentAssetFilterSegmentAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSegmentAssetFilterSegmentAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaSegmentAssetFilterSubscriptionAction
     {
-        public KalturaSegmentAssetFilterSubscriptionAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSegmentAssetFilterSubscriptionAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -34365,7 +34631,7 @@ namespace WebAPI.Models.Segmentation
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSegmentationPartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSegmentationPartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -34470,7 +34736,7 @@ namespace WebAPI.Models.Segmentation
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSegmentationType(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSegmentationType(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -34605,7 +34871,7 @@ namespace WebAPI.Models.Segmentation
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSegmentationTypeFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSegmentationTypeFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (fromRequest)
             {
@@ -34651,7 +34917,7 @@ namespace WebAPI.Models.Segmentation
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSegmentationTypeListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSegmentationTypeListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -34674,19 +34940,19 @@ namespace WebAPI.Models.Segmentation
     }
     public partial class KalturaSegmentBlockCancelSubscriptionAction
     {
-        public KalturaSegmentBlockCancelSubscriptionAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSegmentBlockCancelSubscriptionAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaSegmentBlockPlaybackSubscriptionAction
     {
-        public KalturaSegmentBlockPlaybackSubscriptionAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSegmentBlockPlaybackSubscriptionAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaSegmentBlockPurchaseSubscriptionAction
     {
-        public KalturaSegmentBlockPurchaseSubscriptionAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSegmentBlockPurchaseSubscriptionAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -34804,7 +35070,7 @@ namespace WebAPI.Models.Segmentation
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSegmentRange(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSegmentRange(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -34883,7 +35149,7 @@ namespace WebAPI.Models.Segmentation
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSegmentRanges(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSegmentRanges(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -34918,7 +35184,7 @@ namespace WebAPI.Models.Segmentation
     }
     public partial class KalturaSegmentSource
     {
-        public KalturaSegmentSource(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSegmentSource(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -34980,7 +35246,7 @@ namespace WebAPI.Models.Segmentation
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSegmentValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSegmentValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -35026,7 +35292,7 @@ namespace WebAPI.Models.Segmentation
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSegmentValueFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSegmentValueFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (fromRequest)
             {
@@ -35079,7 +35345,7 @@ namespace WebAPI.Models.Segmentation
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSegmentValues(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSegmentValues(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -35156,7 +35422,7 @@ namespace WebAPI.Models.Segmentation
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSingleSegmentValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSingleSegmentValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -35210,7 +35476,7 @@ namespace WebAPI.Models.Segmentation
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaUserDataCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserDataCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -35245,7 +35511,7 @@ namespace WebAPI.Models.Segmentation
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaUserDynamicDataSource(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserDynamicDataSource(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -35289,7 +35555,7 @@ namespace WebAPI.Models.Segmentation
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaUserSegment(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserSegment(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -35324,7 +35590,7 @@ namespace WebAPI.Models.Segmentation
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaUserSegmentFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserSegmentFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (fromRequest)
             {
@@ -35367,7 +35633,7 @@ namespace WebAPI.Models.Segmentation
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaUserSegmentListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserSegmentListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -35423,7 +35689,7 @@ namespace WebAPI.Models.AssetPersonalMarkup
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaAssetPersonalMarkup(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetPersonalMarkup(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -35465,7 +35731,7 @@ namespace WebAPI.Models.AssetPersonalMarkup
     }
     public partial class KalturaAssetPersonalMarkupListResponse
     {
-        public KalturaAssetPersonalMarkupListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetPersonalMarkupListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -35499,7 +35765,7 @@ namespace WebAPI.Models.AssetPersonalMarkup
             MaxItems = 100,
             UniqueItems = false,
         };
-        public KalturaAssetPersonalMarkupSearchFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetPersonalMarkupSearchFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (fromRequest)
             {
@@ -35574,7 +35840,7 @@ namespace WebAPI.Models.AssetPersonalMarkup
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaProductMarkup(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaProductMarkup(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -35657,7 +35923,7 @@ namespace WebAPI.Models.AssetSelection
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaAssetPersonalSelection(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaAssetPersonalSelection(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -35697,13 +35963,13 @@ namespace WebAPI.Models.Catalog.Ordering
 {
     public partial class KalturaBaseChannelOrder
     {
-        public KalturaBaseChannelOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBaseChannelOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaChannelDynamicOrder
     {
-        public KalturaChannelDynamicOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaChannelDynamicOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -35730,7 +35996,7 @@ namespace WebAPI.Models.Catalog.Ordering
     }
     public partial class KalturaChannelFieldOrder
     {
-        public KalturaChannelFieldOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaChannelFieldOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -35768,7 +36034,7 @@ namespace WebAPI.Models.Catalog.Ordering
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaChannelSlidingWindowOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaChannelSlidingWindowOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -35858,7 +36124,7 @@ namespace WebAPI.Models.Users
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaBaseOTTUser(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBaseOTTUser(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -35913,7 +36179,7 @@ namespace WebAPI.Models.Users
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaCountry(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCountry(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -35961,13 +36227,13 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaDeviceManufacturerInformation
     {
-        public KalturaDeviceManufacturerInformation(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDeviceManufacturerInformation(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaDeviceManufacturersReferenceDataFilter
     {
-        public KalturaDeviceManufacturersReferenceDataFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDeviceManufacturersReferenceDataFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -36008,7 +36274,7 @@ namespace WebAPI.Models.Users
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaDeviceReferenceData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDeviceReferenceData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -36051,7 +36317,7 @@ namespace WebAPI.Models.Users
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaDeviceReferenceDataFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDeviceReferenceDataFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -36067,7 +36333,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaDeviceReferenceDataListResponse
     {
-        public KalturaDeviceReferenceDataListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDeviceReferenceDataListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -36087,7 +36353,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaDynamicData
     {
-        public KalturaDynamicData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDynamicData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -36125,7 +36391,7 @@ namespace WebAPI.Models.Users
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaFavorite(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFavorite(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -36164,7 +36430,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaFavoriteFilter
     {
-        public KalturaFavoriteFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFavoriteFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -36210,7 +36476,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaFavoriteListResponse
     {
-        public KalturaFavoriteListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFavoriteListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -36230,7 +36496,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaLoginResponse
     {
-        public KalturaLoginResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaLoginResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -36274,7 +36540,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaLoginSession
     {
-        public KalturaLoginSession(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaLoginSession(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -36469,7 +36735,7 @@ namespace WebAPI.Models.Users
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaOTTUser(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaOTTUser(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -36729,7 +36995,7 @@ namespace WebAPI.Models.Users
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaOTTUserDynamicData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaOTTUserDynamicData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -36774,7 +37040,7 @@ namespace WebAPI.Models.Users
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaOTTUserDynamicDataList(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaOTTUserDynamicDataList(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -36868,7 +37134,7 @@ namespace WebAPI.Models.Users
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaOTTUserFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaOTTUserFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -36904,7 +37170,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaOTTUserListResponse
     {
-        public KalturaOTTUserListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaOTTUserListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -36938,7 +37204,7 @@ namespace WebAPI.Models.Users
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaOTTUserType(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaOTTUserType(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -36986,7 +37252,7 @@ namespace WebAPI.Models.Users
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPartner(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPartner(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -37030,7 +37296,7 @@ namespace WebAPI.Models.Users
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPartnerFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPartnerFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -37046,7 +37312,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaPartnerListResponse
     {
-        public KalturaPartnerListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPartnerListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -37094,7 +37360,7 @@ namespace WebAPI.Models.Users
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPartnerSetup(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPartnerSetup(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -37169,7 +37435,7 @@ namespace WebAPI.Models.Users
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPasswordPolicy(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPasswordPolicy(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -37233,7 +37499,7 @@ namespace WebAPI.Models.Users
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPasswordPolicyFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPasswordPolicyFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -37249,7 +37515,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaPasswordPolicyListResponse
     {
-        public KalturaPasswordPolicyListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPasswordPolicyListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -37283,7 +37549,7 @@ namespace WebAPI.Models.Users
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSession(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSession(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -37407,7 +37673,7 @@ namespace WebAPI.Models.Users
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSessionCharacteristic(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSessionCharacteristic(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -37443,7 +37709,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaSessionInfo
     {
-        public KalturaSessionInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSessionInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -37463,7 +37729,7 @@ namespace WebAPI.Models.Users
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSSOAdapterProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSSOAdapterProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -37506,7 +37772,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaSSOAdapterProfileInvoke
     {
-        public KalturaSSOAdapterProfileInvoke(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSSOAdapterProfileInvoke(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -37530,7 +37796,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaSSOAdapterProfileListResponse
     {
-        public KalturaSSOAdapterProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSSOAdapterProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -37550,7 +37816,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaUserAssetsList
     {
-        public KalturaUserAssetsList(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserAssetsList(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -37600,7 +37866,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaUserAssetsListFilter
     {
-        public KalturaUserAssetsListFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserAssetsListFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -37695,7 +37961,7 @@ namespace WebAPI.Models.Users
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaUserAssetsListItem(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserAssetsListItem(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -37784,7 +38050,7 @@ namespace WebAPI.Models.Users
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaUserInterest(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserInterest(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -37811,7 +38077,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaUserInterestListResponse
     {
-        public KalturaUserInterestListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserInterestListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -37831,7 +38097,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaUserInterestTopic
     {
-        public KalturaUserInterestTopic(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserInterestTopic(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -37873,7 +38139,7 @@ namespace WebAPI.Models.Users
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaUserLoginPin(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserLoginPin(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -38021,7 +38287,7 @@ namespace WebAPI.Models.Partner
             Default = 2,
             UniqueItems = false,
         };
-        public KalturaBasePartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBasePartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -38075,7 +38341,7 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaBillingPartnerConfig
     {
-        public KalturaBillingPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBillingPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -38141,7 +38407,7 @@ namespace WebAPI.Models.Partner
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaBookmarkEventThreshold(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBookmarkEventThreshold(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -38241,7 +38507,7 @@ namespace WebAPI.Models.Partner
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaCatalogPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCatalogPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -38312,7 +38578,7 @@ namespace WebAPI.Models.Partner
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaCategoryManagement(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCategoryManagement(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -38382,7 +38648,7 @@ namespace WebAPI.Models.Partner
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaCommercePartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCommercePartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -38435,7 +38701,7 @@ namespace WebAPI.Models.Partner
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaConcurrencyPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaConcurrencyPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -38491,7 +38757,7 @@ namespace WebAPI.Models.Partner
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaCustomFieldsPartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCustomFieldsPartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -38507,7 +38773,7 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaDataEncryption
     {
-        public KalturaDataEncryption(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDataEncryption(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -38597,7 +38863,7 @@ namespace WebAPI.Models.Partner
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaDefaultParentalSettingsPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDefaultParentalSettingsPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -38678,7 +38944,7 @@ namespace WebAPI.Models.Partner
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaDefaultPlaybackAdapters(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDefaultPlaybackAdapters(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -38704,7 +38970,7 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaEncryption
     {
-        public KalturaEncryption(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEncryption(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -38897,7 +39163,7 @@ namespace WebAPI.Models.Partner
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaGeneralPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaGeneralPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -39033,7 +39299,7 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaObjectVirtualAssetInfo
     {
-        public KalturaObjectVirtualAssetInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaObjectVirtualAssetInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -39071,7 +39337,7 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaObjectVirtualAssetPartnerConfig
     {
-        public KalturaObjectVirtualAssetPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaObjectVirtualAssetPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -39091,7 +39357,7 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaOpcPartnerConfiguration
     {
-        public KalturaOpcPartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaOpcPartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -39111,13 +39377,13 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaPartnerConfiguration
     {
-        public KalturaPartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaPartnerConfigurationFilter
     {
-        public KalturaPartnerConfigurationFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPartnerConfigurationFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -39140,7 +39406,7 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaPartnerConfigurationHolder
     {
-        public KalturaPartnerConfigurationHolder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPartnerConfigurationHolder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -39163,7 +39429,7 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaPartnerConfigurationListResponse
     {
-        public KalturaPartnerConfigurationListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPartnerConfigurationListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -39183,7 +39449,7 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaPaymentPartnerConfig
     {
-        public KalturaPaymentPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPaymentPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -39203,7 +39469,7 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaPlaybackPartnerConfig
     {
-        public KalturaPlaybackPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPlaybackPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -39223,7 +39489,7 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaResetPasswordPartnerConfig
     {
-        public KalturaResetPasswordPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaResetPasswordPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -39275,7 +39541,7 @@ namespace WebAPI.Models.Partner
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaResetPasswordPartnerConfigTemplate(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaResetPasswordPartnerConfigTemplate(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -39314,7 +39580,7 @@ namespace WebAPI.Models.Partner
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaRollingDeviceRemovalData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRollingDeviceRemovalData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -39344,7 +39610,7 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaSecurityPartnerConfig
     {
-        public KalturaSecurityPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSecurityPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -39379,7 +39645,7 @@ namespace WebAPI.Models.Partner
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaUnifiedBillingCycle(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUnifiedBillingCycle(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -39558,7 +39824,7 @@ namespace WebAPI.Models.Upload
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaBulkUpload(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBulkUpload(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -39668,7 +39934,7 @@ namespace WebAPI.Models.Upload
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaBulkUploadAssetData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBulkUploadAssetData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -39712,7 +39978,7 @@ namespace WebAPI.Models.Upload
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaBulkUploadAssetResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBulkUploadAssetResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -39748,7 +40014,7 @@ namespace WebAPI.Models.Upload
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaBulkUploadDynamicListData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBulkUploadDynamicListData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -39764,13 +40030,13 @@ namespace WebAPI.Models.Upload
     }
     public partial class KalturaBulkUploadDynamicListResult
     {
-        public KalturaBulkUploadDynamicListResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBulkUploadDynamicListResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaBulkUploadExcelJobData
     {
-        public KalturaBulkUploadExcelJobData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBulkUploadExcelJobData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -39791,7 +40057,7 @@ namespace WebAPI.Models.Upload
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaBulkUploadFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBulkUploadFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -39834,7 +40100,7 @@ namespace WebAPI.Models.Upload
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaBulkUploadIngestJobData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBulkUploadIngestJobData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -39854,13 +40120,13 @@ namespace WebAPI.Models.Upload
     }
     public partial class KalturaBulkUploadJobData
     {
-        public KalturaBulkUploadJobData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBulkUploadJobData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaBulkUploadListResponse
     {
-        public KalturaBulkUploadListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBulkUploadListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -39880,37 +40146,37 @@ namespace WebAPI.Models.Upload
     }
     public partial class KalturaBulkUploadLiveAssetData
     {
-        public KalturaBulkUploadLiveAssetData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBulkUploadLiveAssetData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaBulkUploadLiveAssetResult
     {
-        public KalturaBulkUploadLiveAssetResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBulkUploadLiveAssetResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaBulkUploadMediaAssetData
     {
-        public KalturaBulkUploadMediaAssetData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBulkUploadMediaAssetData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaBulkUploadMediaAssetResult
     {
-        public KalturaBulkUploadMediaAssetResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBulkUploadMediaAssetResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaBulkUploadObjectData
     {
-        public KalturaBulkUploadObjectData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBulkUploadObjectData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaBulkUploadProgramAssetData
     {
-        public KalturaBulkUploadProgramAssetData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBulkUploadProgramAssetData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -39958,7 +40224,7 @@ namespace WebAPI.Models.Upload
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaBulkUploadProgramAssetResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBulkUploadProgramAssetResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -40068,7 +40334,7 @@ namespace WebAPI.Models.Upload
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaBulkUploadResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBulkUploadResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -40133,7 +40399,7 @@ namespace WebAPI.Models.Upload
     }
     public partial class KalturaBulkUploadStatistics
     {
-        public KalturaBulkUploadStatistics(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBulkUploadStatistics(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -40182,7 +40448,7 @@ namespace WebAPI.Models.Upload
     }
     public partial class KalturaBulkUploadUdidDynamicListData
     {
-        public KalturaBulkUploadUdidDynamicListData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBulkUploadUdidDynamicListData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -40202,7 +40468,7 @@ namespace WebAPI.Models.Upload
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaBulkUploadUdidDynamicListResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaBulkUploadUdidDynamicListResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -40288,7 +40554,7 @@ namespace WebAPI.Models.Upload
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaUploadToken(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUploadToken(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -40338,7 +40604,7 @@ namespace WebAPI.Models.CanaryDeployment.Microservices
 {
     public partial class KalturaCanaryDeploymentAuthenticationMsOwnerShip
     {
-        public KalturaCanaryDeploymentAuthenticationMsOwnerShip(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCanaryDeploymentAuthenticationMsOwnerShip(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -40371,7 +40637,7 @@ namespace WebAPI.Models.CanaryDeployment.Microservices
     }
     public partial class KalturaCanaryDeploymentSegmentationMsOwnerShip
     {
-        public KalturaCanaryDeploymentSegmentationMsOwnerShip(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaCanaryDeploymentSegmentationMsOwnerShip(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -40384,7 +40650,7 @@ namespace WebAPI.Models.CanaryDeployment.Microservices
     }
     public partial class KalturaMicroservicesCanaryDeploymentConfiguration
     {
-        public KalturaMicroservicesCanaryDeploymentConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaMicroservicesCanaryDeploymentConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -40422,7 +40688,7 @@ namespace WebAPI.Models.CanaryDeployment.Microservices
     }
     public partial class KalturaMicroservicesCanaryDeploymentDataOwnerShip
     {
-        public KalturaMicroservicesCanaryDeploymentDataOwnerShip(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaMicroservicesCanaryDeploymentDataOwnerShip(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -40453,7 +40719,7 @@ namespace WebAPI.Models.CanaryDeployment.Microservices
     }
     public partial class KalturaMicroservicesCanaryDeploymentMigrationEvents
     {
-        public KalturaMicroservicesCanaryDeploymentMigrationEvents(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaMicroservicesCanaryDeploymentMigrationEvents(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -40578,7 +40844,7 @@ namespace WebAPI.Models.DMS
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaConfigurationGroup(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaConfigurationGroup(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -40651,7 +40917,7 @@ namespace WebAPI.Models.DMS
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaConfigurationGroupDevice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaConfigurationGroupDevice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -40675,7 +40941,7 @@ namespace WebAPI.Models.DMS
     }
     public partial class KalturaConfigurationGroupDeviceFilter
     {
-        public KalturaConfigurationGroupDeviceFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaConfigurationGroupDeviceFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -40688,7 +40954,7 @@ namespace WebAPI.Models.DMS
     }
     public partial class KalturaConfigurationGroupDeviceListResponse
     {
-        public KalturaConfigurationGroupDeviceListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaConfigurationGroupDeviceListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -40708,7 +40974,7 @@ namespace WebAPI.Models.DMS
     }
     public partial class KalturaConfigurationGroupListResponse
     {
-        public KalturaConfigurationGroupListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaConfigurationGroupListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -40742,7 +41008,7 @@ namespace WebAPI.Models.DMS
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaConfigurationGroupTag(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaConfigurationGroupTag(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -40766,7 +41032,7 @@ namespace WebAPI.Models.DMS
     }
     public partial class KalturaConfigurationGroupTagFilter
     {
-        public KalturaConfigurationGroupTagFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaConfigurationGroupTagFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -40779,7 +41045,7 @@ namespace WebAPI.Models.DMS
     }
     public partial class KalturaConfigurationGroupTagListResponse
     {
-        public KalturaConfigurationGroupTagListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaConfigurationGroupTagListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -40799,7 +41065,7 @@ namespace WebAPI.Models.DMS
     }
     public partial class KalturaConfigurationIdentifier
     {
-        public KalturaConfigurationIdentifier(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaConfigurationIdentifier(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -40844,7 +41110,7 @@ namespace WebAPI.Models.DMS
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaConfigurations(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaConfigurations(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -40903,7 +41169,7 @@ namespace WebAPI.Models.DMS
     }
     public partial class KalturaConfigurationsFilter
     {
-        public KalturaConfigurationsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaConfigurationsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -40916,7 +41182,7 @@ namespace WebAPI.Models.DMS
     }
     public partial class KalturaConfigurationsListResponse
     {
-        public KalturaConfigurationsListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaConfigurationsListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -40936,7 +41202,7 @@ namespace WebAPI.Models.DMS
     }
     public partial class KalturaDeviceReport
     {
-        public KalturaDeviceReport(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDeviceReport(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -41006,7 +41272,7 @@ namespace WebAPI.Models.DMS
     }
     public partial class KalturaDeviceReportFilter
     {
-        public KalturaDeviceReportFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDeviceReportFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -41019,7 +41285,7 @@ namespace WebAPI.Models.DMS
     }
     public partial class KalturaPushParams
     {
-        public KalturaPushParams(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPushParams(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -41040,7 +41306,7 @@ namespace WebAPI.Models.Domains
 {
     public partial class KalturaDevice
     {
-        public KalturaDevice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDevice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -41088,7 +41354,7 @@ namespace WebAPI.Models.Domains
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaDeviceBrand(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDeviceBrand(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -41128,7 +41394,7 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaDeviceFamily
     {
-        public KalturaDeviceFamily(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDeviceFamily(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -41176,7 +41442,7 @@ namespace WebAPI.Models.Domains
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaDeviceFamilyBase(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDeviceFamilyBase(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -41227,7 +41493,7 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaDevicePin
     {
-        public KalturaDevicePin(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDevicePin(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -41240,7 +41506,7 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaDeviceRegistrationStatusHolder
     {
-        public KalturaDeviceRegistrationStatusHolder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaDeviceRegistrationStatusHolder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -41277,7 +41543,7 @@ namespace WebAPI.Models.Domains
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaHomeNetwork(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHomeNetwork(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -41314,7 +41580,7 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaHomeNetworkListResponse
     {
-        public KalturaHomeNetworkListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHomeNetworkListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -41544,7 +41810,7 @@ namespace WebAPI.Models.Domains
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaHousehold(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHousehold(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -41802,7 +42068,7 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaHouseholdCoupon
     {
-        public KalturaHouseholdCoupon(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHouseholdCoupon(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -41819,7 +42085,7 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaHouseholdCouponCodeFilter
     {
-        public KalturaHouseholdCouponCodeFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHouseholdCouponCodeFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -41854,7 +42120,7 @@ namespace WebAPI.Models.Domains
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaHouseholdCouponFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHouseholdCouponFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -41903,7 +42169,7 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaHouseholdCouponListResponse
     {
-        public KalturaHouseholdCouponListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHouseholdCouponListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -42105,7 +42371,7 @@ namespace WebAPI.Models.Domains
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaHouseholdDevice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHouseholdDevice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -42333,7 +42599,7 @@ namespace WebAPI.Models.Domains
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaHouseholdDeviceFamilyLimitations(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHouseholdDeviceFamilyLimitations(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -42393,7 +42659,7 @@ namespace WebAPI.Models.Domains
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaHouseholdDeviceFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHouseholdDeviceFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -42417,7 +42683,7 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaHouseholdDeviceListResponse
     {
-        public KalturaHouseholdDeviceListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHouseholdDeviceListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -42437,7 +42703,7 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaHouseholdFilter
     {
-        public KalturaHouseholdFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHouseholdFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -42618,7 +42884,7 @@ namespace WebAPI.Models.Domains
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaHouseholdLimitations(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHouseholdLimitations(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -42762,7 +43028,7 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaHouseholdLimitationsListResponse
     {
-        public KalturaHouseholdLimitationsListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHouseholdLimitationsListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -42782,7 +43048,7 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaHouseholdListResponse
     {
-        public KalturaHouseholdListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHouseholdListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -42872,7 +43138,7 @@ namespace WebAPI.Models.Domains
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaHouseholdUser(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHouseholdUser(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -42936,7 +43202,7 @@ namespace WebAPI.Models.Domains
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaHouseholdUserFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHouseholdUserFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -42952,7 +43218,7 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaHouseholdUserListResponse
     {
-        public KalturaHouseholdUserListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHouseholdUserListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -42972,7 +43238,7 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaHouseholdWithHolder
     {
-        public KalturaHouseholdWithHolder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHouseholdWithHolder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -42999,7 +43265,7 @@ namespace WebAPI.Models.CanaryDeployment.Elasticsearch
 {
     public partial class KalturaElasticsearchCanaryDeploymentConfiguration
     {
-        public KalturaElasticsearchCanaryDeploymentConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaElasticsearchCanaryDeploymentConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -43030,13 +43296,13 @@ namespace WebAPI.Controllers
 {
     public partial class KalturaEpg
     {
-        public KalturaEpg(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEpg(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaEpgFilter
     {
-        public KalturaEpgFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEpgFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -43053,7 +43319,7 @@ namespace WebAPI.Controllers
     }
     public partial class KalturaEpgListResponse
     {
-        public KalturaEpgListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEpgListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -43105,7 +43371,7 @@ namespace WebAPI.Models
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaEpgServicePartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaEpgServicePartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -43144,7 +43410,7 @@ namespace WebAPI.Models.Users.UserSessionProfile
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaExpressionAnd(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaExpressionAnd(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -43167,7 +43433,7 @@ namespace WebAPI.Models.Users.UserSessionProfile
     }
     public partial class KalturaExpressionNot
     {
-        public KalturaExpressionNot(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaExpressionNot(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -43201,7 +43467,7 @@ namespace WebAPI.Models.Users.UserSessionProfile
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaExpressionOr(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaExpressionOr(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -43224,7 +43490,7 @@ namespace WebAPI.Models.Users.UserSessionProfile
     }
     public partial class KalturaUserSessionCondition
     {
-        public KalturaUserSessionCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserSessionCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -43273,7 +43539,7 @@ namespace WebAPI.Models.Users.UserSessionProfile
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaUserSessionProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserSessionProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -43305,7 +43571,7 @@ namespace WebAPI.Models.Users.UserSessionProfile
     }
     public partial class KalturaUserSessionProfileExpression
     {
-        public KalturaUserSessionProfileExpression(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserSessionProfileExpression(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -43326,7 +43592,7 @@ namespace WebAPI.Models.Users.UserSessionProfile
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaUserSessionProfileFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserSessionProfileFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -43342,7 +43608,7 @@ namespace WebAPI.Models.Users.UserSessionProfile
     }
     public partial class KalturaUserSessionProfileListResponse
     {
-        public KalturaUserSessionProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaUserSessionProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -43366,7 +43632,7 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions
 {
     public partial class KalturaFilterAction
     {
-        public KalturaFilterAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFilterAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -43391,7 +43657,7 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Assets
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaFilterAssetByKsqlAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFilterAssetByKsqlAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (fromRequest)
             {
@@ -43435,7 +43701,7 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaFilterFileByAudioCodecAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFilterFileByAudioCodecAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (fromRequest)
             {
@@ -43460,13 +43726,87 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
     }
     public partial class KalturaFilterFileByAudioCodecInDiscoveryAction
     {
-        public KalturaFilterFileByAudioCodecInDiscoveryAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFilterFileByAudioCodecInDiscoveryAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaFilterFileByAudioCodecInPlaybackAction
     {
-        public KalturaFilterFileByAudioCodecInPlaybackAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFilterFileByAudioCodecInPlaybackAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
+        {
+        }
+    }
+    public partial class KalturaFilterFileByDynamicDataAction
+    {
+        private static RuntimeSchemePropertyAttribute KeySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFilterFileByDynamicDataAction")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = 50,
+            MinLength = 1,
+            Pattern = @"^[^,]+$",
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute ValuesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFilterFileByDynamicDataAction")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = 200,
+            MinLength = 1,
+            Pattern = @"^(?!\s*$).+",
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        public KalturaFilterFileByDynamicDataAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
+        {
+            if (fromRequest)
+            {
+                if (parameters == null || parameters.Count == 0)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "key,values");
+
+               if (!parameters.ContainsKey("key") || string.IsNullOrWhiteSpace(parameters["key"]?.ToString()))
+                   throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "key");
+               if (!parameters.ContainsKey("values") || string.IsNullOrWhiteSpace(parameters["values"]?.ToString()))
+                   throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "values");
+
+            }
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("key") && parameters["key"] != null)
+                {
+                    KeySchemaProperty.Validate("key", parameters["key"]);
+                    Key = (String) Convert.ChangeType(parameters["key"], typeof(String));
+                }
+                if (parameters.ContainsKey("values") && parameters["values"] != null)
+                {
+                    ValuesSchemaProperty.Validate("values", parameters["values"]);
+                    Values = (String) Convert.ChangeType(parameters["values"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaFilterFileByDynamicDataInDiscoveryAction
+    {
+        public KalturaFilterFileByDynamicDataInDiscoveryAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
+        {
+        }
+    }
+    public partial class KalturaFilterFileByDynamicDataInPlaybackAction
+    {
+        public KalturaFilterFileByDynamicDataInPlaybackAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -43487,7 +43827,7 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaFilterFileByFileTypeIdAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFilterFileByFileTypeIdAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (fromRequest)
             {
@@ -43527,7 +43867,7 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaFilterFileByFileTypeIdForAssetTypeAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFilterFileByFileTypeIdForAssetTypeAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (fromRequest)
             {
@@ -43552,25 +43892,25 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
     }
     public partial class KalturaFilterFileByFileTypeIdForAssetTypeInDiscoveryAction
     {
-        public KalturaFilterFileByFileTypeIdForAssetTypeInDiscoveryAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFilterFileByFileTypeIdForAssetTypeInDiscoveryAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaFilterFileByFileTypeIdForAssetTypeInPlaybackAction
     {
-        public KalturaFilterFileByFileTypeIdForAssetTypeInPlaybackAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFilterFileByFileTypeIdForAssetTypeInPlaybackAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaFilterFileByFileTypeIdInDiscoveryAction
     {
-        public KalturaFilterFileByFileTypeIdInDiscoveryAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFilterFileByFileTypeIdInDiscoveryAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaFilterFileByFileTypeIdInPlaybackAction
     {
-        public KalturaFilterFileByFileTypeIdInPlaybackAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFilterFileByFileTypeIdInPlaybackAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -43591,7 +43931,7 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaFilterFileByLabelAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFilterFileByLabelAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (fromRequest)
             {
@@ -43616,13 +43956,13 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
     }
     public partial class KalturaFilterFileByLabelInDiscoveryAction
     {
-        public KalturaFilterFileByLabelInDiscoveryAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFilterFileByLabelInDiscoveryAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaFilterFileByLabelInPlaybackAction
     {
-        public KalturaFilterFileByLabelInPlaybackAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFilterFileByLabelInPlaybackAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -43643,7 +43983,7 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaFilterFileByQualityAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFilterFileByQualityAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (fromRequest)
             {
@@ -43668,13 +44008,13 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
     }
     public partial class KalturaFilterFileByQualityInDiscoveryAction
     {
-        public KalturaFilterFileByQualityInDiscoveryAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFilterFileByQualityInDiscoveryAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaFilterFileByQualityInPlaybackAction
     {
-        public KalturaFilterFileByQualityInPlaybackAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFilterFileByQualityInPlaybackAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -43695,7 +44035,7 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaFilterFileByStreamerTypeAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFilterFileByStreamerTypeAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (fromRequest)
             {
@@ -43720,13 +44060,13 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
     }
     public partial class KalturaFilterFileByStreamerTypeInDiscovery
     {
-        public KalturaFilterFileByStreamerTypeInDiscovery(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFilterFileByStreamerTypeInDiscovery(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaFilterFileByStreamerTypeInPlayback
     {
-        public KalturaFilterFileByStreamerTypeInPlayback(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFilterFileByStreamerTypeInPlayback(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -43747,7 +44087,7 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaFilterFileByVideoCodecAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFilterFileByVideoCodecAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (fromRequest)
             {
@@ -43772,13 +44112,13 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
     }
     public partial class KalturaFilterFileByVideoCodecInDiscoveryAction
     {
-        public KalturaFilterFileByVideoCodecInDiscoveryAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFilterFileByVideoCodecInDiscoveryAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaFilterFileByVideoCodecInPlayback
     {
-        public KalturaFilterFileByVideoCodecInPlayback(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaFilterFileByVideoCodecInPlayback(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -43816,7 +44156,7 @@ namespace WebAPI.Models.Billing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaHouseholdPaymentGateway(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHouseholdPaymentGateway(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -43866,7 +44206,7 @@ namespace WebAPI.Models.Billing
     }
     public partial class KalturaHouseholdPaymentGatewayListResponse
     {
-        public KalturaHouseholdPaymentGatewayListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHouseholdPaymentGatewayListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -43928,7 +44268,7 @@ namespace WebAPI.Models.Billing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaHouseholdPaymentMethod(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHouseholdPaymentMethod(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -43978,7 +44318,7 @@ namespace WebAPI.Models.Billing
     }
     public partial class KalturaHouseholdPaymentMethodListResponse
     {
-        public KalturaHouseholdPaymentMethodListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHouseholdPaymentMethodListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -43998,7 +44338,7 @@ namespace WebAPI.Models.Billing
     }
     public partial class KalturaPaymentGateway
     {
-        public KalturaPaymentGateway(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPaymentGateway(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -44074,7 +44414,7 @@ namespace WebAPI.Models.Billing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPaymentGatewayBaseProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPaymentGatewayBaseProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -44156,7 +44496,7 @@ namespace WebAPI.Models.Billing
     }
     public partial class KalturaPaymentGatewayConfiguration
     {
-        public KalturaPaymentGatewayConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPaymentGatewayConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -44273,7 +44613,7 @@ namespace WebAPI.Models.Billing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPaymentGatewayProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPaymentGatewayProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -44406,7 +44746,7 @@ namespace WebAPI.Models.Billing
     }
     public partial class KalturaPaymentGatewayProfileListResponse
     {
-        public KalturaPaymentGatewayProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPaymentGatewayProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -44426,7 +44766,7 @@ namespace WebAPI.Models.Billing
     }
     public partial class KalturaPaymentMethod
     {
-        public KalturaPaymentMethod(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPaymentMethod(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -44489,7 +44829,7 @@ namespace WebAPI.Models.Billing
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPaymentMethodProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPaymentMethodProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -44521,7 +44861,7 @@ namespace WebAPI.Models.Billing
     }
     public partial class KalturaPaymentMethodProfileFilter
     {
-        public KalturaPaymentMethodProfileFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPaymentMethodProfileFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -44534,7 +44874,7 @@ namespace WebAPI.Models.Billing
     }
     public partial class KalturaPaymentMethodProfileListResponse
     {
-        public KalturaPaymentMethodProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPaymentMethodProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -44554,7 +44894,7 @@ namespace WebAPI.Models.Billing
     }
     public partial class KalturaSuspendSettings
     {
-        public KalturaSuspendSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSuspendSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -44575,7 +44915,7 @@ namespace WebAPI.EventNotifications
 {
     public partial class KalturaHttpNotification
     {
-        public KalturaHttpNotification(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaHttpNotification(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
@@ -44585,7 +44925,7 @@ namespace WebAPI.Models.Catalog.GroupRepresentatives
 {
     public partial class KalturaListGroupsRepresentativesFilter
     {
-        public KalturaListGroupsRepresentativesFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaListGroupsRepresentativesFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -44598,13 +44938,13 @@ namespace WebAPI.Models.Catalog.GroupRepresentatives
     }
     public partial class KalturaRepresentativeSelectionPolicy
     {
-        public KalturaRepresentativeSelectionPolicy(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaRepresentativeSelectionPolicy(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
         }
     }
     public partial class KalturaTopRsp
     {
-        public KalturaTopRsp(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTopRsp(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -44624,7 +44964,7 @@ namespace WebAPI.Models.Catalog.GroupRepresentatives
     }
     public partial class KalturaTopSubscriptionEntitledRsp
     {
-        public KalturaTopSubscriptionEntitledRsp(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaTopSubscriptionEntitledRsp(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -44648,7 +44988,7 @@ namespace WebAPI.Models.LiveToVod
 {
     public partial class KalturaLiveToVodFullConfiguration
     {
-        public KalturaLiveToVodFullConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaLiveToVodFullConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -44680,7 +45020,7 @@ namespace WebAPI.Models.LiveToVod
     }
     public partial class KalturaLiveToVodLinearAssetConfiguration
     {
-        public KalturaLiveToVodLinearAssetConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaLiveToVodLinearAssetConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -44715,7 +45055,7 @@ namespace WebAPI.Models.LiveToVod
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaLiveToVodPartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaLiveToVodPartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -44799,7 +45139,7 @@ namespace WebAPI.Models.Api
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaPersonalList(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPersonalList(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -44834,7 +45174,7 @@ namespace WebAPI.Models.Api
     }
     public partial class KalturaPersonalListFilter
     {
-        public KalturaPersonalListFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPersonalListFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -44847,7 +45187,7 @@ namespace WebAPI.Models.Api
     }
     public partial class KalturaPersonalListListResponse
     {
-        public KalturaPersonalListListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaPersonalListListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -44871,7 +45211,7 @@ namespace WebAPI.Models.Catalog.SearchPriorityGroup
 {
     public partial class KalturaSearchPriorityCriteria
     {
-        public KalturaSearchPriorityCriteria(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSearchPriorityCriteria(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -44912,7 +45252,7 @@ namespace WebAPI.Models.Catalog.SearchPriorityGroup
             MaxItems = -1,
             UniqueItems = false,
         };
-        public KalturaSearchPriorityGroup(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSearchPriorityGroup(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -44950,7 +45290,7 @@ namespace WebAPI.Models.Catalog.SearchPriorityGroup
     }
     public partial class KalturaSearchPriorityGroupFilter
     {
-        public KalturaSearchPriorityGroupFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSearchPriorityGroupFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -44967,7 +45307,7 @@ namespace WebAPI.Models.Catalog.SearchPriorityGroup
     }
     public partial class KalturaSearchPriorityGroupListResponse
     {
-        public KalturaSearchPriorityGroupListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSearchPriorityGroupListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -44987,7 +45327,7 @@ namespace WebAPI.Models.Catalog.SearchPriorityGroup
     }
     public partial class KalturaSearchPriorityGroupOrderedIdsSet
     {
-        public KalturaSearchPriorityGroupOrderedIdsSet(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        public KalturaSearchPriorityGroupOrderedIdsSet(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {

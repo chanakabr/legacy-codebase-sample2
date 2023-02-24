@@ -5,6 +5,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
+using WebAPI.ModelsValidators;
 using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 
@@ -24,8 +25,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.LabelAlreadyInUse)]
         public static KalturaLabel Add(KalturaLabel label)
         {
-            var validator = new KalturaLabelValidator();
-            validator.ValidateToAdd(label, nameof(label));
+            MediaFileLabelValidator.Instance.ValidateToAdd(label, nameof(label));
 
             KalturaLabel response = null;
             try
@@ -93,8 +93,7 @@ namespace WebAPI.Controllers
         {
             label.Id = id;
 
-            var validator = new KalturaLabelValidator();
-            validator.ValidateToUpdate(label, nameof(label));
+            MediaFileLabelValidator.Instance.ValidateToUpdate(label, nameof(label));
 
             KalturaLabel response = null;
             try

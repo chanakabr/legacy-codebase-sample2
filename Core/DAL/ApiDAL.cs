@@ -4214,10 +4214,16 @@ namespace DAL
             sp.AddParameter("@groupId", groupId);
             var dataSet = sp.ExecuteDataSet();
 
-            if (dataSet.Tables.Count == 2)
+            if (dataSet.Tables.Count == 2 || dataSet.Tables.Count == 3)
             {
                 var dt = dataSet.Tables[0];
                 var labelsTable = dataSet.Tables[1];
+                // TODO
+                // This ternary operator is used for backward compatibility and can be deleted
+                // in the future when MediaFile's dynamic data is delivered.
+                var dynamicDataTable = dataSet.Tables.Count == 3
+                    ? dataSet.Tables[2]
+                    : null;
 
                 if (dt != null && dt.Rows.Count > 0)
                 {
@@ -4245,6 +4251,14 @@ namespace DAL
                             .Select($"MEDIA_FILE_ID = {file.Id}")
                             .Select(x => Utils.GetSafeStr(x, "LABEL_VALUE"));
                         file.Labels = string.Join(",", labels);
+                        file.DynamicData = dynamicDataTable?.Select($"MEDIA_FILE_ID = {file.Id}")
+                            .Select(x => new KeyValuePair<string, string>(
+                                Utils.GetSafeStr(x, "KEY"),
+                                Utils.GetSafeStr(x, "VALUE")))
+                            .GroupBy(x => x.Key)
+                            .ToDictionary(
+                                x => x.Key,
+                                x => x.Select(_ => _.Value));
 
                         if (Utils.GetNullableInt(dr, "streamer_type").HasValue)
                         {

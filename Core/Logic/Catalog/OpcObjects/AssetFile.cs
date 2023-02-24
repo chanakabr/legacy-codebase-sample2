@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ApiLogic.Catalog.CatalogManagement.Validators;
 using TVinciShared;
 
 namespace Core.Catalog
@@ -30,6 +31,7 @@ namespace Core.Catalog
         private const string LANGUAGE = "Language";
         private const string IS_DEFAULT_LANGUAGE = "Is Default Language";
         private const string LABELS = "Labels";
+        public const string DYNAMIC_DATA = "DynamicData";
         
         #endregion
 
@@ -127,6 +129,10 @@ namespace Core.Catalog
         [ExcelColumn(ExcelColumnType.File, LABELS)]
         [JsonProperty("Labels")]
         public string Labels { get; set; }
+        
+        [ExcelColumn(ExcelColumnType.File, DYNAMIC_DATA)]
+        [JsonProperty("DynamicData")]
+        public IDictionary<string, IEnumerable<string>> DynamicData { get; set; }
 
         public DateTime? UpdateDate { get; set; }
 
@@ -281,70 +287,60 @@ namespace Core.Catalog
 
             if (!string.IsNullOrEmpty(Labels))
             {
-                var labels = ExcelColumn.GetFullColumnName(type, LABELS);
+                var labels = ExcelColumn.GetFullColumnName(type, innerSystemName: LABELS);
                 excelValues.TryAdd(labels, Labels);
+            }
+
+            if (DynamicData != null)
+            {
+                foreach (var item in DynamicData)
+                {
+                    var dynamicDataKey = ExcelColumn.GetFullColumnName(type, innerSystemName: item.Key);
+                    var value = string.Join(",", item.Value);
+                    excelValues.TryAdd(dynamicDataKey, value);
+                }
             }
 
             return excelValues;
         }
 
         public void SetExcelValues(int groupId, Dictionary<string, object> columnNamesToValues, Dictionary<string, ExcelColumn> columns, IExcelStructureManager structureObject)
-        {           
-            foreach (var columnValue in columnNamesToValues)
+        {
+            var excelColumnValues = columnNamesToValues
+                .Select(x => new ExcelColumnValue(x.Key, x.Value))
+                .ToArray();
+            foreach (var columnValue in excelColumnValues.Where(x => x.IsStatic))
             {
                 try
                 {
-                    if (columns.ContainsKey(columnValue.Key))
+                    if (string.IsNullOrEmpty(type))
                     {
-                        var realType = columns[columnValue.Key].Property.PropertyType.GetRealType();
-                        object convertedValue;
-                        if (realType == DateUtils.DateTimeType || realType == DateUtils.NullableDateTimeType)
-                        {
-                            convertedValue = DateUtils.ExtractDate(columnValue.Value.ToString(), DateUtils.MAIN_FORMAT);
-                        }
-                        else if(columns[columnValue.Key].InnerSystemName == CDN)
-                        {
-                            var cdn = ExcelColumn.GetFullColumnName(this.type, CDN);
-                            if (columnNamesToValues.ContainsKey(cdn))
-                            {
-                                CDNAdapter cdnAdapter = DAL.ApiDAL.GetCDNAdapterByAlias(groupId, columnNamesToValues[cdn].ToString());
-                                if (cdnAdapter != null)
-                                {
-                                    CdnAdapaterProfileId = cdnAdapter.ID;
-                                }
-                            }
-                            continue;
-                        }
+                        type = columns[columnValue.Key].SystemName;
+                    }
 
-                        else if (columns[columnValue.Key].InnerSystemName == ALTERNATIVE_CDN)
-                        {                            
-                            var altCdn = ExcelColumn.GetFullColumnName(this.type, ALTERNATIVE_CDN);
-                            if (columnNamesToValues.ContainsKey(altCdn))
-                            {
-                                CDNAdapter cdnAdapter = DAL.ApiDAL.GetCDNAdapterByAlias(groupId, columnNamesToValues[altCdn].ToString());
-                                if (cdnAdapter != null)
-                                {
-                                    AlternativeCdnAdapaterProfileId = cdnAdapter.ID;
-                                }
+                    var realType = columns[columnValue.Key].Property.PropertyType.GetRealType();
 
-                                //columnNamesToValues.Remove(altCdn);
-                            }
-                            continue;
-                        }
-                        else
-                        {
-                            convertedValue = Convert.ChangeType(columnValue.Value, realType);
-                        }
+                    object convertedValue;
+                    if (realType == DateUtils.DateTimeType || realType == DateUtils.NullableDateTimeType)
+                    {
+                        convertedValue = DateUtils.ExtractDate(columnValue.Value.ToString(), DateUtils.MAIN_FORMAT);
+                    }
+                    else if (columns[columnValue.Key].InnerSystemName == CDN
+                             || columns[columnValue.Key].InnerSystemName == ALTERNATIVE_CDN)
+                    {
+                        var cdnAdapter = DAL.ApiDAL.GetCDNAdapterByAlias(groupId, columnValue.Value.ToString());
+                        convertedValue = cdnAdapter == null
+                            ? (object)null
+                            : (long)cdnAdapter.ID;
+                    }
+                    else
+                    {
+                        convertedValue = Convert.ChangeType(columnValue.Value, realType);
+                    }
 
-                        if (convertedValue != null)
-                        {
-                            columns[columnValue.Key].Property.SetValue(this, convertedValue);
-                        }
-
-                        if (string.IsNullOrEmpty(this.type))
-                        {
-                            this.type = columns[columnValue.Key].SystemName;
-                        }
+                    if (convertedValue != null)
+                    {
+                        columns[columnValue.Key].Property.SetValue(this, convertedValue);
                     }
                 }
                 catch (Exception ex)
@@ -353,21 +349,54 @@ namespace Core.Catalog
                     throw excelParserException;
                 }
             }
-            
-            if (!string.IsNullOrEmpty(this.type) && !this.TypeId.HasValue)
+
+            if (!string.IsNullOrEmpty(type))
             {
                 var mediaFileTypesListResponse = FileManager.Instance.GetMediaFileTypes(groupId);
                 if (mediaFileTypesListResponse.HasObjects())
                 {
-                    var mediaFileType = mediaFileTypesListResponse.Objects.FirstOrDefault(x => x.Name.Equals(this.type));
+                    var mediaFileType = mediaFileTypesListResponse.Objects.FirstOrDefault(x => x.Name.Equals(type));
                     if (mediaFileType != null)
                     {
-                        this.TypeId = (int)mediaFileType.Id;
+                        if (!TypeId.HasValue)
+                        {
+                            TypeId = (int)mediaFileType.Id;
+                        }
+
+                        var allDynamicData = excelColumnValues
+                            .Where(x => !x.IsStatic && x.Value != null)
+                            .ToDictionary(x => x.PropertyName, x => x.Value.ToString()?.Split(',').AsEnumerable());
+                        DynamicData = MediaFileValidator.Instance.GetValidatedDynamicData(mediaFileType, allDynamicData);
                     }
                 }
-            }          
+            }
 
-            this.IsActive = true;
+            IsActive = true;
+        }
+
+        private class ExcelColumnValue
+        {
+            public string Key { get; }
+            public object Value { get; }
+            public string PropertyName { get; }
+            public bool IsStatic { get; }
+
+            private readonly IReadOnlyCollection<string> _staticPropertyNames = new[]
+            {
+                CDN, CDN_LOCATION, DURATION,
+                EXTERNAL_ID, PLAYBACK_START_DATE, PLAYBACK_END_DATE,
+                CATALOG_END_DATE, PPVS, EXTERNAL_STORE_CODE,
+                ALTERNATIVE_CDN, ALTERNATIVE_CDN_LOCATION, FILE_SIZE,
+                LANGUAGE, IS_DEFAULT_LANGUAGE, LABELS
+            };
+
+            public ExcelColumnValue(string key, object value)
+            {
+                Key = key;
+                Value = value;
+                PropertyName = key.Split(':').Last();
+                IsStatic = _staticPropertyNames.Contains(PropertyName);
+            }
         }
 
         #endregion
