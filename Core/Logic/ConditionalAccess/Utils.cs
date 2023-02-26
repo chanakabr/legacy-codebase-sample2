@@ -5113,7 +5113,7 @@ namespace Core.ConditionalAccess
             return ValidateUserAndDomain(groupId, siteGuid, ref householdId, out domain, out user);
         }
 
-        internal static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, ref long householdId, out Domain domain, out Users.User user)
+        public static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, ref long householdId, out Domain domain, out Users.User user)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
             status.Code = -1;

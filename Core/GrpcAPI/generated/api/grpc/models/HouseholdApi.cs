@@ -33,22 +33,24 @@ namespace phoenix {
             "B2dyb3VwSWQYASABKAUSEAoIZG9tYWluSWQYAiABKAMiPgobR2V0U3VzcGVu",
             "c2lvblN0YXR1c1Jlc3BvbnNlEh8KBlN0YXR1cxgBIAEoCzIPLnBob2VuaXgu",
             "U3RhdHVzIkkKFEdldERvbWFpbkRhdGFSZXF1ZXN0Eg8KB2dyb3VwSWQYASAB",
-            "KAUSDgoGdXNlcklkGAIgASgDEhAKCGRvbWFpbklkGAMgASgDInMKFUdldERv",
-            "bWFpbkRhdGFSZXNwb25zZRIfCgZzdGF0dXMYASABKAsyDy5waG9lbml4LlN0",
-            "YXR1cxIQCghkb21haW5JZBgCIAEoAxInCgpkb21haW5EYXRhGAMgASgLMhMu",
-            "cGhvZW5peC5Eb21haW5EYXRhIlkKN0dldE1lZGlhQ29uY3VycmVuY3lSdWxl",
-            "c0J5RG9tYWluTGltaXRhdGlvbk1vZHVsZVJlcXVlc3QSDwoHR3JvdXBJZBgB",
-            "IAEoBRINCgVkbG1JZBgCIAEoBSJHCjhHZXRNZWRpYUNvbmN1cnJlbmN5UnVs",
-            "ZXNCeURvbWFpbkxpbWl0YXRpb25Nb2R1bGVSZXNwb25zZRILCgNpZHMYASAD",
-            "KAUiSQoYSXNEZXZpY2VQbGF5VmFsaWRSZXF1ZXN0Eg8KB2dyb3VwSWQYASAB",
-            "KAUSDgoGdXNlcklkGAIgASgDEgwKBFVkaWQYAyABKAkiVAoaSXNWYWxpZERl",
-            "dmljZUZhbWlseVJlcXVlc3QSDwoHZ3JvdXBJZBgBIAEoBRIMCgR1ZGlkGAIg",
-            "ASgJEhcKD2RldmljZUZhbWlseUlkcxgDIAMoBSI1ChJHZXRVc2VyRGF0YVJl",
-            "cXVlc3QSDwoHZ3JvdXBJZBgBIAEoBRIOCgZ1c2VySWQYAiABKAMijQEKE0dl",
-            "dFVzZXJEYXRhUmVzcG9uc2USQgoLZHluYW1pY0RhdGEYASADKAsyLS5waG9l",
-            "bml4LkdldFVzZXJEYXRhUmVzcG9uc2UuRHluYW1pY0RhdGFFbnRyeRoyChBE",
-            "eW5hbWljRGF0YUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToC",
-            "OAFCFFoILi9tb2RlbHOqAgdwaG9lbml4YgZwcm90bzM="));
+            "KAUSDgoGdXNlcklkGAIgASgDEhAKCGRvbWFpbklkGAMgASgDIoIBChVHZXRE",
+            "b21haW5EYXRhUmVzcG9uc2USDQoFZGxtSWQYASABKAUSGQoRZG9tYWluQ29u",
+            "Y3VycmVuY3kYAiABKAUSLQoOZGV2aWNlRmFtaWxpZXMYAyADKAsyFS5waG9l",
+            "bml4LmRldmljZUZhbWlseRIQCghkb21haW5JZBgEIAEoAyI2ChNWYWxpZGF0",
+            "ZVVzZXJSZXF1ZXN0Eg8KB2dyb3VwSWQYASABKAUSDgoGdXNlcklkGAIgASgD",
+            "IsIBChRWYWxpZGF0ZVVzZXJSZXNwb25zZRIfCgZzdGF0dXMYASABKAsyDy5w",
+            "aG9lbml4LlN0YXR1cxIQCghkb21haW5JZBgCIAEoAxJDCgtkeW5hbWljRGF0",
+            "YRgDIAMoCzIuLnBob2VuaXguVmFsaWRhdGVVc2VyUmVzcG9uc2UuRHluYW1p",
+            "Y0RhdGFFbnRyeRoyChBEeW5hbWljRGF0YUVudHJ5EgsKA2tleRgBIAEoCRIN",
+            "CgV2YWx1ZRgCIAEoCToCOAEiWQo3R2V0TWVkaWFDb25jdXJyZW5jeVJ1bGVz",
+            "QnlEb21haW5MaW1pdGF0aW9uTW9kdWxlUmVxdWVzdBIPCgdHcm91cElkGAEg",
+            "ASgFEg0KBWRsbUlkGAIgASgFIkcKOEdldE1lZGlhQ29uY3VycmVuY3lSdWxl",
+            "c0J5RG9tYWluTGltaXRhdGlvbk1vZHVsZVJlc3BvbnNlEgsKA2lkcxgBIAMo",
+            "BSJJChhJc0RldmljZVBsYXlWYWxpZFJlcXVlc3QSDwoHZ3JvdXBJZBgBIAEo",
+            "BRIOCgZ1c2VySWQYAiABKAMSDAoEVWRpZBgDIAEoCSJUChpJc1ZhbGlkRGV2",
+            "aWNlRmFtaWx5UmVxdWVzdBIPCgdncm91cElkGAEgASgFEgwKBHVkaWQYAiAB",
+            "KAkSFwoPZGV2aWNlRmFtaWx5SWRzGAMgAygFQhRaCC4vbW9kZWxzqgIHcGhv",
+            "ZW5peGIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::phoenix.StatusReflection.Descriptor, global::phoenix.HouseholdReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -57,13 +59,13 @@ namespace phoenix {
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetSuspensionStatusRequest), global::phoenix.GetSuspensionStatusRequest.Parser, new[]{ "GroupId", "DomainId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetSuspensionStatusResponse), global::phoenix.GetSuspensionStatusResponse.Parser, new[]{ "Status" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetDomainDataRequest), global::phoenix.GetDomainDataRequest.Parser, new[]{ "GroupId", "UserId", "DomainId" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetDomainDataResponse), global::phoenix.GetDomainDataResponse.Parser, new[]{ "Status", "DomainId", "DomainData" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetDomainDataResponse), global::phoenix.GetDomainDataResponse.Parser, new[]{ "DlmId", "DomainConcurrency", "DeviceFamilies", "DomainId" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.ValidateUserRequest), global::phoenix.ValidateUserRequest.Parser, new[]{ "GroupId", "UserId" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.ValidateUserResponse), global::phoenix.ValidateUserResponse.Parser, new[]{ "Status", "DomainId", "DynamicData" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, }),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleRequest), global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleRequest.Parser, new[]{ "GroupId", "DlmId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleResponse), global::phoenix.GetMediaConcurrencyRulesByDomainLimitationModuleResponse.Parser, new[]{ "Ids" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.IsDevicePlayValidRequest), global::phoenix.IsDevicePlayValidRequest.Parser, new[]{ "GroupId", "UserId", "Udid" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.IsValidDeviceFamilyRequest), global::phoenix.IsValidDeviceFamilyRequest.Parser, new[]{ "GroupId", "Udid", "DeviceFamilyIds" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetUserDataRequest), global::phoenix.GetUserDataRequest.Parser, new[]{ "GroupId", "UserId" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetUserDataResponse), global::phoenix.GetUserDataResponse.Parser, new[]{ "DynamicData" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, })
+            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.IsValidDeviceFamilyRequest), global::phoenix.IsValidDeviceFamilyRequest.Parser, new[]{ "GroupId", "Udid", "DeviceFamilyIds" }, null, null, null, null)
           }));
     }
     #endregion
@@ -1184,15 +1186,492 @@ namespace phoenix {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public GetDomainDataResponse(GetDomainDataResponse other) : this() {
-      status_ = other.status_ != null ? other.status_.Clone() : null;
+      dlmId_ = other.dlmId_;
+      domainConcurrency_ = other.domainConcurrency_;
+      deviceFamilies_ = other.deviceFamilies_.Clone();
       domainId_ = other.domainId_;
-      domainData_ = other.domainData_ != null ? other.domainData_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public GetDomainDataResponse Clone() {
       return new GetDomainDataResponse(this);
+    }
+
+    /// <summary>Field number for the "dlmId" field.</summary>
+    public const int DlmIdFieldNumber = 1;
+    private int dlmId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int DlmId {
+      get { return dlmId_; }
+      set {
+        dlmId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "domainConcurrency" field.</summary>
+    public const int DomainConcurrencyFieldNumber = 2;
+    private int domainConcurrency_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int DomainConcurrency {
+      get { return domainConcurrency_; }
+      set {
+        domainConcurrency_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "deviceFamilies" field.</summary>
+    public const int DeviceFamiliesFieldNumber = 3;
+    private static readonly pb::FieldCodec<global::phoenix.deviceFamily> _repeated_deviceFamilies_codec
+        = pb::FieldCodec.ForMessage(26, global::phoenix.deviceFamily.Parser);
+    private readonly pbc::RepeatedField<global::phoenix.deviceFamily> deviceFamilies_ = new pbc::RepeatedField<global::phoenix.deviceFamily>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::RepeatedField<global::phoenix.deviceFamily> DeviceFamilies {
+      get { return deviceFamilies_; }
+    }
+
+    /// <summary>Field number for the "domainId" field.</summary>
+    public const int DomainIdFieldNumber = 4;
+    private long domainId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long DomainId {
+      get { return domainId_; }
+      set {
+        domainId_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as GetDomainDataResponse);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(GetDomainDataResponse other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (DlmId != other.DlmId) return false;
+      if (DomainConcurrency != other.DomainConcurrency) return false;
+      if(!deviceFamilies_.Equals(other.deviceFamilies_)) return false;
+      if (DomainId != other.DomainId) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (DlmId != 0) hash ^= DlmId.GetHashCode();
+      if (DomainConcurrency != 0) hash ^= DomainConcurrency.GetHashCode();
+      hash ^= deviceFamilies_.GetHashCode();
+      if (DomainId != 0L) hash ^= DomainId.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (DlmId != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(DlmId);
+      }
+      if (DomainConcurrency != 0) {
+        output.WriteRawTag(16);
+        output.WriteInt32(DomainConcurrency);
+      }
+      deviceFamilies_.WriteTo(output, _repeated_deviceFamilies_codec);
+      if (DomainId != 0L) {
+        output.WriteRawTag(32);
+        output.WriteInt64(DomainId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (DlmId != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(DlmId);
+      }
+      if (DomainConcurrency != 0) {
+        output.WriteRawTag(16);
+        output.WriteInt32(DomainConcurrency);
+      }
+      deviceFamilies_.WriteTo(ref output, _repeated_deviceFamilies_codec);
+      if (DomainId != 0L) {
+        output.WriteRawTag(32);
+        output.WriteInt64(DomainId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (DlmId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(DlmId);
+      }
+      if (DomainConcurrency != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(DomainConcurrency);
+      }
+      size += deviceFamilies_.CalculateSize(_repeated_deviceFamilies_codec);
+      if (DomainId != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(DomainId);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(GetDomainDataResponse other) {
+      if (other == null) {
+        return;
+      }
+      if (other.DlmId != 0) {
+        DlmId = other.DlmId;
+      }
+      if (other.DomainConcurrency != 0) {
+        DomainConcurrency = other.DomainConcurrency;
+      }
+      deviceFamilies_.Add(other.deviceFamilies_);
+      if (other.DomainId != 0L) {
+        DomainId = other.DomainId;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            DlmId = input.ReadInt32();
+            break;
+          }
+          case 16: {
+            DomainConcurrency = input.ReadInt32();
+            break;
+          }
+          case 26: {
+            deviceFamilies_.AddEntriesFrom(input, _repeated_deviceFamilies_codec);
+            break;
+          }
+          case 32: {
+            DomainId = input.ReadInt64();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            DlmId = input.ReadInt32();
+            break;
+          }
+          case 16: {
+            DomainConcurrency = input.ReadInt32();
+            break;
+          }
+          case 26: {
+            deviceFamilies_.AddEntriesFrom(ref input, _repeated_deviceFamilies_codec);
+            break;
+          }
+          case 32: {
+            DomainId = input.ReadInt64();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  public sealed partial class ValidateUserRequest : pb::IMessage<ValidateUserRequest>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<ValidateUserRequest> _parser = new pb::MessageParser<ValidateUserRequest>(() => new ValidateUserRequest());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<ValidateUserRequest> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::phoenix.HouseholdApiReflection.Descriptor.MessageTypes[6]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ValidateUserRequest() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ValidateUserRequest(ValidateUserRequest other) : this() {
+      groupId_ = other.groupId_;
+      userId_ = other.userId_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ValidateUserRequest Clone() {
+      return new ValidateUserRequest(this);
+    }
+
+    /// <summary>Field number for the "groupId" field.</summary>
+    public const int GroupIdFieldNumber = 1;
+    private int groupId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int GroupId {
+      get { return groupId_; }
+      set {
+        groupId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "userId" field.</summary>
+    public const int UserIdFieldNumber = 2;
+    private long userId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long UserId {
+      get { return userId_; }
+      set {
+        userId_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as ValidateUserRequest);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(ValidateUserRequest other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (GroupId != other.GroupId) return false;
+      if (UserId != other.UserId) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (GroupId != 0) hash ^= GroupId.GetHashCode();
+      if (UserId != 0L) hash ^= UserId.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (GroupId != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(GroupId);
+      }
+      if (UserId != 0L) {
+        output.WriteRawTag(16);
+        output.WriteInt64(UserId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (GroupId != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(GroupId);
+      }
+      if (UserId != 0L) {
+        output.WriteRawTag(16);
+        output.WriteInt64(UserId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (GroupId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(GroupId);
+      }
+      if (UserId != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(UserId);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(ValidateUserRequest other) {
+      if (other == null) {
+        return;
+      }
+      if (other.GroupId != 0) {
+        GroupId = other.GroupId;
+      }
+      if (other.UserId != 0L) {
+        UserId = other.UserId;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            GroupId = input.ReadInt32();
+            break;
+          }
+          case 16: {
+            UserId = input.ReadInt64();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            GroupId = input.ReadInt32();
+            break;
+          }
+          case 16: {
+            UserId = input.ReadInt64();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  public sealed partial class ValidateUserResponse : pb::IMessage<ValidateUserResponse>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<ValidateUserResponse> _parser = new pb::MessageParser<ValidateUserResponse>(() => new ValidateUserResponse());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<ValidateUserResponse> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::phoenix.HouseholdApiReflection.Descriptor.MessageTypes[7]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ValidateUserResponse() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ValidateUserResponse(ValidateUserResponse other) : this() {
+      status_ = other.status_ != null ? other.status_.Clone() : null;
+      domainId_ = other.domainId_;
+      dynamicData_ = other.dynamicData_.Clone();
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ValidateUserResponse Clone() {
+      return new ValidateUserResponse(this);
     }
 
     /// <summary>Field number for the "status" field.</summary>
@@ -1217,24 +1696,23 @@ namespace phoenix {
       }
     }
 
-    /// <summary>Field number for the "domainData" field.</summary>
-    public const int DomainDataFieldNumber = 3;
-    private global::phoenix.DomainData domainData_;
+    /// <summary>Field number for the "dynamicData" field.</summary>
+    public const int DynamicDataFieldNumber = 3;
+    private static readonly pbc::MapField<string, string>.Codec _map_dynamicData_codec
+        = new pbc::MapField<string, string>.Codec(pb::FieldCodec.ForString(10, ""), pb::FieldCodec.ForString(18, ""), 26);
+    private readonly pbc::MapField<string, string> dynamicData_ = new pbc::MapField<string, string>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::phoenix.DomainData DomainData {
-      get { return domainData_; }
-      set {
-        domainData_ = value;
-      }
+    public pbc::MapField<string, string> DynamicData {
+      get { return dynamicData_; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
-      return Equals(other as GetDomainDataResponse);
+      return Equals(other as ValidateUserResponse);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(GetDomainDataResponse other) {
+    public bool Equals(ValidateUserResponse other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
@@ -1243,7 +1721,7 @@ namespace phoenix {
       }
       if (!object.Equals(Status, other.Status)) return false;
       if (DomainId != other.DomainId) return false;
-      if (!object.Equals(DomainData, other.DomainData)) return false;
+      if (!DynamicData.Equals(other.DynamicData)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -1252,7 +1730,7 @@ namespace phoenix {
       int hash = 1;
       if (status_ != null) hash ^= Status.GetHashCode();
       if (DomainId != 0L) hash ^= DomainId.GetHashCode();
-      if (domainData_ != null) hash ^= DomainData.GetHashCode();
+      hash ^= DynamicData.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1277,10 +1755,7 @@ namespace phoenix {
         output.WriteRawTag(16);
         output.WriteInt64(DomainId);
       }
-      if (domainData_ != null) {
-        output.WriteRawTag(26);
-        output.WriteMessage(DomainData);
-      }
+      dynamicData_.WriteTo(output, _map_dynamicData_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -1298,10 +1773,7 @@ namespace phoenix {
         output.WriteRawTag(16);
         output.WriteInt64(DomainId);
       }
-      if (domainData_ != null) {
-        output.WriteRawTag(26);
-        output.WriteMessage(DomainData);
-      }
+      dynamicData_.WriteTo(ref output, _map_dynamicData_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -1317,9 +1789,7 @@ namespace phoenix {
       if (DomainId != 0L) {
         size += 1 + pb::CodedOutputStream.ComputeInt64Size(DomainId);
       }
-      if (domainData_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(DomainData);
-      }
+      size += dynamicData_.CalculateSize(_map_dynamicData_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -1327,7 +1797,7 @@ namespace phoenix {
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(GetDomainDataResponse other) {
+    public void MergeFrom(ValidateUserResponse other) {
       if (other == null) {
         return;
       }
@@ -1340,12 +1810,7 @@ namespace phoenix {
       if (other.DomainId != 0L) {
         DomainId = other.DomainId;
       }
-      if (other.domainData_ != null) {
-        if (domainData_ == null) {
-          DomainData = new global::phoenix.DomainData();
-        }
-        DomainData.MergeFrom(other.DomainData);
-      }
+      dynamicData_.Add(other.dynamicData_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -1372,10 +1837,7 @@ namespace phoenix {
             break;
           }
           case 26: {
-            if (domainData_ == null) {
-              DomainData = new global::phoenix.DomainData();
-            }
-            input.ReadMessage(DomainData);
+            dynamicData_.AddEntriesFrom(input, _map_dynamicData_codec);
             break;
           }
         }
@@ -1404,10 +1866,7 @@ namespace phoenix {
             break;
           }
           case 26: {
-            if (domainData_ == null) {
-              DomainData = new global::phoenix.DomainData();
-            }
-            input.ReadMessage(DomainData);
+            dynamicData_.AddEntriesFrom(ref input, _map_dynamicData_codec);
             break;
           }
         }
@@ -1429,7 +1888,7 @@ namespace phoenix {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::phoenix.HouseholdApiReflection.Descriptor.MessageTypes[6]; }
+      get { return global::phoenix.HouseholdApiReflection.Descriptor.MessageTypes[8]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1637,7 +2096,7 @@ namespace phoenix {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::phoenix.HouseholdApiReflection.Descriptor.MessageTypes[7]; }
+      get { return global::phoenix.HouseholdApiReflection.Descriptor.MessageTypes[9]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1800,7 +2259,7 @@ namespace phoenix {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::phoenix.HouseholdApiReflection.Descriptor.MessageTypes[8]; }
+      get { return global::phoenix.HouseholdApiReflection.Descriptor.MessageTypes[10]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2044,7 +2503,7 @@ namespace phoenix {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::phoenix.HouseholdApiReflection.Descriptor.MessageTypes[9]; }
+      get { return global::phoenix.HouseholdApiReflection.Descriptor.MessageTypes[11]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2258,375 +2717,6 @@ namespace phoenix {
           case 26:
           case 24: {
             deviceFamilyIds_.AddEntriesFrom(ref input, _repeated_deviceFamilyIds_codec);
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
-  public sealed partial class GetUserDataRequest : pb::IMessage<GetUserDataRequest>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<GetUserDataRequest> _parser = new pb::MessageParser<GetUserDataRequest>(() => new GetUserDataRequest());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pb::MessageParser<GetUserDataRequest> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::phoenix.HouseholdApiReflection.Descriptor.MessageTypes[10]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public GetUserDataRequest() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public GetUserDataRequest(GetUserDataRequest other) : this() {
-      groupId_ = other.groupId_;
-      userId_ = other.userId_;
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public GetUserDataRequest Clone() {
-      return new GetUserDataRequest(this);
-    }
-
-    /// <summary>Field number for the "groupId" field.</summary>
-    public const int GroupIdFieldNumber = 1;
-    private int groupId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int GroupId {
-      get { return groupId_; }
-      set {
-        groupId_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "userId" field.</summary>
-    public const int UserIdFieldNumber = 2;
-    private long userId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public long UserId {
-      get { return userId_; }
-      set {
-        userId_ = value;
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override bool Equals(object other) {
-      return Equals(other as GetUserDataRequest);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(GetUserDataRequest other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (GroupId != other.GroupId) return false;
-      if (UserId != other.UserId) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (GroupId != 0) hash ^= GroupId.GetHashCode();
-      if (UserId != 0L) hash ^= UserId.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (GroupId != 0) {
-        output.WriteRawTag(8);
-        output.WriteInt32(GroupId);
-      }
-      if (UserId != 0L) {
-        output.WriteRawTag(16);
-        output.WriteInt64(UserId);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (GroupId != 0) {
-        output.WriteRawTag(8);
-        output.WriteInt32(GroupId);
-      }
-      if (UserId != 0L) {
-        output.WriteRawTag(16);
-        output.WriteInt64(UserId);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int CalculateSize() {
-      int size = 0;
-      if (GroupId != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(GroupId);
-      }
-      if (UserId != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(UserId);
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(GetUserDataRequest other) {
-      if (other == null) {
-        return;
-      }
-      if (other.GroupId != 0) {
-        GroupId = other.GroupId;
-      }
-      if (other.UserId != 0L) {
-        UserId = other.UserId;
-      }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 8: {
-            GroupId = input.ReadInt32();
-            break;
-          }
-          case 16: {
-            UserId = input.ReadInt64();
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 8: {
-            GroupId = input.ReadInt32();
-            break;
-          }
-          case 16: {
-            UserId = input.ReadInt64();
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
-  public sealed partial class GetUserDataResponse : pb::IMessage<GetUserDataResponse>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<GetUserDataResponse> _parser = new pb::MessageParser<GetUserDataResponse>(() => new GetUserDataResponse());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pb::MessageParser<GetUserDataResponse> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::phoenix.HouseholdApiReflection.Descriptor.MessageTypes[11]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public GetUserDataResponse() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public GetUserDataResponse(GetUserDataResponse other) : this() {
-      dynamicData_ = other.dynamicData_.Clone();
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public GetUserDataResponse Clone() {
-      return new GetUserDataResponse(this);
-    }
-
-    /// <summary>Field number for the "dynamicData" field.</summary>
-    public const int DynamicDataFieldNumber = 1;
-    private static readonly pbc::MapField<string, string>.Codec _map_dynamicData_codec
-        = new pbc::MapField<string, string>.Codec(pb::FieldCodec.ForString(10, ""), pb::FieldCodec.ForString(18, ""), 10);
-    private readonly pbc::MapField<string, string> dynamicData_ = new pbc::MapField<string, string>();
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public pbc::MapField<string, string> DynamicData {
-      get { return dynamicData_; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override bool Equals(object other) {
-      return Equals(other as GetUserDataResponse);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(GetUserDataResponse other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (!DynamicData.Equals(other.DynamicData)) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override int GetHashCode() {
-      int hash = 1;
-      hash ^= DynamicData.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      dynamicData_.WriteTo(output, _map_dynamicData_codec);
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      dynamicData_.WriteTo(ref output, _map_dynamicData_codec);
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int CalculateSize() {
-      int size = 0;
-      size += dynamicData_.CalculateSize(_map_dynamicData_codec);
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(GetUserDataResponse other) {
-      if (other == null) {
-        return;
-      }
-      dynamicData_.Add(other.dynamicData_);
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 10: {
-            dynamicData_.AddEntriesFrom(input, _map_dynamicData_codec);
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 10: {
-            dynamicData_.AddEntriesFrom(ref input, _map_dynamicData_codec);
             break;
           }
         }

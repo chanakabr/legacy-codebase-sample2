@@ -26,6 +26,14 @@ namespace Grpc.controllers
             return Task.FromResult(response);
         }
 
+        public override Task<ValidateUserResponse> ValidateUser(ValidateUserRequest request, ServerCallContext context)
+        {
+            var response = _householdService.ValidateUser(request);
+            var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
+            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return Task.FromResult(response);
+        }
+
         public override Task<GetDomainDataResponse> GetDomainData(GetDomainDataRequest request,
             ServerCallContext context)
         {
@@ -68,16 +76,6 @@ namespace Grpc.controllers
             ServerCallContext context)
         {
             return Task.FromResult(new BoolValue {Value = _householdService.IsValidDeviceFamily(request)});
-        }
-        
-        public override Task<GetUserDataResponse> GetUserData(
-            GetUserDataRequest request,
-            ServerCallContext context)
-        {
-            var response = _householdService.GetUserData(request);
-            var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
-            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
-            return Task.FromResult(response);
         }
     }
 }

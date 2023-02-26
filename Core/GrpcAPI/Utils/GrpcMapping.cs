@@ -570,12 +570,6 @@ namespace GrpcAPI.Utils
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
                 .ReverseMap();
 
-            cfg.CreateMap<Core.Users.DeviceContainer, deviceFamilyData>()
-                .ForMember(dest => dest.FamilyId, opt => opt.MapFrom(src => src.m_deviceFamilyID))
-                .ForMember(dest => dest.Concurrency, opt => opt.MapFrom(src => src.m_oLimitationsManager.Concurrency))
-                .ForMember(dest => dest.Udids,
-                    opt => opt.MapFrom(src => src.DeviceInstances.Select(d => d.m_deviceUDID)));
-
             cfg.CreateMap<ApiObjects.TimeShiftedTv.Recording, Recording>()
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
