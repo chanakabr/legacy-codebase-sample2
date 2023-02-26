@@ -1,0 +1,12 @@
+account: "869715032477"
+region: eu-west-3
+cluster_name: bgt1
+destination_cluster: https://4FB3668304D541824CDEB6ED0D18E2B3.sk1.eu-west-3.eks.amazonaws.com
+branch: master
+
+# TCM Config for all components
+tcm_from_local: "false"
+tcm_url: http://ktcm
+tcm_app: OTT_API_SV
+tcm_section: main
+tcm_host: MS

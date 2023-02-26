@@ -6884,6 +6884,11 @@ namespace Core.Catalog
                             string.Join("|", unifiedSearchDefinitions.assetUserRuleIds.OrderBy(r => r)));
                     }
 
+                    if ((unifiedSearchDefinitions.regionIds?.Any()).GetValueOrDefault())
+                    {
+                        cacheKey.Append($"_rgs={string.Join("|", unifiedSearchDefinitions.regionIds.OrderBy(r => r))}");
+                    }
+
                     key = cacheKey.ToString();
                 }
             }

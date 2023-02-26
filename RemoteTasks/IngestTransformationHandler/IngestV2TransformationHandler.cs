@@ -93,6 +93,7 @@ namespace IngestTransformationHandler
                     _bulkUpload.Results.ForEach(r => r.Status = BulkUploadResultStatus.Error);
                     SendIngestPartCompleted();
                     UpdateBulkUpload(BulkUploadJobStatus.Failed);
+                    return Task.CompletedTask;
                 }
 
                 _bulkUpload.Results = result.Objects.Cast<BulkUploadResult>().ToList();
