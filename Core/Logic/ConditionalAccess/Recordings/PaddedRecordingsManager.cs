@@ -651,9 +651,7 @@ namespace Core.Recordings
             int? recordingLifetime = accountSettings.RecordingLifetimePeriod;
             DateTime? viewableUntilDate = null;
             if (recordingLifetime.HasValue)
-            {
                 viewableUntilDate = endDate.AddDays(recordingLifetime.Value);
-            }
 
             // for private copy we always issue a recording            
             //Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(groupId, epgId);
@@ -772,7 +770,7 @@ namespace Core.Recordings
 
             if (program != null && recording != null)
             {
-                parameters["recording"] = RecordingsUtils.BuildRecordingFromTBRecording(groupId, recording, program);
+                parameters["recording"] = RecordingsUtils.BuildRecordingFromTBRecording(groupId, recording, program, null);
             }
 
             return success;
@@ -935,7 +933,7 @@ namespace Core.Recordings
                 var hhRecording = _repository.GetHouseholdRecordingById(contextData.GroupId, householdRecordingId,
                     contextData.DomainId ?? 0, DomainRecordingStatus.OK.ToString());
 
-                if (hhRecording == null)
+                if (hhRecording == null || hhRecording.Id == 0)
                 {
                     recording.SetStatus((int)eResponseStatus.NotAllowed,
                         "Program is not being recorded");
@@ -1070,9 +1068,9 @@ namespace Core.Recordings
                 //5. Update HH ref to the new permutation
                 var newHhRecording = UpdateHouseholdRecording(contextData.GroupId, householdRecordingId,
                     contextData.DomainId ?? 0, hhRecording.RecordingKey, newRecordingKey,
-                    hhRecording.Status, DomainRecordingStatus.OK.ToString());
+                    hhRecording.Status, DomainRecordingStatus.OK.ToString(), true);
 
-                if (newHhRecording == null)
+                if (newHhRecording == null || newHhRecording.Id == 0)
                 {
                     log.Error(
                         $"Couldn't update recording with key: {newRecordingKey} for hh: {contextData.DomainId ?? 0}");
@@ -1119,7 +1117,9 @@ namespace Core.Recordings
                 if (recording.Object == null && program != null)
                 {
                     if (timeBasedRecording == null)
+                    {
                         timeBasedRecording = _repository.GetRecordingByKey(contextData.GroupId, newRecordingKey);
+                    }
 
                     recording.Object = RecordingsUtils.BuildRecordingFromTBRecording(contextData.GroupId, timeBasedRecording, program,
                         newHhRecording);
@@ -1469,15 +1469,16 @@ namespace Core.Recordings
         }
 
         private HouseholdRecording UpdateHouseholdRecording(int partnerId, long hhRecordingId, long householdId,
-            string oldKey, string newKey, string oldStatus, string newStatus = null)
+            string oldKey, string newKey, string oldStatus, string newStatus = null, bool isStopped = false)
         {
             var currentHhRecording = _repository.GetHouseholdRecording(partnerId, oldKey, householdId);
-            if (currentHhRecording == null)
+            if (currentHhRecording == null || currentHhRecording.Id == 0)
                 return null;
 
             /*Modify current*/
             currentHhRecording.RecordingKey = newKey;
             currentHhRecording.Status = newStatus ?? oldStatus;
+            currentHhRecording.IsStopped = isStopped;
 
             if (!_repository.UpdateHouseholdRecording(partnerId, currentHhRecording))
             {

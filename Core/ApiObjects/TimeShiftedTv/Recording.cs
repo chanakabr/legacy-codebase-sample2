@@ -51,6 +51,7 @@ namespace ApiObjects.TimeShiftedTv
         public DateTime? AbsoluteEndTime { get; set; }
         public long? Duration { get; set; }
 
+
         public Recording()
         {
             Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -112,6 +113,5 @@ namespace ApiObjects.TimeShiftedTv
 
             return sb.ToString();
         }
-
     }
 }

@@ -16,10 +16,13 @@ namespace ApiObjects.Recordings
         public long ProtectedUntilEpoch { get; set; }
         public long EpgChannelId { get; set; }
         public bool ScheduledSaved { get; set; }
+        public bool IsStopped { get; set; }
         
         public DateTime __updated { get; set; }
         
-        public HouseholdRecording(long userId, long householdId, long epgId, string recordingKey, string status, string recordingType, DateTime createDate, DateTime updateDate, long? protectedUntilEpoch, long epgChannelId, bool scheduledSaved)
+        public HouseholdRecording(long userId, long householdId, long epgId, string recordingKey, string status, 
+            string recordingType, DateTime createDate, DateTime updateDate, long? protectedUntilEpoch, long epgChannelId, 
+            bool scheduledSaved, bool isStopped = false)
         {
             UserId = userId;
             HouseholdId = householdId;
@@ -37,6 +40,7 @@ namespace ApiObjects.Recordings
 
             EpgChannelId = epgChannelId;
             ScheduledSaved = scheduledSaved;
+            IsStopped = isStopped;
         }
     }
 }

@@ -303,9 +303,10 @@ namespace Core.Recordings
                     recordingId, groupId);
         }
 
-        public static Recording BuildRecordingFromTBRecording(int groupId, TimeBasedRecording timeBasedRecording, Program program, HouseholdRecording householdRecording = null)
+        public static Recording BuildRecordingFromTBRecording(int groupId, TimeBasedRecording timeBasedRecording, 
+            Program program, HouseholdRecording householdRecording = null)
         {
-            Recording recording = new Recording()
+            var recording = new Recording()
             {
                 Id = householdRecording?.Id ?? timeBasedRecording.Id,
                 Status = new Status(eResponseStatus.OK),
@@ -345,7 +346,14 @@ namespace Core.Recordings
             {
                 recordingStatus = (TstvRecordingStatus)Enum.Parse(typeof(TstvRecordingStatus), timeBasedRecording.Status);  //fix "Scheduled" value TODO: change the enum received 
             }
-
+            
+            //BEO-13622
+            var isStopped = householdRecording?.IsStopped ?? false;
+            if (isStopped && recordingStatus == TstvRecordingStatus.Recording)
+            {
+                recordingStatus = TstvRecordingStatus.Recorded;
+            }
+            
             if (recordingStatus.HasValue)
             {
                 recording.RecordingStatus = recordingStatus.Value;
