@@ -17,6 +17,7 @@ namespace DAL.Recordings
     {
         TimeBasedRecording GetRecordingByKey(int partnerId, string key);
         TimeBasedRecording GetRecordingById(int partnerId, long id);
+        TimeBasedRecording GetRecordingByExternalId(int partnerId, string id);
         List<TimeBasedRecording> GetRecordingsByKeys(int partnerId, List<string> Keys);
         List<TimeBasedRecording> GetRecordingsByEpgId(int partnerId, long epgId);
 
@@ -162,6 +163,14 @@ namespace DAL.Recordings
             var factory = _recordingsService.NewMongoDbClient(partnerId, log);
             return factory
                 .Find<TimeBasedRecording>(RecordingsDbProperties.RECORDINGS_COLLECTION, f => f.Eq(r => r.Id, id))
+                .SingleOrDefault();
+        }
+        
+        public TimeBasedRecording GetRecordingByExternalId(int partnerId, string id)
+        {
+            var factory = _recordingsService.NewMongoDbClient(partnerId, log);
+            return factory
+                .Find<TimeBasedRecording>(RecordingsDbProperties.RECORDINGS_COLLECTION, f => f.Eq(r => r.ExternalId, id))
                 .SingleOrDefault();
         }
 

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ApiLogic.Catalog.Services;
 using ApiObjects.Base;
 using ApiObjects.TimeShiftedTv;
 using AutoMapper;
@@ -416,6 +417,7 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
+
                 // call client                
                 response = ClientsManager.ConditionalAccessClient().ProtectRecord(groupId, userId, id);
             }

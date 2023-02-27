@@ -3565,7 +3565,7 @@ namespace Core.Catalog
             return Update(longIds, groupId, updatedObjectType, action);
         }
 
-        private static bool Update(List<long> ids, int groupId, eObjectType updatedObjectType, eAction action, bool isUseKronos = false)
+        private static bool Update(List<long> ids, int groupId, eObjectType updatedObjectType, eAction action, bool isAsync = false)
         {
             bool isUpdateIndexSucceeded = false;
 
@@ -3585,9 +3585,9 @@ namespace Core.Catalog
 
                 if (doesGroupUsesTemplates || group != null)
                 {
-                    if (isUseKronos)
+                    if (isAsync)
                     {
-                        IndexRecordingMessageService.PublishKafkaEvent(groupIdForCelery, ids, action);
+                        IndexRecordingMessageService.PublishIndexRecordingKafkaEvent(groupIdForCelery, ids, action);
                     }
                     else
                     {

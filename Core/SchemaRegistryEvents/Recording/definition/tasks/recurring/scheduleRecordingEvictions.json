@@ -5,6 +5,7 @@
   "type": "object",
   "description": "scheduled recording evictions send evacuateRecording event for all expired recording in the next hour (to free the quota)",
   "x-recurrence-cron-expression": "@every 1h",
+  "x-recurrence-task-timeout-seconds": "600",
   "allOf": [
     {
       "$ref": "ott-schema-registry/tasks/recurring/scheduleRecordingEvictions"

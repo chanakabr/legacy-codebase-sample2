@@ -1714,6 +1714,16 @@ namespace Core.Recordings
             return returnStatus;
         }
 
+        public TimeBasedRecording GetRecordingByExternalId(int partnerId, string recordingExternalId)
+        {
+            return _repository.GetRecordingByExternalId(partnerId, recordingExternalId);
+        }
+        
+        public bool UpdateRecordingStatus(int partnerId, long recordingId, RecordingInternalStatus status)
+        {
+            return _repository.UpdateRecordingStatus(partnerId, recordingId, status.ToString());
+        }
+        
         public Status GetRecordingStatus(int partnerId, long recordingId)
         {
             Status returnStatus = new Status((int)eResponseStatus.OK);
