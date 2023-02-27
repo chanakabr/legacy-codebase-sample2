@@ -18291,8 +18291,7 @@ namespace Core.ConditionalAccess
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 totalSubscriptionsToRenew = dt.Rows.Count;
-                bool isKronos = PhoenixFeatureFlagInstance.Get().IsRenewUseKronos();
-
+                
                 foreach (DataRow dr in dt.Rows)
                 {
                     long purchaseId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
@@ -18311,21 +18310,12 @@ namespace Core.ConditionalAccess
                                                         endDateUnix, nextRenewalDate);
 
                         var enqueueSuccessful = true;
-                      
-                        if (isKronos)
-                        {
-                            ConditionalAccessDAL.Insert_SubscriptionsPurchasesKronos(purchaseId);
-                            
-                            log.Debug($"Kronos - Renew purchaseID:{purchaseId}");
-                            RenewManager.addEventToKronos(groupId, data);
-                        }
-                        else
-                        {
+                        
                             // enqueue renew transaction
-                            var queue = new RenewTransactionsQueue();
-                            enqueueSuccessful &= queue.Enqueue(data,
-                                string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
-                        }
+                        var queue = new RenewTransactionsQueue();
+                        enqueueSuccessful &= queue.Enqueue(data,
+                            string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+                        
 
                         if (enqueueSuccessful)
                         {
