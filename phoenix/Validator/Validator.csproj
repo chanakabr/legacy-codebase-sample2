@@ -9,13 +9,17 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
     <PostBuildEvent>dotnet $(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\Validator.dll</PostBuildEvent>
   </PropertyGroup>
+  
+  <PropertyGroup Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' ">
+    <PostBuildEvent>dotnet $(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/Validator.dll</PostBuildEvent>
+  </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
-    <PostBuildEvent>/usr/local/share/dotnet/x64/dotnet $(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\Validator.dll</PostBuildEvent>
+  <PropertyGroup Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' ">
+    <PostBuildEvent>/usr/local/share/dotnet/x64/dotnet $(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/Validator.dll</PostBuildEvent>
   </PropertyGroup>
 
   <ItemGroup>
