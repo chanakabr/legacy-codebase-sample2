@@ -28,8 +28,6 @@ namespace Core.Catalog.Request
         [DataMember]
         public OrderObj m_oOrderObj;
         [DataMember]
-        public IReadOnlyCollection<AssetOrder> orderingParameters;
-        [DataMember]
         public string m_sMediaType;
         [DataMember]
         public bool isAllowedToViewInactiveAssets;
