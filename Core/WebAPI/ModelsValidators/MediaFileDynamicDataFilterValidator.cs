@@ -7,7 +7,7 @@ namespace WebAPI.ModelsValidators
     {
         internal static void Validate(this KalturaMediaFileDynamicDataFilter model, string argumentName)
         {
-            if (!string.IsNullOrEmpty(model.IdIn) && !model.MediaFileTypeId.HasValue)
+            if (!string.IsNullOrEmpty(model.IdIn) && model.MediaFileTypeId.HasValue)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
                     $"{nameof(KalturaMediaFileDynamicDataFilter)}.{nameof(KalturaMediaFileDynamicDataFilter.IdIn)}",
