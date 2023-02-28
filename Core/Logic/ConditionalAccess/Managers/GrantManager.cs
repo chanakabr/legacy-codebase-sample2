@@ -362,11 +362,11 @@ namespace Core.ConditionalAccess
 
                         var data = new RenewTransactionData(groupId, userId, purchaseID, billingGuid,
                             TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds((DateTime)endDate), nextRenewalDate);
-                        if (PhoenixFeatureFlagInstance.Get().IsRenewUseKronos())
+                        if (PhoenixFeatureFlagInstance.Get().IsRenewUseKronosPog())
                         {
                             ConditionalAccessDAL.Insert_SubscriptionsPurchasesKronos(purchaseID);
                             
-                            log.Debug($"Kronos - Renew purchaseID:{purchaseID}");
+                            log.Info($"Kronos - Renew purchaseID:{purchaseID}");
                             RenewManager.addEventToKronos(groupId, data);
                         }
                         else

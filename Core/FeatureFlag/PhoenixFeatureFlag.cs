@@ -23,6 +23,7 @@ namespace FeatureFlag
         //public bool IsUdidDynamicListAsExcelEnabled(int groupId) => _featureFlag.Enabled("dynamicList.format", GetUser(groupId));
         public bool IsStrictUnlockDisabled() => _featureFlag.Enabled("distributedlock.strict-unlock-disabled", GetUser());
         public bool IsEfficientSerializationUsed() =>_featureFlag.Enabled("is-efficient-serialization-used", GetUser());
+        public bool IsRenewUseKronosPog() => _featureFlag.Enabled("is-renew-use-kronos-pog", GetUser(null));
         public bool IsRenewUseKronos() => _featureFlag.Enabled("is-renew-use-kronos", GetUser(null));
         public bool IsUnifiedRenewUseKronos() => _featureFlag.Enabled("is-unified-renew-use-kronos", GetUser());
         public bool IsRenewalReminderUseKronos() => _featureFlag.Enabled("is-renew-reminder-use-kronos", GetUser());

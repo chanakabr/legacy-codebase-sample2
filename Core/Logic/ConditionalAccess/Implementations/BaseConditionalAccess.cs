@@ -12400,7 +12400,7 @@ namespace Core.ConditionalAccess
 
                                             // enqueue renew transaction
                                             bool enqueueSuccessful = PurchaseManager.RenewTransactionMessageInQueue(m_nGroupID, siteguid,
-                                                billingGuid, purchaseID, endDateUnix, nextRenewalDate);
+                                                billingGuid, purchaseID, endDateUnix, nextRenewalDate, PhoenixFeatureFlagInstance.Get().IsRenewUseKronos());
                                         }
                                         catch (Exception ex)
                                         {
@@ -13404,7 +13404,7 @@ namespace Core.ConditionalAccess
                                         {
                                             ConditionalAccessDAL.Insert_SubscriptionsPurchasesKronos(purchaseID);
                                             
-                                            log.Debug($"Kronos - Renew purchaseID:{purchaseID}");
+                                            log.Info($"Kronos - Renew purchaseID:{purchaseID}");
                                             RenewManager.addEventToKronos(groupId, data);
                                         }
                                         else

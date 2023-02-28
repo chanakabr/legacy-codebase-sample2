@@ -9880,7 +9880,7 @@ namespace Core.ConditionalAccess
 
             if (isKronos)
             {
-                log.Debug($"Kronos - RenewUnified processId:{processId}");
+                log.Info($"Kronos - RenewUnified processId:{processId}");
                 RenewManager.addEventToKronos(groupId, data);
             }
             else

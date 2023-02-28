@@ -1513,7 +1513,7 @@ namespace Core.ConditionalAccess
                                         else if (subscriptionCycle.UnifiedBillingCycle == null || ((entitleToPreview || !string.IsNullOrEmpty(couponCode)) && !isNew))
                                         {
                                             // insert regular message 
-                                            RenewTransactionMessageInQueue(contextData.GroupId, userId, billingGuid, purchaseID, endDateUnix, nextRenewalDate, householdId);
+                                            RenewTransactionMessageInQueue(contextData.GroupId, userId, billingGuid, purchaseID, endDateUnix, nextRenewalDate,PhoenixFeatureFlagInstance.Get().IsRenewUseKronosPog(), householdId);
                                         }
 
                                         //else do nothing, message already exists
@@ -1655,7 +1655,7 @@ namespace Core.ConditionalAccess
                         endDateUnix, eta, eSubscriptionRenewRequestType.RenewalReminder);
                          if (PhoenixFeatureFlagInstance.Get().IsRenewalReminderUseKronos())
                          {
-                             log.Debug($"Kronos - RenewalReminder purchaseID:{purchaseId}");
+                             log.Info($"Kronos - RenewalReminder purchaseID:{purchaseId}");
                              RenewManager.addEventToKronos(groupId, data);
                          }
                          else
@@ -1719,7 +1719,7 @@ namespace Core.ConditionalAccess
 
                             if (PhoenixFeatureFlagInstance.Get().IsRenewalReminderUseKronos())
                             {
-                                log.Debug($"Kronos - RenewalReminder purchaseID:{data.purchaseId}");
+                                log.Info($"Kronos - RenewalReminder purchaseID:{data.purchaseId}");
                                 RenewManager.addEventToKronos(groupId, data);
                             }
                             else
@@ -1802,15 +1802,15 @@ namespace Core.ConditionalAccess
         }
 
         public static bool RenewTransactionMessageInQueue(int groupId, string siteguid, string billingGuid,
-            long purchaseID, long endDateUnix, DateTime nextRenewalDate, long householdId = 0)
+            long purchaseID, long endDateUnix, DateTime nextRenewalDate,bool isKronos, long householdId = 0)
         {
             RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseID, billingGuid, endDateUnix, nextRenewalDate);
 
-            if (PhoenixFeatureFlagInstance.Get().IsRenewUseKronos())
+            if (isKronos)
             {
                 ConditionalAccessDAL.Insert_SubscriptionsPurchasesKronos(purchaseID);
                 
-                log.Debug($"Kronos - Renewal purchaseID:{purchaseID}");
+                log.Info($"Kronos - Renewal purchaseID:{purchaseID}");
                 RenewManager.addEventToKronos(groupId, data);
             }
             else

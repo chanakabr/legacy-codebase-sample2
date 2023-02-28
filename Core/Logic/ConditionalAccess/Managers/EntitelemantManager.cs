@@ -474,7 +474,7 @@ namespace Core.ConditionalAccess
                                     {
                                         ConditionalAccessDAL.Insert_SubscriptionsPurchasesKronos(subscriptionEntitlement.purchaseID);
                                         
-                                        log.Debug($"Kronos - Renew purchaseID:{subscriptionEntitlement.purchaseID}");
+                                        log.Info($"Kronos - Renew purchaseID:{subscriptionEntitlement.purchaseID}");
                                         RenewManager.addEventToKronos(groupId, data);
                                     }
                                     else
@@ -1582,7 +1582,7 @@ namespace Core.ConditionalAccess
 
                             long endDateUnix = DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate);
 
-                            PurchaseManager.RenewTransactionMessageInQueue(groupId, siteGuid, billingGuid, purchaseId, endDateUnix, nextRenewalDate, houseHoldId);
+                            PurchaseManager.RenewTransactionMessageInQueue(groupId, siteGuid, billingGuid, purchaseId, endDateUnix, nextRenewalDate, PhoenixFeatureFlagInstance.Get().IsRenewUseKronos() ,houseHoldId);
 
                         }
                     }
