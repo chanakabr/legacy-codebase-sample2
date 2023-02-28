@@ -11,7 +11,7 @@ namespace WebAPI.ModelsValidators
     using ConditionsMap = ILookup<KalturaRuleConditionType, KalturaCondition>;
     public static class AssetRuleValidator
     {
-        private static readonly Dictionary<KalturaRuleConditionType, Func<ConditionsMap, HashSet<KalturaRuleActionType>>> 
+        private static readonly Dictionary<KalturaRuleConditionType, Func<ConditionsMap, HashSet<KalturaRuleActionType>>>
             AllowedConditionsToRelationValidationsFunc = new Dictionary<KalturaRuleConditionType, Func<ConditionsMap, HashSet<KalturaRuleActionType>>>()
             {
                 { KalturaRuleConditionType.COUNTRY, ValidateCountryConditionRelations },
@@ -23,7 +23,7 @@ namespace WebAPI.ModelsValidators
                 { KalturaRuleConditionType.HEADER, NoValidation },
                 { KalturaRuleConditionType.USER_SESSION_PROFILE, ValidateUserSessionProfileConditionRelations },
             };
-        
+
         public static void Validate(this KalturaAssetRule model)
         {
             if (model.Conditions == null || model.Conditions.Count == 0)
@@ -53,7 +53,7 @@ namespace WebAPI.ModelsValidators
 
             model.ValidateActions(allowedActions);
         }
-        
+
         private static HashSet<KalturaRuleActionType> NoValidation(ConditionsMap existConditions) => null;
 
         private static HashSet<KalturaRuleActionType> ValidateCountryConditionRelations(ConditionsMap existConditions)
@@ -142,12 +142,6 @@ namespace WebAPI.ModelsValidators
             if (model.Actions == null)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "actions");
-            }
-
-            var duplicates = model.Actions.GroupBy(x => x.Type).Count(t => t.Count() >= 2);
-            if (duplicates > 1)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "actions");
             }
 
             if (allowedActions != null)
