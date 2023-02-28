@@ -2754,7 +2754,7 @@ namespace Core.Users
                     if (devicesToRemove.Count > 0)
                     {
                         var devicesIdsToRemove = devicesToRemove.Select(x => int.Parse(x.m_id)).ToList();
-                        if (DomainDal.SetDevicesDomainUnActive(this.m_nDomainID, devicesIdsToRemove) == 0)
+                        if (DomainDal.SetDevicesDomainUnActive(this.m_nDomainID, devicesIdsToRemove, DomainDevice.DeletedDeviceStatus) == 0)
                         {
                             dlmObjectToChange.resp = new ApiObjects.Response.Status((int) eResponseStatus.Error, string.Empty);
                             return false;

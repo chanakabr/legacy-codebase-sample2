@@ -1937,14 +1937,16 @@ namespace DAL
             return devicesChange;
         }
 
-        public static int SetDevicesDomainUnActive(int domainID, List<int> devicesID)
+        public static int SetDevicesDomainUnActive(int domainID, List<int> devicesID, int? status)
         {
             List<string> devicesChange = new List<string>();
             StoredProcedure sp = new StoredProcedure("SetDevicesDomainUnActive");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@domainID", domainID);
             sp.AddIDListParameter<int>("@devicesID", devicesID, "Id");
-
+            if (status.HasValue)
+                sp.AddParameter("@status", status.Value);
+            
             return sp.ExecuteReturnValue<int>();
         }
         
