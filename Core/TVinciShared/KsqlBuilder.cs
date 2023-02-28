@@ -11,6 +11,14 @@ namespace TVinciShared
         public KsqlBuilder Equal<T>(string field, T value)
         {
             Op(field, "=", value);
+
+            return this;
+        }
+
+        public KsqlBuilder In(string field, IEnumerable<long> values)
+        {
+            Op(field, ":", string.Join(",", values));
+
             return this;
         }
 
@@ -26,22 +34,10 @@ namespace TVinciShared
             return this;
         }
 
-        public KsqlBuilder Values<T>(Func<string, T, KsqlBuilder> fn, string field, IEnumerable<T> values)
-        {
-            foreach (var value in values)
-            {
-                fn(field, value);
-            }
-
-            return this;
-        }
-
-        private KsqlBuilder Op<T>(string field, string op, T value)
+        private void Op<T>(string field, string op, T value)
         {
             AppendSpaceIfRequired();
             _builder.Append(field).Append(op).Append("'").Append(value).Append("'");
-
-            return this;
         }
 
         public KsqlBuilder Or(Action<KsqlBuilder> action)
@@ -50,16 +46,21 @@ namespace TVinciShared
             _builder.Append("(or");
             action(this);
             _builder.Append(")");
-
             return this;
         }
-
         public KsqlBuilder And(Action<KsqlBuilder> action)
         {
             AppendSpaceIfRequired();
             _builder.Append("(and");
             action(this);
             _builder.Append(")");
+            return this;
+        }
+
+        public KsqlBuilder RawKSql(string kSql)
+        {
+            AppendSpaceIfRequired();
+            _builder.Append(kSql);
 
             return this;
         }

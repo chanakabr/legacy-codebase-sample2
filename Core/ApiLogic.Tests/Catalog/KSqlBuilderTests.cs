@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using ApiLogic.Catalog.NextEpisode;
+using ApiLogic.Catalog;
 using NUnit.Framework;
 using TVinciShared;
 

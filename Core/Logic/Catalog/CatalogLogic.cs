@@ -110,6 +110,8 @@ namespace Core.Catalog
         public static readonly string RECORDING_ID = "recording_id";
         public static readonly string EPG_CHANNEL_ID = "epg_channel_id";
         public static readonly string ASSET_TYPE = "asset_type";
+        public static readonly string MEDIA_ASSET_TYPE = "media";
+        public static readonly string EPG_ASSET_TYPE = "epg";
         public static readonly string EXTERNAL_OFFER_ID = "external_offer_id";
         public static readonly string EXTERNAL_OFFER_IDS = "external_offer_ids";
 
