@@ -32,25 +32,24 @@ namespace phoenix {
             "dXNlcklkGAIgASgDIj8KGkdldFN1c3BlbnNpb25TdGF0dXNSZXF1ZXN0Eg8K",
             "B2dyb3VwSWQYASABKAUSEAoIZG9tYWluSWQYAiABKAMiPgobR2V0U3VzcGVu",
             "c2lvblN0YXR1c1Jlc3BvbnNlEh8KBlN0YXR1cxgBIAEoCzIPLnBob2VuaXgu",
-            "U3RhdHVzIkkKFEdldERvbWFpbkRhdGFSZXF1ZXN0Eg8KB2dyb3VwSWQYASAB",
-            "KAUSDgoGdXNlcklkGAIgASgDEhAKCGRvbWFpbklkGAMgASgDIoIBChVHZXRE",
-            "b21haW5EYXRhUmVzcG9uc2USDQoFZGxtSWQYASABKAUSGQoRZG9tYWluQ29u",
-            "Y3VycmVuY3kYAiABKAUSLQoOZGV2aWNlRmFtaWxpZXMYAyADKAsyFS5waG9l",
-            "bml4LmRldmljZUZhbWlseRIQCghkb21haW5JZBgEIAEoAyI2ChNWYWxpZGF0",
-            "ZVVzZXJSZXF1ZXN0Eg8KB2dyb3VwSWQYASABKAUSDgoGdXNlcklkGAIgASgD",
-            "IsIBChRWYWxpZGF0ZVVzZXJSZXNwb25zZRIfCgZzdGF0dXMYASABKAsyDy5w",
-            "aG9lbml4LlN0YXR1cxIQCghkb21haW5JZBgCIAEoAxJDCgtkeW5hbWljRGF0",
-            "YRgDIAMoCzIuLnBob2VuaXguVmFsaWRhdGVVc2VyUmVzcG9uc2UuRHluYW1p",
-            "Y0RhdGFFbnRyeRoyChBEeW5hbWljRGF0YUVudHJ5EgsKA2tleRgBIAEoCRIN",
-            "CgV2YWx1ZRgCIAEoCToCOAEiWQo3R2V0TWVkaWFDb25jdXJyZW5jeVJ1bGVz",
-            "QnlEb21haW5MaW1pdGF0aW9uTW9kdWxlUmVxdWVzdBIPCgdHcm91cElkGAEg",
-            "ASgFEg0KBWRsbUlkGAIgASgFIkcKOEdldE1lZGlhQ29uY3VycmVuY3lSdWxl",
-            "c0J5RG9tYWluTGltaXRhdGlvbk1vZHVsZVJlc3BvbnNlEgsKA2lkcxgBIAMo",
-            "BSJJChhJc0RldmljZVBsYXlWYWxpZFJlcXVlc3QSDwoHZ3JvdXBJZBgBIAEo",
-            "BRIOCgZ1c2VySWQYAiABKAMSDAoEVWRpZBgDIAEoCSJUChpJc1ZhbGlkRGV2",
-            "aWNlRmFtaWx5UmVxdWVzdBIPCgdncm91cElkGAEgASgFEgwKBHVkaWQYAiAB",
-            "KAkSFwoPZGV2aWNlRmFtaWx5SWRzGAMgAygFQhRaCC4vbW9kZWxzqgIHcGhv",
-            "ZW5peGIGcHJvdG8z"));
+            "U3RhdHVzIjkKFEdldERvbWFpbkRhdGFSZXF1ZXN0Eg8KB2dyb3VwSWQYASAB",
+            "KAUSEAoIZG9tYWluSWQYAiABKAMiggEKFUdldERvbWFpbkRhdGFSZXNwb25z",
+            "ZRINCgVkbG1JZBgBIAEoBRIZChFkb21haW5Db25jdXJyZW5jeRgCIAEoBRIt",
+            "Cg5kZXZpY2VGYW1pbGllcxgDIAMoCzIVLnBob2VuaXguZGV2aWNlRmFtaWx5",
+            "EhAKCGRvbWFpbklkGAQgASgDIjYKE1ZhbGlkYXRlVXNlclJlcXVlc3QSDwoH",
+            "Z3JvdXBJZBgBIAEoBRIOCgZ1c2VySWQYAiABKAMiwgEKFFZhbGlkYXRlVXNl",
+            "clJlc3BvbnNlEh8KBnN0YXR1cxgBIAEoCzIPLnBob2VuaXguU3RhdHVzEhAK",
+            "CGRvbWFpbklkGAIgASgDEkMKC2R5bmFtaWNEYXRhGAMgAygLMi4ucGhvZW5p",
+            "eC5WYWxpZGF0ZVVzZXJSZXNwb25zZS5EeW5hbWljRGF0YUVudHJ5GjIKEER5",
+            "bmFtaWNEYXRhRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4",
+            "ASJZCjdHZXRNZWRpYUNvbmN1cnJlbmN5UnVsZXNCeURvbWFpbkxpbWl0YXRp",
+            "b25Nb2R1bGVSZXF1ZXN0Eg8KB0dyb3VwSWQYASABKAUSDQoFZGxtSWQYAiAB",
+            "KAUiRwo4R2V0TWVkaWFDb25jdXJyZW5jeVJ1bGVzQnlEb21haW5MaW1pdGF0",
+            "aW9uTW9kdWxlUmVzcG9uc2USCwoDaWRzGAEgAygFIkkKGElzRGV2aWNlUGxh",
+            "eVZhbGlkUmVxdWVzdBIPCgdncm91cElkGAEgASgFEg4KBnVzZXJJZBgCIAEo",
+            "AxIMCgRVZGlkGAMgASgJIlQKGklzVmFsaWREZXZpY2VGYW1pbHlSZXF1ZXN0",
+            "Eg8KB2dyb3VwSWQYASABKAUSDAoEdWRpZBgCIAEoCRIXCg9kZXZpY2VGYW1p",
+            "bHlJZHMYAyADKAVCFFoILi9tb2RlbHOqAgdwaG9lbml4YgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::phoenix.StatusReflection.Descriptor, global::phoenix.HouseholdReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -58,7 +57,7 @@ namespace phoenix {
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.AllowActionInSuspendedDomainRequest), global::phoenix.AllowActionInSuspendedDomainRequest.Parser, new[]{ "GroupId", "UserId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetSuspensionStatusRequest), global::phoenix.GetSuspensionStatusRequest.Parser, new[]{ "GroupId", "DomainId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetSuspensionStatusResponse), global::phoenix.GetSuspensionStatusResponse.Parser, new[]{ "Status" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetDomainDataRequest), global::phoenix.GetDomainDataRequest.Parser, new[]{ "GroupId", "UserId", "DomainId" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetDomainDataRequest), global::phoenix.GetDomainDataRequest.Parser, new[]{ "GroupId", "DomainId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetDomainDataResponse), global::phoenix.GetDomainDataResponse.Parser, new[]{ "DlmId", "DomainConcurrency", "DeviceFamilies", "DomainId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.ValidateUserRequest), global::phoenix.ValidateUserRequest.Parser, new[]{ "GroupId", "UserId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.ValidateUserResponse), global::phoenix.ValidateUserResponse.Parser, new[]{ "Status", "DomainId", "DynamicData" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, }),
@@ -943,7 +942,6 @@ namespace phoenix {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public GetDomainDataRequest(GetDomainDataRequest other) : this() {
       groupId_ = other.groupId_;
-      userId_ = other.userId_;
       domainId_ = other.domainId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -964,19 +962,8 @@ namespace phoenix {
       }
     }
 
-    /// <summary>Field number for the "userId" field.</summary>
-    public const int UserIdFieldNumber = 2;
-    private long userId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public long UserId {
-      get { return userId_; }
-      set {
-        userId_ = value;
-      }
-    }
-
     /// <summary>Field number for the "domainId" field.</summary>
-    public const int DomainIdFieldNumber = 3;
+    public const int DomainIdFieldNumber = 2;
     private long domainId_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public long DomainId {
@@ -1000,7 +987,6 @@ namespace phoenix {
         return true;
       }
       if (GroupId != other.GroupId) return false;
-      if (UserId != other.UserId) return false;
       if (DomainId != other.DomainId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -1009,7 +995,6 @@ namespace phoenix {
     public override int GetHashCode() {
       int hash = 1;
       if (GroupId != 0) hash ^= GroupId.GetHashCode();
-      if (UserId != 0L) hash ^= UserId.GetHashCode();
       if (DomainId != 0L) hash ^= DomainId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -1031,12 +1016,8 @@ namespace phoenix {
         output.WriteRawTag(8);
         output.WriteInt32(GroupId);
       }
-      if (UserId != 0L) {
-        output.WriteRawTag(16);
-        output.WriteInt64(UserId);
-      }
       if (DomainId != 0L) {
-        output.WriteRawTag(24);
+        output.WriteRawTag(16);
         output.WriteInt64(DomainId);
       }
       if (_unknownFields != null) {
@@ -1052,12 +1033,8 @@ namespace phoenix {
         output.WriteRawTag(8);
         output.WriteInt32(GroupId);
       }
-      if (UserId != 0L) {
-        output.WriteRawTag(16);
-        output.WriteInt64(UserId);
-      }
       if (DomainId != 0L) {
-        output.WriteRawTag(24);
+        output.WriteRawTag(16);
         output.WriteInt64(DomainId);
       }
       if (_unknownFields != null) {
@@ -1071,9 +1048,6 @@ namespace phoenix {
       int size = 0;
       if (GroupId != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(GroupId);
-      }
-      if (UserId != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(UserId);
       }
       if (DomainId != 0L) {
         size += 1 + pb::CodedOutputStream.ComputeInt64Size(DomainId);
@@ -1091,9 +1065,6 @@ namespace phoenix {
       }
       if (other.GroupId != 0) {
         GroupId = other.GroupId;
-      }
-      if (other.UserId != 0L) {
-        UserId = other.UserId;
       }
       if (other.DomainId != 0L) {
         DomainId = other.DomainId;
@@ -1117,10 +1088,6 @@ namespace phoenix {
             break;
           }
           case 16: {
-            UserId = input.ReadInt64();
-            break;
-          }
-          case 24: {
             DomainId = input.ReadInt64();
             break;
           }
@@ -1143,10 +1110,6 @@ namespace phoenix {
             break;
           }
           case 16: {
-            UserId = input.ReadInt64();
-            break;
-          }
-          case 24: {
             DomainId = input.ReadInt64();
             break;
           }

@@ -29,8 +29,7 @@ message GetSuspensionStatusResponse {
 
 message GetDomainDataRequest {
   int32 groupId = 1;
-  int64 userId = 2;
-  int64 domainId = 3;
+  int64 domainId = 2;
 }
 
 message GetDomainDataResponse {

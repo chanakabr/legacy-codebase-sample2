@@ -83,11 +83,8 @@ namespace GrpcAPI.Services
             try
             {
                 var domainId = request.DomainId;
-                Core.ConditionalAccess.Utils.ValidateUserAndDomain(request.GroupId,
-                    request.UserId.ToString(), ref domainId, out var domain);
-
                 Core.ConditionalAccess.Utils.ValidateDomain(request.GroupId,
-                    (int) domainId, out domain);
+                    (int) domainId, out var domain);
 
                 if (domain != null)
                 {
