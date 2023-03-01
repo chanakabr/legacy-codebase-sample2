@@ -60,9 +60,9 @@ namespace GrpcAPI.Services
                 var status = Core.ConditionalAccess.Utils.ValidateUserAndDomain(request.GroupId,
                     request.UserId.ToString(), ref domainId, out var _, out var user);
                 var dynamicData = new MapField<string, string>();
-                if (user.m_oDynamicData?.m_sUserData != null)
+                if (user?.m_oDynamicData?.m_sUserData != null)
                 {
-                    foreach (var userData in user.m_oDynamicData?.m_sUserData)
+                    foreach (var userData in user.m_oDynamicData.m_sUserData)
                     {
                         dynamicData.Add(userData.m_sDataType, userData.m_sValue);
                     }
@@ -73,7 +73,7 @@ namespace GrpcAPI.Services
             }
             catch (Exception e)
             {
-                Logger.LogError(e, $"Error while mapping GetDomainData GRPC service {e.Message}");
+                Logger.LogError(e, $"Error while mapping ValidateUser GRPC service {e.Message}");
                 return null;
             }
         }
@@ -182,6 +182,10 @@ namespace GrpcAPI.Services
         {
             var webFamilyExist = false;
             var response = new List<deviceFamily>();
+            if (deviceFamilies == null || deviceFamilies.Count == 0)
+            {
+                return response;
+            }
             foreach (var deviceFamily in deviceFamilies)
             {
                 if (deviceFamily.m_deviceFamilyID == webFamilyId)
