@@ -14128,7 +14128,8 @@ namespace Core.ConditionalAccess
                         else
                         {
                             recording = PaddedRecordingsManager.Instance.Record(m_nGroupID, recording.EpgId, recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate,
-                                recording.Crid, new List<long>() { domainID }, out failedDomainIds, recording.StartPadding, recording.EndPadding, RecordingContext.Regular);
+                                recording.Crid, new List<long>() { domainID }, out failedDomainIds, recording.StartPadding,
+                                recording.EndPadding, RecordingContext.Regular);
                         }
                     }
                     else
@@ -14158,7 +14159,8 @@ namespace Core.ConditionalAccess
                                     }
                                 }
 
-                                UpdateOrInsertDomainRecording(userID, epgID, domainSeriesRecordingId, ref recording, domainID, recordingDuration, recordingType);
+                                UpdateOrInsertDomainRecording(userID, epgID, domainSeriesRecordingId, ref recording, domainID, recordingDuration, recordingType,
+                                    null, null, startPadding, endPadding);
                             }
                             else
                             {
@@ -14168,7 +14170,8 @@ namespace Core.ConditionalAccess
                         }
                         else
                         {
-                            UpdateOrInsertDomainRecording(userID, epgID, domainSeriesRecordingId, ref recording, domainID, recordingDuration, recordingType);
+                            UpdateOrInsertDomainRecording(userID, epgID, domainSeriesRecordingId, ref recording, domainID, recordingDuration, recordingType,
+                                null, null, startPadding, endPadding);
                         }
                     }
                     else if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.RecordingExceededConcurrency)
@@ -14202,7 +14205,8 @@ namespace Core.ConditionalAccess
         
 
         public void UpdateOrInsertDomainRecording(string userID, long epgID, long domainSeriesRecordingId, ref Recording recording, 
-            long domainID, int recordingDuration, RecordingType recordingType, long? absoluteStartTime = null, long? absoluteEndTime = null)
+            long domainID, int recordingDuration, RecordingType recordingType, long? absoluteStartTime = null, long? absoluteEndTime = null, 
+            int? originalStartPadding = null, int? originalEndPadding = null)
         {
             try
             {
@@ -14227,7 +14231,7 @@ namespace Core.ConditionalAccess
                         }
                         
                         success = PaddedRecordingsManager.Instance.UpdateOrInsertHouseholdRecording(m_nGroupID, long.Parse(userID), domainID, recording,
-                            recordingKey, TstvRecordingStatus.OK, false);
+                            recordingKey, TstvRecordingStatus.OK, false, originalStartPadding, originalEndPadding);
                         //Todo - Gil, check status in case of quota cleanup
                     }
                     else

@@ -12,6 +12,7 @@ using System.Reflection;
 using Synchronizer;
 using Core.ConditionalAccess;
 using System.Threading;
+using ApiObjects.Base;
 using TVinciShared;
 
 namespace Core.Recordings
@@ -112,7 +113,7 @@ namespace Core.Recordings
             return status;
         }
 
-        public static int GetRecordingDurationSeconds(int groupId, Recording recording, bool decreaseDefaultPadding = true)
+        public static int GetRecordingDurationSeconds(int groupId, Recording recording, bool decreaseDefaultPadding = true, long domainId = 0)
         {
             DateTime start = recording.EpgStartDate;
             DateTime end = recording.EpgEndDate;
@@ -122,7 +123,8 @@ namespace Core.Recordings
             TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(groupId);
             if (accountSettings != null && accountSettings.PersonalizedRecordingEnable == true)
             {
-                if (decreaseDefaultPadding && IsHasDefaultPadding(accountSettings, recording))
+                var contetData = new ContextData(groupId) { DomainId = domainId };
+                if (decreaseDefaultPadding && IsHasDefaultPadding(contetData, accountSettings, recording))
                 {
                     return seconds;
                 }
@@ -145,17 +147,36 @@ namespace Core.Recordings
             return seconds > 0 ? seconds : 0; 
         }
 
-        private static bool IsHasDefaultPadding(TimeShiftedTvPartnerSettings accountSettings, Recording recording)
+        private static bool IsHasDefaultPadding(ContextData contextData, TimeShiftedTvPartnerSettings accountSettings, Recording recording)
         {
             if (recording.AbsoluteEndTime.HasValue)
             {
                 return false;
             }
-            
-            var defaultStart = Utils.ConvertSecondsToMinutes((int)(accountSettings.PaddingBeforeProgramStarts ?? 0));
-            var defaultEnd = Utils.ConvertSecondsToMinutes((int)(accountSettings.PaddingAfterProgramEnds ?? 0));
-            var shouldRemoveStartPadding = defaultStart.Equals(recording.StartPadding ?? 0);
-            var shouldRemoveEndPadding = defaultEnd.Equals(recording.EndPadding ?? 0);
+
+            bool shouldRemoveStartPadding, shouldRemoveEndPadding;
+            if (contextData.DomainId > 0)
+            {
+                var domainRecording =
+                    PaddedRecordingsManager.Instance.GetHouseholdRecordingByRecordingId(contextData.GroupId, recording.Id, contextData.DomainId.Value);
+                if (domainRecording != null && domainRecording.Id > 0)
+                {
+                    shouldRemoveStartPadding = !domainRecording.IsStartPaddingDefault;
+                    shouldRemoveEndPadding = !domainRecording.IsEndPaddingDefault;   
+                }
+                else
+                {
+                    shouldRemoveStartPadding = false;
+                    shouldRemoveEndPadding = false;
+                }
+            }
+            else
+            {
+                var defaultStart = Utils.ConvertSecondsToMinutes((int)(accountSettings.PaddingBeforeProgramStarts ?? 0));
+                var defaultEnd = Utils.ConvertSecondsToMinutes((int)(accountSettings.PaddingAfterProgramEnds ?? 0));    
+                shouldRemoveStartPadding = defaultStart.Equals(recording.StartPadding ?? 0);
+                shouldRemoveEndPadding = defaultEnd.Equals(recording.EndPadding ?? 0);
+            }
             
             return shouldRemoveStartPadding && shouldRemoveEndPadding;
         }
@@ -270,7 +291,7 @@ namespace Core.Recordings
             }
 
             response = allRecords.Values.Where(x => x.isExternalRecording == false)
-                .Select(r => GetRecordingDurationSeconds(groupId, r)).Sum();
+                .Select(r => GetRecordingDurationSeconds(groupId, r, true, domainId)).Sum();
 
             return response;
         }

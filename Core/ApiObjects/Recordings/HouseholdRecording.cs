@@ -16,6 +16,8 @@ namespace ApiObjects.Recordings
         public long ProtectedUntilEpoch { get; set; }
         public long EpgChannelId { get; set; }
         public bool ScheduledSaved { get; set; }
+        public bool IsStartPaddingDefault { get; set; }
+        public bool IsEndPaddingDefault { get; set; }
         public bool IsStopped { get; set; }
         
         public DateTime __updated { get; set; }

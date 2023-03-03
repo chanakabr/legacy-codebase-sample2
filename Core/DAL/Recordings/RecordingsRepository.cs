@@ -619,6 +619,8 @@ namespace DAL.Recordings
             UpdateIfNotNull(updateBuilder, updates, x => x.RecordingKey, householdRecording.RecordingKey);
             UpdateIfNotNull(updateBuilder, updates, x => x.ProtectedUntilEpoch, householdRecording.ProtectedUntilEpoch);
             UpdateIfNotNull(updateBuilder, updates, x => x.ScheduledSaved, householdRecording.ScheduledSaved);
+            UpdateIfNotNull(updateBuilder, updates, x => x.IsStartPaddingDefault, householdRecording.IsStartPaddingDefault);
+            UpdateIfNotNull(updateBuilder, updates, x => x.IsEndPaddingDefault, householdRecording.IsEndPaddingDefault);
             UpdateIfNotNull(updateBuilder, updates, x => x.IsStopped, householdRecording.IsStopped);
             UpdateIfNotNull(updateBuilder, updates, x => x.UpdateDate, DateTime.UtcNow);
 

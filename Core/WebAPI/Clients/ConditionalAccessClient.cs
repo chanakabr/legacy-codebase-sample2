@@ -1313,6 +1313,9 @@ namespace WebAPI.Clients
             if (accountSettings.PersonalizedRecordingEnable == true)
             {
                 recording = Mapper.Map<KalturaPaddedRecording>(response);
+                //BEO-13648
+                ((KalturaPaddedRecording)recording).StartPadding = startPadding;
+                ((KalturaPaddedRecording)recording).EndPadding = endPadding;
             }
             else
             {

@@ -368,7 +368,7 @@ namespace Core.Recordings
             recording.Duration = QuotaManager.GetRecordingDurationSeconds(groupId, recording, false);
             return recording;
         }
-        
+
         public static long CalcTtl(DateTime nextCheck)
         {
             var newExpiration = nextCheck.AddHours(1);
