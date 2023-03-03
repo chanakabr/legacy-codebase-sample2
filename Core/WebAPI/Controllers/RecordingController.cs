@@ -491,8 +491,7 @@ namespace WebAPI.Controllers
         /// Stop ongoing household recording
         /// </summary>
         /// <param name="assetId">asset identifier</param>
-        /// <param name="epgChannelId">epg channel identifier</param>
-        /// <param name="householdRecordingId">household recording identifier</param>
+        /// <param name="id">household recording identifier</param>
         /// <returns></returns>
         [Action("stop")]
         [ApiAuthorize]
@@ -507,7 +506,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.RecordingFailed)]
         [Throws(eResponseStatus.InvalidParameters)]
         [Throws(eResponseStatus.NotAllowed)]
-        public static KalturaRecording Stop(long assetId, long epgChannelId, long householdRecordingId)
+        public static KalturaRecording Stop(long assetId, long id)
         {
             KalturaRecording response = null;
 
@@ -522,7 +521,7 @@ namespace WebAPI.Controllers
                 if (timeShiftedSettings.PersonalizedRecordingEnable == true)
                 {
                     Func<GenericResponse<Recording>> stopRecordingFunc = () =>
-                        PaddedRecordingsManager.Instance.StopRecord(ctx, assetId, epgChannelId, householdRecordingId);
+                        PaddedRecordingsManager.Instance.StopRecord(ctx, assetId, id);
 
                     response = ClientUtils.GetResponseFromWS<KalturaImmediateRecording, Recording>(stopRecordingFunc);
                 }
@@ -544,7 +543,6 @@ namespace WebAPI.Controllers
         /// Immediate Record
         /// </summary>
         /// <param name="assetId">asset identifier</param>
-        /// <param name="epgChannelId">epg channel identifier</param>
         /// <param name="endPadding">end padding offset</param>
         /// <returns></returns>
         [Action("immediateRecord")]
@@ -561,7 +559,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidParameters)]
         [Throws(eResponseStatus.RecordingExceededConcurrency)]
         [Throws(eResponseStatus.NotAllowed)]
-        public static KalturaImmediateRecording ImmediateRecord(long assetId, long epgChannelId, int? endPadding = null)
+        public static KalturaImmediateRecording ImmediateRecord(long assetId, int? endPadding = null)
         {
             KalturaImmediateRecording response = null;
 
@@ -575,7 +573,7 @@ namespace WebAPI.Controllers
                 if (timeShiftedSettings.PersonalizedRecordingEnable == true)
                 {
                     Func<GenericResponse<Recording>> immediateRecordingFunc = () =>
-                        PaddedRecordingsManager.Instance.ImmediateRecord(groupId, userId, domainId, epgChannelId, assetId, endPadding);
+                        PaddedRecordingsManager.Instance.ImmediateRecord(groupId, userId, domainId, assetId, endPadding);
 
                     response = ClientUtils.GetResponseFromWS<KalturaImmediateRecording, Recording>(immediateRecordingFunc);
                 }

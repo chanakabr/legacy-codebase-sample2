@@ -931,7 +931,7 @@ namespace Core.Recordings
             return householdRecordings != null && householdRecordings.Count > 1;
         }
 
-        public GenericResponse<Recording> StopRecord(ContextData contextData, long epgId, long epgChannelId,
+        public GenericResponse<Recording> StopRecord(ContextData contextData, long epgId,
             long householdRecordingId)
         {
             var recording = new GenericResponse<Recording>();
@@ -941,7 +941,6 @@ namespace Core.Recordings
             Dictionary<string, object> syncParmeters = new Dictionary<string, object>();
             syncParmeters.Add("groupId", contextData.GroupId);
             syncParmeters.Add("programId", epgId);
-            syncParmeters.Add("epgChannelID", epgChannelId);
             syncParmeters.Add("domainIds", new List<long>() { });
             syncParmeters.Add("isPrivateCopy", false);
 
@@ -959,11 +958,12 @@ namespace Core.Recordings
                     return recording;
                 }
 
-                if (!hhRecording.EpgId.Equals(epgId) ||
-                    hhRecording.EpgChannelId > 0 && !hhRecording.EpgChannelId.Equals(epgChannelId))
+                syncParmeters.Add("epgChannelID", hhRecording.EpgChannelId);
+                
+                if (!hhRecording.EpgId.Equals(epgId))
                 {
                     recording.SetStatus((int)eResponseStatus.NotAllowed,
-                        "Inconsistent program or channel identifier");
+                        "Inconsistent epg identifier");
                     return recording;
                 }
 
@@ -1070,7 +1070,7 @@ namespace Core.Recordings
 
                         var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
                         var adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(contextData.GroupId);
-                        var externalChannelId = CatalogDAL.GetEPGChannelCDVRId(contextData.GroupId, epgChannelId);
+                        var externalChannelId = CatalogDAL.GetEPGChannelCDVRId(contextData.GroupId, hhRecording.EpgChannelId);
                         var durationSeconds = GetImmediateRecordingTimeSpanSeconds(absoluteStartTime, absoluteEndTime);
                         var adapterResponse = adapterController.UpdateRecordingSchedule(contextData.GroupId,
                             epgId.ToString(), externalChannelId,
@@ -2229,7 +2229,7 @@ namespace Core.Recordings
             }
         }
 
-        public GenericResponse<Recording> ImmediateRecord(int groupId, long userId, long domainId, long epgChannelId,
+        public GenericResponse<Recording> ImmediateRecord(int groupId, long userId, long domainId,
             long epgId, int? endPadding = null)
         {
             var response = new GenericResponse<Recording>();
@@ -2304,13 +2304,14 @@ namespace Core.Recordings
                 return response;
             }
 
+            long.TryParse(epgChannelProg.EPG_CHANNEL_ID, out var _epgChannelId);
             Recording recording = null;
             TimeBasedRecording timeBasedRecording;
             var syncKey = string.Format("PaddedRecordingsManager_{0}", epgId);
             Dictionary<string, object> syncParmeters = new Dictionary<string, object>();
             syncParmeters.Add("groupId", groupId);
             syncParmeters.Add("programId", epgId);
-            syncParmeters.Add("epgChannelID", epgChannelId);
+            syncParmeters.Add("epgChannelID", _epgChannelId);
             syncParmeters.Add("domainIds", new List<long>() { });
             syncParmeters.Add("isPrivateCopy", false);
             syncParmeters.Add("absoluteStart", _absoluteStartTime);
@@ -2403,7 +2404,7 @@ namespace Core.Recordings
                         DateTime.UtcNow,
                         DateTime.UtcNow,
                         DateUtils.DateTimeToUtcUnixTimestampSeconds(protectedUntilDate),
-                        epgChannelId,
+                        _epgChannelId,
                         true
                     );
                     recording = RecordingsUtils.BuildRecordingFromTBRecording(groupId, timeBasedRecording, _program,
@@ -2420,7 +2421,8 @@ namespace Core.Recordings
                     return response;
                 }
 
-                var hhRecording = SaveToHousehold(groupId, userId, domainId, epgChannelId, epgId, key, recording, true, !endPadding.HasValue);
+                var hhRecording = SaveToHousehold(groupId, userId, domainId, _epgChannelId, epgId, key, recording, true, !endPadding.HasValue);
+
                 if (!hhRecording.success)
                 {
                     response.SetStatus(eResponseStatus.Error,

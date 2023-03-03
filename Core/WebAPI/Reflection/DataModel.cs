@@ -12821,7 +12821,7 @@ namespace WebAPI.Reflection
                             
                         case "immediaterecord":
                             RolesManager.ValidateActionPermitted("recording", "immediateRecord", WebAPI.Managers.eKSValidation.All);
-                            return RecordingController.ImmediateRecord((long) methodParams[0], (long) methodParams[1], (Nullable<int>) methodParams[2]);
+                            return RecordingController.ImmediateRecord((long) methodParams[0], (Nullable<int>) methodParams[1]);
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("recording", "list", WebAPI.Managers.eKSValidation.All);
@@ -12833,7 +12833,7 @@ namespace WebAPI.Reflection
                             
                         case "stop":
                             RolesManager.ValidateActionPermitted("recording", "stop", WebAPI.Managers.eKSValidation.All);
-                            return RecordingController.Stop((long) methodParams[0], (long) methodParams[1], (long) methodParams[2]);
+                            return RecordingController.Stop((long) methodParams[0], (long) methodParams[1]);
                             
                         case "update":
                             RolesManager.ValidateActionPermitted("recording", "update", WebAPI.Managers.eKSValidation.All);
@@ -22179,10 +22179,6 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 Type = typeof(long),
                             });
-                            ret.Add("epgChannelId", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
-                            });
                             ret.Add("endPadding", new MethodParam(){
                                 NewName = newParamName,
                                 IsOptional = true,
@@ -22221,11 +22217,7 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 Type = typeof(long),
                             });
-                            ret.Add("epgChannelId", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
-                            });
-                            ret.Add("householdRecordingId", new MethodParam(){
+                            ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
                             });
