@@ -418,10 +418,8 @@ namespace Core.Recordings
                             true);
                         RecordingsUtils.UpdateIndex(groupId, paddedRecordings[0].ProgramId, eAction.Delete);
                     }
-
-                    InternalModifyRecording(groupId, slimRecording.Id, recordingKey, recToDeleteDate, true);
-
-                    status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    
+                    status = deleteOrCancelRecordingOnDb(groupId, slimRecording.Id, recordingKey, recToDeleteDate);
                 }
                 else
                 {
@@ -429,6 +427,39 @@ namespace Core.Recordings
                 }
             }
 
+            return status;
+        }
+
+        private Status deleteOrCancelRecordingOnDb(int partnerId, long recordingId, string recordingKey,
+            DateTime epgEndDate)
+        {
+            Status status = new Status((int)eResponseStatus.OK);
+            try
+            {
+                bool isOk = true;
+                if (epgEndDate > DateTime.UtcNow)
+                {
+                    isOk = _repository.UpdateRecordingStatus(partnerId, recordingId,
+                        RecordingInternalStatus.Canceled.ToString());
+                }
+                else
+                {
+                    isOk = _repository.DeleteRecording(partnerId, recordingKey);
+                }
+
+                if (!isOk)
+                {
+                    status = new Status((int)eResponseStatus.Error,
+                        "Failed CancelRecording or DeleteRecording for on DB");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error on deleteOrCancelRecordingOnDb, recordingID: {0}", recordingId), ex);
+                status = new Status((int)eResponseStatus.Error,
+                    "Exception on CancelRecording or DeleteRecording on DB");
+            }
+            
             return status;
         }
 
@@ -514,11 +545,19 @@ namespace Core.Recordings
                 response.Status.Set(status);
                 return response;
             }
-
-            UpdateHouseholdRecordingsStatus(partnerId, new List<long>() { hhRecordingId },
-                DomainRecordingStatus.Canceled.ToString());
+            
             DeleteRecording(partnerId, recording);
-            recording.RecordingStatus = TstvRecordingStatus.Canceled;
+            
+            if(UpdateHouseholdRecordingsStatus(partnerId, new List<long>() { hhRecordingId },
+                DomainRecordingStatus.Canceled.ToString()))
+            {
+                recording.RecordingStatus = TstvRecordingStatus.Canceled;
+            }
+            else
+            {
+                response.Status.Set(new Status((int)eResponseStatus.Error, "Cancel household recordings failed"));
+            }
+            
             response.Object = recording;
             return response;
         }
@@ -543,59 +582,24 @@ namespace Core.Recordings
         }
 
         private Status InternalModifyRecording(int partnerId, long recordingId, string recordingKey,
-            DateTime epgEndDate,
-            bool sendModificationEvent)
+            DateTime epgEndDate)
         {
             log.Debug($"InternalModifyRecording recording:{recordingId}");
 
             Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-
-            // Update all domains that have this recording
-            if (sendModificationEvent)
-            {
-                try
-                {
-                    SendEvictRecording(partnerId, recordingId, 0,
-                        DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow));
-                }
-                catch (Exception e)
-                {
-                    log.Error(
-                        $"Failed to queue ExpiredRecording task for CancelOrDeleteRecording, recordingId: {recordingId}, groupId: {partnerId}",
-                        e);
-                }
-            }
-
             try
             {
-                bool isOk = true;
-                if (epgEndDate > DateTime.UtcNow)
-                {
-                    isOk = _repository.UpdateRecordingStatus(partnerId, recordingId,
-                        RecordingInternalStatus.Canceled.ToString());
-                }
-                else
-                {
-                    isOk = _repository.DeleteRecording(partnerId, recordingKey);
-                }
-
-                if (isOk)
-                {
-                    status = new Status((int)eResponseStatus.OK);
-                }
-                else
-                {
-                    return new Status((int)eResponseStatus.Error,
-                        "Failed CancelRecording or DeleteRecording for on DB");
-                }
+                // Update all domains that have this recording
+                SendEvictRecording(partnerId, recordingId, 0,
+                    DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow));
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                log.Error(string.Format("Error on internalExpireRecording, recordingID: {0}", recordingId), ex);
-                status = new Status((int)eResponseStatus.Error,
-                    "Exception on CancelRecording or DeleteRecording on DB");
+                log.Error(
+                    $"Failed Send Evict Recording task for CancelOrDeleteRecording, recordingId: {recordingId}, groupId: {partnerId}",
+                    e);
             }
-
+            status = deleteOrCancelRecordingOnDb(partnerId, recordingId, recordingKey, epgEndDate);
             return status;
         }
 
@@ -1218,7 +1222,7 @@ namespace Core.Recordings
                 }
 
                 status = InternalModifyRecording(groupId, recording.Id, recording.Key,
-                    program.EndDate.AddMinutes(recording.PaddingAfterMins), true);
+                    program.EndDate.AddMinutes(recording.PaddingAfterMins));
             }
 
             RecordingsUtils.UpdateIndex(groupId, program.Id, eAction.Delete);
