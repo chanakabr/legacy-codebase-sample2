@@ -14213,7 +14213,6 @@ namespace Core.ConditionalAccess
                 if (QuotaManager.Instance.SetDomainUsedQuota(m_nGroupID, domainID, recordingDuration))
                 {
                     bool success = false;
-
                     recording.Type = recordingType;
                     TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
                     if (accountSettings.PersonalizedRecordingEnable == true)
@@ -14230,9 +14229,12 @@ namespace Core.ConditionalAccess
                                 recording.EndPadding.Value);
                         }
                         
-                        success = PaddedRecordingsManager.Instance.UpdateOrInsertHouseholdRecording(m_nGroupID, long.Parse(userID), domainID, recording,
+                        var _updated = PaddedRecordingsManager.Instance.UpdateOrInsertHouseholdRecording(m_nGroupID, long.Parse(userID), domainID, recording,
                             recordingKey, TstvRecordingStatus.OK, false, originalStartPadding, originalEndPadding);
-                        //Todo - Gil, check status in case of quota cleanup
+                        success = _updated.Success;
+                        
+                        if (success)
+                            recording.Id = _updated.HouseholdRecordingId;
                     }
                     else
                     {

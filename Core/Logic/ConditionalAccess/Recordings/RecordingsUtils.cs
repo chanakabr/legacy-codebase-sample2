@@ -365,7 +365,7 @@ namespace Core.Recordings
                 recording.ViewableUntilDate = null;
             }
 
-            recording.Duration = QuotaManager.GetRecordingDurationSeconds(groupId, recording, false);
+            recording.Duration = QuotaManager.GetRecordingDurationSeconds(groupId, recording, false, householdRecording?.HouseholdId ?? 0);
             return recording;
         }
 
