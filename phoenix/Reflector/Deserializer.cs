@@ -30,7 +30,7 @@ namespace Reflector
             types.Remove(typeof(KalturaApiExceptionArg));
             types.Remove(typeof(KalturaFilter<>));
         }
-        
+
         protected override void writeHeader()
         {
             file.WriteLine("// NOTICE: This is a generated file, to modify it, edit Program.cs in Reflector project");
@@ -73,7 +73,7 @@ namespace Reflector
         protected override void writeFooter()
         {
         }
-        
+
         private void writeDeserializeTypeProperty(string apiName, PropertyInfo property)
         {
             Type propertyType = property.PropertyType;
@@ -96,7 +96,7 @@ namespace Reflector
             }
             else if (propertyType.IsEnum)
             {
-                file.WriteLine($"                    if(string.IsNullOrEmpty(parameters[\"{apiName}\"].ToString()))");             
+                file.WriteLine($"                    if(string.IsNullOrEmpty(parameters[\"{apiName}\"].ToString()))");
                 file.WriteLine("                    {");
                 file.WriteLine($"                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, \"{apiName}\");");
                 file.WriteLine("                    }");
@@ -326,22 +326,7 @@ namespace Reflector
 
                 if (hasOneOf)
                 {
-                    var existOneOfString = string.Join(" && ", schemeClass.OneOf.Select(x => $"(!parameters.ContainsKey(\"{x}\") || string.IsNullOrWhiteSpace(parameters[\"{x}\"]?.ToString()))"));
-                    file.WriteLine($"                if ({existOneOfString})");
-                    file.WriteLine($"                   throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, \"{string.Join(", ", schemeClass.OneOf)}\");");
-                    file.WriteLine();
-
-                    // getting pairs of conflicted args
-                    for (int i = 0; i < schemeClass.OneOf.Length - 1; i++)
-                    {
-                        var exactlyOneOfString1 = $"(parameters.ContainsKey(\"{schemeClass.OneOf[i]}\") && !string.IsNullOrWhiteSpace(parameters[\"{schemeClass.OneOf[i]}\"]?.ToString()))";
-                        for (int j = i + 1; j < schemeClass.OneOf.Length; j++)
-                        {
-                            var exactlyOneOfString2 = $"(parameters.ContainsKey(\"{schemeClass.OneOf[j]}\") && string.IsNullOrWhiteSpace(parameters[\"{schemeClass.OneOf[j]}\"]?.ToString()))";
-                            file.WriteLine($"                if ({exactlyOneOfString1} && {exactlyOneOfString2})");
-                            file.WriteLine($"                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, \"{schemeClass.OneOf[i]}, {schemeClass.OneOf[j]}\");");
-                        }
-                    }
+                    file.WriteLine("                Deserializer.CheckOneOf(parameters, new[] {" + string.Join(", ", schemeClass.OneOf.Select(x => $"\"{x}\"")) + "});");
                     file.WriteLine();
                 }
 
@@ -452,7 +437,7 @@ namespace Reflector
             file.WriteLine("    public partial class " + GetTypeName(type, true));
             file.WriteLine("    {");
             wrtieDeserializeTypeSchemaProperties(type);
-            file.WriteLine("        public " + GetTypeName(type) + "(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)");
+            file.WriteLine("        public " + GetTypeName(type) + "(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)");
             file.WriteLine("        {");
             wrtieDeserializeTypeProperties(type);
             file.WriteLine("        }");
@@ -518,7 +503,7 @@ namespace Reflector
             {
                 var typeName = GetTypeName(type);
                 if (typeName == "KalturaListResponse" && type.IsAbstract) { continue; }
-                
+
                 file.WriteLine("                case \"" + typeName + "\":");
                 NewObjectTypeAttribute newObjectTypeAttribue = type.GetCustomAttribute<NewObjectTypeAttribute>(false);
                 if (newObjectTypeAttribue != null)
@@ -539,6 +524,17 @@ namespace Reflector
             file.WriteLine("            }");
             file.WriteLine("            ");
             file.WriteLine("            throw new RequestParserException(RequestParserException.INVALID_OBJECT_TYPE, objectType);");
+            file.WriteLine("        }");
+            file.WriteLine();
+            file.WriteLine("        public static void CheckOneOf(Dictionary<string, object> parameters, string[] allOneOfParams)");
+            file.WriteLine("        {");
+            file.WriteLine("            var oneOfParameters = allOneOfParams.Where(p => parameters.TryGetValue(p, out var value) && !string.IsNullOrWhiteSpace(value.ToString())).ToList();");
+            file.WriteLine();
+            file.WriteLine("            if (oneOfParameters.Count == 0)");
+            file.WriteLine("                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, string.Join(\", \", allOneOfParams));");
+            file.WriteLine();
+            file.WriteLine("            if (oneOfParameters.Count > 1)");
+            file.WriteLine("                throw new BadRequestException(BadRequestException.MULTIPLE_ARGUMENTS_CONFLICTS_EACH_OTHER, string.Join(\", \", oneOfParameters));");
             file.WriteLine("        }");
             file.WriteLine("    }");
             file.WriteLine("}");

@@ -83,7 +83,9 @@ namespace WebAPI.Managers
         private bool FileMatchUser(IEnumerable<AssetRuleAction> rules, eAssetTypes assetType, KalturaMediaFile mediaFile, FileManager.FileTypes fileTypes)
         {
             var fileType = fileTypes.GetFileType(mediaFile.TypeId);
-            var target = new FilterFileRule.Target(fileType, assetType, mediaFile.Labels);
+            var fileDynamicData = mediaFile.DynamicData?
+                .ToDictionary(x => x.Key, x => x.Value.Objects.Select(_ => _.value));
+            var target = new FilterFileRule.Target(fileType, assetType, mediaFile.Labels, fileDynamicData);
             var match = _filterFileRule.MatchRules(target, rules);
 
             return match;

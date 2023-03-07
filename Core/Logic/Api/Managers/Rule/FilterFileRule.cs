@@ -45,23 +45,30 @@ namespace ApiLogic.Api.Managers.Rule
                     return fileType?.StreamerType != null && st.StreamerTypes.Contains(fileType.StreamerType.Value);
                 case FilterFileByVideoCodec vc:
                     return fileType?.VideoCodecs != null && vc.VideoCodecs.Intersect(fileType.VideoCodecs, StringComparer.InvariantCultureIgnoreCase).Any();
+                case FilterFileByDynamicData dd:
+                    return file.DynamicData.TryGetValue(dd.Key, out var values) && values.Intersect(dd.Values, StringComparer.InvariantCultureIgnoreCase).Any();
                 default: throw new NotImplementedException("unknown filter file action");
             }
         }
         
         public class Target
         {
-            private static readonly IReadOnlyCollection<string> Empty = new List<string>(0);
-        
+            private static readonly IReadOnlyCollection<string> EmptyLabels = new List<string>(0);
+            private static readonly IDictionary<string, IEnumerable<string>> EmptyDynamicData = new Dictionary<string, IEnumerable<string>>(0);
+
             public MediaFileType FileType { get; } // could be null
             public eAssetTypes AssetType { get; }
             public IReadOnlyCollection<string> Labels { get; }
+            public IDictionary<string, IEnumerable<string>> DynamicData { get; }
 
-            public Target(MediaFileType fileType, eAssetTypes assetType, string commaSeparatedLabels)
+            public Target(MediaFileType fileType, eAssetTypes assetType, string commaSeparatedLabels, IDictionary<string, IEnumerable<string>> dynamicData)
             {
                 FileType = fileType;
                 AssetType = assetType;
-                Labels = commaSeparatedLabels.IsNullOrEmpty() ? Empty :  commaSeparatedLabels.Split(',');
+                Labels = commaSeparatedLabels.IsNullOrEmpty() ? EmptyLabels : commaSeparatedLabels.Split(',');
+                DynamicData = dynamicData == null
+                    ? EmptyDynamicData
+                    : new Dictionary<string, IEnumerable<string>>(dynamicData, StringComparer.InvariantCultureIgnoreCase);
             }
         }
     }

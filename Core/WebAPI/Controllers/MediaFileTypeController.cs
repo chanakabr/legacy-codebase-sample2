@@ -1,21 +1,16 @@
-﻿using Phx.Lib.Log;
-using System;
-using System.Reflection;
-using WebAPI.ClientManagers.Client;
+﻿using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using ApiObjects.Response;
-using WebAPI.ModelsValidators;
+using WebAPI.Validation;
 
 namespace WebAPI.Controllers
 {
     [Service("mediaFileType")]
     public class MediaFileTypeController : IKalturaController
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-       
         /// <summary>
         /// Returns a list of media-file types
         /// </summary>
@@ -51,12 +46,12 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.MediaFileTypeNameAlreadyInUse)]
         [Throws(eResponseStatus.MediaFileTypeDoesNotExist)]
-        static public KalturaMediaFileType Add(KalturaMediaFileType mediaFileType)
+        public static KalturaMediaFileType Add(KalturaMediaFileType mediaFileType)
         {
+            MediaFileTypeValidator.Instance.ValidateToAdd(mediaFileType, nameof(mediaFileType));
+
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
-
-            mediaFileType.validateForInsert();
 
             try
             {
@@ -80,8 +75,10 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.MediaFileTypeNameAlreadyInUse)]
         [Throws(eResponseStatus.MediaFileTypeDoesNotExist)]
-        static public KalturaMediaFileType Update(int id, KalturaMediaFileType mediaFileType)
+        public static KalturaMediaFileType Update(int id, KalturaMediaFileType mediaFileType)
         {
+            MediaFileTypeValidator.Instance.ValidateToUpdate(mediaFileType, nameof(mediaFileType));
+
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 

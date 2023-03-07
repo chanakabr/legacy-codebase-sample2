@@ -16,6 +16,7 @@ using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
 using DAL;
 using DAL.Recordings;
+using MongoDB.Bson;
 using Newtonsoft.Json;
 using Notifiers;
 using Phoenix.Generated.Tasks.Scheduled.EvictRecording;
@@ -90,32 +91,34 @@ namespace Core.Recordings
             return _repository.GetAllPartnerIds();
         }
 
-        public bool UpdateOrInsertHouseholdRecording(int groupId, long userId, long householdId, Recording recording,
-            string recordingKey, TstvRecordingStatus status, bool scheduledSaved)
+        public (bool Success, long HouseholdRecordingId) UpdateOrInsertHouseholdRecording(int groupId, long userId, long householdId, Recording recording,
+            string recordingKey, TstvRecordingStatus status, bool scheduledSaved, int? originalStartPadding = null, int? originalEndPadding = null)
         {
             DateTime date = DateTime.UtcNow;
             HouseholdRecording householdRecording = new HouseholdRecording(userId, householdId, recording.EpgId,
                 recordingKey, status.ToString(),
                 recording.Type.ToString(), date, date, recording.ProtectedUntilDate, recording.ChannelId,
                 scheduledSaved);
-
+            
             bool result = true;
             var current =
                 _repository.GetHouseholdRecording(groupId, recordingKey, householdId);
             
-            // if (_repository.IsHouseholdRecordingExists(groupId, recordingKey, householdId))//Has old hh recording is status canceled
             if (current != null && current.Id > 0)//Has old hh recording is status canceled
             {
                 householdRecording.Id = current.Id;
+                householdRecording.IsStartPaddingDefault = current.IsStartPaddingDefault && !originalStartPadding.HasValue;
+                householdRecording.IsEndPaddingDefault = current.IsEndPaddingDefault && !originalEndPadding.HasValue;
                 result = _repository.UpdateHouseholdRecording(groupId, householdRecording);
             }
             else
             {
+                householdRecording.IsStartPaddingDefault = !originalStartPadding.HasValue;
+                householdRecording.IsEndPaddingDefault = !originalEndPadding.HasValue;
                 householdRecording.Id = _repository.AddHouseholdRecording(groupId, householdRecording);
             }
 
-            // recording.Id = householdRecording.Id;
-            return result;
+            return (result, householdRecording.Id);
         }
 
         public Recording GetHouseholdRecording(int groupId, long householdId, long epgId, string recordingKey)
@@ -137,10 +140,15 @@ namespace Core.Recordings
             return null;
         }
 
+        public HouseholdRecording GetHouseholdRecordingByRecordingId(int groupId, long id, long householdId)
+        {
+           return _repository.GetHouseholdRecordingById(groupId, id, householdId, DomainRecordingStatus.OK.ToString());
+        }
+
         public Recording GetHouseholdRecordingById(int groupId, long id, long householdId)
         {
             HouseholdRecording householdRecording =
-                _repository.GetHouseholdRecordingById(groupId, id, householdId, DomainRecordingStatus.OK.ToString());
+                GetHouseholdRecordingByRecordingId(groupId, id, householdId);
             if (householdRecording != null)
             {
                 Program program = _repository.GetProgramByEpg(groupId, householdRecording.EpgId);
@@ -188,17 +196,28 @@ namespace Core.Recordings
             List<long> epgIdIds = householdRecordings.Select(e => e.EpgId).ToList();
             List<string> paddedRecordingKeys = householdRecordings.Select(e => e.RecordingKey).ToList();
             List<Program> programs = _repository.GetProgramsByEpgIds(groupId, epgIdIds);
-            List<TimeBasedRecording> paddedRecordings = _repository.GetRecordingsByKeys(groupId, paddedRecordingKeys);
+            var paddedRecordings = _repository.GetRecordingsByKeys(groupId, paddedRecordingKeys)?
+                .ToDictionary(x=> x.Key, x=> x);
 
             foreach (var householdRecording in householdRecordings)
             {
                 Program program = programs.Find(f => f.EpgId.Equals(householdRecording.EpgId));
-                TimeBasedRecording timeBasedRecording =
-                    paddedRecordings.Find(f => f.Key.Equals(householdRecording.RecordingKey));
+                TimeBasedRecording timeBasedRecording = null;
+                paddedRecordings?.TryGetValue(householdRecording.RecordingKey, out timeBasedRecording);
                 if (program != null && timeBasedRecording != null)
                 {
-                    domainRecordingIdToRecordingMap.Add(householdRecording.Id,
-                        RecordingsUtils.BuildRecordingFromTBRecording(groupId, timeBasedRecording, program, householdRecording));
+                    //BEO-13648
+                    var record = 
+                        RecordingsUtils.BuildRecordingFromTBRecording(groupId, timeBasedRecording, program,
+                        householdRecording);
+                    
+                    if (record != null && record.Id > 0)
+                    {
+                        record.StartPadding = householdRecording.IsStartPaddingDefault ? null : record.StartPadding;
+                        record.EndPadding = householdRecording.IsEndPaddingDefault ? null : record.EndPadding;    
+                    }
+                    
+                    domainRecordingIdToRecordingMap.Add(householdRecording.Id,record);
                 }
             }
 
@@ -283,6 +302,7 @@ namespace Core.Recordings
             syncParmeters.Add("paddingAfter", paddingAfter);
             syncParmeters.Add("absoluteStart", null);
             syncParmeters.Add("absoluteEnd", null);
+
             try
             {
                 var key = GetRecordingKey(programId, paddingBefore ?? 0, paddingAfter ?? 0);
@@ -400,16 +420,49 @@ namespace Core.Recordings
                         RecordingsUtils.UpdateIndex(groupId, paddedRecordings[0].ProgramId, eAction.Delete);
                     }
 
-                    InternalModifyRecording(groupId, slimRecording.Id, recordingKey, recToDeleteDate, true);
-
-                    status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    status = deleteOrCancelRecordingOnDb(groupId, slimRecording.Id, recordingKey, recToDeleteDate);
                 }
                 else
                 {
                     status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
+            
+                slimRecording.RecordingStatus = TstvRecordingStatus.Deleted;
             }
+            
+            return status;
+        }
 
+        private Status deleteOrCancelRecordingOnDb(int partnerId, long recordingId, string recordingKey,
+            DateTime epgEndDate)
+        {
+            Status status = new Status((int)eResponseStatus.OK);
+            try
+            {
+                bool isOk = true;
+                if (epgEndDate > DateTime.UtcNow)
+                {
+                    isOk = _repository.UpdateRecordingStatus(partnerId, recordingId,
+                        RecordingInternalStatus.Canceled.ToString());
+                }
+                else
+                {
+                    isOk = _repository.DeleteRecording(partnerId, recordingKey);
+                }
+
+                if (!isOk)
+                {
+                    status = new Status((int)eResponseStatus.Error,
+                        "Failed CancelRecording or DeleteRecording for on DB");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error on deleteOrCancelRecordingOnDb, recordingID: {0}", recordingId), ex);
+                status = new Status((int)eResponseStatus.Error,
+                    "Exception on CancelRecording or DeleteRecording on DB");
+            }
+            
             return status;
         }
 
@@ -495,11 +548,19 @@ namespace Core.Recordings
                 response.Status.Set(status);
                 return response;
             }
-
-            UpdateHouseholdRecordingsStatus(partnerId, new List<long>() { hhRecordingId },
-                DomainRecordingStatus.Canceled.ToString());
+            
             DeleteRecording(partnerId, recording);
-            recording.RecordingStatus = TstvRecordingStatus.Canceled;
+            
+            if(UpdateHouseholdRecordingsStatus(partnerId, new List<long>() { hhRecordingId },
+                DomainRecordingStatus.Canceled.ToString()))
+            {
+                recording.RecordingStatus = TstvRecordingStatus.Canceled;
+            }
+            else
+            {
+                response.Status.Set(new Status((int)eResponseStatus.Error, "Cancel household recordings failed"));
+            }
+            
             response.Object = recording;
             return response;
         }
@@ -524,59 +585,24 @@ namespace Core.Recordings
         }
 
         private Status InternalModifyRecording(int partnerId, long recordingId, string recordingKey,
-            DateTime epgEndDate,
-            bool sendModificationEvent)
+            DateTime epgEndDate)
         {
             log.Debug($"InternalModifyRecording recording:{recordingId}");
 
             Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-
-            // Update all domains that have this recording
-            if (sendModificationEvent)
-            {
-                try
-                {
-                    SendEvictRecording(partnerId, recordingId, 0,
-                        DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow));
-                }
-                catch (Exception e)
-                {
-                    log.Error(
-                        $"Failed to queue ExpiredRecording task for CancelOrDeleteRecording, recordingId: {recordingId}, groupId: {partnerId}",
-                        e);
-                }
-            }
-
             try
             {
-                bool isOk = true;
-                if (epgEndDate > DateTime.UtcNow)
-                {
-                    isOk = _repository.UpdateRecordingStatus(partnerId, recordingId,
-                        RecordingInternalStatus.Canceled.ToString());
-                }
-                else
-                {
-                    isOk = _repository.DeleteRecording(partnerId, recordingKey);
-                }
-
-                if (isOk)
-                {
-                    status = new Status((int)eResponseStatus.OK);
-                }
-                else
-                {
-                    return new Status((int)eResponseStatus.Error,
-                        "Failed CancelRecording or DeleteRecording for on DB");
-                }
+                // Update all domains that have this recording
+                SendEvictRecording(partnerId, recordingId, 0,
+                    DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow));
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                log.Error(string.Format("Error on internalExpireRecording, recordingID: {0}", recordingId), ex);
-                status = new Status((int)eResponseStatus.Error,
-                    "Exception on CancelRecording or DeleteRecording on DB");
+                log.Error(
+                    $"Failed Send Evict Recording task for CancelOrDeleteRecording, recordingId: {recordingId}, groupId: {partnerId}",
+                    e);
             }
-
+            status = deleteOrCancelRecordingOnDb(partnerId, recordingId, recordingKey, epgEndDate);
             return status;
         }
 
@@ -651,9 +677,7 @@ namespace Core.Recordings
             int? recordingLifetime = accountSettings.RecordingLifetimePeriod;
             DateTime? viewableUntilDate = null;
             if (recordingLifetime.HasValue)
-            {
                 viewableUntilDate = endDate.AddDays(recordingLifetime.Value);
-            }
 
             // for private copy we always issue a recording            
             //Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(groupId, epgId);
@@ -772,7 +796,7 @@ namespace Core.Recordings
 
             if (program != null && recording != null)
             {
-                parameters["recording"] = RecordingsUtils.BuildRecordingFromTBRecording(groupId, recording, program);
+                parameters["recording"] = RecordingsUtils.BuildRecordingFromTBRecording(groupId, recording, program, null);
             }
 
             return success;
@@ -914,7 +938,7 @@ namespace Core.Recordings
             return householdRecordings != null && householdRecordings.Count > 1;
         }
 
-        public GenericResponse<Recording> StopRecord(ContextData contextData, long epgId, long epgChannelId,
+        public GenericResponse<Recording> StopRecord(ContextData contextData, long epgId,
             long householdRecordingId)
         {
             var recording = new GenericResponse<Recording>();
@@ -924,7 +948,6 @@ namespace Core.Recordings
             Dictionary<string, object> syncParmeters = new Dictionary<string, object>();
             syncParmeters.Add("groupId", contextData.GroupId);
             syncParmeters.Add("programId", epgId);
-            syncParmeters.Add("epgChannelID", epgChannelId);
             syncParmeters.Add("domainIds", new List<long>() { });
             syncParmeters.Add("isPrivateCopy", false);
 
@@ -935,18 +958,19 @@ namespace Core.Recordings
                 var hhRecording = _repository.GetHouseholdRecordingById(contextData.GroupId, householdRecordingId,
                     contextData.DomainId ?? 0, DomainRecordingStatus.OK.ToString());
 
-                if (hhRecording == null)
+                if (hhRecording == null || hhRecording.Id == 0)
                 {
                     recording.SetStatus((int)eResponseStatus.NotAllowed,
                         "Program is not being recorded");
                     return recording;
                 }
 
-                if (!hhRecording.EpgId.Equals(epgId) ||
-                    hhRecording.EpgChannelId > 0 && !hhRecording.EpgChannelId.Equals(epgChannelId))
+                syncParmeters.Add("epgChannelID", hhRecording.EpgChannelId);
+                
+                if (!hhRecording.EpgId.Equals(epgId))
                 {
                     recording.SetStatus((int)eResponseStatus.NotAllowed,
-                        "Inconsistent program or channel identifier");
+                        "Inconsistent epg identifier");
                     return recording;
                 }
 
@@ -1053,7 +1077,7 @@ namespace Core.Recordings
 
                         var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
                         var adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(contextData.GroupId);
-                        var externalChannelId = CatalogDAL.GetEPGChannelCDVRId(contextData.GroupId, epgChannelId);
+                        var externalChannelId = CatalogDAL.GetEPGChannelCDVRId(contextData.GroupId, hhRecording.EpgChannelId);
                         var durationSeconds = GetImmediateRecordingTimeSpanSeconds(absoluteStartTime, absoluteEndTime);
                         var adapterResponse = adapterController.UpdateRecordingSchedule(contextData.GroupId,
                             epgId.ToString(), externalChannelId,
@@ -1070,9 +1094,9 @@ namespace Core.Recordings
                 //5. Update HH ref to the new permutation
                 var newHhRecording = UpdateHouseholdRecording(contextData.GroupId, householdRecordingId,
                     contextData.DomainId ?? 0, hhRecording.RecordingKey, newRecordingKey,
-                    hhRecording.Status, DomainRecordingStatus.OK.ToString());
+                    hhRecording.Status, DomainRecordingStatus.OK.ToString(), true);
 
-                if (newHhRecording == null)
+                if (newHhRecording == null || newHhRecording.Id == 0)
                 {
                     log.Error(
                         $"Couldn't update recording with key: {newRecordingKey} for hh: {contextData.DomainId ?? 0}");
@@ -1119,7 +1143,9 @@ namespace Core.Recordings
                 if (recording.Object == null && program != null)
                 {
                     if (timeBasedRecording == null)
+                    {
                         timeBasedRecording = _repository.GetRecordingByKey(contextData.GroupId, newRecordingKey);
+                    }
 
                     recording.Object = RecordingsUtils.BuildRecordingFromTBRecording(contextData.GroupId, timeBasedRecording, program,
                         newHhRecording);
@@ -1187,8 +1213,6 @@ namespace Core.Recordings
                     externalChannelId = CatalogDAL.GetEPGChannelCDVRId(groupId, recording.EpgChannelId);
                 }
 
-                //Todo - Matan use abs end if needed
-
                 bool delete = program.EndDate.AddMinutes(recording.PaddingAfterMins) < DateTime.UtcNow;
                 status = DeleteRecordingAdapter(groupId, recording.ExternalId, epgId, externalChannelId, adapterId,
                     delete);
@@ -1199,7 +1223,7 @@ namespace Core.Recordings
                 }
 
                 status = InternalModifyRecording(groupId, recording.Id, recording.Key,
-                    program.EndDate.AddMinutes(recording.PaddingAfterMins), true);
+                    program.EndDate.AddMinutes(recording.PaddingAfterMins));
             }
 
             RecordingsUtils.UpdateIndex(groupId, program.Id, eAction.Delete);
@@ -1469,15 +1493,21 @@ namespace Core.Recordings
         }
 
         private HouseholdRecording UpdateHouseholdRecording(int partnerId, long hhRecordingId, long householdId,
-            string oldKey, string newKey, string oldStatus, string newStatus = null)
+            string oldKey, string newKey, string oldStatus, string newStatus = null, bool isStopped = false)
         {
             var currentHhRecording = _repository.GetHouseholdRecording(partnerId, oldKey, householdId);
-            if (currentHhRecording == null)
+            if (currentHhRecording == null || currentHhRecording.Id == 0)
                 return null;
 
             /*Modify current*/
             currentHhRecording.RecordingKey = newKey;
             currentHhRecording.Status = newStatus ?? oldStatus;
+            currentHhRecording.IsStopped = isStopped;
+
+            if (isStopped)
+            {
+                currentHhRecording.IsEndPaddingDefault = true;
+            }
 
             if (!_repository.UpdateHouseholdRecording(partnerId, currentHhRecording))
             {
@@ -1546,6 +1576,9 @@ namespace Core.Recordings
                     currentHhRecording.RecordingKey = recordingKey;
                     currentHhRecording.ProtectedUntilEpoch = protectedUntilEpoch;
 
+                    currentHhRecording.IsStartPaddingDefault = currentHhRecording.IsStartPaddingDefault && !paddingBeforeMins.HasValue;
+                    currentHhRecording.IsEndPaddingDefault = currentHhRecording.IsEndPaddingDefault && !paddingAfterMins.HasValue;
+
                     DateTime recordingStartDate =
                         GetStartDateWithPadding(program.StartDate, timeBasedRecording.PaddingBeforeMins);
                     DateTime recordingEndDate = program.EndDate.AddMinutes(timeBasedRecording.PaddingAfterMins);
@@ -1570,6 +1603,7 @@ namespace Core.Recordings
                             recording.StartPadding = timeBasedRecording.PaddingBeforeMins;
                             recording.ProtectedUntilDate = protectedUntilEpoch;
                             recording.AbsoluteEndTime = timeBasedRecording.AbsoluteEndTime;
+                            recording.Id = currentHhRecording.Id;
                         }
                     }
                 }
@@ -1583,9 +1617,11 @@ namespace Core.Recordings
                         timeBasedRecording.Crid, new List<long>() { householdId }, out failedDomainIds,
                         paddingBeforeMins, paddingAfterMins);
 
-                    if (UpdateOrInsertHouseholdRecording(partnerId, userId, householdId, recording,
-                            recordingKey, TstvRecordingStatus.OK, false))
+                    var _updated = UpdateOrInsertHouseholdRecording(partnerId, userId, householdId, recording,
+                        recordingKey, TstvRecordingStatus.OK, false, paddingBeforeMins, paddingAfterMins); 
+                    if (_updated.Success)
                     {
+                        recording.Id = _updated.HouseholdRecordingId;
                         LayeredCache.Instance.SetInvalidationKey(
                             LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(partnerId, householdId));
                     }
@@ -1595,6 +1631,7 @@ namespace Core.Recordings
             {
                 currentHhRecording.ProtectedUntilEpoch = protectedUntilEpoch;
                 _repository.UpdateHouseholdRecording(partnerId, currentHhRecording);
+                recording.Id = currentHhRecording.Id;
                 LayeredCache.Instance.SetInvalidationKey(
                     LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(partnerId, householdId));
             }
@@ -1713,6 +1750,16 @@ namespace Core.Recordings
             return returnStatus;
         }
 
+        public TimeBasedRecording GetRecordingByExternalId(int partnerId, string recordingExternalId)
+        {
+            return _repository.GetRecordingByExternalId(partnerId, recordingExternalId);
+        }
+        
+        public bool UpdateRecordingStatus(int partnerId, long recordingId, RecordingInternalStatus status)
+        {
+            return _repository.UpdateRecordingStatus(partnerId, recordingId, status.ToString());
+        }
+        
         public Status GetRecordingStatus(int partnerId, long recordingId)
         {
             Status returnStatus = new Status((int)eResponseStatus.OK);
@@ -2191,7 +2238,7 @@ namespace Core.Recordings
             }
         }
 
-        public GenericResponse<Recording> ImmediateRecord(int groupId, long userId, long domainId, long epgChannelId,
+        public GenericResponse<Recording> ImmediateRecord(int groupId, long userId, long domainId,
             long epgId, int? endPadding = null)
         {
             var response = new GenericResponse<Recording>();
@@ -2266,13 +2313,14 @@ namespace Core.Recordings
                 return response;
             }
 
+            long.TryParse(epgChannelProg.EPG_CHANNEL_ID, out var _epgChannelId);
             Recording recording = null;
             TimeBasedRecording timeBasedRecording;
             var syncKey = string.Format("PaddedRecordingsManager_{0}", epgId);
             Dictionary<string, object> syncParmeters = new Dictionary<string, object>();
             syncParmeters.Add("groupId", groupId);
             syncParmeters.Add("programId", epgId);
-            syncParmeters.Add("epgChannelID", epgChannelId);
+            syncParmeters.Add("epgChannelID", _epgChannelId);
             syncParmeters.Add("domainIds", new List<long>() { });
             syncParmeters.Add("isPrivateCopy", false);
             syncParmeters.Add("absoluteStart", _absoluteStartTime);
@@ -2308,7 +2356,7 @@ namespace Core.Recordings
                                                     permutation.AbsoluteEndTime > DateTime.UtcNow))
                         {
                             response.SetStatus(eResponseStatus.RecordingStatusNotValid,
-                                $"Recording {permutation.Id} is in progress");
+                                $"Recording {hhRecord.Id} is in progress");
                             return response;
                         }
                     }
@@ -2365,7 +2413,7 @@ namespace Core.Recordings
                         DateTime.UtcNow,
                         DateTime.UtcNow,
                         DateUtils.DateTimeToUtcUnixTimestampSeconds(protectedUntilDate),
-                        epgChannelId,
+                        _epgChannelId,
                         true
                     );
                     recording = RecordingsUtils.BuildRecordingFromTBRecording(groupId, timeBasedRecording, _program,
@@ -2382,7 +2430,8 @@ namespace Core.Recordings
                     return response;
                 }
 
-                var hhRecording = SaveToHousehold(groupId, userId, domainId, epgChannelId, epgId, key, recording);
+                var hhRecording = SaveToHousehold(groupId, userId, domainId, _epgChannelId, epgId, key, recording, true, !endPadding.HasValue);
+
                 if (!hhRecording.success)
                 {
                     response.SetStatus(eResponseStatus.Error,
@@ -2397,9 +2446,11 @@ namespace Core.Recordings
                         hhRecording.rec);
                 }
 
+                //BEO-13648
+                recording.EndPadding = endPadding;
+                
                 recording.AbsoluteStartTime = _absoluteStartTime;
                 recording.AbsoluteEndTime = _absoluteEndTime;
-                recording.EndPadding = absoluteEndOffset;
                 recording.Id = hhRecording.rec.Id;
                 response.Object = recording;
             }
@@ -2438,7 +2489,7 @@ namespace Core.Recordings
 
         private (HouseholdRecording rec, bool success) SaveToHousehold(int groupId, long userId, long domainId,
             long epgChannelId, long epgId,
-            string key, Recording recording)
+            string key, Recording recording, bool? isStartPaddingDefault, bool? isEndPaddingDefault)
         {
             var status = RecordingsUtils.ConvertToDomainRecordingStatus(recording.RecordingStatus).ToString();
             var hhRecording = new HouseholdRecording(userId, domainId, epgId, key,
@@ -2451,6 +2502,9 @@ namespace Core.Recordings
             
             if (currentHouseholdRecording == null || currentHouseholdRecording.Id == 0) //new hh recording
             {
+                hhRecording.IsStartPaddingDefault = isStartPaddingDefault ?? hhRecording.IsStartPaddingDefault;
+                hhRecording.IsEndPaddingDefault = isEndPaddingDefault ?? hhRecording.IsEndPaddingDefault;
+                
                 if (_repository.AddHouseholdRecording(groupId, hhRecording) == 0)
                 {
                     log.Warn("Failed saving HH recording");
@@ -2460,6 +2514,8 @@ namespace Core.Recordings
             else // hh recording with the same key
             {
                 hhRecording.Id = currentHouseholdRecording.Id;
+                hhRecording.IsStartPaddingDefault = isStartPaddingDefault ?? currentHouseholdRecording.IsStartPaddingDefault;
+                hhRecording.IsEndPaddingDefault = isEndPaddingDefault ?? currentHouseholdRecording.IsEndPaddingDefault;
                 if (!_repository.UpdateHouseholdRecording(groupId, hhRecording))
                 {
                     log.Warn("Failed updating HH recording");

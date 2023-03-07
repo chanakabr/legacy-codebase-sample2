@@ -9,6 +9,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using CategoriesSchema;
 using Tvinci.Core.DAL;
 using TvinciImporter;
 using TVinciShared;
@@ -57,13 +58,21 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static MediaFileType CreateMediaFileType(long id, DataRow dr)
+        private static HashSet<string> CreateMediaFileTypeDynamicDataKeys(long mediaFileTypeId, DataTable dynamicDataKeysTable)
+        {
+            return dynamicDataKeysTable?
+                .Select($"MEDIA_FILE_TYPE_ID={mediaFileTypeId}")
+                .Select(x => ODBCWrapper.Utils.GetSafeStr(x, "KEY"))
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        }
+
+        private static MediaFileType CreateMediaFileType(long id, DataRow dr, DataTable dynamicDataKeysTable)
         {
             MediaFileType result = null; ;
             int qualityType = ODBCWrapper.Utils.GetIntSafeVal(dr, "QUALITY", 0);
             if (id > 0 && typeof(MediaFileTypeQuality).IsEnumDefined(qualityType))
             {
-                result = new MediaFileType()
+                result = new MediaFileType
                 {
                     Id = id,
                     Name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME"),
@@ -76,7 +85,8 @@ namespace Core.Catalog.CatalogManagement
                     DrmId = ODBCWrapper.Utils.GetIntSafeVal(dr, "DRM_ID"),
                     Quality = (MediaFileTypeQuality)qualityType,
                     VideoCodecs = CreateMappedHashSetForMediaFileType(ODBCWrapper.Utils.GetSafeStr(dr, "VIDEO_CODECS")),
-                    AudioCodecs = CreateMappedHashSetForMediaFileType(ODBCWrapper.Utils.GetSafeStr(dr, "AUDIO_CODECS"))
+                    AudioCodecs = CreateMappedHashSetForMediaFileType(ODBCWrapper.Utils.GetSafeStr(dr, "AUDIO_CODECS")),
+                    DynamicDataKeys = CreateMediaFileTypeDynamicDataKeys(id, dynamicDataKeysTable)
                 };
             }
 
@@ -101,17 +111,18 @@ namespace Core.Catalog.CatalogManagement
         private static List<MediaFileType> CreateMediaFileTypeListFromDataSet(DataSet ds)
         {
             List<MediaFileType> response = new List<MediaFileType>();
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            if (ds?.Tables != null && ds.Tables.Count > 0)
             {
-                DataTable dt = ds.Tables[0];
-                if (dt != null && dt.Rows != null)
+                var dt = ds.Tables[0];
+                var dynamicDataKeysTable = ds.Tables.Count > 1 ? ds.Tables[1] : null;
+                if (dt?.Rows != null)
                 {
                     foreach (DataRow dr in dt.Rows)
                     {
                         long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
                         if (id > 0)
                         {
-                            MediaFileType mediaFileType = CreateMediaFileType(id, dr);
+                            var  mediaFileType = CreateMediaFileType(id, dr, dynamicDataKeysTable);
                             if (mediaFileType != null)
                             {
                                 response.Add(mediaFileType);
@@ -173,15 +184,16 @@ namespace Core.Catalog.CatalogManagement
         private static GenericResponse<MediaFileType> CreateMediaFileTypeResponseFromDataSet(DataSet ds)
         {
             GenericResponse<MediaFileType> response = new GenericResponse<MediaFileType>();
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            if (ds?.Tables != null && ds.Tables.Count > 0)
             {
                 DataTable dt = ds.Tables[0];
-                if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+                if (dt?.Rows != null && dt.Rows.Count == 1)
                 {
                     long id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID", 0);
                     if (id > 0)
                     {
-                        response.Object = CreateMediaFileType(id, dt.Rows[0]);
+                        var dynamicDataKeysTable = ds.Tables.Count > 1 ? ds.Tables[1] : null;
+                        response.Object = CreateMediaFileType(id, dt.Rows[0], dynamicDataKeysTable);
                         if (response.Object != null)
                         {
                             response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -214,7 +226,8 @@ namespace Core.Catalog.CatalogManagement
                 {
                     var assetFileRow = dt.Rows[0];
                     var labelsTable = ds.Tables.Count > 1 ? ds.Tables[1] : null;
-                    response.Object = CreateAssetFile(groupId, assetFileRow, labelsTable, shouldAddBaseUrl);
+                    var dynamicDataTable = ds.Tables.Count > 2 ? ds.Tables[2] : null;
+                    response.Object = CreateAssetFile(groupId, assetFileRow, labelsTable, dynamicDataTable, shouldAddBaseUrl);
                     if (response.Object != null)
                     {
                         response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -230,7 +243,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        private static AssetFile CreateAssetFile(int groupId, DataRow dr, DataTable labelsTable, bool shouldAddBaseUrl)
+        private static AssetFile CreateAssetFile(int groupId, DataRow dr, DataTable labelsTable, DataTable dynamicDataTable, bool shouldAddBaseUrl)
         {
             string typeName = string.Empty;
             int typeId = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_TYPE_ID");
@@ -280,6 +293,18 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 SetLabels(res, labelValues);
+            }
+
+            if (dynamicDataTable != null)
+            {
+                res.DynamicData = dynamicDataTable.Select($"MEDIA_FILE_ID={res.Id}")
+                    .Select(x => new KeyValuePair<string, string>(
+                        ODBCWrapper.Utils.GetSafeStr(x, "KEY"),
+                        ODBCWrapper.Utils.GetSafeStr(x, "VALUE")))
+                    .GroupBy(x => x.Key)
+                    .ToDictionary(
+                        x => x.Key,
+                        x => x.Select(_ => _.Value).ToArray().AsEnumerable());
             }
 
             if (shouldAddBaseUrl)
@@ -378,7 +403,7 @@ namespace Core.Catalog.CatalogManagement
                     .Where(x => !string.IsNullOrEmpty(x))
                     .ToArray();
         }
-        
+
         private static IReadOnlyCollection<string> GetValidLabelValues(string labels)
         {
             const int labelValueMaxLength = 128;
@@ -415,18 +440,50 @@ namespace Core.Catalog.CatalogManagement
                 : string.Join(",", labelValues);
         }
 
+        private static IEnumerable<KeyValuePair<string, string>> GetValidDynamicDataList(IDictionary<string, IEnumerable<string>> dynamicData)
+        {
+            return dynamicData
+                .SelectMany(x => x.Value.Select(_ => new KeyValuePair<string, string>(x.Key, _)))
+                .ToArray();
+        }
+
+        private static bool ValidateMediaFileDynamicData(MediaFileType mediaFileType, IDictionary<string, IEnumerable<string>> dynamicData, out Status status)
+        {
+            if (dynamicData == null || dynamicData.Count == 0)
+            {
+                status = Status.Ok;
+            }
+            else
+            {
+                var validKeys = mediaFileType.DynamicDataKeys ?? new HashSet<string>();
+                var missingKeys = dynamicData.Keys.Except(validKeys).ToArray();
+                if (missingKeys.Any())
+                {
+                    status = new Status(
+                        eResponseStatus.DynamicDataKeyDoesNotExist,
+                        $"DynamicData key does not exist in mediaFileType [{mediaFileType.Id}] for the following keys: [{string.Join(",", missingKeys)}].");
+                }
+                else
+                {
+                    status = Status.Ok;
+                }
+            }
+
+            return status.IsOkStatusCode();
+        }
+
         #endregion
 
         #region Internal Methods
 
-        internal static List<AssetFile> CreateAssetFileListResponseFromDataTable(int groupId, DataTable dt, DataTable labelsTable, bool shouldAddBaseUrl = true)
+        internal static List<AssetFile> CreateAssetFileListResponseFromDataTable(int groupId, DataTable dt, DataTable labelsTable, DataTable dynamicDataTable, bool shouldAddBaseUrl = true)
         {
             var response = new List<AssetFile>();
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 foreach (DataRow dr in dt.Rows)
                 {
-                    AssetFile assetFile = CreateAssetFile(groupId, dr, labelsTable, shouldAddBaseUrl);
+                    AssetFile assetFile = CreateAssetFile(groupId, dr, labelsTable, dynamicDataTable, shouldAddBaseUrl);
                     if (assetFile != null)
                     {
                         response.Add(assetFile);
@@ -457,12 +514,13 @@ namespace Core.Catalog.CatalogManagement
         internal static List<AssetFile> GetAssetFilesByAssetId(int groupId, long assetId, bool shouldAddBaseUrl = true)
         {
             List<AssetFile> files = new List<AssetFile>();
-            DataSet ds = CatalogDAL.GetMediaFilesByAssetIds(groupId, new List<long>() { assetId });
+            DataSet ds = CatalogDAL.GetMediaFilesByAssetIds(groupId, new List<long> { assetId });
             if (ds?.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
             {
                 var assetsTable = ds.Tables[0];
                 var labelsTable = ds.Tables.Count > 1 ? ds.Tables[1] : null;
-                files = CreateAssetFileListResponseFromDataTable(groupId, assetsTable, labelsTable, shouldAddBaseUrl);
+                var dynamicDataTable = ds.Tables.Count > 2 ? ds.Tables[2] : null;
+                files = CreateAssetFileListResponseFromDataTable(groupId, assetsTable, labelsTable, dynamicDataTable, shouldAddBaseUrl);
             }
 
             return files;
@@ -470,11 +528,11 @@ namespace Core.Catalog.CatalogManagement
         #endregion
 
         #region Public Methods
-        
+
         public class FileTypes
         {
             private readonly Lazy<Dictionary<int, MediaFileType>> _fileTypeMap;
-            
+
             public FileTypes(int groupId, IMediaFileTypeManager fileManager)
             {
                 _fileTypeMap = new Lazy<Dictionary<int, MediaFileType>>(() =>
@@ -514,7 +572,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 DataSet ds = CatalogDAL.InsertMediaFileType(groupId, mediaFileTypeToAdd.Name, mediaFileTypeToAdd.Description, mediaFileTypeToAdd.IsActive, mediaFileTypeToAdd.IsTrailer,
                                                             (int)mediaFileTypeToAdd.StreamerType, mediaFileTypeToAdd.DrmId, mediaFileTypeToAdd.Quality, mediaFileTypeToAdd.VideoCodecs,
-                                                            mediaFileTypeToAdd.AudioCodecs, userId);
+                                                            mediaFileTypeToAdd.AudioCodecs, mediaFileTypeToAdd.DynamicDataKeys, userId);
                 result = CreateMediaFileTypeResponseFromDataSet(ds);
 
                 if (result.Status.Code == (int)eResponseStatus.OK)
@@ -540,7 +598,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 DataSet ds = CatalogDAL.UpdateMediaFileType(groupId, id, mediaFileTypeToUpdate.Name, mediaFileTypeToUpdate.Description, mediaFileTypeToUpdate.IsActive, mediaFileTypeToUpdate.Quality,
-                                                            mediaFileTypeToUpdate.VideoCodecs, mediaFileTypeToUpdate.AudioCodecs, userId);
+                                                            mediaFileTypeToUpdate.VideoCodecs, mediaFileTypeToUpdate.AudioCodecs, mediaFileTypeToUpdate.DynamicDataKeys, userId);
                 result = CreateMediaFileTypeResponseFromDataSet(ds);
                 if (result.Status.Code == (int)eResponseStatus.OK)
                 {
@@ -565,7 +623,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 DataSet ds = CatalogDAL.DeleteMediaFileType(groupId, id, userId);
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                if (ds?.Tables != null && ds.Tables.Count > 0)
                 {
                     /* We don't care about the first table, we just checked to see count > 0 to know if the media file type was deleted successfully
                        The second table is needed to invalidate the assets that had media files of this file type  */
@@ -627,7 +685,7 @@ namespace Core.Catalog.CatalogManagement
                         return result;
                     }
 
-                    // validate that asset file type exist 
+                    // validate that asset file type exist
                     List<MediaFileType> mediaFileTypes = GetGroupMediaFileTypes(groupId);
                     if (mediaFileTypes == null || mediaFileTypes.Count < 1)
                     {
@@ -635,9 +693,16 @@ namespace Core.Catalog.CatalogManagement
                         return result;
                     }
 
-                    if (!mediaFileTypes.Any(x => x.Id == assetFileToAdd.TypeId))
+                    var mediaFileType = mediaFileTypes.FirstOrDefault(x => x.Id == assetFileToAdd.TypeId);
+                    if (mediaFileType == null)
                     {
                         result.SetStatus(eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
+                        return result;
+                    }
+
+                    if (!ValidateMediaFileDynamicData(mediaFileType, assetFileToAdd.DynamicData, out var mediaFileDynamicDataStatus))
+                    {
+                        result.SetStatus(mediaFileDynamicDataStatus);
                         return result;
                     }
 
@@ -650,7 +715,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                // validate CdnAdapaterProfileId (0 or null for setting group default adapter) \ AlternativeCdnAdapaterProfileId     
+                // validate CdnAdapaterProfileId (0 or null for setting group default adapter) \ AlternativeCdnAdapaterProfileId
                 Status validateCdnReponse = ValidateCdnAdapterProfileIds(groupId, assetFileToAdd.CdnAdapaterProfileId, assetFileToAdd.AlternativeCdnAdapaterProfileId);
                 if (validateCdnReponse.Code != (int)eResponseStatus.OK)
                 {
@@ -675,7 +740,8 @@ namespace Core.Catalog.CatalogManagement
                 DataSet ds = CatalogDAL.InsertMediaFile(groupId, userId, assetFileToAdd.AdditionalData, assetFileToAdd.AltStreamingCode, assetFileToAdd.AlternativeCdnAdapaterProfileId, assetFileToAdd.AssetId,
                                                         assetFileToAdd.BillingType, assetFileToAdd.Duration, assetFileToAdd.EndDate, assetFileToAdd.ExternalId, assetFileToAdd.ExternalStoreId, assetFileToAdd.FileSize,
                                                         assetFileToAdd.IsDefaultLanguage, assetFileToAdd.Language, assetFileToAdd.OrderNum, startDate, assetFileToAdd.Url, assetFileToAdd.CdnAdapaterProfileId,
-                                                        assetFileToAdd.TypeId, assetFileToAdd.AltExternalId, assetFileToAdd.IsActive, assetFileToAdd.CatalogEndDate, GetValidLabelValues(assetFileToAdd.Labels), assetFileToAdd.Opl);
+                                                        assetFileToAdd.TypeId, assetFileToAdd.AltExternalId, assetFileToAdd.IsActive, assetFileToAdd.CatalogEndDate, GetValidLabelValues(assetFileToAdd.Labels),
+                                                        GetValidDynamicDataList(assetFileToAdd.DynamicData), assetFileToAdd.Opl);
                 result = CreateAssetFileResponseFromDataSet(groupId, ds);
 
                 if (result.Status.Code == (int)eResponseStatus.OK)
@@ -698,12 +764,12 @@ namespace Core.Catalog.CatalogManagement
                         //extracted it from upsertMedia it was called also for OPC accounts,searchDefinitions
                         //not sure it's required but better be safe
                         LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, assetFileToAdd.AssetId));
-                        
+
                         // invalidate asset
                         AssetManager.Instance.InvalidateAsset(eAssetTypes.MEDIA, groupId, assetFileToAdd.AssetId);
                     }
 
-                    // free item index update 
+                    // free item index update
                     DoFreeItemIndexUpdateIfNeeded(groupId, (int)assetFileToAdd.AssetId, null, assetFileToAdd.StartDate, null, assetFileToAdd.EndDate);
 
                     TryInvalidateLabels(groupId, result.Object);
@@ -743,7 +809,7 @@ namespace Core.Catalog.CatalogManagement
                     //extracted it from upsertMedia it was called also for OPC accounts,searchDefinitions
                     //not sure it's required but better be safe
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, assetFileResponse.Object.AssetId));
-                    
+
                     // invalidate asset
                     AssetManager.Instance.InvalidateAsset(eAssetTypes.MEDIA, groupId, assetFileResponse.Object.AssetId);
                 }
@@ -794,6 +860,12 @@ namespace Core.Catalog.CatalogManagement
                         return result;
                     }
 
+                    if (!ValidateMediaFileDynamicData(mediaFileType, assetFileToUpdate.DynamicData, out var mediaFileDynamicDataStatus))
+                    {
+                        result.SetStatus(mediaFileDynamicDataStatus);
+                        return result;
+                    }
+
                     // validate media doesn't already have a file with this type
                     if (assetFileToUpdate.TypeId.HasValue && assetFileToUpdate.Id != currentAssetFile.Id)
                     {
@@ -817,7 +889,7 @@ namespace Core.Catalog.CatalogManagement
                     assetFileToUpdate.AltExternalId = currentAssetFile.AltExternalId;
                 }
 
-                // validate CdnAdapaterProfileId (0 or null for setting group default adapter) \ AlternativeCdnAdapaterProfileId     
+                // validate CdnAdapaterProfileId (0 or null for setting group default adapter) \ AlternativeCdnAdapaterProfileId
                 Status validateCdnReponse = ValidateCdnAdapterProfileIds(groupId, assetFileToUpdate.CdnAdapaterProfileId, assetFileToUpdate.AlternativeCdnAdapaterProfileId);
                 if (validateCdnReponse.Code != (int)eResponseStatus.OK)
                 {
@@ -843,7 +915,7 @@ namespace Core.Catalog.CatalogManagement
                                                     assetFileToUpdate.IsDefaultLanguage, assetFileToUpdate.Language, assetFileToUpdate.OrderNum,
                                                     assetFileToUpdate.StartDate, assetFileToUpdate.Url, assetFileToUpdate.CdnAdapaterProfileId,
                                                     assetFileToUpdate.TypeId, assetFileToUpdate.AltExternalId, assetFileToUpdate.IsActive, assetFileToUpdate.CatalogEndDate,
-                                                    assetFileToUpdate.Opl, GetValidLabelValues(assetFileToUpdate.Labels));
+                                                    assetFileToUpdate.Opl, GetValidLabelValues(assetFileToUpdate.Labels), GetValidDynamicDataList(assetFileToUpdate.DynamicData));
 
                 result = CreateAssetFileResponseFromDataSet(groupId, ds);
 
@@ -864,16 +936,16 @@ namespace Core.Catalog.CatalogManagement
                         {
                             log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateMediaFile", assetFileToUpdate.AssetId, groupId);
                         }
-                        
+
                         //extracted it from upsertMedia it was called also for OPC accounts,searchDefinitions
                         //not sure it's required but better be safe
                         LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, assetFileToUpdate.AssetId));
-                        
+
                         // invalidate asset
                         AssetManager.Instance.InvalidateAsset(eAssetTypes.MEDIA, groupId, assetFileToUpdate.AssetId);
                     }
 
-                    // free item index update 
+                    // free item index update
                     DoFreeItemIndexUpdateIfNeeded(groupId, (int)assetFileToUpdate.AssetId, currentAssetFile.StartDate, assetFileToUpdate.StartDate,
                                                   currentAssetFile.EndDate, assetFileToUpdate.EndDate);
 

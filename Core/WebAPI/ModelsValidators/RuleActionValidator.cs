@@ -1,8 +1,7 @@
-﻿using System.Diagnostics;
-using WebAPI.Exceptions;
+﻿using WebAPI.Exceptions;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.ConditionalAccess.FilterActions.Assets;
-using WebAPI.Models.Pricing;
+using WebAPI.Models.ConditionalAccess.FilterActions.Files;
 
 namespace WebAPI.ModelsValidators
 {
@@ -12,10 +11,12 @@ namespace WebAPI.ModelsValidators
         {
             switch (model)
             {
-                case KalturaFilterAssetByKsqlAction c: c.Validate(); break;
+                case KalturaFilterAssetByKsqlAction action:
+                    action.Validate();
+                    break;
             }
         }
-        
+
         public static void Validate(this KalturaFilterAssetByKsqlAction model)
         {
             if (string.IsNullOrWhiteSpace(model.Ksql))

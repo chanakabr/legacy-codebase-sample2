@@ -76,6 +76,7 @@ namespace Core.Catalog.CatalogManagement
         private const string TABLE_NAME_TAGS = "TAGS";
         private const string TABLE_NAME_FILES = "FILES";
         private const string TABLE_NAME_FILES_LABELS = "FILES_LABELS";
+        private const string TABLE_NAME_FILES_DYNAMIC_DATA = "DYNAMIC_DATA";
         private const string TABLE_NAME_IMAGES = "IMAGES";
         private const string TABLE_NAME_NEW_TAGS = "NEW_TAGS";
         private const string TABLE_NAME_UPDATE_DATE = "UPDATE_DATE";
@@ -483,6 +484,7 @@ namespace Core.Catalog.CatalogManagement
                 tables[TABLE_NAME_NEW_TAGS],
                 tables[TABLE_NAME_FILES],
                 tables[TABLE_NAME_FILES_LABELS],
+                tables[TABLE_NAME_FILES_DYNAMIC_DATA],
                 tables[TABLE_NAME_IMAGES],
                 null,
                 null,
@@ -1750,6 +1752,7 @@ namespace Core.Catalog.CatalogManagement
                                 null,
                                 null,
                                 null,
+                                null,
                                 tables[TABLE_NAME_UPDATE_DATE],
                                 null,
                                 null,
@@ -2662,10 +2665,25 @@ namespace Core.Catalog.CatalogManagement
             tables.Add(TABLE_NAME_TAGS, GetDataTableByIndex(ds, 2, isMinimalOutput));
             tables.Add(TABLE_NAME_FILES, GetDataTableByIndex(ds, 3, isMinimalOutput));
             tables.Add(TABLE_NAME_FILES_LABELS, GetDataTableByIndex(ds, 4, isMinimalOutput));
-            tables.Add(TABLE_NAME_IMAGES, GetDataTableByIndex(ds, 5, isMinimalOutput));
-            tables.Add(TABLE_NAME_NEW_TAGS, GetDataTableByIndex(ds, 6, isMinimalOutput));
-            tables.Add(TABLE_NAME_RELATED_ENTITIES, GetDataTableByIndex(ds, 7, isMinimalOutput));
-            tables.Add(TABLE_NAME_LIVE_TO_VOD, GetDataTableByIndex(ds, 8, isMinimalOutput));
+            if (ds.Tables.Count <= 9)
+            {
+                // TODO
+                // This branch is used for backward compatibility and can be deleted
+                // in the future when MediaFile's dynamic data is delivered.
+                tables.Add(TABLE_NAME_FILES_DYNAMIC_DATA, new DataTable());
+                tables.Add(TABLE_NAME_IMAGES, GetDataTableByIndex(ds, 5, isMinimalOutput));
+                tables.Add(TABLE_NAME_NEW_TAGS, GetDataTableByIndex(ds, 6, isMinimalOutput));
+                tables.Add(TABLE_NAME_RELATED_ENTITIES, GetDataTableByIndex(ds, 7, isMinimalOutput));
+                tables.Add(TABLE_NAME_LIVE_TO_VOD, GetDataTableByIndex(ds, 8, isMinimalOutput));
+            }
+            else if (ds.Tables.Count == 10)
+            {
+                tables.Add(TABLE_NAME_FILES_DYNAMIC_DATA, GetDataTableByIndex(ds, 5, isMinimalOutput));
+                tables.Add(TABLE_NAME_IMAGES, GetDataTableByIndex(ds, 6, isMinimalOutput));
+                tables.Add(TABLE_NAME_NEW_TAGS, GetDataTableByIndex(ds, 7, isMinimalOutput));
+                tables.Add(TABLE_NAME_RELATED_ENTITIES, GetDataTableByIndex(ds, 8, isMinimalOutput));
+                tables.Add(TABLE_NAME_LIVE_TO_VOD, GetDataTableByIndex(ds, 9, isMinimalOutput));
+            }
 
             return new Status((int)eResponseStatus.OK);
         }
@@ -3206,6 +3224,7 @@ namespace Core.Catalog.CatalogManagement
                     tables[TABLE_NAME_TAGS],
                     null,
                     tables[TABLE_NAME_FILES],
+                    null,
                     null,
                     null,
                     tables[TABLE_NAME_UPDATE_DATE],

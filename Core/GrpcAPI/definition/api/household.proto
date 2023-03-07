@@ -22,14 +22,8 @@ enum RolePermissions
   ALLOW_ACTION_IN_SUSPENDED_DOMAIN = 12;
 }
 
-message deviceFamilyData{
+message deviceFamily{
   int32 familyId = 1;
   int32 concurrency = 2;
-  repeated string udids = 3;
-}
-
-message DomainData{
-  int32 dlmId = 1;
-  int32 concurrency = 2;
-  repeated deviceFamilyData deviceFamilies = 3;
+  repeated string udid = 3;
 }

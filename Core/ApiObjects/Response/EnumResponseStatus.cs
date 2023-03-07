@@ -129,7 +129,7 @@ namespace ApiObjects.Response
         ChargeStatusUnknown = 3015,
         ContentIDMissing = 3016,   ///
         NoMediaRelatedToFile = 3017,
-        NoContentID = 3018, /// 
+        NoContentID = 3018, ///
         NoProductID = 3019,
         CouponNotValid = 3020,
         UnableToPurchasePPVPurchased = 3021,
@@ -331,6 +331,8 @@ namespace ApiObjects.Response
         SearchPriorityGroupDoesNotExist = 4117,
         CanNotRemoveMetaIdsForLiveToVod = 4118,
         L2VMetadataClassifierIsNotValid = 4119,
+        DynamicDataKeyDoesNotExist = 4120,
+        DynamicDataKeyValueDoesNotExist = 4121,
 
         #endregion
 

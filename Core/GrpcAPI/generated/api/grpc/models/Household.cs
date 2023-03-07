@@ -24,24 +24,20 @@ namespace phoenix {
     static HouseholdReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "Cg9ob3VzZWhvbGQucHJvdG8SB3Bob2VuaXgiSAoQZGV2aWNlRmFtaWx5RGF0",
-            "YRIQCghmYW1pbHlJZBgBIAEoBRITCgtjb25jdXJyZW5jeRgCIAEoBRINCgV1",
-            "ZGlkcxgDIAMoCSJjCgpEb21haW5EYXRhEg0KBWRsbUlkGAEgASgFEhMKC2Nv",
-            "bmN1cnJlbmN5GAIgASgFEjEKDmRldmljZUZhbWlsaWVzGAMgAygLMhkucGhv",
-            "ZW5peC5kZXZpY2VGYW1pbHlEYXRhKsICCg9Sb2xlUGVybWlzc2lvbnMSGQoV",
-            "UExBWUJBQ0tfU1VCU0NSSVBUSU9OEAASEAoMUExBWUJBQ0tfUFBWEAESGQoV",
-            "UFVSQ0hBU0VfU1VCU0NSSVBUSU9OEAISEAoMUFVSQ0hBU0VfUFBWEAMSFgoS",
-            "UkVORVdfU1VCU0NSSVBUSU9OEAQSFAoQUFVSQ0hBU0VfU0VSVklDRRAFEgkK",
-            "BUxPR0lOEAYSGQoVREVMRVRFX0FMTF9BUFBfVE9LRU5TEAcSGAoUVklFV19J",
-            "TkFDVElWRV9BU1NFVFMQCBIQCgxQTEFZQkFDS19FUEcQCRIWChJQTEFZQkFD",
-            "S19SRUNPUkRJTkcQChIXChNQVVJDSEFTRV9DT0xMRUNUSU9OEAsSJAogQUxM",
-            "T1dfQUNUSU9OX0lOX1NVU1BFTkRFRF9ET01BSU4QDEIUWgguL21vZGVsc6oC",
-            "B3Bob2VuaXhiBnByb3RvMw=="));
+            "Cg9ob3VzZWhvbGQucHJvdG8SB3Bob2VuaXgiQwoMZGV2aWNlRmFtaWx5EhAK",
+            "CGZhbWlseUlkGAEgASgFEhMKC2NvbmN1cnJlbmN5GAIgASgFEgwKBHVkaWQY",
+            "AyADKAkqwgIKD1JvbGVQZXJtaXNzaW9ucxIZChVQTEFZQkFDS19TVUJTQ1JJ",
+            "UFRJT04QABIQCgxQTEFZQkFDS19QUFYQARIZChVQVVJDSEFTRV9TVUJTQ1JJ",
+            "UFRJT04QAhIQCgxQVVJDSEFTRV9QUFYQAxIWChJSRU5FV19TVUJTQ1JJUFRJ",
+            "T04QBBIUChBQVVJDSEFTRV9TRVJWSUNFEAUSCQoFTE9HSU4QBhIZChVERUxF",
+            "VEVfQUxMX0FQUF9UT0tFTlMQBxIYChRWSUVXX0lOQUNUSVZFX0FTU0VUUxAI",
+            "EhAKDFBMQVlCQUNLX0VQRxAJEhYKElBMQVlCQUNLX1JFQ09SRElORxAKEhcK",
+            "E1BVUkNIQVNFX0NPTExFQ1RJT04QCxIkCiBBTExPV19BQ1RJT05fSU5fU1VT",
+            "UEVOREVEX0RPTUFJThAMQhRaCC4vbW9kZWxzqgIHcGhvZW5peGIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::phoenix.RolePermissions), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.deviceFamilyData), global::phoenix.deviceFamilyData.Parser, new[]{ "FamilyId", "Concurrency", "Udids" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.DomainData), global::phoenix.DomainData.Parser, new[]{ "DlmId", "Concurrency", "DeviceFamilies" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.deviceFamily), global::phoenix.deviceFamily.Parser, new[]{ "FamilyId", "Concurrency", "Udid" }, null, null, null, null)
           }));
     }
     #endregion
@@ -67,15 +63,15 @@ namespace phoenix {
   #endregion
 
   #region Messages
-  public sealed partial class deviceFamilyData : pb::IMessage<deviceFamilyData>
+  public sealed partial class deviceFamily : pb::IMessage<deviceFamily>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
   {
-    private static readonly pb::MessageParser<deviceFamilyData> _parser = new pb::MessageParser<deviceFamilyData>(() => new deviceFamilyData());
+    private static readonly pb::MessageParser<deviceFamily> _parser = new pb::MessageParser<deviceFamily>(() => new deviceFamily());
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pb::MessageParser<deviceFamilyData> Parser { get { return _parser; } }
+    public static pb::MessageParser<deviceFamily> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
@@ -88,23 +84,23 @@ namespace phoenix {
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public deviceFamilyData() {
+    public deviceFamily() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public deviceFamilyData(deviceFamilyData other) : this() {
+    public deviceFamily(deviceFamily other) : this() {
       familyId_ = other.familyId_;
       concurrency_ = other.concurrency_;
-      udids_ = other.udids_.Clone();
+      udid_ = other.udid_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public deviceFamilyData Clone() {
-      return new deviceFamilyData(this);
+    public deviceFamily Clone() {
+      return new deviceFamily(this);
     }
 
     /// <summary>Field number for the "familyId" field.</summary>
@@ -129,23 +125,23 @@ namespace phoenix {
       }
     }
 
-    /// <summary>Field number for the "udids" field.</summary>
-    public const int UdidsFieldNumber = 3;
-    private static readonly pb::FieldCodec<string> _repeated_udids_codec
+    /// <summary>Field number for the "udid" field.</summary>
+    public const int UdidFieldNumber = 3;
+    private static readonly pb::FieldCodec<string> _repeated_udid_codec
         = pb::FieldCodec.ForString(26);
-    private readonly pbc::RepeatedField<string> udids_ = new pbc::RepeatedField<string>();
+    private readonly pbc::RepeatedField<string> udid_ = new pbc::RepeatedField<string>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public pbc::RepeatedField<string> Udids {
-      get { return udids_; }
+    public pbc::RepeatedField<string> Udid {
+      get { return udid_; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
-      return Equals(other as deviceFamilyData);
+      return Equals(other as deviceFamily);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(deviceFamilyData other) {
+    public bool Equals(deviceFamily other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
@@ -154,7 +150,7 @@ namespace phoenix {
       }
       if (FamilyId != other.FamilyId) return false;
       if (Concurrency != other.Concurrency) return false;
-      if(!udids_.Equals(other.udids_)) return false;
+      if(!udid_.Equals(other.udid_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -163,7 +159,7 @@ namespace phoenix {
       int hash = 1;
       if (FamilyId != 0) hash ^= FamilyId.GetHashCode();
       if (Concurrency != 0) hash ^= Concurrency.GetHashCode();
-      hash ^= udids_.GetHashCode();
+      hash ^= udid_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -188,7 +184,7 @@ namespace phoenix {
         output.WriteRawTag(16);
         output.WriteInt32(Concurrency);
       }
-      udids_.WriteTo(output, _repeated_udids_codec);
+      udid_.WriteTo(output, _repeated_udid_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -206,7 +202,7 @@ namespace phoenix {
         output.WriteRawTag(16);
         output.WriteInt32(Concurrency);
       }
-      udids_.WriteTo(ref output, _repeated_udids_codec);
+      udid_.WriteTo(ref output, _repeated_udid_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -222,7 +218,7 @@ namespace phoenix {
       if (Concurrency != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(Concurrency);
       }
-      size += udids_.CalculateSize(_repeated_udids_codec);
+      size += udid_.CalculateSize(_repeated_udid_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -230,7 +226,7 @@ namespace phoenix {
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(deviceFamilyData other) {
+    public void MergeFrom(deviceFamily other) {
       if (other == null) {
         return;
       }
@@ -240,7 +236,7 @@ namespace phoenix {
       if (other.Concurrency != 0) {
         Concurrency = other.Concurrency;
       }
-      udids_.Add(other.udids_);
+      udid_.Add(other.udid_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -264,7 +260,7 @@ namespace phoenix {
             break;
           }
           case 26: {
-            udids_.AddEntriesFrom(input, _repeated_udids_codec);
+            udid_.AddEntriesFrom(input, _repeated_udid_codec);
             break;
           }
         }
@@ -290,240 +286,7 @@ namespace phoenix {
             break;
           }
           case 26: {
-            udids_.AddEntriesFrom(ref input, _repeated_udids_codec);
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
-  public sealed partial class DomainData : pb::IMessage<DomainData>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<DomainData> _parser = new pb::MessageParser<DomainData>(() => new DomainData());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pb::MessageParser<DomainData> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::phoenix.HouseholdReflection.Descriptor.MessageTypes[1]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public DomainData() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public DomainData(DomainData other) : this() {
-      dlmId_ = other.dlmId_;
-      concurrency_ = other.concurrency_;
-      deviceFamilies_ = other.deviceFamilies_.Clone();
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public DomainData Clone() {
-      return new DomainData(this);
-    }
-
-    /// <summary>Field number for the "dlmId" field.</summary>
-    public const int DlmIdFieldNumber = 1;
-    private int dlmId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int DlmId {
-      get { return dlmId_; }
-      set {
-        dlmId_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "concurrency" field.</summary>
-    public const int ConcurrencyFieldNumber = 2;
-    private int concurrency_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int Concurrency {
-      get { return concurrency_; }
-      set {
-        concurrency_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "deviceFamilies" field.</summary>
-    public const int DeviceFamiliesFieldNumber = 3;
-    private static readonly pb::FieldCodec<global::phoenix.deviceFamilyData> _repeated_deviceFamilies_codec
-        = pb::FieldCodec.ForMessage(26, global::phoenix.deviceFamilyData.Parser);
-    private readonly pbc::RepeatedField<global::phoenix.deviceFamilyData> deviceFamilies_ = new pbc::RepeatedField<global::phoenix.deviceFamilyData>();
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public pbc::RepeatedField<global::phoenix.deviceFamilyData> DeviceFamilies {
-      get { return deviceFamilies_; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override bool Equals(object other) {
-      return Equals(other as DomainData);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(DomainData other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (DlmId != other.DlmId) return false;
-      if (Concurrency != other.Concurrency) return false;
-      if(!deviceFamilies_.Equals(other.deviceFamilies_)) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (DlmId != 0) hash ^= DlmId.GetHashCode();
-      if (Concurrency != 0) hash ^= Concurrency.GetHashCode();
-      hash ^= deviceFamilies_.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (DlmId != 0) {
-        output.WriteRawTag(8);
-        output.WriteInt32(DlmId);
-      }
-      if (Concurrency != 0) {
-        output.WriteRawTag(16);
-        output.WriteInt32(Concurrency);
-      }
-      deviceFamilies_.WriteTo(output, _repeated_deviceFamilies_codec);
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (DlmId != 0) {
-        output.WriteRawTag(8);
-        output.WriteInt32(DlmId);
-      }
-      if (Concurrency != 0) {
-        output.WriteRawTag(16);
-        output.WriteInt32(Concurrency);
-      }
-      deviceFamilies_.WriteTo(ref output, _repeated_deviceFamilies_codec);
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int CalculateSize() {
-      int size = 0;
-      if (DlmId != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(DlmId);
-      }
-      if (Concurrency != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Concurrency);
-      }
-      size += deviceFamilies_.CalculateSize(_repeated_deviceFamilies_codec);
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(DomainData other) {
-      if (other == null) {
-        return;
-      }
-      if (other.DlmId != 0) {
-        DlmId = other.DlmId;
-      }
-      if (other.Concurrency != 0) {
-        Concurrency = other.Concurrency;
-      }
-      deviceFamilies_.Add(other.deviceFamilies_);
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 8: {
-            DlmId = input.ReadInt32();
-            break;
-          }
-          case 16: {
-            Concurrency = input.ReadInt32();
-            break;
-          }
-          case 26: {
-            deviceFamilies_.AddEntriesFrom(input, _repeated_deviceFamilies_codec);
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 8: {
-            DlmId = input.ReadInt32();
-            break;
-          }
-          case 16: {
-            Concurrency = input.ReadInt32();
-            break;
-          }
-          case 26: {
-            deviceFamilies_.AddEntriesFrom(ref input, _repeated_deviceFamilies_codec);
+            udid_.AddEntriesFrom(ref input, _repeated_udid_codec);
             break;
           }
         }

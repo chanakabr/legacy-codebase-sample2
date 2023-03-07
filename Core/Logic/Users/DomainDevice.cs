@@ -50,6 +50,8 @@ namespace Core.Users
 
         public List<ApiObjects.KeyValuePair> DynamicData { get; set; }
 
+        public static readonly int DeletedDeviceStatus = 2; 
+
         protected override bool DoInsert()
         {
             switch (ActivataionStatus)

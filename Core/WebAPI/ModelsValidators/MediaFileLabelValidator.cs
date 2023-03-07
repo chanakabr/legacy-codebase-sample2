@@ -1,14 +1,20 @@
 using System;
 using System.Linq;
+using System.Threading;
 using WebAPI.Exceptions;
+using WebAPI.Models.Catalog;
 using static WebAPI.Exceptions.BadRequestException;
 
-namespace WebAPI.Models.Catalog
+namespace WebAPI.ModelsValidators
 {
-    public class KalturaLabelValidator
+    public class MediaFileLabelValidator : IMediaFileLabelValidator
     {
         private const int LABEL_MAX_LENGTH = 128;
         private const int MAX_MEDIA_FILE_LABELS_COUNT = 25;
+
+        private static readonly Lazy<IMediaFileLabelValidator> Lazy = new Lazy<IMediaFileLabelValidator>(() => new MediaFileLabelValidator(), LazyThreadSafetyMode.PublicationOnly);
+
+        public static IMediaFileLabelValidator Instance => Lazy.Value;
 
         public void ValidateToAdd(string commaSeparatedLabelValues, KalturaEntityAttribute entityAttribute, string argumentName)
         {

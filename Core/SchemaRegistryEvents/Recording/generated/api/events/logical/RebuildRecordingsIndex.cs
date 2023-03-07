@@ -48,7 +48,7 @@ namespace Phoenix.Generated.Api.Events.Logical.RebuildRecordingsIndex
         public string DisplayName { get; set; }
 
         [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
-        public double? Id { get; set; }
+        public long? Id { get; set; }
 
         [JsonProperty("isDefault", NullValueHandling = NullValueHandling.Ignore)]
         public bool? IsDefault { get; set; }

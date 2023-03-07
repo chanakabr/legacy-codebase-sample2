@@ -22,9 +22,7 @@ using ApiObjects.SearchObjects;
 using TVinciShared;
 using ApiLogic.Api.Managers;
 using ApiObjects.Response;
-using ApiLogic;
 using Phx.Lib.Appconfig.Types;
-using Core.GroupManagers;
 using ApiLogic.Api.Managers.Handlers;
 using MetaType = ApiObjects.MetaType;
 using OrderDir = ApiObjects.SearchObjects.OrderDir;
@@ -1380,7 +1378,7 @@ namespace APILogic
             + " billing_type=\"{5}\" PPV_Module=\"{6}\" cdn_code=\"{7}\" cdn_id=\"{8}\" pre_rule=\"{9}\" post_rule=\"{10}\" break_rule=\"{11}\""
             + " break_points=\"{12}\" overlay_rule=\"{13}\" overlay_points=\"{14}\" file_start_date=\"{15}\" file_end_date=\"{16}\" ads_enabled=\"{17}\""
             + " contract_family=\"{18}\" lang=\"{19}\" default=\"{20}\" output_protection_level=\"{21}\" product_code=\"{22}\""
-            + " alt_cdn_code=\"{23}\" alt_co_guid=\"{24}\" alt_cdn_id=\"{25}\" alt_cdn_name=\"{26}\" labels=\"{27}\"/>",
+            + " alt_cdn_code=\"{23}\" alt_co_guid=\"{24}\" alt_cdn_id=\"{25}\" alt_cdn_name=\"{26}\" labels=\"{27}\">{28}</file>",
                 TVinciShared.ProtocolsFuncs.XMLEncode(file.ExternalId, true),                            // {0} - co_guid      
                 TVinciShared.ProtocolsFuncs.XMLEncode("Clip", true),                                    // {1} - handling_type
                 TVinciShared.ProtocolsFuncs.XMLEncode(file.Duration.ToString(), true),               // {2} - assetDuration    
@@ -1408,10 +1406,30 @@ namespace APILogic
                 TVinciShared.ProtocolsFuncs.XMLEncode("", true),                                        // {24} - alt_co_guid   
                 TVinciShared.ProtocolsFuncs.XMLEncode("", true),                                        // {25} - alt_cdn_id   
                 TVinciShared.ProtocolsFuncs.XMLEncode("", true),                                        // {26} - alt_cdn_name   
-                TVinciShared.ProtocolsFuncs.XMLEncode(file.Labels, true)                                // {27} - labels  
+                TVinciShared.ProtocolsFuncs.XMLEncode(file.Labels, true),                               // {27} - labels
+                GetDynamicDataSection(file.DynamicData)                                                          // {28} - dynamic data
             );
         }
 
+        private static string GetDynamicDataSection(IDictionary<string, IEnumerable<string>> dynamicData)
+        {
+            var xml = new StringBuilder();
+            if (dynamicData.Any())
+            {
+                xml.Append("<dynamicData>");
+                foreach (var item in dynamicData)
+                {
+                    xml.Append("<keyValues><key>{item.Key}</key>");
+                    xml.Append(string.Join(string.Empty, item.Value.Select(x => $"<value>{x}</value>")));
+                    xml.Append("</keyValues>");
+                }
+
+                xml.Append("</dynamicData>");
+            }
+
+            return xml.ToString();
+        }
+        
         public static bool SendNotification(long taskId, string notificationUrl, bool success, string filename = null)
         {
             bool result = false;

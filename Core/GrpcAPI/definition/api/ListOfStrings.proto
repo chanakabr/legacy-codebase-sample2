@@ -1,0 +1,8 @@
+syntax = "proto3";
+option csharp_namespace = "phoenix";
+option go_package = "./models";
+package phoenix;
+
+message ListOfStrings {
+   repeated string value = 1;
+}

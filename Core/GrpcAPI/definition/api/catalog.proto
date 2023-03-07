@@ -3,6 +3,7 @@ import "Status.proto";
 import "AdsPolicy.proto";
 import "StreamerType.proto";
 import "google/protobuf/timestamp.proto";
+import "ListOfStrings.proto";
 
 option csharp_namespace = "phoenix";
 option go_package = "./models";
@@ -38,6 +39,7 @@ message MediaFile{
     BusinessModuleDetails BusinessModuleDetails = 19;
     int64 GroupId = 20;
     string Labels = 21;
+    map<string, ListOfStrings> DynamicData = 22;
 }
 message BusinessModuleDetails{
   int32 BusinessModuleId = 1;

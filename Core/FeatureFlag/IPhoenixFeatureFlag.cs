@@ -7,6 +7,7 @@
         bool IsStrictUnlockDisabled();
         bool IsEfficientSerializationUsed();
         bool IsRenewUseKronos();
+        bool IsRenewUseKronosPog();
         bool IsUnifiedRenewUseKronos();
         bool IsRenewalReminderUseKronos();
         bool IsRenewSubscriptionEndsUseKronos();

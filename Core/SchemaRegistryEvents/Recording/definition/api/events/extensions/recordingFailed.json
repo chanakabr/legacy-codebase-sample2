@@ -1,0 +1,12 @@
+{
+  "$id":"http://ott.service.phoenix/logical/api/events/extensions/recordingFailed",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RecordingFailed",
+  "type": "object",
+  "description": "Recording Failed - This event indicates that an extension (adapter) wishes to report that a recording has failed",
+  "allOf": [
+    {
+      "$ref": "ott-schema-registry/events/logical/recordings/extensions/recordingFailed"
+    }
+  ]
+}

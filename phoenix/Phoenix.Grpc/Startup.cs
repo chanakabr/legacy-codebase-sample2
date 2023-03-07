@@ -5,10 +5,13 @@ using GrpcAPI.controllers;
 using GrpcAPI.Services;
 using GrpcAPI.Utils;
 using HealthCheck;
+using log4net.Core;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using OTT.Lib.Metrics.Extensions;
+using Phx.Lib.Log;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace Phoenix.Grpc
@@ -34,6 +37,15 @@ namespace Phoenix.Grpc
             // this can be transient or scoped as well depending on your needs
             services.AddHttpContextAccessor();
             services.AddStaticHttpContextAccessor();
+            services.AddLogging(logging =>
+            {
+                logging.ClearProviders();
+                logging.AddProvider(new KLoggerProvider());
+                logging.AddFilter("Microsoft", LogLevel.Error);
+                logging.AddFilter("Grpc", LogLevel.Error);
+                logging.AddFilter("OTT.Lib.GRPC", LogLevel.Error);
+                logging.SetMinimumLevel(GetLogLevelFromKLogger());
+            });
             services.AddSingleton<IEntitlementService, EntitlementService>();
             services.AddSingleton<IHouseholdService, HouseholdService>();
             services.AddSingleton<IPricingService, PricingService>();
@@ -62,5 +74,17 @@ namespace Phoenix.Grpc
                 endpoints.MapGrpcService<PhoenixController>();
             });
         }
+        
+        
+        private static LogLevel GetLogLevelFromKLogger()
+        {
+            var level = KLogger.GetLogLevel();
+            if (level >= Level.Error) return LogLevel.Error;
+            if (level >= Level.Warn) return LogLevel.Warning;
+            if (level >= Level.Info) return LogLevel.Information;
+            if (level >= Level.Debug) return LogLevel.Debug;
+            return LogLevel.Trace;
+        }
+
     }
 }

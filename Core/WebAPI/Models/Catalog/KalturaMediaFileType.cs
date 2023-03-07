@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
@@ -119,5 +118,13 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "audioCodecs", IsNullable = true)]
         [SchemeProperty(MaxLength = 100, IsNullable = true)]
         public string AudioCodecs { get; set; }
+
+        /// <summary>
+        /// List of comma separated keys allowed to be used as KalturaMediaFile's dynamic data keys
+        /// </summary>
+        [DataMember(Name = "dynamicDataKeys")]
+        [JsonProperty("dynamicDataKeys")]
+        [XmlElement(ElementName = "dynamicDataKeys", IsNullable = true)]
+        public string DynamicDataKeys { get; set; }
     }
 }

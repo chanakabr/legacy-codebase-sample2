@@ -12400,7 +12400,7 @@ namespace Core.ConditionalAccess
 
                                             // enqueue renew transaction
                                             bool enqueueSuccessful = PurchaseManager.RenewTransactionMessageInQueue(m_nGroupID, siteguid,
-                                                billingGuid, purchaseID, endDateUnix, nextRenewalDate);
+                                                billingGuid, purchaseID, endDateUnix, nextRenewalDate, PhoenixFeatureFlagInstance.Get().IsRenewUseKronos());
                                         }
                                         catch (Exception ex)
                                         {
@@ -13404,7 +13404,7 @@ namespace Core.ConditionalAccess
                                         {
                                             ConditionalAccessDAL.Insert_SubscriptionsPurchasesKronos(purchaseID);
                                             
-                                            log.Debug($"Kronos - Renew purchaseID:{purchaseID}");
+                                            log.Info($"Kronos - Renew purchaseID:{purchaseID}");
                                             RenewManager.addEventToKronos(groupId, data);
                                         }
                                         else
@@ -14128,7 +14128,8 @@ namespace Core.ConditionalAccess
                         else
                         {
                             recording = PaddedRecordingsManager.Instance.Record(m_nGroupID, recording.EpgId, recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate,
-                                recording.Crid, new List<long>() { domainID }, out failedDomainIds, recording.StartPadding, recording.EndPadding, RecordingContext.Regular);
+                                recording.Crid, new List<long>() { domainID }, out failedDomainIds, recording.StartPadding,
+                                recording.EndPadding, RecordingContext.Regular);
                         }
                     }
                     else
@@ -14158,7 +14159,8 @@ namespace Core.ConditionalAccess
                                     }
                                 }
 
-                                UpdateOrInsertDomainRecording(userID, epgID, domainSeriesRecordingId, ref recording, domainID, recordingDuration, recordingType);
+                                UpdateOrInsertDomainRecording(userID, epgID, domainSeriesRecordingId, ref recording, domainID, recordingDuration, recordingType,
+                                    null, null, startPadding, endPadding);
                             }
                             else
                             {
@@ -14168,7 +14170,8 @@ namespace Core.ConditionalAccess
                         }
                         else
                         {
-                            UpdateOrInsertDomainRecording(userID, epgID, domainSeriesRecordingId, ref recording, domainID, recordingDuration, recordingType);
+                            UpdateOrInsertDomainRecording(userID, epgID, domainSeriesRecordingId, ref recording, domainID, recordingDuration, recordingType,
+                                null, null, startPadding, endPadding);
                         }
                     }
                     else if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.RecordingExceededConcurrency)
@@ -14202,14 +14205,14 @@ namespace Core.ConditionalAccess
         
 
         public void UpdateOrInsertDomainRecording(string userID, long epgID, long domainSeriesRecordingId, ref Recording recording, 
-            long domainID, int recordingDuration, RecordingType recordingType, long? absoluteStartTime = null, long? absoluteEndTime = null)
+            long domainID, int recordingDuration, RecordingType recordingType, long? absoluteStartTime = null, long? absoluteEndTime = null, 
+            int? originalStartPadding = null, int? originalEndPadding = null)
         {
             try
             {
                 if (QuotaManager.Instance.SetDomainUsedQuota(m_nGroupID, domainID, recordingDuration))
                 {
                     bool success = false;
-
                     recording.Type = recordingType;
                     TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
                     if (accountSettings.PersonalizedRecordingEnable == true)
@@ -14226,9 +14229,12 @@ namespace Core.ConditionalAccess
                                 recording.EndPadding.Value);
                         }
                         
-                        success = PaddedRecordingsManager.Instance.UpdateOrInsertHouseholdRecording(m_nGroupID, long.Parse(userID), domainID, recording,
-                            recordingKey, TstvRecordingStatus.OK, false);
-                        //Todo - Gil, check status in case of quota cleanup
+                        var _updated = PaddedRecordingsManager.Instance.UpdateOrInsertHouseholdRecording(m_nGroupID, long.Parse(userID), domainID, recording,
+                            recordingKey, TstvRecordingStatus.OK, false, originalStartPadding, originalEndPadding);
+                        success = _updated.Success;
+                        
+                        if (success)
+                            recording.Id = _updated.HouseholdRecordingId;
                     }
                     else
                     {
@@ -18291,8 +18297,7 @@ namespace Core.ConditionalAccess
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 totalSubscriptionsToRenew = dt.Rows.Count;
-                bool isKronos = PhoenixFeatureFlagInstance.Get().IsRenewUseKronos();
-
+                
                 foreach (DataRow dr in dt.Rows)
                 {
                     long purchaseId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
@@ -18311,21 +18316,12 @@ namespace Core.ConditionalAccess
                                                         endDateUnix, nextRenewalDate);
 
                         var enqueueSuccessful = true;
-                      
-                        if (isKronos)
-                        {
-                            ConditionalAccessDAL.Insert_SubscriptionsPurchasesKronos(purchaseId);
-                            
-                            log.Debug($"Kronos - Renew purchaseID:{purchaseId}");
-                            RenewManager.addEventToKronos(groupId, data);
-                        }
-                        else
-                        {
+                        
                             // enqueue renew transaction
-                            var queue = new RenewTransactionsQueue();
-                            enqueueSuccessful &= queue.Enqueue(data,
-                                string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
-                        }
+                        var queue = new RenewTransactionsQueue();
+                        enqueueSuccessful &= queue.Enqueue(data,
+                            string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+                        
 
                         if (enqueueSuccessful)
                         {

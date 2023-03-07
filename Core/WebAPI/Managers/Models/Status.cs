@@ -109,10 +109,10 @@ namespace WebAPI.Managers.Models
                 }
                 else if (Result is IEnumerable)
                 {
-                    propertyValue = "<item>" + 
-                            String.Join("</item><item>", 
-                                (Result as IEnumerable<object>).Select(item => item == null ? string.Empty : 
-                                    (item is IKalturaSerializable) ? (item as IKalturaSerializable).ToXml(currentVersion, omitObsolete, true) : 
+                    propertyValue = "<item>" +
+                            String.Join("</item><item>",
+                                (Result as IEnumerable<object>).Select(item => item == null ? string.Empty :
+                                    (item is IKalturaSerializable) ? (item as IKalturaSerializable).ToXml(currentVersion, omitObsolete, true) :
                                         item.ToString()))
                                     + "</item>";
                 }
@@ -263,7 +263,7 @@ namespace WebAPI.Managers.Models
         ArgumentShouldContainMinValueCrossed = 500058,
         ArgumentShouldContainMaxValueCrossed = 500059,
         InvalidUdid = 500060,
-        ArgumentsConflictEachOther = 500061,
+        ArgumentsValuesConflictEachOther = 500061,
         UnableToCreateHouseholdForRole = 500062,
         ExternalError = 500063,
         MultirequestGenericMethod = 500064,
@@ -297,5 +297,6 @@ namespace WebAPI.Managers.Models
         ArgumentNotInPredefinedRange = 500092,
         ArgumentMinPropertiesCrossed = 500093,
         ArgumentMaxPropertiesCrossed = 500094,
+        MultipleArgumentsConflictsEachOther = 500095,
     }
 }

@@ -18,9 +18,9 @@ namespace ApiLogic.Catalog.Services
             _indexRecordingProducer = producerFactory.Get<string, IndexRecording>(WebKafkaContextProvider.Instance, Partitioner.Murmur2Random);
         }
         
-        public static void PublishKafkaEvent(long groupId, List<long> ids, eAction action)
+        public static void PublishIndexRecordingKafkaEvent(long groupId, List<long> ids, eAction action)
         {
-            IndexRecording householdSegmentEvent = new IndexRecording
+            var indexRecording = new IndexRecording
             {
                 PartnerId = groupId,
                 AssetIds = ids.ToArray(),
@@ -28,7 +28,7 @@ namespace ApiLogic.Catalog.Services
             };
             
             _indexRecordingProducer.Produce(IndexRecording.GetTopic(),
-                householdSegmentEvent.GetPartitioningKey(), householdSegmentEvent);
+                indexRecording.GetPartitioningKey(), indexRecording);
         }
     }
 }

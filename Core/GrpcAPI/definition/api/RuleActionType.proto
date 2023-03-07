@@ -31,5 +31,7 @@ enum RuleActionType {
    RuleActionType_FilterFileByLabelInDiscovery = 24;
    RuleActionType_FilterFileByLabelInPlayback = 25;
    RuleActionType_NONE = 26;
+   RuleActionType_FilterFileByDynamicDataInDiscovery = 27;
+   RuleActionType_FilterFileByDynamicDataInPlayback = 28;
 }
 

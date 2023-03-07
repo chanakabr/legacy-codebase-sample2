@@ -48,5 +48,10 @@ namespace WebAPI.ObjectsConvertor.Extensions
         {
             return Utils.Utils.ParseCommaSeparatedValues<List<string>, string>(model.VideoCodecIn, "videoCodecIn", true);
         }
+
+        public static List<string> GetValues(this KalturaFilterFileByDynamicDataAction model)
+        {
+            return Utils.Utils.ParseCommaSeparatedValues<List<string>, string>(model.Values, "values", true);
+        }
     }
 }

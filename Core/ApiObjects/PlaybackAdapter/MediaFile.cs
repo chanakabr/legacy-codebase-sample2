@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace ApiObjects.PlaybackAdapter
 {
     public class MediaFile : AssetFile
@@ -45,5 +47,7 @@ namespace ApiObjects.PlaybackAdapter
         public long? CatalogEndDate { get; set; }
 
         public string Labels { get; set; }
+
+        public IDictionary<string, IEnumerable<string>> DynamicData { get; set; }
     }
 }

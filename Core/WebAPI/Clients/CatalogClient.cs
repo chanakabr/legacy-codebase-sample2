@@ -28,6 +28,7 @@ using System.Text;
 using System.Web;
 using ApiLogic.Catalog.CatalogManagement.Services.GroupRepresentatives;
 using ApiObjects.SearchObjects.GroupRepresentatives;
+using GroupsCacheManager.Mappers;
 using TVinciShared;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
@@ -2972,7 +2973,7 @@ namespace WebAPI.Clients
                     m_nPageSize = searchAssetsFilter.PageSize.Value,
                     m_sSiteGuid = searchAssetsFilter.SiteGuid,
                     domainId = searchAssetsFilter.DomainId,
-                    orderingParameters = KalturaOrderMapper.Instance.MapParameters(searchAssetsFilter.OrderingParameters, OrderBy.NONE),
+                    m_oOrderObj =  ChannelDataRowMapper.BuildOrderObj(KalturaOrderMapper.Instance.MapParameters(searchAssetsFilter.OrderingParameters, OrderBy.NONE).First()),
                     m_sMediaType = searchAssetsFilter.AssetTypes != null ? string.Join(";", searchAssetsFilter.AssetTypes) : null,
                     m_dServerTime = getServerTime(),
                     m_eBundleType = bType,

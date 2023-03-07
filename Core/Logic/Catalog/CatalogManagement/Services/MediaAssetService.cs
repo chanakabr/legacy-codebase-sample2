@@ -35,6 +35,7 @@ namespace Core.Catalog.CatalogManagement
             DataTable newTagsTable,
             DataTable filesTable,
             DataTable labelsTable,
+            DataTable mediaFileDynamicDataTable,
             DataTable imagesTable,
             DataTable updateDateTable,
             DataTable linearAssetTable,
@@ -95,7 +96,7 @@ namespace Core.Catalog.CatalogManagement
             List<AssetFile> files = null;
             if (!isForIndex && filesTable != null && filesTable.Rows.Count > 0)
             {
-                files = FileManager.CreateAssetFileListResponseFromDataTable((int)groupId, filesTable, labelsTable);
+                files = FileManager.CreateAssetFileListResponseFromDataTable((int)groupId, filesTable, labelsTable, mediaFileDynamicDataTable);
                 // get only active files
                 files = files.Where(x => x.IsActive.HasValue && x.IsActive.Value).ToList();
 
@@ -266,10 +267,11 @@ namespace Core.Catalog.CatalogManagement
                 var tagsTable = GetDataRows(dataSet, 2);
                 var filesTable = GetDataRows(dataSet, 3);
                 var filesLabelsTable = GetDataRows(dataSet, 4);
-                var imagesTable = GetDataRows(dataSet, 5);
-                var linearMediasTable = GetDataRows(dataSet, 6);
-                var relatedEntitiesTable = GetDataRows(dataSet, 7);
-                var liveToVodMediasTable = GetDataRows(dataSet, 8);
+                var filesDynamicDataTable = GetDataRows(dataSet, 5);
+                var imagesTable = GetDataRows(dataSet, 6);
+                var linearMediasTable = GetDataRows(dataSet, 7);
+                var relatedEntitiesTable = GetDataRows(dataSet, 8);
+                var liveToVodMediasTable = GetDataRows(dataSet, 9);
 
                 foreach (DataRow basicDataRow in dataSet.Tables[0].Rows)
                 {
@@ -287,7 +289,8 @@ namespace Core.Catalog.CatalogManagement
                             null,
                             GetTableByAssetDataRows(filesTable, "MEDIA_ID", id, dataSet, 3),
                             GetTableByAssetDataRows(filesLabelsTable, "MEDIA_ID", id, dataSet, 4),
-                            GetTableByAssetDataRows(imagesTable, "ASSET_ID", id, dataSet, 5),
+                            GetTableByAssetDataRows(filesDynamicDataTable, "MEDIA_ID", id, dataSet, 5),
+                            GetTableByAssetDataRows(imagesTable, "ASSET_ID", id, dataSet, 6),
                             null,
                             GetTableByAssetDataRows(linearMediasTable, "MEDIA_ID", id, dataSet, 7),
                             GetTableByAssetDataRows(relatedEntitiesTable, "ASSET_ID", id, dataSet, 8),

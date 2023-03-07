@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using Grpc.Core;
 using grpc.health.v1;

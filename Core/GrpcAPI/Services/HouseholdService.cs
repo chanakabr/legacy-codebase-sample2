@@ -11,7 +11,6 @@ using Core.Users;
 using Google.Protobuf.Collections;
 using GrpcAPI.Utils;
 using Microsoft.Extensions.Logging;
-using MoreLinq;
 using Phx.Lib.Log;
 using RolePermissions = ApiObjects.RolePermissions;
 using Status = phoenix.Status;
@@ -20,6 +19,7 @@ namespace GrpcAPI.Services
 {
     public interface IHouseholdService
     {
+        ValidateUserResponse ValidateUser(ValidateUserRequest request);
         GetDomainDataResponse GetDomainData(GetDomainDataRequest request);
 
         bool IsPermittedPermission(IsPermittedPermissionRequest request);
@@ -32,11 +32,12 @@ namespace GrpcAPI.Services
 
         int IsDevicePlayValid(IsDevicePlayValidRequest request);
         bool IsValidDeviceFamily(IsValidDeviceFamilyRequest request);
-        GetUserDataResponse GetUserData(GetUserDataRequest request);
     }
 
     public class HouseholdService : IHouseholdService
     {
+        private const int webFamilyId = 5;
+        private const string webDevice = "web site";
         private static readonly KLogger Logger = new KLogger(MethodBase.GetCurrentMethod()?.DeclaringType?.ToString());
 
         public bool IsPermittedPermission(IsPermittedPermissionRequest request)
@@ -51,67 +52,61 @@ namespace GrpcAPI.Services
                 request.UserId);
         }
 
+        public ValidateUserResponse ValidateUser(ValidateUserRequest request)
+        {
+            long domainId = 0;
+            try
+            {
+                var status = Core.ConditionalAccess.Utils.ValidateUserAndDomain(request.GroupId,
+                    request.UserId.ToString(), ref domainId, out var _, out var user);
+                var dynamicData = new MapField<string, string>();
+                if (user?.m_oDynamicData?.m_sUserData != null)
+                {
+                    foreach (var userData in user.m_oDynamicData.m_sUserData)
+                    {
+                        dynamicData.Add(userData.m_sDataType, userData.m_sValue);
+                    }
+                }
+
+                return new ValidateUserResponse
+                    {Status = Mapper.Map<Status>(status), DomainId = domainId, DynamicData = {dynamicData}};
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, $"Error while mapping ValidateUser GRPC service {e.Message}");
+                return null;
+            }
+        }
+
         public GetDomainDataResponse GetDomainData(GetDomainDataRequest request)
         {
             try
             {
-                long domainId = request.DomainId;
-                Domain domain = null;
-                ApiObjects.Response.Status status = ApiObjects.Response.Status.Error;
-                if (!string.IsNullOrEmpty(request.UserId.ToString()))
-                {
-                    status = Core.ConditionalAccess.Utils.ValidateUserAndDomain(request.GroupId,
-                        request.UserId.ToString(), ref domainId, out domain);
-                }
+                var domainId = request.DomainId;
+                Core.ConditionalAccess.Utils.ValidateDomain(request.GroupId,
+                    (int) domainId, out var domain);
 
-                DomainData domainData = null;
-                // in case that user is in problematic status ValidateUserAndDomain won't fetch domain data
                 if (domain != null)
                 {
-                    domainData = new DomainData()
+                    var deviceFamilies = GetDeviceFamilies(domain.m_deviceFamilies);
+                    return new GetDomainDataResponse()
                     {
-                        Concurrency = domain.m_oLimitationsManager?.Concurrency ?? 0,
+                        DomainId = domainId,
+                        DomainConcurrency = domain.m_oLimitationsManager?.Concurrency ?? 0,
                         DlmId = domain.m_nLimit,
                         DeviceFamilies =
                         {
-                            domain.m_deviceFamilies != null
-                                ? Mapper.Map<RepeatedField<deviceFamilyData>>(domain.m_deviceFamilies)
-                                : new RepeatedField<deviceFamilyData>()
+                            deviceFamilies
                         }
                     };
                 }
-                else
-                {
-                    Core.ConditionalAccess.Utils.ValidateDomain(request.GroupId,
-                        (int) domainId, out domain);
-                    if (domain != null)
-                    {
-                        domainData = new DomainData()
-                        {
-                            Concurrency = domain.m_oLimitationsManager?.Concurrency ?? 0,
-                            DlmId = domain.m_nLimit,
-                            DeviceFamilies =
-                            {
-                                domain.m_deviceFamilies != null
-                                    ? Mapper.Map<RepeatedField<deviceFamilyData>>(domain.m_deviceFamilies)
-                                    : new RepeatedField<deviceFamilyData>()
-                            }
-                        };
-                    }
-                }
-
-                return new GetDomainDataResponse()
-                {
-                    DomainId = domainId,
-                    Status = Mapper.Map<Status>(status),
-                    DomainData = domainData
-                };
             }
             catch (Exception e)
             {
                 Logger.LogError(e, $"Error while mapping GetDomainData GRPC service {e.Message}");
-                return null;
             }
+
+            return null;
         }
 
         public int IsDevicePlayValid(IsDevicePlayValidRequest request)
@@ -171,6 +166,7 @@ namespace GrpcAPI.Services
             };
         }
 
+        //TODO remove probably not in use
         public bool IsValidDeviceFamily(IsValidDeviceFamilyRequest request)
         {
             var deviceInfoResponse = Core.Domains.Module.Instance.GetDeviceInfo(request.GroupId, request.Udid, true);
@@ -180,17 +176,54 @@ namespace GrpcAPI.Services
 
             return request.DeviceFamilyIds.Count == 0 || request.DeviceFamilyIds.Contains(familyId);
         }
-        
-        public GetUserDataResponse GetUserData(GetUserDataRequest request)
+
+        //helper function for web family add empty or "web site" devices
+        private static List<deviceFamily> GetDeviceFamilies(List<DeviceContainer> deviceFamilies)
         {
-            var deviceInfoResponse = Core.Users.Module.GetUserData(request.GroupId, request.UserId.ToString(), string.Empty);
-            var dynamicData = new MapField<string, string>();
-            deviceInfoResponse.m_user?.m_oDynamicData?.m_sUserData?.ForEach(x =>
-                dynamicData.Add(x.m_sDataType, x.m_sValue));
-            return new GetUserDataResponse
+            var webFamilyExist = false;
+            var response = new List<deviceFamily>();
+            if (deviceFamilies == null || deviceFamilies.Count == 0)
             {
-                DynamicData = {dynamicData}
-            };
+                return response;
+            }
+            foreach (var deviceFamily in deviceFamilies)
+            {
+                if (deviceFamily.m_deviceFamilyID == webFamilyId)
+                {
+                    webFamilyExist = true;
+                    response.Add(new deviceFamily
+                    {
+                        Concurrency = deviceFamily.m_deviceConcurrentLimit, FamilyId = deviceFamily.m_deviceFamilyID,
+                        Udid =
+                        {
+                            deviceFamily.DeviceInstances.Where(z => z.m_deviceFamilyID == deviceFamily.m_deviceFamilyID)
+                                .Select(y => y.m_deviceUDID).Union(new List<string> {string.Empty, webDevice})
+                        }
+                    });
+                }
+                else
+                {
+                    response.Add(new deviceFamily
+                    {
+                        Concurrency = deviceFamily.m_deviceConcurrentLimit,
+                        FamilyId = deviceFamily.m_deviceFamilyID,
+                        Udid =
+                        {
+                            deviceFamily.DeviceInstances.Where(z =>
+                                    z.m_deviceFamilyID == deviceFamily.m_deviceFamilyID)
+                                .Select(y => y.m_deviceUDID)
+                        }
+                    });
+                }
+            }
+
+            if (!webFamilyExist)
+            {
+                response.Add(new deviceFamily
+                    {Concurrency = 0, FamilyId = webFamilyId, Udid = {new List<string> {string.Empty, webDevice}}});
+            }
+
+            return response;
         }
     }
 }

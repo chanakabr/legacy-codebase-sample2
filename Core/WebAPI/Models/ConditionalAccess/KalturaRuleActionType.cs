@@ -27,6 +27,8 @@
         FilterFileByStreamerTypeInDiscovery,
         FilterFileByStreamerTypeInPlayback,
         FilterFileByLabelInDiscovery,
-        FilterFileByLabelInPlayback
+        FilterFileByLabelInPlayback,
+        FilterFileByDynamicDataInDiscovery,
+        FilterFileByDynamicDataInPlayback
     }
 }

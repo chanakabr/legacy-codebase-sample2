@@ -11,6 +11,7 @@ namespace WebAPI.Managers.Scheme
     {
         public const string ASCII_ONLY_PATTERN = @"[\x00-\x7F]";
         public const string NOT_EMPTY_PATTERN = @"^(?!\s*$).+";
+        public const string NO_COMMAS_PATTERN = @"^[^,]+$";
 
         public Type DynamicType { get; set; }
         public int DynamicMinInt { get; set; }
@@ -40,8 +41,8 @@ namespace WebAPI.Managers.Scheme
         public int MaxItems { get; set; }
 
         /// <summary>
-        /// the default value represents what would be assumed by the consumer of the input as the value of the schema if one is not provided. 
-        /// Unlike JSON Schema, the value MUST conform to the defined type for the Schema Object defined at the same level. 
+        /// the default value represents what would be assumed by the consumer of the input as the value of the schema if one is not provided.
+        /// Unlike JSON Schema, the value MUST conform to the defined type for the Schema Object defined at the same level.
         /// For example, if type is string, then default can be "foo" but cannot be 1
         /// </summary>
         public object Default { get; set; }
@@ -260,7 +261,7 @@ namespace WebAPI.Managers.Scheme
                 catch (Exception)
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENT_MATCH_PATTERN_CROSSED, name, pattern);
-                }   
+                }
             }
         }
 

@@ -5113,7 +5113,7 @@ namespace Core.ConditionalAccess
             return ValidateUserAndDomain(groupId, siteGuid, ref householdId, out domain, out user);
         }
 
-        internal static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, ref long householdId, out Domain domain, out Users.User user)
+        public static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, ref long householdId, out Domain domain, out Users.User user)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
             status.Code = -1;
@@ -5649,8 +5649,13 @@ namespace Core.ConditionalAccess
                         startDate = recording.AbsoluteStartTime ?? recording.EpgStartDate.AddMinutes(-1 * (recording.StartPadding ?? 0));
                         endDate =   recording.AbsoluteEndTime ?? recording.EpgEndDate.AddMinutes(recording.EndPadding ?? 0);
                     }
-                    
-                    recording.RecordingStatus = SetRecordingStatus(startDate, endDate);
+
+                    //BEO-13622
+                    if (recording.RecordingStatus != TstvRecordingStatus.Recorded || !accountSettings.PersonalizedRecordingEnable.HasValue 
+                        || accountSettings.PersonalizedRecordingEnable == false)
+                    {
+                        recording.RecordingStatus = SetRecordingStatus(startDate, endDate);
+                    }
 
                     if (recording.RecordingStatus == TstvRecordingStatus.Recorded && (!recording.ViewableUntilDate.HasValue || recording.ViewableUntilDate.Value == 0))
                     {
@@ -9875,7 +9880,7 @@ namespace Core.ConditionalAccess
 
             if (isKronos)
             {
-                log.Debug($"Kronos - RenewUnified processId:{processId}");
+                log.Info($"Kronos - RenewUnified processId:{processId}");
                 RenewManager.addEventToKronos(groupId, data);
             }
             else

@@ -1,4 +1,5 @@
-﻿using ApiObjects.Response;
+﻿
+using ApiObjects.Response;
 using System.Web.Http;
 using WebAPI.Managers.Models;
 
@@ -155,7 +156,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType PURCHASE_PASSED_ENTITLEMENT_FAILED = new ClientExceptionType(eResponseStatus.PurchasePassedEntitlementFailed, "purchase passed but entitlement failed", "purchase passed but entitlement failed");
         public static ClientExceptionType PURCHASE_FAILED = new ClientExceptionType(eResponseStatus.PurchaseFailed, "purchase failed", "purchase failed");
         public static ClientExceptionType PROGRAM_START_OVER_NOT_ENABLED = new ClientExceptionType(eResponseStatus.ProgramStartOverNotEnabled, "Program Start Over Not Enabled", "This program does not support start-over");
-        
+
         public static ClientExceptionType PAGO_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.ProgramAssetGroupOfferDoesNotExist, "The programAssetGroupOffer does not exist", "The programAssetGroupOffer does not exist");
         public static ClientExceptionType EXTERNAL_OFFER_ID_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.ExternalOfferIdAlreadyExists, "External offer id already exists", "The external offer Id you are trying to add / update already exists");
         public static ClientExceptionType UNABLE_TO_PURCHASE_PAGO_PURCHASED = new ClientExceptionType(eResponseStatus.UnableToPurchaseProgramAssetGroupOfferPurchased, "Unable To Purchase PAGO Purchased", "This ProgramAssetGroupOffer has already been purchased by this household");
@@ -278,7 +279,8 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType VIDEO_CODECS_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.VideoCodecsDoesNotExist, "Video Codecs Does Not Exist");
         public static ClientExceptionType AUDIO_CODECS_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.AudioCodecsDoesNotExist, "Audio Codecs Does Not Exist");
         public static ClientExceptionType SEARCH_PRIORITY_GROUP_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.SearchPriorityGroupDoesNotExist, "Search Priority Group Does Not Exist");
-        //public static ClientExceptionType DeviceTypeNotAllowed= new ClientExceptionType(eResponseStatus.DeviceTypeNotAllowed, "DeviceTypeNotAllowed");
+        public static ClientExceptionType DYNAMIC_DATA_KEY_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.DynamicDataKeyDoesNotExist, "Dynamic Data Keys Do Not Exist.");
+        public static ClientExceptionType DYNAMIC_DATA_KEY_VALUE_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.DynamicDataKeyValueDoesNotExist, "Dynamic Data Key Value Does Not Exist.");
         #endregion
 
         #region Api 5000 - 5999
@@ -681,7 +683,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType FAILED_TO_SET_ROUTE_REFRESH_TOKEN = new ClientExceptionType(eResponseStatus.FailedToSetRouteRefreshToken, "FailedToSetRouteRefreshToken");
         public static ClientExceptionType FAILED_TO_SET_ALL_ROUTING_ACTIONS = new ClientExceptionType(eResponseStatus.FailedToSetAllRoutingActions, "FailedToSetAllRoutingActions");
         public static ClientExceptionType CANARY_DEPLOYMENT_CONFIGURATION_IS_DISABLED_ON_THE_ENVIRONMENT = new ClientExceptionType(eResponseStatus.CanaryDeploymentConfigurationIsDisabledOnTheEnvironment, "CanaryDeploymentConfigurationIsDisabledOnTheEnvironment");
-        
+
         #endregion
     }
 }

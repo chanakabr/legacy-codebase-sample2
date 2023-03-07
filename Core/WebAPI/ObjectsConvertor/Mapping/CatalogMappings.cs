@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using ApiObjects.MediaFiles;
 using TVinciShared;
 using WebAPI.App_Start;
 using WebAPI.Exceptions;
@@ -89,7 +90,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.CdnName, opt => opt.MapFrom(src => src.StreamingCompanyName))
                  .ForMember(dest => dest.CdnCode, opt => opt.MapFrom(src => src.m_nCdnID))
                  .ForMember(dest => dest.AltCdnCode, opt => opt.MapFrom(src => src.m_sAltUrl))
-                 .ForMember(dest => dest.PPVModules, opt => opt.MapFrom(src => BuildPPVModulesList(src.PPVModules)))
+                 .ForMember(dest => dest.PPVModules, opt => opt.MapFrom(src => BuildKalturaStringValueArray(src.PPVModules)))
                  .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.ProductCode))
                  .ForMember(dest => dest.FileSize, opt => opt.MapFrom(src => src.FileSize))
                  .ForMember(dest => dest.CatalogEndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CatalogEndDate)))
@@ -814,7 +815,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.DrmProfileId, opt => opt.MapFrom(src => src.DrmId))
                 .ForMember(dest => dest.Quality, opt => opt.MapFrom(src => src.Quality))
                 .ForMember(dest => dest.VideoCodecs, opt => opt.MapFrom(src => src.CreateMappedHashSetForKalturaMediaFileType(src.VideoCodecs)))
-                .ForMember(dest => dest.AudioCodecs, opt => opt.MapFrom(src => src.CreateMappedHashSetForKalturaMediaFileType(src.AudioCodecs)));
+                .ForMember(dest => dest.AudioCodecs, opt => opt.MapFrom(src => src.CreateMappedHashSetForKalturaMediaFileType(src.AudioCodecs)))
+                .ForMember(dest => dest.DynamicDataKeys, opt => opt.MapFrom(src => src.CreateMappedHashSetForKalturaMediaFileType(src.DynamicDataKeys)));
 
             cfg.CreateMap<MediaFileTypeQuality, KalturaMediaFileTypeQuality?>()
                 .ConvertUsing(type =>
@@ -860,7 +862,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmProfileId))
                 .ForMember(dest => dest.Quality, opt => opt.MapFrom(src => src.Quality))
                 .ForMember(dest => dest.VideoCodecs, opt => opt.MapFrom(src => src.CreateMappedHashSetForMediaFileType(src.VideoCodecs)))
-                .ForMember(dest => dest.AudioCodecs, opt => opt.MapFrom(src => src.CreateMappedHashSetForMediaFileType(src.AudioCodecs)));
+                .ForMember(dest => dest.AudioCodecs, opt => opt.MapFrom(src => src.CreateMappedHashSetForMediaFileType(src.AudioCodecs)))
+                .ForMember(dest => dest.DynamicDataKeys, opt => opt.MapFrom(src => src.CreateMappedHashSetForMediaFileType(src.DynamicDataKeys)));
 
             cfg.CreateMap<KalturaMediaFileTypeQuality?, MediaFileTypeQuality>()
                 .ConvertUsing(type =>
@@ -1068,7 +1071,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.CatalogEndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CatalogEndDate)))
                  .ForMember(dest => dest.Opl, opt => opt.MapFrom(src => src.Opl))
                  .ForMember(dest => dest.Labels, opt => opt.MapFrom(src => src.Labels))
-                 ;
+                 .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => BuildStringAndKalturaStringValueArraySerializableDictionary(src.DynamicData)));
+            ;
 
             //File
             cfg.CreateMap<KalturaMediaFile, AssetFile>()
@@ -1097,6 +1101,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.PpvModule, opt => opt.MapFrom(src => GetPPVModule(src.PPVModules)))
                 .ForMember(dest => dest.Opl, opt => opt.MapFrom(src => src.Opl))
                 .ForMember(dest => dest.Labels, opt => opt.MapFrom(src => src.Labels))
+                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => BuildStringAndStringHashSetDictionary(src.DynamicData)))
                 ;
             cfg.CreateMap<KalturaMediaFile, KalturaDiscoveryMediaFile>();
 
@@ -3264,21 +3269,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return lastPositions;
         }
 
-        public static KalturaStringValueArray BuildPPVModulesList(List<string> list)
+        public static KalturaStringValueArray BuildKalturaStringValueArray(IEnumerable<string> list)
         {
             if (list == null)
             {
                 return null;
             }
 
-            KalturaStringValueArray ppvModules = new KalturaStringValueArray();
-
-            foreach (var ppvModule in list)
+            var stringValueArray = new KalturaStringValueArray();
+            foreach (var item in list)
             {
-                ppvModules.Objects.Add(new KalturaStringValue() { value = ppvModule });
+                stringValueArray.Objects.Add(new KalturaStringValue { value = item });
             }
 
-            return ppvModules;
+            return stringValueArray;
         }
 
         public static string GetPPVModule(KalturaStringValueArray ppvModules)
@@ -3537,6 +3541,30 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 default:
                     break;
             }
+        }
+
+        private static SerializableDictionary<string, KalturaStringValueArray> BuildStringAndKalturaStringValueArraySerializableDictionary(IDictionary<string, IEnumerable<string>> dictionary)
+        {
+            if (dictionary == null)
+            {
+                return null;
+            }
+
+            var serializableDictionary = new SerializableDictionary<string, KalturaStringValueArray>();
+            foreach (var item in dictionary)
+            {
+                var stringValueArray = BuildKalturaStringValueArray(item.Value);
+                serializableDictionary.Add(item.Key, stringValueArray);
+            }
+
+            return serializableDictionary;
+        }
+
+        private static Dictionary<string, IEnumerable<string>> BuildStringAndStringHashSetDictionary(SerializableDictionary<string, KalturaStringValueArray> serializableDictionary)
+        {
+            return serializableDictionary?.ToDictionary(
+                x => x.Key,
+                x => x.Value.Objects.Select(_ => _.value).ToArray().AsEnumerable());
         }
     }
 }

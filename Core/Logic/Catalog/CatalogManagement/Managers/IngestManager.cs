@@ -6,12 +6,12 @@ using ApiObjects.Response;
 using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Xml;
 using System.Xml.Serialization;
+using ApiLogic.Catalog.CatalogManagement.Validators;
 using CachingProvider.LayeredCache;
 using Tvinci.Core.DAL;
 using TVinciShared;
@@ -693,6 +693,9 @@ namespace Core.Catalog.CatalogManagement
                         int mediaFileTypeId = (int)mediaFileType.Id;
                         if (!assetFiles.ContainsKey(mediaFileTypeId))
                         {
+                            var allDynamicData = mediaFile.DynamicData.Items.ToDictionary(x => x.Key, x => x.Value.AsEnumerable());
+                            var validateDynamicData = MediaFileValidator.Instance.GetValidatedDynamicData(mediaFileType, allDynamicData);
+
                             assetFiles.Add(mediaFileTypeId, new Tuple<AssetFile, string>(new AssetFile(mediaFile.Type)
                             {
                                 //Id
@@ -717,7 +720,8 @@ namespace Core.Catalog.CatalogManagement
                                 FileSize = StringUtils.TryConvertTo<long>(mediaFile.FileSize),
                                 IsActive = true,
                                 CatalogEndDate = DateUtils.TryExtractDate(mediaFile.FileCatalogEndDate, ASSET_FILE_DATE_FORMAT),
-                                Labels = mediaFile.Labels
+                                Labels = mediaFile.Labels,
+                                DynamicData = validateDynamicData
                             }, mediaFile.PpvModule));
                         }
                     }

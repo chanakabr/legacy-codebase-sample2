@@ -29,14 +29,25 @@ message GetSuspensionStatusResponse {
 
 message GetDomainDataRequest {
   int32 groupId = 1;
-  int64 userId = 2;
-  int64 domainId = 3;
+  int64 domainId = 2;
 }
 
 message GetDomainDataResponse {
+  int32 dlmId = 1;
+  int32 domainConcurrency = 2;
+  repeated deviceFamily deviceFamilies = 3;
+  int64 domainId = 4;
+}
+
+message ValidateUserRequest{
+  int32 groupId = 1;
+  int64 userId = 2;
+}
+
+message ValidateUserResponse{
   Status status = 1;
   int64 domainId = 2;
-  DomainData domainData = 3;
+  map<string, string> dynamicData = 3;
 }
 
 message GetMediaConcurrencyRulesByDomainLimitationModuleRequest {
@@ -57,13 +68,4 @@ message IsValidDeviceFamilyRequest{
   int32 groupId = 1;
   string udid = 2;
   repeated int32 deviceFamilyIds = 3;
-}
-
-message GetUserDataRequest{
-  int32 groupId = 1;
-  int64 userId = 2;
-}
-
-message GetUserDataResponse{
-  map<string, string> dynamicData = 1;
 }

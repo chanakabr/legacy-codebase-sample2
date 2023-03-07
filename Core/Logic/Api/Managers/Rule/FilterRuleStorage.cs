@@ -32,15 +32,17 @@ namespace ApiLogic.Api.Managers.Rule
     public class FilterRuleStorage : IFilterRuleStorage
     {
         private static readonly IReadOnlyCollection<AssetRuleAction> Empty = new List<AssetRuleAction>(0);
+
         private static readonly Lazy<FilterRuleStorage> Lazy = new Lazy<FilterRuleStorage>(
-            () => new FilterRuleStorage(AssetRuleManager.Instance, SessionCharacteristicManager.Instance),
+            () => new FilterRuleStorage(AssetRuleManager.Instance,
+                new Lazy<ISessionCharacteristicManager>(() => SessionCharacteristicManager.Instance)),
             LazyThreadSafetyMode.PublicationOnly);
         public static IFilterRuleStorage Instance => Lazy.Value;
 
         private readonly IAssetRuleManager _assetRuleManager;
-        private readonly ISessionCharacteristicManager _sessionCharacteristicManager;
+        private readonly Lazy<ISessionCharacteristicManager> _sessionCharacteristicManager;
 
-        public FilterRuleStorage(IAssetRuleManager assetRuleManager, ISessionCharacteristicManager sessionCharacteristicManager)
+        public FilterRuleStorage(IAssetRuleManager assetRuleManager, Lazy<ISessionCharacteristicManager> sessionCharacteristicManager)
         {
             _assetRuleManager = assetRuleManager;
             _sessionCharacteristicManager = sessionCharacteristicManager;
@@ -63,7 +65,7 @@ namespace ApiLogic.Api.Managers.Rule
                 return Empty;
             }
 
-            var sessionCharacteristics = _sessionCharacteristicManager.GetFromCache(condition.GroupId, condition.SessionCharacteristicsId);
+            var sessionCharacteristics = _sessionCharacteristicManager.Value.GetFromCache(condition.GroupId, condition.SessionCharacteristicsId);
             if (sessionCharacteristics == null)
             {
                 return Empty;

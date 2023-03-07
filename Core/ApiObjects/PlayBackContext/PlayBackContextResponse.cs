@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace ApiObjects
 {
@@ -12,7 +13,7 @@ namespace ApiObjects
         public int AssetId { get; set; }
 
         public List<MediaFile> Files { get; set; }
-        
+
         public Response.Status Status { get; set; }
 
         public DevicePlayData ConcurrencyData { get; set; }
@@ -25,7 +26,7 @@ namespace ApiObjects
         public long Id { get; set; }
 
         public string Type { get; set; }
-        
+
         public long TypeId { get; set; }
 
         public string Url { get; set; }
@@ -33,7 +34,7 @@ namespace ApiObjects
         public string AltUrl { get; set; }
 
         public string DirectUrl { get; set; }
-        
+
         public string AltDirectUrl { get; set; }
 
         public long Duration { get; set; }
@@ -51,7 +52,7 @@ namespace ApiObjects
         public int DrmId { get; set; }
 
         public AdsPolicy? AdsPolicy { get; set; }
-        
+
         public string AdsParam { get; set; }
 
         public string Opl { get; set; }
@@ -59,14 +60,17 @@ namespace ApiObjects
         public BusinessModuleDetails BusinessModuleDetails { get; set; }
 
         public long GroupId { get; set; }
-        
+
         public string Labels { get; set; }
+
+        [XmlIgnore]
+        public IDictionary<string, IEnumerable<string>> DynamicData { get; set; }
 
         public int GetCdnId(bool isAlternative)
         {
             return !isAlternative ? this.CdnId : this.AltCdnId;
         }
-        
+
         public string GetUrl(bool isAlternative)
         {
             return !isAlternative ? this.Url : this.AltUrl;

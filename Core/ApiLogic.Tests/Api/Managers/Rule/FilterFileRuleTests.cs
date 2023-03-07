@@ -23,7 +23,7 @@ namespace ApiLogic.Tests.Api.Managers.Rule
             
             var fileType = DefaultFileType;
             fileType.AudioCodecs = new HashSet<string>(audioCodecs.Cast<string>());
-            var targetFile = new FilterFileRule.Target(fileType, eAssetTypes.EPG, null);
+            var targetFile = new FilterFileRule.Target(fileType, eAssetTypes.EPG, null, null);
             
             _filterFileRule.MatchRules(targetFile, audioCodecRule).Should().Be(shouldMatch);
         }
@@ -46,7 +46,7 @@ namespace ApiLogic.Tests.Api.Managers.Rule
             };
 
             var fileType = new MediaFileType { Id = fileTypeId };
-            var targetFile = new FilterFileRule.Target(fileType, assetType, null);
+            var targetFile = new FilterFileRule.Target(fileType, assetType, null, null);
             
             _filterFileRule.MatchRules(targetFile, fileTypeForAssetTypeRule).Should().Be(shouldMatch);
         }
@@ -58,7 +58,7 @@ namespace ApiLogic.Tests.Api.Managers.Rule
             var fileTypeRule = new[] { new FilterFileByFileTypeInDiscovery { FileTypeIds = new HashSet<long> { 1, 2, 3 } } };
 
             var fileType = new MediaFileType { Id = fileTypeId };
-            var targetFile = new FilterFileRule.Target(fileType, eAssetTypes.EPG, null);
+            var targetFile = new FilterFileRule.Target(fileType, eAssetTypes.EPG, null, null);
             
             _filterFileRule.MatchRules(targetFile, fileTypeRule).Should().Be(shouldMatch);
         }
@@ -71,7 +71,7 @@ namespace ApiLogic.Tests.Api.Managers.Rule
         {
             var labelRule = new[] { new FilterFileByLabelInDiscovery { Labels = new List<string> { "out_of_home", "second" } } };
             
-            var targetFile = new FilterFileRule.Target(null, eAssetTypes.EPG, labels);
+            var targetFile = new FilterFileRule.Target(null, eAssetTypes.EPG, labels, null);
             
             _filterFileRule.MatchRules(targetFile, labelRule).Should().Be(shouldMatch);
         }
@@ -93,7 +93,7 @@ namespace ApiLogic.Tests.Api.Managers.Rule
 
             var fileType = DefaultFileType;
             fileType.Quality = quality;
-            var targetFile = new FilterFileRule.Target(fileType, eAssetTypes.EPG, null);
+            var targetFile = new FilterFileRule.Target(fileType, eAssetTypes.EPG, null, null);
             
             _filterFileRule.MatchRules(targetFile, qualityRule).Should().Be(shouldMatch);
         }
@@ -116,7 +116,7 @@ namespace ApiLogic.Tests.Api.Managers.Rule
 
             var fileType = DefaultFileType;
             fileType.StreamerType = streamerType;
-            var targetFile = new FilterFileRule.Target(fileType, eAssetTypes.EPG, null);
+            var targetFile = new FilterFileRule.Target(fileType, eAssetTypes.EPG, null, null);
             
             _filterFileRule.MatchRules(targetFile, streamerTypeRule).Should().Be(shouldMatch);
         }
@@ -130,9 +130,31 @@ namespace ApiLogic.Tests.Api.Managers.Rule
             
             var fileType = DefaultFileType;
             fileType.VideoCodecs = new HashSet<string>(videoCodecs.Cast<string>());
-            var targetFile = new FilterFileRule.Target(fileType, eAssetTypes.EPG, null);
+            var targetFile = new FilterFileRule.Target(fileType, eAssetTypes.EPG, null, null);
             
             _filterFileRule.MatchRules(targetFile, videoCodecRule).Should().Be(shouldMatch);
+        }
+
+        [TestCase("key", new[] { "HD", "4K" }, false)]
+        [TestCase("quality", new[] { "Full" }, false)]
+        [TestCase("quality", new[] { "STB" }, false)]
+        [TestCase("quality", new[] { "hd" }, true)]
+        public void ShouldFilterByDynamicData(string key, string[] values, bool shouldMatch)
+        {
+            var dynamicDataRule = new[]
+            {
+                new FilterFileByDynamicDataInDiscovery { Key = key, Values = values }
+            };
+            var dynamicData = new Dictionary<string, IEnumerable<string>>
+            {
+                { "quality", new[] { "HD", "4K" } },
+                { "device", new[] { "STB" } }
+            };
+            var targetFile = new FilterFileRule.Target(DefaultFileType, eAssetTypes.EPG, null, dynamicData);
+
+            var result = _filterFileRule.MatchRules(targetFile, dynamicDataRule);
+
+            result.Should().Be(shouldMatch);
         }
 
         [TestCase(StreamerType.applehttp, MediaFileTypeQuality.Adaptive, true)]
@@ -153,7 +175,7 @@ namespace ApiLogic.Tests.Api.Managers.Rule
             var fileType = DefaultFileType;
             fileType.StreamerType = streamerType;
             fileType.Quality = quality;
-            var targetFile = new FilterFileRule.Target(fileType, eAssetTypes.EPG, null);
+            var targetFile = new FilterFileRule.Target(fileType, eAssetTypes.EPG, null, null);
             
             _filterFileRule.MatchRules(targetFile, rules).Should().Be(shouldMatch);
         }

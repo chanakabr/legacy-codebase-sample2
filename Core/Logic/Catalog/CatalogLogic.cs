@@ -110,6 +110,8 @@ namespace Core.Catalog
         public static readonly string RECORDING_ID = "recording_id";
         public static readonly string EPG_CHANNEL_ID = "epg_channel_id";
         public static readonly string ASSET_TYPE = "asset_type";
+        public static readonly string MEDIA_ASSET_TYPE = "media";
+        public static readonly string EPG_ASSET_TYPE = "epg";
         public static readonly string EXTERNAL_OFFER_ID = "external_offer_id";
         public static readonly string EXTERNAL_OFFER_IDS = "external_offer_ids";
 
@@ -3565,7 +3567,7 @@ namespace Core.Catalog
             return Update(longIds, groupId, updatedObjectType, action);
         }
 
-        private static bool Update(List<long> ids, int groupId, eObjectType updatedObjectType, eAction action, bool isUseKronos = false)
+        private static bool Update(List<long> ids, int groupId, eObjectType updatedObjectType, eAction action, bool isAsync = false)
         {
             bool isUpdateIndexSucceeded = false;
 
@@ -3585,9 +3587,9 @@ namespace Core.Catalog
 
                 if (doesGroupUsesTemplates || group != null)
                 {
-                    if (isUseKronos)
+                    if (isAsync)
                     {
-                        IndexRecordingMessageService.PublishKafkaEvent(groupIdForCelery, ids, action);
+                        IndexRecordingMessageService.PublishIndexRecordingKafkaEvent(groupIdForCelery, ids, action);
                     }
                     else
                     {
@@ -6882,6 +6884,11 @@ namespace Core.Catalog
                     {
                         cacheKey.AppendFormat("_aur={0}",
                             string.Join("|", unifiedSearchDefinitions.assetUserRuleIds.OrderBy(r => r)));
+                    }
+
+                    if ((unifiedSearchDefinitions.regionIds?.Any()).GetValueOrDefault())
+                    {
+                        cacheKey.Append($"_rgs={string.Join("|", unifiedSearchDefinitions.regionIds.OrderBy(r => r))}");
                     }
 
                     key = cacheKey.ToString();

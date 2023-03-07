@@ -24,7 +24,7 @@ namespace phoenix {
     static RuleActionTypeReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "ChRSdWxlQWN0aW9uVHlwZS5wcm90bxIHcGhvZW5peCq3CQoOUnVsZUFjdGlv",
+            "ChRSdWxlQWN0aW9uVHlwZS5wcm90bxIHcGhvZW5peCqkCgoOUnVsZUFjdGlv",
             "blR5cGUSGAoUUnVsZUFjdGlvblR5cGVfQmxvY2sQABIiCh5SdWxlQWN0aW9u",
             "VHlwZV9TdGFydERhdGVPZmZzZXQQARIgChxSdWxlQWN0aW9uVHlwZV9FbmRE",
             "YXRlT2Zmc2V0EAISHAoYUnVsZUFjdGlvblR5cGVfVXNlckJsb2NrEAMSIAoc",
@@ -51,8 +51,10 @@ namespace phoenix {
             "cGVfRmlsdGVyRmlsZUJ5U3RyZWFtZXJUeXBlSW5QbGF5YmFjaxAXEi8KK1J1",
             "bGVBY3Rpb25UeXBlX0ZpbHRlckZpbGVCeUxhYmVsSW5EaXNjb3ZlcnkQGBIu",
             "CipSdWxlQWN0aW9uVHlwZV9GaWx0ZXJGaWxlQnlMYWJlbEluUGxheWJhY2sQ",
-            "GRIXChNSdWxlQWN0aW9uVHlwZV9OT05FEBpCFFoILi9tb2RlbHOqAgdwaG9l",
-            "bml4YgZwcm90bzM="));
+            "GRIXChNSdWxlQWN0aW9uVHlwZV9OT05FEBoSNQoxUnVsZUFjdGlvblR5cGVf",
+            "RmlsdGVyRmlsZUJ5RHluYW1pY0RhdGFJbkRpc2NvdmVyeRAbEjQKMFJ1bGVB",
+            "Y3Rpb25UeXBlX0ZpbHRlckZpbGVCeUR5bmFtaWNEYXRhSW5QbGF5YmFjaxAc",
+            "QhRaCC4vbW9kZWxzqgIHcGhvZW5peGIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::phoenix.RuleActionType), }, null, null));
@@ -89,6 +91,8 @@ namespace phoenix {
     [pbr::OriginalName("RuleActionType_FilterFileByLabelInDiscovery")] FilterFileByLabelInDiscovery = 24,
     [pbr::OriginalName("RuleActionType_FilterFileByLabelInPlayback")] FilterFileByLabelInPlayback = 25,
     [pbr::OriginalName("RuleActionType_NONE")] None = 26,
+    [pbr::OriginalName("RuleActionType_FilterFileByDynamicDataInDiscovery")] FilterFileByDynamicDataInDiscovery = 27,
+    [pbr::OriginalName("RuleActionType_FilterFileByDynamicDataInPlayback")] FilterFileByDynamicDataInPlayback = 28,
   }
 
   #endregion

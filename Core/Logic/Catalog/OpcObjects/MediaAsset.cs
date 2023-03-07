@@ -312,8 +312,13 @@ namespace Core.Catalog
                                 if (!fileTypesSystemName.Contains(fileSystemName))
                                 {
                                     fileTypesSystemName.Add(fileSystemName);
-                                    var fileValues = columnNamesToValues.Where(x => x.Key.StartsWith(fileSystemName)).ToDictionary(x => x.Key, x => x.Value);
-                                    var fileColumns = columns.Where(x => x.Key.StartsWith(fileSystemName)).ToDictionary(x => x.Key, x => x.Value);
+                                    var filePrefix = $"{fileSystemName}:";
+                                    var fileValues = columnNamesToValues
+                                        .Where(x => x.Key.StartsWith(filePrefix))
+                                        .ToDictionary(x => x.Key, x => x.Value);
+                                    var fileColumns = columns
+                                        .Where(x => x.Key.StartsWith(filePrefix))
+                                        .ToDictionary(x => x.Key, x => x.Value);
                                     SetFileByExcelValues(groupId, fileValues, fileColumns, structureManager);
                                 }
                                 break;
