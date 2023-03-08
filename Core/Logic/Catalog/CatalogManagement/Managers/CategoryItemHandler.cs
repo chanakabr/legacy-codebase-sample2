@@ -855,6 +855,7 @@ namespace Core.Catalog.CatalogManagement
         private Dictionary<string, UnifiedChannelInfo> GetUnifiedChannelsInfo(int groupId, long userId, List<UnifiedChannel> unifiedChannels)
         {
             Dictionary<string, UnifiedChannelInfo> channelsInfo = new Dictionary<string, UnifiedChannelInfo>();
+            var contextData = new ContextData(groupId) { UserId = userId };
 
             foreach (var unifiedChannel in unifiedChannels)
             {
@@ -864,7 +865,7 @@ namespace Core.Catalog.CatalogManagement
                 //check external channel exist
                 if (unifiedChannel.Type == UnifiedChannelType.External)
                 {
-                    var ec = _externalChannelManager.GetChannelById(groupId, (int)unifiedChannel.Id, true, userId);
+                    var ec = _externalChannelManager.GetChannelById(contextData, (int)unifiedChannel.Id, true);
                     if (ec != null && ec.IsOkStatusCode() && ec.Object != null)
                     {
                         uci.Type = unifiedChannel.Type;
@@ -881,7 +882,7 @@ namespace Core.Catalog.CatalogManagement
                 else
                 {
                     //check internal channel exist
-                    var channel = _channelManager.GetChannelById(groupId, (int)unifiedChannel.Id, true, userId);
+                    var channel = _channelManager.GetChannelById(contextData, (int)unifiedChannel.Id, true);
                     if (channel.IsOkStatusCode() && channel.Object != null)
                     {
                         uci.Type = UnifiedChannelType.Internal;

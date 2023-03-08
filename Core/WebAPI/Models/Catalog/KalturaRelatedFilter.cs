@@ -65,17 +65,12 @@ namespace WebAPI.Models.Catalog
         //Response is ordered by relevancy. On-demand, per asset enrichment is supported. Maximum number of returned assets – 20, using paging
         internal override KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
         {
-            var domainId = (int)(contextData.DomainId ?? 0);
             var ksqlFilter = FilterAsset.Instance.UpdateKsql(Ksql, contextData.GroupId, contextData.SessionCharacteristicKey);
             var shouldApplyPriorityGroups = this.ShouldApplyPriorityGroupsEqual ?? false;
             if (!ExcludeWatched)
             {
                 return ClientsManager.CatalogClient().GetRelatedMedia(
-                    contextData.GroupId,
-                    contextData.UserId.ToString(),
-                    domainId,
-                    contextData.Udid,
-                    contextData.Language,
+                    contextData,
                     pager.GetRealPageIndex(),
                     pager.PageSize,
                     GetMediaId,
@@ -90,11 +85,7 @@ namespace WebAPI.Models.Catalog
             ValidateForExcludeWatched(contextData, pager);
 
             return ClientsManager.CatalogClient().GetRelatedMediaExcludeWatched(
-                contextData.GroupId,
-                (int)contextData.UserId.Value,
-                domainId,
-                contextData.Udid,
-                contextData.Language,
+                contextData,
                 pager.GetRealPageIndex(),
                 pager.PageSize,
                 GetMediaId,
@@ -103,7 +94,6 @@ namespace WebAPI.Models.Catalog
                 Orderings,
                 responseProfile,
                 shouldApplyPriorityGroups);
-
         }
     }
 }

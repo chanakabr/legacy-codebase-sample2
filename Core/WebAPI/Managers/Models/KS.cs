@@ -469,9 +469,10 @@ namespace WebAPI.Managers.Models
                 UserIp = Utils.Utils.GetClientIP(),
                 Language = Utils.Utils.GetLanguageFromRequest(),
                 Format = Utils.Utils.GetFormatFromRequest(),
-                OriginalUserId = long.TryParse(ks.OriginalUserId, out var originalUserId) ? originalUserId : default,
+                OriginalUserId = long.TryParse(ks.OriginalUserId, out var originalUserId) && originalUserId > 0 ? originalUserId : (long?)null,
                 RegionId = payload?.RegionId > 0 ? payload.RegionId : (long?)null,
-                SessionCharacteristicKey = payload?.SessionCharacteristicKey
+                SessionCharacteristicKey = payload?.SessionCharacteristicKey,
+                UserRoleIds = payload?.UserRoles
             };
         }
 

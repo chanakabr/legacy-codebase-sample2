@@ -26,20 +26,12 @@ namespace WebAPI.Models.Catalog
         private HashSet<int> GetPartnerListTypeIn()
             => WebAPI.Utils.Utils.ParseCommaSeparatedValues<HashSet<int>, int>(PartnerListTypeIn, "KalturaPersonalListSearchFilter.PartnerListTypeIn", false, true);
 
-        internal override KalturaAssetListResponse GetAssets(
-            ContextData contextData,
-            KalturaBaseResponseProfile responseProfile,
-            KalturaFilterPager pager)
+        internal override KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
         {
-            var domainId = (int)(contextData.DomainId ?? 0);
             var ksqlFilter = FilterAsset.Instance.UpdateKsql(Ksql, contextData.GroupId, contextData.SessionCharacteristicKey);
 
             return ClientsManager.CatalogClient().GetPersonalListAssets(
-                contextData.GroupId,
-                contextData.UserId.ToString(),
-                domainId,
-                contextData.Udid,
-                contextData.Language,
+                contextData,
                 ksqlFilter, 
                 Orderings,
                 getGroupByValue(),

@@ -103,14 +103,11 @@ namespace WebAPI.Models.Catalog
                 contextData.UserId.ToString(),
                 ignoreDoesGroupUsesTemplates: true);
             var shouldApplyPriorityGroups = ShouldApplyPriorityGroupsEqual ?? false;
+
             if (!ExcludeWatched)
             {
                 return ClientsManager.CatalogClient().GetChannelAssets(
-                    contextData.GroupId,
-                    contextData.UserId.ToString(),
-                    domainId,
-                    contextData.Udid,
-                    contextData.Language,
+                    contextData,
                     pager.GetRealPageIndex(),
                     pager.PageSize,
                     IdEqual,
@@ -126,11 +123,7 @@ namespace WebAPI.Models.Catalog
             ValidateForExcludeWatched(contextData, pager);
 
             return ClientsManager.CatalogClient().GetChannelAssetsExcludeWatched(
-                contextData.GroupId,
-                (int)contextData.UserId.Value,
-                domainId,
-                contextData.Udid,
-                contextData.Language,
+                contextData,
                 pager.GetRealPageIndex(),
                 pager.PageSize,
                 IdEqual,

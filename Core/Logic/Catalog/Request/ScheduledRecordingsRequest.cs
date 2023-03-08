@@ -383,7 +383,8 @@ namespace Core.Catalog.Request
                         groupBy = new List<string>() { "crid" },
                         distinctGroup = "crid",
                         topHitsCount = 1
-                    }
+                    },
+                    OriginalUserId = this.OriginalUserId
                 };
 
 

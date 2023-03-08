@@ -2314,7 +2314,7 @@ namespace WebAPI.WebServices
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                response = Core.ConditionalAccess.Module.GetDomainEntitlements(nGroupID, domainId, type, isExpired, pageSize, pageIndex, orderBy);
+                response = Core.ConditionalAccess.Module.GetDomainEntitlements(nGroupID, domainId, type, isExpired, pageSize, pageIndex, orderBy, null);
             }
             else
             {

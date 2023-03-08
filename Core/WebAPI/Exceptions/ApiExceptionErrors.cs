@@ -357,6 +357,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType DYNAMIC_SEGMENT_PERIOD_EXCEEDED = new ClientExceptionType(eResponseStatus.DynamicSegmentPeriodExceeded, "Dynamic segment period exceeded ");
         public static ClientExceptionType DYNAMIC_SEGMENT_CONDITIONS_EXCEEDED = new ClientExceptionType(eResponseStatus.DynamicSegmentConditionsExceeded, "Dynamic segment conditions exceeded");
         public static ClientExceptionType NAME_MUST_BE_UNIQUE = new ClientExceptionType(eResponseStatus.NameMustBeUnique, "Name must be unique");
+        public static ClientExceptionType ENTITY_IS_NOT_ASSOCIATED_WITH_SHOP = new ClientExceptionType(eResponseStatus.EntityIsNotAssociatedWithShop, "Entity is not associated with Shop");
 
         #endregion
 

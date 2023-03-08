@@ -424,18 +424,16 @@ namespace DAL
             return null;
         }
 
-        public static DataTable Get_PPVModuleData(int nGroupID, int? nPPVModuleID)
+        public List<PpvDTO> Get_PPVModuleData(int nGroupID, int? nPPVModuleID)
         {
-            ODBCWrapper.StoredProcedure spPPVModuleData = new ODBCWrapper.StoredProcedure("Get_PPV_ModuleData");
+            var spPPVModuleData = new StoredProcedure("Get_PPV_ModuleData");
             spPPVModuleData.SetConnectionKey("pricing_connection");
-
             spPPVModuleData.AddParameter("@GroupID", nGroupID);
             spPPVModuleData.AddNullableParameter<int?>("@PPVModuleID", nPPVModuleID);
 
             DataSet ds = spPPVModuleData.ExecuteDataSet();
-
             if (ds != null)
-                return ds.Tables[0];
+                return BuildPPVDTOFromDataTable(ds.Tables[0]);
 
             return null;
         }

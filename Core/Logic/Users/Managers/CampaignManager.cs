@@ -607,8 +607,7 @@ namespace ApiLogic.Users.Managers
 
                 if (_catalogManager.DoesGroupUsesTemplates(contextData.GroupId))
                 {
-                    var result = _channelManager.GetChannelsListResponseByChannelIds(contextData.GroupId, campaign.CollectionIds.Select(x => (int)x).ToList(), true, null);
-
+                    var result = _channelManager.GetChannelsListResponseByChannelIds(contextData, campaign.CollectionIds.Select(x => (int)x).ToList(), true, null, true);
                     if (!result.Status.IsOkStatusCode() || result.Objects.Count != campaign.CollectionIds.Count)
                     {
                         status.Set(eResponseStatus.NotExist, "One or more collection Ids are invalid or not found");

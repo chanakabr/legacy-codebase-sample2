@@ -57,7 +57,7 @@ namespace WebAPI.EventNotifications
             var contextData = Managers.Models.KS.GetContextData(true);
             if (contextData != null)
             {
-                userId = contextData.OriginalUserId > 0 ? contextData.OriginalUserId : contextData.UserId;
+                userId = contextData.GetCallerUserId();
                 userIp = contextData.UserIp;
                 udid = !string.IsNullOrEmpty(contextData.Udid) ? contextData.Udid : null;
             }

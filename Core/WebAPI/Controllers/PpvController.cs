@@ -2,6 +2,7 @@
 using ApiObjects.Pricing;
 using ApiObjects.Response;
 using Core.Pricing;
+using KalturaRequestContext;
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Clients;
@@ -17,6 +18,9 @@ namespace WebAPI.Controllers
     [Service("ppv")]
     public class PpvController : IKalturaController
     {
+        // TODO SHIR - MOVE TO PredefinedRoleId.cs IN CAMPAIGN BRANCH
+        private const long SHOP_SERVER_ROLE_ID = 16;
+
         /// <summary>
         /// Returns ppv object by internal identifier
         /// </summary>
@@ -26,14 +30,15 @@ namespace WebAPI.Controllers
         [Action("get")]
         [ApiAuthorize]
         [Throws(eResponseStatus.ModuleNotExists)]
+        [Throws(eResponseStatus.EntityIsNotAssociatedWithShop)]
         public static KalturaPpv Get(long id)
         {
-            KalturaPpv response = null;
+            var contextData = KS.GetContextData(true);
+            int groupId = contextData.GroupId;
+            long? shopUserId = RequestContextUtilsInstance.Get().IsImpersonateRequest() || contextData.IsUserRoleExist(SHOP_SERVER_ROLE_ID) ? contextData.GetCallerUserId() : (long?)null;
             
-            int groupId = KS.GetFromRequest().GroupId;
             // call client                
-            response = ClientsManager.PricingClient().GetPPVModuleData(groupId, id);
- 
+            var response = ClientsManager.PricingClient().GetPPVModuleData(groupId, id, shopUserId);
             return response;
         }
 

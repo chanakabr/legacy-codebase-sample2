@@ -107,7 +107,8 @@ namespace WebAPI.Models.Catalog
                 UseFinal = false,
                 OrderingParameters = Orderings,
                 ResponseProfile = responseProfile,
-                ShouldApplyPriorityGroups = ShouldApplyPriorityGroupsEqual.GetValueOrDefault()
+                ShouldApplyPriorityGroups = ShouldApplyPriorityGroupsEqual.GetValueOrDefault(),
+                OriginalUserId = contextData.OriginalUserId
             };
 
             return ClientsManager.CatalogClient().SearchAssets(searchAssetsFilter);

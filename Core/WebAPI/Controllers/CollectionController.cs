@@ -46,10 +46,6 @@ namespace WebAPI.Controllers
             }
 
             var contextData = KS.GetContextData();
-            int groupId = KS.GetFromRequest().GroupId;
-            string udid = KSUtils.ExtractKSPayload().UDID;
-            string language = Utils.Utils.GetLanguageFromRequest();           
-
             Func<GenericListResponse<Collection>> getListFunc;
             KalturaGenericListResponse<KalturaCollection> result = null;
             try
@@ -60,21 +56,20 @@ namespace WebAPI.Controllers
                 if (filter.AlsoInactive.HasValue)
                 {
                     long userId = Utils.Utils.GetUserIdFromKs();
-                    bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userId.ToString(), true);
-
+                    bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(contextData.GroupId, userId.ToString(), true);
                     inactiveAssets = isAllowedToViewInactiveAssets && filter.AlsoInactive.Value;
                 }
 
                 if (!string.IsNullOrEmpty(filter.CollectionIdIn))
                 {
                     getListFunc = () =>
-                    CollectionManager.Instance.GetCollectionsData(contextData, filter.getCollectionIdIn(), string.Empty, language, udid, pager.GetRealPageIndex(), pager.PageSize.Value, false, 
+                    CollectionManager.Instance.GetCollectionsData(contextData, filter.getCollectionIdIn(), string.Empty, pager.GetRealPageIndex(), pager.PageSize.Value, false, 
                                                                   filter.CouponGroupIdEqual, inactiveAssets, orderBy);
                     result = ClientUtils.GetResponseListFromWS<KalturaCollection, Collection>(getListFunc);
                 }
                 else if (filter.MediaFileIdEqual.HasValue)
                 {
-                    IdsResponse collectionsIdsresult = CollectionManager.Instance.GetCollectionIdsContainingMediaFile(groupId, 0, filter.MediaFileIdEqual.Value);
+                    IdsResponse collectionsIdsresult = CollectionManager.Instance.GetCollectionIdsContainingMediaFile(contextData.GroupId, 0, filter.MediaFileIdEqual.Value);
 
                     if (collectionsIdsresult == null)
                     {
@@ -87,14 +82,14 @@ namespace WebAPI.Controllers
                     if (collectionsIds != null && collectionsIds.Count > 0)
                     {
                         getListFunc = () =>
-                        CollectionManager.Instance.GetCollectionsData(contextData, collectionsIds.Select(id => id.ToString()).ToArray(), string.Empty, language, udid, pager.GetRealPageIndex(), pager.PageSize.Value, false, filter.CouponGroupIdEqual);
+                        CollectionManager.Instance.GetCollectionsData(contextData, collectionsIds.Select(id => id.ToString()).ToArray(), string.Empty, pager.GetRealPageIndex(), pager.PageSize.Value, false, filter.CouponGroupIdEqual);
                         result = ClientUtils.GetResponseListFromWS<KalturaCollection, Collection>(getListFunc);
                     }
                 }
                 else
                 {
                     getListFunc = () =>
-                       CollectionManager.Instance.GetCollectionsData(contextData, string.Empty, language, udid, pager.GetRealPageIndex(), pager.PageSize.Value, false, filter.CouponGroupIdEqual, 
+                       CollectionManager.Instance.GetCollectionsData(contextData, string.Empty, pager.GetRealPageIndex(), pager.PageSize.Value, false, filter.CouponGroupIdEqual, 
                        inactiveAssets, orderBy);
                     result = ClientUtils.GetResponseListFromWS<KalturaCollection, Collection>(getListFunc);
                 }
@@ -189,7 +184,6 @@ namespace WebAPI.Controllers
 
             return result;
         }
-
 
         /// <summary>
         /// Update Collection

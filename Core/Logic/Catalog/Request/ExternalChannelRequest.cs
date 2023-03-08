@@ -42,8 +42,9 @@ namespace Core.Catalog.Request
         }
 
         public ExternalChannelRequest(string channelId, string externalIdentifier, int groupID,
-            int pageSize, int pageIndex, string userIP, string signature, string signString, Filter filter, string deviceId, string deviceType, string filterQuery = "")
-            : base(groupID, pageSize, pageIndex, userIP, signature, signString, filter, filterQuery, channelId, externalIdentifier)
+            int pageSize, int pageIndex, string userIP, string signature, string signString, 
+            Filter filter, string deviceId, string deviceType, string filterQuery = "", long? originalUserId = null)
+            : base(groupID, pageSize, pageIndex, userIP, signature, signString, filter, filterQuery, channelId, externalIdentifier, originalUserId)
         {
             this.deviceId = deviceId;
             this.deviceType = deviceType;
@@ -159,7 +160,7 @@ namespace Core.Catalog.Request
             if (externalRequest == null)
             {
                 externalRequest = new ExternalChannelRequest(this.internalChannelID, this.externalChannelID, this.m_nGroupID, this.m_nPageSize, this.m_nPageIndex,
-                    this.m_sUserIP, this.m_sSignature, this.m_sSignString, this.m_oFilter, this.deviceId, this.deviceType);
+                    this.m_sUserIP, this.m_sSignature, this.m_sSignString, this.m_oFilter, this.deviceId, this.deviceType, string.Empty, this.OriginalUserId);
             }
 
             return CatalogLogic.GetExternalChannelAssets(externalRequest, out totalItems, out searchResults, out requestId);

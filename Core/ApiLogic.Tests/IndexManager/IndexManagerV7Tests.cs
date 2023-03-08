@@ -45,6 +45,7 @@ using ElasticSearch.Searcher;
 using ElasticSearch.Utils;
 using Google.Protobuf.WellKnownTypes;
 using Type = System.Type;
+using ApiObjects.Base;
 
 namespace ApiLogic.Tests.IndexManager
 {
@@ -828,7 +829,7 @@ namespace ApiLogic.Tests.IndexManager
             response.SetStatus(eResponseStatus.OK);
 
             _mockChannelManager
-                .Setup(x => x.GetChannelById(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<long>()))
+                .Setup(x => x.GetChannelById(It.IsAny<ContextData>(), It.IsAny<int>(), It.IsAny<bool>()))
                 .Returns(response);
 
             var total = 0;

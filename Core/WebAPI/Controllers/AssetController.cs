@@ -28,6 +28,8 @@ using WebAPI.ObjectsConvertor.GroupRepresentatives;
 using WebAPI.ObjectsConvertor.Ordering;
 using WebAPI.Utils;
 using SearchAssetsFilter = WebAPI.InternalModels.SearchAssetsFilter;
+using Core.Api.Managers;
+using ApiObjects.Base;
 
 namespace WebAPI.Controllers
 {
@@ -357,7 +359,8 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Returns media or EPG asset by media / EPG internal or external identifier
+        /// Returns media or EPG asset by media / EPG internal or external identifier.
+        /// Note: OPC accounts asset.get for internal identifier doesn't take under consideration personalized aspects neither shop limitations.
         /// </summary>
         /// <param name="id">Asset identifier</param>                
         /// <param name="assetReferenceType">Asset type</param>
@@ -382,15 +385,11 @@ namespace WebAPI.Controllers
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "id");
             }
 
-            KS ks = KS.GetFromRequest();
-            int groupId = ks.GroupId;
+            var contextData = KS.GetContextData();
 
             try
             {
-                string userID = ks.UserId;
-                string udid = KSUtils.ExtractKSPayload().UDID;
-                string language = Utils.Utils.GetLanguageFromRequest();
-                bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID, true);
+                bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(contextData.GroupId, contextData.UserId.ToString(), true);
 
                 switch (assetReferenceType)
                 {
@@ -401,19 +400,19 @@ namespace WebAPI.Controllers
                             throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "id");
                         }
 
-                        long userId;
-                        if (long.TryParse(userID, out userId))
-                        {
-                            KalturaAssetUserRuleListResponse rules = ClientsManager.ApiClient().GetAssetUserRules(groupId, userId, KalturaRuleActionType.FILTER);
-                            if (rules != null && rules.Objects != null && rules.Objects.Count > 0)
+                        if (contextData.UserId.Value > 0)
+                        {                            
+                            var shopUserId = contextData.GetCallerUserId();
+                            var shopId = AssetUserRuleManager.GetShopAssetUserRuleId(contextData.GroupId, shopUserId);
+                            if (shopId > 0)
                             {
                                 var searchAssetsFilter = new SearchAssetsFilter
                                 {
-                                    GroupId = groupId,
-                                    SiteGuid = userID,
-                                    DomainId = (int)HouseholdUtils.GetHouseholdIDByKS(),
-                                    Udid = udid,
-                                    Language = language,
+                                    GroupId = contextData.GroupId,
+                                    SiteGuid = contextData.UserId.ToString(),
+                                    DomainId = (int)contextData.DomainId,
+                                    Udid = contextData.Udid,
+                                    Language = contextData.Language,
                                     PageIndex = 0,
                                     PageSize = 1,
                                     Filter = $"(and asset_type='media' media_id = '{id}')",
@@ -426,11 +425,11 @@ namespace WebAPI.Controllers
                                     GroupByType = GroupingOption.Omit,
                                     IsPersonalListSearch = false,
                                     UseFinal = false,
-                                    OrderingParameters = KalturaOrderAdapter.Instance.MapToOrderingList(KalturaAssetOrderBy.RELEVANCY_DESC)
+                                    OrderingParameters = KalturaOrderAdapter.Instance.MapToOrderingList(KalturaAssetOrderBy.RELEVANCY_DESC),
+                                    OriginalUserId = contextData.OriginalUserId
                                 };
 
                                 KalturaAssetListResponse assetListResponse = ClientsManager.CatalogClient().SearchAssets(searchAssetsFilter);
-
                                 if (assetListResponse != null && assetListResponse.TotalCount == 1 && assetListResponse.Objects.Count == 1)
                                 {
                                     return assetListResponse.Objects[0];
@@ -442,7 +441,8 @@ namespace WebAPI.Controllers
                             }
                         }
 
-                        asset = ClientsManager.CatalogClient().GetAsset(groupId, mediaId, assetReferenceType, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), udid, language, isAllowedToViewInactiveAssets, true);
+                        asset = ClientsManager.CatalogClient().GetAsset
+                            (contextData.GroupId, mediaId, assetReferenceType, contextData.UserId.ToString(), (int)contextData.DomainId, contextData.Udid, contextData.Language, isAllowedToViewInactiveAssets, true);
                         break;
                     case KalturaAssetReferenceType.epg_internal:
                         int epgId;
@@ -451,14 +451,14 @@ namespace WebAPI.Controllers
                             throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "id");
                         }
 
-                        if (Utils.Utils.DoesGroupUsesTemplates(groupId))
+                        if (Utils.Utils.DoesGroupUsesTemplates(contextData.GroupId))
                         {
-                            asset = ClientsManager.CatalogClient().GetEpgAsset(groupId, epgId, isAllowedToViewInactiveAssets);
+                            asset = ClientsManager.CatalogClient().GetEpgAsset(contextData.GroupId, epgId, isAllowedToViewInactiveAssets);
                         }
                         else
                         {
-                            var epgRes = ClientsManager.CatalogClient().GetEPGByInternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), udid, language,
-                               0, 1, new List<int> { epgId }, KalturaAssetOrderBy.START_DATE_DESC);
+                            var epgRes = ClientsManager.CatalogClient().GetEPGByInternalIds
+                                (contextData, 0, 1, new List<int> { epgId }, KalturaAssetOrderBy.START_DATE_DESC);
 
                             // if no response - return not found status 
                             if (epgRes == null || epgRes.Objects == null || epgRes.Objects.Count == 0)
@@ -471,8 +471,7 @@ namespace WebAPI.Controllers
                         break;
 
                     case KalturaAssetReferenceType.epg_external:
-                        var epgExRes = ClientsManager.CatalogClient().GetEPGByExternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
-                          0, 1, new List<string> { id });
+                        var epgExRes = ClientsManager.CatalogClient().GetEPGByExternalIds(contextData, 0, 1, new List<string> { id });
 
                         // if no response - return not found status 
                         if (epgExRes == null || epgExRes.Objects == null || epgExRes.Objects.Count == 0)
@@ -484,12 +483,11 @@ namespace WebAPI.Controllers
                         break;
 
                     case KalturaAssetReferenceType.npvr:
-                        asset = GetRecordingAsset(long.Parse(id), groupId, userID, udid, language, isAllowedToViewInactiveAssets);
+                        asset = GetRecordingAsset(long.Parse(id), contextData, isAllowedToViewInactiveAssets);
                         break;
 
                     default:
                         throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "assetReferenceType");
-                        break;
                 }
             }
             catch (ClientException ex)
@@ -499,16 +497,15 @@ namespace WebAPI.Controllers
 
             if (asset != null)
             {
-                _mediaFileFilter.FilterAssetFiles(asset, ks.GroupId, KSUtils.ExtractKSPayload(ks).SessionCharacteristicKey);
-
+                _mediaFileFilter.FilterAssetFiles(asset, contextData.GroupId, contextData.SessionCharacteristicKey);
                 var clientTag = OldStandardAttribute.getCurrentClientTag();
-                asset.Metas = ModifyAlias(groupId, clientTag, asset);
+                asset.Metas = ModifyAlias(contextData.GroupId, clientTag, asset);
             }
 
             return asset;
         }
 
-        private static KalturaRecordingAsset GetRecordingAsset(long id, int groupId, string userId, string udid, string language, bool isAllowedToViewInactiveAssets)
+        private static KalturaRecordingAsset GetRecordingAsset(long id, ContextData contextData, bool isAllowedToViewInactiveAssets)
         {
             var recording = RecordingController.Get(id);
             if (recording == null)
@@ -519,9 +516,9 @@ namespace WebAPI.Controllers
             {
                 int epgId = (int)recording.AssetId;
 
-                if (Utils.Utils.DoesGroupUsesTemplates(groupId))
+                if (Utils.Utils.DoesGroupUsesTemplates(contextData.GroupId))
                 {
-                    var epgAsset = ClientsManager.CatalogClient().GetEpgAsset(groupId, epgId, isAllowedToViewInactiveAssets);
+                    var epgAsset = ClientsManager.CatalogClient().GetEpgAsset(contextData.GroupId, epgId, isAllowedToViewInactiveAssets);
                     return new KalturaRecordingAsset(epgAsset)
                     {
                         RecordingId = id.ToString(),
@@ -531,8 +528,8 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    var epgRes = ClientsManager.CatalogClient().GetEPGByInternalIds(groupId, userId, (int)HouseholdUtils.GetHouseholdIDByKS(), udid, language,
-                       0, 1, new List<int> { epgId }, KalturaAssetOrderBy.START_DATE_DESC);
+                    var epgRes = ClientsManager.CatalogClient().GetEPGByInternalIds
+                        (contextData, 0, 1, new List<int> { epgId }, KalturaAssetOrderBy.START_DATE_DESC);
 
                     // if no response - return not found status 
                     if (epgRes == null || epgRes.Objects == null || epgRes.Objects.Count == 0)
@@ -1416,10 +1413,7 @@ namespace WebAPI.Controllers
         static public bool RemoveMetasAndTags(long id, KalturaAssetReferenceType assetReferenceType, string idIn)
         {
             bool result = false;
-            int groupId = KS.GetFromRequest().GroupId;
-            long userId = Utils.Utils.GetUserIdFromKs();
-            string udid = KSUtils.ExtractKSPayload().UDID;
-            string language = Utils.Utils.GetLanguageFromRequest();
+            var contextData = KS.GetContextData();
 
             HashSet<long> topicIds = new HashSet<long>();
             if (string.IsNullOrEmpty(idIn))
@@ -1448,8 +1442,7 @@ namespace WebAPI.Controllers
                 switch (assetReferenceType)
                 {
                     case KalturaAssetReferenceType.epg_external:
-                        KalturaAssetListResponse epgRes = ClientsManager.CatalogClient().GetEPGByExternalIds(groupId, userId.ToString(), (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
-                             0, 1, new List<string> { id.ToString() });
+                        KalturaAssetListResponse epgRes = ClientsManager.CatalogClient().GetEPGByExternalIds(contextData,0, 1, new List<string> { id.ToString() });
 
                         // if no response - return not found status 
                         if (epgRes == null || epgRes.Objects == null || epgRes.Objects.Count == 0)
@@ -1465,7 +1458,7 @@ namespace WebAPI.Controllers
                         break;
                 }
 
-                result = ClientsManager.CatalogClient().RemoveTopicsFromAsset(groupId, id, assetReferenceType, topicIds, userId);
+                result = ClientsManager.CatalogClient().RemoveTopicsFromAsset(contextData.GroupId, id, assetReferenceType, topicIds, contextData.UserId.Value);
             }
             catch (ClientException ex)
             {

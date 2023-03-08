@@ -76,6 +76,12 @@ namespace Core.Catalog.Request
                     GroupByOption = request.isGroupingOptionInclude ? GroupingOption.Include : GroupingOption.Omit
                 };
 
+                var shopUserId = request.GetCallerUserId();
+                if (shopUserId > 0)
+                {
+                    UnifiedSearchDefinitionsBuilder.GetUserAssetRulesPhrase(request, group, ref definitions, m_nGroupID, shopUserId);
+                }
+
                 int totalItems = 0;
                 var initialSearchResult = indexManager.UnifiedSearch(definitions, ref totalItems);
 

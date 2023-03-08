@@ -38,6 +38,7 @@ using ApiObjects.Epg;
 using Core.GroupManagers;
 using ApiLogic.IndexManager.Sorting;
 using ElasticSearch.Utils;
+using ApiObjects.Base;
 
 namespace ApiLogic.Tests.IndexManager
 {
@@ -611,7 +612,7 @@ namespace ApiLogic.Tests.IndexManager
             response.SetStatus(eResponseStatus.OK);
 
             _mockChannelManager
-                .Setup(x => x.GetChannelById(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<long>()))
+                .Setup(x => x.GetChannelById(It.IsAny<ContextData>(), It.IsAny<int>(), It.IsAny<bool>()))
                 .Returns(response);
 
             var total = 0;

@@ -61,8 +61,9 @@ namespace Core.Catalog.Request
             string signString,
             Filter filter,
             string filterQuery,
-            OrderObj order)
-            : base(groupID, pageSize, pageIndex, userIP, signature, signString, filter, filterQuery, channelId, externalIdentifier)
+            OrderObj order,
+            long? originalUserId)
+            : base(groupID, pageSize, pageIndex, userIP, signature, signString, filter, filterQuery, channelId, externalIdentifier, originalUserId)
         {
             this.filterQuery = filterQuery;
             this.order = order;
@@ -78,7 +79,7 @@ namespace Core.Catalog.Request
             if (internalRequest == null)
             {
                 internalRequest = new InternalChannelRequest(this.internalChannelID, this.externalChannelID, this.m_nGroupID, this.m_nPageSize, this.m_nPageIndex,
-                    this.m_sUserIP, this.m_sSignature, this.m_sSignString, this.m_oFilter, this.filterQuery, this.order);
+                    this.m_sUserIP, this.m_sSignature, this.m_sSignString, this.m_oFilter, this.filterQuery, this.order, OriginalUserId);
             }
 
             if (request.m_dServerTime == default(DateTime) || request.m_dServerTime == DateTime.MinValue)

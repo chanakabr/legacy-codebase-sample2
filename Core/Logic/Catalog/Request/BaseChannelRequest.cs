@@ -52,11 +52,12 @@ namespace Core.Catalog.Request
         }
 
         public BaseChannelRequest(int groupID, int pageSize, int pageIndex, string userIP, string signature, string signString, 
-            Filter filter, string filterQuery = "", string internalChannelId = "", string externalChannelId = "")
+            Filter filter, string filterQuery = "", string internalChannelId = "", string externalChannelId = "", long? originalUserId = null)
             : base(pageSize, pageIndex, userIP, groupID, filter, signature, signString)
         {
             this.internalChannelID = internalChannelId;
             this.externalChannelID = externalChannelId;
+            OriginalUserId = originalUserId;
         }
 
         #endregion

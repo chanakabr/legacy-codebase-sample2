@@ -1,11 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Data;
-using Phx.Lib.Log;
-using System.Reflection;
+﻿using ApiObjects;
+using ApiObjects.Response;
+using Core.Catalog.CatalogManagement;
 using DAL;
+using Phx.Lib.Log;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 
 namespace Core.Pricing
 {
@@ -36,7 +39,7 @@ namespace Core.Pricing
         }
 
         public abstract PPVModule GetPPVModuleData(string sPPVModuleCode, bool shouldShrink = false);
-        public abstract PPVModuleDataResponse GetPPVModuleDataResponse(string sPPVModuleCode, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME);
+        public abstract PPVModuleDataResponse GetPPVModuleDataResponse(string sPPVModuleCode, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, long? shopUserId);
         public abstract PPVModule[] GetPPVModulesData(string[] sPPVModuleCodes);
         public abstract PPVModule[] GetPPVModuleList();
         public abstract PPVModule[] GetPPVModuleShrinkList();
@@ -357,6 +360,25 @@ namespace Core.Pricing
 
 
             return ret;
+        }
+
+        protected Status ValidatePpvInUserShop(PPVModule ppvModule, long? shopUserId, int groupId)
+        {
+            if (!shopUserId.HasValue || shopUserId.Value == 0) { return Status.Ok; }
+
+            var shopId = Api.Managers.AssetUserRuleManager.GetShopAssetUserRuleId(groupId, shopUserId.Value);
+            if (shopId <= 0)
+            {
+                return Status.Ok;
+            }
+
+            if (!ppvModule.AssetUserRuleId.HasValue || ppvModule.AssetUserRuleId.Value != shopId)
+            {
+                var status = new Status(eResponseStatus.EntityIsNotAssociatedWithShop, $"ppv {ppvModule.m_sObjectCode} is not associated with shop [{shopId}].");
+                return status;
+            }
+
+            return Status.Ok;
         }
     }
 }

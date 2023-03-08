@@ -1,8 +1,10 @@
-﻿using ApiLogic.ConditionalAccess.Modules;
+﻿using ApiLogic.Catalog.Request;
+using ApiLogic.ConditionalAccess.Modules;
 using ApiLogic.Pricing;
 using ApiLogic.Pricing.Handlers;
 using APILogic.Api.Managers;
 using ApiObjects;
+using ApiObjects.Base;
 using ApiObjects.Billing;
 using ApiObjects.ConditionalAccess;
 using ApiObjects.ConditionalAccess.DTO;
@@ -15,6 +17,7 @@ using Core.ConditionalAccess.Response;
 using Core.Pricing;
 using Core.Users;
 using DAL;
+using FeatureFlag;
 using Phx.Lib.Appconfig;
 using Phx.Lib.Log;
 using QueueWrapper;
@@ -25,7 +28,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml;
-using FeatureFlag;
 using TVinciShared;
 
 namespace Core.ConditionalAccess
@@ -504,7 +506,8 @@ namespace Core.ConditionalAccess
                         }
                     case eTransactionType.PPV:
                         {
-                            var entitlements = GetUsersEntitlementPPVItems(cas, cas.m_nGroupID, new List<int>(), false, (int)domainId, true, -1, 0, EntitlementOrderBy.PurchaseDateAsc);
+                            var request = new EntitlementItemsRequest(cas.m_nGroupID, new List<int>(), false, (int)domainId, true, -1, 0, EntitlementOrderBy.PurchaseDateAsc, null);
+                            var entitlements = GetUsersEntitlementPPVItems(cas, request);
                             if (!entitlements.status.IsOkStatusCode())
                             {
                                 response.status.Set(entitlements.status);
@@ -533,7 +536,8 @@ namespace Core.ConditionalAccess
                         }
                     case eTransactionType.Collection:
                         {
-                            var entitlements = GetUsersEntitlementCollectionsItems(cas, cas.m_nGroupID, new List<int>(), false, (int)domainId, true, -1, 0, EntitlementOrderBy.PurchaseDateAsc);
+                            var request = new EntitlementItemsRequest(cas.m_nGroupID, new List<int>(), false, (int)domainId, true, -1, 0, EntitlementOrderBy.PurchaseDateAsc, null);
+                            var entitlements = GetUsersEntitlementCollectionsItems(cas, request);
                             if (!entitlements.status.IsOkStatusCode())
                             {
                                 response.status.Set(entitlements.status);
@@ -632,23 +636,23 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        internal static Entitlements GetUsersEntitlementSubscriptionsItems(BaseConditionalAccess cas, int groupId, List<int> userIds, bool isExpired, int domainId, bool shouldCheckByDomain, int pageSize, int pageIndex, EntitlementOrderBy orderBy)
+        internal static Entitlements GetUsersEntitlementSubscriptionsItems(BaseConditionalAccess cas, EntitlementItemsRequest request)
         {
             Entitlements entitlementsResponse = new Entitlements();
 
             try
             {
                 // Get domainID from one of the users
-                if (shouldCheckByDomain && domainId == 0 && userIds.Count > 0)
+                if (request.shouldCheckByDomain && request.domainID == 0 && request.lUsersIDs.Count > 0)
                 {
-                    UserResponseObject user = Utils.GetExistUser(userIds.First().ToString(), groupId);
+                    UserResponseObject user = Utils.GetExistUser(request.lUsersIDs.First().ToString(), request.GroupId);
                     if (user != null && user.m_RespStatus == ResponseStatus.OK && user.m_user != null)
                     {
-                        domainId = user.m_user.m_domianID;
+                        request.domainID = user.m_user.m_domianID;
                     }
                 }
 
-                DataTable allSubscriptionsPurchases = ConditionalAccessDAL.Get_UsersPermittedSubscriptions(userIds, isExpired, domainId, (int)orderBy);
+                DataTable allSubscriptionsPurchases = ConditionalAccessDAL.Get_UsersPermittedSubscriptions(request.lUsersIDs, request.isExpired, request.domainID, (int)request.orderBy);
 
                 if (allSubscriptionsPurchases == null || allSubscriptionsPurchases.Rows == null || allSubscriptionsPurchases.Rows.Count == 0)
                 {
@@ -668,7 +672,7 @@ namespace Core.ConditionalAccess
                     }
                 }
 
-                var result = Api.api.Instance.GetObjectVirtualAssetObjectIds(groupId, new AssetSearchDefinition(), ObjectVirtualAssetInfoType.Subscription, subIds);
+                var result = Api.api.Instance.GetObjectVirtualAssetObjectIds(request.GroupId, new AssetSearchDefinition(), ObjectVirtualAssetInfoType.Subscription, subIds);
                 if (result.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
                 {
                     entitlementsResponse.status = result.Status;
@@ -694,7 +698,7 @@ namespace Core.ConditionalAccess
                 entitlementsResponse.totalItems = rows.Count;
 
                 //Get Iteration Rows according page size and index
-                IEnumerable<DataRow> iterationRows = GetIterationRows(pageSize, pageIndex, rows);
+                IEnumerable<DataRow> iterationRows = GetIterationRows(request.pageSize, request.pageIndex, rows);
 
                 // get all builingGuid from subscription 
                 List<string> billingGuids = (from row in rows
@@ -704,16 +708,17 @@ namespace Core.ConditionalAccess
                 if (billingGuids != null && billingGuids.Count > 0)
                 {
                     // call billing service to get all transaction payment details
-                    renewPaymentDetails = Core.Billing.Module.GetPaymentDetails(groupId, billingGuids);
+                    renewPaymentDetails = Core.Billing.Module.GetPaymentDetails(request.GroupId, billingGuids);
                 }
 
                 List<long> purchaseIds = (from row in iterationRows
                                           select row.Field<long>("ID")).ToList(); // 
-                Dictionary<long, long> purchaseIdToScheduledSubscriptionId = Utils.GetPurchaseIdToScheduledSubscriptionIdMap(groupId, domainId, purchaseIds, SubscriptionSetModifyType.Downgrade);
+                Dictionary<long, long> purchaseIdToScheduledSubscriptionId = 
+                    Utils.GetPurchaseIdToScheduledSubscriptionIdMap(request.GroupId, request.domainID, purchaseIds, SubscriptionSetModifyType.Downgrade);
                 ConditionalAccess.Response.Entitlement entitlement = null;
                 foreach (DataRow dr in iterationRows)
                 {
-                    entitlement = CreateSubscriptionEntitelment(cas, dr, isExpired, renewPaymentDetails, domainId, purchaseIdToScheduledSubscriptionId);
+                    entitlement = CreateSubscriptionEntitelment(cas, dr, request.isExpired, renewPaymentDetails, request.domainID, purchaseIdToScheduledSubscriptionId);
                     if (entitlement != null && long.TryParse(entitlement.entitlementId, out subId))
                     {
                         entitlementsResponse.entitelments.Add(entitlement);
@@ -730,38 +735,49 @@ namespace Core.ConditionalAccess
             return entitlementsResponse;
         }
 
-        internal static Entitlements GetUsersEntitlementPPVItems(BaseConditionalAccess cas, int groupId, List<int> lUsersIDs, bool isExpired, int domainID, bool shouldCheckByDomain, int pageSize, int pageIndex, EntitlementOrderBy orderBy)
+        internal static Entitlements GetUsersEntitlementPPVItems(BaseConditionalAccess cas, EntitlementItemsRequest request)
         {
             Entitlements entitlementsResponse = new Entitlements();
             List<int> mediaFileIds = new List<int>();
             try
             {
                 // Get domainID from one of the users
-                if (shouldCheckByDomain && domainID == 0 && lUsersIDs.Count > 0)
+                if (request.shouldCheckByDomain && request.domainID == 0 && request.lUsersIDs.Count > 0)
                 {
-                    UserResponseObject user = Utils.GetExistUser(lUsersIDs.First().ToString(), groupId);
+                    UserResponseObject user = Utils.GetExistUser(request.lUsersIDs.First().ToString(), request.GroupId);
                     if (user != null && user.m_RespStatus == ResponseStatus.OK && user.m_user != null)
                     {
-                        domainID = user.m_user.m_domianID;
+                        request.domainID = user.m_user.m_domianID;
                     }
                 }
 
-                DataTable allPPVModules = ConditionalAccessDAL.Get_All_Users_PPV_modules(lUsersIDs, isExpired, domainID, (int)orderBy);
+                DataTable allPPVModules = ConditionalAccessDAL.Get_All_Users_PPV_modules(request.lUsersIDs, request.isExpired, request.domainID, (int)request.orderBy);
                 if (allPPVModules == null || allPPVModules.Rows == null || allPPVModules.Rows.Count == 0)
                 {
                     entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no permitted items");
                     return entitlementsResponse;
                 }
 
-                entitlementsResponse.totalItems = allPPVModules.Rows.Count;
+                // filter ppvs by shop
+                IEnumerable<DataRow> allPPVModulesRows = allPPVModules.AsEnumerable();
+                if (request.shopUserId.HasValue)
+                {
+                    allPPVModulesRows = FilterPpvEntitlementsByShop(request.GroupId, allPPVModulesRows, request.shopUserId.Value);
+                }
+                
+                if (allPPVModulesRows == null || !allPPVModulesRows.Any())
+                {
+                    entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no permitted items");
+                    return entitlementsResponse;
+                }
+
+                entitlementsResponse.totalItems = allPPVModulesRows.Count();
 
                 //Get Iteration Rows according page size and index
-                IEnumerable<DataRow> iterationRows = GetIterationRows(pageSize, pageIndex, allPPVModules);
-
-                ConditionalAccess.Response.Entitlement entitlement = null;
+                IEnumerable<DataRow> iterationRows = GetIterationRows(request.pageSize, request.pageIndex, allPPVModulesRows);
                 foreach (DataRow dr in iterationRows)
                 {
-                    entitlement = CreatePPVEntitelment(cas, dr);
+                    var entitlement = CreatePPVEntitelment(cas, dr);
                     if (entitlement != null)
                     {
                         if (!mediaFileIds.Contains(entitlement.mediaFileID))
@@ -772,12 +788,10 @@ namespace Core.ConditionalAccess
                     }
                 }
 
-                MeidaMaper[] mapper = Utils.GetMediaMapper(groupId, mediaFileIds.ToArray());
-
-
-                foreach (ConditionalAccess.Response.Entitlement entitlementRes in entitlementsResponse.entitelments)
+                MeidaMaper[] mapper = Utils.GetMediaMapper(request.GroupId, mediaFileIds.ToArray());
+                foreach (Entitlement entitlementRes in entitlementsResponse.entitelments)
                 {
-                    int mediaID = mapper.Where(x => x.m_nMediaFileID == entitlementRes.mediaFileID).FirstOrDefault().m_nMediaID;
+                    int mediaID = mapper.FirstOrDefault(x => x.m_nMediaFileID == entitlementRes.mediaFileID).m_nMediaID;
                     entitlementRes.mediaID = mediaID;
                 }
 
@@ -791,37 +805,48 @@ namespace Core.ConditionalAccess
             return entitlementsResponse;
         }
 
-        internal static Entitlements GetUsersEntitlementCollectionsItems(BaseConditionalAccess cas, int groupId, List<int> userIds, bool isExpired, int domainID, bool shouldCheckByDomain, int pageSize, int pageIndex, EntitlementOrderBy orderBy)
+        internal static Entitlements GetUsersEntitlementCollectionsItems(BaseConditionalAccess cas, EntitlementItemsRequest request)
         {
             Entitlements entitlementsResponse = new Entitlements();
             try
             {
                 // Get domainID from one of the users
-                if (shouldCheckByDomain && domainID == 0 && userIds.Count > 0)
+                if (request.shouldCheckByDomain && request.domainID == 0 && request.lUsersIDs.Count > 0)
                 {
-                    UserResponseObject user = Utils.GetExistUser(userIds.First().ToString(), groupId);
+                    UserResponseObject user = Utils.GetExistUser(request.lUsersIDs.First().ToString(), request.GroupId);
                     if (user != null && user.m_RespStatus == ResponseStatus.OK && user.m_user != null)
                     {
-                        domainID = user.m_user.m_domianID;
+                        request.domainID = user.m_user.m_domianID;
                     }
                 }
 
-                DataTable allCollectionsPurchases = ConditionalAccessDAL.Get_UsersPermittedCollections(userIds, isExpired, domainID, (int)orderBy);
+                DataTable allCollectionsPurchases = ConditionalAccessDAL.Get_UsersPermittedCollections(request.lUsersIDs, request.isExpired, request.domainID, (int)request.orderBy);
                 if (allCollectionsPurchases == null || allCollectionsPurchases.Rows == null || allCollectionsPurchases.Rows.Count == 0)
                 {
                     entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no permitted items");
                     return entitlementsResponse;
                 }
 
-                entitlementsResponse.totalItems = allCollectionsPurchases.Rows.Count;
+                // filter collections by shop
+                IEnumerable<DataRow> allCollectionPurchaseRows = allCollectionsPurchases.AsEnumerable();
+                if (request.shopUserId.HasValue)
+                {
+                    allCollectionPurchaseRows = FilterCollectionEntitlementsByShop(request.GroupId, allCollectionPurchaseRows, request.shopUserId.Value);
+                }
+
+                if (allCollectionPurchaseRows == null || !allCollectionPurchaseRows.Any())
+                {
+                    entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no permitted items");
+                    return entitlementsResponse;
+                }
+
+                entitlementsResponse.totalItems = allCollectionPurchaseRows.Count();
 
                 //Get Iteration Rows according page size and index
-                IEnumerable<DataRow> iterationRows = GetIterationRows(pageSize, pageIndex, allCollectionsPurchases);
-
-                ConditionalAccess.Response.Entitlement entitlement = null;
+                IEnumerable<DataRow> iterationRows = GetIterationRows(request.pageSize, request.pageIndex, allCollectionPurchaseRows);
                 foreach (DataRow dr in iterationRows)
                 {
-                    entitlement = CreateCollectionEntitelment(cas, dr, isExpired);
+                    var entitlement = CreateCollectionEntitelment(cas, dr, request.isExpired);
                     if (entitlement != null)
                     {
                         entitlementsResponse.entitelments.Add(entitlement);
@@ -947,77 +972,24 @@ namespace Core.ConditionalAccess
             return sb.ToString();
         }
 
-        private static IEnumerable<DataRow> GetIterationRows(int pageSize, int pageIndex, DataTable usersPermittedItems)
+        private static IEnumerable<DataRow> GetIterationRows(int pageSize, int pageIndex, IEnumerable<DataRow> usersPermittedItems)
         {
-            IEnumerable<DataRow> iterationRows = null;
-            List<DataRow> filteredRows = null;
-
             if (pageIndex > 0 && pageSize > 0)
             {
-                filteredRows = usersPermittedItems.AsEnumerable().Skip(pageSize * pageIndex).Take(pageSize).ToList();
-                //int takeTop = pageIndex * pageSize;
-                //Int64 maxTransactionID = (from row in usersPermittedItems.AsEnumerable().Take(takeTop)
-                //                          select row.Field<Int64>("ID")).ToList().Min();
-                //filteredRows = (from row in usersPermittedItems.AsEnumerable()
-                //                where (Int64)row["ID"] < maxTransactionID
-                //                select row).Take(pageSize).ToList();
+                var filteredRows = usersPermittedItems.Skip(pageSize * pageIndex).Take(pageSize);
+                return filteredRows;
             }
 
-            if (filteredRows != null)
-            {
-                iterationRows = filteredRows;
-            }
-            else if (pageSize > -1)
-            {
-                iterationRows = usersPermittedItems.AsEnumerable().Take(pageSize);
-            }
-            else
-            {
-                iterationRows = usersPermittedItems.AsEnumerable();
-            }
-
-            return iterationRows;
+            return pageSize > -1 ? usersPermittedItems.Take(pageSize) : usersPermittedItems;
         }
 
-        private static IEnumerable<DataRow> GetIterationRows(int pageSize, int pageIndex, List<DataRow> usersPermittedItems)
-        {
-            IEnumerable<DataRow> iterationRows = null;
-            List<DataRow> filteredRows = null;
-
-            if (pageIndex > 0 && pageSize > 0)
-            {
-                filteredRows = usersPermittedItems.AsEnumerable().Skip(pageSize * pageIndex).Take(pageSize).ToList();
-                //int takeTop = pageIndex * pageSize;
-                //Int64 maxTransactionID = (from row in usersPermittedItems.AsEnumerable().Take(takeTop)
-                //                          select row.Field<Int64>("ID")).ToList().Min();
-                //filteredRows = (from row in usersPermittedItems.AsEnumerable()
-                //                where (Int64)row["ID"] < maxTransactionID
-                //                select row).Take(pageSize).ToList();
-            }
-
-            if (filteredRows != null)
-            {
-                iterationRows = filteredRows;
-            }
-            else if (pageSize > -1)
-            {
-                iterationRows = usersPermittedItems.AsEnumerable().Take(pageSize);
-            }
-            else
-            {
-                iterationRows = usersPermittedItems.AsEnumerable();
-            }
-
-            return iterationRows;
-        }
-
-        private static ConditionalAccess.Response.Entitlement CreatePPVEntitelment(BaseConditionalAccess cas, DataRow dataRow)
+        private static Entitlement CreatePPVEntitelment(BaseConditionalAccess cas, DataRow dataRow)
         {
             UsageModule oUsageModule = null;
-            ConditionalAccess.Response.Entitlement entitlement = new ConditionalAccess.Response.Entitlement();
+            var entitlement = new Entitlement();
 
             entitlement.type = eTransactionType.PPV;
-            entitlement.entitlementId = ODBCWrapper.Utils.GetSafeStr(dataRow, "ppv");
+            entitlement.entitlementId = GetPpvIdOfEntitelment(dataRow);
             entitlement.currentUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "NUM_OF_USES");
 
             entitlement.endDate = new DateTime(2099, 1, 1);
@@ -1059,13 +1031,31 @@ namespace Core.ConditionalAccess
 
         }
 
-        private static ConditionalAccess.Response.Entitlement CreateCollectionEntitelment(BaseConditionalAccess cas, DataRow dataRow, bool isExpired)
+        private static string GetPpvIdOfEntitelment(DataRow dr)
+        {
+            return ODBCWrapper.Utils.GetSafeStr(dr, "ppv");
+        }
+
+        private static IEnumerable<DataRow> FilterPpvEntitlementsByShop(int groupId, IEnumerable<DataRow> allPpvEntitlementRows, long shopUserId)
+        {
+            var idsToValidate = allPpvEntitlementRows.Select(x => long.Parse(GetPpvIdOfEntitelment(x))).ToList();
+            var contextData = new ContextData(groupId) { OriginalUserId = shopUserId };
+            var ppvResponse = PpvManager.Instance.GetPPVModules(contextData, idsToValidate, false, null, false, PPVOrderBy.NameAsc, 0, 30, true);
+            if (!ppvResponse.HasObjects())
+            {
+                return null;
+            }
+            var filteredPpvEntitlements = allPpvEntitlementRows.Where(row => ppvResponse.Objects.Any(ppv => ppv.m_sObjectCode == GetPpvIdOfEntitelment(row)));
+            return filteredPpvEntitlements;
+        }
+
+        private static Entitlement CreateCollectionEntitelment(BaseConditionalAccess cas, DataRow dataRow, bool isExpired)
         {
             UsageModule oUsageModule = null;
             ConditionalAccess.Response.Entitlement entitlement = new ConditionalAccess.Response.Entitlement();
 
             entitlement.type = eTransactionType.Collection;
-            entitlement.entitlementId = ODBCWrapper.Utils.GetSafeStr(dataRow, "COLLECTION_CODE");
+            entitlement.entitlementId = GetCollectionIdOfEntitelment(dataRow);
 
             entitlement.endDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "END_DATE");
             entitlement.maxUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "MAX_NUM_OF_USES");
@@ -1099,6 +1089,25 @@ namespace Core.ConditionalAccess
             entitlement.IsPending = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "IS_PENDING") == 1;
 
             return entitlement;
+        }
+
+        private static string GetCollectionIdOfEntitelment(DataRow dr)
+        {
+            return ODBCWrapper.Utils.GetSafeStr(dr, "COLLECTION_CODE");
+        }
+
+        private static IEnumerable<DataRow> FilterCollectionEntitlementsByShop(int groupId, IEnumerable<DataRow> allCollectionEntitlementRows, long shopUserId)
+        {
+            var idsToValidate = allCollectionEntitlementRows.Select(x => GetCollectionIdOfEntitelment(x)).ToArray();
+            var contextData = new ContextData(groupId) { OriginalUserId = shopUserId };
+            var collectionResponse = CollectionManager.Instance.GetCollectionsData(contextData, idsToValidate, string.Empty, 0, 30, true, null, false, CollectionOrderBy.None);
+            if (!collectionResponse.HasObjects())
+            {
+                return null;
+            }
+
+            var filteredCollectionEntitlements = allCollectionEntitlementRows.Where(row => collectionResponse.Objects.Any(col => col.m_sObjectCode == GetCollectionIdOfEntitelment(row)));
+            return filteredCollectionEntitlements;
         }
 
         public static CompensationResponse AddCompensation(BaseConditionalAccess cas, int groupId, string userId, Compensation compensation)

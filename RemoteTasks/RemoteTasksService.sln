@@ -43,11 +43,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScheduledTasks", "..\Core\S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Uploader", "..\Core\Uploader\Uploader.csproj", "{A35BD0D3-3055-4206-8B3F-80079F9ECA15}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialFeedHandler", "SocialFeedHandler\SocialFeedHandler.csproj", "{6A3171F6-BFC9-4407-97EE-8E20E36AD783}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocialFeedHandler", "SocialFeedHandler\SocialFeedHandler.csproj", "{6A3171F6-BFC9-4407-97EE-8E20E36AD783}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CachingProvider", "..\Core\CachingProvider\CachingProvider.csproj", "{4191D9E7-8502-4B00-A488-771240E2CF40}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialMergeHandler", "SocialMergeHandler\SocialMergeHandler.csproj", "{FB37385F-06EA-4F98-A7E2-E45BFAB900D4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocialMergeHandler", "SocialMergeHandler\SocialMergeHandler.csproj", "{FB37385F-06EA-4F98-A7E2-E45BFAB900D4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GroupsCacheManager", "..\Core\GroupsCacheManager\GroupsCacheManager.csproj", "{25037A8A-7C6D-4496-B757-6FA85ABDD3CF}"
 EndProject
@@ -59,11 +59,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PendingTransactionHandler",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ElasticSearchHandler", "ElasticSearchHandler\ElasticSearchHandler.csproj", "{338E6394-A9E9-4D5C-8A6A-95797F6C429F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubscriptionRenewHandler", "SubscriptionRenewHandler\SubscriptionRenewHandler.csproj", "{98C65129-0998-4385-B7FE-BF95E74E3F40}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SubscriptionRenewHandler", "SubscriptionRenewHandler\SubscriptionRenewHandler.csproj", "{98C65129-0998-4385-B7FE-BF95E74E3F40}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SetupTaskHandler", "SetupTaskHandler\SetupTaskHandler.csproj", "{350B7F6F-A920-4764-BC90-FC08B0316CA9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateCacheHandler", "UpdateCacheHandler\UpdateCacheHandler.csproj", "{4625C3A4-D4DD-4F5B-8DCC-2D033FA090CA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UpdateCacheHandler", "UpdateCacheHandler\UpdateCacheHandler.csproj", "{4625C3A4-D4DD-4F5B-8DCC-2D033FA090CA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Synchronizer", "..\Core\Synchronizer\Synchronizer.csproj", "{9B1D6676-614F-4F0D-9BFB-66422F8A5031}"
 EndProject
@@ -83,11 +83,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InitiateNotificationActionH
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RecordingTaskHandler", "RecordingTaskHandler\RecordingTaskHandler.csproj", "{97B5D68D-D64B-459E-A206-7BE9C99635E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeriesRecordingTaskHandler", "SeriesRecordingTaskHandler\SeriesRecordingTaskHandler.csproj", "{E30A1B56-81B4-4BAC-98B3-C48C74F93188}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SeriesRecordingTaskHandler", "SeriesRecordingTaskHandler\SeriesRecordingTaskHandler.csproj", "{E30A1B56-81B4-4BAC-98B3-C48C74F93188}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModifiedRecordingsHandler", "ModifiedRecordingsHandler\ModifiedRecordingsHandler.csproj", "{3BEDBA4C-502E-49A4-901F-F7D61365FBA9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserTaskHandler", "UserTaskHandler\UserTaskHandler.csproj", "{A1D8F832-293A-4A0C-944A-A5419896A0CB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserTaskHandler", "UserTaskHandler\UserTaskHandler.csproj", "{A1D8F832-293A-4A0C-944A-A5419896A0CB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessageReminderHandler", "MessageReminderHandler\MessageReminderHandler.csproj", "{B4202CB4-A68E-4265-B17A-5C24860F3A28}"
 EndProject
@@ -97,7 +97,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ActionRuleHandler", "Action
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EngagementHandler", "EngagementHandler\EngagementHandler.csproj", "{7F38AA35-1508-4699-AE07-4740D669BB0B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScheduledPurchaseHandler", "ScheduledPurchaseHandler\ScheduledPurchaseHandler.csproj", "{7BFDF68C-5A48-4D5E-BC2A-CA98650EE71A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScheduledPurchaseHandler", "ScheduledPurchaseHandler\ScheduledPurchaseHandler.csproj", "{7BFDF68C-5A48-4D5E-BC2A-CA98650EE71A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessageInterestHandler", "MessageInterestHandler\MessageInterestHandler.csproj", "{27C11957-F329-49F1-A154-92344D2FA4AE}"
 EndProject
@@ -111,7 +111,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProfessionalServicesHandler
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AssetInheritanceHandler", "AssetInheritanceHandler\AssetInheritanceHandler.csproj", "{9BCF734B-320B-49A4-A4A5-678273845623}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SegmentationTaskHandler", "SegmentationTaskHandler\SegmentationTaskHandler.csproj", "{785A8E70-B3EE-43B5-9B5A-7BC6EB96ED97}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SegmentationTaskHandler", "SegmentationTaskHandler\SegmentationTaskHandler.csproj", "{785A8E70-B3EE-43B5-9B5A-7BC6EB96ED97}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Solution Items", ".Solution Items", "{CD5FAE5B-B608-46BF-91B2-F8A5EEA00B9C}"
 	ProjectSection(SolutionItems) = preProject
@@ -216,15 +216,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.Tests", "..\Core\Core.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NotificationHandlers.Common", "NotificationHandlers.Common\NotificationHandlers.Common.csproj", "{ADA0ADD4-DAA1-4539-88DB-BDC0D83CE2D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KLogMonitor", "..\Core\KLogMonitor\KLogMonitor.csproj", "{5B16FA9F-FDAE-479D-B70D-4018DDD8AD02}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KLogMonitor", "..\Core\KLogMonitor\KLogMonitor.csproj", "{5B16FA9F-FDAE-479D-B70D-4018DDD8AD02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OffersGrpcClientWrapper", "..\Core\OffersGrpcClientWrapper\OffersGrpcClientWrapper.csproj", "{4328CC67-7748-4346-8556-1EC4132F9ABC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OffersGrpcClientWrapper", "..\Core\OffersGrpcClientWrapper\OffersGrpcClientWrapper.csproj", "{4328CC67-7748-4346-8556-1EC4132F9ABC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssetSelectionGrpcClientWrapper", "..\Core\AssetSelectionGrpcClientWrapper\AssetSelectionGrpcClientWrapper.csproj", "{6EB2E1D5-89AF-48BA-BD9C-64C62274970D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AssetSelectionGrpcClientWrapper", "..\Core\AssetSelectionGrpcClientWrapper\AssetSelectionGrpcClientWrapper.csproj", "{6EB2E1D5-89AF-48BA-BD9C-64C62274970D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveToVod", "..\Core\LiveToVod\LiveToVod.csproj", "{713896FA-7532-4B6B-8030-10B52D5F59C9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LiveToVod", "..\Core\LiveToVod\LiveToVod.csproj", "{713896FA-7532-4B6B-8030-10B52D5F59C9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchemaRegistryEvents", "..\Core\SchemaRegistryEvents\SchemaRegistryEvents.csproj", "{4E405481-1916-4B47-B2AB-AB879F3CDA71}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SchemaRegistryEvents", "..\Core\SchemaRegistryEvents\SchemaRegistryEvents.csproj", "{4E405481-1916-4B47-B2AB-AB879F3CDA71}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudfrontInvalidatorGrpcClientWrapper", "..\Core\CloudfrontInvalidatorGrpcClientWrapper\CloudfrontInvalidatorGrpcClientWrapper.csproj", "{4A1989C3-5AD8-49A8-A88C-3E816775D99C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SegmentationGrpcClientWrapper", "..\Core\SegmentationGrpcClientWrapper\SegmentationGrpcClientWrapper.csproj", "{4422A314-1864-4011-9B6C-90F654658B6E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1670,6 +1674,38 @@ Global
 		{4E405481-1916-4B47-B2AB-AB879F3CDA71}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4E405481-1916-4B47-B2AB-AB879F3CDA71}.Release|x86.ActiveCfg = Release|Any CPU
 		{4E405481-1916-4B47-B2AB-AB879F3CDA71}.Release|x86.Build.0 = Release|Any CPU
+		{4A1989C3-5AD8-49A8-A88C-3E816775D99C}.Basic|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A1989C3-5AD8-49A8-A88C-3E816775D99C}.Basic|Any CPU.Build.0 = Debug|Any CPU
+		{4A1989C3-5AD8-49A8-A88C-3E816775D99C}.Basic|x86.ActiveCfg = Debug|Any CPU
+		{4A1989C3-5AD8-49A8-A88C-3E816775D99C}.Basic|x86.Build.0 = Debug|Any CPU
+		{4A1989C3-5AD8-49A8-A88C-3E816775D99C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A1989C3-5AD8-49A8-A88C-3E816775D99C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A1989C3-5AD8-49A8-A88C-3E816775D99C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4A1989C3-5AD8-49A8-A88C-3E816775D99C}.Debug|x86.Build.0 = Debug|Any CPU
+		{4A1989C3-5AD8-49A8-A88C-3E816775D99C}.Local|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A1989C3-5AD8-49A8-A88C-3E816775D99C}.Local|Any CPU.Build.0 = Debug|Any CPU
+		{4A1989C3-5AD8-49A8-A88C-3E816775D99C}.Local|x86.ActiveCfg = Debug|Any CPU
+		{4A1989C3-5AD8-49A8-A88C-3E816775D99C}.Local|x86.Build.0 = Debug|Any CPU
+		{4A1989C3-5AD8-49A8-A88C-3E816775D99C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A1989C3-5AD8-49A8-A88C-3E816775D99C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A1989C3-5AD8-49A8-A88C-3E816775D99C}.Release|x86.ActiveCfg = Release|Any CPU
+		{4A1989C3-5AD8-49A8-A88C-3E816775D99C}.Release|x86.Build.0 = Release|Any CPU
+		{4422A314-1864-4011-9B6C-90F654658B6E}.Basic|Any CPU.ActiveCfg = Debug|Any CPU
+		{4422A314-1864-4011-9B6C-90F654658B6E}.Basic|Any CPU.Build.0 = Debug|Any CPU
+		{4422A314-1864-4011-9B6C-90F654658B6E}.Basic|x86.ActiveCfg = Debug|Any CPU
+		{4422A314-1864-4011-9B6C-90F654658B6E}.Basic|x86.Build.0 = Debug|Any CPU
+		{4422A314-1864-4011-9B6C-90F654658B6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4422A314-1864-4011-9B6C-90F654658B6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4422A314-1864-4011-9B6C-90F654658B6E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4422A314-1864-4011-9B6C-90F654658B6E}.Debug|x86.Build.0 = Debug|Any CPU
+		{4422A314-1864-4011-9B6C-90F654658B6E}.Local|Any CPU.ActiveCfg = Debug|Any CPU
+		{4422A314-1864-4011-9B6C-90F654658B6E}.Local|Any CPU.Build.0 = Debug|Any CPU
+		{4422A314-1864-4011-9B6C-90F654658B6E}.Local|x86.ActiveCfg = Debug|Any CPU
+		{4422A314-1864-4011-9B6C-90F654658B6E}.Local|x86.Build.0 = Debug|Any CPU
+		{4422A314-1864-4011-9B6C-90F654658B6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4422A314-1864-4011-9B6C-90F654658B6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4422A314-1864-4011-9B6C-90F654658B6E}.Release|x86.ActiveCfg = Release|Any CPU
+		{4422A314-1864-4011-9B6C-90F654658B6E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1777,6 +1813,8 @@ Global
 		{6EB2E1D5-89AF-48BA-BD9C-64C62274970D} = {0CA87022-0FDC-4F36-8806-689B3A94FCA0}
 		{713896FA-7532-4B6B-8030-10B52D5F59C9} = {0CA87022-0FDC-4F36-8806-689B3A94FCA0}
 		{4E405481-1916-4B47-B2AB-AB879F3CDA71} = {0CA87022-0FDC-4F36-8806-689B3A94FCA0}
+		{4A1989C3-5AD8-49A8-A88C-3E816775D99C} = {0CA87022-0FDC-4F36-8806-689B3A94FCA0}
+		{4422A314-1864-4011-9B6C-90F654658B6E} = {0CA87022-0FDC-4F36-8806-689B3A94FCA0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {40B1C766-E53F-4A55-9434-E4001604AA8F}

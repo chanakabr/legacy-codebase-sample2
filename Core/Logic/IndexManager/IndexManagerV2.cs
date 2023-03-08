@@ -59,6 +59,7 @@ using MongoDB.Driver.Core.Operations;
 using System.Diagnostics;
 using ApiLogic.EPG;
 using ApiObjects.Epg;
+using ApiObjects.Base;
 
 namespace Core.Catalog
 {
@@ -421,7 +422,8 @@ namespace Core.Catalog
                 {
                     // isAllowedToViewInactiveAssets = true because only operator can cause upsert of channel
                     //todo tests move to ctor
-                    GenericResponse<Channel> response = _channelManager.GetChannelById(_partnerId, channelId, true, userId);
+                    var contextData = new ContextData(_partnerId) { UserId = userId };
+                    GenericResponse<Channel> response = _channelManager.GetChannelById(contextData, channelId, true);
                     if (response != null && response.Status != null && response.Status.Code != (int)eResponseStatus.OK)
                     {
                         return result;

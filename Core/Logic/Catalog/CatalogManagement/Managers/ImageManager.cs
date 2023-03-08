@@ -14,6 +14,7 @@ using System.Reflection;
 using System.Threading;
 using ElasticSearch.Utilities;
 using Tvinci.Core.DAL;
+using ApiObjects.Base;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -996,7 +997,8 @@ namespace Core.Catalog.CatalogManagement
                 if (imageToAdd.ImageObjectType == eAssetImageType.Channel && imageToAdd.ImageObjectId > 0)
                 {
                     //isAllowedToViewInactiveAssets = true because only operator can add image
-                    GenericResponse<GroupsCacheManager.Channel> channel = ChannelManager.Instance.GetChannel(groupId, (int)imageToAdd.ImageObjectId, true);
+                    var contextData = new ContextData(groupId) { UserId = userId };
+                    GenericResponse<GroupsCacheManager.Channel> channel = ChannelManager.Instance.GetChannel(contextData, (int)imageToAdd.ImageObjectId, true);
                     if (channel.Status.Code != (int)eResponseStatus.OK)
                     {
                         log.ErrorFormat("Channel not found. channelId = {0}", imageToAdd.ImageObjectId);

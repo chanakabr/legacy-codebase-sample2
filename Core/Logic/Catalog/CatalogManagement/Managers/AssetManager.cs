@@ -31,6 +31,7 @@ using Tvinci.Core.DAL;
 using TVinciShared;
 using ApiObjects.Rules;
 using Core.GroupManagers;
+using ApiObjects.Base;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -2366,7 +2367,8 @@ namespace Core.Catalog.CatalogManagement
                         return;
                     }
 
-                    GenericResponse<GroupsCacheManager.Channel> channelToUpdate = ChannelManager.Instance.GetChannelById(groupId, channelId, true, userId);
+                    var contextData = new ContextData(groupId) { UserId = userId };
+                    GenericResponse<GroupsCacheManager.Channel> channelToUpdate = ChannelManager.Instance.GetChannelById(contextData, channelId, true);
 
                     if (!channelToUpdate.HasObject())
                     {

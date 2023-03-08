@@ -63,7 +63,8 @@ namespace WebAPI.Models.Catalog
                                 (this.GroupingOptionEqual, GroupingOption.Omit).Value,
                 OrderingParameters = Orderings,
                 ShouldApplyPriorityGroups = this.ShouldApplyPriorityGroupsEqual ?? false,
-                ResponseProfile = responseProfile
+                ResponseProfile = responseProfile,
+                OriginalUserId = contextData.OriginalUserId
             };
 
             return ClientsManager.CatalogClient().SearchAssetsExcludeWatched(filter, contextData.ManagementData);

@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using ApiObjects;
+﻿using ApiObjects;
 using ApiObjects.SearchObjects;
+using System.Collections.Generic;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 
@@ -30,5 +30,6 @@ namespace WebAPI.InternalModels
         public IReadOnlyCollection<KalturaBaseAssetOrder> OrderingParameters { get; set; }
         public bool ShouldApplyPriorityGroups { get; set; }
         public List<KeyValuePair<eAssetTypes,long>> SpecificAssets { get; set; }
+        public long? OriginalUserId { get; set; }
     }
 }

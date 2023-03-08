@@ -2098,14 +2098,14 @@ namespace Core.ConditionalAccess
 
 
         public static Entitlements GetUserEntitlements(int groupID, string sSiteGUID, eTransactionType type, bool isExpired,
-            int pageSize, int pageIndex, ApiObjects.EntitlementOrderBy orderBy)
+            int pageSize, int pageIndex, ApiObjects.EntitlementOrderBy orderBy, long? shopUserId = null)
         {
             Entitlements response = new Entitlements();
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                response = t.GetUserEntitlements(sSiteGUID, type, isExpired, pageSize, pageIndex, orderBy);
+                response = t.GetUserEntitlements(sSiteGUID, type, isExpired, pageSize, pageIndex, orderBy, shopUserId);
             }
             else
             {
@@ -2115,14 +2115,14 @@ namespace Core.ConditionalAccess
         }
 
 
-        public static Entitlements GetDomainEntitlements(int groupID, int domainId, eTransactionType type, bool isExpired, int pageSize, int pageIndex, ApiObjects.EntitlementOrderBy orderBy)
+        public static Entitlements GetDomainEntitlements(int groupID, int domainId, eTransactionType type, bool isExpired, int pageSize, int pageIndex, EntitlementOrderBy orderBy, long? shopUserId)
         {
             Entitlements response = new Entitlements();
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                response = t.GetDomainEntitlements(domainId, type, isExpired, pageSize, pageIndex, orderBy);
+                response = t.GetDomainEntitlements(domainId, type, isExpired, pageSize, pageIndex, orderBy, shopUserId);
             }
             else
             {

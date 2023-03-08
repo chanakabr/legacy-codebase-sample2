@@ -7669,7 +7669,7 @@ namespace Core.Api
 
                 externalChannel.GroupId = groupId;
 
-                long assetUserRuleId = AssetUserRuleManager.GetAssetUserRule(groupId, userId, true);
+                long assetUserRuleId = AssetUserRuleManager.GetAssetUserRuleIdWithApplyOnChannelFilterAction(groupId, userId);
 
                 if (externalChannel.AssetUserRuleId.HasValue && externalChannel.AssetUserRuleId.Value > 0)
                 {
@@ -7741,7 +7741,7 @@ namespace Core.Api
                 long ruleId = 0;
                 if (userId > 0)
                 {
-                    ruleId = AssetUserRuleManager.GetAssetUserRule(groupId, userId, true);
+                    ruleId = AssetUserRuleManager.GetAssetUserRuleIdWithApplyOnChannelFilterAction(groupId, userId);
                 }
 
                 if (ruleId > 0 && originalExternalChannel.AssetUserRuleId != ruleId)
@@ -7850,7 +7850,7 @@ namespace Core.Api
                 long ruleId = 0;
                 if (userId > 0)
                 {
-                    ruleId = AssetUserRuleManager.GetAssetUserRule(groupId, userId, true);
+                    ruleId = AssetUserRuleManager.GetAssetUserRuleIdWithApplyOnChannelFilterAction(groupId, userId);
                 }
 
                 if (ruleId > 0 && originalExternalChannel.AssetUserRuleId != ruleId)
@@ -7990,7 +7990,7 @@ namespace Core.Api
                     long ruleId = 0;
                     if (userId > 0)
                     {
-                        ruleId = AssetUserRuleManager.GetAssetUserRule(groupId, userId, true);
+                        ruleId = AssetUserRuleManager.GetAssetUserRuleIdWithApplyOnChannelFilterAction(groupId, userId);
                     }
 
                     if (ruleId > 0)
@@ -12335,7 +12335,7 @@ namespace Core.Api
                 long ruleId = 0;
                 if (userId > 0)
                 {
-                    ruleId = AssetUserRuleManager.GetAssetUserRule(groupId, userId, true);
+                    ruleId = AssetUserRuleManager.GetAssetUserRuleIdWithApplyOnChannelFilterAction(groupId, userId);
                 }
 
                 if (ruleId > 0)

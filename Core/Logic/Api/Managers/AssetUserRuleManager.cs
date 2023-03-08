@@ -35,7 +35,7 @@ namespace Core.Api.Managers
 
         #region Public Methods
 
-        internal static GenericListResponse<AssetUserRule> GetAssetUserRuleList(
+        public static GenericListResponse<AssetUserRule> GetAssetUserRuleList(
             int groupId, 
             long? userId, 
             bool shouldGetGroupRulesFirst = false, 
@@ -49,7 +49,7 @@ namespace Core.Api.Managers
             CatalogGroupCache catalogGroupCache = null;
             if (doesGroupUsesTemplates)
             {
-                if (!Catalog.CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAssetUserRuleList", groupId);
                     return response;
@@ -60,7 +60,7 @@ namespace Core.Api.Managers
                 group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
             }
 
-            if (userId.HasValue && userId.Value > 0 && (doesGroupUsesTemplates ? !catalogGroupCache.IsAssetUserRuleEnabled : !group.isAssetUserRuleEnabled))
+            if (userId.HasValue && userId.Value > 0 && (doesGroupUsesTemplates ? !catalogGroupCache.IsAssetUserRuleEnabled : group == null || !group.isAssetUserRuleEnabled))
             {
                 if (returnConfigError)
                 {
@@ -578,7 +578,7 @@ namespace Core.Api.Managers
             return esResult.Length > 0;
         }
 
-        public static long GetAssetUserRule(int groupId, long userId, bool isApplayOnChannel = false)
+        public static long GetAssetUserRuleIdWithApplyOnChannelFilterAction(int groupId, long userId)
         {
             long assetUserRuleId = 0;
             // check if the user have allow(filter) rule
@@ -613,6 +613,17 @@ namespace Core.Api.Managers
             }
 
             return response;
+        }
+
+        public static long GetShopAssetUserRuleId(int groupId, long? userId)
+        {
+            var assetUserRulesResponse = GetAssetUserRuleList(groupId, userId, true, RuleActionType.UserFilter, RuleConditionType.AssetShop);
+            if (!assetUserRulesResponse.HasObjects())
+            {
+                return 0;
+            }
+
+            return assetUserRulesResponse.Objects[0].Id;
         }
 
         #endregion

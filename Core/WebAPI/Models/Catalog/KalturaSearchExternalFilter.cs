@@ -91,31 +91,11 @@ namespace WebAPI.Models.Catalog
         //Search can return multi asset types. Support on-demand, per asset enrichment. Maximum number of returned assets – 100, using paging
         internal override KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
         {
-            var domainId = (int)(contextData.DomainId ?? 0);
             var typeIn = getTypeIn();
-            var siteGuid = contextData.UserId.ToString();
-
+            
             return typeIn.Contains(0)
-                ? ClientsManager.CatalogClient().GetEPGByExternalIds(
-                    contextData.GroupId,
-                    siteGuid,
-                    domainId,
-                    contextData.Udid,
-                    contextData.Language,
-                    pager.GetRealPageIndex(),
-                    pager.PageSize,
-                    convertQueryToList())
-                : ClientsManager.CatalogClient().GetSearchMediaExternal(
-                    contextData.GroupId,
-                    siteGuid,
-                    domainId,
-                    contextData.Udid,
-                    contextData.Language,
-                    pager.GetRealPageIndex(),
-                    pager.PageSize,
-                    Query,
-                    typeIn,
-                    UtcOffsetEqual);
+                ? ClientsManager.CatalogClient().GetEPGByExternalIds(contextData, pager.GetRealPageIndex(), pager.PageSize, convertQueryToList())
+                : ClientsManager.CatalogClient().GetSearchMediaExternal(contextData, pager.GetRealPageIndex(), pager.PageSize, Query, typeIn, UtcOffsetEqual);
         }
     }
 }

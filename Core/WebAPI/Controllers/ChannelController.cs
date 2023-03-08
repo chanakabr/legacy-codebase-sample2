@@ -40,21 +40,18 @@ namespace WebAPI.Controllers
         static public KalturaChannel Get(int id)
         {
             KalturaChannel response = null;
-            KS ks = KS.GetFromRequest();
-            int groupId = ks.GroupId;
-            long userId = Utils.Utils.GetUserIdFromKs();
+            var contextData = KS.GetContextData();
 
             try
             {
-                if (Utils.Utils.DoesGroupUsesTemplates(groupId))
+                if (Utils.Utils.DoesGroupUsesTemplates(contextData.GroupId))
                 {
-                    bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, ks.UserId);
-                    response = ClientsManager.CatalogClient().GetChannel(groupId, id, isAllowedToViewInactiveAssets, userId);
+                    bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(contextData.GroupId, contextData.UserId.ToString());
+                    response = ClientsManager.CatalogClient().GetChannel(contextData, id, isAllowedToViewInactiveAssets);
                 }
                 else
                 {
-                    response = ClientsManager.CatalogClient().GetChannelInfo(groupId, ks.UserId, (int)HouseholdUtils.GetHouseholdIDByKS(), KSUtils.ExtractKSPayload().UDID,
-                                                                                Utils.Utils.GetLanguageFromRequest(), id);
+                    response = ClientsManager.CatalogClient().GetChannelInfo(contextData, id);
 
                     // if no response - return not found status 
                     if (response == null || response.Id == 0)
@@ -85,14 +82,11 @@ namespace WebAPI.Controllers
         {
             KalturaChannel response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            var contextData = KS.GetContextData();
 
             try
             {
-                string userID = KS.GetFromRequest().UserId;
-                string udid = KSUtils.ExtractKSPayload().UDID;
-                string language = Utils.Utils.GetLanguageFromRequest();
-                response = ClientsManager.CatalogClient().GetChannelInfo(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(), udid, language, id);
+                response = ClientsManager.CatalogClient().GetChannelInfo(contextData, id);
 
                 // if no response - return not found status 
                 if (response == null || response.Id == 0)

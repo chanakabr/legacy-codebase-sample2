@@ -66,7 +66,8 @@ namespace WebAPI.Models.Catalog
                 IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
                 GroupByType = GroupingOption.Omit,
                 Filter = FilterAsset.Instance.UpdateKsql(null, contextData.GroupId, contextData.SessionCharacteristicKey),
-                OrderingParameters = Orderings
+                OrderingParameters = Orderings,
+                OriginalUserId = contextData.OriginalUserId
             };
 
             return ClientsManager.CatalogClient().GetBundleAssets(filter, this.IdEqual, this.BundleTypeEqual);

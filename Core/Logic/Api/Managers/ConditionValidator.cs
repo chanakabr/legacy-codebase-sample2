@@ -1,4 +1,5 @@
-﻿using ApiObjects.Response;
+﻿using ApiObjects.Base;
+using ApiObjects.Response;
 using ApiObjects.Rules;
 using Core.Catalog.CatalogManagement;
 using System;
@@ -51,7 +52,8 @@ namespace ApiLogic.Api.Managers
 
         private Status Validate(int groupId, ChannelCondition condition)
         {
-            var channels = _channelManager.GetChannelsListResponseByChannelIds(groupId, condition.ChannelIds.Select(x => (int)x).ToList(), true, null);
+            var contextData = new ContextData(groupId);
+            var channels = _channelManager.GetChannelsListResponseByChannelIds(contextData, condition.ChannelIds.Select(x => (int)x).ToList(), true, null, true);
 
             if (!channels.IsOkStatusCode())
             {

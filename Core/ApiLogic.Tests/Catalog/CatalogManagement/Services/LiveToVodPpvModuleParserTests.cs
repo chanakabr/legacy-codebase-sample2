@@ -85,7 +85,8 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                     PPVOrderBy.NameAsc,
                     0,
                     30,
-                    true))
+                    true,
+                    null))
                 .Returns(new GenericListResponse<PPVModule>());
 
             var parser = new LiveToVodPpvModuleParser(_ppvManagerMock.Object, _logger);
@@ -113,7 +114,8 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                     PPVOrderBy.NameAsc,
                     0,
                     30,
-                    true))
+                    true,
+                    null))
                 .Returns(new GenericListResponse<PPVModule>(Status.Ok, Enumerable.Empty<PPVModule>().ToList()));
 
             var parser = new LiveToVodPpvModuleParser(_ppvManagerMock.Object, _logger);
@@ -141,7 +143,8 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                     PPVOrderBy.NameAsc,
                     0,
                     30,
-                    true))
+                    true,
+                    null))
                 .Returns(new GenericListResponse<PPVModule>(
                     Status.Ok,
                     new List<PPVModule>

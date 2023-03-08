@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using ApiObjects;
+﻿using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Pricing;
 using ApiObjects.Pricing.Dto;
@@ -15,6 +9,12 @@ using Core.Catalog.CatalogManagement;
 using Core.Pricing;
 using DAL;
 using Phx.Lib.Log;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
 
 namespace ApiLogic.Pricing.Handlers
 {
@@ -188,11 +188,11 @@ namespace ApiLogic.Pricing.Handlers
                 }
             }
 
-            var assetUserRulesResponse = Core.Api.Managers.AssetUserRuleManager.GetAssetUserRuleList(contextData.GroupId, contextData.UserId, true, RuleActionType.UserFilter, RuleConditionType.AssetShop);
-            if (assetUserRulesResponse.HasObjects())
+            var shopId = Core.Api.Managers.AssetUserRuleManager.GetShopAssetUserRuleId(contextData.GroupId, contextData.UserId);
+            if (shopId > 0)
             {
                 isShopUser = true;
-                ppvToInsert.AssetUserRuleId = assetUserRulesResponse.Objects[0].Id;
+                ppvToInsert.AssetUserRuleId = shopId;
             }
 
             ppvToInsert.CreateDate = ppvToInsert.UpdateDate = DateTime.UtcNow;
@@ -296,8 +296,8 @@ namespace ApiLogic.Pricing.Handlers
         }
         
         public GenericListResponse<PPVModule> GetPPVModules(ContextData contextData, List<long> ppvModuleIds = null, 
-            bool shouldShrink = false, int? couponGroupIdEqual = null, bool alsoInactive = false,
-            PPVOrderBy orderBy = PPVOrderBy.NameAsc, int pageIndex = 0, int pageSize = 30, bool shouldIgnorePaging = true)
+            bool shouldShrink = false, int? couponGroupIdEqual = null, bool alsoInactive = false, PPVOrderBy orderBy = PPVOrderBy.NameAsc, 
+            int pageIndex = 0, int pageSize = 30, bool shouldIgnorePaging = true, long? assetUserRuleId = null)
         {
             var response = new GenericListResponse<PPVModule>();
 
@@ -335,22 +335,21 @@ namespace ApiLogic.Pricing.Handlers
             {
                 allPpvs = allPpvs.Where(ppv => ppv.CouponsGroupCode == couponGroupIdEqual.Value).ToList();
             }
-            
-            try
+
+            // get assetUserRuleId to filter ppvs by the same shop
+            long? userId = contextData.GetCallerUserId();
+            if (!assetUserRuleId.HasValue && userId.HasValue)
             {
-                if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId) && contextData.UserId.HasValue && contextData.UserId.Value > 0)
+                var shopId = Core.Api.Managers.AssetUserRuleManager.GetShopAssetUserRuleId(groupId, userId);
+                if (shopId > 0)
                 {
-                    var assetUserRulesResponse = Core.Api.Managers.AssetUserRuleManager.GetAssetUserRuleList(groupId, contextData.UserId, true, RuleActionType.UserFilter, RuleConditionType.AssetShop);
-                    if (assetUserRulesResponse.Status.Code == (int)eResponseStatus.OK && assetUserRulesResponse.HasObjects())
-                    {
-                        var assetUserRuleId = assetUserRulesResponse.Objects[0].Id;
-                        allPpvs = allPpvs.Where(x => x.AssetUserRuleId.HasValue && x.AssetUserRuleId == assetUserRuleId).ToList();
-                    }
+                    assetUserRuleId = shopId;
                 }
             }
-            catch (Exception ex)
-            {
 
+            if (assetUserRuleId.HasValue)
+            {
+                allPpvs = allPpvs.Where(x => x.AssetUserRuleId.HasValue && x.AssetUserRuleId == assetUserRuleId).ToList();
             }
 
             switch (orderBy)
@@ -452,40 +451,45 @@ namespace ApiLogic.Pricing.Handlers
                     {
                         shouldShrink = Convert.ToBoolean(funcParams["shouldShrink"]);
                     }
-                    
-                    if (!shouldShrink)
-                    {
-                        string couponsGroupCode = "";
-                    
-                        if (ppvDto.CouponsGroupCode != 0)
-                        {
-                            couponsGroupCode = ppvDto.CouponsGroupCode.ToString();
-                        }
-                        
-                        ppvModule.Initialize(ppvDto.PriceCode.ToString(), ppvDto.UsageModuleCode.ToString(), ppvDto.DiscountCode.ToString(),
-                            couponsGroupCode, GetPPVDescription(ppvDto.Id), groupId.Value,
-                            ppvDto.Id.ToString(), ppvDto.SubscriptionOnly,
-                            ppvDto.Name, string.Empty, string.Empty, string.Empty,
-                            GetPPVFileTypes(groupId.Value, ppvDto.Id), ppvDto.FirstDeviceLimitation,
-                            ppvDto.ProductCode, 0, ppvDto.AdsPolicy, ppvDto.AdsParam, ppvDto.CreateDate, 
-                            ppvDto.UpdateDate, ppvDto.IsActive, ppvDto.VirtualAssetId, ppvDto.AssetUserRuleId);
-                    }
-                    else
-                    {
-                        ppvModule.Initialize(ppvDto.PriceCode.ToString(), string.Empty, string.Empty, string.Empty,
-                            GetPPVDescription(ppvDto.Id), groupId.Value, ppvDto.Id.ToString(),
-                            ppvDto.SubscriptionOnly,
-                            ppvDto.Name, string.Empty, string.Empty, string.Empty,
-                            GetPPVFileTypes(groupId.Value, ppvDto.Id), ppvDto.FirstDeviceLimitation,
-                            ppvDto.ProductCode,
-                            0, ppvDto.AdsPolicy, ppvDto.AdsParam);
-                    }
+                    ppvModule = BuildPPVModuleFromDTO(groupId.Value, ppvDto, shouldShrink);
                 }
             }
             
             return new Tuple<PPVModule, bool>(ppvModule, true);
         }
-        
+
+        public PPVModule BuildPPVModuleFromDTO(int groupId, PpvDTO ppvDto, bool shouldShrink)
+        {
+            var ppvModule = new PPVModule();
+            if (!shouldShrink)
+            {
+                string couponsGroupCode = "";
+                if (ppvDto.CouponsGroupCode != 0)
+                {
+                    couponsGroupCode = ppvDto.CouponsGroupCode.ToString();
+                }
+
+                ppvModule.Initialize(ppvDto.PriceCode.ToString(), ppvDto.UsageModuleCode.ToString(), ppvDto.DiscountCode.ToString(),
+                    couponsGroupCode, GetPPVDescription(ppvDto.Id), groupId,
+                    ppvDto.Id.ToString(), ppvDto.SubscriptionOnly,
+                    ppvDto.Name, string.Empty, string.Empty, string.Empty,
+                    GetPPVFileTypes(groupId, ppvDto.Id), ppvDto.FirstDeviceLimitation,
+                    ppvDto.ProductCode, 0, ppvDto.AdsPolicy, ppvDto.AdsParam, ppvDto.CreateDate,
+                    ppvDto.UpdateDate, ppvDto.IsActive, ppvDto.VirtualAssetId, ppvDto.AssetUserRuleId);
+            }
+            else
+            {
+                ppvModule.Initialize(ppvDto.PriceCode.ToString(), string.Empty, string.Empty, string.Empty,
+                    GetPPVDescription(ppvDto.Id), groupId, ppvDto.Id.ToString(),
+                    ppvDto.SubscriptionOnly,
+                    ppvDto.Name, string.Empty, string.Empty, string.Empty,
+                    GetPPVFileTypes(groupId, ppvDto.Id), ppvDto.FirstDeviceLimitation,
+                    ppvDto.ProductCode,
+                    0, ppvDto.AdsPolicy, ppvDto.AdsParam);
+            }
+            return ppvModule;
+        }
+
         private LanguageContainer[] GetPPVDescription(Int32 nPPVModuleID)
         {
             LanguageContainer[] theContainer = null;

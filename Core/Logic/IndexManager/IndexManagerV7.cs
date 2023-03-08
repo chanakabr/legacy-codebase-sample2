@@ -57,6 +57,7 @@ using Force.DeepCloner;
 using BoolQuery = Nest.BoolQuery;
 using System.Runtime.Caching;
 using ApiLogic.IndexManager.Transaction;
+using ApiObjects.Base;
 
 namespace Core.Catalog
 {
@@ -740,7 +741,8 @@ namespace Core.Catalog
             {
                 if (channel == null)
                 {
-                    var response = _channelManager.GetChannelById(_partnerId, channelId, true, userId);
+                    var contextData = new ContextData(_partnerId) { UserId = userId };
+                    var response = _channelManager.GetChannelById(contextData, channelId, true);
                     if (response != null && response.Status != null && response.Status.Code != (int)eResponseStatus.OK)
                     {
                         return false;

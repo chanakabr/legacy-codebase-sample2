@@ -1339,13 +1339,13 @@ namespace Core.Pricing
             return new ApiObjects.BusinessModuleResponse();
         }
 
-        public static PPVModuleDataResponse GetPPVModuleResponse(int nGroupID, string sPPVCode, string sCountryCd2, string sLanguageCode3, string sDeviceName)
+        public static PPVModuleDataResponse GetPPVModuleResponse(int nGroupID, string sPPVCode, string sCountryCd2, string sLanguageCode3, string sDeviceName, long? shopUserId)
         {
             BasePPVModule t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return (new PPVModuleCacheWrapper(t)).GetPPVModuleDataResponse(sPPVCode, sCountryCd2, sLanguageCode3, sDeviceName);
+                return (new PPVModuleCacheWrapper(t)).GetPPVModuleDataResponse(sPPVCode, sCountryCd2, sLanguageCode3, sDeviceName, shopUserId);
             }
             else
             {

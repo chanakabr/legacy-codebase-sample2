@@ -115,7 +115,8 @@ namespace WebAPI.Models.Catalog
                 ShouldApplyPriorityGroups = ShouldApplyPriorityGroupsEqual.GetValueOrDefault(),
                 ResponseProfile = responseProfile,
                 OrderingParameters = Orderings,
-                GroupByOrder = GroupByOrder
+                GroupByOrder = GroupByOrder,
+                OriginalUserId = contextData.OriginalUserId
             };
             
             return ClientsManager.CatalogClient().SearchAssets(searchAssetFilter);
