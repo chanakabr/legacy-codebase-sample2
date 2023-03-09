@@ -3724,7 +3724,8 @@ namespace Core.ConditionalAccess
                     {
                         CampaignIdInFilter campaignFilter = new CampaignIdInFilter()
                         {
-                            IdIn = new List<long>() { campaignDetails.Id }
+                            IdIn = new List<long>() { campaignDetails.Id },
+                            IgnoreSetFilterByShop = true
                         };
 
                         ApiObjects.Base.ContextData contextData = new ApiObjects.Base.ContextData(m_nGroupID);
@@ -6983,7 +6984,7 @@ namespace Core.ConditionalAccess
                     {
                         long lUserId = long.Parse(userId);
 
-                        GenericListResponse<AssetUserRule> assetUserRulesToUser = AssetUserRuleManager.GetAssetUserRuleList(m_nGroupID, lUserId);
+                        GenericListResponse<AssetUserRule> assetUserRulesToUser = AssetUserRuleManager.Instance.GetAssetUserRuleList(m_nGroupID, lUserId);
 
                         if (assetUserRulesToUser != null && assetUserRulesToUser.HasObjects())
                         {

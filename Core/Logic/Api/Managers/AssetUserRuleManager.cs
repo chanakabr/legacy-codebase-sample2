@@ -15,12 +15,35 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using ApiLogic.Api.Managers.Rule;
+using System.Threading;
 
 namespace Core.Api.Managers
 {
-    public class AssetUserRuleManager
+    public interface IAssetUserRuleManager
+    {
+        GenericResponse<AssetUserRule> GetAssetUserRuleByRuleId(int groupId, long ruleId);
+        GenericListResponse<AssetUserRule> GetAssetUserRuleList(
+            int groupId,
+            long? userId,
+            bool shouldGetGroupRulesFirst = false,
+            RuleActionType? ruleActionType = null,
+            RuleConditionType? ruleConditionType = null,
+            bool returnConfigError = false);
+        long GetShopAssetUserRuleId(int groupId, long? userId);
+    }
+
+    public class AssetUserRuleManager : IAssetUserRuleManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        private static readonly Lazy<AssetUserRuleManager> lazy = new Lazy<AssetUserRuleManager>(() =>
+            new AssetUserRuleManager(), LazyThreadSafetyMode.PublicationOnly);
+
+        public static IAssetUserRuleManager Instance => lazy.Value;
+
+        private AssetUserRuleManager()
+        {
+        }
 
         #region Consts
 
@@ -35,7 +58,7 @@ namespace Core.Api.Managers
 
         #region Public Methods
 
-        public static GenericListResponse<AssetUserRule> GetAssetUserRuleList(
+        public GenericListResponse<AssetUserRule> GetAssetUserRuleList(
             int groupId, 
             long? userId, 
             bool shouldGetGroupRulesFirst = false, 
@@ -528,7 +551,7 @@ namespace Core.Api.Managers
 
                     if (userToAssetUserRules == null)
                     {
-                        userToAssetUserRules = GetAssetUserRuleList(groupId, userId);
+                        userToAssetUserRules = Instance.GetAssetUserRuleList(groupId, userId);
                     }
 
                     // if user has at least one rule applied on him
@@ -553,7 +576,7 @@ namespace Core.Api.Managers
         {
             Status status = new Status();
             // check if the user have allow(filter) rule
-            GenericListResponse<AssetUserRule> assetUserRulesToUser = AssetUserRuleManager.GetAssetUserRuleList(groupId, userId, false, RuleActionType.UserFilter);
+            GenericListResponse<AssetUserRule> assetUserRulesToUser = Instance.GetAssetUserRuleList(groupId, userId, false, RuleActionType.UserFilter);
             if (assetUserRulesToUser != null && assetUserRulesToUser.HasObjects())
             {
                 // check if asset allowed to user
@@ -582,7 +605,7 @@ namespace Core.Api.Managers
         {
             long assetUserRuleId = 0;
             // check if the user have allow(filter) rule
-            GenericListResponse<AssetUserRule> assetUserRulesToUser = AssetUserRuleManager.GetAssetUserRuleList(groupId, userId, false, RuleActionType.UserFilter);
+            GenericListResponse<AssetUserRule> assetUserRulesToUser = Instance.GetAssetUserRuleList(groupId, userId, false, RuleActionType.UserFilter);
             if (assetUserRulesToUser != null && assetUserRulesToUser.HasObjects() && assetUserRulesToUser.Objects.Count > 0 &&
                 assetUserRulesToUser.Objects[0].Actions != null && assetUserRulesToUser.Objects[0].Actions.Count > 0)
             {
@@ -597,7 +620,7 @@ namespace Core.Api.Managers
             return assetUserRuleId;
         }
 
-        public static GenericResponse<AssetUserRule> GetAssetUserRuleByRuleId(int groupId, long ruleId)
+        public GenericResponse<AssetUserRule> GetAssetUserRuleByRuleId(int groupId, long ruleId)
         {
             GenericResponse<AssetUserRule> response = new GenericResponse<AssetUserRule>();
             // check if AssetUserRule exists in CB
@@ -615,7 +638,7 @@ namespace Core.Api.Managers
             return response;
         }
 
-        public static long GetShopAssetUserRuleId(int groupId, long? userId)
+        public long GetShopAssetUserRuleId(int groupId, long? userId)
         {
             var assetUserRulesResponse = GetAssetUserRuleList(groupId, userId, true, RuleActionType.UserFilter, RuleConditionType.AssetShop);
             if (!assetUserRulesResponse.HasObjects())
@@ -777,7 +800,7 @@ namespace Core.Api.Managers
                         long? mediaId = funcParams["mediaId"] as long?;
                         MediaAsset asset = funcParams["asset"] as MediaAsset;
 
-                        var assetUserRuleList = GetAssetUserRuleList(groupId.Value, null);
+                        var assetUserRuleList = Instance.GetAssetUserRuleList(groupId.Value, null);
 
                         if (assetUserRuleList == null || !assetUserRuleList.HasObjects())
                         {

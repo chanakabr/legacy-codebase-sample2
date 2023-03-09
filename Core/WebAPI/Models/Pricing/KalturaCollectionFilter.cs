@@ -1,8 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
-using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -48,6 +46,16 @@ namespace WebAPI.Models.Pricing
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         [SchemeProperty(RequiresPermission = (int)RequestType.READ)]
         public bool? AlsoInactive { get; set; }
+        
+        /// <summary>
+        /// comma-separated list of KalturaCollection.assetUserRuleId values.  Matching KalturaCollection objects will be returned by the filter.
+        /// </summary>
+        [DataMember(Name = "assetUserRuleIdIn")]
+        [JsonProperty("assetUserRuleIdIn")]
+        [XmlElement(ElementName = "assetUserRuleIdIn", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.READ, IsNullable = true, DynamicMinInt = 1)]
+        public string AssetUserRuleIdIn { get; set; }
 
         public override KalturaCollectionOrderBy GetDefaultOrderByValue()
         {

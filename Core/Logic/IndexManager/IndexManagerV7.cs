@@ -2187,11 +2187,11 @@ namespace Core.Catalog
                                 mustQueryContainers.Add(termContainer);
                             }
 
-                            if (definitions.AssetUserRuleId > 0)
+                            if (definitions.AssetUserRuleIds != null && definitions.AssetUserRuleIds.Any())
                             {
-                                var termContainer = queryContainerDescriptor.Term(term => term.
+                                var termContainer = queryContainerDescriptor.Terms(terms => terms.
                                     Field(c => c.AssetUserRuleId).
-                                    Value(definitions.AssetUserRuleId)
+                                    Terms<long>(definitions.AssetUserRuleIds)
                                 );
                                 mustQueryContainers.Add(termContainer);
                             }

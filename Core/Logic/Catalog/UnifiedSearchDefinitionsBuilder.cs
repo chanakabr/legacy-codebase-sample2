@@ -499,7 +499,7 @@ namespace Core.Catalog
         internal static void GetChannelUserAssetRulesPhrase(BaseRequest request, Group group, ref UnifiedSearchDefinitions definitions, int groupId, long ruleId)
         {
             BooleanPhraseNode phrase = null;
-            var assetUserRulesResponse = AssetUserRuleManager.GetAssetUserRuleByRuleId(request.m_nGroupID, ruleId);
+            var assetUserRulesResponse = AssetUserRuleManager.Instance.GetAssetUserRuleByRuleId(request.m_nGroupID, ruleId);
             if (assetUserRulesResponse.Status.Code == (int)eResponseStatus.OK)
             {
                 if (assetUserRulesResponse.Object != null)
@@ -539,7 +539,7 @@ namespace Core.Catalog
             RuleActionType ruleActionType, long userId)
         {
             BooleanPhraseNode phrase = null;
-            var assetUserRulesResponse = AssetUserRuleManager.GetAssetUserRuleList(request.m_nGroupID, userId, true, ruleActionType);
+            var assetUserRulesResponse = AssetUserRuleManager.Instance.GetAssetUserRuleList(request.m_nGroupID, userId, true, ruleActionType);
             if (assetUserRulesResponse.IsOkStatusCode())
             {
                 if (assetUserRulesResponse.HasObjects())

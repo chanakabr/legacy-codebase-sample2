@@ -1,6 +1,7 @@
 ﻿using ApiLogic.Pricing.Handlers;
 using ApiObjects.Pricing;
 using ApiObjects.Response;
+using ApiObjects.Roles;
 using Core.Pricing;
 using KalturaRequestContext;
 using System;
@@ -18,9 +19,6 @@ namespace WebAPI.Controllers
     [Service("ppv")]
     public class PpvController : IKalturaController
     {
-        // TODO SHIR - MOVE TO PredefinedRoleId.cs IN CAMPAIGN BRANCH
-        private const long SHOP_SERVER_ROLE_ID = 16;
-
         /// <summary>
         /// Returns ppv object by internal identifier
         /// </summary>
@@ -35,7 +33,7 @@ namespace WebAPI.Controllers
         {
             var contextData = KS.GetContextData(true);
             int groupId = contextData.GroupId;
-            long? shopUserId = RequestContextUtilsInstance.Get().IsImpersonateRequest() || contextData.IsUserRoleExist(SHOP_SERVER_ROLE_ID) ? contextData.GetCallerUserId() : (long?)null;
+            long? shopUserId = RequestContextUtilsInstance.Get().IsImpersonateRequest() || contextData.IsUserRoleExist(PredefinedRoleId.SHOP_SERVER) ? contextData.GetCallerUserId() : (long?)null;
             
             // call client                
             var response = ClientsManager.PricingClient().GetPPVModuleData(groupId, id, shopUserId);
@@ -61,11 +59,11 @@ namespace WebAPI.Controllers
             
             var coreFilter = AutoMapper.Mapper.Map<PpvFilter>(filter);
             var contextData = KS.GetContextData();
-
+            
             Func<GenericListResponse<PPVModule>> getListFunc = () =>
-                PpvManager.Instance.GetPPVModules(contextData, filter?.GetIdIn(), false, filter.CouponGroupIdEqual,
+                PpvManager.Instance.GetPPVModules(contextData, filter.GetIdIn("idIn", filter.IdIn), false, filter.CouponGroupIdEqual,
                     filter.AlsoInactive.HasValue ? filter.AlsoInactive.Value : false, coreFilter.OrderBy,
-                    pager.GetRealPageIndex(), pager.PageSize.Value, false);
+                    pager.GetRealPageIndex(), pager.PageSize.Value, false, filter.GetIdIn("assetUserRuleIdIn", filter.AssetUserRuleIdIn));
             KalturaGenericListResponse<KalturaPpv> response =
                 ClientUtils.GetResponseListFromWS<KalturaPpv, PPVModule>(getListFunc);
 

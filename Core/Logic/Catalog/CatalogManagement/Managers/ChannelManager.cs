@@ -27,7 +27,8 @@ namespace Core.Catalog.CatalogManagement
     public interface IChannelManager
     {
         GenericResponse<Channel> GetChannelById(ContextData contextData, int channelId, bool isAllowedToViewInactiveAssets);
-        GenericListResponse<Channel> GetChannelsListResponseByChannelIds(ContextData contextData, List<int> channelIds, bool isAllowedToViewInactiveAssets, int? totalItems, bool shoulFilterByShop);
+        GenericListResponse<Channel> GetChannelsListResponseByChannelIds(ContextData contextData, 
+            List<int> channelIds, bool isAllowedToViewInactiveAssets, int? totalItems, bool shouldFilterByShop, List<long> assetUserRuleIds = null);
         List<Channel> GetGroupChannels(int groupId);
     }
 
@@ -417,7 +418,7 @@ namespace Core.Catalog.CatalogManagement
         }
 
         public GenericListResponse<Channel> GetChannelsListResponseByChannelIds(ContextData contextData, List<int> channelIds, bool isAllowedToViewInactiveAssets, 
-            int? totalItems, bool shoulFilterByShop)
+            int? totalItems, bool shouldFilterByShop, List<long> assetUserRuleIds = null)
         {
             GenericListResponse<Channel> result = new GenericListResponse<Channel>();
             try
@@ -430,21 +431,33 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                long? assetUserRuleId = null;
-                if (shoulFilterByShop)
+                // if it's an operator that also filters according to asset user rule ids 
+                if (assetUserRuleIds != null && assetUserRuleIds.Any())
                 {
-                    var userId = contextData.GetCallerUserId();
-                    if (userId > 0)
+                    unorderedChannels = unorderedChannels.Where(x => x.AssetUserRuleId.HasValue && assetUserRuleIds.Contains(x.AssetUserRuleId.Value)).ToList();
+                }
+                // or it is not an operator and we must limit the search only to the user's shop id
+                else
+                {
+                    long? assetUserRuleId = null;
+                    if (shouldFilterByShop)
                     {
-                        assetUserRuleId = AssetUserRuleManager.GetAssetUserRuleIdWithApplyOnChannelFilterAction(contextData.GroupId, userId);
+                        var userId = contextData.GetCallerUserId();
+                        if (userId > 0)
+                        {
+                            assetUserRuleId =
+                                AssetUserRuleManager.GetAssetUserRuleIdWithApplyOnChannelFilterAction(
+                                    contextData.GroupId, userId);
+                        }
+                    }
+
+                    if (assetUserRuleId.HasValue && assetUserRuleId.Value > 0)
+                    {
+                        unorderedChannels = unorderedChannels.Where(x =>
+                            x.AssetUserRuleId.HasValue && x.AssetUserRuleId.Value == assetUserRuleId.Value).ToList();
                     }
                 }
-
-                if (assetUserRuleId.HasValue && assetUserRuleId.Value > 0)
-                {
-                    unorderedChannels = unorderedChannels.Where(x => x.AssetUserRuleId.HasValue && x.AssetUserRuleId.Value == assetUserRuleId.Value).ToList();
-                }
-
+                
                 foreach (var channel in unorderedChannels)
                 {
                     result.Objects.Add(channel);
@@ -500,18 +513,6 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
-        }
-
-        private List<Channel> SearchChannelByAssetUserId(int groupId, long ruleId)
-        {
-            List<Channel> channels = null;
-            var contextData = new ContextData(groupId) { UserId = 0 };
-            GenericListResponse<Channel> response = SearchChannels(contextData, true, string.Empty, null, 0, 500, ChannelOrderBy.Id, OrderDir.ASC, false, ruleId);
-            if (response != null && response.HasObjects())
-            {
-                channels = response.Objects.Where(x => x.AssetUserRuleId == ruleId).ToList();
-            }
-            return channels;
         }
 
         private static long CreateVirtualChannel(int groupId, long userId, Channel channel)
@@ -629,18 +630,16 @@ namespace Core.Catalog.CatalogManagement
         internal bool TryRemoveAssetRuleIdFromChannel(int groupId, long ruleId, long userId)
         {
             bool result = false;
-
-            GenericListResponse<Channel> response = new GenericListResponse<Channel>();
-            List<Channel> channels = SearchChannelByAssetUserId(groupId, ruleId);
-            if (channels != null)
+            var contextData = new ContextData(groupId) { UserId = userId };
+            var searchChannelsResponse = SearchChannels(contextData, true, string.Empty, null, 0, 500, ChannelOrderBy.Id, OrderDir.ASC, true, new List<long>() { ruleId });
+            if (searchChannelsResponse.Objects != null)
             {
-                GenericResponse<Channel> channelResponse = null;
-                foreach (var channel in channels)
+                foreach (var channel in searchChannelsResponse.Objects)
                 {
                     // remove rule
                     channel.AssetUserRuleId = 0;
                     // update channel
-                    channelResponse = UpdateChannel(groupId, channel.m_nChannelID, channel, UserSearchContext.GetByUserId(userId));
+                    var channelResponse = UpdateChannel(groupId, channel.m_nChannelID, channel, UserSearchContext.GetByUserId(userId));
                     if (channelResponse != null && channelResponse.Status != null && channelResponse.Status.Code != (int)eResponseStatus.OK)
                     {
                         log.ErrorFormat("Error while RemoveAssetRuleIdFromChannel. groupId {0}, channel {1}, rule {2}, user {3}", groupId, channel.m_nChannelID, ruleId, userId);
@@ -779,7 +778,7 @@ namespace Core.Catalog.CatalogManagement
         }
 
         public GenericListResponse<Channel> SearchChannels(ContextData contextData, bool isExcatValue, string searchValue, List<int> specificChannelIds, int pageIndex, int pageSize,
-            ChannelOrderBy orderBy, OrderDir orderDirection, bool isAllowedToViewInactiveAssets, long assetUserRuleId = 0)
+            ChannelOrderBy orderBy, OrderDir orderDirection, bool isAllowedToViewInactiveAssets, List<long> assetUserRuleIds = null)
         {
             GenericListResponse<Channel> result = new GenericListResponse<Channel>();
             try
@@ -792,7 +791,21 @@ namespace Core.Catalog.CatalogManagement
 
                 // get userRules action filter && ApplyOnChannel
                 var userId = contextData.GetCallerUserId();
-                assetUserRuleId = assetUserRuleId == 0 ? AssetUserRuleManager.GetAssetUserRuleIdWithApplyOnChannelFilterAction(contextData.GroupId, userId) : assetUserRuleId;
+                if (userId > 0)
+                {
+                    var shopId = AssetUserRuleManager.GetAssetUserRuleIdWithApplyOnChannelFilterAction(contextData.GroupId, userId);
+                    if (shopId > 0)
+                    {
+                        if (assetUserRuleIds == null)
+                        {
+                            assetUserRuleIds = new List<long>() { shopId };
+                        }
+                        else if (!assetUserRuleIds.Contains(shopId))
+                        {
+                            assetUserRuleIds.Add(shopId);
+                        }
+                    }
+                }
 
                 ChannelSearchDefinitions definitions = new ChannelSearchDefinitions()
                 {
@@ -805,7 +818,7 @@ namespace Core.Catalog.CatalogManagement
                     OrderBy = orderBy,
                     OrderDirection = orderDirection,
                     isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
-                    AssetUserRuleId = assetUserRuleId
+                    AssetUserRuleIds = assetUserRuleIds
                 };
 
                 var indexManager = IndexManagerFactory.Instance.GetIndexManager(contextData.GroupId);
@@ -1593,7 +1606,7 @@ namespace Core.Catalog.CatalogManagement
                     OrderBy = orderBy,
                     OrderDirection = orderDirection,
                     isAllowedToViewInactiveAssets = assetSearchDefinition.IsAllowedToViewInactiveAssets,
-                    AssetUserRuleId = assetUserRuleId
+                    AssetUserRuleIds = new List<long>() { assetUserRuleId }
                 };
 
                 var indexManager = IndexManagerFactory.Instance.GetIndexManager(contextData.GroupId);

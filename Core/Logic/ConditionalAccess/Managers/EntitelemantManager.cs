@@ -2184,7 +2184,8 @@ namespace Core.ConditionalAccess
             var campaignFilter = new CampaignIdInFilter()
             {
                 IdIn = new List<long>() { campaignId },
-                IsAllowedToViewInactiveCampaigns = true
+                IsAllowedToViewInactiveCampaigns = true,
+                IgnoreSetFilterByShop = true
             };
 
             var contextData = new ApiObjects.Base.ContextData(groupId);

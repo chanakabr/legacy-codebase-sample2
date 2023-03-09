@@ -5,6 +5,7 @@ using ApiObjects.Response;
 using System;
 using System.Collections.Generic;
 using WebAPI.Clients;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
@@ -62,6 +63,11 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ChannelDoesNotExist)]
         [Throws(eResponseStatus.MediaFileTypeDoesNotExist)]
         [Throws(eResponseStatus.CouponGroupNotExist)]
+        [Throws(eResponseStatus.EntityIsNotAssociatedWithShop)]
+        [Throws(eResponseStatus.SegmentsIdsDoesNotExist)]
+        [Throws(eResponseStatus.PpvModuleNotExist)]
+        [Throws(eResponseStatus.CollectionNotExist)]
+        [Throws(eResponseStatus.AssetUserRuleDoesNotExists)]
         static public KalturaCampaign Add(KalturaCampaign objectToAdd)
         {
             var contextData = KS.GetContextData();
@@ -117,6 +123,11 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.MediaFileTypeDoesNotExist)]
         [Throws(eResponseStatus.CouponGroupNotExist)]
         [Throws(eResponseStatus.CampaignUpdateNotAllowed)]
+        [Throws(eResponseStatus.EntityIsNotAssociatedWithShop)]
+        [Throws(eResponseStatus.SegmentsIdsDoesNotExist)]
+        [Throws(eResponseStatus.PpvModuleNotExist)]
+        [Throws(eResponseStatus.CollectionNotExist)]
+        [Throws(eResponseStatus.AssetUserRuleDoesNotExists)]
         static public KalturaCampaign Update(long id, KalturaCampaign objectToUpdate)
         {
             objectToUpdate.ValidateForUpdate();

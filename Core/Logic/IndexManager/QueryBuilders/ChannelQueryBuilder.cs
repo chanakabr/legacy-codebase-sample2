@@ -204,7 +204,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
             if (channel.AssetUserRuleId.HasValue && channel.AssetUserRuleId.Value > 0)
             {
-                var assetUserRule = AssetUserRuleManager.GetAssetUserRuleByRuleId(channel.m_nGroupID, channel.AssetUserRuleId.Value);
+                var assetUserRule = AssetUserRuleManager.Instance.GetAssetUserRuleByRuleId(channel.m_nGroupID, channel.AssetUserRuleId.Value);
 
                 if (assetUserRule != null && assetUserRule.Status != null && assetUserRule.Status.Code == (int)eResponseStatus.OK && assetUserRule.Object != null)
                 {

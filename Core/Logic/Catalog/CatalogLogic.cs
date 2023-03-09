@@ -8587,8 +8587,7 @@ namespace Core.Catalog
 
             if (channel.AssetUserRuleId.HasValue && channel.AssetUserRuleId.Value > 0)
             {
-                UnifiedSearchDefinitionsBuilder.GetChannelUserAssetRulesPhrase(request, group, ref definitions, groupId,
-                    channel.AssetUserRuleId.Value);
+                UnifiedSearchDefinitionsBuilder.GetChannelUserAssetRulesPhrase(request, group, ref definitions, groupId, channel.AssetUserRuleId.Value);
             }
 
             var shopUserId = request.GetCallerUserId();
@@ -8605,11 +8604,9 @@ namespace Core.Catalog
                 request.m_sSiteGuid != "0")
             {
                 var userSegmentIds = UserSegmentLogic.ListAll(groupId, request.m_sSiteGuid);
-
                 if (userSegmentIds?.Count > 0)
                 {
-                    List<SegmentationType> segmentationTypes =
-                        SegmentationTypeLogic.GetSegmentationTypesBySegmentIds(groupId, userSegmentIds);
+                    List<SegmentationType> segmentationTypes = SegmentationTypeLogic.GetSegmentationTypesBySegmentIds(groupId, userSegmentIds);
 
                     definitions.boostScoreValues = new List<BoostScoreValueDefinition>();
 

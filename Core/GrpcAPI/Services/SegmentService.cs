@@ -44,7 +44,12 @@ namespace GrpcAPI.Services
         private bool IsSegmentUsedByCampaigns(IsSegmentUsedRequest request)
         {
             var contextData = new ContextData(request.GroupId);
-            var filter = new CampaignSegmentFilter() { SegmentIdEqual = request.SegmentId, StateIn = new List<CampaignState>{ CampaignState.INACTIVE, CampaignState.ACTIVE } };
+            var filter = new CampaignSegmentFilter() 
+            { 
+                SegmentIdEqual = request.SegmentId, 
+                StateIn = new List<CampaignState>{ CampaignState.INACTIVE, CampaignState.ACTIVE },
+                IgnoreSetFilterByShop = true
+            };
             var campaigns = CampaignManager.Instance.ListCampaignsBySegment(contextData, filter);
             return campaigns.HasObjects();
         }
@@ -64,5 +69,6 @@ namespace GrpcAPI.Services
             }
             return false;
         }
+
     }
 }

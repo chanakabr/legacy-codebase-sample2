@@ -180,7 +180,7 @@ namespace ApiLogic.Pricing.Handlers
             bool isShopUser = false;
             if (ppvToInsert.AssetUserRuleId > 0)
             {
-                var assetRuleResponse = Core.Api.Managers.AssetUserRuleManager.GetAssetUserRuleByRuleId(contextData.GroupId, ppvToInsert.AssetUserRuleId.Value);
+                var assetRuleResponse = Core.Api.Managers.AssetUserRuleManager.Instance.GetAssetUserRuleByRuleId(contextData.GroupId, ppvToInsert.AssetUserRuleId.Value);
                 if (!assetRuleResponse.IsOkStatusCode())
                 {
                     response.SetStatus(assetRuleResponse.Status);
@@ -188,7 +188,7 @@ namespace ApiLogic.Pricing.Handlers
                 }
             }
 
-            var shopId = Core.Api.Managers.AssetUserRuleManager.GetShopAssetUserRuleId(contextData.GroupId, contextData.UserId);
+            var shopId = Core.Api.Managers.AssetUserRuleManager.Instance.GetShopAssetUserRuleId(contextData.GroupId, contextData.UserId);
             if (shopId > 0)
             {
                 isShopUser = true;
@@ -297,7 +297,7 @@ namespace ApiLogic.Pricing.Handlers
         
         public GenericListResponse<PPVModule> GetPPVModules(ContextData contextData, List<long> ppvModuleIds = null, 
             bool shouldShrink = false, int? couponGroupIdEqual = null, bool alsoInactive = false, PPVOrderBy orderBy = PPVOrderBy.NameAsc, 
-            int pageIndex = 0, int pageSize = 30, bool shouldIgnorePaging = true, long? assetUserRuleId = null)
+            int pageIndex = 0, int pageSize = 30, bool shouldIgnorePaging = true, List<long> assetUserRuleIds = null)
         {
             var response = new GenericListResponse<PPVModule>();
 
@@ -337,19 +337,27 @@ namespace ApiLogic.Pricing.Handlers
             }
 
             // get assetUserRuleId to filter ppvs by the same shop
-            long? userId = contextData.GetCallerUserId();
-            if (!assetUserRuleId.HasValue && userId.HasValue)
+            long userId = contextData.GetCallerUserId();
+            if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId) && userId > 0)
             {
-                var shopId = Core.Api.Managers.AssetUserRuleManager.GetShopAssetUserRuleId(groupId, userId);
+                var shopId = Core.Api.Managers.AssetUserRuleManager.Instance.GetShopAssetUserRuleId(groupId, userId);
                 if (shopId > 0)
                 {
-                    assetUserRuleId = shopId;
+                    if (assetUserRuleIds == null)
+                    {
+                        assetUserRuleIds = new List<long>() { shopId };
+                    }
+                    else if (!assetUserRuleIds.Contains(shopId))
+                    {
+                        assetUserRuleIds.Add(shopId);
+                    }
                 }
             }
 
-            if (assetUserRuleId.HasValue)
+            if (assetUserRuleIds?.Count > 0)
             {
-                allPpvs = allPpvs.Where(x => x.AssetUserRuleId.HasValue && x.AssetUserRuleId == assetUserRuleId).ToList();
+                allPpvs = allPpvs.Where(x => x.AssetUserRuleId.HasValue && assetUserRuleIds.Contains(x.AssetUserRuleId.Value)).ToList();
+
             }
 
             switch (orderBy)

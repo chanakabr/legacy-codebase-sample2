@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using ApiObjects;
+using ApiObjects.Roles;
 using Core.Users;
 
 namespace ApiLogic.Users.Managers
@@ -17,7 +18,7 @@ namespace ApiLogic.Users.Managers
         private static readonly Lazy<UserManager> LazyInstance = new Lazy<UserManager>(() => new UserManager(), System.Threading.LazyThreadSafetyMode.PublicationOnly);
         public static UserManager Instance => LazyInstance.Value;
 
-        private static readonly List<long> AdminRole = new List<long> { 5 };
+        private static readonly List<long> AdminRole = new List<long> { PredefinedRoleId.ADMINISTRATOR };
 
         public int AddAdminUser(int partnerId, string username, string password)
         {

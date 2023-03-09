@@ -211,7 +211,7 @@ namespace Core.Notification
             var utcNow = DateUtils.GetUtcUnixTimestampNow();
 
             // clean existing campaign map to user (all archive + expired)
-            var archiveFilter = new CampaignSearchFilter() { StateEqual = CampaignState.ARCHIVE };
+            var archiveFilter = new CampaignSearchFilter() { StateEqual = CampaignState.ARCHIVE, IgnoreSetFilterByShop = true };
             var archiveCampaignsResponse = CampaignManager.Instance.SearchCampaigns(new ContextData(groupId) { UserId = userId }, archiveFilter);
             var archiveCampaigns = archiveCampaignsResponse.HasObjects() ? archiveCampaignsResponse.Objects.Select(x => x.Id) : new List<long>();
             _campaignUsageRepository.CleanCampaignInboxMessageMap(groupId, userId, archiveCampaigns, utcNow);
@@ -220,7 +220,8 @@ namespace Core.Notification
             var batchFilter = new BatchCampaignFilter()
             {
                 StateEqual = CampaignState.ACTIVE,
-                IsActiveNow = true
+                IsActiveNow = true,
+                IgnoreSetFilterByShop = true
             };
             var batchCampaignsResponse = CampaignManager.Instance.ListBatchCampaigns(new ContextData(groupId) { UserId = userId }, batchFilter);
             List<BatchCampaign> batchCampaigns = batchCampaignsResponse.HasObjects() ? batchCampaignsResponse.Objects : null;

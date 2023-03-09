@@ -4,8 +4,10 @@ using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Notification;
 using ApiObjects.Response;
+using ApiObjects.Roles;
 using ApiObjects.Rules;
 using CachingProvider.LayeredCache;
+using Core.Api.Managers;
 using Core.Catalog.CatalogManagement;
 using Core.Notification;
 using DAL;
@@ -31,14 +33,15 @@ namespace ApiLogic.Users.Managers
 
         private static readonly Lazy<CampaignManager> lazy = new Lazy<CampaignManager>(() =>
             new CampaignManager(LayeredCache.Instance,
-                                PricingDAL.Instance,
+                                CampaignRepository.Instance,
                                 ChannelManager.Instance,
                                 EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration(),
                                 CatalogManager.Instance,
                                 GroupsCache.Instance(),
                                 ConditionValidator.Instance,
                                 PromotionValidator.Instance,
-                                MessageInboxManger.Instance),
+                                MessageInboxManger.Instance,
+                                AssetUserRuleManager.Instance),
             LazyThreadSafetyMode.PublicationOnly);
 
         private readonly ILayeredCache _layeredCache;
@@ -50,6 +53,7 @@ namespace ApiLogic.Users.Managers
         private readonly IConditionValidator _conditionValidator;
         private readonly IPromotionValidator _promotionValidator;
         private readonly IMessageInboxManger _messageInboxManger;
+        private readonly IAssetUserRuleManager _assetUserRuleManager;
 
         public static CampaignManager Instance { get { return lazy.Value; } }
 
@@ -61,7 +65,8 @@ namespace ApiLogic.Users.Managers
                                IGroupsCache groupsCache,
                                IConditionValidator conditionValidator,
                                IPromotionValidator promotionValidator,
-                               IMessageInboxManger messageInboxManger)
+                               IMessageInboxManger messageInboxManger,
+                               IAssetUserRuleManager assetUserRuleManager)
         {
             _layeredCache = layeredCache;
             _repository = repository;
@@ -72,6 +77,7 @@ namespace ApiLogic.Users.Managers
             _conditionValidator = conditionValidator;
             _promotionValidator = promotionValidator;
             _messageInboxManger = messageInboxManger;
+            _assetUserRuleManager = assetUserRuleManager;
         }
 
         public Status Delete(ContextData contextData, long id)
@@ -80,7 +86,20 @@ namespace ApiLogic.Users.Managers
 
             try
             {
-                var campaignToDeleteResponse = Get(contextData, id, true);
+                long? assetUserRuleId = null;
+                var shopIdResponse = GetShopManagerCampaignShopId(contextData);
+                if (!shopIdResponse.IsOkStatusCode())
+                {
+                    response.Set(shopIdResponse.Status);
+                    return response;
+                }
+
+                if (shopIdResponse.Object > 0)
+                {
+                    assetUserRuleId = shopIdResponse.Object;
+                }
+
+                var campaignToDeleteResponse = Get(contextData, id, true, assetUserRuleId);
                 if (!campaignToDeleteResponse.HasObject())
                 {
                     response.Set(campaignToDeleteResponse.Status);
@@ -110,12 +129,7 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        public GenericResponse<Campaign> Get(ContextData contextData, long id)
-        {
-            return Get(contextData, id, true);
-        }
-
-        private GenericResponse<Campaign> Get(ContextData contextData, long id, bool lazySetState)
+        private GenericResponse<Campaign> Get(ContextData contextData, long id, bool lazySetState, long? assetUserRuleId)
         {
             var response = new GenericResponse<Campaign>();
 
@@ -142,38 +156,39 @@ namespace ApiLogic.Users.Managers
                 log.Error($"Failed to Get Campaign contextData: {contextData}, id: {id} ex: {ex}", ex);
             }
 
-            if (_campaign != null)
-            {
-                // lazy update for state
-                var now = DateUtils.GetUtcUnixTimestampNow();
-                if (lazySetState && _campaign.State == CampaignState.ACTIVE && _campaign.EndDate < now)
-                {
-                    _campaign.State = CampaignState.ARCHIVE;
-
-                    Task.Run(() =>
-                    {
-                        _campaign.UpdateDate = DateUtils.GetUtcUnixTimestampNow();
-                        if (_repository.Update_Campaign(_campaign, contextData))
-                        {
-                            SetInvalidationKeys(contextData, _campaign);
-                            log.Debug($"success to set campaign:[${id}] state to archive.");
-                            SendCampaignStateChanged(contextData.GroupId, _campaign);
-                        }
-                        else
-                        {
-                            log.Error($"error while set campaign:[${id}] state to archive.");
-                        }
-                    });
-                }
-
-                response.Object = _campaign;
-                response.SetStatus(eResponseStatus.OK);
-            }
-            else
+            if (_campaign == null ||
+                // for ShopManagerCampaign allow to get only campaign in user shop
+                (assetUserRuleId.HasValue && !_campaign.AssetUserRuleId.HasValue) ||
+                (assetUserRuleId.HasValue && _campaign.AssetUserRuleId.HasValue && assetUserRuleId.Value != _campaign.AssetUserRuleId.Value))
             {
                 response.SetStatus(eResponseStatus.CampaignDoesNotExist, $"Campaign: {id} not found");
+                return response;
             }
 
+            // lazy update for state
+            var now = DateUtils.GetUtcUnixTimestampNow();
+            if (lazySetState && _campaign.State == CampaignState.ACTIVE && _campaign.EndDate < now)
+            {
+                _campaign.State = CampaignState.ARCHIVE;
+
+                Task.Run(() =>
+                {
+                    _campaign.UpdateDate = DateUtils.GetUtcUnixTimestampNow();
+                    if (_repository.UpdateCampaign(_campaign, contextData))
+                    {
+                        SetInvalidationKeys(contextData, _campaign);
+                        log.Debug($"success to set campaign:[${id}] state to archive.");
+                        SendCampaignStateChanged(contextData.GroupId, _campaign);
+                    }
+                    else
+                    {
+                        log.Error($"error while set campaign:[${id}] state to archive.");
+                    }
+                });
+            }
+
+            response.Object = _campaign;
+            response.SetStatus(eResponseStatus.OK);
             return response;
         }
 
@@ -209,6 +224,13 @@ namespace ApiLogic.Users.Managers
         {
             var response = new GenericListResponse<TriggerCampaign>();
 
+            var setFilterByShopStatus = SetFilterByShop(filter, contextData);
+            if (!setFilterByShopStatus.IsOkStatusCode())
+            {
+                response.SetStatus(setFilterByShopStatus);
+                return response;
+            }
+
             response.Objects = ListCampaignsByType<TriggerCampaign>(contextData, filter, eCampaignType.Trigger);
 
             if (response.Objects == null)
@@ -239,6 +261,13 @@ namespace ApiLogic.Users.Managers
         {
             var response = new GenericListResponse<BatchCampaign>();
 
+            var setFilterByShopStatus = SetFilterByShop(filter, contextData);
+            if (!setFilterByShopStatus.IsOkStatusCode())
+            {
+                response.SetStatus(setFilterByShopStatus);
+                return response;
+            }
+
             response.Objects = ListCampaignsByType<BatchCampaign>(contextData, filter, eCampaignType.Batch);
 
             if (response.Objects == null)
@@ -259,6 +288,13 @@ namespace ApiLogic.Users.Managers
         {
             var response = new GenericListResponse<Campaign>();
             response.SetStatus(Status.Ok);
+
+            var setFilterByShopStatus = SetFilterByShop(filter, contextData);
+            if (!setFilterByShopStatus.IsOkStatusCode())
+            {
+                response.SetStatus(setFilterByShopStatus);
+                return response;
+            }
 
             var filteredCampaigns = SearchCampaigns(contextData, filter);
 
@@ -292,7 +328,14 @@ namespace ApiLogic.Users.Managers
             var response = new GenericListResponse<Campaign>();
             if (filter.IdIn?.Count > 0)
             {
-                response.Objects = filter.IdIn.Select(id => Get(contextData, id, true)).Where(campaignResponse => campaignResponse.HasObject()).Select(x => x.Object).ToList();
+                var setFilterByShopStatus = SetFilterByShop(filter, contextData);
+                if (!setFilterByShopStatus.IsOkStatusCode())
+                {
+                    response.SetStatus(setFilterByShopStatus);
+                    return response;
+                }
+
+                response.Objects = filter.IdIn.Select(id => Get(contextData, id, true, filter.AssetUserRuleIdEqual)).Where(campaignResponse => campaignResponse.HasObject()).Select(x => x.Object).ToList();
                 if (!filter.IsAllowedToViewInactiveCampaigns)
                 {
                     response.Objects = response.Objects.Where(x => x.State != CampaignState.INACTIVE).ToList();
@@ -309,6 +352,13 @@ namespace ApiLogic.Users.Managers
         public GenericListResponse<Campaign> SearchCampaigns(ContextData contextData, CampaignSearchFilter filter, CorePager pager = null)
         {
             var response = new GenericListResponse<Campaign>();
+
+            var setFilterByShopStatus = SetFilterByShop(filter, contextData);
+            if (!setFilterByShopStatus.IsOkStatusCode())
+            {
+                response.SetStatus(setFilterByShopStatus);
+                return response;
+            }
 
             var triggerCampaigns = ListCampaignsByType<TriggerCampaign>(contextData, filter, eCampaignType.Trigger);
             if (triggerCampaigns?.Count > 0)
@@ -339,7 +389,21 @@ namespace ApiLogic.Users.Managers
 
             try
             {
-                var validateStatus = ValidateCampaign(contextData, campaignToAdd);
+                var shopIdResponse = GetShopManagerCampaignShopId(contextData);
+                if (!shopIdResponse.IsOkStatusCode())
+                {
+                    response.SetStatus(shopIdResponse.Status);
+                    return response;
+                }
+
+                var shouldValidateShop = true;
+                if (shopIdResponse.Object > 0)
+                {
+                    campaignToAdd.AssetUserRuleId = shopIdResponse.Object;
+                    shouldValidateShop = false;
+                }
+
+                var validateStatus = ValidateCampaign(contextData, campaignToAdd, shouldValidateShop);
                 if (!validateStatus.IsOkStatusCode())
                 {
                     response.SetStatus(validateStatus);
@@ -375,7 +439,20 @@ namespace ApiLogic.Users.Managers
             var response = new GenericResponse<TriggerCampaign>();
             try
             {
-                var oldTriggerCampaignResponse = Get(contextData, campaignToUpdate.Id, true);
+                long? assetUserRuleId = null;
+                var shopIdResponse = GetShopManagerCampaignShopId(contextData);
+                if (!shopIdResponse.IsOkStatusCode())
+                {
+                    response.SetStatus(shopIdResponse.Status);
+                    return response;
+                }
+
+                if (shopIdResponse.Object > 0)
+                {
+                    assetUserRuleId = shopIdResponse.Object;
+                }
+
+                var oldTriggerCampaignResponse = Get(contextData, campaignToUpdate.Id, true, assetUserRuleId);
                 if (!oldTriggerCampaignResponse.HasObject())
                 {
                     response.SetStatus(oldTriggerCampaignResponse.Status);
@@ -401,17 +478,17 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
-                var validateStatus = ValidateCampaign(contextData, campaignToUpdate);
+                campaignToUpdate.FillEmpty(oldTriggercampaign);
+                var validateStatus = ValidateCampaign(contextData, campaignToUpdate, !assetUserRuleId.HasValue);
                 if (!validateStatus.IsOkStatusCode())
                 {
                     response.SetStatus(validateStatus);
                     return response;
                 }
 
-                campaignToUpdate.FillEmpty(oldTriggercampaign);
                 campaignToUpdate.UpdateDate = DateUtils.GetUtcUnixTimestampNow();
 
-                if (_repository.Update_Campaign(campaignToUpdate, contextData))
+                if (_repository.UpdateCampaign(campaignToUpdate, contextData))
                 {
                     response.Object = campaignToUpdate;
                     SetInvalidationKeys(contextData, campaignToUpdate);
@@ -433,7 +510,20 @@ namespace ApiLogic.Users.Managers
             var response = new GenericResponse<BatchCampaign>();
             try
             {
-                var oldBatchCampaignResponse = Get(contextData, campaignToUpdate.Id, true);
+                long? assetUserRuleId = null;
+                var shopIdResponse = GetShopManagerCampaignShopId(contextData);
+                if (!shopIdResponse.IsOkStatusCode())
+                {
+                    response.SetStatus(shopIdResponse.Status);
+                    return response;
+                }
+
+                if (shopIdResponse.Object > 0)
+                {
+                    assetUserRuleId = shopIdResponse.Object;
+                }
+
+                var oldBatchCampaignResponse = Get(contextData, campaignToUpdate.Id, true, assetUserRuleId);
                 if (!oldBatchCampaignResponse.HasObject())
                 {
                     response.SetStatus(oldBatchCampaignResponse.Status);
@@ -459,17 +549,17 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
-                var validateStatus = ValidateCampaign(contextData, campaignToUpdate);
+                campaignToUpdate.FillEmpty(oldBatchcampaign);
+                var validateStatus = ValidateCampaign(contextData, campaignToUpdate, !assetUserRuleId.HasValue);
                 if (!validateStatus.IsOkStatusCode())
                 {
                     response.SetStatus(validateStatus);
                     return response;
                 }
 
-                campaignToUpdate.FillEmpty(oldBatchcampaign);
                 campaignToUpdate.UpdateDate = DateUtils.GetUtcUnixTimestampNow();
 
-                if (_repository.Update_Campaign(campaignToUpdate, contextData))
+                if (_repository.UpdateCampaign(campaignToUpdate, contextData))
                 {
                     response.Object = campaignToUpdate;
                     SetInvalidationKeys(contextData, campaignToUpdate);
@@ -490,7 +580,20 @@ namespace ApiLogic.Users.Managers
         {
             var response = Status.Error;
 
-            var campaign = Get(contextData, id, false);
+            long? assetUserRuleId = null;
+            var shopIdResponse = GetShopManagerCampaignShopId(contextData);
+            if (!shopIdResponse.IsOkStatusCode())
+            {
+                response.Set(shopIdResponse.Status);
+                return response;
+            }
+
+            if (shopIdResponse.Object > 0)
+            {
+                assetUserRuleId = shopIdResponse.Object;
+            }
+
+            var campaign = Get(contextData, id, false, assetUserRuleId);
 
             if (!campaign.IsOkStatusCode())
             {
@@ -506,7 +609,7 @@ namespace ApiLogic.Users.Managers
             }
 
             campaign.Object.UpdateDate = DateUtils.GetUtcUnixTimestampNow();
-            if (_repository.Update_Campaign(campaign.Object, contextData))
+            if (_repository.UpdateCampaign(campaign.Object, contextData))
             {
                 SetInvalidationKeys(contextData, campaign.Object);
                 response.Set(eResponseStatus.OK);
@@ -544,7 +647,7 @@ namespace ApiLogic.Users.Managers
             {
                 if (campaign.CampaignType == eCampaignType.Trigger)
                 {
-                    var campaignFilter = new TriggerCampaignFilter() { StateEqual = CampaignState.ACTIVE };
+                    var campaignFilter = new TriggerCampaignFilter() { StateEqual = CampaignState.ACTIVE, IgnoreSetFilterByShop = true };
                     var campaigns = ListTriggerCampaigns(contextData, campaignFilter);
 
                     if (campaigns.HasObjects() && campaigns.Objects.Count >= MAX_TRIGGER_CAMPAIGNS)
@@ -555,7 +658,7 @@ namespace ApiLogic.Users.Managers
                 }
                 else if (campaign.CampaignType == eCampaignType.Batch)
                 {
-                    var campaignFilter = new BatchCampaignFilter() { StateEqual = CampaignState.ACTIVE };
+                    var campaignFilter = new BatchCampaignFilter() { StateEqual = CampaignState.ACTIVE, IgnoreSetFilterByShop = true };
                     var campaigns = ListBatchCampaigns(contextData, campaignFilter);
 
                     if (campaigns.HasObjects() && campaigns.Objects.Count >= MAX_BATCH_CAMPAIGNS)
@@ -577,12 +680,27 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        private Status ValidateCampaign(ContextData contextData, Campaign campaign)
+        private Status ValidateCampaign(ContextData contextData, Campaign campaign, bool shouldValidateShop)
         {
-            var status = Status.Error;
+            if (shouldValidateShop && campaign.AssetUserRuleId.HasValue)
+            {
+                // validate AssetUserRuleId exist
+                var response = _assetUserRuleManager.GetAssetUserRuleByRuleId(contextData.GroupId, campaign.AssetUserRuleId.Value);
+                if (!response.HasObject())
+                {
+                    return response.Status;
+                }
+
+                // validate AssetUserRuleId is from shop type
+                if (response.Object.Actions?[0].Type != RuleActionType.UserFilter || response.Object.Conditions?[0].Type != RuleConditionType.AssetShop)
+                {
+                    return new Status(eResponseStatus.AssetUserRuleDoesNotExists, "AssetUserRule is not from Shop type");
+                }
+            }
+
             if (campaign.Promotion != null)
             {
-                status = _promotionValidator.Validate(contextData.GroupId, campaign.Promotion);
+                var status = _promotionValidator.Validate(contextData.GroupId, campaign.Promotion);
                 if (!status.IsOkStatusCode())
                 {
                     return status;
@@ -592,7 +710,7 @@ namespace ApiLogic.Users.Managers
                 {
                     foreach (RuleCondition condition in campaign.Promotion.Conditions)
                     {
-                        status = _conditionValidator.Validate(contextData.GroupId, condition);
+                        status = _conditionValidator.Validate(contextData, condition, campaign.AssetUserRuleId);
                         if (!status.IsOkStatusCode())
                         {
                             return status;
@@ -610,14 +728,13 @@ namespace ApiLogic.Users.Managers
                     var result = _channelManager.GetChannelsListResponseByChannelIds(contextData, campaign.CollectionIds.Select(x => (int)x).ToList(), true, null, true);
                     if (!result.Status.IsOkStatusCode() || result.Objects.Count != campaign.CollectionIds.Count)
                     {
-                        status.Set(eResponseStatus.NotExist, "One or more collection Ids are invalid or not found");
-                        return status;
+                        return new Status(eResponseStatus.NotExist, "One or more collection Ids are invalid or not found");
                     }
                 }
                 else
                 {
                     Group group = null;
-                    GroupManager groupManager = new GroupsCacheManager.GroupManager(_groupsCache);
+                    var groupManager = new GroupManager(_groupsCache);
                     GroupsCacheManager.Channel channel = null;
 
                     foreach (var channelId in campaign.CollectionIds)
@@ -626,16 +743,30 @@ namespace ApiLogic.Users.Managers
 
                         if (channel == null)
                         {
-                            status.Set(eResponseStatus.NotExist, "One or more collection Ids are invalid or not found");
-                            return status;
+                            return new Status(eResponseStatus.NotExist, "One or more collection Ids are invalid or not found");
                         }
 
                     }
                 }
             }
 
-            status.Set(eResponseStatus.OK);
-            return status;
+            if (campaign.AssetUserRuleId.HasValue)
+            {
+                var conditions = campaign.GetConditions();
+                if (conditions != null && conditions.Any())
+                {
+                    foreach (RuleCondition condition in conditions)
+                    {
+                        var status = _conditionValidator.Validate(contextData, condition, campaign.AssetUserRuleId);
+                        if (!status.IsOkStatusCode())
+                        {
+                            return status;
+                        }
+                    }
+                }
+            }
+
+            return Status.Ok;
         }
 
         private void SetInvalidationKeys(ContextData contextData, Campaign campaign)
@@ -662,7 +793,8 @@ namespace ApiLogic.Users.Managers
                     Action = apiAction,
                     IsActiveNow = true,
                     Service = apiService,
-                    StateEqual = CampaignState.ACTIVE
+                    StateEqual = CampaignState.ACTIVE,
+                    IgnoreSetFilterByShop = true
                 };
                 var contextData = new ContextData(groupId) { DomainId = domainId };
 
@@ -710,7 +842,7 @@ namespace ApiLogic.Users.Managers
             if (campaignsDB?.Count() > 0)
             {
                 bool lazySetState = !filter.IsActiveNow; // BEO-13101 when searching campaigns which are active now we dont want to run lazy update for their state
-                list = campaignsDB.Select(x => Get(contextData, x.Id, lazySetState))
+                list = campaignsDB.Select(x => Get(contextData, x.Id, lazySetState, filter.AssetUserRuleIdEqual))
                     .Where(campaignResponse => campaignResponse.HasObject() && campaignResponse.Object.CampaignType == campaignType)
                     .Select(camp => (T)camp.Object).ToList();
 
@@ -778,6 +910,41 @@ namespace ApiLogic.Users.Managers
                             $"SendCampaignStateChanged not Implemented for state: {campaign.State}");
                 }
             }).ConfigureAwait(false);
+        }
+
+        private GenericResponse<long> GetShopManagerCampaignShopId(ContextData contextData)
+        {
+            if (contextData.IsUserRoleExist(PredefinedRoleId.SHOP_MANAGER_CAMPAIGN))
+            {
+                var shopId = _assetUserRuleManager.GetShopAssetUserRuleId(contextData.GroupId, contextData.UserId);
+                if (shopId <= 0)
+                {
+                    return new GenericResponse<long>(eResponseStatus.AssetUserRuleDoesNotExists, "shop rule does not exist for current user");
+                }
+
+                return new GenericResponse<long>(Status.Ok, shopId);
+            }
+
+            return new GenericResponse<long>(Status.Ok, 0);
+        }
+
+        private Status SetFilterByShop(CampaignFilter filter, ContextData contextData)
+        {
+            if (!filter.IgnoreSetFilterByShop && !filter.AssetUserRuleIdEqual.HasValue)
+            {
+                var shopIdResponse = GetShopManagerCampaignShopId(contextData);
+                if (!shopIdResponse.IsOkStatusCode())
+                {
+                    return shopIdResponse.Status;
+                }
+
+                if (shopIdResponse.Object > 0)
+                {
+                    filter.AssetUserRuleIdEqual = shopIdResponse.Object;
+                }
+            }
+
+            return Status.Ok;
         }
     }
 }

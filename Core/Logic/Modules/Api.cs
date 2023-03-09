@@ -1932,7 +1932,7 @@ namespace Core.Api
 
         public static GenericListResponse<AssetUserRule> GetAssetUserRuleList(int groupId, long? userId, RuleActionType? ruleActionType, RuleConditionType? ruleConditionType, bool returnConfigError)
         {
-            return AssetUserRuleManager.GetAssetUserRuleList(groupId, userId, false, ruleActionType, ruleConditionType, returnConfigError);
+            return AssetUserRuleManager.Instance.GetAssetUserRuleList(groupId, userId, false, ruleActionType, ruleConditionType, returnConfigError);
         }
 
         public static GenericResponse<AssetUserRule> AddAssetUserRule(int groupId, AssetUserRule assetUserRuleToAdd)
@@ -2233,7 +2233,7 @@ namespace Core.Api
                 }
 
                 int totalCount;
-                result.Objects = ApiLogic.Segmentation.SegmentationTypeLogic.List(groupId, filter.ObjectIds?.ToList(), pageIndex, pageSize, out totalCount);
+                result.Objects = ApiLogic.Segmentation.SegmentationTypeLogic.Instance.ListBySegmentIds(groupId, filter.ObjectIds?.ToList(), pageIndex, pageSize, out totalCount, 0, null);
                 result.TotalItems = totalCount;
                 result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }

@@ -117,5 +117,14 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "collectionIdIn")]
         [SchemeProperty(IsNullable = true)]
         public string CollectionIdIn { get; set; }
+
+        /// <summary>
+        /// Asset user rule identifier 
+        /// </summary>
+        [DataMember(Name = "assetUserRuleId")]
+        [JsonProperty("assetUserRuleId")]
+        [XmlElement(ElementName = "assetUserRuleId")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.ALL, IsNullable = true, MinLong = 1)]
+        public long? AssetUserRuleId { get; set; }
     }
 }

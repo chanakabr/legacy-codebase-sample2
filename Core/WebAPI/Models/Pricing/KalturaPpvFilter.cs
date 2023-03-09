@@ -48,33 +48,20 @@ namespace WebAPI.Models.Pricing
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         [SchemeProperty(RequiresPermission = (int)RequestType.ALL)]
         public bool? AlsoInactive { get; set; }
-        
+
+        /// <summary>
+        /// comma-separated list of KalturaPpv.assetUserRuleId values.  Matching KalturaPpv objects will be returned by the filter.
+        /// </summary>
+        [DataMember(Name = "assetUserRuleIdIn")]
+        [JsonProperty("assetUserRuleIdIn")]
+        [XmlElement(ElementName = "assetUserRuleIdIn", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.READ, IsNullable = true, DynamicMinInt = 1)]
+        public string AssetUserRuleIdIn { get; set; }
+
         public override KalturaPpvOrderBy GetDefaultOrderByValue()
         {
             return KalturaPpvOrderBy.NAME_ASC;
-        }
-      
-        public List<long> GetIdIn()
-        {
-            HashSet<long> list = new HashSet<long>();
-            if (!string.IsNullOrEmpty(IdIn))
-            {
-                string[] stringValues = IdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string stringValue in stringValues)
-                {
-                    long value;
-                    if (long.TryParse(stringValue, out value) && !list.Contains(value))
-                    {
-                        list.Add(value);
-                    }
-                    else
-                    {
-                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaPpvFilter.idIn");
-                    }
-                }
-            }
-
-            return new List<long>(list);
         }
     }
 }

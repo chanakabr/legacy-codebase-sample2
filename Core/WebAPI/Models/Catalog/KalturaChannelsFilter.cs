@@ -97,6 +97,15 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("idIn")]
         [XmlElement(ElementName = "idIn", IsNullable = false)]
         public string IdIn { get; set; }
+       
+        /// <summary>
+        ///  comma-separated list of KalturaChannel.assetUserRuleId values.  Matching KalturaChannel objects will be returned by the filter.
+        /// </summary>
+        [DataMember(Name = "assetUserRuleIdIn")]
+        [JsonProperty("assetUserRuleIdIn")]
+        [XmlElement(ElementName = "assetUserRuleIdIn", IsNullable = false)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.READ, IsNullable = true, DynamicMinInt = 1)]
+        public string AssetUserRuleIdIn { get; set; }
 
         public override void Validate()
         {
@@ -136,6 +145,14 @@ namespace WebAPI.Models.Catalog
                 message.Add("KalturaChannelsFilter.idIn");
                 ValidateCheck(message, inputCount);
             }
+
+            if (!string.IsNullOrEmpty(AssetUserRuleIdIn) &&
+                (MediaIdEqual > 0 || IdEqual > 0))
+            {
+                inputCount++;
+                message.Add("KalturaChannelsFilter.assetUserRuleIdIn");
+                ValidateCheck(message, inputCount);       
+            }
         }
 
         private static void ValidateCheck(List<string> message, int inputCount)
@@ -151,29 +168,6 @@ namespace WebAPI.Models.Catalog
             return KalturaChannelsOrderBy.NONE;
         }
 
-        internal List<int> GetIdIn()
-        {
-            List<int> list = null;
-
-            if (!string.IsNullOrEmpty(IdIn))
-            {
-                list = new List<int>();
-                string[] stringValues = IdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string stringValue in stringValues)
-                {
-                    if (int.TryParse(stringValue, out int value))
-                    {
-                        list.Add(value);
-                    }
-                    else
-                    {
-                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaChannelsFilter.idIn");
-                    }
-                }
-            }
-
-            return list;
-        }
 
         internal override KalturaChannelListResponse GetChannels(ContextData contextData, bool isAllowedToViewInactiveAssets, KalturaFilterPager pager)
         {
@@ -198,17 +192,18 @@ namespace WebAPI.Models.Catalog
             else if (!string.IsNullOrEmpty(NameEqual))
             {
                 getListFunc = () => ChannelManager.Instance.SearchChannels(contextData, true, NameEqual, null, pager.GetRealPageIndex(),
-                                                            pager.PageSize.Value, orderBy, orderDirection, isAllowedToViewInactiveAssets);
+                                                            pager.PageSize.Value, orderBy, orderDirection, isAllowedToViewInactiveAssets, this.GetAssetUserRuleIdIn());
             }
             else if (!string.IsNullOrEmpty(IdIn))
             {
-                getListFunc = () => ChannelManager.Instance.GetChannelsListResponseByChannelIds(contextData, GetIdIn(), isAllowedToViewInactiveAssets, null, true);
+                getListFunc = () => ChannelManager.Instance.GetChannelsListResponseByChannelIds(contextData, this.GetIdIn(), isAllowedToViewInactiveAssets, 
+                    null, true, this.GetAssetUserRuleIdIn());
             }
             else
             {
                 //search using ChannelLike
                 getListFunc = () => ChannelManager.Instance.SearchChannels(contextData, false, NameStartsWith, null, pager.GetRealPageIndex(),
-                                                            pager.PageSize.Value, orderBy, orderDirection, isAllowedToViewInactiveAssets);
+                                                            pager.PageSize.Value, orderBy, orderDirection, isAllowedToViewInactiveAssets, this.GetAssetUserRuleIdIn());
             }
 
             response = ClientUtils.GetGenericListResponseFromWS<GroupsCacheManager.Channel>(getListFunc);

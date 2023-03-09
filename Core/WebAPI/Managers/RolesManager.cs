@@ -16,25 +16,17 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.API;
 using WebAPI.Models.General;
+using ApiObjects.Roles;
 
 namespace WebAPI.Managers
 {
     public class RolesManager
     {
-
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private const string PARTNER_WILDCARD = "partner*";
         private const string HOUSEHOLD_WILDCARD = "household*";
         private const string IS_PROPERTY_PERMITTED = "{0}_{1}_{2}_{3}";
-
-        public const long ANONYMOUS_ROLE_ID = 0;
-        public const long USER_ROLE_ID = 1;
-        public const long MASTER_ROLE_ID = 2;
-        public const long OPERATOR_ROLE_ID = 3;
-        public const long MANAGER_ROLE_ID = 4;
-        public const long ADMINISTRATOR_ROLE_ID = 5;
-        public const long SYSTEM_ADMINISTRATOR_ROLE_ID = 9;
         public const string EXTERNAL_EDITOR_ROLE_NAME = "ExternalEditor";
 
         #region Private Methods
@@ -539,16 +531,13 @@ namespace WebAPI.Managers
             return new Tuple<Dictionary<string, List<string>>, bool>(result, success);
         }
 
-        
-
-
         #endregion
 
         #region Public Methods
 
         public static List<long> GetRoleIds(KS ks, bool appendOriginalRoles = true)
         {
-            List<long> roleIds = new List<long>() { RolesManager.ANONYMOUS_ROLE_ID };
+            List<long> roleIds = new List<long>() { PredefinedRoleId.ANONYMOUS };
 
             if (ks.UserId != "0")
             {
@@ -575,7 +564,7 @@ namespace WebAPI.Managers
         public static bool IsManagerAllowedAction(KS ks, List<long> roleIds)
         {
             // check role's hierarchy
-            bool isManager = GetRoleIds(ks).Any(ur => ur == MANAGER_ROLE_ID);
+            bool isManager = GetRoleIds(ks).Any(ur => ur == PredefinedRoleId.MANAGER);
 
             if (isManager)
             {
@@ -584,14 +573,14 @@ namespace WebAPI.Managers
 
                 if (externalEditorRole.HasValue)
                 {
-                    if (roleIds.Any(x => x > MANAGER_ROLE_ID && x != externalEditorRole.Value))
+                    if (roleIds.Any(x => x > PredefinedRoleId.MANAGER && x != externalEditorRole.Value))
                     {
                         return false;
                     }
                 }
                 else
                 {
-                    if (roleIds.Any(x => x > MANAGER_ROLE_ID))
+                    if (roleIds.Any(x => x > PredefinedRoleId.MANAGER))
                     {
                         return false;
                     }
@@ -617,7 +606,7 @@ namespace WebAPI.Managers
                     {
                         long maxRole = userRoleIds.Max();
 
-                        if (userRoleIds.Any(ur => ur == MANAGER_ROLE_ID || ur == OPERATOR_ROLE_ID))
+                        if (userRoleIds.Any(ur => ur == PredefinedRoleId.MANAGER || ur == PredefinedRoleId.OPERATOR))
                         {
                             userRoleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, ks.UserId);
 
@@ -666,20 +655,20 @@ namespace WebAPI.Managers
                 return false;
             }
 
-            bool isSysAdmin = ksRoleIds.Any(ur => ur == SYSTEM_ADMINISTRATOR_ROLE_ID);
-            bool isAdmin = ksRoleIds.Any(ur => ur == ADMINISTRATOR_ROLE_ID);
-            bool isManager = ksRoleIds.Any(ur => ur == MANAGER_ROLE_ID);
+            bool isSysAdmin = ksRoleIds.Any(ur => ur == PredefinedRoleId.SYSTEM_ADMINISTRATOR);
+            bool isAdmin = ksRoleIds.Any(ur => ur == PredefinedRoleId.ADMINISTRATOR);
+            bool isManager = ksRoleIds.Any(ur => ur == PredefinedRoleId.MANAGER);
 
             if (isManager)
             {
                 List<long> userRoleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, userId);
 
-                if (!isSysAdmin && userRoleIds?.Count > 0 && userRoleIds.Any(x => x == SYSTEM_ADMINISTRATOR_ROLE_ID))
+                if (!isSysAdmin && userRoleIds?.Count > 0 && userRoleIds.Any(x => x == PredefinedRoleId.SYSTEM_ADMINISTRATOR))
                 {
                     return false;
                 }
 
-                if (!isAdmin && userRoleIds?.Count > 0 && userRoleIds.Any(x => x == ADMINISTRATOR_ROLE_ID))
+                if (!isAdmin && userRoleIds?.Count > 0 && userRoleIds.Any(x => x == PredefinedRoleId.ADMINISTRATOR))
                 {
                     return false;
                 }
@@ -695,12 +684,12 @@ namespace WebAPI.Managers
                     }
                 }
 
-                if (!isSysAdmin && roleIds.Any(x => x == SYSTEM_ADMINISTRATOR_ROLE_ID))
+                if (!isSysAdmin && roleIds.Any(x => x == PredefinedRoleId.SYSTEM_ADMINISTRATOR))
                 {
                     return false;
                 }
 
-                if (!isAdmin && roleIds.Any(x => x == ADMINISTRATOR_ROLE_ID))
+                if (!isAdmin && roleIds.Any(x => x == PredefinedRoleId.ADMINISTRATOR))
                 {
                     return false;
                 }

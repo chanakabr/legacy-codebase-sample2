@@ -3989,26 +3989,29 @@ namespace Core.Catalog
                 queryFilter = new QueryFilter() { FilterSettings = filterSettings };
             }
 
-            if (definitions.AssetUserRuleId > 0)
+            if (definitions.AssetUserRuleIds != null && definitions.AssetUserRuleIds.Any())
             {
                 if (queryFilter == null)
                 {
                     filterSettings = new FilterCompositeType(CutWith.AND);
-                    filterSettings.AddChild(new ESTerm(true)
+                    var terms = new ESTerms(true)
                     {
-                        Key = CHANNEL_ASSET_USER_RULE_ID,
-                        Value = definitions.AssetUserRuleId.ToString()
-                    });
+                        Key = CHANNEL_ASSET_USER_RULE_ID
+                    };
+                    terms.Value.AddRange(definitions.AssetUserRuleIds.Select(id => id.ToString()));
+                    filterSettings.AddChild(terms);
 
                     queryFilter = new QueryFilter() { FilterSettings = filterSettings };
                 }
                 else
                 {
-                    queryFilter.FilterSettings.AddChild(new ESTerm(true)
+                    var terms = new ESTerms(true)
                     {
-                        Key = CHANNEL_ASSET_USER_RULE_ID,
-                        Value = definitions.AssetUserRuleId.ToString()
-                    });
+                        Key = CHANNEL_ASSET_USER_RULE_ID
+                    };
+                    terms.Value.AddRange(definitions.AssetUserRuleIds.Select(id => id.ToString()));
+
+                    queryFilter.FilterSettings.AddChild(terms);
                 }
             }
 
@@ -7775,7 +7778,7 @@ namespace Core.Catalog
 
             if (channel.AssetUserRuleId.HasValue && channel.AssetUserRuleId.Value > 0)
             {
-                var assetUserRule = AssetUserRuleManager.GetAssetUserRuleByRuleId(channel.m_nGroupID, channel.AssetUserRuleId.Value);
+                var assetUserRule = AssetUserRuleManager.Instance.GetAssetUserRuleByRuleId(channel.m_nGroupID, channel.AssetUserRuleId.Value);
 
                 if (assetUserRule != null && assetUserRule.Status != null && assetUserRule.Status.Code == (int)eResponseStatus.OK && assetUserRule.Object != null)
                 {

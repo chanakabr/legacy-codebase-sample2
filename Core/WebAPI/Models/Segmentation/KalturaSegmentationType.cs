@@ -107,5 +107,14 @@ namespace WebAPI.Models.Segmentation
         [XmlElement(ElementName = "version")]
         [SchemeProperty(ReadOnly = true)]
         public long Version { get; set; }
+
+        /// <summary>
+        /// Asset User Rule Id
+        /// </summary>
+        [DataMember(Name = "assetUserRuleId")]
+        [JsonProperty(PropertyName = "assetUserRuleId")]
+        [XmlElement(ElementName = "assetUserRuleId")]
+        [SchemeProperty(IsNullable = true, MinLong = 1, RequiresPermission = (int)RequestType.ALL)]
+        public long? AssetUserRuleId { get; set; }
     }
 }

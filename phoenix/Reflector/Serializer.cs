@@ -107,7 +107,8 @@ namespace Reflector
         {
             return arg.CustomAttributes.Any(ca =>
                     ca.AttributeType.IsEquivalentTo(typeof(SchemePropertyAttribute))
-                    && ca.NamedArguments.Any(na => na.MemberName.Equals("RequiresPermission") && na.TypedValue.Value.Equals(1)));
+                    && ca.NamedArguments.Any(na => na.MemberName.Equals("RequiresPermission") && 
+                    (na.TypedValue.Value.Equals((int)WebAPI.RequestType.READ) || na.TypedValue.Value.Equals((int)WebAPI.RequestType.ALL))));
         }
 
         private void writeUsing()

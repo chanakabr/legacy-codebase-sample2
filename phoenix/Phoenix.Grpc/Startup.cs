@@ -53,6 +53,7 @@ namespace Phoenix.Grpc
             services.AddSingleton<IAssetRuleService, AssetRuleService>();
             services.AddSingleton<IGroupAndConfigurationService, GroupAndConfigurationService>();
             services.AddSingleton<ISegmentService, SegmentService>();
+            services.AddSingleton<IAssetUserRuleService, AssetUserRuleService>();
         }
         
 

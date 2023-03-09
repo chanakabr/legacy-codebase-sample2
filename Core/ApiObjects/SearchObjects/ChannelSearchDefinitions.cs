@@ -13,7 +13,7 @@ namespace ApiObjects.SearchObjects
         public ChannelOrderBy OrderBy { get; set; }
         public OrderDir OrderDirection { get; set; }
         public bool isAllowedToViewInactiveAssets { get; set; }
-        public long AssetUserRuleId { get; set; }
+        public List<long> AssetUserRuleIds { get; set; }
     }
 
     public enum ChannelOrderBy

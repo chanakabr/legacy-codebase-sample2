@@ -366,7 +366,7 @@ namespace Core.Pricing
         {
             if (!shopUserId.HasValue || shopUserId.Value == 0) { return Status.Ok; }
 
-            var shopId = Api.Managers.AssetUserRuleManager.GetShopAssetUserRuleId(groupId, shopUserId.Value);
+            var shopId = Api.Managers.AssetUserRuleManager.Instance.GetShopAssetUserRuleId(groupId, shopUserId.Value);
             if (shopId <= 0)
             {
                 return Status.Ok;

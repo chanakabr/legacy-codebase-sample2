@@ -8,6 +8,7 @@ import "pricingApi.proto";
 import "householdApi.proto";
 import "groupAndConfigurationApi.proto";
 import "segmentApi.proto";
+import "assetUserRuleApi.proto";
 option csharp_namespace = "phoenix";
 option go_package = "./models";
 
@@ -55,6 +56,10 @@ service Phoenix {
   rpc GetAssetRules (GetAssetRulesRequest) returns (GetAssetRulesResponse);
   rpc GetGroupMediaConcurrencyRules(GetGroupMediaConcurrencyRulesRequest) returns (GetGroupMediaConcurrencyRulesResponse);
   rpc GetMediaConcurrencyRule(GetMediaConcurrencyByIdRequest) returns (GetMediaConcurrencyByIdResponse);
+
+  // assetuserrule
+  rpc IsAssetUserRuleIdValid (IsAssetUserRuleIdValidRequest) returns (IsAssetUserRuleIdValidResponse);
+  rpc GetAssetUserRuleByUserId (GetAssetUserRuleByUserIdRequest) returns (GetAssetUserRuleByUserIdResponse);
   
   //catalog
   rpc HasVirtualAssetType (HasVirtualAssetTypeRequest) returns (google.protobuf.BoolValue);

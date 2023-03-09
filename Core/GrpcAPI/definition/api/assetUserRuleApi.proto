@@ -1,0 +1,26 @@
+syntax = "proto3";
+import "ruleCondition.proto";
+import "ruleAction.proto";
+
+option csharp_namespace = "phoenix";
+option go_package = "./models";
+
+package phoenix;
+
+message GetAssetUserRuleByUserIdRequest {
+  int64 GroupId = 1;
+  int64 UserId = 2;
+}
+
+message GetAssetUserRuleByUserIdResponse {
+  int64 AssetUserRuleId = 1;
+}
+
+message IsAssetUserRuleIdValidRequest {
+	int64 GroupId = 1;
+	int64 AssetUserRuleId = 2;
+}
+
+message IsAssetUserRuleIdValidResponse {
+	bool IsValid = 1;
+}

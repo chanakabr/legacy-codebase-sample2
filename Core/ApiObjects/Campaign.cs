@@ -40,6 +40,9 @@ namespace ApiObjects
 
         [DBFieldMapping("type")]
         public int type { get; set; }
+
+        [DBFieldMapping("ASSET_USER_RULE_ID")]
+        public long? AssetUserRuleId { get; set; }
     }
 
     [Serializable]
@@ -68,6 +71,7 @@ namespace ApiObjects
         public string CampaignJson { get; set; }
 
         public BasePromotion Promotion { get; set; }
+
 
         #endregion
 
@@ -121,10 +125,15 @@ namespace ApiObjects
             }
 
             var nullablePromotion = new NullableObj<BasePromotion>(this.Promotion, this.IsNullablePropertyExists("Promotion"));
-
             if (!nullablePromotion.IsNull && this.Promotion == null)
             {
                 this.Promotion = oldCampaign.Promotion;
+            }
+
+            var nullableAssetUserRuleId = new NullableObj<long?>(this.AssetUserRuleId, this.IsNullablePropertyExists("AssetUserRuleId"));
+            if (!nullableAssetUserRuleId.IsNull && !this.AssetUserRuleId.HasValue)
+            {
+                this.AssetUserRuleId = oldCampaign.AssetUserRuleId;
             }
         }
 

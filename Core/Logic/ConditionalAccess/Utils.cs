@@ -1873,7 +1873,8 @@ namespace Core.ConditionalAccess
                 {
                     HasPromotion = true,
                     StateEqual = CampaignState.ACTIVE,
-                    IsActiveNow = true
+                    IsActiveNow = true,
+                    IgnoreSetFilterByShop = true
                 };
                 var campaigns = ApiLogic.Users.Managers.CampaignManager.Instance.SearchCampaigns(new ContextData(groupId) { DomainId = domainId }, campaignFilter);
                 if (!campaigns.HasObjects()) { return recurringCampaignDetails; }

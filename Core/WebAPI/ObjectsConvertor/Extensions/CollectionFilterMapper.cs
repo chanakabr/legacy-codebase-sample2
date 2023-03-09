@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using WebAPI.Models.Pricing;
 
 namespace WebAPI.ObjectsConvertor.Extensions
@@ -11,6 +12,11 @@ namespace WebAPI.ObjectsConvertor.Extensions
                 return null;
 
             return model.CollectionIdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        public static HashSet<long> GetAssetUserRuleIdIn(this KalturaCollectionFilter model)
+        {
+            return Utils.Utils.ParseCommaSeparatedValues<HashSet<long>, long>(model.AssetUserRuleIdIn, "KalturaCollectionFilter.assetUserRuleIdIn", true);
         }
     }
 }

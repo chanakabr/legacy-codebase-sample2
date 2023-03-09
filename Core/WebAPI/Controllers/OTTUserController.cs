@@ -17,6 +17,7 @@ using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
 using ObjectsConvertor.Mapping;
+using ApiObjects.Roles;
 
 namespace WebAPI.Controllers
 {
@@ -36,7 +37,7 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         static public KalturaLoginSession AnonymousLogin(int partnerId, string udid = null)
         {
-            return AuthorizationManager.GenerateSession("0", partnerId, false, false, 0, udid, new List<long>() { RolesManager.ANONYMOUS_ROLE_ID });
+            return AuthorizationManager.GenerateSession("0", partnerId, false, false, 0, udid, new List<long>() { PredefinedRoleId.ANONYMOUS });
         }
 
         /// <summary>

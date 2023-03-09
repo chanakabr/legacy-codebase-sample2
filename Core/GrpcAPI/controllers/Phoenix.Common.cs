@@ -15,12 +15,13 @@ namespace Grpc.controllers
         private readonly IAssetRuleService _assetRuleService;
         private readonly IGroupAndConfigurationService _groupAndConfigurationService;
         private readonly ISegmentService _segmentService;
+        private readonly IAssetUserRuleService _assetUserRuleService;
         private const string InvalidationKey = "invalidationkey";
 
         public PhoenixController(ILogger<PhoenixController> logger, IEntitlementService entitlementService,
             IHouseholdService householdService, IPricingService pricingService, ICatalogService catalogService,
             IAssetRuleService assetRuleService, IGroupAndConfigurationService groupAndConfigurationService,
-            ISegmentService segmentService)
+            ISegmentService segmentService, IAssetUserRuleService assetUserRuleService)
         {
             _logger = logger;
             _entitlementService = entitlementService;
@@ -30,6 +31,7 @@ namespace Grpc.controllers
             _assetRuleService = assetRuleService;
             _groupAndConfigurationService = groupAndConfigurationService;
             _segmentService = segmentService;
+            _assetUserRuleService = assetUserRuleService;
         }
 
         private static Metadata GetInvalidationKeysHeader(List<string> invalidationKeys)

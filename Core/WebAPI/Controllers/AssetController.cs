@@ -403,7 +403,7 @@ namespace WebAPI.Controllers
                         if (contextData.UserId.Value > 0)
                         {                            
                             var shopUserId = contextData.GetCallerUserId();
-                            var shopId = AssetUserRuleManager.GetShopAssetUserRuleId(contextData.GroupId, shopUserId);
+                            var shopId = AssetUserRuleManager.Instance.GetShopAssetUserRuleId(contextData.GroupId, shopUserId);
                             if (shopId > 0)
                             {
                                 var searchAssetsFilter = new SearchAssetsFilter

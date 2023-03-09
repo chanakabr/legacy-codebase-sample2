@@ -270,7 +270,7 @@ namespace Core.Catalog.CatalogManagement
         {
             try
             {
-                var assetUserRuleResponse = Api.Managers.AssetUserRuleManager.GetAssetUserRuleByRuleId(groupId, assetUserRuleId);
+                var assetUserRuleResponse = Api.Managers.AssetUserRuleManager.Instance.GetAssetUserRuleByRuleId(groupId, assetUserRuleId);
                 if (assetUserRuleResponse.HasObject())
                 {
                     var condition = assetUserRuleResponse.Object.Conditions.FirstOrDefault(x => x is AssetShopCondition);
@@ -3737,7 +3737,7 @@ namespace Core.Catalog.CatalogManagement
 
         private static Status TrySetShopMeta(int groupId, Asset asset, CatalogGroupCache catalogGroupCache, long userId)
         {
-            var getAssetUserRulesResponse = AssetUserRuleManager.GetAssetUserRuleList(groupId, userId, ruleConditionType: RuleConditionType.AssetShop);
+            var getAssetUserRulesResponse = AssetUserRuleManager.Instance.GetAssetUserRuleList(groupId, userId, ruleConditionType: RuleConditionType.AssetShop);
             if (!getAssetUserRulesResponse.IsOkStatusCode())
             {
                 return getAssetUserRulesResponse.Status;

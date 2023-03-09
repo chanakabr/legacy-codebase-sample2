@@ -1625,8 +1625,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.State, opt => opt.MapFrom(src => ConvertObjectState(src.State)))
                .ForMember(dest => dest.CollectionIds, opt => opt.ResolveUsing(src => src.GetCollectionIds()))
                .ForMember(dest => dest.NullableProperties, opt => opt.MapFrom(src => src.NullableProperties))
+               .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.AssetUserRuleId))
                .AfterMap((src, dest) => dest.CollectionIds = dest.CollectionIds != null && dest.CollectionIds.Any() ? dest.CollectionIds : null);
-                ;
 
             cfg.CreateMap<Campaign, KalturaCampaign>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -1641,7 +1641,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Promotion, opt => opt.MapFrom(src => src.Promotion))
                .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
                .ForMember(dest => dest.CollectionIdIn, opt => opt.MapFrom(src => src.CollectionIds != null ? string.Join(",", src.CollectionIds) : null))
-                ;
+               .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.AssetUserRuleId));
 
             cfg.CreateMap<KalturaApiService, ApiService>()
                 .ConvertUsing(apiService =>
@@ -1738,7 +1738,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.HasPromotion, opt => opt.MapFrom(src => src.HasPromotion))
                 .ForMember(dest => dest.NameEqual, opt => opt.MapFrom(src => src.NameEqual))
                 .ForMember(dest => dest.NameContains, opt => opt.MapFrom(src => src.NameContains))
-                .ForMember(dest => dest.StateIn, opt => opt.ResolveUsing(src => src.GetStates()));
+                .ForMember(dest => dest.StateIn, opt => opt.ResolveUsing(src => src.GetStates()))
+                .ForMember(dest => dest.AssetUserRuleIds, opt => opt.ResolveUsing(src => src.GetAssetUserRuleIds()));
 
             cfg.CreateMap<KalturaTriggerCampaignSearchFilter, TriggerCampaignFilter>()
               .IncludeBase<KalturaCampaignSearchFilter, CampaignSearchFilter>()

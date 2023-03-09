@@ -1,6 +1,7 @@
 ﻿using ApiLogic.Users.Services;
 using ApiObjects.Base;
 using ApiObjects.Response;
+using ApiObjects.Roles;
 using ApiObjects.User;
 using KalturaRequestContext;
 using System;
@@ -42,7 +43,7 @@ namespace WebAPI.Controllers
             try
             {
                 var userRoles = RolesManager.GetRoleIds(ks);
-                if (userRoles.Contains(RolesManager.OPERATOR_ROLE_ID) || userRoles.Contains(RolesManager.MANAGER_ROLE_ID) || userRoles.Contains(RolesManager.ADMINISTRATOR_ROLE_ID))
+                if (userRoles.Contains(PredefinedRoleId.OPERATOR) || userRoles.Contains(PredefinedRoleId.MANAGER) || userRoles.Contains(PredefinedRoleId.ADMINISTRATOR))
                 {
                     res = ClientsManager.DomainsClient().DeleteDevice(groupId, udid, out var domainId);
                     householdId = domainId;

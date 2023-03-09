@@ -67,5 +67,14 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "stateIn", IsNullable = true)]
         [SchemeProperty(RequiresPermission = (int)RequestType.ALL, MinLength = 1, IsNullable = true)]
         public string StateIn { get; set; }
+
+        /// <summary>
+        /// Comma separated AssetUserRule Ids to filter by
+        /// </summary>
+        [DataMember(Name = "assetUserRuleIdIn")]
+        [JsonProperty("assetUserRuleIdIn")]
+        [XmlElement(ElementName = "assetUserRuleIdIn", IsNullable = true)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.ALL, MinLength = 1, IsNullable = true, DynamicMinInt = 1)]
+        public string AssetUserRuleIdIn { get; set; }
     }
 }

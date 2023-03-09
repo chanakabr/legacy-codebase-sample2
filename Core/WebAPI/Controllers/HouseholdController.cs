@@ -1,4 +1,5 @@
 ﻿using ApiObjects.Response;
+using ApiObjects.Roles;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -196,7 +197,7 @@ namespace WebAPI.Controllers
             string userId = KS.GetFromRequest().UserId;
 
             var userRoles = RolesManager.GetRoleIds(KS.GetFromRequest(), false);
-            if (userRoles.Where(ur => ur > RolesManager.MASTER_ROLE_ID).Count() > 0)
+            if (userRoles.Where(ur => ur > PredefinedRoleId.MASTER).Count() > 0)
             {
                 throw new BadRequestException(BadRequestException.UNABLE_TO_CREATE_HOUSEHOLD_FOR_USER_ROLE);
             }

@@ -52,6 +52,7 @@ namespace WebAPI.Controllers
             {
                 bool inactiveAssets = false;
                 CollectionOrderBy orderBy = AutoMapper.Mapper.Map<CollectionOrderBy>(filter.OrderBy);
+                var assetUserRuleIds = filter.GetAssetUserRuleIdIn();
 
                 if (filter.AlsoInactive.HasValue)
                 {
@@ -64,7 +65,7 @@ namespace WebAPI.Controllers
                 {
                     getListFunc = () =>
                     CollectionManager.Instance.GetCollectionsData(contextData, filter.getCollectionIdIn(), string.Empty, pager.GetRealPageIndex(), pager.PageSize.Value, false, 
-                                                                  filter.CouponGroupIdEqual, inactiveAssets, orderBy);
+                                                                  filter.CouponGroupIdEqual, inactiveAssets, orderBy, assetUserRuleIds);
                     result = ClientUtils.GetResponseListFromWS<KalturaCollection, Collection>(getListFunc);
                 }
                 else if (filter.MediaFileIdEqual.HasValue)
@@ -82,7 +83,8 @@ namespace WebAPI.Controllers
                     if (collectionsIds != null && collectionsIds.Count > 0)
                     {
                         getListFunc = () =>
-                        CollectionManager.Instance.GetCollectionsData(contextData, collectionsIds.Select(id => id.ToString()).ToArray(), string.Empty, pager.GetRealPageIndex(), pager.PageSize.Value, false, filter.CouponGroupIdEqual);
+                        CollectionManager.Instance.GetCollectionsData(contextData, collectionsIds.Select(id => id.ToString()).ToArray(), string.Empty, pager.GetRealPageIndex(), pager.PageSize.Value, 
+                            false, filter.CouponGroupIdEqual, false, CollectionOrderBy.None, assetUserRuleIds);
                         result = ClientUtils.GetResponseListFromWS<KalturaCollection, Collection>(getListFunc);
                     }
                 }
@@ -90,7 +92,7 @@ namespace WebAPI.Controllers
                 {
                     getListFunc = () =>
                        CollectionManager.Instance.GetCollectionsData(contextData, string.Empty, pager.GetRealPageIndex(), pager.PageSize.Value, false, filter.CouponGroupIdEqual, 
-                       inactiveAssets, orderBy);
+                       inactiveAssets, orderBy, assetUserRuleIds);
                     result = ClientUtils.GetResponseListFromWS<KalturaCollection, Collection>(getListFunc);
                 }
 
