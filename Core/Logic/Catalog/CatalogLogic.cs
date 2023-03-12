@@ -6774,7 +6774,9 @@ namespace Core.Catalog
                     if (unifiedSearchDefinitions.groupBy != null && unifiedSearchDefinitions.groupBy.Any())
                     {
                         var groupByKey = string.Join(",", unifiedSearchDefinitions.groupBy.Select(_ => $"{_.Key}|{_.Type}|{_.Value}"));
-                        cacheKey.AppendFormat("_gb={0}", groupByKey);
+                        cacheKey
+                            .AppendFormat("_gb={0}", groupByKey)
+                            .AppendFormat("_gbo={0}", unifiedSearchDefinitions.GroupByOption);
                     }
 
                     if (lastUpdateDate > 0)  //BEO-11618
