@@ -237,24 +237,16 @@ namespace Core.ConditionalAccess
                                 {
                                     log.ErrorFormat("Failed to suspend purchase id  entitlements for payment gateway: UpdateMPPRenewalSubscriptionStatus fail in DB purchaseId={0}, householdId={1}", purchaseId, renewDetails.DomainId);
                                 }
-                            }
+                            }                           
 
-                            DateTime nextRenewalDate = DateTime.UtcNow.AddMinutes(60); // default
-                            int pendingInterval = transactionResponse.PendingInterval != 0
-                                ? transactionResponse.PendingInterval
-                                : response.PaymentGateway.RenewalIntervalMinutes;
-                            log.Info($"Renew pending subscription in {pendingInterval} min");
-                            if (pendingInterval > 0)
-                            {
-                                nextRenewalDate = DateTime.UtcNow.AddMinutes(pendingInterval);
-                            }
-
-                            UnifiedProcess unifiedProcess = null;
-                            if (!ignoreUnifiedBillingCycle && subscriptionCycle != null && subscriptionCycle.UnifiedBillingCycle != null) //should be part of unified cycle 
+                            if (!ignoreUnifiedBillingCycle && subscriptionCycle != null
+                                && subscriptionCycle.UnifiedBillingCycle != null
+                                && subscriptionCycle.HasCycle
+                                && subscriptionCycle.UnifiedBillingCycle.endDate < DateUtils.DateTimeToUtcUnixTimestampMilliseconds(DateTime.UtcNow)) //should be part of unified cycle 
                             {
                                 res = true;
-                                unifiedProcess = UpdateMPPRenewalProcessId(groupId, renewDetails, subscriptionCycle, paymentDetails.PaymentGatewayId);
-                                    //GetRenewalProcessId(groupId, domainId, paymentDetails.PaymentGatewayId);
+                                var unifiedProcess = UpdateMPPRenewalProcessId(groupId, renewDetails, subscriptionCycle, paymentDetails.PaymentGatewayId);
+                                //GetRenewalProcessId(groupId, domainId, paymentDetails.PaymentGatewayId);
                                 if (unifiedProcess != null && unifiedProcess.isNew)
                                 {
                                     //todo create unified msg
@@ -264,6 +256,16 @@ namespace Core.ConditionalAccess
                             else
                             {
                                 // renew subscription pending!
+                                DateTime nextRenewalDate = DateTime.UtcNow.AddMinutes(60); // default
+                                int pendingInterval = transactionResponse.PendingInterval != 0
+                                    ? transactionResponse.PendingInterval
+                                    : response.PaymentGateway.RenewalIntervalMinutes;
+                                log.Info($"Renew pending subscription in {pendingInterval} min");
+                                if (pendingInterval > 0)
+                                {
+                                    nextRenewalDate = DateTime.UtcNow.AddMinutes(pendingInterval);
+                                }
+
                                 res = HandleRenewSubscriptionPending(cas, renewDetails, nextRenewalDate, logString, isKronos);
                             }
                         }
@@ -588,7 +590,9 @@ namespace Core.ConditionalAccess
             else
             {
                 // end wasn't retuned - get next end date from MPP
-                renewDetails.EndDate = Utils.GetEndDateTime(renewDetails.EndDate.Value, renewDetails.MaxVLCOfSelectedUsageModule);
+                var baseEndDate = renewDetails.EndDate.Value > DateTime.UtcNow ? renewDetails.EndDate.Value : DateTime.UtcNow;
+
+                renewDetails.EndDate = Utils.GetEndDateTime(baseEndDate, renewDetails.MaxVLCOfSelectedUsageModule);
 
                 if (new Duration(renewDetails.MaxVLCOfSelectedUsageModule).IsMonthlyLifeCycle() && renewDetails.EndDate.Value.Day >= 28 && renewDetails.StartDate.Value.Day > renewDetails.EndDate.Value.Day)
                 {
