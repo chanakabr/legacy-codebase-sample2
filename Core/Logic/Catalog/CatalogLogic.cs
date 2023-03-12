@@ -8179,6 +8179,11 @@ namespace Core.Catalog
         // so the solution is to see if the value is an int or not by... flooring the double and see if its value remains the same or not.
         private static void HandleNumericLeaf(BooleanLeaf leaf)
         {
+            if (leaf.operand == ComparisonOperator.In)
+            {
+                return;
+            }
+
             if (leaf.value != DBNull.Value && leaf.value != null)
             {
                 string leafValue = Convert.ToString(leaf.value);

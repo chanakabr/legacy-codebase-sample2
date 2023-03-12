@@ -43,6 +43,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Xml;
+using ApiLogic.Catalog;
 using ApiLogic.Repositories;
 using ApiLogic.Segmentation;
 using ApiObjects.MediaMarks;
@@ -51,6 +52,7 @@ using CouchbaseManager;
 using Tvinci.Core.DAL;
 using TvinciImporter;
 using TVinciShared;
+using MetaType = ApiObjects.MetaType;
 
 namespace Core.Api
 {
@@ -11972,7 +11974,7 @@ namespace Core.Api
                 var topic = catalogGroupCache.TopicsMapById[objectVirtualAssetInfo.MetaId];
                 List<string> extraReturnFields = new List<string>() { "metas." + topic.SystemName };
 
-                string filterIds = GetIdsKsql(objectIds, topic.SystemName);
+                string filterIds = GetIdsKsql(objectIds, topic.SystemName, topic.Type);
 
                 string structFilter = string.Empty;
                 // TODO: check if AssetStructId exist - as ira
@@ -12046,7 +12048,7 @@ namespace Core.Api
 
             List<string> extraReturnFields = new List<string>() { $"metas.{meta}" };
 
-            string filterIds = GetIdsKsql(objectIds, meta);
+            string filterIds = GetIdsKsql(objectIds, meta, null);
 
             string structFilter = string.Empty;
 
@@ -12130,23 +12132,25 @@ namespace Core.Api
             return 0;
         }
 
-        private static string GetIdsKsql(HashSet<long> ids, string meta)
+        private static string GetIdsKsql(ICollection<long> ids, string meta, MetaType? metaType)
         {
             if (ids == null || ids.Count == 0)
             {
                 return string.Empty;
             }
 
-            StringBuilder response = new StringBuilder(" (or");
-
-            foreach (var id in ids)
-            {
-                response.Append($" {meta}='{id}'");
-            }
-
-            response.Append($")");
-
-            return response.ToString();
+            return new KsqlBuilder()
+                .Or(x =>
+                {
+                    if (metaType == MetaType.Number)
+                    {
+                        x.In(meta, ids);
+                    }
+                    else
+                    {
+                        x.Values(x.Equal, meta, ids);
+                    }
+                }).Build();
         }
 
         public static Status HandleBlockingSegment<T>(int groupId, string userId, string udid, string ip, int domainId,
