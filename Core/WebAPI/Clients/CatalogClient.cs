@@ -511,7 +511,7 @@ namespace WebAPI.Clients
 
                 if (shouldUsePagination)
                 {
-                    result.Objects = result.Objects
+                    result.Objects = result.Objects?
                         .Skip(request.m_nPageIndex * request.m_nPageSize)
                         .Take(request.m_nPageSize)
                         .ToList();
