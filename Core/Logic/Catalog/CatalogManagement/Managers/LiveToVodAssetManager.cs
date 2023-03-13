@@ -57,13 +57,14 @@ namespace ApiLogic.Catalog.CatalogManagement.Managers
 
                 return new GenericResponse<LiveToVodAsset>();
             }
-            
-            _assetManager.InvalidateAsset(mediaAssetResponse.Object.AssetType, (int)partnerId, assetId);
+
             var indexResult = _indexManagerFactory.GetIndexManager((int)partnerId).UpsertMedia(assetId);
             if (!indexResult)
             {
                 Logger.ErrorFormat("Failed UpsertMedia index for assetId: {0}, partnerId: {1} after live to vod asset created", assetId, partnerId);
             }
+
+            _assetManager.InvalidateAsset(mediaAssetResponse.Object.AssetType, (int)partnerId, assetId);
 
             return GetLiveToVodAsset(partnerId, assetId);
         }
@@ -91,14 +92,14 @@ namespace ApiLogic.Catalog.CatalogManagement.Managers
 
                 return new GenericResponse<LiveToVodAsset>();
             }
-            
-            _assetManager.InvalidateAsset(mediaAssetResponse.Object.AssetType, (int)partnerId, assetId);
+
             var indexResult = _indexManagerFactory.GetIndexManager((int)partnerId).UpsertMedia(assetId);
             if (!indexResult)
             {
                 Logger.ErrorFormat("Failed UpsertMedia index for assetId: {0}, partnerId: {1} after live to vod asset updated", assetId, partnerId);
             }
-            
+
+            _assetManager.InvalidateAsset(mediaAssetResponse.Object.AssetType, (int)partnerId, assetId);
             if (mediaAssetResponse.Object is MediaAsset mediaAsset
                 && mediaAsset.IsActive == true
                 && CatalogManager.Instance.TryGetCatalogGroupCacheFromCache((int)partnerId, out var cache))

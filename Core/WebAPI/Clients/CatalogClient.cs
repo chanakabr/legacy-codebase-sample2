@@ -3446,7 +3446,7 @@ namespace WebAPI.Clients
 
         internal bool DeleteImage(int groupId, long userId, long id)
         {
-            Func<Status> deleteImageFunc = () => Core.Catalog.CatalogManagement.ImageManager.Instance.DeleteImage(groupId, id, userId);
+            Func<Status> deleteImageFunc = () => Core.Catalog.CatalogManagement.ImageManager.Instance.DeleteImage(groupId, id, userId, isStandaloneOperation: true);
             return ClientUtils.GetResponseStatusFromWS(deleteImageFunc);
         }
 
@@ -3473,7 +3473,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ImageManager.Instance.SetContent(groupId, userId, id, url);
+                    response = Core.Catalog.CatalogManagement.ImageManager.Instance.SetContent(groupId, userId, id, url, isStandaloneOperation: true);
                 }
             }
             catch (Exception ex)

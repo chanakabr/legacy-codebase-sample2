@@ -9,7 +9,9 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using ApiLogic.Catalog.CatalogManagement.Services;
 using CategoriesSchema;
+using Microsoft.Extensions.Logging;
 using Tvinci.Core.DAL;
 using TvinciImporter;
 using TVinciShared;
@@ -20,10 +22,11 @@ namespace Core.Catalog.CatalogManagement
     {
         GenericListResponse<MediaFileType> GetMediaFileTypes(int groupId);
         GenericResponse<AssetFile> InsertMediaFile(int groupId, long userId, AssetFile assetFileToAdd, bool isFromIngest = false);
-        Status DeleteMediaFile(int groupId, long userId, long id);
+        Status DeleteMediaFile(int groupId, long userId, long id, bool isFromIngest = false);
         GenericResponse<AssetFile> UpdateMediaFile(int groupId, AssetFile assetFileToUpdate, long userId, bool isFromIngest = false, AssetFile currentAssetFile = null);
         void DoFreeItemIndexUpdateIfNeeded(int groupId, int assetId, DateTime? previousStartDate, DateTime? startDate, DateTime? previousEndDate, DateTime? endDate);
         GenericListResponse<AssetFile> GetMediaFiles(int groupId, long id, long assetId);
+        Status InvalidateAssetAfterFilesUpdated(int groupId, long assetId, long userId);
     }
     public class FileManager : IMediaFileTypeManager
     {
@@ -324,6 +327,34 @@ namespace Core.Catalog.CatalogManagement
 
             return res;
             ;
+        }
+
+        public Status InvalidateAssetAfterFilesUpdated(int groupId, long assetId, long userId)
+        {
+            try
+            {
+                // UpdateIndex
+                bool indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertMedia(assetId);
+                if (!indexingResult)
+                {
+                    log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateMediaFile", assetId, groupId);
+                }
+
+                //extracted it from upsertMedia it was called also for OPC accounts,searchDefinitions
+                //not sure it's required but better be safe
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, assetId));
+
+                // invalidate asset
+                AssetManager.Instance.InvalidateAsset(eAssetTypes.MEDIA, groupId, assetId);
+
+                return Status.Ok;
+            }
+            catch (Exception e)
+            {
+                log.LogError(e, $"Asset invalidation after files updated is failed. AssetId: {assetId}");
+
+                return Status.Error;
+            }
         }
 
         public void DoFreeItemIndexUpdateIfNeeded(int groupId, int assetId, DateTime? previousStartDate, DateTime? startDate, DateTime? previousEndDate, DateTime? endDate)
@@ -755,18 +786,10 @@ namespace Core.Catalog.CatalogManagement
 
                     if (!isFromIngest)
                     {
-                        // UpdateIndex
-                        bool indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertMedia(assetFileToAdd.AssetId);
-                        if (!indexingResult)
-                        {
-                            log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after InsertMediaFile", assetFileToAdd.AssetId, groupId);
-                        }
-                        //extracted it from upsertMedia it was called also for OPC accounts,searchDefinitions
-                        //not sure it's required but better be safe
-                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, assetFileToAdd.AssetId));
+                        InvalidateAssetAfterFilesUpdated(groupId, assetFileToAdd.AssetId, userId);
 
-                        // invalidate asset
-                        AssetManager.Instance.InvalidateAsset(eAssetTypes.MEDIA, groupId, assetFileToAdd.AssetId);
+                        // publish asset updated event to Kafka
+                        MediaAssetCrudMessageService.Instance.PublishKafkaUpdateEvent(groupId, assetFileToAdd.AssetId, userId);
                     }
 
                     // free item index update
@@ -783,7 +806,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public Status DeleteMediaFile(int groupId, long userId, long id)
+        public Status DeleteMediaFile(int groupId, long userId, long id, bool isFromIngest = false)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -800,18 +823,13 @@ namespace Core.Catalog.CatalogManagement
                 {
                     result.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
-                    // UpdateIndex
-                    bool indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertMedia(assetFileResponse.Object.AssetId);
-                    if (!indexingResult)
+                    if (!isFromIngest)
                     {
-                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after DeleteMediaFile", assetFileResponse.Object.AssetId, groupId);
-                    }
-                    //extracted it from upsertMedia it was called also for OPC accounts,searchDefinitions
-                    //not sure it's required but better be safe
-                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, assetFileResponse.Object.AssetId));
+                        InvalidateAssetAfterFilesUpdated(groupId, assetFileResponse.Object.AssetId, userId);
 
-                    // invalidate asset
-                    AssetManager.Instance.InvalidateAsset(eAssetTypes.MEDIA, groupId, assetFileResponse.Object.AssetId);
+                        // publish asset updated event to Kafka
+                        MediaAssetCrudMessageService.Instance.PublishKafkaUpdateEvent(groupId, assetFileResponse.Object.AssetId, userId);
+                    }
                 }
             }
             catch (Exception ex)
@@ -930,19 +948,9 @@ namespace Core.Catalog.CatalogManagement
 
                     if (!isFromIngest)
                     {
-                        // UpdateIndex
-                        bool indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertMedia(assetFileToUpdate.AssetId);
-                        if (!indexingResult)
-                        {
-                            log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateMediaFile", assetFileToUpdate.AssetId, groupId);
-                        }
-
-                        //extracted it from upsertMedia it was called also for OPC accounts,searchDefinitions
-                        //not sure it's required but better be safe
-                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, assetFileToUpdate.AssetId));
-
-                        // invalidate asset
-                        AssetManager.Instance.InvalidateAsset(eAssetTypes.MEDIA, groupId, assetFileToUpdate.AssetId);
+                        InvalidateAssetAfterFilesUpdated(groupId, assetFileToUpdate.AssetId, userId);
+                        // publish asset updated event to Kafka
+                        MediaAssetCrudMessageService.Instance.PublishKafkaUpdateEvent(groupId, assetFileToUpdate.AssetId, userId);
                     }
 
                     // free item index update

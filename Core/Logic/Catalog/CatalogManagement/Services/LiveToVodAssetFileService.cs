@@ -37,6 +37,11 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
                 }
             }
 
+            if (result.Any())
+            {
+                _fileManager.InvalidateAssetAfterFilesUpdated((int)partnerId, liveToVodAssetId, updaterId);
+            }
+
             return result;
         }
 
@@ -70,12 +75,17 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
             // remove not updated files.
             foreach (var fileToRemove in assetFilesByTypeIdToHandle.Values)
             {
-                var status = _fileManager.DeleteMediaFile((int)partnerId, updaterId, fileToRemove.Id);
+                var status = _fileManager.DeleteMediaFile((int)partnerId, updaterId, fileToRemove.Id, isFromIngest: true);
                 if (!status.IsOkStatusCode())
                 {
                     // still assigned to asset, then should be added to output result
                     result.Add(fileToRemove);
                 }
+            }
+
+            if (assetFilesToHandle.Any() || assetFilesByTypeIdToHandle.Any())
+            {
+                _fileManager.InvalidateAssetAfterFilesUpdated((int)partnerId, liveToVodAsset.Id, updaterId);
             }
 
             return result;
@@ -164,7 +174,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
             var assetFileToUpdate = fileToUpdate.DeepClone();
             assetFileToUpdate.AssetId = liveToVodAssetId;
             assetFileToUpdate.Id = currentAssetFileId;
-            var updateFileResponse = _fileManager.UpdateMediaFile((int)partnerId, assetFileToUpdate, updaterId);
+            var updateFileResponse = _fileManager.UpdateMediaFile((int)partnerId, assetFileToUpdate, updaterId, isFromIngest: true);
             if (updateFileResponse.IsOkStatusCode())
             {
                 return updateFileResponse.Object;
