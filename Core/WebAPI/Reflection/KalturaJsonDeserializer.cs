@@ -34845,7 +34845,7 @@ namespace WebAPI.Models.Segmentation
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 7,
+            RequiresPermission = 1,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
