@@ -114,7 +114,7 @@ namespace WebAPI.Models.Segmentation
         [DataMember(Name = "assetUserRuleId")]
         [JsonProperty(PropertyName = "assetUserRuleId")]
         [XmlElement(ElementName = "assetUserRuleId")]
-        [SchemeProperty(IsNullable = true, MinLong = 1, RequiresPermission = (int)RequestType.READ)]
+        [SchemeProperty(IsNullable = true, MinLong = 1, RequiresPermission = (int)RequestType.ALL)]
         public long? AssetUserRuleId { get; set; }
     }
 }

@@ -32,8 +32,8 @@ namespace Reflector
 
     class Serializer : Base
     {
-        private static readonly HashSet<string> RetrievedPropertiesToSkip = new HashSet<string> {"TotalCount", "objectType", "Metas", "Tags"};
-        
+        private static readonly HashSet<string> RetrievedPropertiesToSkip = new HashSet<string> { "TotalCount", "objectType", "Metas", "Tags" };
+
         public static string GetJsonSerializerCSFilePath()
         {
             var currentLocation = AppDomain.CurrentDomain.BaseDirectory;
@@ -107,8 +107,7 @@ namespace Reflector
         {
             return arg.CustomAttributes.Any(ca =>
                     ca.AttributeType.IsEquivalentTo(typeof(SchemePropertyAttribute))
-                    && ca.NamedArguments.Any(na => na.MemberName.Equals("RequiresPermission") && 
-                    (na.TypedValue.Value.Equals((int)WebAPI.RequestType.READ))));
+                    && ca.NamedArguments.Any(na => na.MemberName.Equals("RequiresPermission") && na.TypedValue.Value.Equals(1)));
         }
 
         private void writeUsing()
@@ -175,13 +174,13 @@ namespace Reflector
             writeSerializeTypeProperties(type, SerializeType.JSON);
             file.WriteLine("            return ret;");
             file.WriteLine("        }");
-            
+
             file.WriteLine("        ");
             file.WriteLine("        public override ISet<string> AppendPropertiesAsJson(StringBuilder stringBuilder, Version currentVersion, bool omitObsolete, bool responseProfile = false)");
             file.WriteLine("        {");
             file.WriteLine("            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);");
             file.WriteLine("            var keys = base.AppendPropertiesAsJson(stringBuilder, currentVersion, omitObsolete, responseProfile);");
-            
+
             if (typeName != "KalturaListResponse")
             {
                 file.WriteLine("            IEnumerable<string> retrievedProperties = null;");
@@ -211,13 +210,13 @@ namespace Reflector
             writeSerializeTypeProperties(type, SerializeType.XML);
             file.WriteLine("            return ret;");
             file.WriteLine("        }");
-            
+
             file.WriteLine("        ");
             file.WriteLine("        public override ISet<string> AppendPropertiesAsXml(StringBuilder stringBuilder, Version currentVersion, bool omitObsolete, bool responseProfile = false)");
             file.WriteLine("        {");
             file.WriteLine("            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);");
             file.WriteLine("            var keys = base.AppendPropertiesAsXml(stringBuilder, currentVersion, omitObsolete, responseProfile);");
-            
+
             if (typeName != "KalturaListResponse")
             {
                 file.WriteLine("            IEnumerable<string> retrievedProperties = null;");
@@ -318,7 +317,7 @@ namespace Reflector
                 if (typeof(IKalturaSerializable).IsAssignableFrom(property.PropertyType))
                 {
                     propertyType = PropertyType.OBJECT;
-                    if ((serializeType == SerializeType.JSON && property.PropertyType.GetMethod("ToCustomJson") != null) || 
+                    if ((serializeType == SerializeType.JSON && property.PropertyType.GetMethod("ToCustomJson") != null) ||
                         (serializeType == SerializeType.XML && property.PropertyType.GetMethod("ToCustomXml") != null))
                     {
                         propertyType = PropertyType.CUSTOM;
@@ -456,7 +455,7 @@ namespace Reflector
                         }
                         break;
 
-                    case PropertyType.ARRAY: 
+                    case PropertyType.ARRAY:
                         if (serializeType == SerializeType.JSON)
                         {
                             if (property.DeclaringType.BaseType.Name == "KalturaListResponse")
@@ -731,7 +730,7 @@ namespace Reflector
             if (typeof(IKalturaSerializable).IsAssignableFrom(propertyInfo.PropertyType))
             {
                 propertyType = PropertyType.OBJECT;
-                if ((serializeType == SerializeType.JSON && propertyInfo.PropertyType.GetMethod("ToCustomJson") != null) || 
+                if ((serializeType == SerializeType.JSON && propertyInfo.PropertyType.GetMethod("ToCustomJson") != null) ||
                     (serializeType == SerializeType.XML && propertyInfo.PropertyType.GetMethod("ToCustomXml") != null))
                 {
                     propertyType = PropertyType.CUSTOM;
@@ -1023,7 +1022,7 @@ namespace Reflector
             file.WriteLine($"{tab}    isFirstItem = false;");
             file.WriteLine($"{tab}}}");
         }
-        
+
         private void WriteXmlDataMember(string tab, PropertyType propertyType, PropertyInfo propertyInfo, string dataMemberName)
         {
             switch (propertyType)
@@ -1121,7 +1120,7 @@ namespace Reflector
         }
 
         private void WriteMapXmlDataMember(string tab, string dataMemberName, string propertyName)
-        {            
+        {
             file.WriteLine($"{tab}stringBuilder.Append(\"<{dataMemberName}>\");");
             file.WriteLine($"{tab}foreach (var item in {propertyName})");
             file.WriteLine($"{tab}{{");

@@ -46,7 +46,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("alsoInactive")]
         [XmlElement(ElementName = "alsoInactive", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        [SchemeProperty(RequiresPermission = (int)RequestType.ALL)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.READ)]
         public bool? AlsoInactive { get; set; }
 
         /// <summary>

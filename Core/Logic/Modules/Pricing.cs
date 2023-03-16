@@ -305,11 +305,9 @@ namespace Core.Pricing
 
         public List<Collection> GetCollections(int groupId, List<long> collectionIds, string country, string udid, string lang, int? couponGroupIdEqual, bool getAlsoUnactive = false)
         {
-            List<Collection> collections = new List<Collection>();
-
             if (collectionIds == null || collectionIds.Count == 0)
             {
-                return collections;
+                return new List<Collection>();
             }
 
             Dictionary<string, string> keysToOriginalValueMap = new Dictionary<string, string>();
@@ -341,22 +339,23 @@ namespace Core.Pricing
                                                 invalidationKeysMap))
             {
                 log.Warn($"Failed getting Collections from LayeredCache, groupId: {groupId}, subIds: {string.Join(",", collectionIds)}");
-                return collections;
+                return new List<Collection>();
             }
 
-            collections = collectionsMap == null ? new List<Collection>() : collectionsMap.Values.ToList();
+            IEnumerable<Collection> collections = collectionsMap == null ? new List<Collection>() : collectionsMap.Values.AsEnumerable();
 
-            if (!getAlsoUnactive && collections?.Count > 0)
+            if (!getAlsoUnactive && collections.Any())
             {
-                collections = collections.Where((item) => item.IsActive.HasValue && item.IsActive.Value).ToList();
+                collections = collections.Where((item) => item.IsActive.HasValue && item.IsActive.Value);
             }
 
-            if (couponGroupIdEqual.HasValue)
+            if (couponGroupIdEqual.HasValue && collections.Any())
             {
-                collections = collections?.Where(x => x.m_oCouponsGroup.m_sGroupCode == couponGroupIdEqual.Value.ToString()).ToList();
+                var couponGroupId = couponGroupIdEqual.Value.ToString();
+                collections = collections.Where(x => x.m_oCouponsGroup != null && x.m_oCouponsGroup.m_sGroupCode == couponGroupId);
             }
 
-            return collections;
+            return collections.ToList();
         }
 
         public static Tuple<Dictionary<string, Collection>, bool> GetCollections(Dictionary<string, object> funcParams)

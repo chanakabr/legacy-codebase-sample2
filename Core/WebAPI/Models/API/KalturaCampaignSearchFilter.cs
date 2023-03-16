@@ -46,7 +46,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "nameEqual")]
         [JsonProperty("nameEqual")]
         [XmlElement(ElementName = "nameEqual", IsNullable = true)]
-        [SchemeProperty(RequiresPermission = (int)RequestType.ALL)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.READ)]
         public string NameEqual { get; set; }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace WebAPI.Models.API
         [JsonProperty("nameContains")]
         [XmlElement(ElementName = "nameContains", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        [SchemeProperty(RequiresPermission = (int)RequestType.ALL)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.READ)]
         public string NameContains { get; set; }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "stateIn")]
         [JsonProperty("stateIn")]
         [XmlElement(ElementName = "stateIn", IsNullable = true)]
-        [SchemeProperty(RequiresPermission = (int)RequestType.ALL, MinLength = 1, IsNullable = true)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.READ, MinLength = 1, IsNullable = true)]
         public string StateIn { get; set; }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "assetUserRuleIdIn")]
         [JsonProperty("assetUserRuleIdIn")]
         [XmlElement(ElementName = "assetUserRuleIdIn", IsNullable = true)]
-        [SchemeProperty(RequiresPermission = (int)RequestType.ALL, MinLength = 1, IsNullable = true, DynamicMinInt = 1)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.READ, MinLength = 1, IsNullable = true, DynamicMinInt = 1)]
         public string AssetUserRuleIdIn { get; set; }
     }
 }

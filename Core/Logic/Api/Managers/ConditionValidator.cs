@@ -75,14 +75,14 @@ namespace ApiLogic.Api.Managers
         private Status ValidateChannelCondition(ContextData contextData, ChannelCondition condition, long? assetUserRuleId)
         {
             var channelIds = condition.ChannelIds.Select(x => (int)x).ToList();
-            var channels = _channelManager.GetChannelsListResponseByChannelIds(contextData, channelIds, true, null, false);
+            var channels = _channelManager.GetChannelsListResponseByChannelIds(contextData, channelIds, true, null, true);
             if (!channels.HasObjects())
             {
                 return new Status(eResponseStatus.ChannelDoesNotExist, "The channel does not exist");
             }
 
             var channelsMap = channels.Objects.ToDictionary(x => (long)x.m_nChannelID, y => y.AssetUserRuleId);
-            return AllExists(condition.ChannelIds, channelsMap, "ChannelIds", eResponseStatus.ChannelDoesNotExist, assetUserRuleId);
+            return AllExists(condition.ChannelIds, channelsMap, "ChannelIds", eResponseStatus.ChannelDoesNotExist, assetUserRuleId, true);
         }
 
         private Status ValidateFileTypeCondition(ContextData contextData, FileTypeCondition condition, long? assetUserRuleId)
@@ -100,20 +100,29 @@ namespace ApiLogic.Api.Managers
             }
 
             var fileTypesMap = fileTypes.Objects.ToDictionary(x => x.Id, y => (long?)null);
-            return AllExists(condition.FileTypeIds, fileTypesMap, "FileTypes", eResponseStatus.MediaFileTypeDoesNotExist, null);
+            return AllExists(condition.FileTypeIds, fileTypesMap, "FileTypes", eResponseStatus.MediaFileTypeDoesNotExist, null, true);
         }
 
-        private Status AllExists<T>(IEnumerable<T> idsToCheck, Dictionary<T, long?> exisitingIds, string objectName, eResponseStatus errorStatus, long? assetUserRuleId)
+        private Status AllExists<T>(IEnumerable<T> idsToCheck, Dictionary<T, long?> exisitingIds, string objectName, eResponseStatus errorStatus, long? assetUserRuleId, bool mustToBeInShop)
         {
-            var nonExistingIds = idsToCheck.Where(x => !exisitingIds.ContainsKey(x)).ToList();
-            if (nonExistingIds.Count > 0)
+            var nonExistingIds = idsToCheck.Where(x => !exisitingIds.ContainsKey(x));
+            if (nonExistingIds.Any())
             {
                 new Status(errorStatus, $"{objectName} ids {string.Join(", ", nonExistingIds)} does not exist");
             }
                 
             if (assetUserRuleId.HasValue)
             {
-                var notInShopIds = exisitingIds.Where(x => !x.Value.HasValue || x.Value.Value != assetUserRuleId.Value).Select(x => x.Key);
+                IEnumerable<T> notInShopIds;
+                if (mustToBeInShop)
+                {
+                    notInShopIds = exisitingIds.Where(x => !x.Value.HasValue || x.Value.Value != assetUserRuleId.Value).Select(x => x.Key);
+                }
+                else
+                {
+                    notInShopIds = exisitingIds.Where(x => x.Value.HasValue && x.Value.Value != assetUserRuleId.Value).Select(x => x.Key);
+                }
+                
                 if (notInShopIds.Any())
                 {
                     return new Status(eResponseStatus.EntityIsNotAssociatedWithShop, $"{objectName} ids {string.Join(",", notInShopIds)} is not associated with shop [{assetUserRuleId}].");
@@ -134,7 +143,7 @@ namespace ApiLogic.Api.Managers
             }
 
             var segmentsMap = segments.ToDictionary(x => x.Value.GetSegmentId(), y => y.AssetUserRuleId);
-            return AllExists(condition.SegmentIds, segmentsMap, "Segment", eResponseStatus.SegmentsIdsDoesNotExist, assetUserRuleId);
+            return AllExists(condition.SegmentIds, segmentsMap, "Segment", eResponseStatus.SegmentsIdsDoesNotExist, assetUserRuleId, false);
         }
 
         private Status ValidateBusinessModuleCondition(ContextData contextData, BusinessModuleCondition condition, long? assetUserRuleId)

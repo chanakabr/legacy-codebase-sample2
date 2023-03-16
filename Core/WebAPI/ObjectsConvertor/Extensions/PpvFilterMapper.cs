@@ -1,40 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using WebAPI.Models.Catalog;
 using WebAPI.Exceptions;
+using WebAPI.Models.Pricing;
 
 namespace WebAPI.ObjectsConvertor.Extensions
 {
-    internal static class ChannelFilterMapper
+    internal static class PpvFilterMapper
     {
-        internal static List<int> GetIdIn(this KalturaChannelsFilter model)
+        public static List<long> GetIdIn(this KalturaPpvFilter model, string field, string ids)
         {
-            List<int> list = null;
-
-            if (!string.IsNullOrEmpty(model.IdIn))
+            HashSet<long> list = new HashSet<long>();
+            if (!string.IsNullOrEmpty(ids))
             {
-                list = new List<int>();
-                string[] stringValues = model.IdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] stringValues = ids.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string stringValue in stringValues)
                 {
-                    if (int.TryParse(stringValue, out int value))
+                    long value;
+                    if (long.TryParse(stringValue, out value) && !list.Contains(value))
                     {
                         list.Add(value);
                     }
                     else
                     {
-                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaChannelsFilter.idIn");
+                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, $"KalturaPpvFilter.{field}");
                     }
                 }
             }
 
-            return list;
-        }
-
-        internal static List<long> GetAssetUserRuleIdIn(this KalturaChannelsFilter model)
-        {
-            return Utils.Utils.ParseCommaSeparatedValues<List<long>, long>(model.AssetUserRuleIdIn, "KalturaChannelsFilter.assetUserRuleIdIn", true);
+            return new List<long>(list);
         }
     }
 }
