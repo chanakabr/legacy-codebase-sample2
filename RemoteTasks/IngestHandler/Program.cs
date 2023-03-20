@@ -46,6 +46,7 @@ using Ingesthandler.common.Generated.Api.Events.UpdateBulkUpload;
 using Core.Api;
 using System.Collections.Generic;
 using System.Linq;
+using IngestHandler.Common.Managers.Abstractions;
 
 namespace EPGTransformationHandler
 {
@@ -117,6 +118,8 @@ namespace EPGTransformationHandler
             {
                 s.AddMongoDbClientFactory(EpgMongoDB.Configuration, EpgMongoDB.DB_NAME);
                 s.AddSingleton<IBulkUploadRepository, BulkUploadRepository>();
+                s.AddSingleton<IBulkUploadService, BulkUploadService>();
+                s.AddSingleton<IBulkCompletedRetryPolicyConfiguration, StaticBulkCompletedRetryPolicyConfiguration>();
                 s.AddSingleton<IIngestStagingRepository, IngestStagingRepository>();
                 s.AddSingleton<IEpgPartnerConfigurationManager>(_ => EpgPartnerConfigurationManager.Instance);
                 s.AddSingleton<IEpgRepository, EpgRepository>();

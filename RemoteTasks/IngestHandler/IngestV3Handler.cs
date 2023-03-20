@@ -24,6 +24,7 @@ using Ingesthandler.common.Generated.Api.Events.ChannelIngestStaged;
 using Ingesthandler.common.Generated.Api.Events.UpdateBulkUpload;
 using IngestHandler.Common.Infrastructure;
 using IngestHandler.Common.Managers;
+using IngestHandler.Common.Managers.Abstractions;
 using IngestHandler.Common.Repositories;
 using IngestHandler.Domain.IngestProtection;
 using Microsoft.Extensions.Logging;
@@ -41,6 +42,7 @@ namespace IngestHandler
         private readonly IEpgCRUDOperationsManager _crudOperationsManager;
         private readonly IIngestProfileRepository _ingestProfileRepository;
         private readonly IBulkUploadRepository _bulkUploadRepository;
+        private readonly IBulkUploadService _bulkUploadService;
         private readonly IIndexManagerFactory _indexManagerFactory;
         private readonly IIngestProtectProcessor _ingestProtectProcessor;
         private readonly ICatalogManagerAdapter _catalogManagerAdapter;
@@ -75,6 +77,7 @@ namespace IngestHandler
         public IngestV3Handler(
             IIngestStagingRepository ingestStagingRepository,
             IBulkUploadRepository bulkUploadRepository,
+            IBulkUploadService bulkUploadService,
             IEpgCRUDOperationsManager crudOperationsManager,
             IIngestProfileRepository ingestProfileRepository,
             IIndexManagerFactory indexManagerFactory,
@@ -91,6 +94,7 @@ namespace IngestHandler
         {
             _ingestStagingRepository = ingestStagingRepository;
             _bulkUploadRepository = bulkUploadRepository;
+            _bulkUploadService = bulkUploadService;
             _crudOperationsManager = crudOperationsManager;
             _ingestProfileRepository = ingestProfileRepository;
             _indexManagerFactory = indexManagerFactory;
@@ -113,6 +117,7 @@ namespace IngestHandler
 
         public async Task<HandleResult> Handle(ConsumeResult<string, ChannelIngestStaged> consumeResult)
         {
+            Func<Task> completeLinearChannelOfBulkUpload = null;
             try
             {
                 var msg = consumeResult.Result.Message.Value;
@@ -129,13 +134,14 @@ namespace IngestHandler
 
                 _logger.LogInformation($"Starting IngestHandler v3, bulkUploadId:[{bulkUploadId}], channelId:[{linearChannelId}], partner:[{partnerId}]");
 
-                var isInProgress = await _bulkUploadRepository.IsLinearChannelOfBulkUploadInProgress(partnerId, bulkUploadId, linearChannelId);
-                if (isInProgress)
+                var shouldProcessBulkUpload = await _bulkUploadService.ShouldProcessLinearChannelOfBulkUpload(partnerId, bulkUploadId, linearChannelId);
+                if (shouldProcessBulkUpload == false)
                 {
-                    _logger.LogWarning($"Interrupted IngestHandler v3. This bulkUpload has already been taken on process. Repeated process has been skipped, bulkUploadId:[{bulkUploadId}], channelId:[{linearChannelId}], partner:[{partnerId}]");
+                    _logger.LogWarning($"Interrupted IngestHandler v3. This bulkUpload has already been taken on process or finished. Repeated process has been skipped, bulkUploadId:[{bulkUploadId}], channelId:[{linearChannelId}], partner:[{partnerId}]");
                 }
                 else
                 {
+                    completeLinearChannelOfBulkUpload = () => _bulkUploadRepository.CompleteLinearChannelOfBulkUpload(partnerId, bulkUploadId, linearChannelId);
                     await IngestChannelPrograms(partnerId, bulkUploadId, linearChannelId);
                     _logger.LogInformation($"Completed IngestHandler v3, bulkUploadId:[{bulkUploadId}], channelId:[{linearChannelId}], partner:[{partnerId}]");
                 }
@@ -161,6 +167,13 @@ namespace IngestHandler
                 catch (Exception innerEx)
                 {
                     _logger.LogError(innerEx, $"An Exception occurred when trying to set FATAL status on bulkUpload., BulkUploadId:[{resValue.BulkUploadId}] LinearChannelId:[{resValue.LinearChannelId}].");
+                }
+            }
+            finally
+            {
+                if (completeLinearChannelOfBulkUpload != null)
+                {
+                    await completeLinearChannelOfBulkUpload();
                 }
             }
 

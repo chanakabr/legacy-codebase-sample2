@@ -13,5 +13,6 @@
         bool IsRenewSubscriptionEndsUseKronos();
         bool IsCloudfrontInvalidationEnabled();
         bool IsImprovedUpdateMediaAssetStoredProcedureShouldBeUsed();
+        bool IsKafkaIdempotencyShieldShouldNotBeUsed();
     }
 }

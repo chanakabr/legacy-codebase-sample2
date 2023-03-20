@@ -13,12 +13,20 @@ namespace IngestHandler.Common.Repositories.Models
 
         public long LinearChannelId { get; }
 
+        public BulkUploadIdempotencyStatus Status { get; }
+
         [BsonConstructor]
         public BulkUploadIdempotencyDocument(long bulkUploadId, long linearChannelId)
         {
             Id = $"{bulkUploadId}_{linearChannelId}";
             BulkUploadId = bulkUploadId;
             LinearChannelId = linearChannelId;
+        }
+
+        [BsonConstructor]
+        public BulkUploadIdempotencyDocument(long bulkUploadId, long linearChannelId, BulkUploadIdempotencyStatus status) : this(bulkUploadId, linearChannelId)
+        {
+            Status = status;
         }
     }
 }
