@@ -26554,6 +26554,7 @@ namespace WebAPI.Models.Catalog
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = 50,
             MinLength = 1,
+            Pattern = @"^[^:]+$",
             MinItems = -1,
             MaxItems = -1,
             UniqueItems = false,

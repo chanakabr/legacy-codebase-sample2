@@ -26,7 +26,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "name")]
         [JsonProperty("name")]
         [XmlElement(ElementName = "name", IsNullable = true)]
-        [SchemeProperty(MinLength = 1, MaxLength = 50)]
+        [SchemeProperty(MinLength = 1, MaxLength = 50, Pattern = SchemeInputAttribute.NO_COLONS_PATTERN)]
         public string Name { get; set; }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "drmProfileId")]
         [JsonProperty(PropertyName = "drmProfileId")]
         [XmlElement(ElementName = "drmProfileId")]
-        [SchemeProperty(MinInteger = -1, InsertOnly = true)]        
+        [SchemeProperty(MinInteger = -1, InsertOnly = true)]
         public int DrmProfileId { get; set; }
 
         /// <summary>
