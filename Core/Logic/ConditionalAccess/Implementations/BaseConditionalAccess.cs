@@ -14149,7 +14149,7 @@ namespace Core.ConditionalAccess
 
                     if (canRecord)
                     {
-                        var recordingDuration = QuotaManager.GetRecordingDurationSeconds(m_nGroupID, recording);
+                        var recordingDuration = QuotaManager.GetRecordingDurationSeconds(m_nGroupID, recording, true, domainID);
                         log.DebugFormat("recordingDuration = {0}, quotaOverage={1}", recordingDuration, quotaOverage);
                         if (quotaOverage) // if QuotaOverage then call delete recorded as needed                               
                         {
@@ -14589,7 +14589,7 @@ namespace Core.ConditionalAccess
                     {
                         if (totalSeconds != -1)
                         {
-                            int recordingDuration = QuotaManager.GetRecordingDurationSeconds(this.m_nGroupID, recording);
+                            int recordingDuration = QuotaManager.GetRecordingDurationSeconds(this.m_nGroupID, recording, true, domainID);
                             if (recordingDuration > totalSeconds)
                             {
                                 recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExceededQuota, eResponseStatus.ExceededQuota.ToString());
@@ -14792,7 +14792,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public RecordingResponse SerachDomainRecordings(string userID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses,
+        public RecordingResponse SearchDomainRecordings(string userID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses,
             string filter, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, bool shouldIgnorePaging, Dictionary<string, string> metaData, HashSet<string> externalRecordingIds = null)
         {
             RecordingResponse response = new RecordingResponse();
@@ -14889,7 +14889,7 @@ namespace Core.ConditionalAccess
 
             catch (Exception ex)
             {
-                StringBuilder sb = new StringBuilder("Exception at SerachDomainRecordings. ");
+                StringBuilder sb = new StringBuilder("Exception at SearchDomainRecordings. ");
                 sb.Append(String.Concat("userId: ", userID));
                 sb.Append(String.Concat("domainID: ", domainID));
                 sb.Append(", RecordingStatuses: ");

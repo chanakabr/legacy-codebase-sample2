@@ -6007,14 +6007,24 @@ namespace Core.ConditionalAccess
             return recording;
         }
 
-        public static int ConvertSecondsToMinutes(int? accountSettingsPaddingBeforeProgramStarts)
+        public static int ConvertSecondsToMinutes(int? paddingInSeconds)
         {
-            if (!accountSettingsPaddingBeforeProgramStarts.HasValue || accountSettingsPaddingBeforeProgramStarts.Value == 0)
+            if (!paddingInSeconds.HasValue || paddingInSeconds.Value == 0)
                 return 0;
 
-            var val = (double)accountSettingsPaddingBeforeProgramStarts.Value;
+            var val = (double)paddingInSeconds.Value;
             var minutes = TimeSpan.FromSeconds(val).TotalMinutes;
             return (int)Math.Ceiling(minutes);
+        }
+        
+        public static int ConvertMinutesToSeconds(int? paddingInMinutes)
+        {
+            if (!paddingInMinutes.HasValue || paddingInMinutes.Value == 0)
+                return 0;
+
+            var val = (double)paddingInMinutes.Value;
+            var seconds = TimeSpan.FromMinutes(val).TotalSeconds;
+            return (int)Math.Ceiling(seconds);
         }
 
         internal static int MapActionTypeForAdapter(eEPGFormatType eformat)

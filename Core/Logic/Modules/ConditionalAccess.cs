@@ -2594,7 +2594,7 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.SerachDomainRecordings(userID, domainID, recordingStatuses.ToList(), filter, pageIndex, pageSize, orderBy, shouldIgnorePaging, metaData, externalRecordingIds);
+                return t.SearchDomainRecordings(userID, domainID, recordingStatuses.ToList(), filter, pageIndex, pageSize, orderBy, shouldIgnorePaging, metaData, externalRecordingIds);
             }
             else
             {
