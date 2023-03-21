@@ -19,29 +19,24 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
             new Lazy<ILiveToVodAssetCrudMessagePublisher>(
                 () => new LiveToVodAssetCrudMessagePublisher(
                     KafkaProducerFactoryInstance.Get(),
-                    WebKafkaContextProvider.Instance,
-                    new KLogger(nameof(ProgramAssetCrudMessageService))),
+                    WebKafkaContextProvider.Instance),
                 LazyThreadSafetyMode.PublicationOnly);
+        private static readonly KLogger Logger = new KLogger(nameof(LiveToVodAssetCrudMessagePublisher));
 
         private readonly IKafkaProducer<string, LiveToVodAsset> _liveToVodAssetProducer;
-        private readonly ILogger _logger;
 
         public static ILiveToVodAssetCrudMessagePublisher Instance = LazyInstance.Value;
 
-        public LiveToVodAssetCrudMessagePublisher(
-            IKafkaProducerFactory producerFactory,
-            IKafkaContextProvider contextProvider,
-            ILogger logger)
+        public LiveToVodAssetCrudMessagePublisher(IKafkaProducerFactory producerFactory, IKafkaContextProvider contextProvider)
         {
             _liveToVodAssetProducer = producerFactory.Get<string, LiveToVodAsset>(contextProvider, Partitioner.Murmur2Random);
-            _logger = logger;
         }
 
         public void Publish(long partnerId, Core.Catalog.LiveToVodAsset asset, IEnumerable<string> files, int operationType, long updaterId)
         {
             if (_liveToVodAssetProducer == null)
             {
-                _logger.LogError($"{nameof(LiveToVodAsset)} message with parameters {nameof(partnerId)}={partnerId}," +
+                Logger.LogError($"{nameof(LiveToVodAsset)} message with parameters {nameof(partnerId)}={partnerId}," +
                     $"{nameof(LiveToVodAsset.Id)}=[{asset.Id}], operation={operationType}" +
                     $"can not be published : {nameof(_liveToVodAssetProducer)} is null.");
                 return;
