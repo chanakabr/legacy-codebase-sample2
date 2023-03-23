@@ -31,7 +31,6 @@ namespace Phoenix.AsyncHandler.ConditionalAccess
                     Message = "Renew process failed - needed information is missing."
                 });
             }
-            _logger.LogInformation($"Execute renew task PartnerId: {renewData.PartnerId.Value}, EndDate: {renewData.EndDate.Value}");
             switch ((eSubscriptionRenewRequestType)renewData.RenewalType.Value)
             {
                 case eSubscriptionRenewRequestType.Renew:
@@ -45,7 +44,8 @@ namespace Phoenix.AsyncHandler.ConditionalAccess
                                 Message = "Renew process failed - PurchaseId missing."
                             });
                         }
-                        
+                        _logger.LogInformation($"Execute renew task PartnerId: {renewData.PartnerId.Value}, PurchaseId: {renewData.PurchaseId} ," +
+                                               $"UserId: {renewData.UserId}, EndDate: {renewData.EndDate.Value}");
                         Module.Renew((int)renewData.PartnerId.Value, renewData.UserId,
                             renewData.PurchaseId.Value, renewData.BillingGuid, renewData.EndDate.Value, isKronos: true);
 
