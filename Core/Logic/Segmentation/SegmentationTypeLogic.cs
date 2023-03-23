@@ -12,7 +12,7 @@ namespace ApiLogic.Segmentation
 {
     public interface ISegmentationTypeLogic
     {
-        List<SegmentationType> ListBySegmentIds(int groupId, List<long> segmentIds, int pageIndex, int pageSize, out int totalCount, long userId, List<long> userRoleIds);
+        List<SegmentationType> ListBySegmentIds(int groupId, List<long> segmentIds, int pageIndex, int pageSize, out int totalCount, long userId, IEnumerable<long> userRoleIds);
     }
 
     public class SegmentationTypeLogic : ISegmentationTypeLogic
@@ -26,7 +26,7 @@ namespace ApiLogic.Segmentation
         {
         }
 
-        public List<SegmentationType> ListBySegmentIds(int groupId, List<long> segmentIds, int pageIndex, int pageSize, out int totalCount, long userId, List<long> userRoleIds)
+        public List<SegmentationType> ListBySegmentIds(int groupId, List<long> segmentIds, int pageIndex, int pageSize, out int totalCount, long userId, IEnumerable<long> userRoleIds)
         {
             List<SegmentationType> result = new List<SegmentationType>();
             totalCount = 0;

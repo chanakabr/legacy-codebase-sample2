@@ -136,7 +136,7 @@ namespace ApiLogic.Api.Managers
         {
             if (!assetUserRuleId.HasValue) { return Status.Ok; }
             
-            var segments = _segmentationTypeLogic.ListBySegmentIds(contextData.GroupId, condition.SegmentIds, 0, condition.SegmentIds.Count, out var _, 0, null);
+            var segments = _segmentationTypeLogic.ListBySegmentIds(contextData.GroupId, condition.SegmentIds, 0, condition.SegmentIds.Count, out var _, contextData.UserId ?? 0, contextData.UserRoleIds);
             if (segments == null || !segments.Any())
             {
                 return new Status(eResponseStatus.SegmentsIdsDoesNotExist, $"Segment ids {string.Join(", ", condition.SegmentIds)} does not exist");

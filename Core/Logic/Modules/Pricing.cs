@@ -352,7 +352,8 @@ namespace Core.Pricing
             if (couponGroupIdEqual.HasValue && collections.Any())
             {
                 var couponGroupId = couponGroupIdEqual.Value.ToString();
-                collections = collections.Where(x => x.m_oCouponsGroup != null && x.m_oCouponsGroup.m_sGroupCode == couponGroupId);
+                collections = collections.Where(x => (x.m_oCouponsGroup != null && x.m_oCouponsGroup.m_sGroupCode == couponGroupId) ||
+                                                      (x.CouponsGroups != null && x.CouponsGroups.Any(c => c.m_sGroupCode == couponGroupId)));
             }
 
             return collections.ToList();
