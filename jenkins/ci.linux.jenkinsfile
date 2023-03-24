@@ -218,7 +218,7 @@ def runTests(){
 }
 
 def findDirectoriesWithTests() {
-    sh (script: "set +x;ls -d -- **/*.Tests", returnStdout: true).trim().split("\\r?\\n")
+    sh (script: "set +x;ls -d -- **/*.Tests *.Tests", returnStdout: true).trim().split("\\r?\\n")
 }
 
 def runTestInDocker(testProjects){
